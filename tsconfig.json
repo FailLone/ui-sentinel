@@ -10,13 +10,28 @@
     "noEmit": true,
     "allowImportingTsExtensions": true,
     "outDir": "dist",
-    "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@arena/*": ["arena/*"],
-      "@evaluation/*": ["evaluation/*"]
-    }
+      "@/*": [
+        "./src/*"
+      ],
+      "@arena/*": [
+        "./arena/*"
+      ],
+      "@evaluation/*": [
+        "./evaluation/*"
+      ]
+    },
+    "jsx": "react-jsx"
   },
-  "include": ["src/**/*", "arena/**/*", "evaluation/**/*"],
-  "exclude": ["node_modules", "dist", "data"]
+  "include": [
+    "src/**/*",
+    "arena/**/*",
+    "evaluation/**/*",
+    "scripts/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "data"
+  ]
 }

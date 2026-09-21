@@ -1,18 +1,24 @@
 import 'dotenv/config'
 
+function bounded(name: string, fallback: number, max: number): number {
+  const value = Number(process.env[name] ?? fallback)
+  if (!Number.isSafeInteger(value) || value <= 0 || value > max) throw new Error(`Invalid ${name}: expected integer in 1..${max}`)
+  return value
+}
+
 export const config = Object.freeze({
-  port: Number(process.env.PORT ?? 4111),
-  arenaPort: Number(process.env.ARENA_PORT ?? 4173),
+  port: bounded('PORT', 4111, 65535),
+  arenaPort: bounded('ARENA_PORT', 4173, 65535),
   databaseUrl: process.env.DATABASE_URL ?? 'file:./data/ui-sentinel.db',
 
   agentModel: process.env.AGENT_MODEL ?? '',
   visionModel: process.env.VISION_MODEL ?? '',
 
   budget: {
-    totalTimeoutMs: Number(process.env.RUN_TOTAL_TIMEOUT_MS ?? 300_000),
-    maxActions: Number(process.env.RUN_MAX_ACTIONS ?? 40),
-    maxModelCalls: Number(process.env.RUN_MAX_MODEL_CALLS ?? 30),
-    toolTimeoutMs: Number(process.env.TOOL_TIMEOUT_MS ?? 15_000),
+    totalTimeoutMs: bounded('RUN_TOTAL_TIMEOUT_MS', 300_000, 300_000),
+    maxActions: bounded('RUN_MAX_ACTIONS', 40, 40),
+    maxModelCalls: bounded('RUN_MAX_MODEL_CALLS', 30, 30),
+    toolTimeoutMs: bounded('TOOL_TIMEOUT_MS', 15_000, 60_000),
   },
 })
 
@@ -21,6 +27,7 @@ export function checkModelConfig(): { ready: boolean; missing: string[] } {
   if (!config.agentModel) missing.push('AGENT_MODEL')
   if (!config.visionModel) missing.push('VISION_MODEL')
 
+  if (!process.env.VISION_API_KEY && !process.env.MIDSCENE_MODEL_API_KEY) missing.push('VISION_API_KEY')
   const provider = config.agentModel.split('/')[0]
   const keyMap: Record<string, string> = {
     anthropic: 'ANTHROPIC_API_KEY',
@@ -28,6 +35,7 @@ export function checkModelConfig(): { ready: boolean; missing: string[] } {
     google: 'GOOGLE_API_KEY',
   }
   const keyVar = keyMap[provider]
+  if (!keyVar && config.agentModel) missing.push('supported AGENT_MODEL provider (openai/anthropic/google)')
   if (keyVar && !process.env[keyVar]) {
     missing.push(keyVar)
   }

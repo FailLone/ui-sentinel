@@ -1,10 +1,16 @@
 import { createClient, type Client } from '@libsql/client'
 import { config } from '../shared/config.ts'
+import { mkdirSync } from 'node:fs'
+import { dirname, resolve } from 'node:path'
 
 let client: Client | null = null
 
 export function getDbClient(): Client {
   if (!client) {
+    if (config.databaseUrl.startsWith('file:') && !config.databaseUrl.includes(':memory:')) {
+      const filename = decodeURIComponent(config.databaseUrl.slice(5).split('?')[0])
+      mkdirSync(dirname(resolve(filename)), { recursive: true })
+    }
     client = createClient({ url: config.databaseUrl })
   }
   return client

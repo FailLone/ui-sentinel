@@ -110,7 +110,7 @@ export async function updateRunStatus(
   const now = new Date().toISOString()
 
   const sets = ['status = ?', 'updated_at = ?']
-  const args: unknown[] = [status, now]
+  const args: any[] = [status, now]
 
   if (extra?.businessResult) {
     sets.push('business_result = ?')
@@ -135,7 +135,7 @@ export async function updateRunStatus(
   return getRun(id)
 }
 
-export async function appendEvent(
+async function appendEventInternal(
   runId: string,
   type: string,
   payload: Record<string, unknown> = {},
@@ -149,9 +149,7 @@ export async function appendEvent(
 
   const active = activeRuns.get(runId)
   let seq: number
-  if (active) {
-    seq = ++active.seq
-  } else {
+  {
     const maxResult = await db.execute({
       sql: 'SELECT COALESCE(MAX(seq), -1) as max_seq FROM run_events WHERE run_id = ?',
       args: [runId],
@@ -285,7 +283,7 @@ export async function updateHypothesis(
   evidenceRefs?: string[],
 ): Promise<void> {
   const db = getDbClient()
-  const args: unknown[] = [status]
+  const args: any[] = [status]
 
   let sql = 'UPDATE hypotheses SET status = ?'
   if (evidenceRefs) {
@@ -377,5 +375,22 @@ function rowToFinding(row: Record<string, unknown>): Finding {
     stepId: row.step_id ? String(row.step_id) : null,
     evidenceRefs: JSON.parse(String(row.evidence_refs)),
     createdAt: String(row.created_at),
+  }
+}
+
+let eventTail: Promise<unknown> = Promise.resolve()
+export function appendEvent(...args: Parameters<typeof appendEventInternal>): Promise<RunEvent> {
+  const result = eventTail.then(() => appendEventInternal(...args))
+  eventTail = result.catch(() => {})
+  return result
+}
+
+export async function reconcileInterruptedRuns(): Promise<void> {
+  await initDatabase()
+  const rows = await getDbClient().execute("SELECT id FROM runs WHERE status IN ('queued','running')")
+  for (const row of rows.rows) {
+    const id = String(row.id)
+    await updateRunStatus(id, 'interrupted', {stopReason:'reconciliation-required'})
+    await appendEvent(id, 'run:interrupted', {reason:'reconciliation-required', replayAllowed:false})
   }
 }

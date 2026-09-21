@@ -58,10 +58,10 @@ export const VARIANT_EXPECTATIONS: Record<VariantId, VariantExpectation> = {
   },
   C5: {
     variant: 'C5',
-    description: 'Retry always fails - no matching rule',
+    description: 'Retry remains unavailable - no matching rule',
     expectedBusinessResult: 'unknown',
     expectedFindings: [
-      { description: 'Recovery/retry mechanism not working', category: 'hypothesis', required: true },
+      { description: 'Retry control unavailable throughout required recovery window', category: 'hypothesis', required: true },
     ],
     mustNot: [],
   },

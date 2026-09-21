@@ -48,8 +48,8 @@ export interface RunUsage {
   readonly actions: number
   readonly modelCalls: number
   readonly elapsedMs: number
-  readonly modelInputTokens: number
-  readonly modelOutputTokens: number
+  readonly modelInputTokens: number | null
+  readonly modelOutputTokens: number | null
 }
 
 export interface RunEvent {

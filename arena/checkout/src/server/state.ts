@@ -124,6 +124,7 @@ export interface PaymentResult {
   readonly status: Order['status']
   readonly message: string
   readonly canRetry: boolean
+  readonly retryAvailable?: boolean
 }
 
 export function processPayment(): PaymentResult {
@@ -171,6 +172,7 @@ export function processPayment(): PaymentResult {
         status: 'failed',
         message: order.paymentMessage!,
         canRetry: true,
+        retryAvailable: false,
       }
     }
 

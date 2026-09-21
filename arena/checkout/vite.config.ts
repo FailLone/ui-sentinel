@@ -3,11 +3,13 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
+  preview: { host:'127.0.0.1', strictPort:true, port:Number(process.env.ARENA_PORT ?? 4173), proxy:{'/api':`http://127.0.0.1:${process.env.ARENA_API_PORT ?? 4174}`} },
   server: {
-    port: 4173,
+    host: '127.0.0.1',
+    strictPort: true,
+    port: Number(process.env.ARENA_PORT ?? 4173),
     proxy: {
-      '/api': 'http://localhost:4174',
-      '/__control': 'http://localhost:4174',
+      '/api': `http://127.0.0.1:${process.env.ARENA_API_PORT ?? 4174}`,
     },
   },
 })

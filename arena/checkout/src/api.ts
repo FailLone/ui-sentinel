@@ -24,6 +24,7 @@ interface PaymentResult {
   readonly status: string
   readonly message: string
   readonly canRetry: boolean
+  readonly retryAvailable?: boolean
 }
 
 interface VariantConfig {

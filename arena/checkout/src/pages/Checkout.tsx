@@ -12,7 +12,7 @@ export function Checkout({ cart, variantConfig, onCartUpdate, onBackToProducts }
   const [products, setProducts] = useState<Product[]>([])
   const [processing, setProcessing] = useState(false)
   const [result, setResult] = useState<PaymentResult | null>(null)
-  const [overlayVisible, setOverlayVisible] = useState(false)
+  const [overlayVisible, setOverlayVisible] = useState(variantConfig.overlay)
   const [retryDisabled, setRetryDisabled] = useState(false)
 
   useEffect(() => {
@@ -35,6 +35,7 @@ export function Checkout({ cart, variantConfig, onCartUpdate, onBackToProducts }
     try {
       const paymentResult = await checkout()
       setResult(paymentResult)
+      setRetryDisabled(paymentResult.retryAvailable === false)
       if (paymentResult.success) {
         onCartUpdate({ items: [], total: 0 })
       }
@@ -53,7 +54,6 @@ export function Checkout({ cart, variantConfig, onCartUpdate, onBackToProducts }
 
   async function handleRetry() {
     setRetryDisabled(true)
-    setTimeout(() => setRetryDisabled(false), 2000)
     await handlePayment()
   }
 

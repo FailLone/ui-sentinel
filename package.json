@@ -4,12 +4,12 @@
   "type": "module",
   "private": true,
   "engines": {
-    "node": ">=22.18.0"
+    "node": ">=22.18.0 <23 || >=24 <25"
   },
   "scripts": {
-    "dev": "concurrently -n server,arena-api,arena-ui -c blue,yellow,green \"tsx watch src/server/index.ts\" \"pnpm --filter arena dev:api\" \"pnpm --filter arena dev:ui\"",
+    "dev": "tsx scripts/dev.ts",
     "dev:server": "tsx watch src/server/index.ts",
-    "build": "tsc --noEmit && node scripts/build.ts",
+    "build": "pnpm typecheck && tsx scripts/build.ts",
     "start": "node dist/server/index.js",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
@@ -17,7 +17,10 @@
     "arena:reset": "tsx src/scripts/arena-reset.ts",
     "smoke:model": "tsx src/scripts/smoke-model.ts",
     "evaluate": "tsx src/scripts/evaluate.ts",
-    "report": "tsx src/scripts/report.ts"
+    "report": "tsx src/scripts/report.ts",
+    "build:web": "vite build --config src/web/vite.config.ts",
+    "arena:start": "ARENA_STATIC=1 node dist/arena/index.js",
+    "test:fixtures": "tsx scripts/verify-fixtures.ts"
   },
   "dependencies": {
     "@hono/node-server": "^2.1.1",
@@ -28,14 +31,21 @@
     "hono": "^4.13.8",
     "mastra": "^1.30.0",
     "playwright": "^1.63.0",
-    "zod": "^4.6.5"
+    "zod": "^4.6.5",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "@libsql/client": "^0.18.0"
   },
   "devDependencies": {
-    "@libsql/client": "^0.18.0",
     "@types/node": "^26.6.2",
     "concurrently": "^10.0.5",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2",
-    "vitest": "^5.0.1"
-  }
+    "vitest": "^5.0.1",
+    "@types/react": "^19.1.6",
+    "@types/react-dom": "^19.1.6",
+    "vite": "^6.3.5",
+    "esbuild": "^0.25.0"
+  },
+  "packageManager": "pnpm@10.17.1"
 }

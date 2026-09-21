@@ -1,5 +1,7 @@
+import 'dotenv/config'
+import { serveStatic } from '@hono/node-server/serve-static'
 import { Hono } from 'hono'
-import { cors } from 'hono/cors'
+import { randomBytes } from 'node:crypto'
 import { serve } from '@hono/node-server'
 import {
   getProducts,
@@ -20,7 +22,12 @@ const PORT = Number(process.env.ARENA_API_PORT ?? 4174)
 
 const app = new Hono()
 
-app.use('*', cors())
+const control = new Hono()
+const controlToken = process.env.ARENA_CONTROL_TOKEN ?? randomBytes(32).toString('hex')
+control.use('*', async (c,next) => {
+  if (c.req.header('authorization') !== `Bearer ${controlToken}`) return c.json({error:'unauthorized'},401)
+  await next()
+})
 
 app.get('/api/products', (c) => c.json(getProducts()))
 
@@ -69,8 +76,8 @@ app.get('/api/variant-config', (c) => {
   })
 })
 
-app.post('/__control/reset', async (c) => {
-  const body = await c.req.json<{ variant?: string }>().catch(() => ({}))
+control.post('/__control/reset', async (c) => {
+  const body = await c.req.json<{ variant?: string }>().catch(() => ({} as {variant?:string}))
   const variant = (body.variant ?? 'C0') as VariantId
   if (!VALID_VARIANTS.has(variant)) {
     return c.json({ error: `Invalid variant: ${variant}` }, 400)
@@ -79,53 +86,17 @@ app.post('/__control/reset', async (c) => {
   return c.json({ ok: true, variant })
 })
 
-app.get('/__control/state', (c) => c.json(getArenaState()))
+control.get('/__control/state', (c) => c.json({...getArenaState(), orders:getOrders()}))
 
-app.post('/__control/verify', async (c) => {
-  const arenaState = getArenaState()
-  const variant = arenaState.variant
-  const orders = getOrders()
+if (process.env.ARENA_STATIC === '1') {
+  app.use('/*', serveStatic({root:'./arena/checkout/dist'}))
+  serve({fetch:app.fetch, port:Number(process.env.ARENA_PORT ?? 4173), hostname:'127.0.0.1'})
+}
 
-  const checks: Record<string, boolean | string> = {
-    variant,
-    variantActive: true,
-  }
-
-  switch (variant) {
-    case 'C0':
-      checks.normalFlow = true
-      break
-    case 'C1':
-      checks.overlayPresent = true
-      checks.overlayClosable = true
-      break
-    case 'C2':
-      checks.overlayPresent = true
-      checks.overlayClosable = false
-      break
-    case 'C3':
-      checks.buttonRenamed = true
-      checks.buttonMoved = true
-      break
-    case 'C4': {
-      const rejectedOrders = orders.filter((o) => o.status === 'rejected')
-      checks.paymentRejected = rejectedOrders.length > 0 || 'no orders yet'
-      checks.hasRetryOption = true
-      break
-    }
-    case 'C5': {
-      checks.paymentAlwaysFails = true
-      checks.retryNeverSucceeds = true
-      checks.retryCount = String(arenaState.paymentRetryCount)
-      break
-    }
-  }
-
-  return c.json(checks)
-})
-
-serve({ fetch: app.fetch, port: PORT }, () => {
+serve({ fetch: app.fetch, port: PORT, hostname: '127.0.0.1' }, () => {
   console.log(`[arena-api] listening on http://localhost:${PORT}`)
 })
 
 export { app }
+
+serve({fetch:control.fetch,port:Number(process.env.ARENA_CONTROL_PORT ?? 4175),hostname:'127.0.0.1'})

@@ -1,162 +1,69 @@
 import 'dotenv/config'
-import { writeFile, mkdir } from 'node:fs/promises'
+import { writeFile, mkdir, readFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
-import { VARIANT_EXPECTATIONS, type VariantId } from '../../evaluation/private/answers.ts'
-import { evaluateRun, summarizeEvaluation, type EvalScore } from '../../evaluation/private/evaluator.ts'
-import type { RunReport } from '../shared/types.ts'
+import { createHash } from 'node:crypto'
+import { execFileSync } from 'node:child_process'
+import type { VariantId } from '../../evaluation/private/answers.ts'
+import { evaluateRun, summarizeEvaluation, type EvalScore, type IndependentEvidence } from '../../evaluation/private/evaluator.ts'
+import { resetAndVerify, controlRequest, arenaUrl, assertIdle } from '../../evaluation/private/controller.ts'
+import type { RunReport, RunEvent } from '../shared/types.ts'
 
-const SERVER_URL = `http://localhost:${process.env.PORT ?? 4111}`
-const ARENA_API = `http://localhost:${process.env.ARENA_API_PORT ?? 4174}`
-
-const VARIANTS: VariantId[] = ['C0', 'C1', 'C2', 'C3', 'C4', 'C5']
-
-function parseArgs() {
-  const args = process.argv.slice(2)
-  const suiteIdx = args.indexOf('--suite')
-  const repeatsIdx = args.indexOf('--repeats')
-
-  return {
-    suite: suiteIdx >= 0 ? args[suiteIdx + 1] : 'minimum',
-    repeats: repeatsIdx >= 0 ? Number(args[repeatsIdx + 1]) : 3,
-  }
+const base=process.env.SERVER_URL??`http://localhost:${process.env.PORT??4111}`
+const args=process.argv.slice(2).filter(a=>a!=='--')
+const option=(key:string,defaultValue:string)=>args.includes(key)?args[args.indexOf(key)+1]:defaultValue
+const suite=option('--suite','minimum'),repeats=Number(option('--repeats','3'))
+const budget={totalTimeoutMs:300000,maxActions:40,maxModelCalls:30}
+async function request(path:string,body?:unknown) {
+  const r=await fetch(base+path,{method:body===undefined?'GET':'POST',headers:{'content-type':'application/json',authorization:`Bearer ${process.env.ARENA_CONTROL_TOKEN??''}`},...(body===undefined?{}:{body:JSON.stringify(body)}),signal:AbortSignal.timeout(15000)})
+  if(!r.ok)throw new Error(`${path}: HTTP ${r.status} ${await r.text()}`)
+  return r.json() as Promise<any>
 }
-
-async function resetArena(variant: VariantId): Promise<void> {
-  const res = await fetch(`${ARENA_API}/__control/reset`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ variant }),
-  })
-  if (!res.ok) throw new Error(`Arena reset failed: ${res.status}`)
+async function wait(runId:string,timeout=budget.totalTimeoutMs+30000) {
+  const start=Date.now()
+  while(Date.now()-start<timeout){const r=await request(`/api/runs/${runId}`);if(!['queued','running'].includes(r.status)&&!r.active)return;await new Promise(r=>setTimeout(r,250))}
+  await request(`/api/runs/${runId}/cancel`,{})
+  throw new Error('Run timed out; cancel requested. Further resets require idle queue.')
 }
-
-async function startRun(goal: string, entryUrl: string): Promise<string> {
-  const res = await fetch(`${SERVER_URL}/api/runs`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ goal, entryUrl }),
-  })
-
-  const data = await res.json() as { runId?: string; error?: string; message?: string }
-  if (data.error) throw new Error(data.message ?? data.error)
-  if (!data.runId) throw new Error('No runId in response')
-
-  return data.runId
-}
-
-async function waitForRun(runId: string, timeoutMs = 360_000): Promise<void> {
-  const deadline = Date.now() + timeoutMs
-
-  while (Date.now() < deadline) {
-    const res = await fetch(`${SERVER_URL}/api/runs/${runId}`)
-    const data = await res.json() as { status: string; active: boolean }
-
-    if (!data.active) return
-
-    const terminalStatuses = new Set(['completed', 'cancelled', 'timed-out', 'execution-error', 'blocked'])
-    if (terminalStatuses.has(data.status)) return
-
-    await new Promise((r) => setTimeout(r, 3000))
-  }
-
-  throw new Error(`Run ${runId} timed out after ${timeoutMs}ms`)
-}
-
-async function getReport(runId: string): Promise<RunReport> {
-  const res = await fetch(`${SERVER_URL}/api/runs/${runId}/report`)
-  return res.json() as Promise<RunReport>
-}
-
-async function main() {
-  const { suite, repeats } = parseArgs()
-
-  console.log(`[evaluate] suite=${suite} repeats=${repeats}`)
-  console.log(`[evaluate] server=${SERVER_URL} arena=${ARENA_API}`)
-
-  const healthRes = await fetch(`${SERVER_URL}/api/health`)
-  const health = await healthRes.json() as { model: { ready: boolean; missing: string[] } }
-
-  if (!health.model.ready) {
-    console.error(`[evaluate] model not configured: ${health.model.missing.join(', ')}`)
-    console.error('[evaluate] cannot run evaluation without model credentials')
-    process.exit(1)
-  }
-
-  const scores: EvalScore[] = []
-
-  for (const variant of VARIANTS) {
-    for (let repeat = 1; repeat <= repeats; repeat++) {
-      console.log(`\n[evaluate] === ${variant} repeat ${repeat}/${repeats} ===`)
-
-      try {
-        console.log(`[evaluate] resetting arena to ${variant}...`)
-        await resetArena(variant)
-
-        console.log('[evaluate] starting run...')
-        const runId = await startRun(
-          'Complete a purchase in the TechMart store. Add a product to cart, proceed to checkout, and complete the payment.',
-          'http://localhost:4173',
-        )
-        console.log(`[evaluate] run started: ${runId}`)
-
-        console.log('[evaluate] waiting for completion...')
-        await waitForRun(runId)
-
-        const report = await getReport(runId)
-        console.log(`[evaluate] run ${report.status}, business=${report.businessResult}, findings=${report.findings.length}`)
-
-        const score = evaluateRun(report, variant, repeat)
-        scores.push(score)
-
-        console.log(`[evaluate] ${variant} R${repeat}: ${score.overallPass ? 'PASS' : 'FAIL'}`)
-        if (score.missingFindings.length > 0) {
-          console.log(`[evaluate]   missing: ${score.missingFindings.join(', ')}`)
+async function main(){
+  if(suite!=='minimum'||repeats!==3)throw new Error('Fixed minimum suite requires --suite minimum --repeats 3')
+  const health=await request('/api/health')
+  if(!health.model.ready)throw new Error('configuration-missing: '+health.model.missing.join(', '))
+  const lease=await request('/api/evaluation/lease',{})
+  const dir=resolve('data/evaluations',new Date().toISOString().replace(/[:.]/g,'-'))
+  await mkdir(dir,{recursive:true})
+  const scores:EvalScore[]=[]
+  try {
+    if(lease.rules.some((r:{category:string})=>r.category==='transition'))throw new Error('Minimum discovery suite cannot run with learned transition rules enabled; use a fresh isolated evaluation database')
+    const manifest={suite,repeats,budget,agentModel:process.env.AGENT_MODEL,visionModel:process.env.VISION_MODEL,commit:execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),dirty:!!execFileSync('git',['status','--porcelain'],{encoding:'utf8'}).trim(),lockHash:createHash('sha256').update(await readFile('pnpm-lock.yaml')).digest('hex'),rules:lease.rules,startedAt:new Date().toISOString()}
+    await writeFile(resolve(dir,'manifest.json'),JSON.stringify(manifest,null,2))
+    for(const variant of ['C0','C1','C2','C3','C4','C5'] as VariantId[])for(let repeat=1;repeat<=3;repeat++){
+      let runId='not-created',record:Record<string,unknown>={},score:EvalScore
+      try{
+        const fixture=await resetAndVerify(variant)
+        record.fixture=fixture
+        const run=await request('/api/runs',{goal:'Inspect the purchase journey. Purchase an item; inspect primary action access, response, expected rejection and recovery. Campaigns must not block submit; retryable failures must provide an operable retry within five seconds. Response above ten seconds warrants a warning.',environmentId:'arena',entryUrl:arenaUrl(),budget})
+        runId=run.runId;record.runId=runId
+        await wait(runId)
+        const report=await request(`/api/runs/${runId}/report`) as RunReport & {artifacts:{id:string;type:string;available:boolean}[];events:RunEvent[];hypotheses:IndependentEvidence['hypotheses']}
+        record.report=report
+        const artifacts:IndependentEvidence['artifacts']={}
+        for(const a of report.artifacts){
+          const r=await fetch(`${base}/api/runs/${runId}/artifacts/${encodeURIComponent(a.id)}`,{signal:AbortSignal.timeout(15000)})
+          const bytes=new Uint8Array(await r.arrayBuffer())
+          const exists=r.ok&&a.available&&(a.type==='screenshot'?Buffer.from(bytes).subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])):bytes.length>0)
+          artifacts[a.id]={type:a.type,exists,...(exists&&a.type!=='screenshot'?{data:JSON.parse(Buffer.from(bytes).toString('utf8'))}:{})}
         }
-        if (score.falsePositives.length > 0) {
-          console.log(`[evaluate]   false positives: ${score.falsePositives.join(', ')}`)
-        }
-      } catch (err) {
-        console.error(`[evaluate] ${variant} R${repeat} ERROR:`, err)
-        scores.push({
-          variant,
-          runId: 'error',
-          repeat,
-          businessResultCorrect: false,
-          findingsScore: 0,
-          falsePositives: [],
-          missingFindings: ['evaluation error'],
-          budgetRespected: false,
-          noAnswerLeak: true,
-          overallPass: false,
-          details: { error: String(err) },
-        })
-      }
+        const evidence:IndependentEvidence={fixtureValid:fixture.valid===true,backend:await controlRequest('/__control/state'),artifacts,events:report.events,budget,hypotheses:report.hypotheses}
+        record.evidence=evidence;score=evaluateRun(report,variant,repeat,evidence)
+      }catch(error){score={variant,repeat,runId,businessResultCorrect:false,findingsScore:0,falsePositives:[],missingFindings:[],budgetRespected:false,noAnswerLeak:false,overallPass:false,classification:'invalid',details:{error:String(error)}}}
+      scores.push(score);record.score=score
+      await writeFile(resolve(dir,`${variant}-${repeat}.json`),JSON.stringify(record,null,2))
+      console.log(`${variant} ${repeat}/3: ${score.classification} (${runId})`)
     }
-  }
-
-  const summary = summarizeEvaluation(scores)
-
-  console.log('\n[evaluate] ====== SUMMARY ======')
-  console.log(`[evaluate] Total: ${summary.totalRuns} runs`)
-  console.log(`[evaluate] Passed: ${summary.passedRuns} (${(summary.passRate * 100).toFixed(0)}%)`)
-
-  for (const [variant, varScores] of Object.entries(summary.variants)) {
-    const passed = (varScores as EvalScore[]).filter((s) => s.overallPass).length
-    const total = (varScores as EvalScore[]).length
-    console.log(`[evaluate] ${variant}: ${passed}/${total} passed`)
-  }
-
-  const outputDir = resolve('data/evaluations')
-  await mkdir(outputDir, { recursive: true })
-
-  const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
-  const outputPath = resolve(outputDir, `eval-${timestamp}.json`)
-  await writeFile(outputPath, JSON.stringify(summary, null, 2))
-
-  console.log(`\n[evaluate] results saved to ${outputPath}`)
+    const summary=summarizeEvaluation(scores)
+    await writeFile(resolve(dir,'summary.json'),JSON.stringify(summary,null,2))
+    console.log(`All ${scores.length} records: ${dir}; gatePassed=${summary.gatePassed}`)
+    if(!summary.gatePassed)process.exitCode=1
+  }finally{await request('/api/evaluation/release',{lease:lease.lease})}
 }
-
-main().catch((err) => {
-  console.error('[evaluate] fatal:', err)
-  process.exit(1)
-})
+main().catch(error=>{console.error(error instanceof Error?error.message:String(error));process.exitCode=1})

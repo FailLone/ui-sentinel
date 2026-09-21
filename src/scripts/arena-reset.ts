@@ -1,38 +1,19 @@
 import 'dotenv/config'
-
-const ARENA_API = `http://localhost:${process.env.ARENA_API_PORT ?? 4174}`
-
+import { resetAndVerify } from '../../evaluation/private/controller.ts'
+import { VARIANT_EXPECTATIONS, type VariantId } from '../../evaluation/private/answers.ts'
 async function main() {
-  const caseArg = process.argv.find((a) => a.startsWith('--case='))?.split('=')[1]
-    ?? process.argv[process.argv.indexOf('--case') + 1]
-    ?? 'C0'
-
-  const variant = caseArg.toUpperCase()
-
-  console.log(`[arena:reset] resetting to variant ${variant}...`)
-
-  const res = await fetch(`${ARENA_API}/__control/reset`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ variant }),
-  })
-
-  if (!res.ok) {
-    const body = await res.text()
-    console.error(`[arena:reset] failed: ${res.status} ${body}`)
-    process.exit(1)
-  }
-
-  const data = await res.json()
-  console.log(`[arena:reset] reset complete:`, data)
-
-  console.log(`[arena:reset] verifying...`)
-  const verify = await fetch(`${ARENA_API}/__control/verify`, { method: 'POST' })
-  const checks = await verify.json()
-  console.log(`[arena:reset] verification:`, checks)
+  const args=process.argv.slice(2)
+  const index=args.indexOf('--case')
+  const variant=(args.find(a=>a.startsWith('--case='))?.slice(7) ?? (index>=0?args[index+1]:'C0')) as VariantId
+  if (!(variant in VARIANT_EXPECTATIONS)) throw new Error('Expected --case C0 through C5')
+  const token=process.env.ARENA_CONTROL_TOKEN
+  if(!token)throw new Error('ARENA_CONTROL_TOKEN required')
+  const base=`http://localhost:${process.env.PORT??4111}`
+  const headers={authorization:`Bearer ${token}`,'content-type':'application/json'}
+  const response=await fetch(base+'/api/evaluation/lease',{method:'POST',headers,body:'{}',signal:AbortSignal.timeout(5000)})
+  if(!response.ok)throw new Error('Cannot reset while tasks or another evaluation are active: '+response.status)
+  const {lease}=await response.json() as {lease:string}
+  try { console.log(JSON.stringify({variant,verification:await resetAndVerify(variant)},null,2)) }
+  finally { await fetch(base+'/api/evaluation/release',{method:'POST',headers,body:JSON.stringify({lease}),signal:AbortSignal.timeout(5000)}) }
 }
-
-main().catch((err) => {
-  console.error('[arena:reset] error:', err)
-  process.exit(1)
-})
+main().catch(error=>{console.error(String(error));process.exitCode=1})
