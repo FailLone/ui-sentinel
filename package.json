@@ -1,0 +1,41 @@
+{
+  "name": "ui-sentinel",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "scripts": {
+    "dev": "concurrently -n server,arena-api,arena-ui -c blue,yellow,green \"tsx watch src/server/index.ts\" \"pnpm --filter arena dev:api\" \"pnpm --filter arena dev:ui\"",
+    "dev:server": "tsx watch src/server/index.ts",
+    "build": "tsc --noEmit && node scripts/build.ts",
+    "start": "node dist/server/index.js",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "arena:reset": "tsx src/scripts/arena-reset.ts",
+    "smoke:model": "tsx src/scripts/smoke-model.ts",
+    "evaluate": "tsx src/scripts/evaluate.ts",
+    "report": "tsx src/scripts/report.ts"
+  },
+  "dependencies": {
+    "@hono/node-server": "^2.1.1",
+    "@mastra/core": "^1.67.0",
+    "@mastra/libsql": "^1.23.0",
+    "@midscene/web": "^1.13.0",
+    "dotenv": "^18.0.1",
+    "hono": "^4.13.8",
+    "mastra": "^1.30.0",
+    "playwright": "^1.63.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@libsql/client": "^0.18.0",
+    "@types/node": "^26.6.2",
+    "concurrently": "^10.0.5",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.1"
+  }
+}

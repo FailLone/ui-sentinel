@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.mastra/
+data/
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+.env
+.env.local
+.DS_Store
+coverage/
+midscene_run/
+playwright-report/
+test-results/
