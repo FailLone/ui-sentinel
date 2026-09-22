@@ -25,6 +25,13 @@ export async function launchBrowser(options?: {
     serviceWorkers: 'block',
   })
 
+  // tsx compiles with esbuild keepNames:true, injecting __name() wrappers
+  // around named functions. The helper lives at module scope in Node but is
+  // absent inside Playwright's browser evaluate context. String form avoids
+  // the same transform being applied to this polyfill.
+  await context.addInitScript('if(typeof __name==="undefined"){window.__name=function(fn){return fn}}')
+
+
   const page = await context.newPage()
 
   return {
@@ -89,7 +96,7 @@ export function isAllowedPageUrl(raw: string, entryUrl: string): boolean {
     const pathname = decodeURIComponent(u.pathname)
     return u.origin === new URL(entryUrl).origin && /^https?:$/.test(u.protocol)
       && !pathname.includes('__control') && !pathname.includes('/evaluation')
-      && !pathname.includes('/src/server') && !pathname.includes('/@fs')
+      && !pathname.includes('/src/server')
       && !pathname.includes('/.git') && !pathname.includes('/.env')
   } catch { return false }
 }
@@ -142,6 +149,10 @@ export async function annotateEvidence(browser: Browser, runId: string, sourceId
     await page.locator('img').evaluate((img:HTMLImageElement)=>img.decode())
     return saveEvidence(runId,'screenshot',await page.screenshot(),{annotation:true,sourceRef:sourceId,coordinateSource:'DOM hit-test',rectangles:rects})
   } finally {await context.close()}
+}
+
+export async function captureA11yTree(page: Page): Promise<string> {
+  return page.locator('body').ariaSnapshot()
 }
 
 export function isAllowedNavigationUrl(raw: string, entryUrl: string): boolean {

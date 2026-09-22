@@ -32,8 +32,8 @@ describe('executor with deterministic model and real browser (not model evaluati
     let phase=0
     harness.handler=async(tools:any,prompt:string)=>{
       const packet=JSON.parse(prompt)
-      expect(packet.observation.snapshot.text).toContain(phase?'Confirmed':'Buy')
-      if(phase++===0){const button=packet.observation.snapshot.elements.find((e:any)=>e.tag==='button');await call(tools,'page_act',{type:'click',selector:button.selector})}
+      expect(packet.observation.a11yTree).toContain(phase?'Confirmed':'Buy')
+      if(phase++===0){await call(tools,'page_act',{type:'click',role:'button',name:'Buy'})}
       else await call(tools,'run_finish',{businessResult:'success',blocked:false,summary:'visible and response agree'})
     }
     const run=await makeRun();await startRunExecution(run.id)
@@ -67,7 +67,7 @@ describe('executor with deterministic model and real browser (not model evaluati
       const packet=JSON.parse(prompt)
       const hyp=await call(tools,'hypotheses_record',{phenomenon:'test observation',basis:'visible UI',verificationPlan:'inspect snapshot'})
       await expect(call(tools,'findings_submit',{hypothesisId:hyp.id,validationStatus:'supported',severity:'info',title:'test',expected:'test',actual:'test',evidenceRefs:['forged.png']})).rejects.toThrow('invalid evidence')
-      await call(tools,'findings_submit',{hypothesisId:hyp.id,validationStatus:'candidate',severity:'info',title:'test',expected:'test',actual:'test',evidenceRefs:packet.observation.evidenceRefs})
+      await call(tools,'findings_submit',{hypothesisId:hyp.id,validationStatus:'candidate',severity:'info',title:'test',expected:'test',actual:'test',evidenceRefs:packet.evidenceRefs})
       await call(tools,'run_finish',{businessResult:'unknown',blocked:true,summary:'test'})
     }
     const run=await makeRun();await startRunExecution(run.id)
