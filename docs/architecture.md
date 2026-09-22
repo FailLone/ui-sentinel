@@ -97,6 +97,8 @@ Mastra 是唯一的 Agent 应用编排底座，优先复用其模型调用、Too
 
 Agent 根据业务重要性、近期变化、未知程度和预算调整优先级。发现活动浮层时可以动态增加关闭、遮挡和重复出现等验证，无需预先存在完整 Journey。
 
+探索策略是知识库中可检索、可版本化的探索经验，为 Agent 提供线索生成与采样方法。任务完成不代表体验检查完成；策略按状态和风险选择，在预算内探测替代操作，再由规则或工具验证。能验证指定问题与能自主发现问题必须分别评估，具体见[探索策略与未知问题发现](./exploration-strategies.md)。
+
 ### 4.2 已知能力复用循环
 
 ```text
@@ -308,6 +310,7 @@ Mastra Agent / Workflows + 领域调度
 | --- | --- |
 | [最小可验证路径开发计划](../plans/minimum-validation-plan.md) | 开发顺序、可见交付、靶场矩阵和放行门槛 |
 | [Agent 职责与整体工作模式](./agent-responsibilities.md) | 八项职责、角色边界、探索循环和评价目标 |
+| [探索策略与未知问题发现](./exploration-strategies.md) | 线索生成、策略契约、交互采样、漏报复盘与独立评估 |
 | [规则与规则库技术设计](./rules-and-rule-library.md) | 规则定义、访问器、Hook、关键路径和规则路由 |
 | [执行层技术设计](./execution-engine.md) | 原子任务、工具契约、Mastra、资源、证据与日志 |
 | [知识库与上下文技术设计](./knowledge-and-context.md) | 知识分类、版本、检索、工作包和长任务恢复 |
