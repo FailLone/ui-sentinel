@@ -17,7 +17,7 @@ export const config = Object.freeze({
   budget: {
     totalTimeoutMs: bounded('RUN_TOTAL_TIMEOUT_MS', 300_000, 300_000),
     maxActions: bounded('RUN_MAX_ACTIONS', 40, 40),
-    maxModelCalls: bounded('RUN_MAX_MODEL_CALLS', 30, 30),
+    maxModelCalls: bounded('RUN_MAX_MODEL_CALLS', 40, 60),
     toolTimeoutMs: bounded('TOOL_TIMEOUT_MS', 15_000, 60_000),
   },
 })
@@ -28,6 +28,7 @@ export function checkModelConfig(): { ready: boolean; missing: string[] } {
   if (!config.visionModel) missing.push('VISION_MODEL')
 
   if (!process.env.VISION_API_KEY && !process.env.MIDSCENE_MODEL_API_KEY) missing.push('VISION_API_KEY')
+  if (!process.env.VISION_MODEL_FAMILY && !process.env.MIDSCENE_MODEL_FAMILY) missing.push('VISION_MODEL_FAMILY')
   const provider = config.agentModel.split('/')[0]
   const keyMap: Record<string, string> = {
     anthropic: 'ANTHROPIC_API_KEY',

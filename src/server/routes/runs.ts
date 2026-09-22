@@ -19,7 +19,7 @@ const inputSchema = z.object({
   budget: z.object({
     totalTimeoutMs: z.number().int().positive().max(300000).optional(),
     maxActions: z.number().int().positive().max(40).optional(),
-    maxModelCalls: z.number().int().positive().max(30).optional(),
+    maxModelCalls: z.number().int().positive().max(60).optional(),
   }).strict().optional(),
   viewport: z.object({ width: z.number().int().min(320).max(2560), height: z.number().int().min(240).max(2160) }).strict().optional(),
 }).strict()

@@ -13,7 +13,7 @@ export function createVisionLocator(page: Page, hooks: {
       MIDSCENE_MODEL_NAME: process.env.VISION_MODEL ?? '',
       MIDSCENE_MODEL_API_KEY: process.env.VISION_API_KEY || process.env.MIDSCENE_MODEL_API_KEY || '',
       ...(process.env.VISION_BASE_URL ? { MIDSCENE_MODEL_BASE_URL: process.env.VISION_BASE_URL } : {}),
-      ...(process.env.VISION_MODEL_FAMILY ? { MIDSCENE_MODEL_FAMILY: process.env.VISION_MODEL_FAMILY } : {}),
+      MIDSCENE_MODEL_FAMILY: process.env.VISION_MODEL_FAMILY || process.env.MIDSCENE_MODEL_FAMILY || '',
       MIDSCENE_MODEL_RETRY_COUNT: '0',
     },
     createOpenAIClient: (client) => {

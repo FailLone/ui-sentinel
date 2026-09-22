@@ -3,6 +3,7 @@ import { Agent } from '@mastra/core/agent'
 import { createTool } from '@mastra/core/tools'
 import { z } from 'zod'
 import { config,checkModelConfig } from '../shared/config.ts'
+import { agentModel } from '../shared/model.ts'
 import { launchBrowser } from '../execution/browser.ts'
 import { createVisionLocator } from '../execution/vision.ts'
 import { mkdir,writeFile } from 'node:fs/promises'
@@ -11,7 +12,7 @@ async function main(){
   if(!ready.ready)throw new Error('configuration-missing: '+ready.missing.join(', '))
   const signal=AbortSignal.timeout(60000)
   let toolCalls=0,visionRequests=0
-  const agent=new Agent({id:'smoke-model',name:'Model tool smoke',model:config.agentModel as `${string}/${string}`,maxRetries:0,instructions:'Call echo_check once with value smoke-ok.',tools:{echo_check:createTool({id:'echo_check',description:'Confirm schema tool invocation',inputSchema:z.object({value:z.literal('smoke-ok')}),execute:async()=>{toolCalls++;return {ok:true}}})}})
+  const agent=new Agent({id:'smoke-model',name:'Model tool smoke',model:agentModel,maxRetries:0,instructions:'Call echo_check once with value smoke-ok.',tools:{echo_check:createTool({id:'echo_check',description:'Confirm schema tool invocation',inputSchema:z.object({value:z.literal('smoke-ok')}),execute:async()=>{toolCalls++;return {ok:true}}})}})
   const result=await agent.generate('Run the echo_check tool.',{maxSteps:1,toolChoice:'required',abortSignal:signal})
   if(toolCalls!==1)throw new Error('Model failed real schema-tool invocation')
   const worker=await launchBrowser()
