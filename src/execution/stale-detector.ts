@@ -12,7 +12,12 @@ export const DEFAULT_STALE_CONFIG: Readonly<StaleConfig> = {
 
 export type FreshnessResult =
   | { readonly fresh: true }
-  | { readonly fresh: false; readonly staleCount: number; readonly compact: boolean; readonly hint: string | null }
+  | {
+      readonly fresh: false
+      readonly staleCount: number
+      readonly compact: boolean
+      readonly hint: string | null
+    }
 
 export function createStaleDetector(config: Partial<StaleConfig> = {}) {
   const cfg: StaleConfig = { ...DEFAULT_STALE_CONFIG, ...config }
@@ -24,7 +29,19 @@ export function createStaleDetector(config: Partial<StaleConfig> = {}) {
 
   function slimFingerprint(slim: SlimSnapshot): string {
     const selectors = slim.elements
-      .map(e => `${e.selector}:${e.visible}:${e.enabled}:${e.text.slice(0, 60)}`)
+      .map((e) =>
+        JSON.stringify([
+          e.selector,
+          e.visible,
+          e.enabled,
+          e.text,
+          e.bounds,
+          e.hit.sampled,
+          e.hit.self,
+          e.hit.descendant,
+          e.hit.blocked,
+        ]),
+      )
       .sort()
       .join('|')
     return `${slim.url}\0${slim.pageText}\0${slim.elementCount}\0${selectors}`
@@ -68,8 +85,8 @@ export function createStaleDetector(config: Partial<StaleConfig> = {}) {
     return checkFingerprint(slimFingerprint(slim))
   }
 
-  function checkA11y(url: string, a11yTree: string): FreshnessResult {
-    return checkFingerprint(`${url}\0${a11yTree}`)
+  function checkA11y(url: string, a11yTree: string, slim?: SlimSnapshot): FreshnessResult {
+    return checkFingerprint(`${url}\0${a11yTree}\0${slim ? slimFingerprint(slim) : ''}`)
   }
 
   function recordAction(): void {

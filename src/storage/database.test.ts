@@ -99,8 +99,10 @@ describe('database schema', () => {
   })
 
   it('creates all required tables', async () => {
-    const result = await db.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name")
-    const tables = result.rows.map(r => r.name)
+    const result = await db.execute(
+      "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name",
+    )
+    const tables = result.rows.map((r) => r.name)
     expect(tables).toContain('runs')
     expect(tables).toContain('run_events')
     expect(tables).toContain('findings')
@@ -136,7 +138,7 @@ describe('database schema', () => {
       db.execute({
         sql: `INSERT INTO run_events (id, run_id, seq, type) VALUES (?, ?, ?, ?)`,
         args: ['evt-2', 'test-run-001', 1, 'duplicate'],
-      })
+      }),
     ).rejects.toThrow()
   })
 
@@ -157,7 +159,13 @@ describe('database schema', () => {
   it('can store hypotheses', async () => {
     await db.execute({
       sql: `INSERT INTO hypotheses (id, run_id, phenomenon, basis, status) VALUES (?, ?, ?, ?, ?)`,
-      args: ['h-1', 'test-run-001', 'retry button missing after failure', 'spec requires retry within 5s', 'open'],
+      args: [
+        'h-1',
+        'test-run-001',
+        'retry button missing after failure',
+        'spec requires retry within 5s',
+        'open',
+      ],
     })
 
     const result = await db.execute({
@@ -170,7 +178,9 @@ describe('database schema', () => {
 
   it('schema is idempotent', async () => {
     await db.executeMultiple(SCHEMA_SQL)
-    const result = await db.execute("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name")
+    const result = await db.execute(
+      "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name",
+    )
     expect(result.rows.length).toBeGreaterThanOrEqual(7)
   })
 })

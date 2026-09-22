@@ -52,12 +52,16 @@ describe('classifyResponse', () => {
   })
 
   it('prioritizes run_finish over page_act when both called', () => {
-    const c = classifyResponse({ toolResults: [{ toolName: 'page_act' }, { toolName: 'run_finish' }] })
+    const c = classifyResponse({
+      toolResults: [{ toolName: 'page_act' }, { toolName: 'run_finish' }],
+    })
     expect(c.category).toBe('finish')
   })
 
   it('prioritizes page_act over page_observe', () => {
-    const c = classifyResponse({ toolResults: [{ toolName: 'page_observe' }, { toolName: 'page_act' }] })
+    const c = classifyResponse({
+      toolResults: [{ toolName: 'page_observe' }, { toolName: 'page_act' }],
+    })
     expect(c.category).toBe('action')
   })
 
@@ -74,10 +78,12 @@ describe('classifyResponse', () => {
   it('extracts tool name from Mastra ToolResultChunk payload', () => {
     const c = classifyResponse({
       text: 'Adding to cart',
-      toolResults: [{
-        type: 'tool-result',
-        payload: { toolName: 'page_act', args: { type: 'click' }, result: {} },
-      }],
+      toolResults: [
+        {
+          type: 'tool-result',
+          payload: { toolName: 'page_act', args: { type: 'click' }, result: {} },
+        },
+      ],
     })
     expect(c.category).toBe('action')
   })

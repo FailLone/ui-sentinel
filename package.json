@@ -20,7 +20,10 @@
     "report": "tsx src/scripts/report.ts",
     "build:web": "vite build --config src/web/vite.config.ts",
     "arena:start": "ARENA_STATIC=1 node dist/arena/index.js",
-    "test:fixtures": "tsx scripts/verify-fixtures.ts"
+    "test:fixtures": "tsx scripts/verify-fixtures.ts",
+    "experiment:browser": "tsx scripts/experiments/browser-loop.ts",
+    "format": "biome format --write .",
+    "format:check": "biome format ."
   },
   "dependencies": {
     "@ai-sdk/openai": "^4.0.72",
@@ -38,6 +41,8 @@
     "zod": "^4.6.5"
   },
   "devDependencies": {
+    "@biomejs/biome": "2.5.14",
+    "@browserbasehq/stagehand": "3.7.3",
     "@types/node": "^26.6.2",
     "@types/react": "^19.1.6",
     "@types/react-dom": "^19.1.6",

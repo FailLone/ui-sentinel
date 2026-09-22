@@ -2,7 +2,13 @@ import { randomUUID } from 'node:crypto'
 import { getDbClient } from '../storage/database.ts'
 import type { RuleProposal, RuleProposalStatus, RuleTestResult } from '../shared/types.ts'
 
-import { compileTransitionRule, evaluateTransition, validateRuleConfig, type TransitionRuleConfig, type TransitionObservation } from './transition.ts'
+import {
+  compileTransitionRule,
+  evaluateTransition,
+  validateRuleConfig,
+  type TransitionRuleConfig,
+  type TransitionObservation,
+} from './transition.ts'
 import { registerRule } from './engine.ts'
 export type { TransitionRuleConfig } from './transition.ts'
 
@@ -15,9 +21,13 @@ export async function createProposal(
   const now = new Date().toISOString()
 
   validateRuleConfig(ruleConfig)
-  const finding = await db.execute({sql: 'SELECT id FROM findings WHERE id=?',args:[findingId]})
-  const feedback = await db.execute({sql:'SELECT verdict FROM finding_feedback WHERE finding_id=? ORDER BY created_at DESC,rowid DESC LIMIT 1',args:[findingId]})
-  if (!finding.rows.length || feedback.rows[0]?.verdict !== 'confirmed') throw new Error('A human-confirmed finding is required')
+  const finding = await db.execute({ sql: 'SELECT id FROM findings WHERE id=?', args: [findingId] })
+  const feedback = await db.execute({
+    sql: 'SELECT verdict FROM finding_feedback WHERE finding_id=? ORDER BY created_at DESC,rowid DESC LIMIT 1',
+    args: [findingId],
+  })
+  if (!finding.rows.length || feedback.rows[0]?.verdict !== 'confirmed')
+    throw new Error('A human-confirmed finding is required')
 
   const proposal: RuleProposal = {
     id,
@@ -105,21 +115,36 @@ export async function validateProposal(
 ): Promise<{ positiveResults: RuleTestResult[]; negativeResults: RuleTestResult[] }> {
   const proposal = await getProposal(id)
   if (!proposal) throw new Error(`Proposal not found: ${id}`)
-  if (!['draft','validating'].includes(proposal.status)) throw new Error('Published or reviewed revisions are immutable; create a new proposal')
+  if (!['draft', 'validating'].includes(proposal.status))
+    throw new Error('Published or reviewed revisions are immutable; create a new proposal')
 
   const config = proposal.ruleConfig as unknown as TransitionRuleConfig
 
   validateRuleConfig(config)
-  if (!positiveInputs.length || !negativeInputs.length) throw new Error('Both defect and healthy structured fixtures are required')
+  if (!positiveInputs.length || !negativeInputs.length)
+    throw new Error('Both defect and healthy structured fixtures are required')
   const evaluate = (input: string, expected: 'pass' | 'fail' | 'unknown'): RuleTestResult => {
     let observation: TransitionObservation
-    try { observation = JSON.parse(input) } catch { throw new Error('Fixture must be JSON TransitionObservation, not prose') }
+    try {
+      observation = JSON.parse(input)
+    } catch {
+      throw new Error('Fixture must be JSON TransitionObservation, not prose')
+    }
     const actual = evaluateTransition(config, observation)
     return { input, expected, actual, passed: actual === expected }
   }
-  const positiveResults = positiveInputs.map(input => evaluate(input, 'fail'))
-  const unknownInput = JSON.stringify({ ...config.trigger, startedAtMs:0, observedUntilMs:0, samples:[], evidenceRefs:[] })
-  const negativeResults = [...negativeInputs.map(input => evaluate(input, 'pass')), evaluate(unknownInput, 'unknown')]
+  const positiveResults = positiveInputs.map((input) => evaluate(input, 'fail'))
+  const unknownInput = JSON.stringify({
+    ...config.trigger,
+    startedAtMs: 0,
+    observedUntilMs: 0,
+    samples: [],
+    evidenceRefs: [],
+  })
+  const negativeResults = [
+    ...negativeInputs.map((input) => evaluate(input, 'pass')),
+    evaluate(unknownInput, 'unknown'),
+  ]
   await updateProposalStatus(id, 'validating', { positiveResults, negativeResults })
   return { positiveResults, negativeResults }
 }
@@ -129,21 +154,35 @@ export async function reviewProposal(id: string, action: 'approve' | 'reject', r
   if (!proposal) throw new Error('Proposal not found')
   if (proposal.status === 'enabled') throw new Error('Enabled revisions are immutable')
   const results = [...proposal.positiveResults, ...proposal.negativeResults]
-  if (action === 'approve' && (!['fail','pass','unknown'].every(expected => results.some(r => r.expected === expected)) || !results.every(r => r.passed) || proposal.status !== 'validating')) throw new Error('Approval requires passing defect, healthy and unknown fixtures')
-  return updateProposalStatus(id, action === 'approve' ? 'approved' : 'rejected', { reviewedBy:reviewer })
+  if (
+    action === 'approve' &&
+    (!['fail', 'pass', 'unknown'].every((expected) =>
+      results.some((r) => r.expected === expected),
+    ) ||
+      !results.every((r) => r.passed) ||
+      proposal.status !== 'validating')
+  )
+    throw new Error('Approval requires passing defect, healthy and unknown fixtures')
+  return updateProposalStatus(id, action === 'approve' ? 'approved' : 'rejected', {
+    reviewedBy: reviewer,
+  })
 }
 export async function enableProposal(id: string) {
   const proposal = await getProposal(id)
-  if (!proposal || proposal.status !== 'approved' || !proposal.reviewedBy) throw new Error('Human approval required')
-  const updated = await updateProposalStatus(id,'enabled')
-  registerRule(compileTransitionRule(id,proposal.ruleConfig as unknown as TransitionRuleConfig))
+  if (!proposal || proposal.status !== 'approved' || !proposal.reviewedBy)
+    throw new Error('Human approval required')
+  const updated = await updateProposalStatus(id, 'enabled')
+  registerRule(compileTransitionRule(id, proposal.ruleConfig as unknown as TransitionRuleConfig))
   return updated
 }
 export async function loadEnabledProposals(): Promise<void> {
   const rows = await getDbClient().execute("SELECT * FROM rule_proposals WHERE status = 'enabled'")
   for (const row of rows.rows) {
-    const proposal = rowToProposal(row as unknown as Record<string,unknown>)
-    if (proposal.reviewedBy) registerRule(compileTransitionRule(proposal.id,proposal.ruleConfig as unknown as TransitionRuleConfig))
+    const proposal = rowToProposal(row as unknown as Record<string, unknown>)
+    if (proposal.reviewedBy)
+      registerRule(
+        compileTransitionRule(proposal.id, proposal.ruleConfig as unknown as TransitionRuleConfig),
+      )
   }
 }
 

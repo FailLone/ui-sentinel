@@ -3,7 +3,12 @@ import { compactToolResults } from './executor.ts'
 
 describe('compactToolResults', () => {
   it('preserves small tool results as-is', () => {
-    const small = [{ type: 'tool-result', payload: { toolName: 'page_observe', result: { url: 'http://localhost', title: 'Shop' } } }]
+    const small = [
+      {
+        type: 'tool-result',
+        payload: { toolName: 'page_observe', result: { url: 'http://localhost', title: 'Shop' } },
+      },
+    ]
     const result = compactToolResults(small)
     expect(JSON.parse(result)).toEqual(small)
   })
@@ -23,7 +28,9 @@ describe('compactToolResults', () => {
       title: 'Checkout',
       elementCount: 200,
     }
-    const oversized = [{ type: 'tool-result', payload: { toolName: 'page_observe', result: bigSnapshot } }]
+    const oversized = [
+      { type: 'tool-result', payload: { toolName: 'page_observe', result: bigSnapshot } },
+    ]
     expect(JSON.stringify(oversized).length).toBeGreaterThan(8000)
 
     const result = compactToolResults(oversized)
@@ -36,28 +43,42 @@ describe('compactToolResults', () => {
   })
 
   it('never produces truncated JSON (the original bug)', () => {
-    const huge = [{
-      type: 'tool-result',
-      payload: {
-        toolName: 'page_act',
-        result: {
-          snapshot: { text: 'A'.repeat(20000), elements: [] },
-          url: 'http://localhost:4173',
-          businessResult: 'success',
+    const huge = [
+      {
+        type: 'tool-result',
+        payload: {
+          toolName: 'page_act',
+          result: {
+            snapshot: { text: 'A'.repeat(20000), elements: [] },
+            url: 'http://localhost:4173',
+            businessResult: 'success',
+          },
         },
       },
-    }]
+    ]
     const result = compactToolResults(huge)
     expect(() => JSON.parse(result)).not.toThrow()
   })
 
   it('extracts Mastra payload.toolName for summaries', () => {
     const mastra = [
-      { type: 'tool-result', payload: { toolName: 'run_finish', result: { businessResult: 'success', blocked: false, accepted: true } } },
+      {
+        type: 'tool-result',
+        payload: {
+          toolName: 'run_finish',
+          result: { businessResult: 'success', blocked: false, accepted: true },
+        },
+      },
     ]
     const bigPayload = [
       ...mastra,
-      { type: 'tool-result', payload: { toolName: 'page_observe', result: { elements: Array.from({ length: 500 }, () => ({ data: 'x'.repeat(50) })) } } },
+      {
+        type: 'tool-result',
+        payload: {
+          toolName: 'page_observe',
+          result: { elements: Array.from({ length: 500 }, () => ({ data: 'x'.repeat(50) })) },
+        },
+      },
     ]
     const result = compactToolResults(bigPayload)
     const parsed = JSON.parse(result)

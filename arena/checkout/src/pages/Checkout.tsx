@@ -1,5 +1,12 @@
 import { useState, useEffect } from 'react'
-import { fetchProducts, checkout, type Product, type CartResponse, type PaymentResult, type VariantConfig } from '../api.ts'
+import {
+  fetchProducts,
+  checkout,
+  type Product,
+  type CartResponse,
+  type PaymentResult,
+  type VariantConfig,
+} from '../api.ts'
 
 interface Props {
   cart: CartResponse
@@ -84,19 +91,39 @@ export function Checkout({ cart, variantConfig, onCartUpdate, onBackToProducts }
             {cart.items.map((item) => {
               const product = getProduct(item.productId)
               return (
-                <div key={item.productId} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0' }}>
-                  <span>{product?.name ?? item.productId} × {item.quantity}</span>
+                <div
+                  key={item.productId}
+                  style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0' }}
+                >
+                  <span>
+                    {product?.name ?? item.productId} × {item.quantity}
+                  </span>
                   <span>${((product?.price ?? 0) * item.quantity).toFixed(2)}</span>
                 </div>
               )
             })}
-            <div style={{ borderTop: '1px solid #ddd', paddingTop: 8, marginTop: 8, fontWeight: 700, display: 'flex', justifyContent: 'space-between' }}>
+            <div
+              style={{
+                borderTop: '1px solid #ddd',
+                paddingTop: 8,
+                marginTop: 8,
+                fontWeight: 700,
+                display: 'flex',
+                justifyContent: 'space-between',
+              }}
+            >
               <span>Total</span>
               <span>${cart.total.toFixed(2)}</span>
             </div>
           </div>
 
-          <div style={variantConfig.buttonMoved ? { display: 'flex', flexDirection: 'row-reverse', gap: 12 } : { display: 'flex', gap: 12 }}>
+          <div
+            style={
+              variantConfig.buttonMoved
+                ? { display: 'flex', flexDirection: 'row-reverse', gap: 12 }
+                : { display: 'flex', gap: 12 }
+            }
+          >
             <button
               className="btn btn-primary"
               onClick={handlePayment}
@@ -117,9 +144,7 @@ export function Checkout({ cart, variantConfig, onCartUpdate, onBackToProducts }
           <h3>{result.success ? 'Order Confirmed!' : 'Payment Failed'}</h3>
           <p>{result.message}</p>
           {result.orderId && (
-            <p style={{ fontSize: '0.85rem', color: '#888' }}>
-              Order ID: {result.orderId}
-            </p>
+            <p style={{ fontSize: '0.85rem', color: '#888' }}>Order ID: {result.orderId}</p>
           )}
           <div className="payment-actions">
             {result.success && (

@@ -71,12 +71,18 @@ function breakdownObservation(obs: unknown): InputComposition['observationBreakd
     }
   }
 
-  const textField = typeof snapshot.text === 'string' ? snapshot.text
-    : typeof snapshot.pageText === 'string' ? snapshot.pageText
-    : null
+  const textField =
+    typeof snapshot.text === 'string'
+      ? snapshot.text
+      : typeof snapshot.pageText === 'string'
+        ? snapshot.pageText
+        : null
   const textBytes = textField !== null ? byteLength(JSON.stringify(textField)) : 0
 
-  const metadataBytes = Math.max(0, byteLength(JSON.stringify(snapshot)) - elementsBytes - textBytes)
+  const metadataBytes = Math.max(
+    0,
+    byteLength(JSON.stringify(snapshot)) - elementsBytes - textBytes,
+  )
 
   return {
     elements: elementsBytes,
@@ -101,9 +107,8 @@ function byteLength(str: string): number {
 }
 
 export function formatCompositionReport(comp: InputComposition): string {
-  const pct = (bytes: number) => comp.totalBytes > 0
-    ? `${((bytes / comp.totalBytes) * 100).toFixed(1)}%`
-    : '0%'
+  const pct = (bytes: number) =>
+    comp.totalBytes > 0 ? `${((bytes / comp.totalBytes) * 100).toFixed(1)}%` : '0%'
 
   const lines = [
     `Total: ${comp.totalBytes} bytes`,
@@ -117,9 +122,8 @@ export function formatCompositionReport(comp: InputComposition): string {
 
   if (comp.observationBreakdown) {
     const ob = comp.observationBreakdown
-    const obPct = (bytes: number) => ob.elements > 0
-      ? `${((bytes / comp.parts.observation) * 100).toFixed(1)}%`
-      : '0%'
+    const obPct = (bytes: number) =>
+      ob.elements > 0 ? `${((bytes / comp.parts.observation) * 100).toFixed(1)}%` : '0%'
     lines.push(
       `  observation breakdown:`,
       `    elements: ${ob.elements} (${obPct(ob.elements)})`,

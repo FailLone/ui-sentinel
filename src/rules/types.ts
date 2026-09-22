@@ -27,10 +27,21 @@ export interface PageElement {
   readonly tag: string
   readonly text: string
   readonly visible: boolean
-  readonly bounds: { readonly x: number; readonly y: number; readonly width: number; readonly height: number }
+  readonly bounds: {
+    readonly x: number
+    readonly y: number
+    readonly width: number
+    readonly height: number
+  }
   readonly attributes: Record<string, string>
   readonly enabled?: boolean
-  readonly hitSamples?: readonly { readonly x: number; readonly y: number; readonly hitSelector: string | null; readonly relation: 'self' | 'descendant' | 'ancestor' | 'unrelated' | 'none'; readonly blockerBounds?: { x: number; y: number; width: number; height: number } }[]
+  readonly hitSamples?: readonly {
+    readonly x: number
+    readonly y: number
+    readonly hitSelector: string | null
+    readonly relation: 'self' | 'descendant' | 'ancestor' | 'unrelated' | 'none'
+    readonly blockerBounds?: { x: number; y: number; width: number; height: number }
+  }[]
 }
 
 export type RuleVerdict = 'pass' | 'fail' | 'unknown' | 'not-applicable'

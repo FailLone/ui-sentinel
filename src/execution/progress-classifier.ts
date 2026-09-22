@@ -39,7 +39,12 @@ export function classifyResponse(result: {
   }
 
   if (toolsCalled.includes('transition.observe') || toolsCalled.includes('transition_observe')) {
-    return { category: 'action', toolsCalled, hasText, basis: 'called transition_observe (measurement)' }
+    return {
+      category: 'action',
+      toolsCalled,
+      hasText,
+      basis: 'called transition_observe (measurement)',
+    }
   }
 
   if (toolsCalled.includes('page.observe') || toolsCalled.includes('page_observe')) {
@@ -62,9 +67,8 @@ export function classifyResponse(result: {
     category: 'no-progress',
     toolsCalled,
     hasText,
-    basis: toolsCalled.length === 0
-      ? 'empty response'
-      : `unrecognized tools: ${toolsCalled.join(', ')}`,
+    basis:
+      toolsCalled.length === 0 ? 'empty response' : `unrecognized tools: ${toolsCalled.join(', ')}`,
   }
 }
 
@@ -88,14 +92,16 @@ export interface ProgressSummary {
   readonly noProgressRate: number | null
 }
 
-export function summarizeProgress(classifications: readonly ProgressClassification[]): ProgressSummary {
+export function summarizeProgress(
+  classifications: readonly ProgressClassification[],
+): ProgressSummary {
   const categories: Record<ProgressCategory, number> = {
-    'action': 0,
+    action: 0,
     'observe-only': 0,
-    'hypothesis': 0,
-    'finding': 0,
-    'finish': 0,
-    'judgment': 0,
+    hypothesis: 0,
+    finding: 0,
+    finish: 0,
+    judgment: 0,
     'no-progress': 0,
   }
 

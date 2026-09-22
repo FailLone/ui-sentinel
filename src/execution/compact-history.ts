@@ -10,6 +10,12 @@ export interface CompressedEntry {
 
 export interface ToolSummary {
   readonly tool: string
+  readonly args?: unknown
+  readonly id?: string
+  readonly evidenceRefs?: readonly string[]
+  readonly status?: string
+  readonly outcomeText?: string
+  readonly results?: unknown
   readonly url?: string
   readonly title?: string
   readonly error?: string
@@ -30,40 +36,69 @@ export const DEFAULT_HISTORY_CONFIG: Readonly<HistoryCompressionConfig> = {
   totalBudgetBytes: 8000,
 }
 
-const OBSERVATION_STRIP_KEYS = new Set([
-  'elements', 'pageText', 'viewport', 'screenshotRef', 'observedAt',
-  'snapshotId', 'elementCount', 'evidenceRefs', 'bounds', 'attributes',
-  'hit', 'hitSamples', 'tag', 'visible', 'enabled', 'ref', 'selector', 'text',
-])
-
 const KEEP_KEYS = new Set([
-  'url', 'title', 'error', 'businessResult', 'accepted', 'blocked',
-  'summary', 'noNewFacts', 'staleWarning', 'staleCount', 'hint',
-  'actionType', 'type', 'phenomenon', 'basis', 'validationStatus',
-  'severity', 'hypothesisId', 'findingId', 'state', 'unexploredBranches',
+  'url',
+  'title',
+  'error',
+  'businessResult',
+  'accepted',
+  'blocked',
+  'summary',
+  'noNewFacts',
+  'staleWarning',
+  'staleCount',
+  'hint',
+  'actionType',
+  'type',
+  'phenomenon',
+  'basis',
+  'validationStatus',
+  'severity',
+  'hypothesisId',
+  'findingId',
+  'state',
+  'unexploredBranches',
+  'id',
+  'evidenceRefs',
+  'status',
+  'verificationPlan',
+  'elementCount',
+  'selector',
+  'ref',
+  'stale',
+  'snapshotId',
+  'condition',
+  'observedUntilMs',
+  'startedAtMs',
+  'samples',
+  'target',
+  'value',
+  'outcomeText',
+  'action',
 ])
 
-function extractToolSummary(item: Record<string, unknown>): ToolSummary {
+/** One projection, also accepts its own output. Never discard action arguments. */
+export function extractToolSummary(item: Record<string, unknown>): ToolSummary {
   const payload = item.payload as Record<string, unknown> | undefined
   const toolName = String(payload?.toolName ?? item.toolName ?? item.tool ?? item.name ?? 'unknown')
-  const result = (payload?.result ?? item.result) as Record<string, unknown> | undefined
-
+  const result = payload?.result ?? item.result ?? item
   const summary: Record<string, unknown> = { tool: toolName }
-
-  if (result && typeof result === 'object') {
-    if ('observation' in result && typeof result.observation === 'object' && result.observation !== null) {
-      const obs = result.observation as Record<string, unknown>
-      for (const key of Object.keys(obs)) {
-        if (KEEP_KEYS.has(key)) summary[key] = obs[key]
-      }
-      if (result.error) summary.error = String(result.error)
-    } else {
-      for (const key of Object.keys(result)) {
-        if (KEEP_KEYS.has(key)) summary[key] = result[key]
-      }
+  const args = payload?.args ?? item.args ?? item.input
+  if (args !== undefined) summary.args = args
+  function copy(value: unknown) {
+    if (!value || typeof value !== 'object') return
+    for (const [key, field] of Object.entries(value)) {
+      if (KEEP_KEYS.has(key)) summary[key] = field
+      if (key === 'pageText') summary.outcomeText = field
     }
   }
-
+  if (Array.isArray(result)) summary.results = result
+  else {
+    copy((result as Record<string, unknown> | null)?.observation)
+    copy(result)
+    if (result && typeof result === 'object' && 'results' in result)
+      summary.results = result.results
+  }
   return summary as unknown as ToolSummary
 }
 
@@ -76,7 +111,7 @@ function compressEntry(entry: HistoryEntry): CompressedEntry {
     parsed = []
   }
 
-  const tools = parsed.map(item => {
+  const tools = parsed.map((item) => {
     if (typeof item === 'object' && item !== null) {
       return extractToolSummary(item as Record<string, unknown>)
     }
@@ -99,20 +134,18 @@ export function compressHistory(
 ): ReadonlyArray<CompressedEntry> {
   const cfg = { ...DEFAULT_HISTORY_CONFIG, ...config }
 
+  if (!Number.isInteger(cfg.totalBudgetBytes) || cfg.totalBudgetBytes < 2)
+    throw new Error('History budget must be an integer of at least 2 bytes')
   if (entries.length === 0) return []
 
   const compressed = entries.map(compressEntry)
-  const serialized = JSON.stringify(compressed)
-
-  if (byteLength(serialized) <= cfg.totalBudgetBytes) return compressed
-
-  const trimmed = compressed.map((entry, i) => {
-    if (i === compressed.length - 1) return entry
-    return {
-      ...entry,
-      text: entry.text.length > 80 ? entry.text.slice(0, 77) + '...' : entry.text,
-    }
-  })
-
-  return trimmed
+  // Keep whole entries, never cut IDs/arguments or silently produce invalid JSON.
+  // All omitted entries remain retrievable through history_read.
+  const selected: CompressedEntry[] = []
+  for (let i = compressed.length - 1; i >= 0; i--) {
+    const candidate = [compressed[i], ...selected]
+    if (byteLength(JSON.stringify(candidate)) > cfg.totalBudgetBytes) break
+    selected.unshift(compressed[i])
+  }
+  return selected
 }

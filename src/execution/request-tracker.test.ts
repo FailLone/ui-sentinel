@@ -37,8 +37,8 @@ describe('createRequestTracker', () => {
     tracker.startRequest('agent', 'model-a').finish({ inputTokens: 150, outputTokens: 60 })
 
     const records = tracker.records
-    expect(records.map(r => r.seq)).toEqual([1, 2, 3])
-    expect(records.map(r => r.purpose)).toEqual(['agent', 'vision', 'agent'])
+    expect(records.map((r) => r.seq)).toEqual([1, 2, 3])
+    expect(records.map((r) => r.purpose)).toEqual(['agent', 'vision', 'agent'])
   })
 
   it('summarizes with full usage', () => {
@@ -86,5 +86,17 @@ describe('createRequestTracker', () => {
 
     expect(s1.records).toHaveLength(1)
     expect(s2.records).toHaveLength(2)
+  })
+})
+
+it('settles interrupted requests once and cannot double-count late callbacks', () => {
+  const tracker = createRequestTracker(),
+    handle = tracker.startRequest('vision', 'qwen')
+  tracker.finishPending('cancelled')
+  handle.finish({ inputTokens: 2, outputTokens: 1 })
+  expect(tracker.summarize()).toMatchObject({
+    totalRequests: 1,
+    errorCount: 1,
+    totalInputTokens: null,
   })
 })

@@ -21,10 +21,19 @@ app.route('/', evaluationRoutes)
 
 app.use('/api/*', async (c, next) => {
   const origin = c.req.header('origin')
-  if (origin && origin !== new URL(c.req.url).origin) return c.json({ error: 'cross-origin request denied' }, 403)
+  if (origin && origin !== new URL(c.req.url).origin)
+    return c.json({ error: 'cross-origin request denied' }, 403)
   await next()
 })
-app.onError((err,c) => c.json({error: 'request-failed', message: err instanceof SyntaxError ? 'Invalid JSON' : 'Request failed'}, err instanceof SyntaxError ? 400 : 500))
+app.onError((err, c) =>
+  c.json(
+    {
+      error: 'request-failed',
+      message: err instanceof SyntaxError ? 'Invalid JSON' : 'Request failed',
+    },
+    err instanceof SyntaxError ? 400 : 500,
+  ),
+)
 app.use('/assets/*', serveStatic({ root: './dist/web' }))
 
 app.route('/', healthRoutes)

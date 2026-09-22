@@ -26,11 +26,19 @@ const baseSnapshot = {
 describe('createElementStore', () => {
   it('assigns unique refs across snapshots', () => {
     const store = createElementStore()
-    const s1 = store.registerSnapshot('s1', { ...baseSnapshot, elements: [makeElement('a'), makeElement('b')] }, 'ref1')
-    const s2 = store.registerSnapshot('s2', { ...baseSnapshot, elements: [makeElement('c')] }, 'ref2')
+    const s1 = store.registerSnapshot(
+      's1',
+      { ...baseSnapshot, elements: [makeElement('a'), makeElement('b')] },
+      'ref1',
+    )
+    const s2 = store.registerSnapshot(
+      's2',
+      { ...baseSnapshot, elements: [makeElement('c')] },
+      'ref2',
+    )
 
-    const refs1 = s1.elements.map(e => e.ref)
-    const refs2 = s2.elements.map(e => e.ref)
+    const refs1 = s1.elements.map((e) => e.ref)
+    const refs2 = s2.elements.map((e) => e.ref)
     expect(refs1).toEqual(['e1', 'e2'])
     expect(refs2).toEqual(['e3'])
   })
@@ -73,7 +81,11 @@ describe('createElementStore', () => {
   it('tracks ref count', () => {
     const store = createElementStore()
     expect(store.getRefCount()).toBe(0)
-    store.registerSnapshot('s1', { ...baseSnapshot, elements: [makeElement('a'), makeElement('b')] }, 'ref1')
+    store.registerSnapshot(
+      's1',
+      { ...baseSnapshot, elements: [makeElement('a'), makeElement('b')] },
+      'ref1',
+    )
     expect(store.getRefCount()).toBe(2)
     store.registerSnapshot('s2', { ...baseSnapshot, elements: [makeElement('c')] }, 'ref2')
     expect(store.getRefCount()).toBe(3)
@@ -88,7 +100,11 @@ describe('createElementStore', () => {
 
   it('produces slim snapshot with hit summaries', () => {
     const store = createElementStore()
-    const slim = store.registerSnapshot('s1', { ...baseSnapshot, elements: [makeElement('a')] }, 'sc')
+    const slim = store.registerSnapshot(
+      's1',
+      { ...baseSnapshot, elements: [makeElement('a')] },
+      'sc',
+    )
 
     expect(slim.snapshotId).toBe('s1')
     expect(slim.elements[0].hit).toBeDefined()

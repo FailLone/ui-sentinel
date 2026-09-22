@@ -35,10 +35,12 @@ function emptyUsage(): RunUsage {
   }
 }
 
-export async function createRun(spec: Omit<RunSpec, 'budget' | 'viewport'> & {
-  budget?: Partial<RunSpec['budget']>
-  viewport?: RunSpec['viewport']
-}): Promise<Run> {
+export async function createRun(
+  spec: Omit<RunSpec, 'budget' | 'viewport'> & {
+    budget?: Partial<RunSpec['budget']>
+    viewport?: RunSpec['viewport']
+  },
+): Promise<Run> {
   await initDatabase()
   const db = getDbClient()
 
@@ -189,22 +191,22 @@ async function appendEventInternal(
     for (const listener of active.listeners) {
       try {
         listener(event)
-      } catch { /* swallow listener errors */ }
+      } catch {
+        /* swallow listener errors */
+      }
     }
   }
 
   return event
 }
 
-export async function getEvents(
-  runId: string,
-  afterSeq?: number,
-): Promise<readonly RunEvent[]> {
+export async function getEvents(runId: string, afterSeq?: number): Promise<readonly RunEvent[]> {
   const db = getDbClient()
 
-  const sql = afterSeq != null
-    ? 'SELECT * FROM run_events WHERE run_id = ? AND seq > ? ORDER BY seq'
-    : 'SELECT * FROM run_events WHERE run_id = ? ORDER BY seq'
+  const sql =
+    afterSeq != null
+      ? 'SELECT * FROM run_events WHERE run_id = ? AND seq > ? ORDER BY seq'
+      : 'SELECT * FROM run_events WHERE run_id = ? ORDER BY seq'
 
   const args = afterSeq != null ? [runId, afterSeq] : [runId]
 
@@ -252,7 +254,9 @@ export async function getFindings(runId: string): Promise<readonly Finding[]> {
   return result.rows.map(rowToFinding)
 }
 
-export async function recordHypothesis(h: Omit<Hypothesis, 'id' | 'createdAt'>): Promise<Hypothesis> {
+export async function recordHypothesis(
+  h: Omit<Hypothesis, 'id' | 'createdAt'>,
+): Promise<Hypothesis> {
   const db = getDbClient()
   const id = `hyp-${randomUUID()}`
   const now = new Date().toISOString()
@@ -317,10 +321,7 @@ export function removeActiveRun(runId: string): void {
   activeRuns.delete(runId)
 }
 
-export function subscribeToEvents(
-  runId: string,
-  listener: RunEventListener,
-): () => void {
+export function subscribeToEvents(runId: string, listener: RunEventListener): () => void {
   const active = activeRuns.get(runId)
   if (!active) return () => {}
 
@@ -387,10 +388,15 @@ export function appendEvent(...args: Parameters<typeof appendEventInternal>): Pr
 
 export async function reconcileInterruptedRuns(): Promise<void> {
   await initDatabase()
-  const rows = await getDbClient().execute("SELECT id FROM runs WHERE status IN ('queued','running')")
+  const rows = await getDbClient().execute(
+    "SELECT id FROM runs WHERE status IN ('queued','running')",
+  )
   for (const row of rows.rows) {
     const id = String(row.id)
-    await updateRunStatus(id, 'interrupted', {stopReason:'reconciliation-required'})
-    await appendEvent(id, 'run:interrupted', {reason:'reconciliation-required', replayAllowed:false})
+    await updateRunStatus(id, 'interrupted', { stopReason: 'reconciliation-required' })
+    await appendEvent(id, 'run:interrupted', {
+      reason: 'reconciliation-required',
+      replayAllowed: false,
+    })
   }
 }

@@ -66,11 +66,7 @@ export interface RunEvent {
 
 export type FindingSource = 'rule' | 'agent'
 
-export type FindingValidation =
-  | 'candidate'
-  | 'supported'
-  | 'inconclusive'
-  | 'refuted'
+export type FindingValidation = 'candidate' | 'supported' | 'inconclusive' | 'refuted'
 
 export type FindingSeverity = 'error' | 'warning' | 'info'
 
@@ -91,11 +87,7 @@ export interface Finding {
   readonly createdAt: string
 }
 
-export type FeedbackVerdict =
-  | 'confirmed'
-  | 'intentional'
-  | 'cannot-reproduce'
-  | 'deferred'
+export type FeedbackVerdict = 'confirmed' | 'intentional' | 'cannot-reproduce' | 'deferred'
 
 export interface FindingFeedback {
   readonly findingId: string
@@ -104,12 +96,7 @@ export interface FindingFeedback {
   readonly createdAt: string
 }
 
-export type RuleProposalStatus =
-  | 'draft'
-  | 'validating'
-  | 'approved'
-  | 'rejected'
-  | 'enabled'
+export type RuleProposalStatus = 'draft' | 'validating' | 'approved' | 'rejected' | 'enabled'
 
 export interface RuleProposal {
   readonly id: string

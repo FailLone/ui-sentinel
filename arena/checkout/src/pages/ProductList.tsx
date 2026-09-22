@@ -40,9 +40,7 @@ export function ProductList({ onCartUpdate, onGoToCart }: Props) {
       <div className="product-grid">
         {products.map((product) => (
           <div key={product.id} className="product-card">
-            <div className="product-image">
-              {PRODUCT_ICONS[product.id] ?? '📦'}
-            </div>
+            <div className="product-image">{PRODUCT_ICONS[product.id] ?? '📦'}</div>
             <h3>{product.name}</h3>
             <div className="price">${product.price.toFixed(2)}</div>
             <p>{product.description}</p>

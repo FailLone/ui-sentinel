@@ -6,7 +6,14 @@ describe('analyzeInputComposition', () => {
     const input = {
       goal: 'Complete a purchase',
       knownRules: [{ id: 'r1', name: 'overlay-check' }],
-      observation: { snapshot: { url: 'http://localhost:4173', elements: [], text: 'Hello', observedAt: '2026-01-01' } },
+      observation: {
+        snapshot: {
+          url: 'http://localhost:4173',
+          elements: [],
+          text: 'Hello',
+          observedAt: '2026-01-01',
+        },
+      },
       history: [{ text: 'clicked button', toolResults: '[]' }],
       notes: [{ state: 'cart' }],
       budgetRemaining: { actions: 35, modelCalls: 25 },
@@ -21,8 +28,12 @@ describe('analyzeInputComposition', () => {
     expect(comp.parts.notes).toBeGreaterThan(0)
     expect(comp.parts.budget).toBeGreaterThan(0)
     expect(comp.totalBytes).toBe(
-      comp.parts.goal + comp.parts.rules + comp.parts.observation +
-      comp.parts.history + comp.parts.notes + comp.parts.budget,
+      comp.parts.goal +
+        comp.parts.rules +
+        comp.parts.observation +
+        comp.parts.history +
+        comp.parts.notes +
+        comp.parts.budget,
     )
   })
 
@@ -44,7 +55,9 @@ describe('analyzeInputComposition', () => {
     const comp = analyzeInputComposition({
       goal: 'test',
       knownRules: [],
-      observation: { snapshot: { elements, text: 'Page text content', url: 'http://x', observedAt: 'now' } },
+      observation: {
+        snapshot: { elements, text: 'Page text content', url: 'http://x', observedAt: 'now' },
+      },
       history: [],
       notes: [],
       budgetRemaining: {},
@@ -52,7 +65,9 @@ describe('analyzeInputComposition', () => {
 
     expect(comp.observationBreakdown).not.toBeNull()
     expect(comp.observationBreakdown!.hitSamples).toBeGreaterThan(0)
-    expect(comp.observationBreakdown!.elements).toBeGreaterThan(comp.observationBreakdown!.hitSamples)
+    expect(comp.observationBreakdown!.elements).toBeGreaterThan(
+      comp.observationBreakdown!.hitSamples,
+    )
     expect(comp.observationBreakdown!.text).toBeGreaterThan(0)
   })
 
@@ -84,7 +99,17 @@ describe('analyzeInputComposition', () => {
     const comp = analyzeInputComposition({
       goal: 'test',
       knownRules: [],
-      observation: { snapshotId: 's1', elements: slimElements, pageText: 'Page text content', url: 'http://x', observedAt: 'now', elementCount: 1, screenshotRef: 'ref', title: 'Shop', viewport: { width: 1280, height: 768 } },
+      observation: {
+        snapshotId: 's1',
+        elements: slimElements,
+        pageText: 'Page text content',
+        url: 'http://x',
+        observedAt: 'now',
+        elementCount: 1,
+        screenshotRef: 'ref',
+        title: 'Shop',
+        viewport: { width: 1280, height: 768 },
+      },
       history: [],
       notes: [],
       budgetRemaining: {},
@@ -113,7 +138,9 @@ describe('formatCompositionReport', () => {
     const comp = analyzeInputComposition({
       goal: 'test',
       knownRules: [{ id: 'r1' }],
-      observation: { snapshot: { elements: [{ hitSamples: [{ x: 1, y: 1 }] }], text: 'hi', url: 'http://x' } },
+      observation: {
+        snapshot: { elements: [{ hitSamples: [{ x: 1, y: 1 }] }], text: 'hi', url: 'http://x' },
+      },
       history: [],
       notes: [],
       budgetRemaining: { a: 1 },

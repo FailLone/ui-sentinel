@@ -24,16 +24,15 @@ const app = new Hono()
 
 const control = new Hono()
 const controlToken = process.env.ARENA_CONTROL_TOKEN ?? randomBytes(32).toString('hex')
-control.use('*', async (c,next) => {
-  if (c.req.header('authorization') !== `Bearer ${controlToken}`) return c.json({error:'unauthorized'},401)
+control.use('*', async (c, next) => {
+  if (c.req.header('authorization') !== `Bearer ${controlToken}`)
+    return c.json({ error: 'unauthorized' }, 401)
   await next()
 })
 
 app.get('/api/products', (c) => c.json(getProducts()))
 
-app.get('/api/cart', (c) =>
-  c.json({ items: getCart(), total: getCartTotal() }),
-)
+app.get('/api/cart', (c) => c.json({ items: getCart(), total: getCartTotal() }))
 
 app.post('/api/cart/add', async (c) => {
   const body = await c.req.json<{ productId: string; quantity?: number }>()
@@ -77,7 +76,7 @@ app.get('/api/variant-config', (c) => {
 })
 
 control.post('/__control/reset', async (c) => {
-  const body = await c.req.json<{ variant?: string }>().catch(() => ({} as {variant?:string}))
+  const body = await c.req.json<{ variant?: string }>().catch(() => ({}) as { variant?: string })
   const variant = (body.variant ?? 'C0') as VariantId
   if (!VALID_VARIANTS.has(variant)) {
     return c.json({ error: `Invalid variant: ${variant}` }, 400)
@@ -86,11 +85,11 @@ control.post('/__control/reset', async (c) => {
   return c.json({ ok: true, variant })
 })
 
-control.get('/__control/state', (c) => c.json({...getArenaState(), orders:getOrders()}))
+control.get('/__control/state', (c) => c.json({ ...getArenaState(), orders: getOrders() }))
 
 if (process.env.ARENA_STATIC === '1') {
-  app.use('/*', serveStatic({root:'./arena/checkout/dist'}))
-  serve({fetch:app.fetch, port:Number(process.env.ARENA_PORT ?? 4173), hostname:'127.0.0.1'})
+  app.use('/*', serveStatic({ root: './arena/checkout/dist' }))
+  serve({ fetch: app.fetch, port: Number(process.env.ARENA_PORT ?? 4173), hostname: '127.0.0.1' })
 }
 
 serve({ fetch: app.fetch, port: PORT, hostname: '127.0.0.1' }, () => {
@@ -99,4 +98,8 @@ serve({ fetch: app.fetch, port: PORT, hostname: '127.0.0.1' }, () => {
 
 export { app }
 
-serve({fetch:control.fetch,port:Number(process.env.ARENA_CONTROL_PORT ?? 4175),hostname:'127.0.0.1'})
+serve({
+  fetch: control.fetch,
+  port: Number(process.env.ARENA_CONTROL_PORT ?? 4175),
+  hostname: '127.0.0.1',
+})

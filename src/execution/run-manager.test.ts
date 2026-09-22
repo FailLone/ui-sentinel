@@ -68,7 +68,13 @@ describe('run-manager operations', () => {
 
   it('inserts and queries a run', async () => {
     const id = 'test-run-001'
-    const spec = { goal: 'test', environmentId: 'e1', entryUrl: 'http://localhost', budget: { totalTimeoutMs: 30000, maxActions: 10, maxModelCalls: 5 }, viewport: { width: 1280, height: 768 } }
+    const spec = {
+      goal: 'test',
+      environmentId: 'e1',
+      entryUrl: 'http://localhost',
+      budget: { totalTimeoutMs: 30000, maxActions: 10, maxModelCalls: 5 },
+      viewport: { width: 1280, height: 768 },
+    }
 
     await db.execute({
       sql: `INSERT INTO runs (id, spec, status, business_result, usage, created_at, updated_at)
@@ -147,7 +153,10 @@ describe('run-manager operations', () => {
       args: ['hyp-001'],
     })
 
-    const result = await db.execute({ sql: 'SELECT * FROM hypotheses WHERE id = ?', args: ['hyp-001'] })
+    const result = await db.execute({
+      sql: 'SELECT * FROM hypotheses WHERE id = ?',
+      args: ['hyp-001'],
+    })
     expect(result.rows[0].status).toBe('supported')
     expect(JSON.parse(String(result.rows[0].evidence_refs))).toHaveLength(2)
   })

@@ -2,7 +2,8 @@ import 'dotenv/config'
 
 function bounded(name: string, fallback: number, max: number): number {
   const value = Number(process.env[name] ?? fallback)
-  if (!Number.isSafeInteger(value) || value <= 0 || value > max) throw new Error(`Invalid ${name}: expected integer in 1..${max}`)
+  if (!Number.isSafeInteger(value) || value <= 0 || value > max)
+    throw new Error(`Invalid ${name}: expected integer in 1..${max}`)
   return value
 }
 
@@ -27,8 +28,10 @@ export function checkModelConfig(): { ready: boolean; missing: string[] } {
   if (!config.agentModel) missing.push('AGENT_MODEL')
   if (!config.visionModel) missing.push('VISION_MODEL')
 
-  if (!process.env.VISION_API_KEY && !process.env.MIDSCENE_MODEL_API_KEY) missing.push('VISION_API_KEY')
-  if (!process.env.VISION_MODEL_FAMILY && !process.env.MIDSCENE_MODEL_FAMILY) missing.push('VISION_MODEL_FAMILY')
+  if (!process.env.VISION_API_KEY && !process.env.MIDSCENE_MODEL_API_KEY)
+    missing.push('VISION_API_KEY')
+  if (!process.env.VISION_MODEL_FAMILY && !process.env.MIDSCENE_MODEL_FAMILY)
+    missing.push('VISION_MODEL_FAMILY')
   const provider = config.agentModel.split('/')[0]
   const keyMap: Record<string, string> = {
     anthropic: 'ANTHROPIC_API_KEY',
@@ -36,7 +39,8 @@ export function checkModelConfig(): { ready: boolean; missing: string[] } {
     google: 'GOOGLE_API_KEY',
   }
   const keyVar = keyMap[provider]
-  if (!keyVar && config.agentModel) missing.push('supported AGENT_MODEL provider (openai/anthropic/google)')
+  if (!keyVar && config.agentModel)
+    missing.push('supported AGENT_MODEL provider (openai/anthropic/google)')
   if (keyVar && !process.env[keyVar]) {
     missing.push(keyVar)
   }

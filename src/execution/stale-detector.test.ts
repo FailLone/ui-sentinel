@@ -12,8 +12,28 @@ function makeSlim(overrides: Partial<SlimSnapshot> = {}): SlimSnapshot {
     screenshotRef: 'ref-1',
     elementCount: 2,
     elements: [
-      { ref: 'e1', selector: 'button:nth-of-type(1)', tag: 'button', text: 'Buy', visible: true, enabled: true, bounds: { x: 10, y: 20, width: 100, height: 40 }, attributes: {}, hit: { sampled: 5, self: 5, descendant: 0, blocked: 0, blockerRefs: [] } },
-      { ref: 'e2', selector: 'h1:nth-of-type(1)', tag: 'h1', text: 'Welcome', visible: true, enabled: true, bounds: { x: 0, y: 0, width: 400, height: 60 }, attributes: {}, hit: { sampled: 5, self: 5, descendant: 0, blocked: 0, blockerRefs: [] } },
+      {
+        ref: 'e1',
+        selector: 'button:nth-of-type(1)',
+        tag: 'button',
+        text: 'Buy',
+        visible: true,
+        enabled: true,
+        bounds: { x: 10, y: 20, width: 100, height: 40 },
+        attributes: {},
+        hit: { sampled: 5, self: 5, descendant: 0, blocked: 0, blockerRefs: [] },
+      },
+      {
+        ref: 'e2',
+        selector: 'h1:nth-of-type(1)',
+        tag: 'h1',
+        text: 'Welcome',
+        visible: true,
+        enabled: true,
+        bounds: { x: 0, y: 0, width: 400, height: 60 },
+        attributes: {},
+        hit: { sampled: 5, self: 5, descendant: 0, blocked: 0, blockerRefs: [] },
+      },
     ],
     pageText: 'Welcome to the shop. Buy now.',
     ...overrides,
@@ -28,7 +48,11 @@ describe('createStaleDetector', () => {
     const first = det.checkObservation(snap)
     expect(first.fresh).toBe(true)
 
-    const second = det.checkObservation({ ...snap, snapshotId: 's2', observedAt: new Date().toISOString() })
+    const second = det.checkObservation({
+      ...snap,
+      snapshotId: 's2',
+      observedAt: new Date().toISOString(),
+    })
     expect(second.fresh).toBe(false)
     if (!second.fresh) expect(second.staleCount).toBe(1)
 
@@ -76,10 +100,7 @@ describe('createStaleDetector', () => {
     det.checkObservation(snap)
 
     const changed = makeSlim({
-      elements: [
-        { ...snap.elements[0], visible: false },
-        snap.elements[1],
-      ],
+      elements: [{ ...snap.elements[0], visible: false }, snap.elements[1]],
     })
     const result = det.checkObservation(changed)
     expect(result.fresh).toBe(true)
@@ -112,17 +133,26 @@ describe('createStaleDetector', () => {
 
     const r1 = det.checkObservation(snap)
     expect(r1.fresh).toBe(false)
-    if (!r1.fresh) { expect(r1.hint).toBeNull(); expect(r1.compact).toBe(false) }
+    if (!r1.fresh) {
+      expect(r1.hint).toBeNull()
+      expect(r1.compact).toBe(false)
+    }
 
     const r2 = det.checkObservation(snap)
     expect(r2.fresh).toBe(false)
-    if (!r2.fresh) { expect(r2.hint).toBeTruthy(); expect(r2.compact).toBe(false) }
+    if (!r2.fresh) {
+      expect(r2.hint).toBeTruthy()
+      expect(r2.compact).toBe(false)
+    }
 
     det.checkObservation(snap)
 
     const r4 = det.checkObservation(snap)
     expect(r4.fresh).toBe(false)
-    if (!r4.fresh) { expect(r4.compact).toBe(true); expect(r4.hint).toContain('run_finish') }
+    if (!r4.fresh) {
+      expect(r4.compact).toBe(true)
+      expect(r4.hint).toContain('run_finish')
+    }
   })
 
   it('still counts stale observations toward budget (infinite wait limited)', () => {
@@ -244,11 +274,17 @@ describe('checkA11y', () => {
     if (!r1.fresh) expect(r1.hint).toBeNull()
 
     const r2 = det.checkA11y(url, tree)
-    if (!r2.fresh) { expect(r2.hint).toBeTruthy(); expect(r2.compact).toBe(false) }
+    if (!r2.fresh) {
+      expect(r2.hint).toBeTruthy()
+      expect(r2.compact).toBe(false)
+    }
 
     det.checkA11y(url, tree)
     const r4 = det.checkA11y(url, tree)
-    if (!r4.fresh) { expect(r4.compact).toBe(true); expect(r4.hint).toContain('run_finish') }
+    if (!r4.fresh) {
+      expect(r4.compact).toBe(true)
+      expect(r4.hint).toContain('run_finish')
+    }
   })
 
   it('a11y and slim checks share the same fingerprint state', () => {
@@ -264,4 +300,23 @@ describe('checkA11y', () => {
     det.checkA11y('http://localhost:4173', '- button "Buy"')
     expect(det.getStats().consecutiveStale).toBe(0)
   })
+})
+
+it('detects hit-test and geometry changes behind an unchanged accessibility tree', () => {
+  const detector = createStaleDetector(),
+    before = makeSlim()
+  detector.checkA11y(before.url, 'button Buy', before)
+  const blocked = {
+    ...before,
+    elements: before.elements.map((e) => ({ ...e, hit: { ...e.hit, self: 0, blocked: 5 } })),
+  }
+  expect(detector.checkA11y(before.url, 'button Buy', blocked).fresh).toBe(true)
+  const moved = {
+    ...blocked,
+    elements: blocked.elements.map((e) => ({ ...e, bounds: { ...e.bounds, y: 999 } })),
+  }
+  expect(detector.checkA11y(before.url, 'button Buy', moved).fresh).toBe(true)
+  expect(detector.checkA11y(before.url, 'button Buy', { ...moved, snapshotId: 'new' }).fresh).toBe(
+    false,
+  )
 })

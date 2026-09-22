@@ -36,7 +36,11 @@ export function Cart({ cart, onCartUpdate, onCheckout, onContinueShopping }: Pro
         <h2>Shopping Cart</h2>
         <div className="empty-cart">
           <p>Your cart is empty</p>
-          <button className="btn btn-primary" onClick={onContinueShopping} style={{ marginTop: 16 }}>
+          <button
+            className="btn btn-primary"
+            onClick={onContinueShopping}
+            style={{ marginTop: 16 }}
+          >
             Continue Shopping
           </button>
         </div>

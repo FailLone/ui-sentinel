@@ -13,7 +13,12 @@ export interface SlimElement {
   readonly text: string
   readonly visible: boolean
   readonly enabled: boolean
-  readonly bounds: { readonly x: number; readonly y: number; readonly width: number; readonly height: number }
+  readonly bounds: {
+    readonly x: number
+    readonly y: number
+    readonly width: number
+    readonly height: number
+  }
   readonly attributes: Readonly<Record<string, string>>
   readonly hit: HitSummary
 }
@@ -36,7 +41,12 @@ export interface FullElement {
   readonly text: string
   readonly visible: boolean
   readonly enabled: boolean
-  readonly bounds: { readonly x: number; readonly y: number; readonly width: number; readonly height: number }
+  readonly bounds: {
+    readonly x: number
+    readonly y: number
+    readonly width: number
+    readonly height: number
+  }
   readonly attributes: Readonly<Record<string, string>>
   readonly hitSamples: readonly FullHitSample[]
 }
@@ -46,7 +56,12 @@ export interface FullHitSample {
   readonly y: number
   readonly hitSelector: string | null
   readonly relation: string
-  readonly blockerBounds?: { readonly x: number; readonly y: number; readonly width: number; readonly height: number }
+  readonly blockerBounds?: {
+    readonly x: number
+    readonly y: number
+    readonly width: number
+    readonly height: number
+  }
 }
 
 const TEXT_LIMIT = 120
@@ -69,7 +84,7 @@ export function toSlimSnapshot(
     selectorToRef.set(selector, ref)
   }
 
-  const elements: SlimElement[] = fullSnapshot.elements.map(el => {
+  const elements: SlimElement[] = fullSnapshot.elements.map((el) => {
     const ref = selectorToRef.get(el.selector) ?? '?'
     return {
       ref,

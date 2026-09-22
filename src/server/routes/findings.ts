@@ -17,7 +17,10 @@ findingRoutes.post('/api/findings/:id/feedback', async (c) => {
   const body = await c.req.json<{ verdict: string; reason?: string }>()
 
   if (!VALID_VERDICTS.has(body.verdict as FeedbackVerdict)) {
-    return c.json({ error: `invalid verdict. Must be one of: ${[...VALID_VERDICTS].join(', ')}` }, 400)
+    return c.json(
+      { error: `invalid verdict. Must be one of: ${[...VALID_VERDICTS].join(', ')}` },
+      400,
+    )
   }
 
   const db = getDbClient()

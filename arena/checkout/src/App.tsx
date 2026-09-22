@@ -35,12 +35,12 @@ export function App() {
       <header>
         <h1>TechMart</h1>
         <nav>
-          <a href="#" onClick={() => setPage('products')}>Products</a>
+          <a href="#" onClick={() => setPage('products')}>
+            Products
+          </a>
           <a href="#" onClick={() => setPage('cart')}>
             Cart
-            {cart.items.length > 0 && (
-              <span className="badge">{cart.items.length}</span>
-            )}
+            {cart.items.length > 0 && <span className="badge">{cart.items.length}</span>}
           </a>
         </nav>
       </header>

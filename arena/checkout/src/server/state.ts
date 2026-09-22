@@ -92,9 +92,7 @@ export function addToCart(productId: string, quantity: number): readonly CartIte
     state = {
       ...state,
       cart: state.cart.map((item) =>
-        item.productId === productId
-          ? { ...item, quantity: item.quantity + quantity }
-          : item,
+        item.productId === productId ? { ...item, quantity: item.quantity + quantity } : item,
       ),
     }
   } else {
@@ -142,7 +140,8 @@ export function processPayment(): PaymentResult {
         items: [...state.cart],
         total,
         status: 'rejected',
-        paymentMessage: 'Payment declined: Insufficient funds. Please use a different payment method.',
+        paymentMessage:
+          'Payment declined: Insufficient funds. Please use a different payment method.',
         createdAt: new Date().toISOString(),
       }
       state = { ...state, orders: [...state.orders, order] }

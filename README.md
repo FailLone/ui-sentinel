@@ -44,6 +44,7 @@ pnpm arena:start
 ## 验证命令
 
 ```sh
+pnpm format:check
 pnpm typecheck
 pnpm test
 pnpm build
@@ -61,7 +62,18 @@ pnpm report -- --run RUN_ID
 - `evaluate`：固定 C0–C5 各三次，正式 Run API、独立后端和原始证据评分；每轮立即保存（含失败/invalid），最后生成固定门槛摘要。结果在 `data/evaluations/<batch>/`。失败退出非零。测试期间工作台新任务被拒绝；已有学习规则时拒绝将其用于“未知规则发现”的 minimum 评估。
 - `report`：打印工作台链接并导出 `data/reports/<run>.json`。
 
-模型预算默认 300 秒、40 次动作、30 次模型请求（包含视觉请求），单工具默认 15 秒。缺失 token 用量显示 unavailable。任务串行，取消阻止新动作；不确定写结果保留为 `interrupted/reconciliation-required`，不自动重放。
+模型预算默认 300 秒、40 次动作、40 次模型请求（包含视觉请求），单工具默认 15 秒。缺失 token 用量显示 unavailable。任务串行，取消阻止新动作；不确定写结果保留为 `interrupted/reconciliation-required`，不自动重放。
+
+## 代码规范
+
+使用 Biome 格式化服务端、React 靶场、工作台、评估器、脚本及测试中的受支持文件。统一两空格缩进、单引号、按需分号与 100 列排版；构建产物和本地运行数据不参与检查。
+
+```sh
+pnpm format
+pnpm format:check
+```
+
+当前关闭 Biome 的 linter 和 assist，只整理格式；后续需要时在 `biome.json` 中逐步开启检查。保留 TypeScript 7 类型检查，提交前执行格式检查、测试和构建。Markdown 文档暂不参与自动排版。
 
 ## 反馈与规则复查
 
@@ -80,3 +92,14 @@ pnpm report -- --run RUN_ID
 服务重启将未完成 Run 标为 interrupted。私有操作者需检查订单和副作用，确认处理方式，再以控制 token 调用 `POST /api/evaluation/reconcile`，body 为 `{"verified":true,"reason":"核对过程与结果"}`。该操作保存核对记录，不重放旧 Run，也不自动回滚订单。没有待执行任务才能解除阻塞。
 
 当前范围和验收状态见 [开发计划](plans/minimum-validation-plan.md) 与 [进度记录](plans/minimum-validation-progress.md)。
+
+### 浏览器循环对照实验
+
+隔离比较当前执行器与 Stagehand 3.7.3。使用本机 `.env` 的 `OPENROUTER_API_KEY`，生产模型配置和执行器源码不变。
+
+```sh
+pnpm build
+pnpm experiment:browser --repeats 3 --arms current,stagehand
+```
+
+运行真实付费模型，缺凭据明确失败。协议、限制及结果见 [实验计划](plans/browser-loop-experiment.md) 和 [实验结果](plans/browser-loop-experiment-results.md)。本实验只验证购买操作，不代替 C0–C5 的质量检查验收。

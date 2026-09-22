@@ -2,7 +2,13 @@ import { describe, it, expect } from 'vitest'
 import { toSlimSnapshot, type FullElement, type FullHitSample } from './observation-slim.ts'
 
 function makeHitSample(overrides: Partial<FullHitSample> = {}): FullHitSample {
-  return { x: 50, y: 30, hitSelector: 'html > body > button:nth-of-type(1)', relation: 'self', ...overrides }
+  return {
+    x: 50,
+    y: 30,
+    hitSelector: 'html > body > button:nth-of-type(1)',
+    relation: 'self',
+    ...overrides,
+  }
 }
 
 function makeElement(overrides: Partial<FullElement> = {}): FullElement {
@@ -51,15 +57,28 @@ describe('toSlimSnapshot', () => {
   })
 
   it('resolves blocker refs when blocker is a known element', () => {
-    const blocker: FullElement = { ...makeElement(), selector: 'html > body > div:nth-of-type(1)', tag: 'div', text: 'Overlay' }
+    const blocker: FullElement = {
+      ...makeElement(),
+      selector: 'html > body > div:nth-of-type(1)',
+      tag: 'div',
+      text: 'Overlay',
+    }
     const target = makeElement({
       hitSamples: [
         makeHitSample({ relation: 'unrelated', hitSelector: blocker.selector }),
         makeHitSample({ relation: 'self' }),
       ],
     })
-    const refMap = new Map([['e1', target.selector], ['e2', blocker.selector]])
-    const slim = toSlimSnapshot({ ...baseSnapshot, elements: [target, blocker] }, 's1', 'ref', refMap)
+    const refMap = new Map([
+      ['e1', target.selector],
+      ['e2', blocker.selector],
+    ])
+    const slim = toSlimSnapshot(
+      { ...baseSnapshot, elements: [target, blocker] },
+      's1',
+      'ref',
+      refMap,
+    )
 
     expect(slim.elements[0].hit.blockerRefs).toEqual(['e2'])
   })
@@ -80,15 +99,19 @@ describe('toSlimSnapshot', () => {
       return makeElement({
         selector: sel,
         text: `Product ${i + 1} description with some details about pricing and availability`,
-        hitSamples: Array.from({ length: 5 }, () => makeHitSample({
-          hitSelector: sel,
-          blockerBounds: { x: 0, y: 0, width: 100, height: 40 },
-        })),
+        hitSamples: Array.from({ length: 5 }, () =>
+          makeHitSample({
+            hitSelector: sel,
+            blockerBounds: { x: 0, y: 0, width: 100, height: 40 },
+          }),
+        ),
       })
     })
     const refMap = new Map(elements.map((el, i) => [`e${i + 1}`, el.selector] as const))
 
-    const fullBytes = new TextEncoder().encode(JSON.stringify({ ...baseSnapshot, elements })).byteLength
+    const fullBytes = new TextEncoder().encode(
+      JSON.stringify({ ...baseSnapshot, elements }),
+    ).byteLength
     const slim = toSlimSnapshot({ ...baseSnapshot, elements }, 's1', 'ref', refMap)
     const slimBytes = new TextEncoder().encode(JSON.stringify(slim)).byteLength
 

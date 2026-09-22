@@ -25,15 +25,21 @@ export interface RequestTrackerSummary {
 
 export function createRequestTracker() {
   const records: ModelRequestRecord[] = []
+  const pending = new Map<number, (result: RequestFinishInput) => ModelRequestRecord>()
   let seq = 0
   let hasUnknownUsage = false
 
-  function startRequest(purpose: 'agent' | 'vision', model: string): { finish: (result: RequestFinishInput) => ModelRequestRecord } {
+  function startRequest(
+    purpose: 'agent' | 'vision',
+    model: string,
+  ): { finish: (result: RequestFinishInput) => ModelRequestRecord } {
     const currentSeq = ++seq
     const startedAt = Date.now()
 
-    return {
+    let completed: ModelRequestRecord | undefined
+    const handle = {
       finish(result: RequestFinishInput): ModelRequestRecord {
+        if (completed) return completed
         const record: ModelRequestRecord = {
           seq: currentSeq,
           purpose,
@@ -48,19 +54,31 @@ export function createRequestTracker() {
         if (record.inputTokens === null || record.outputTokens === null) {
           hasUnknownUsage = true
         }
+        completed = record
+        pending.delete(currentSeq)
         records.push(record)
         return record
       },
     }
+    pending.set(currentSeq, handle.finish)
+    return handle
+  }
+
+  function finishPending(error: string) {
+    for (const finish of pending.values()) finish({ error })
   }
 
   function summarize(): RequestTrackerSummary {
-    const agentRecords = records.filter(r => r.purpose === 'agent')
-    const visionRecords = records.filter(r => r.purpose === 'vision')
-    const successes = records.filter(r => r.status === 'success')
+    const agentRecords = records.filter((r) => r.purpose === 'agent')
+    const visionRecords = records.filter((r) => r.purpose === 'vision')
+    const successes = records.filter((r) => r.status === 'success')
 
-    const totalInput = hasUnknownUsage ? null : records.reduce((sum, r) => sum + (r.inputTokens ?? 0), 0)
-    const totalOutput = hasUnknownUsage ? null : records.reduce((sum, r) => sum + (r.outputTokens ?? 0), 0)
+    const totalInput = hasUnknownUsage
+      ? null
+      : records.reduce((sum, r) => sum + (r.inputTokens ?? 0), 0)
+    const totalOutput = hasUnknownUsage
+      ? null
+      : records.reduce((sum, r) => sum + (r.outputTokens ?? 0), 0)
     const totalDuration = records.reduce((sum, r) => sum + r.durationMs, 0)
 
     return {
@@ -72,14 +90,20 @@ export function createRequestTracker() {
       totalInputTokens: totalInput,
       totalOutputTokens: totalOutput,
       totalDurationMs: totalDuration,
-      avgInputTokensPerCall: totalInput !== null && records.length > 0
-        ? Math.round(totalInput / records.length)
-        : null,
+      avgInputTokensPerCall:
+        totalInput !== null && records.length > 0 ? Math.round(totalInput / records.length) : null,
       records: [...records],
     }
   }
 
-  return { startRequest, summarize, get records() { return [...records] as readonly ModelRequestRecord[] } }
+  return {
+    startRequest,
+    finishPending,
+    summarize,
+    get records() {
+      return [...records] as readonly ModelRequestRecord[]
+    },
+  }
 }
 
 export type RequestTracker = ReturnType<typeof createRequestTracker>
