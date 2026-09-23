@@ -736,3 +736,5 @@ Agent 在每次决策边界接收分析结果。请求 `run_finish` 时若仍有
 ### 证据复用的命题边界
 
 `pointer-interception` 与 `occlusion` 分开。命中采样只能支持“候选控件的指针被无关元素拦截”，不能证明弹窗像素覆盖该控件。`hypotheses_link_finding` 仅向前者提供已有 `overlay-blocking` 发现，并要求同一冻结证据与目标区域。支持的命题由执行层限定；视觉模型的自由观察文字保留在原分析中，不随关联一并被认可。视觉覆盖、焦点或时间类命题仍需各自适用的验证。
+
+当前版本没有独立的像素覆盖验证器：来自视觉分析的 `occlusion` 假设经普通 `findings_submit` 也不能被交互测量标成 supported/refuted；应保留为 inconclusive，并在结束时报告覆盖缺口。该限制不禁止候选发现，也不影响已由命中采样证明的 pointer-interception。截图模型自身的描述不是第二份独立验证证据。

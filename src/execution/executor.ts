@@ -173,6 +173,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
   let reservedAnalysisRequests = 0
   let joinAnalyses = false
   const analysisHypotheses = new Map<string, string[]>()
+  const visualHypothesisKinds = new Map<string, string>()
   const visualReuse = new Map<
     string,
     { findingId: string; target: string; evidenceRefs: string[] }[]
@@ -363,6 +364,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           evidenceRefs: task.evidenceRefs,
         })
         knownHypothesisIds.add(h.id)
+        visualHypothesisKinds.set(h.id, candidate.kind)
         taskState.recordHypothesis(h.id, h.phenomenon, 'always')
         ids.push(h.id)
         const saved = await getDbClient().execute({
@@ -1852,7 +1854,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       findings_submit: createTool({
         id: 'findings.submit',
         description:
-          'Submit an exploration finding with a registered hypothesis, actual observations and evidence IDs. Supported claims require owned screenshot and measurement/snapshot evidence.',
+          'Submit an exploration finding with a registered hypothesis, actual observations and evidence IDs. Supported claims require owned screenshot and measurement/snapshot evidence. Visual occlusion candidates cannot currently be verified by the available interaction measurements; submit inconclusive for them, preserving the evidence gap. Do not duplicate or reword them to bypass this boundary.',
         inputSchema: z.object({
           hypothesisId: z.string(),
           validationStatus: z.enum(['candidate', 'supported', 'inconclusive', 'refuted']),
@@ -1870,6 +1872,13 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
                 args: [input.hypothesisId, runId],
               })
             if (!h.rows.length) throw new Error('hypothesis not owned by run')
+            if (
+              visualHypothesisKinds.get(input.hypothesisId) === 'occlusion' &&
+              ['supported', 'refuted'].includes(input.validationStatus)
+            )
+              throw Error(
+                'visual-covering-unverified: available pointer/visibility measurements do not prove or disprove pixel covering. Submit inconclusive and finish with unverified-scope if no further suitable evidence exists. Do not re-register the same visual claim or convert it into an interaction claim.',
+              )
             const owned = await db.execute({
               sql: 'SELECT id,type FROM artifacts WHERE run_id=?',
               args: [runId],

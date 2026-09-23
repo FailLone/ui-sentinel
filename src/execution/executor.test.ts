@@ -339,6 +339,62 @@ it('lets the agent resolve a same-evidence visual candidate through a verified f
   expect(writes).toBe(0)
 })
 
+it('prevents ordinary finding submission from promoting pixel covering with unrelated interaction evidence', async () => {
+  config.optimizations.shortFinish = true
+  config.optimizations.evidenceAnalysis = true
+  config.optimizations.analysisMode = 'serial'
+  harness.analyze = async () => ({
+    visual: {
+      answer: 'Unverified visual covering claim.',
+      coverage: 'reviewed',
+      limitations: [],
+      candidates: [
+        {
+          kind: 'occlusion',
+          target: 'Buy',
+          observation: 'Possibly covered',
+          verification: 'Inspect pixel coverage',
+          region: { x: 1, y: 1, width: 20, height: 20 },
+        },
+      ],
+    },
+    geometry: { checkedElements: 1, partiallyOutside: [], intercepted: [] },
+  })
+  let phase = 0
+  harness.handler = async (tools: any, prompt: string) => {
+    if (phase++ === 0) {
+      await call(tools, 'visual_review', { question: 'Is Buy visually covered?' })
+      return []
+    }
+    const input = JSON.parse(prompt)
+    const task = input.analysisTasks[0]
+    const finding = {
+      hypothesisId: task.hypothesisIds[0],
+      validationStatus: 'supported',
+      severity: 'warning',
+      title: 'Covered',
+      expected: 'Visible',
+      actual: 'Possibly covered',
+      evidenceRefs: task.evidenceRefs,
+    }
+    await expect(call(tools, 'findings_submit', finding)).rejects.toThrow(
+      'visual-covering-unverified',
+    )
+    await expect(
+      call(tools, 'findings_submit', { ...finding, validationStatus: 'refuted' }),
+    ).rejects.toThrow('visual-covering-unverified')
+    await call(tools, 'findings_submit', { ...finding, validationStatus: 'inconclusive' })
+    await call(tools, 'run_finish', { reason: 'unverified-scope' })
+    return []
+  }
+  const run = await makeRun()
+  await startRunExecution(run.id)
+  expect((await getFindings(run.id)).map((f) => f.validationStatus)).toEqual(['inconclusive'])
+  expect(
+    (await getEvents(run.id)).find((e) => e.type === 'finish:accepted')?.payload,
+  ).toMatchObject({ blocked: true, reasonCode: 'unverified-scope' })
+})
+
 it('settles cancelled background request accounting before persisting the terminal run', async () => {
   config.optimizations.evidenceAnalysis = true
   let entered!: () => void, releaseMain!: () => void
