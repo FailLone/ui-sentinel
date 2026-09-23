@@ -136,3 +136,9 @@ pnpm experiment:acceptance --minimum
 
 
 `transition_observe` 的 `element-actionable` 采样要求目标可见、enabled，且视口内采样点至少一处没有被其他元素截获；不会发送点击或主动滚动。目标缺失或选择器歧义返回 unknown。它是当前时刻的命中采样，不证明事件处理器已成功执行；需要验证业务动作时仍须使用正式动作和反馈证据。
+
+### M5 学习验证
+
+`pnpm experiment:learning -- --source <已关闭的验收目录> --finding <finding-id> --confirm-reason <人工确认原文>` 在独立数据库副本中生成候选，并用原始异常测量、真实浏览器正常恢复对照及 unknown 验证。正常恢复对照保留处理失败业务结果，只改变重试入口的可用性；默认 C0–C5 行为不变。
+
+准备命令不会批准或启用规则。获得针对具体候选的人工批准后，才能执行 `pnpm experiment:learning -- --resume <学习目录> --approve <proposal-id> --reviewer <人工审阅者>`，进行异常/正常各三次真实 Agent 复查。原始 M4 数据库不修改，学习规则不参与未知发现验收。详见 [M5 验证记录](plans/learning-validation-results-2026-09-23.md)。

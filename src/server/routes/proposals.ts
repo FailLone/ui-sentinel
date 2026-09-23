@@ -28,7 +28,7 @@ proposalRoutes.post('/api/rule-proposals', async (c) => {
     .parse(await c.req.json())
   const proposal = body.ruleConfig
     ? await createProposal(body.findingId, body.ruleConfig as unknown as TransitionRuleConfig)
-    : await generateRuleProposal(body.findingId)
+    : await generateRuleProposal(body.findingId, c.req.raw.signal)
   return c.json(proposal, 201)
 })
 proposalRoutes.get('/api/rule-proposals/:id', async (c) => {

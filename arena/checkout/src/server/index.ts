@@ -76,12 +76,19 @@ app.get('/api/variant-config', (c) => {
 })
 
 control.post('/__control/reset', async (c) => {
-  const body = await c.req.json<{ variant?: string }>().catch(() => ({}) as { variant?: string })
+  const body = await c.req
+    .json<{ variant?: string; learningRetryAvailable?: boolean }>()
+    .catch(() => ({}) as { variant?: string; learningRetryAvailable?: boolean })
   const variant = (body.variant ?? 'C0') as VariantId
   if (!VALID_VARIANTS.has(variant)) {
     return c.json({ error: `Invalid variant: ${variant}` }, 400)
   }
-  resetState(variant)
+  if (
+    body.learningRetryAvailable !== undefined &&
+    (typeof body.learningRetryAvailable !== 'boolean' || variant !== 'C5')
+  )
+    return c.json({ error: 'Invalid learning recovery override' }, 400)
+  resetState(variant, body.learningRetryAvailable)
   return c.json({ ok: true, variant })
 })
 

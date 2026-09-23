@@ -24,7 +24,8 @@
     "experiment:browser": "tsx scripts/experiments/browser-loop.ts",
     "format": "biome format --write .",
     "format:check": "biome format .",
-    "experiment:acceptance": "tsx scripts/experiments/acceptance.ts"
+    "experiment:acceptance": "tsx scripts/experiments/acceptance.ts",
+    "experiment:learning": "tsx scripts/experiments/learning.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "^4.0.72",

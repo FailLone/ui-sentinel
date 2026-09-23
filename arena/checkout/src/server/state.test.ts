@@ -130,3 +130,23 @@ describe('variant config', () => {
     expect(getVariant()).toBe('C1')
   })
 })
+
+it('isolates the healthy learning counterexample and restores the original C5 defect on reset', () => {
+  resetState('C5', true)
+  addToCart('prod-001', 1)
+  expect(processPayment()).toMatchObject({
+    success: false,
+    status: 'failed',
+    canRetry: true,
+    retryAvailable: true,
+  })
+  resetState('C5')
+  addToCart('prod-001', 1)
+  expect(processPayment()).toMatchObject({
+    success: false,
+    status: 'failed',
+    canRetry: true,
+    retryAvailable: false,
+  })
+  expect(() => resetState('C0', true)).toThrow('only valid')
+})

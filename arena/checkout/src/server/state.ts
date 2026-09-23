@@ -51,6 +51,7 @@ interface ArenaState {
   cart: CartItem[]
   orders: Order[]
   paymentRetryCount: number
+  learningRetryAvailable?: boolean
 }
 
 let state: ArenaState = createFreshState('C0')
@@ -171,7 +172,7 @@ export function processPayment(): PaymentResult {
         status: 'failed',
         message: order.paymentMessage!,
         canRetry: true,
-        retryAvailable: false,
+        retryAvailable: state.learningRetryAvailable ?? false,
       }
     }
 
@@ -200,8 +201,10 @@ export function getOrders(): readonly Order[] {
   return state.orders
 }
 
-export function resetState(variant: VariantId): void {
-  state = createFreshState(variant)
+export function resetState(variant: VariantId, learningRetryAvailable?: boolean): void {
+  if (learningRetryAvailable !== undefined && variant !== 'C5')
+    throw new Error('Learning recovery control is only valid for the retryable-failure fixture')
+  state = { ...createFreshState(variant), learningRetryAvailable }
 }
 
 export function getArenaState() {
@@ -210,5 +213,6 @@ export function getArenaState() {
     cartSize: state.cart.length,
     orderCount: state.orders.length,
     paymentRetryCount: state.paymentRetryCount,
+    learningRetryAvailable: state.learningRetryAvailable,
   }
 }
