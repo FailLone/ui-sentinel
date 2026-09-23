@@ -292,3 +292,61 @@ it('keeps known usage on a length-limited streamed response without treating it 
   })
   expect(records[0].timing.responseCompleteMs).not.toBeNull()
 })
+
+it('retries the SDK empty-stream termination once within the existing budget, only before tool execution', async () => {
+  vi.useFakeTimers()
+  let requests = 0
+  const records: any[] = []
+  const work = executeModelRequest(
+    {
+      stream: async () => {
+        requests++
+        return {
+          getFullOutput: async () => {
+            if (requests === 1)
+              throw Error(
+                'Agent stream finished with finishReason "other" without producing any output',
+              )
+            beginAttemptTool()
+            return {
+              finishReason: 'tool-calls',
+              text: '',
+              toolResults: [],
+              usage: { inputTokens: 1, outputTokens: 1 },
+            }
+          },
+        }
+      },
+    } as any,
+    '{}',
+    opts({ transport: 'stream' }),
+    {
+      onFinish: (r) => {
+        records.push(r)
+      },
+    },
+  )
+  await vi.runAllTimersAsync()
+  await work
+  expect(requests).toBe(2)
+  expect(records[0]).toMatchObject({ status: 'error', hadToolCalls: false })
+  expect(records[0].usage).toBeUndefined()
+  expect(records[1].retryOf).toBe(records[0].attemptId)
+  let afterToolCalls = 0
+  await expect(
+    executeModelRequest(
+      {
+        stream: async () => {
+          afterToolCalls++
+          beginAttemptTool()
+          throw Error(
+            'Agent stream finished with finishReason "other" without producing any output',
+          )
+        },
+      } as any,
+      '{}',
+      opts({ transport: 'stream' }),
+    ),
+  ).rejects.toThrow('without producing any output')
+  expect(afterToolCalls).toBe(1)
+})

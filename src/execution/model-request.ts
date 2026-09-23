@@ -89,7 +89,10 @@ function retryable(error: unknown): boolean {
   if (/cancel|auth|unsupported|invalid|401|403/i.test(message)) return false
   return (
     [408, 429, 500, 502, 503, 504].includes(e?.statusCode ?? 0) ||
-    /model-request-timeout|ECONNRESET|ECONNREFUSED|fetch failed|network|terminated/i.test(message)
+    /model-request-timeout|ECONNRESET|ECONNREFUSED|fetch failed|network|terminated/i.test(
+      message,
+    ) ||
+    /Agent stream finished with finishReason "other" without producing any output/.test(message)
   )
 }
 
