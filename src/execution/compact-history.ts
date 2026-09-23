@@ -10,6 +10,8 @@ export interface CompressedEntry {
 
 export interface ToolSummary {
   readonly tool: string
+  readonly resultRef?: string
+  readonly receiptRef?: string
   readonly args?: unknown
   readonly id?: string
   readonly evidenceRefs?: readonly string[]
@@ -85,6 +87,7 @@ const KEEP_KEYS = new Set([
   'trigger',
   'sampleSummary',
   'resultRef',
+  'receiptRef',
   'omitted',
   'chunk',
   'offset',

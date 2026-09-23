@@ -10,8 +10,17 @@ export function rawTools(entry: HistoryEntry): Record<string, unknown>[] {
     return []
   }
 }
+function projection(item: Record<string, unknown>, receiptRef: string) {
+  const summary = extractToolSummary(item)
+  // A read cursor belongs to the original payload, not the newer receipt containing it.
+  return {
+    ...summary,
+    resultRef: summary.tool === 'tool_result_read' ? (summary.resultRef ?? receiptRef) : receiptRef,
+    receiptRef,
+  }
+}
 function receipt(item: Record<string, unknown>, resultRef: string, budget: number) {
-  const summary = { ...extractToolSummary(item), resultRef }
+  const summary = projection(item, resultRef)
   if (bytes(summary) <= budget) return summary
   // Never make a missing payload look like an empty successful result.
   const short = {
@@ -83,6 +92,7 @@ export function boundedHistoryPage(history: readonly HistoryEntry[], start: numb
     entry.tools = entry.tools.map((t) => ({
       tool: t.tool.slice(0, 30),
       resultRef: t.resultRef,
+      receiptRef: 'receiptRef' in t ? t.receiptRef : t.resultRef,
       omitted: true,
       id: t.id && Buffer.byteLength(t.id) <= 100 ? t.id : undefined,
     }))
@@ -111,7 +121,7 @@ export function decisionMemory(history: readonly HistoryEntry[]) {
     .map((_, i) => i)
     .sort((a, b) => Number(isRead(items[b]!)) - Number(isRead(items[a]!)))
   for (const i of order) {
-    const complete = { ...extractToolSummary(items[i]!), resultRef: `${last}.${i}` }
+    const complete = projection(items[i]!, `${last}.${i}`)
     const candidate = { ...latest!, tools: latest!.tools.map((t, n) => (n === i ? complete : t)) }
     if (bytes({ latestToolResults: candidate, history: [] }) <= MEMORY_BUDGET_BYTES)
       latest = candidate

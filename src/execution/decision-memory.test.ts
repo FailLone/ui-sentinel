@@ -48,16 +48,20 @@ it('keeps receipts for oversized results and delivers every paginated UTF-8 frag
   const sent = JSON.parse(JSON.stringify(decisionMemory(history)))
   expect(sent.latestToolResults.tools[0]).toMatchObject({ resultRef: '0.0', omitted: true })
   let offset: number | null = 0,
+    reference = '0.0',
     reconstructed = ''
   while (offset !== null) {
-    const result = readToolResult(history, '0.0', offset)
+    const result = readToolResult(history, reference, offset)
     if ('error' in result) throw new Error(result.error)
     history.push(entry('tool_result_read', result, { resultRef: '0.0', offset }))
     const packet = JSON.parse(JSON.stringify(decisionMemory(history)))
     expect(packet.latestToolResults.tools[0].chunk).toBe(result.chunk)
     expect(Buffer.byteLength(JSON.stringify(packet))).toBeLessThanOrEqual(8000)
     reconstructed += packet.latestToolResults.tools[0].chunk
-    offset = result.nextOffset
+    expect(packet.latestToolResults.tools[0].resultRef).toBe('0.0')
+    expect(packet.latestToolResults.tools[0].receiptRef).toBe(`${history.length - 1}.0`)
+    reference = packet.latestToolResults.tools[0].resultRef
+    offset = packet.latestToolResults.tools[0].nextOffset
   }
   expect(JSON.parse(reconstructed)).toEqual(JSON.parse(history[0]!.toolResults)[0])
 })
@@ -119,4 +123,20 @@ it('bounds history pages at the source and retains all three freshly retrieved p
     expect(result.omitted).not.toBe(true)
   }
   expect(Buffer.byteLength(JSON.stringify(packet))).toBeLessThanOrEqual(8000)
+})
+
+it('preserves the original payload cursor through history_read as well as fresh delivery', () => {
+  const history = [entry('unknown-tool', { error: 'x'.repeat(4000) })]
+  const first = readToolResult(history, '0.0')
+  if ('error' in first) throw Error(first.error)
+  history.push(entry('tool_result_read', first, { resultRef: '0.0' }))
+  const page = historyPage(history, 1, 1)
+  expect(page.entries[0]!.tools[0]).toMatchObject({ resultRef: '0.0', receiptRef: '1.0' })
+  history.push(entry('history_read', page, { start: 1 }))
+  const packet = JSON.parse(JSON.stringify(decisionMemory(history)))
+  const cursor = packet.latestToolResults.tools[0].entries[0].tools[0]
+  const next = readToolResult(history, cursor.resultRef, cursor.nextOffset)
+  if ('error' in next) throw Error(next.error)
+  expect(next.totalChars).toBe(first.totalChars)
+  expect(next.offset).toBe(first.nextOffset)
 })
