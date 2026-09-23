@@ -8,6 +8,7 @@ vi.mock('../shared/config.ts', () => ({
     databaseUrl: ':memory:',
     agentModel: 'openai/test-explicit-mock',
     visionModel: 'test',
+    optimizations: { observation: true },
     budget: {
       totalTimeoutMs: 20000,
       maxActions: 10,
@@ -161,7 +162,9 @@ describe('executor with deterministic model and real browser (not model evaluati
       const packet = JSON.parse(prompt)
       expect(packet.observation.a11yTree).toContain(phase ? 'Confirmed' : 'Buy')
       if (phase++ === 0) {
-        await call(tools, 'page_act', { type: 'click', role: 'button', name: 'Buy' })
+        const result = await call(tools, 'page_act', { type: 'click', role: 'button', name: 'Buy' })
+        expect(result.inspection.finishAdvice.businessResult).toBe('success')
+        expect(result.inspection.snapshotId).toBeTruthy()
       } else
         await call(tools, 'run_finish', {
           businessResult: 'success',
@@ -175,6 +178,11 @@ describe('executor with deterministic model and real browser (not model evaluati
     expect(writes).toBe(1)
     const events = await getEvents(run.id)
     expect(events.some((e) => e.type === 'business:response')).toBe(true)
+    const reused = events.find((e) => e.type === 'observation:reused')
+    expect(reused).toBeTruthy()
+    expect(reused!.payload.evidenceRefs).toEqual(
+      events.find((e) => e.type === 'page:observed')!.evidenceRefs,
+    )
     expect(events.some((e) => e.type === 'response:observed')).toBe(true)
     expect(
       events.filter((e) => e.type === 'page:observed').every((e) => e.evidenceRefs.length === 2),

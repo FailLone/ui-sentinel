@@ -22,6 +22,10 @@ export const config = Object.freeze({
   agentModel: process.env.AGENT_MODEL ?? '',
   visionModel: process.env.VISION_MODEL ?? '',
 
+  optimizations: {
+    observation: process.env.EXECUTION_OBSERVATION_REUSE !== '0',
+  },
+
   budget: {
     totalTimeoutMs: bounded('RUN_TOTAL_TIMEOUT_MS', 300_000, 300_000),
     maxActions: bounded('RUN_MAX_ACTIONS', 40, 40),
