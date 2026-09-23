@@ -76,3 +76,47 @@ it('bounded receipts do not lose the newest result even when prior history is en
   expect(packet.latestToolResults.tools[0].missingFacts).toEqual(['hypothesis:h1:open'])
   expect(Buffer.byteLength(JSON.stringify(packet))).toBeLessThanOrEqual(8000)
 })
+it('delivers three parallel retrieval pages without replacing them with self-references', () => {
+  const history = [entry('unknown-tool', { error: '\\\\\"'.repeat(6000) })]
+  const results = [0, 1, 2].map(() => {
+    const result = readToolResult(history, '0.0')
+    if ('error' in result) throw Error(result.error)
+    expect(Number.isInteger(result.nextOffset)).toBe(true)
+    return { payload: { toolName: 'tool_result_read', args: { resultRef: '0.0' }, result } }
+  })
+  history.push({ text: '', toolResults: JSON.stringify(results) })
+  const packet = JSON.parse(JSON.stringify(decisionMemory(history)))
+  for (const result of packet.latestToolResults.tools) {
+    expect(result.chunk).toBe(results[0]!.payload.result.chunk)
+    expect(result.omitted).not.toBe(true)
+    expect(result.nextOffset).toBeGreaterThan(0)
+  }
+  expect(Buffer.byteLength(JSON.stringify(packet))).toBeLessThanOrEqual(8000)
+})
+it('bounds history pages at the source and retains all three freshly retrieved pages', async () => {
+  const { boundedHistoryPage } = await import('./decision-memory.ts')
+  const history = Array.from({ length: 9 }, (_, i) =>
+    entry('hypotheses_record', {
+      id: `hyp-${i}`,
+      phenomenon: 'observed issue '.repeat(80),
+      evidenceRefs: ['owned-shot', 'owned-snapshot'],
+    }),
+  )
+  const results = [0, 3, 6].map((start) => ({
+    payload: {
+      toolName: 'history_read',
+      args: { start, count: 3 },
+      result: boundedHistoryPage(history, start, 3),
+    },
+  }))
+  for (const r of results)
+    expect(Buffer.byteLength(JSON.stringify(r.payload.result))).toBeLessThanOrEqual(1800)
+  history.push({ text: '', toolResults: JSON.stringify(results) })
+  const packet = JSON.parse(JSON.stringify(decisionMemory(history)))
+  expect(packet.latestToolResults.tools).toHaveLength(3)
+  for (const result of packet.latestToolResults.tools) {
+    expect(result.entries.length).toBeGreaterThan(0)
+    expect(result.omitted).not.toBe(true)
+  }
+  expect(Buffer.byteLength(JSON.stringify(packet))).toBeLessThanOrEqual(8000)
+})

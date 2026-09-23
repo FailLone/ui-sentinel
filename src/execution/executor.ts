@@ -46,7 +46,7 @@ import { createStaleDetector } from './stale-detector.ts'
 import { extractToolSummary, type HistoryEntry } from './compact-history.ts'
 import { executeModelRequest, guardModelAttempt, beginAttemptTool } from './model-request.ts'
 import { createTaskState, hypothesisTriggers } from './task-state.ts'
-import { decisionMemory, historyPage, readToolResult } from './decision-memory.ts'
+import { decisionMemory, boundedHistoryPage, readToolResult } from './decision-memory.ts'
 import { createPhaseTracker } from './run-phase.ts'
 import { createProgressDetector, type ProgressFacts } from './progress-detector.ts'
 
@@ -143,6 +143,7 @@ async function executeRun(runId: string): Promise<void> {
     | undefined
   const inspectedResultRefs = new Set<string>()
   let attemptTools = 0
+  let attemptReads = 0
   let finished = false
   let stepId = 'initial'
   const transitions: NonNullable<PageSnapshot['transitionObservations']>[number][] = []
@@ -198,6 +199,11 @@ async function executeRun(runId: string): Promise<void> {
   function serial<T>(tool: string, fn: () => Promise<T>): Promise<T> {
     // Captured by AsyncLocalStorage from the originating generate attempt.
     const attemptId = beginAttemptTool()
+    if (['history_read', 'tool_result_read'].includes(tool) && ++attemptReads > 3)
+      return Promise.resolve({
+        error:
+          'At most three retrieval pages per decision. Inspect the returned pages before requesting more.',
+      } as T)
     if (++attemptTools > 8)
       return Promise.resolve({
         error: 'At most eight tools per decision; inspect the delivered results before continuing.',
@@ -557,7 +563,7 @@ async function executeRun(runId: string): Promise<void> {
         }),
         execute: (input) =>
           serial('history_read', async () => {
-            const result = historyPage(history, input.start, input.count)
+            const result = boundedHistoryPage(history, input.start, input.count ?? 1)
             for (const e of result.entries)
               for (const t of e.tools) {
                 if (
@@ -581,12 +587,12 @@ async function executeRun(runId: string): Promise<void> {
         description:
           'Read an original tool result by resultRef from latestToolResults/history. Returns a bounded JSON fragment and nextOffset; use only when the summary lacks needed facts.',
         inputSchema: z.object({
-          resultRef: z.string(),
+          resultRef: z.string().max(40),
           offset: z.number().int().min(0).default(0),
         }),
         execute: (input) =>
           serial('tool_result_read', async () => {
-            const result = readToolResult(history, input.resultRef, input.offset)
+            const result = readToolResult(history, input.resultRef, input.offset ?? 0)
             if (!('error' in result) && inspectedResultRefs.size < 3)
               inspectedResultRefs.add(`${input.resultRef}:${input.offset}`)
             return result
@@ -1360,6 +1366,7 @@ async function executeRun(runId: string): Promise<void> {
           onStart: async (attempt) => {
             countModel()
             attemptTools = 0
+            attemptReads = 0
             phaseTracker.countFinalizingCall()
             handles.set(attempt.attemptId, requestTracker.startRequest('agent', config.agentModel))
             await appendEvent(runId, 'model:request-started', {

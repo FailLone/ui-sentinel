@@ -44,7 +44,7 @@ export function historyPage(history: readonly HistoryEntry[], start: number, cou
   })
   return { total: history.length, start, nextStart: end < history.length ? end : null, entries }
 }
-export function readToolResult(history: readonly HistoryEntry[], ref: string, offset: number) {
+export function readToolResult(history: readonly HistoryEntry[], ref: string, offset = 0) {
   const match = /^(\d+)\.(\d+)$/.exec(ref)
   if (!match) return { error: 'Invalid resultRef' }
   const entry = history[Number(match[1])]
@@ -55,8 +55,8 @@ export function readToolResult(history: readonly HistoryEntry[], ref: string, of
   let chunk = '',
     size = 0
   for (const char of raw.slice(offset)) {
-    const length = Buffer.byteLength(char)
-    if (size + length > 1600) break
+    const length = Buffer.byteLength(JSON.stringify(char)) - 2
+    if (size + length > 1000) break
     chunk += char
     size += length
   }
@@ -70,10 +70,53 @@ export function readToolResult(history: readonly HistoryEntry[], ref: string, of
     format: 'JSON fragment; follow nextOffset to read the remaining data',
   }
 }
-/** Fresh receipts have priority; older history can be paged, never substituted for them. */
+/** A tool page is bounded before delivery, with an explicit continuation cursor. */
+export function boundedHistoryPage(history: readonly HistoryEntry[], start: number, count = 1) {
+  const page = historyPage(history, start, count)
+  while (bytes(page) > 1800 && page.entries.length > 1) {
+    page.entries.pop()
+    page.nextStart = start + page.entries.length
+  }
+  if (bytes(page) > 1800 && page.entries.length) {
+    const entry = page.entries[0]!
+    entry.text = ''
+    entry.tools = entry.tools.map((t) => ({
+      tool: t.tool.slice(0, 30),
+      resultRef: t.resultRef,
+      omitted: true,
+      id: t.id && Buffer.byteLength(t.id) <= 100 ? t.id : undefined,
+    }))
+  }
+  if (bytes(page) > 1800) throw new Error('history-page-budget-contract')
+  return page
+}
+
+/** Fresh replies are allocated together. Retrieval payloads must never become references to themselves. */
 export function decisionMemory(history: readonly HistoryEntry[]) {
   const last = history.length - 1
-  const latest = last >= 0 ? historyPage(history, last, 1).entries[0] : null
+  const items = last >= 0 ? rawTools(history[last]!).slice(0, 8) : []
+  let latest =
+    last >= 0
+      ? {
+          index: last,
+          text: history[last]!.text.slice(0, 160),
+          totalTools: rawTools(history[last]!).length,
+          nextToolIndex: rawTools(history[last]!).length > 8 ? 8 : null,
+          tools: items.map((item, i) => receipt(item, `${last}.${i}`, 0)),
+        }
+      : null
+  const isRead = (item: Record<string, unknown>) =>
+    ['history_read', 'tool_result_read'].includes(extractToolSummary(item).tool)
+  const order = items
+    .map((_, i) => i)
+    .sort((a, b) => Number(isRead(items[b]!)) - Number(isRead(items[a]!)))
+  for (const i of order) {
+    const complete = { ...extractToolSummary(items[i]!), resultRef: `${last}.${i}` }
+    const candidate = { ...latest!, tools: latest!.tools.map((t, n) => (n === i ? complete : t)) }
+    if (bytes({ latestToolResults: candidate, history: [] }) <= MEMORY_BUDGET_BYTES)
+      latest = candidate
+    else if (isRead(items[i]!)) throw new Error('retrieval-delivery-budget-contract')
+  }
   const older = [] as ReturnType<typeof historyPage>['entries']
   for (let i = last - 1; i >= Math.max(0, last - 5); i--) {
     const entry = historyPage(history, i, 1).entries[0]!
