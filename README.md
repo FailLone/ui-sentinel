@@ -158,3 +158,14 @@ pnpm experiment:acceptance --minimum
 
 
 效率验收补充：`experiment:efficiency --phase learning-diagnostic`（同时传入两个不可变版本及 `--learning-source`）只执行候选的异常/正常两例，不计入正式六轮 M5；与 `experiment:acceptance` 的真实 smoke、六例诊断共同构成 P4 预检。验收脚本通过 `EXPERIMENT_MAX_COST_USD` 配置估算支出上限，费用未知时保留预留额度；取消在途请求不能保证供应商不计费。
+
+
+### 冻结证据分析与关键路径实验
+
+Agent 可调用 `visual_review`，让 Qwen 分析当前保存的截图。页面由一个操作者控制；分析只消费冻结证据，与独立工作重叠。结果作为待验证假设返回，结束前必须汇合；支持使用相同证据的已验证遮挡发现解决重复假设。任务状态、证据版本、消费与关联日志进入 Run 报告，失败不会当作通过。详见 [执行契约](docs/execution-engine.md#冻结证据的后台分析工具契约-18)。
+
+`EXECUTION_EVIDENCE_ANALYSIS=0` 关闭视觉分析工具；`EXECUTION_ANALYSIS_MODE=serial` 使用相同分析工作量进行串行对照。`EXECUTION_MODEL_STREAMING=0`、`EXECUTION_SHORT_FINISH=0` 分别恢复非流式请求和旧收尾协议，用于诊断。所有请求仍共享原 Run 预算；这些开关不是增加预算的入口。
+
+私有 `experiment:efficiency` 增加 `--phase visual-compare --protocol visual-1`：必须同时提供指向同一提交的 `--baseline-ref`、`--candidate-ref`；固定 C0/C2 各两对，共八轮，唯一调度差异为 serial/parallel。无需学习规则目录，禁止加载学习规则。`--protocol finish-1` 用于短收尾十二轮对照，保留原 `efficiency-1` 门槛。
+
+[关键路径实验记录](plans/critical-path-results-2026-09-23.md) 保留所有批次与失败。短收尾首批十二轮质量通过，但没有实现性能目标；并行能力成立也不等于端到端稳定提速。

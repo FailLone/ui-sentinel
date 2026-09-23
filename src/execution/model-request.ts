@@ -52,6 +52,7 @@ export interface ModelRequestOptions {
   readonly attemptBudget: number
   readonly canRetry?: () => boolean
   readonly transport?: 'generate' | 'stream'
+  readonly activeTools?: string[]
 }
 export interface ModelRequestResult {
   readonly text: string
@@ -165,12 +166,20 @@ export async function executeModelRequest(
           signal.throwIfAborted()
           if (Date.now() >= requestDeadline) throw new Error('budget-exhausted')
           if (transport === 'generate')
-            return abortable(signal, agent.generate(input, { maxSteps: 1, abortSignal: signal }))
+            return abortable(
+              signal,
+              agent.generate(input, {
+                maxSteps: 1,
+                abortSignal: signal,
+                activeTools: options.activeTools,
+              }),
+            )
           let streamError: Error | undefined
           const output = await abortable(
             signal,
             agent.stream(input, {
               maxSteps: 1,
+              activeTools: options.activeTools,
               abortSignal: signal,
               onChunk: (chunk) => timing.chunk(chunk),
               onError: ({ error }) => {

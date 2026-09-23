@@ -69,7 +69,7 @@ flowchart TB
 | Midscene.js | 动态视觉定位和语义、视觉判断补充 |
 | 自有规则引擎 | 声明式规则、访问器、生命周期 Hook 和覆盖记录 |
 
-当前依赖版本由 package.json / pnpm-lock.yaml 锁定，数据库使用本地 libSQL，模型从配置接入；DeepSeek/Qwen 已有冻结验收记录。上表描述技术职责范围，不能据此认为 Mastra Workflows、Server 或通用知识存储已接入，具体运行约束见 README。
+当前依赖版本由 package.json / pnpm-lock.yaml 锁定，数据库使用本地 libSQL，模型从配置接入；DeepSeek/Qwen 已有冻结验收记录。Mastra Workflows 已用于冻结证据的视觉/几何并行分析；这不代表 Mastra Server、分布式队列或通用知识存储已接入，具体运行约束见 README。
 
 ### 3.2 框架复用与领域自研边界
 
@@ -301,7 +301,7 @@ Mastra Agent / Workflows + 领域调度
 
 靶场在成熟阶段继续承担发布回归、模型成本比较和真实漏报复盘。区分开发、回归与保留评估集，不将已参与调优的案例当作新问题泛化证据。详细设计见[验证靶场库与持续评估](./arena-and-evaluation.md)。
 
-已确定的是架构职责和 TypeScript / Mastra / Playwright / Midscene 技术分工。当前已确定运行依赖、模型接入和本地存储，并有受控靶场验证。尚需独立实现或扩大验证的事项包括跨 worker 协调、跨业务定位与事实适配、主动视觉发现、规则路由及不同规模下的上下文预算。
+已确定的是架构职责和 TypeScript / Mastra / Playwright / Midscene 技术分工。当前已确定运行依赖、模型接入和本地存储，并有受控靶场验证。尚需独立实现或扩大验证的事项包括跨 worker 协调、跨业务定位与事实适配、视觉发现的大范围召回评估、规则路由及不同规模下的上下文预算。Agent 已可按需请求冻结截图的视觉分析，候选仍需验证。
 
 这些事项不得在报告中描述为已实测能力，也不能以未决定具体产品为由省略持久化、隔离和证据等架构要求。
 

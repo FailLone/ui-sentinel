@@ -910,7 +910,13 @@ it('preserves closable overlay evidence after recovery and successful checkout',
     if (harness.models === 1) {
       const found = await getFindings(ids.at(-1)!)
       findingId = found.find((f) => f.ruleId === 'overlay-blocking')!.id
+      const hyp = await call(tools, 'hypotheses_record', {
+        phenomenon: 'Buy may remain intercepted throughout a short sample',
+        basis: 'Overlay is present',
+        verificationPlan: 'Sample Buy hit testing',
+      })
       const measured = await call(tools, 'transition_observe', {
+        hypothesisId: hyp.id,
         eventType: 'overlay',
         target: 'Buy',
         selector: 'button:first-of-type',
@@ -920,6 +926,7 @@ it('preserves closable overlay evidence after recovery and successful checkout',
       // Both nested close and underlying buy match this selector: ambiguous is unknown.
       expect(measured.samples.every((s: { value: unknown }) => s.value === null)).toBe(true)
       const exact = await call(tools, 'transition_observe', {
+        hypothesisId: hyp.id,
         eventType: 'overlay',
         target: 'Buy',
         selector: 'body > button',
@@ -927,6 +934,15 @@ it('preserves closable overlay evidence after recovery and successful checkout',
         durationMs: 250,
       })
       expect(exact.samples.every((s: { value: unknown }) => s.value === false)).toBe(true)
+      await call(tools, 'findings_submit', {
+        hypothesisId: hyp.id,
+        validationStatus: 'supported',
+        severity: 'error',
+        title: 'Buy intercepted during sample',
+        expected: 'Operable',
+        actual: 'Intercepted throughout sample',
+        evidenceRefs: exact.evidenceRefs,
+      })
       await call(tools, 'page_act', { type: 'click', role: 'button', name: 'Close' })
       await call(tools, 'page_act', { type: 'click', role: 'button', name: 'Buy' })
       return []
@@ -990,6 +1006,7 @@ it('allows a bounded existing measurement while finalizing', async () => {
       }),
     ).toHaveProperty('error')
     const measured = await call(tools, 'transition_observe', {
+      hypothesisId: hyp,
       eventType: 'test-event',
       target: 'buy',
       selector: 'button',
@@ -1226,6 +1243,7 @@ it.each([false, true])(
       result: any
     harness.handler = async (tools: any, prompt: string) => {
       const packet = JSON.parse(prompt)
+      expect(packet.activeTools).not.toContain('transition_observe')
       if (harness.models === 1) {
         oldRef = packet.observation.elements.find((e: any) => e.text === 'Try Again').ref
         expect(
@@ -1385,14 +1403,24 @@ it.each([false, true])(
   async (disabled) => {
     harness.handler = async (tools: any, prompt: string) => {
       const packet = JSON.parse(prompt)
+      expect(packet.activeTools).not.toContain('transition_observe')
       const elementRef = packet.observation.elements.find((e: any) => e.text === 'Try Again').ref
+      const hyp = await call(tools, 'hypotheses_record', {
+        phenomenon: 'Retry actionability may differ',
+        basis: 'Observed target state',
+        verificationPlan: 'Measure current target',
+      })
       const args = {
+        hypothesisId: hyp.id,
         eventType: 'test',
         target: 'retry',
         elementRef,
         condition: 'element-actionable',
         durationMs: 250,
       }
+      await expect(
+        call(tools, 'transition_observe', { ...args, hypothesisId: 'not-owned' }),
+      ).rejects.toThrow('measurement-requires-unresolved-hypothesis')
       const measurement = await call(tools, 'transition_observe', args)
       expect(measurement.evidenceStatus).toBe('complete')
       expect(measurement.samples.every((s: any) => s.value === !disabled)).toBe(true)
@@ -1424,6 +1452,7 @@ it('keeps unknown samples inconclusive instead of accepting them as negative pro
       verificationPlan: 'measure actionability',
     })
     const measured = await call(tools, 'transition_observe', {
+      hypothesisId: hyp.id,
       eventType: 'test',
       target: 'retry',
       selector: '.nonexistent',
