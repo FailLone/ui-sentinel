@@ -12,11 +12,13 @@ import {
   efficiencySchedule,
   efficiencyBudget,
   inspectionGoal,
+  visualInspectionGoal,
   efficiencyMetrics,
   efficiencyTotals,
   scoreBoundRecheck,
   performanceThresholds,
 } from './efficiency-protocol.ts'
+import { scoreVisualAnalysis } from './visual-protocol.ts'
 import { evaluateRun } from '../../evaluation/private/evaluator.ts'
 import { resetAndVerify } from '../../evaluation/private/controller.ts'
 
@@ -27,6 +29,11 @@ if (!key) throw Error('configuration-missing: OPENROUTER_API_KEY')
 const sha = (ref: string) =>
   execFileSync('git', ['rev-parse', '--verify', `${ref}^{commit}`], { encoding: 'utf8' }).trim()
 const refs = { baseline: sha(options.baseline), candidate: sha(options.candidate) }
+const visual = options.phase === 'visual-compare'
+const learning = ['learning-diagnostic', 'compare'].includes(options.phase)
+const goal = visual ? visualInspectionGoal : inspectionGoal
+if (visual && refs.baseline !== refs.candidate)
+  throw Error('Visual comparison requires the same immutable revision for both modes')
 const dir = resolve('data/efficiency', new Date().toISOString().replace(/[:.]/g, '-'))
 await mkdir(dir, { recursive: true })
 const write = (name: string, data: unknown) =>
@@ -89,7 +96,7 @@ const manifest: any = {
   options,
   refs,
   budget: efficiencyBudget,
-  goal: inspectionGoal,
+  goal,
   provider,
   visionProvider: process.env.EXPERIMENT_VISION_PROVIDER ?? 'auto',
   model: AGENT_MODEL,
@@ -179,7 +186,7 @@ async function learningFixture(arm: NonNullable<ReturnType<typeof arms.get>>, he
   }
 }
 try {
-  if (options.phase !== 'diagnostic') {
+  if (learning) {
     const source = resolve(options.learningSource!)
     sourceDb = resolve(source, 'runs.db')
     for (const suffix of ['-wal', '-journal'])
@@ -259,6 +266,12 @@ try {
       MODEL_REQUEST_MAX_RETRIES: '1',
       TOOL_TIMEOUT_MS: '15000',
       OTEL_SDK_DISABLED: 'true',
+      ...(visual
+        ? {
+            EXECUTION_EVIDENCE_ANALYSIS: '1',
+            EXECUTION_ANALYSIS_MODE: name === 'baseline' ? 'serial' : 'parallel',
+          }
+        : {}),
     }
     for (const field of ['PORT', 'ARENA_PORT', 'ARENA_API_PORT', 'ARENA_CONTROL_PORT'])
       env[field] = await port()
@@ -308,7 +321,7 @@ try {
     const lease = await request(arm, '/api/evaluation/lease', {})
     arm.lease = lease.lease
     manifest.arms[name].rules = lease.rules
-    if (options.phase === 'diagnostic' && lease.rules.some((r: any) => r.category === 'transition'))
+    if (!learning && lease.rules.some((r: any) => r.category === 'transition'))
       throw Error('Discovery requires no learned rules')
   }
   await write('manifest.json', manifest)
@@ -327,14 +340,13 @@ try {
     try {
       const health = await request(arm, '/api/health')
       if (health.activeRuns || health.queuedRuns) throw Error('Queue not idle')
-      record.fixture =
-        options.phase !== 'diagnostic'
-          ? await learningFixture(arm, item.profile === 'healthy')
-          : await resetAndVerify(item.profile)
+      record.fixture = learning
+        ? await learningFixture(arm, item.profile === 'healthy')
+        : await resetAndVerify(item.profile)
       gateway.begin(id, 30, 300000)
       begun = true
       const run = await request(arm, '/api/runs', {
-        goal: inspectionGoal,
+        goal,
         environmentId: 'arena',
         entryUrl: arm.arena,
         budget: efficiencyBudget,
@@ -381,25 +393,28 @@ try {
         if (valid) await writeFile(resolve(dir, id, encodeURIComponent(artifact.id)), bytes)
       }
       record.artifacts = artifacts
-      record.score =
-        options.phase !== 'diagnostic'
-          ? scoreBoundRecheck(
-              report,
-              backend,
-              Object.values(artifacts),
-              approved.id,
-              approved.ruleConfig.expectation.timeoutMs,
-              item.profile === 'healthy',
-            )
-          : evaluateRun(report, item.profile, item.repeat, {
-              fixtureValid: record.fixture.valid,
-              backend,
-              artifacts,
-              events: report.events,
-              budget: efficiencyBudget,
-              hypotheses: report.hypotheses,
-            })
+      record.score = learning
+        ? scoreBoundRecheck(
+            report,
+            backend,
+            Object.values(artifacts),
+            approved.id,
+            approved.ruleConfig.expectation.timeoutMs,
+            item.profile === 'healthy',
+          )
+        : evaluateRun(report, item.profile, item.repeat, {
+            fixtureValid: record.fixture.valid,
+            backend,
+            artifacts,
+            events: report.events,
+            budget: efficiencyBudget,
+            hypotheses: report.hypotheses,
+          })
       record.passed = record.score.passed ?? record.score.overallPass
+      if (visual) {
+        record.visualScore = scoreVisualAnalysis(report, item.profile, artifacts)
+        record.passed &&= record.visualScore.passed
+      }
     } catch (error) {
       record.error = gateway.redact(String(error))
     } finally {
@@ -467,7 +482,7 @@ try {
   const baseline = efficiencyTotals(records, 'baseline'),
     candidate = efficiencyTotals(records, 'candidate')
   const performancePassed =
-    options.phase === 'compare' &&
+    ['compare', 'visual-compare'].includes(options.phase) &&
     qualityPassed &&
     comparable &&
     candidate.elapsedMs !== null &&
@@ -497,7 +512,11 @@ try {
       metrics: r.metrics,
     })),
   })
-  if (!qualityPassed || !sourceUnchanged || (options.phase === 'compare' && !performancePassed))
+  if (
+    !qualityPassed ||
+    !sourceUnchanged ||
+    (['compare', 'visual-compare'].includes(options.phase) && !performancePassed)
+  )
     process.exitCode = 1
   console.log(`Efficiency records: ${dir}`)
 }

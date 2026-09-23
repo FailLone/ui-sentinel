@@ -689,3 +689,21 @@ Agent 从当前适用的 `availableJourneys` 摘要选择 `journey_run({ journey
 
 
 时间窗口采样按固定的 200ms 时钟网格调度，避免“浏览器读取耗时 + 固定等待”逐次累积。规则仍按原始时间戳、完整窗口、边界缺口与最大样本间隔判定；不把超出截止时刻的样本移入窗口，也不放宽 unknown 门槛。
+
+## 冻结证据的后台分析（工具契约 18）
+
+`visual_review({ question })` 保存当前截图与元素事实，提交一个只读分析任务。Qwen 只接收冻结证据和一个结构化报告工具，不持有 Page、浏览器会话或页面动作工具。已有 Mastra workflow 的 `.parallel()` 合并视觉分析和几何检查；后台队列让主 Agent 继续不依赖分析结果的工作。同一页面的操作和现场测量仍串行。
+
+任务记录 runId、parentTaskId、snapshotId、factVersion、operationId、deadlineAt、evidenceRefs 和资源访问类型。当前只支持独立任务，非空 dependsOn 会显式拒绝；尚不是任意 DAG 调度器。单个 Run 同时执行一个视觉任务，最多两个待完成任务；提交时预留共享模型预算，并为验证和收尾留下两次调用。队列、主 Agent 与视觉请求共享运行截止时间；取消后不发布迟到的成功结果，收尾等待请求记账完成。
+
+`analysis:state` 保存任务生命周期；`analysis:consumed` 保存进入主 Agent 决策的时刻与生成的假设 ID。视觉候选自动成为 open hypothesis，不能自动成为 supported finding。候选坐标属于原截图，不能直接用于当前页面操作；验证须重新绑定当前目标，或者引用可核对的原始证据。没有候选只表示该视觉问题下未发现候选，不表示整个页面通过。
+
+Agent 在每次决策边界接收分析结果。请求 `run_finish` 时若仍有分析或刚产生尚未审阅的候选，返回控制权，待 Agent 审阅后再次决定是否结束。失败、取消、证据不足都保持未验证；只有同一运行、事实版本、业务操作、问题的成功重试能解除对应缺项。报告保留全部尝试，并与结束检查共用同一个缺项判断。
+
+`EXECUTION_EVIDENCE_ANALYSIS=0` 关闭该工具；`EXECUTION_ANALYSIS_MODE=serial` 将同样的分析任务串行执行，供对照与诊断。默认 parallel 不代表自动增加视觉调用，也不保证缩短耗时。当前没有业务写动作依赖声明 API；主 Agent 必须等相关结果后才决定依赖它的动作，不能把后台分析当作写入前置校验已完成。
+
+## 请求测量与短收尾
+
+流式请求记录响应头、首个有效模型增量、首个工具调用增量、首次工具执行、最后增量、最大增量间隔、取消和完成偏移；不保存推理文本。心跳不延长请求期限，完整工具参数校验前不会执行。首次工具执行是模型等待的终点，SDK 响应完成可能包含工具执行耗时，不能直接当作模型推理耗时。`EXECUTION_MODEL_STREAMING=0` 保留非流式诊断入口。
+
+短收尾只接受 `reason: scope-covered | observed-blocker | unverified-scope`。Agent 仍主动调用结束；业务结果、覆盖缺项、发现和报告说明来自已保存事实。该协议减少重复报告输出，不保证减少供应商内部 reasoning。`EXECUTION_SHORT_FINISH=0` 保留旧协议用于冻结对照。

@@ -1,3 +1,5 @@
+import { unresolvedAnalyses } from '../../execution/evidence-analysis/coverage.ts'
+import type { AnalysisTask } from '../../execution/evidence-analysis/queue.ts'
 import { Hono } from 'hono'
 import { streamSSE } from 'hono/streaming'
 import { z } from 'zod'
@@ -266,6 +268,13 @@ export async function buildReport(runId: string) {
   const executionErrors = events.filter((e) =>
     ['action:failed', 'run:error', 'agent:error'].includes(e.type),
   )
+  const analysisTasks = [
+    ...new Map(
+      events
+        .filter((e) => e.type === 'analysis:state')
+        .map((e) => [String(e.payload.id), e.payload as unknown as AnalysisTask]),
+    ).values(),
+  ]
   return {
     runId,
     status: run.status,
@@ -296,6 +305,7 @@ export async function buildReport(runId: string) {
     unexploredBranches,
     untriggeredBranches,
     conditions: lastTask?.conditions ?? [],
+    analysisTasks,
     evaluatedRuleCount: evaluations.length,
     unknownCount:
       evaluations.filter((e) => e.verdict === 'unknown').length +
@@ -305,6 +315,7 @@ export async function buildReport(runId: string) {
       unexploredBranches,
       checks: evaluations.length ? 'checked' : 'not-checked',
       executionErrors,
+      unverifiedAnalysisTasks: unresolvedAnalyses(analysisTasks).map((t) => t.id),
       stopReason: run.stopReason,
     },
   }

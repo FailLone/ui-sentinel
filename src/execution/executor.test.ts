@@ -2,7 +2,10 @@ import { describe, it, expect, vi, beforeAll, afterAll, beforeEach } from 'vites
 import { createServer } from 'node:http'
 import { rm } from 'node:fs/promises'
 
-const harness = vi.hoisted(() => ({ handler: null as any, models: 0 }))
+const harness = vi.hoisted(() => ({ handler: null as any, models: 0, analyze: null as any }))
+vi.mock('./evidence-analysis/workflow.ts', () => ({
+  analyzeEvidence: (packet: any, options: any) => harness.analyze(packet, options),
+}))
 vi.mock('../shared/config.ts', () => ({
   config: {
     databaseUrl: ':memory:',
@@ -159,11 +162,97 @@ afterAll(async () => {
 })
 beforeEach(() => {
   config.optimizations.shortFinish = false
+  config.optimizations.evidenceAnalysis = false
+  config.optimizations.analysisMode = 'parallel'
   clearRules()
   journeyChange = 'none'
   writes = 0
   responseDelay = 0
   harness.models = 0
+})
+
+it('joins a required background analysis before completion and exposes older-page candidates as unverified hypotheses', async () => {
+  config.optimizations.shortFinish = true
+  config.optimizations.evidenceAnalysis = true
+  let resolveAnalysis!: () => void
+  const ready = new Promise<void>((resolve) => {
+    resolveAnalysis = resolve
+  })
+  let capturedSnapshot = ''
+  harness.analyze = async (packet: any, options: any) => {
+    capturedSnapshot = packet.snapshotId
+    await options.hooks.onStart({
+      attemptId: 'analysis-attempt',
+      startedAt: Date.now(),
+      deadlineAt: Date.now() + 5000,
+    })
+    await ready
+    await options.hooks.onFinish({
+      attemptId: 'analysis-attempt',
+      startedAt: Date.now(),
+      durationMs: 1,
+      modelDurationMs: 1,
+      status: 'success',
+      usage: { inputTokens: 1, outputTokens: 1 },
+    })
+    return {
+      visual: {
+        coverage: 'reviewed',
+        candidates: [
+          {
+            kind: 'visual-hit-area',
+            target: 'Buy control',
+            observation: 'Its apparent surface may exceed its target.',
+            verification: 'Verify pointer behavior on the apparent boundary.',
+            region: { x: 1, y: 1, width: 20, height: 20 },
+          },
+        ],
+        limitations: ['Focus not verified.'],
+      },
+      geometry: { checkedElements: 1, partiallyOutside: [], intercepted: [] },
+    }
+  }
+  let phase = 0
+  harness.handler = async (tools: any, prompt: string) => {
+    if (phase++ === 0) {
+      const task = await call(tools, 'visual_review', {
+        question: 'Inspect apparent clickable area.',
+      })
+      expect(task.taskId).toMatch(/^analysis-/)
+      await call(tools, 'page_act', { type: 'probe', role: 'button', name: 'Buy' })
+      const pending = await call(tools, 'run_finish', { reason: 'scope-covered' })
+      expect(pending).toMatchObject({ accepted: false, error: 'analysis-pending' })
+      resolveAnalysis()
+      return []
+    }
+    const input = JSON.parse(prompt)
+    expect(input.analysisTasks[0].snapshotId).toBe(capturedSnapshot)
+    expect(input.analysisTasks[0].hypothesisIds).toHaveLength(1)
+    expect(input.activeHypotheses).toContain(input.analysisTasks[0].hypothesisIds[0])
+    await call(tools, 'run_finish', { reason: 'unverified-scope' })
+    return []
+  }
+  const run = await makeRun()
+  await startRunExecution(run.id)
+  const events = await getEvents(run.id)
+  expect(
+    events.find((e) => e.type === 'finish:accepted')?.payload,
+    JSON.stringify(
+      events.filter((e) =>
+        ['tool:finished', 'execution:stopped', 'analysis:state'].includes(e.type),
+      ),
+    ),
+  ).toMatchObject({ blocked: true, reasonCode: 'unverified-scope' })
+  expect(
+    (await getFindings(run.id)).filter((f) => f.validationStatus === 'supported'),
+  ).toHaveLength(0)
+  expect(
+    events.filter(
+      (e) => e.type === 'model:request-started' && e.payload.role === 'evidence-analysis',
+    ),
+  ).toHaveLength(1)
+  expect((await getRun(run.id))?.usage.modelCalls).toBe(3)
+  expect(writes).toBe(0)
 })
 async function makeRun() {
   const r = await createRun({ goal: 'buy', environmentId: 'test', entryUrl: url })
@@ -171,6 +260,61 @@ async function makeRun() {
   return r
 }
 const call = (tools: any, name: string, input: any = {}) => tools[name].execute(input, {})
+
+it.each(['serial', 'parallel'] as const)(
+  'runs the same frozen analysis with %s decision scheduling',
+  async (mode) => {
+    config.optimizations.shortFinish = true
+    config.optimizations.evidenceAnalysis = true
+    config.optimizations.analysisMode = mode
+    let analysisFinished = false
+    harness.analyze = async (_packet: any, options: any) => {
+      await options.hooks.onStart({
+        attemptId: 'schedule-analysis',
+        startedAt: Date.now(),
+        deadlineAt: Date.now() + 5000,
+      })
+      await new Promise((r) => setTimeout(r, 150))
+      await options.hooks.onFinish({
+        attemptId: 'schedule-analysis',
+        startedAt: Date.now(),
+        durationMs: 150,
+        modelDurationMs: 150,
+        status: 'success',
+        usage: { inputTokens: 1, outputTokens: 1 },
+      })
+      analysisFinished = true
+      return {
+        visual: {
+          coverage: 'reviewed',
+          candidates: [],
+          limitations: ['Only requested snapshot reviewed.'],
+        },
+        geometry: { checkedElements: 1, partiallyOutside: [], intercepted: [] },
+      }
+    }
+    let phase = 0
+    harness.handler = async (tools: any) => {
+      if (phase++ === 0) {
+        await call(tools, 'visual_review', { question: 'Inspect control layout.' })
+        return []
+      }
+      expect(analysisFinished).toBe(mode === 'serial')
+      // Simulate independent model decision work, without touching the Page.
+      await new Promise((r) => setTimeout(r, 180))
+      await call(tools, 'run_finish', { reason: 'scope-covered' })
+      return []
+    }
+    const run = await makeRun()
+    await startRunExecution(run.id)
+    const events = await getEvents(run.id)
+    expect(events.filter((e) => e.type === 'finish:accepted')).toHaveLength(1)
+    expect(events.filter((e) => e.type === 'analysis:state').at(-1)?.payload.status).toBe(
+      'completed',
+    )
+    expect(writes).toBe(0)
+  },
+)
 
 it('accepts a short explicit finish request and generates the conclusion from persisted facts', async () => {
   config.optimizations.shortFinish = true

@@ -2,16 +2,27 @@ export const efficiencyBudget = { totalTimeoutMs: 300000, maxActions: 40, maxMod
 export const inspectionGoal =
   'Inspect the purchase journey. Purchase an item; inspect primary action access, response, expected rejection and recovery. Campaigns must not block submit; retryable failures must provide an operable retry within five seconds. Response above ten seconds warrants a warning.'
 
-export function efficiencySchedule(phase: 'diagnostic' | 'learning-diagnostic' | 'compare') {
+export type EfficiencyPhase = 'diagnostic' | 'learning-diagnostic' | 'compare' | 'visual-compare'
+export type EfficiencyProtocol = 'efficiency-1' | 'finish-1' | 'visual-1'
+export const visualReviewQuestion =
+  'Is the primary checkout submit control visually obscured by a campaign or clipped outside the viewport?'
+export const visualInspectionGoal = `${inspectionGoal} On the first checkout screen, before submitting or recovering, request exactly one visual_review with this question: ${JSON.stringify(visualReviewQuestion)}. Continue independent inspection while analysis runs. Review any returned candidates against saved evidence; do not treat a screenshot hypothesis as verified.`
+
+export function efficiencySchedule(phase: EfficiencyPhase) {
   if (phase === 'learning-diagnostic')
     return ['abnormal', 'healthy'].map((profile) => ({
       arm: 'candidate' as const,
       profile,
       repeat: 1,
     }))
-  const profiles = phase === 'diagnostic' ? ['C0', 'C2'] : ['abnormal', 'healthy']
+  const profiles = ['diagnostic', 'visual-compare'].includes(phase)
+    ? ['C0', 'C2']
+    : ['abnormal', 'healthy']
   const pairs = profiles.flatMap((profile) =>
-    Array.from({ length: phase === 'diagnostic' ? 1 : 3 }, (_, i) => ({ profile, repeat: i + 1 })),
+    Array.from(
+      { length: phase === 'diagnostic' ? 1 : phase === 'visual-compare' ? 2 : 3 },
+      (_, i) => ({ profile, repeat: i + 1 }),
+    ),
   )
   return pairs.flatMap((pair, i) =>
     (i % 2 ? ['candidate', 'baseline'] : ['baseline', 'candidate']).map((arm) => ({
@@ -46,30 +57,33 @@ export function efficiencyOptions(args: string[]) {
     !baseline ||
     !candidate ||
     ![baseline, candidate].every((s) => /^[a-f\d]{7,40}$/i.test(s)) ||
-    !['diagnostic', 'learning-diagnostic', 'compare'].includes(phase ?? '')
+    !['diagnostic', 'learning-diagnostic', 'compare', 'visual-compare'].includes(phase ?? '')
   )
     throw Error(
-      'Require immutable --baseline-ref <SHA> --candidate-ref <SHA> --phase diagnostic|learning-diagnostic|compare',
+      'Require immutable --baseline-ref <SHA> --candidate-ref <SHA> --phase diagnostic|learning-diagnostic|compare|visual-compare',
     )
   const learningSource = fields.get('--learning-source')
-  if (phase !== 'diagnostic' && !learningSource)
+  if (['learning-diagnostic', 'compare'].includes(phase!) && !learningSource)
     throw Error('Learning evaluation requires --learning-source with an unchanged approved rule')
   const maxCostUsd = Number(fields.get('--max-cost-usd') ?? '2')
   if (!Number.isFinite(maxCostUsd) || maxCostUsd <= 0) throw Error('Invalid --max-cost-usd')
   const protocol = fields.get('--protocol') ?? 'efficiency-1'
-  if (!['efficiency-1', 'finish-1'].includes(protocol)) throw Error('Invalid --protocol')
+  if (!['efficiency-1', 'finish-1', 'visual-1'].includes(protocol))
+    throw Error('Invalid --protocol')
+  if ((phase === 'visual-compare') !== (protocol === 'visual-1'))
+    throw Error('visual-1 requires visual-compare')
   return {
-    protocol: protocol as 'efficiency-1' | 'finish-1',
+    protocol: protocol as EfficiencyProtocol,
     baseline,
     candidate,
-    phase: phase as 'diagnostic' | 'learning-diagnostic' | 'compare',
+    phase: phase as EfficiencyPhase,
     learningSource,
     maxCostUsd,
   }
 }
 
-export function performanceThresholds(protocol: 'efficiency-1' | 'finish-1') {
-  return { requestRatio: protocol === 'finish-1' ? 1 : 0.8, elapsedRatio: 0.85, tokenRatio: 1 }
+export function performanceThresholds(protocol: EfficiencyProtocol) {
+  return { requestRatio: protocol === 'efficiency-1' ? 0.8 : 1, elapsedRatio: 0.85, tokenRatio: 1 }
 }
 
 export function efficiencyMetrics(

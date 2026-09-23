@@ -28,6 +28,8 @@ export const config = Object.freeze({
     journeys: process.env.EXECUTION_JOURNEYS !== '0',
     modelStreaming: process.env.EXECUTION_MODEL_STREAMING !== '0',
     shortFinish: process.env.EXECUTION_SHORT_FINISH !== '0',
+    evidenceAnalysis: process.env.EXECUTION_EVIDENCE_ANALYSIS !== '0',
+    analysisMode: process.env.EXECUTION_ANALYSIS_MODE === 'serial' ? 'serial' : 'parallel',
   },
 
   budget: {

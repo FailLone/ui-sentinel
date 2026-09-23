@@ -14,6 +14,11 @@ interface AttemptContext {
 }
 const attempts = new AsyncLocalStorage<AttemptContext>()
 
+/** Background evidence work owns a new attempt, never the page tool's expiring attempt. */
+export function outsideModelAttempt<T>(operation: () => T): T {
+  return attempts.exit(operation)
+}
+
 /** Bound to the async invocation, never a mutable global "current attempt". */
 export function guardModelAttempt(): void {
   const attempt = attempts.getStore()
@@ -102,7 +107,7 @@ async function backoff(signal: AbortSignal, ms: number) {
 
 export async function executeModelRequest(
   agent: Agent,
-  input: string,
+  input: Parameters<Agent['generate']>[0],
   options: ModelRequestOptions,
   hooks: ModelRequestHooks = {},
 ): Promise<ModelRequestResult> {
