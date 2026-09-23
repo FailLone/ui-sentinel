@@ -89,7 +89,7 @@ export async function startGateway(
     controllers.add(controller)
     const timer = setTimeout(
       () => controller.abort(),
-      Math.max(1, Math.min(90000, run.deadline - Date.now())),
+      Math.max(1, Math.min(60000, run.deadline - Date.now())),
     )
     try {
       await appendFile(
