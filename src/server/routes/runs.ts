@@ -272,6 +272,8 @@ export async function buildReport(runId: string) {
     businessResult: run.businessResult,
     stopReason: run.stopReason,
     conclusion: {
+      reasonCode:
+        [...events].reverse().find((e) => e.type === 'finish:accepted')?.payload.reasonCode ?? null,
       reason:
         [...events].reverse().find((e) => e.type === 'finish:accepted')?.payload.summary ?? null,
       source: 'persisted-evidence',

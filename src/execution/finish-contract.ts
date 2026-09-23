@@ -3,12 +3,9 @@ import type { BusinessResult } from '../shared/types.ts'
 
 export const shortFinishInput = z.object({
   reason: z
-    .string()
-    .trim()
-    .min(1)
-    .max(240)
+    .enum(['scope-covered', 'observed-blocker', 'unverified-scope'])
     .describe(
-      'One short reason for ending this inspection. Saved findings, checks, business outcome and coverage are already in the report; do not repeat them.',
+      'scope-covered: intended inspection covered; observed-blocker: observed conditions prevent further progress; unverified-scope: applicable work remains and has been recorded. These describe the inspection, not whether payment succeeded. The server builds the factual report.',
     ),
 })
 
@@ -28,9 +25,10 @@ export const legacyFinishInput = z.object({
 
 export const shortFinishInstructions =
   'Decision output protocol: call tools directly without introductory or concluding prose. ' +
-  'When you decide the inspection scope is covered or a blocker prevents progress, call run_finish with only one short reason (at most 240 characters). ' +
+  'When you decide the inspection scope is covered or a blocker prevents progress, call run_finish and select its reason code; generate no report text. ' +
   'The server verifies and reports the business outcome, saved findings, check results and coverage. Do not re-summarize them or reclassify the payment outcome in your answer. ' +
   'An empty known-check queue does not prove exploration complete: investigate observed novel anomalies and record any unfinished scope before requesting finish. ' +
+  'Use exploration_update only to record or clear actual unfinished applicable branches, never to restate a completed journey. ' +
   'Continue using all investigation tools when necessary. A pass or fail completes a known check; unknown does not.'
 
 /** Invoked only after an explicit Agent finish request and fresh server-side observation. */
@@ -42,6 +40,7 @@ export function resolveShortFinish(
   return {
     businessResult: facts.businessResult,
     blocked: facts.businessResult === 'unknown' || facts.gaps.length > 0,
-    summary: parsed.reason,
+    summary: `Inspection ended: ${parsed.reason}. Business outcome: ${facts.businessResult}. Applicable unresolved items: ${facts.gaps.length}. See saved checks and findings for evidence.`,
+    reasonCode: parsed.reason,
   }
 }

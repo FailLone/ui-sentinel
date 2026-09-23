@@ -186,7 +186,7 @@ it('accepts a short explicit finish request and generates the conclusion from pe
     return [
       {
         toolName: 'run_finish',
-        result: await call(tools, 'run_finish', { reason: 'Observed journey inspected.' }),
+        result: await call(tools, 'run_finish', { reason: 'scope-covered' }),
       },
     ]
   }
@@ -199,13 +199,13 @@ it('accepts a short explicit finish request and generates the conclusion from pe
   ).toMatchObject({
     businessResult: 'success',
     blocked: false,
-    summary: 'Observed journey inspected.',
+    reasonCode: 'scope-covered',
   })
   expect(events.filter((e) => e.type === 'finish:requested')).toHaveLength(1)
   expect(writes).toBe(1)
   const { buildReport } = await import('../server/routes/runs.ts')
   expect((await buildReport(run.id))?.conclusion).toMatchObject({
-    reason: 'Observed journey inspected.',
+    reasonCode: 'scope-covered',
     source: 'persisted-evidence',
   })
 })

@@ -29,6 +29,7 @@ export function efficiencyOptions(args: string[]) {
     '--phase',
     '--learning-source',
     '--max-cost-usd',
+    '--protocol',
   ])
   args = args.filter((s) => s !== '--')
   for (let i = 0; i < args.length; i += 2) {
@@ -55,13 +56,20 @@ export function efficiencyOptions(args: string[]) {
     throw Error('Learning evaluation requires --learning-source with an unchanged approved rule')
   const maxCostUsd = Number(fields.get('--max-cost-usd') ?? '2')
   if (!Number.isFinite(maxCostUsd) || maxCostUsd <= 0) throw Error('Invalid --max-cost-usd')
+  const protocol = fields.get('--protocol') ?? 'efficiency-1'
+  if (!['efficiency-1', 'finish-1'].includes(protocol)) throw Error('Invalid --protocol')
   return {
+    protocol: protocol as 'efficiency-1' | 'finish-1',
     baseline,
     candidate,
     phase: phase as 'diagnostic' | 'learning-diagnostic' | 'compare',
     learningSource,
     maxCostUsd,
   }
+}
+
+export function performanceThresholds(protocol: 'efficiency-1' | 'finish-1') {
+  return { requestRatio: protocol === 'finish-1' ? 1 : 0.8, elapsedRatio: 0.85, tokenRatio: 1 }
 }
 
 export function efficiencyMetrics(

@@ -15,6 +15,7 @@ import {
   efficiencyMetrics,
   efficiencyTotals,
   scoreBoundRecheck,
+  performanceThresholds,
 } from './efficiency-protocol.ts'
 import { evaluateRun } from '../../evaluation/private/evaluator.ts'
 import { resetAndVerify } from '../../evaluation/private/controller.ts'
@@ -83,7 +84,8 @@ let sourceHash: string | undefined
 let approved: any
 let sourceDb: string | undefined
 const manifest: any = {
-  protocol: 'efficiency-1',
+  protocol: options.protocol,
+  performanceThresholds: performanceThresholds(options.protocol),
   options,
   refs,
   budget: efficiencyBudget,
@@ -472,9 +474,9 @@ try {
     baseline.elapsedMs !== null &&
     candidate.tokens !== null &&
     baseline.tokens !== null &&
-    candidate.requests <= baseline.requests * 0.8 &&
-    candidate.elapsedMs <= baseline.elapsedMs * 0.85 &&
-    candidate.tokens <= baseline.tokens
+    candidate.requests <= baseline.requests * manifest.performanceThresholds.requestRatio &&
+    candidate.elapsedMs <= baseline.elapsedMs * manifest.performanceThresholds.elapsedRatio &&
+    candidate.tokens <= baseline.tokens * manifest.performanceThresholds.tokenRatio
   const sourceUnchanged = !sourceDb || hash(await readFile(sourceDb)) === sourceHash
   await write('manifest.json', { ...manifest, endedAt: new Date().toISOString(), sourceUnchanged })
   await write('summary.json', {

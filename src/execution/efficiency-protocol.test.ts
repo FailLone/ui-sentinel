@@ -5,9 +5,22 @@ import {
   efficiencyMetrics,
   efficiencyTotals,
   scoreBoundRecheck,
+  performanceThresholds,
 } from '../../scripts/experiments/efficiency-protocol.ts'
 
 describe('private efficiency experiment protocol', () => {
+  it('keeps the old gate unchanged and explicitly versions the shorter-response experiment', () => {
+    expect(performanceThresholds('efficiency-1')).toEqual({
+      requestRatio: 0.8,
+      elapsedRatio: 0.85,
+      tokenRatio: 1,
+    })
+    expect(performanceThresholds('finish-1')).toEqual({
+      requestRatio: 1,
+      elapsedRatio: 0.85,
+      tokenRatio: 1,
+    })
+  })
   it('requires fixed revisions, an explicit phase and an approved learning source', () => {
     expect(() =>
       efficiencyOptions([
