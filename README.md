@@ -141,6 +141,6 @@ pnpm experiment:acceptance --minimum
 
 `pnpm experiment:learning -- --source <已关闭的验收目录> --finding <finding-id> --confirm-reason <人工确认原文>` 在独立数据库副本中生成候选，并用原始异常测量、真实浏览器正常恢复对照及 unknown 验证。正常恢复对照保留处理失败业务结果，只改变重试入口的可用性；默认 C0–C5 行为不变。
 
-候选验证失败时，可用 `pnpm experiment:learning -- --revise <上次学习目录> --previous <失败候选 ID>` 将验证反馈交给模型生成新候选；旧候选和证据保留。
+候选验证失败或人工要求修订时，可用 `pnpm experiment:learning -- --revise <上次学习目录> --previous <候选 ID>` 将验证反馈交给模型生成新候选；可附加 `--revision-reason <人工审阅意见>` 修订适用范围。旧候选和证据保留，审阅意见不视为启用批准。
 
 准备命令不会批准或启用规则。获得针对具体候选的人工批准后，才能执行 `pnpm experiment:learning -- --resume <学习目录> --approve <proposal-id> --reviewer <人工审阅者>`，进行异常/正常各三次真实 Agent 复查。原始 M4 数据库不修改，学习规则不参与未知发现验收。详见 [M5 验证记录](plans/learning-validation-results-2026-09-23.md)。

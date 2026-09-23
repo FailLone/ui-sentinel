@@ -15,6 +15,7 @@ const option = (name: string) => {
 }
 const revise = option('--revise'),
   previous = option('--previous')
+const revisionReason = option('--revision-reason')
 const resume = option('--resume'),
   source = option('--source'),
   findingId = option('--finding')
@@ -23,10 +24,11 @@ const confirmation = option('--confirm-reason'),
   reviewer = option('--reviewer')
 if (
   (resume && revise) ||
+  (revisionReason && !revise) ||
   (resume ? !approval || !reviewer : revise ? !previous : !source || !findingId || !confirmation)
 )
   throw Error(
-    'Prepare: --source <closed acceptance directory> --finding <id> --confirm-reason <explicit user confirmation>. Revise after failed validation: --revise <learning directory> --previous <proposal id>. After human review: --resume <learning directory> --approve <proposal id> --reviewer <human name>.',
+    'Prepare: --source <closed acceptance directory> --finding <id> --confirm-reason <explicit user confirmation>. Revise: --revise <learning directory> --previous <proposal id> [--revision-reason <human review feedback>]. After human review: --resume <learning directory> --approve <proposal id> --reviewer <human name>.',
   )
 const key = process.env.OPENROUTER_API_KEY
 if (!key) throw Error('configuration-missing: OPENROUTER_API_KEY')
@@ -79,6 +81,7 @@ if (revise) {
     ...priorSource,
     previousProposalId: previous,
     previousDirectory: priorDir,
+    reviewerFeedback: revisionReason,
   })
 }
 const sourceMeta = JSON.parse(await readFile(resolve(dir, 'source.json'), 'utf8'))
@@ -284,6 +287,7 @@ try {
       proposal = await request('/api/rule-proposals', {
         findingId: sourceMeta.findingId,
         previousProposalId: sourceMeta.previousProposalId,
+        reviewerFeedback: sourceMeta.reviewerFeedback,
       })
     } finally {
       await write('proposal-requests.json', await gateway.end())

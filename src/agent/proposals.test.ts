@@ -137,14 +137,41 @@ it('links new candidates to same-finding validation feedback and keeps earlier c
   model.generate.mockImplementation(async (input: string) => {
     expect(JSON.parse(input).revisionFeedback).toMatchObject({
       previousProposalId: previous.id,
+      reviewerFeedback: 'Generalize to any eligible retry action, not just payment',
       tests: [{ expected: 'pass', actual: 'unknown' }],
     })
     return { object: declaration }
   })
-  const revision = await generateRuleProposal(finding.id, undefined, previous.id)
+  const original = await getDbClient().execute({
+    sql: 'SELECT * FROM rule_proposals WHERE id=?',
+    args: [previous.id],
+  })
+  const revision = await generateRuleProposal(
+    finding.id,
+    undefined,
+    previous.id,
+    'Generalize to any eligible retry action, not just payment',
+  )
   expect(revision.id).not.toBe(previous.id)
+  expect(revision.status).toBe('draft')
+  expect(
+    (
+      await getDbClient().execute({
+        sql: 'SELECT * FROM rule_proposals WHERE id=?',
+        args: [previous.id],
+      })
+    ).rows,
+  ).toEqual(original.rows)
   const other = await fixture()
   await expect(generateRuleProposal(other.finding.id, undefined, previous.id)).rejects.toThrow(
     'same finding',
   )
+})
+
+it('rejects unlinked review feedback before calling the model', async () => {
+  model.generate.mockClear()
+  await expect(generateRuleProposal('unused', undefined, undefined, 'Generalize')).rejects.toThrow(
+    'requires a previous proposal',
+  )
+  expect(model.generate).not.toHaveBeenCalled()
 })
