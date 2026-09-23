@@ -442,7 +442,7 @@ try {
     console.log(
       `${id}: ${record.passed ? 'pass' : 'fail'}, ${record.metrics.requests} requests, ${record.metrics.elapsedMs ?? 'unknown'}ms`,
     )
-    if (!record.passed) break
+    if (!record.passed && options.failurePolicy === 'stop') break
   }
 } catch (error) {
   await write('failure.json', { error: gateway.redact(String(error)) })

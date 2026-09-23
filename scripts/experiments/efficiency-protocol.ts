@@ -53,6 +53,7 @@ export function efficiencyOptions(args: string[]) {
     '--learning-source',
     '--max-cost-usd',
     '--protocol',
+    '--failure-policy',
   ])
   args = args.filter((s) => s !== '--')
   for (let i = 0; i < args.length; i += 2) {
@@ -80,6 +81,12 @@ export function efficiencyOptions(args: string[]) {
     throw Error(
       'Require immutable --baseline-ref <SHA> --candidate-ref <SHA> --phase diagnostic|learning-diagnostic|compare|visual-compare',
     )
+  const failurePolicy = fields.get('--failure-policy') ?? 'stop'
+  if (
+    !['stop', 'complete'].includes(failurePolicy) ||
+    (failurePolicy === 'complete' && phase !== 'visual-compare')
+  )
+    throw Error('Complete failure policy is only available for visual-compare')
   const learningSource = fields.get('--learning-source')
   if (['learning-diagnostic', 'compare'].includes(phase!) && !learningSource)
     throw Error('Learning evaluation requires --learning-source with an unchanged approved rule')
@@ -97,6 +104,7 @@ export function efficiencyOptions(args: string[]) {
     phase: phase as EfficiencyPhase,
     learningSource,
     maxCostUsd,
+    failurePolicy: failurePolicy as 'stop' | 'complete',
   }
 }
 
