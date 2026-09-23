@@ -8,7 +8,7 @@ vi.mock('../shared/config.ts', () => ({
     databaseUrl: ':memory:',
     agentModel: 'openai/test-explicit-mock',
     visionModel: 'test',
-    optimizations: { observation: true },
+    optimizations: { observation: true, ruleRouting: true },
     budget: {
       totalTimeoutMs: 20000,
       maxActions: 10,

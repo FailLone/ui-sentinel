@@ -104,6 +104,9 @@ const KEEP_KEYS = new Set([
   'operationId',
   'reused',
   'inspection',
+  'matching',
+  'declaration',
+  'routing',
 ])
 
 /** One projection, also accepts its own output. Never discard action arguments. */

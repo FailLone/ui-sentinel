@@ -146,6 +146,12 @@ export function compileTransitionRule(id: string, config: TransitionRuleConfig):
     description: config.description,
     category: 'transition',
     enabled: true,
+    routing: {
+      version: '1',
+      execution: 'semantic-binding',
+      eventTypes: ['business:response', 'transition:observed'],
+      trigger: config.trigger.eventType,
+    },
     async evaluate({ snapshot }) {
       const observations = snapshot.transitionObservations ?? []
       const relevant = observations.filter(

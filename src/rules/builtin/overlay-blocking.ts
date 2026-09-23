@@ -8,6 +8,7 @@ export const overlayBlockingRule: Rule = {
     'Reports sampled interception of visible actions; never infers blocking from rectangle overlap.',
   category: 'interaction',
   enabled: true,
+  routing: { version: '1', execution: 'automatic', eventTypes: [] },
   async evaluate({ snapshot }) {
     const targets = snapshot.elements.filter(
       (e) => e.visible && (e.tag === 'button' || e.tag === 'a') && e.enabled !== false,

@@ -65,6 +65,8 @@ export function createPhaseTracker(budget: RunBudget) {
         'tool_result_read',
         'exploration_update',
         'checks_run',
+        'rules_search',
+        'rule_details',
       ].includes(tool)
         ? null
         : 'new exploration is not allowed during finalization'

@@ -1,4 +1,5 @@
 import type { Rule, RuleContext, RuleResult } from './types.ts'
+import { ruleApplicability, type createRuleEvaluationCache } from './routing.ts'
 
 const registry = new Map<string, Rule>()
 
@@ -22,9 +23,14 @@ export interface ChecksRunResult {
   readonly evaluatedCount: number
   readonly results: readonly RuleResult[]
   readonly summary: string
+  readonly reused?: readonly string[]
+  readonly skipped?: readonly { ruleId: string; reason: string }[]
 }
 
-export async function runChecks(context: RuleContext): Promise<ChecksRunResult> {
+export async function runChecks(
+  context: RuleContext,
+  options?: { route: boolean; cache: ReturnType<typeof createRuleEvaluationCache> },
+): Promise<ChecksRunResult> {
   const enabled = getEnabledRules()
 
   if (enabled.length === 0) {
@@ -36,11 +42,34 @@ export async function runChecks(context: RuleContext): Promise<ChecksRunResult> 
   }
 
   const results: RuleResult[] = []
+  const reused: string[] = []
+  const skipped: { ruleId: string; reason: string }[] = []
 
   for (const rule of enabled) {
+    const applicability = options?.route ? ruleApplicability(rule, context) : undefined
+    if (
+      options?.route &&
+      rule.routing?.execution === 'semantic-binding' &&
+      !context.snapshot.transitionObservations?.some(
+        (o) => o.binding?.ruleId === rule.id && o.binding.ruleRevision === rule.revision,
+      )
+    ) {
+      skipped.push({
+        ruleId: rule.id,
+        reason: 'unknown: awaiting semantic binding and measured facts',
+      })
+      continue
+    }
+    if (applicability?.status === 'not-applicable') {
+      skipped.push({ ruleId: rule.id, reason: applicability.reason })
+      continue
+    }
     try {
-      const result = await rule.evaluate(context)
-      results.push(result)
+      const evaluated = options?.route
+        ? await options.cache.evaluate(rule, context)
+        : { result: await rule.evaluate(context), reused: false }
+      results.push(evaluated.result)
+      if (evaluated.reused) reused.push(rule.id)
     } catch (err) {
       results.push({
         ruleId: rule.id,
@@ -67,9 +96,15 @@ export async function runChecks(context: RuleContext): Promise<ChecksRunResult> 
   if (unknown.length > 0) parts.push(`${unknown.length} unknown`)
 
   return {
-    evaluatedCount: results.length,
+    evaluatedCount: results.length - reused.length,
     results,
-    summary: parts.join(', ') || 'all not-applicable',
+    reused,
+    skipped,
+    summary:
+      parts.join(', ') ||
+      (skipped.some((s) => s.reason.startsWith('unknown:'))
+        ? 'unknown: semantic checks await binding'
+        : 'all not-applicable'),
   }
 }
 

@@ -7,6 +7,7 @@ export const businessOutcomeRule: Rule = {
   description: 'Correlate a public business response with visible feedback and its order identity.',
   category: 'business',
   enabled: true,
+  routing: { version: '1', execution: 'automatic', eventTypes: ['business:response'] },
   async evaluate({ snapshot, events }) {
     const response = events.filter((e) => e.type === 'business:response').at(-1)?.payload
     const text = snapshot.elements

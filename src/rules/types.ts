@@ -1,4 +1,6 @@
 export interface RuleContext {
+  readonly factVersion?: string
+  readonly observedTriggers?: readonly string[]
   readonly runId: string
   readonly currentUrl: string
   readonly pageTitle: string
@@ -60,6 +62,12 @@ export interface RuleResult {
 }
 
 export interface Rule {
+  readonly routing?: {
+    readonly version: '1'
+    readonly execution: 'automatic' | 'semantic-binding'
+    readonly eventTypes: readonly string[]
+    readonly trigger?: string
+  }
   readonly declaration?: import('./transition.ts').TransitionRuleConfig
   readonly id: string
   readonly revision: string

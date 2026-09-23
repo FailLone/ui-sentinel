@@ -9,6 +9,7 @@ export const responseTimeRule: Rule = {
     'Warn when measured UI response is unambiguously above the configured 10 second requirement.',
   category: 'performance',
   enabled: true,
+  routing: { version: '1', execution: 'automatic', eventTypes: ['response:observed'] },
   async evaluate({ events }) {
     const threshold = 10_000
     const measurements = events
