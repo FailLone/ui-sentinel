@@ -56,6 +56,7 @@ import { clearRules, registerRule } from '../rules/engine.ts'
 
 import { overlayBlockingRule } from '../rules/builtin/overlay-blocking.ts'
 import { compileTransitionRule } from '../rules/transition.ts'
+import { config } from '../shared/config.ts'
 let journeyChange = 'none'
 let url = '',
   writes = 0,
@@ -157,6 +158,7 @@ afterAll(async () => {
   await Promise.all(ids.map((id) => rm(`data/artifacts/${id}`, { recursive: true, force: true })))
 })
 beforeEach(() => {
+  config.optimizations.shortFinish = false
   clearRules()
   journeyChange = 'none'
   writes = 0
@@ -169,6 +171,44 @@ async function makeRun() {
   return r
 }
 const call = (tools: any, name: string, input: any = {}) => tools[name].execute(input, {})
+
+it('accepts a short explicit finish request and generates the conclusion from persisted facts', async () => {
+  config.optimizations.shortFinish = true
+  let phase = 0
+  harness.handler = async (tools: any) => {
+    if (phase++ === 0) {
+      await call(tools, 'page_act', { type: 'click', role: 'button', name: 'Buy' })
+      return []
+    }
+    expect(await call(tools, 'run_finish', { reason: 'x'.repeat(241) })).toMatchObject({
+      error: true,
+    })
+    return [
+      {
+        toolName: 'run_finish',
+        result: await call(tools, 'run_finish', { reason: 'Observed journey inspected.' }),
+      },
+    ]
+  }
+  const run = await makeRun()
+  await startRunExecution(run.id)
+  const events = await getEvents(run.id)
+  expect(
+    events.find((e) => e.type === 'finish:accepted')?.payload,
+    JSON.stringify(events.filter((e) => ['execution:stopped', 'tool:finished'].includes(e.type))),
+  ).toMatchObject({
+    businessResult: 'success',
+    blocked: false,
+    summary: 'Observed journey inspected.',
+  })
+  expect(events.filter((e) => e.type === 'finish:requested')).toHaveLength(1)
+  expect(writes).toBe(1)
+  const { buildReport } = await import('../server/routes/runs.ts')
+  expect((await buildReport(run.id))?.conclusion).toMatchObject({
+    reason: 'Observed journey inspected.',
+    source: 'persisted-evidence',
+  })
+})
 
 describe('executor with deterministic model and real browser (not model evaluation)', () => {
   it('supplies real DOM, executes schema tools, records evidence and verifies public business outcome', async () => {

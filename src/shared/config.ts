@@ -27,6 +27,7 @@ export const config = Object.freeze({
     ruleRouting: process.env.EXECUTION_RULE_ROUTING !== '0',
     journeys: process.env.EXECUTION_JOURNEYS !== '0',
     modelStreaming: process.env.EXECUTION_MODEL_STREAMING !== '0',
+    shortFinish: process.env.EXECUTION_SHORT_FINISH !== '0',
   },
 
   budget: {

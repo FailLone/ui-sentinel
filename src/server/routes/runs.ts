@@ -271,6 +271,17 @@ export async function buildReport(runId: string) {
     status: run.status,
     businessResult: run.businessResult,
     stopReason: run.stopReason,
+    conclusion: {
+      reason:
+        [...events].reverse().find((e) => e.type === 'finish:accepted')?.payload.summary ?? null,
+      source: 'persisted-evidence',
+      supportedFindingIds: findings
+        .filter((f) => f.validationStatus === 'supported')
+        .map((f) => f.id),
+      unresolvedFindingIds: findings
+        .filter((f) => ['candidate', 'inconclusive'].includes(f.validationStatus))
+        .map((f) => f.id),
+    },
     findings,
     usage: run.usage,
     budget: run.spec.budget,
