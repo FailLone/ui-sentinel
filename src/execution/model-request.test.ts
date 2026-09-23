@@ -257,7 +257,7 @@ it('retains streamed errors and never retries after any tool has started', async
   expect(calls).toBe(1)
 })
 
-it('keeps known usage on a length-limited streamed response without treating it as success or retrying', async () => {
+it('keeps known usage on a length-limited streamed response without treating it as success when no retry budget remains', async () => {
   const records: any[] = []
   let requests = 0
   await expect(
@@ -276,7 +276,7 @@ it('keeps known usage on a length-limited streamed response without treating it 
         },
       } as any,
       '{}',
-      opts({ transport: 'stream' }),
+      opts({ transport: 'stream', attemptBudget: 1 }),
       {
         onFinish: (r) => {
           records.push(r)
@@ -349,4 +349,102 @@ it('retries the SDK empty-stream termination once within the existing budget, on
     ),
   ).rejects.toThrow('without producing any output')
   expect(afterToolCalls).toBe(1)
+})
+
+it('recovers once from output exhaustion without increasing budgets or repeating any executed tool', async () => {
+  vi.useFakeTimers()
+  const records: any[] = [],
+    inputs: any[] = []
+  let tools = 0
+  const work = executeModelRequest(
+    {
+      stream: async (input: string) => {
+        inputs.push(JSON.parse(input))
+        return {
+          getFullOutput: async () => {
+            if (inputs.length === 1)
+              return {
+                finishReason: 'length',
+                text: '',
+                toolResults: [],
+                usage: { inputTokens: 10, outputTokens: 4096 },
+              }
+            beginAttemptTool()
+            tools++
+            return {
+              finishReason: 'tool-calls',
+              text: '',
+              toolResults: [],
+              usage: { inputTokens: 20, outputTokens: 50 },
+            }
+          },
+        }
+      },
+    } as any,
+    JSON.stringify({ evidenceRefs: ['saved'], task: 'resolve observed issue' }),
+    opts({ transport: 'stream' }),
+    {
+      onFinish: (r) => {
+        records.push(r)
+      },
+    },
+  )
+  await vi.runAllTimersAsync()
+  await work
+  expect(inputs).toHaveLength(2)
+  expect(inputs[1]).toMatchObject({
+    evidenceRefs: ['saved'],
+    task: 'resolve observed issue',
+    requestRecovery: expect.stringContaining('No tool from that request ran'),
+  })
+  expect(tools).toBe(1)
+  expect(records[0]).toMatchObject({
+    status: 'error',
+    usage: { inputTokens: 10, outputTokens: 4096 },
+  })
+  expect(records[1].retryOf).toBe(records[0].attemptId)
+  let requests = 0
+  await expect(
+    executeModelRequest(
+      {
+        stream: async () => {
+          requests++
+          beginAttemptTool()
+          return {
+            getFullOutput: async () => ({ finishReason: 'length', text: '', toolResults: [] }),
+          }
+        },
+      } as any,
+      '{}',
+      opts({ transport: 'stream' }),
+    ),
+  ).rejects.toThrow('model-stream-incomplete:length')
+  expect(requests).toBe(1)
+})
+
+it.each([
+  { role: 'user' as const, content: 'Inspect saved evidence.' },
+  [{ role: 'user' as const, content: 'Inspect saved evidence.' }],
+])('preserves structured message input when adding a bounded recovery notice', async (input) => {
+  vi.useFakeTimers()
+  const received: any[] = []
+  const work = executeModelRequest(
+    {
+      stream: async (messages: unknown) => {
+        received.push(messages)
+        return {
+          getFullOutput: async () =>
+            received.length === 1
+              ? { finishReason: 'length', text: '', toolResults: [] }
+              : { finishReason: 'stop', text: 'response', toolResults: [] },
+        }
+      },
+    } as any,
+    input,
+    opts({ transport: 'stream' }),
+  )
+  await vi.runAllTimersAsync()
+  await work
+  expect(received[1][0]).toEqual(Array.isArray(input) ? input[0] : input)
+  expect(received[1].at(-1).content).toContain('No tool from that request ran')
 })

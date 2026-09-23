@@ -92,7 +92,8 @@ function retryable(error: unknown): boolean {
     /model-request-timeout|ECONNRESET|ECONNREFUSED|fetch failed|network|terminated/i.test(
       message,
     ) ||
-    /Agent stream finished with finishReason "other" without producing any output/.test(message)
+    /Agent stream finished with finishReason "other" without producing any output/.test(message) ||
+    message === 'model-stream-incomplete:length'
   )
 }
 
@@ -120,6 +121,7 @@ export async function executeModelRequest(
   const maxAttempts = Math.min(options.attemptBudget, config.budget.modelRequestMaxRetries + 1)
   if (maxAttempts < 1) throw new Error('budget-exhausted')
   let retryOf: string | undefined
+  let requestInput = input
   for (let index = 0; index < maxAttempts; index++) {
     options.runSignal.throwIfAborted()
     const startedAt = Date.now(),
@@ -172,7 +174,7 @@ export async function executeModelRequest(
           if (transport === 'generate')
             return abortable(
               signal,
-              agent.generate(input, {
+              agent.generate(requestInput, {
                 maxSteps: 1,
                 abortSignal: signal,
                 activeTools: options.activeTools,
@@ -182,7 +184,7 @@ export async function executeModelRequest(
           let streamError: Error | undefined
           const output = await abortable(
             signal,
-            agent.stream(input, {
+            agent.stream(requestInput, {
               maxSteps: 1,
               activeTools: options.activeTools,
               toolChoice: options.requireTool ? 'required' : 'auto',
@@ -256,6 +258,25 @@ export async function executeModelRequest(
       deadlineAt - Date.now() <= 1000
     )
       throw failure
+    if (error === 'model-stream-incomplete:length') {
+      const notice =
+        'The preceding request reached its output limit before executing any tool. No tool from that request ran. Use the unchanged evidence to choose one justified available tool. Keep arguments concise; do not repeat completed work.'
+      if (typeof input === 'string') {
+        try {
+          const value = JSON.parse(input)
+          requestInput =
+            value && typeof value === 'object' && !Array.isArray(value)
+              ? JSON.stringify({ ...value, requestRecovery: notice })
+              : `${input}\n\n${notice}`
+        } catch {
+          requestInput = `${input}\n\n${notice}`
+        }
+      } else
+        requestInput = [
+          ...(Array.isArray(input) ? input : [input]),
+          { role: 'user', content: notice },
+        ]
+    }
     retryOf = attemptId
     await backoff(options.runSignal, 1000)
   }

@@ -79,3 +79,7 @@ C2 中 Agent 主动请求 Qwen 判断遮挡与关闭入口。Qwen 返回 occlusi
 下一项 `reasoning-replay-1` 固定这份最后决策输入（candidate-C2-1 第七请求），两次顺序请求：low、disabled。固定 DeepSeek/Wafer、stream、工具 schema、4096 输出上限和 60 秒请求期限，无重试，不实例化浏览器或执行任何工具。估算合计上限 $0.10。检查是否返回与已提供证据匹配的有效假设关联工具；该重放不证明完整应用质量或稳定速度。
 
 [OpenRouter reasoning 文档](https://openrouter.ai/docs/guides/best-practices/reasoning-tokens) 说明 reasoning 与可见输出通常共享 max_tokens，全部预算消耗在推理会产生空 content/length；exclude 仅隐藏推理，不减少计算。模型列表显示所选 DeepSeek reasoning 非强制，因此只在独立实验中检查 enabled=false 的实际行为。既有批次的 low 配置和成绩不追改。
+
+重放结果 `data/reasoning-replay/2026-09-23T14-42-51-978Z`：low 在 6.480s 返回有效的同证据关联（866 output，其中 719 reasoning）；disabled 在 1.409s 返回重复 visual_review（38 output，0 reasoning），未通过下一步有效关联检查。两次均由 Wafer 返回。不能用后一项较快时间声称有效提速；保持 low，不采用关闭推理。
+
+同一失败输入在 low 重放中可以正确行动，说明不能断言该状态或工具契约必然无法决策。新增有界恢复：仅在输出上限失败且未执行任何工具时，使用既有的一次重试配额，附带未执行动作的恢复说明，保留所有输入事实与原预算。失败请求不删除，已知用量继续累计；第二次失败仍终止。此项仍需端到端验证。
