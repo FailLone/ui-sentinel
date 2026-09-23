@@ -155,3 +155,6 @@ pnpm experiment:acceptance --minimum
 清单、隔离构建、每轮记录及原始证据放在 `data/efficiency/<batch>/`。费用限制在发起新请求前按请求大小与模型列表价格估计预留，已发出的请求仍可能收费；缺失费用保留估计占额及 unknown 标记。它是估计支出上限，不是供应商账单的硬上限。
 
 运行报告的 `execution:profile` 事件包含截图、DOM、a11y、规则及持久化的父子 span；`exclusiveMs` 按时间区间分配，嵌套时间不重复累计，并发区间标为 overlap，未覆盖部分为 unattributed。`inclusiveMs` 用于分项诊断，不能相加当作总耗时。未完成 span 保持 unfinished；旧版本没有该事件时显示 unavailable。计时只记录工程阶段，不记录隐藏推理。
+
+
+效率验收补充：`experiment:efficiency --phase learning-diagnostic`（同时传入两个不可变版本及 `--learning-source`）只执行候选的异常/正常两例，不计入正式六轮 M5；与 `experiment:acceptance` 的真实 smoke、六例诊断共同构成 P4 预检。验收脚本通过 `EXPERIMENT_MAX_COST_USD` 配置估算支出上限，费用未知时保留预留额度；取消在途请求不能保证供应商不计费。

@@ -15,7 +15,19 @@ const dir = resolve('data/acceptance', new Date().toISOString().replace(/[:.]/g,
 await mkdir(dir, { recursive: true })
 const write = (name: string, value: unknown) =>
   writeFile(resolve(dir, name), JSON.stringify(value, null, 2) + '\n')
-const gateway = await startGateway(key, dir)
+const maxCostUsd = Number(process.env.EXPERIMENT_MAX_COST_USD ?? '2')
+if (!Number.isFinite(maxCostUsd) || maxCostUsd <= 0) throw Error('Invalid EXPERIMENT_MAX_COST_USD')
+let pricing: any[] = []
+const gateway = await startGateway(key, dir, fetch, {
+  limitUsd: maxCostUsd,
+  estimateCost: (body) => {
+    const model = pricing.find((m) => m.id === body.model)
+    return (
+      Buffer.byteLength(JSON.stringify(body)) * Number(model?.pricing?.prompt) +
+      4096 * Number(model?.pricing?.completion)
+    )
+  },
+})
 const children: ChildProcess[] = []
 const env: NodeJS.ProcessEnv = {
   ...process.env,
@@ -82,10 +94,24 @@ try {
   console.log(`Acceptance artifacts: ${dir}`)
   const models = (await fetch('https://openrouter.ai/api/v1/models', {
     signal: AbortSignal.timeout(15000),
-  }).then((r) => r.json())) as { data: { id: string }[] }
+  }).then((r) => r.json())) as {
+    data: { id: string; pricing?: { prompt?: string; completion?: string } }[]
+  }
   const selected = models.data.filter((m) => [AGENT_MODEL, VISION_MODEL].includes(m.id))
   if (selected.length !== 2) throw Error('Selected models unavailable; no replacement')
+  if (
+    selected.some(
+      (m) =>
+        !Number.isFinite(Number(m.pricing?.prompt)) ||
+        !Number.isFinite(Number(m.pricing?.completion)),
+    )
+  )
+    throw Error('Selected model prices unavailable; no assumed free requests')
+  pricing = selected
   await write('models.json', selected)
+  console.log(
+    `Workload: real DeepSeek/Qwen smoke + six diagnostic runs${args.includes('--minimum') ? ' + fixed 18-run acceptance' : ''}; estimated budget limit $${maxCostUsd}.`,
+  )
   const sourceDiff = execFileSync('git', ['diff', 'HEAD'], { encoding: 'utf8' })
   await writeFile(resolve(dir, 'runner.patch'), sourceDiff)
   const metadata = {
@@ -93,6 +119,7 @@ try {
     visionProvider: process.env.EXPERIMENT_VISION_PROVIDER ?? 'auto',
     reasoning: { agent: 'low', vision: 'disabled' },
     maxOutputTokens: 4096,
+    maxCostUsd,
     requestPolicy: { timeoutMs: 60000, retries: 1, finalizingMaxCalls: 2, toolTimeoutMs: 15000 },
     builtServerHash: createHash('sha256')
       .update(await readFile('dist/server/index.js'))
@@ -181,4 +208,5 @@ try {
     ),
   )
   await gateway.close()
+  await write('spending.json', gateway.spending())
 }

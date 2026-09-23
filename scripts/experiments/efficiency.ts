@@ -176,7 +176,7 @@ async function learningFixture(arm: NonNullable<ReturnType<typeof arms.get>>, he
   }
 }
 try {
-  if (options.phase === 'compare') {
+  if (options.phase !== 'diagnostic') {
     const source = resolve(options.learningSource!)
     sourceDb = resolve(source, 'runs.db')
     for (const suffix of ['-wal', '-journal'])
@@ -219,7 +219,9 @@ try {
   console.log(
     `Efficiency ${options.phase}: ${manifest.schedule.length} runs, ${manifest.schedule.length * 30} maximum requests, up to ${manifest.schedule.length * 5} run minutes plus build/reset. Estimated budget limit $${options.maxCostUsd}; unknown billed costs remain reserved.`,
   )
-  for (const name of ['baseline', 'candidate'] as const) {
+  for (const name of (options.phase === 'learning-diagnostic'
+    ? ['candidate']
+    : ['baseline', 'candidate']) as ('baseline' | 'candidate')[]) {
     const cwd = resolve(dir, name)
     await mkdir(cwd)
     const archive = execFileSync('git', ['archive', refs[name]], { maxBuffer: 64 * 1024 * 1024 })
@@ -278,6 +280,9 @@ try {
       commit: refs[name],
       archiveHash: hash(archive),
       lockHash,
+      environment: Object.fromEntries(Object.entries(env).filter(([k]) => !/(KEY|TOKEN)$/.test(k))),
+      executorHash: hash(await readFile(resolve(cwd, 'src/execution/executor.ts'))),
+      configurationHash: hash(await readFile(resolve(cwd, 'src/shared/config.ts'))),
       serverHash: hash(await readFile(resolve(cwd, 'dist/server/index.js'))),
       ports: [env.PORT, env.ARENA_PORT, env.ARENA_API_PORT, env.ARENA_CONTROL_PORT],
     }
@@ -320,7 +325,7 @@ try {
       const health = await request(arm, '/api/health')
       if (health.activeRuns || health.queuedRuns) throw Error('Queue not idle')
       record.fixture =
-        options.phase === 'compare'
+        options.phase !== 'diagnostic'
           ? await learningFixture(arm, item.profile === 'healthy')
           : await resetAndVerify(item.profile)
       gateway.begin(id, 30, 300000)
@@ -344,6 +349,9 @@ try {
         await new Promise((r) => setTimeout(r, 250))
       }
       const report = (record.report = await request(arm, `/api/runs/${run.runId}/report`))
+      manifest.arms[item.arm].runtime = report.events.find(
+        (e: any) => e.type === 'run:started',
+      )?.payload
       const backend = (record.backend = await request(arm, '/__control/state', undefined, true))
       const artifacts: Record<string, any> = {}
       await mkdir(resolve(dir, id))
@@ -371,7 +379,7 @@ try {
       }
       record.artifacts = artifacts
       record.score =
-        options.phase === 'compare'
+        options.phase !== 'diagnostic'
           ? scoreBoundRecheck(
               report,
               backend,
@@ -395,7 +403,10 @@ try {
       record.requests = begun ? await gateway.end() : []
     }
     record.metrics = {
-      ...efficiencyMetrics(record.report, record.requests, provider!),
+      ...efficiencyMetrics(record.report, record.requests, {
+        [AGENT_MODEL]: provider!,
+        [VISION_MODEL]: process.env.EXPERIMENT_VISION_PROVIDER ?? '',
+      }),
       orders: record.backend?.orders?.length ?? null,
     }
     // A vision request routed to another provider is declared separately; this batch is not silently comparable.

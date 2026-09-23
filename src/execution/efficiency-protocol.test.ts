@@ -51,6 +51,20 @@ describe('private efficiency experiment protocol', () => {
       'candidate/C2',
       'baseline/C2',
     ])
+    expect(efficiencySchedule('learning-diagnostic')).toEqual([
+      { arm: 'candidate', profile: 'abnormal', repeat: 1 },
+      { arm: 'candidate', profile: 'healthy', repeat: 1 },
+    ])
+    expect(() =>
+      efficiencyOptions([
+        '--baseline-ref',
+        '1234567',
+        '--candidate-ref',
+        'abcdef0',
+        '--phase',
+        'learning-diagnostic',
+      ]),
+    ).toThrow('learning-source')
     const compare = efficiencySchedule('compare')
     expect(compare).toHaveLength(12)
     for (const arm of ['baseline', 'candidate'])
@@ -70,6 +84,23 @@ describe('private efficiency experiment protocol', () => {
       elapsedMs: null,
       profile: null,
     })
+  })
+  it('compares agent and vision against their separately fixed providers', () => {
+    const requests = [
+      { model: 'agent', provider: 'Wafer' },
+      { model: 'vision', provider: 'Alibaba' },
+    ]
+    expect(
+      efficiencyMetrics(undefined, requests, { agent: 'Wafer', vision: 'Alibaba' })
+        .comparableProvider,
+    ).toBe(true)
+    expect(efficiencyMetrics(undefined, requests, { agent: 'Wafer' }).comparableProvider).toBe(
+      false,
+    )
+    expect(
+      efficiencyMetrics(undefined, requests, { agent: 'Wafer', vision: 'Other' })
+        .comparableProvider,
+    ).toBe(false)
   })
   it('does not replace bound-rule evidence with a cheap successful finish', () => {
     const report = {

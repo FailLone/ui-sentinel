@@ -2,7 +2,13 @@ export const efficiencyBudget = { totalTimeoutMs: 300000, maxActions: 40, maxMod
 export const inspectionGoal =
   'Inspect the purchase journey. Purchase an item; inspect primary action access, response, expected rejection and recovery. Campaigns must not block submit; retryable failures must provide an operable retry within five seconds. Response above ten seconds warrants a warning.'
 
-export function efficiencySchedule(phase: 'diagnostic' | 'compare') {
+export function efficiencySchedule(phase: 'diagnostic' | 'learning-diagnostic' | 'compare') {
+  if (phase === 'learning-diagnostic')
+    return ['abnormal', 'healthy'].map((profile) => ({
+      arm: 'candidate' as const,
+      profile,
+      repeat: 1,
+    }))
   const profiles = phase === 'diagnostic' ? ['C0', 'C2'] : ['abnormal', 'healthy']
   const pairs = profiles.flatMap((profile) =>
     Array.from({ length: phase === 'diagnostic' ? 1 : 3 }, (_, i) => ({ profile, repeat: i + 1 })),
@@ -39,26 +45,30 @@ export function efficiencyOptions(args: string[]) {
     !baseline ||
     !candidate ||
     ![baseline, candidate].every((s) => /^[a-f\d]{7,40}$/i.test(s)) ||
-    !['diagnostic', 'compare'].includes(phase ?? '')
+    !['diagnostic', 'learning-diagnostic', 'compare'].includes(phase ?? '')
   )
     throw Error(
-      'Require immutable --baseline-ref <SHA> --candidate-ref <SHA> --phase diagnostic|compare',
+      'Require immutable --baseline-ref <SHA> --candidate-ref <SHA> --phase diagnostic|learning-diagnostic|compare',
     )
   const learningSource = fields.get('--learning-source')
-  if (phase === 'compare' && !learningSource)
-    throw Error('compare requires --learning-source with an unchanged approved rule')
+  if (phase !== 'diagnostic' && !learningSource)
+    throw Error('Learning evaluation requires --learning-source with an unchanged approved rule')
   const maxCostUsd = Number(fields.get('--max-cost-usd') ?? '2')
   if (!Number.isFinite(maxCostUsd) || maxCostUsd <= 0) throw Error('Invalid --max-cost-usd')
   return {
     baseline,
     candidate,
-    phase: phase as 'diagnostic' | 'compare',
+    phase: phase as 'diagnostic' | 'learning-diagnostic' | 'compare',
     learningSource,
     maxCostUsd,
   }
 }
 
-export function efficiencyMetrics(report: any, requests: any[], expectedProvider: string) {
+export function efficiencyMetrics(
+  report: any,
+  requests: any[],
+  expectedProvider: string | Record<string, string>,
+) {
   const events = report?.events ?? []
   const of = (type: string) => events.filter((e: any) => e.type === type)
   const completeUsage = requests.every(
@@ -79,7 +89,16 @@ export function efficiencyMetrics(report: any, requests: any[], expectedProvider
     costUsd: completeCost ? requests.reduce((n, r) => n + r.usage.cost, 0) : null,
     comparableProvider:
       requests.length > 0 &&
-      requests.every((r) => r.provider?.toLowerCase() === expectedProvider.toLowerCase()),
+      requests.every((r) => {
+        const expected =
+          typeof expectedProvider === 'string' ? expectedProvider : expectedProvider[r.model]
+        return !!expected && r.provider?.toLowerCase() === expected.toLowerCase()
+      }),
+    cachedInputTokens: requests.every(
+      (r) => typeof r.usage?.prompt_tokens_details?.cached_tokens === 'number',
+    )
+      ? requests.reduce((n, r) => n + r.usage.prompt_tokens_details.cached_tokens, 0)
+      : null,
     elapsedMs: report?.usage?.elapsedMs ?? null,
     modelWaitMs: of('model:request-finished').reduce(
       (n: number, e: any) => n + (e.payload.modelDurationMs ?? e.payload.durationMs ?? 0),
