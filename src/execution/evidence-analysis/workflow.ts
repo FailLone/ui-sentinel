@@ -110,7 +110,7 @@ export async function analyzeEvidence(
           role: 'user',
           content: [
             { type: 'text', text: JSON.stringify(facts) },
-            { type: 'image', image: imageDataUrl },
+            { type: 'image', image: imageDataUrl, mediaType: 'image/png' },
           ],
         },
       ],
