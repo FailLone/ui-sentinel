@@ -1,6 +1,7 @@
 import { createOpenAI } from '@ai-sdk/openai'
 import type { MastraModelConfig } from '@mastra/core/llm'
 import { config } from './config.ts'
+import { withModelTransportTiming } from '../execution/model-timing.ts'
 
 const [provider, ...rest] = config.agentModel.split('/')
 const modelId = rest.join('/')
@@ -13,6 +14,7 @@ function resolveAgentModel(): MastraModelConfig {
     return createOpenAI({
       apiKey: process.env.OPENAI_API_KEY,
       baseURL: process.env.OPENAI_BASE_URL,
+      fetch: withModelTransportTiming(fetch),
     }).chat(modelId) as unknown as MastraModelConfig
   }
   return config.agentModel as `${string}/${string}`

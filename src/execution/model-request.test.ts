@@ -198,3 +198,61 @@ it('does not dispatch if cancelled while persisting the start event', async () =
   expect(generate).not.toHaveBeenCalled()
   expect(finishes).toMatchObject([{ status: 'cancelled', hadToolCalls: false }])
 })
+
+it('does not turn streaming heartbeats or partial arguments into a completed request or a tool', async () => {
+  vi.useFakeTimers()
+  const records: any[] = []
+  const work = executeModelRequest(
+    {
+      stream: async (_input: string, options: any) => {
+        options.onChunk({ type: 'start' })
+        options.onChunk({ type: 'tool-call-delta', payload: { argsTextDelta: '{' } })
+        return { getFullOutput: () => new Promise(() => {}) }
+      },
+    } as any,
+    '{}',
+    opts({ transport: 'stream', attemptBudget: 1 }),
+    {
+      onFinish: (record) => {
+        records.push(record)
+      },
+    },
+  )
+  const assertion = expect(work).rejects.toThrow('model-request-timeout')
+  await vi.runAllTimersAsync()
+  await assertion
+  expect(records[0]).toMatchObject({
+    status: 'timeout',
+    hadToolCalls: false,
+    timing: {
+      transport: 'stream',
+      firstToolCallMs: null,
+      firstToolExecutionMs: null,
+      cancelledMs: 100,
+    },
+  })
+  expect(records[0].usage).toBeUndefined()
+})
+
+it('retains streamed errors and never retries after any tool has started', async () => {
+  let calls = 0
+  await expect(
+    executeModelRequest(
+      {
+        stream: async (_input: string, options: any) => {
+          calls++
+          beginAttemptTool()
+          return {
+            getFullOutput: async () => {
+              options.onError({ error: 'fetch failed' })
+              return { text: '', toolResults: [], finishReason: 'error' }
+            },
+          }
+        },
+      } as any,
+      '{}',
+      opts({ transport: 'stream' }),
+    ),
+  ).rejects.toThrow('fetch failed')
+  expect(calls).toBe(1)
+})

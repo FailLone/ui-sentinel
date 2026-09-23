@@ -2,6 +2,7 @@ import { AsyncLocalStorage } from 'node:async_hooks'
 import { randomUUID } from 'node:crypto'
 import type { Agent } from '@mastra/core/agent'
 import { config } from '../shared/config.ts'
+import { createModelTiming, markModelToolExecution, type ModelTiming } from './model-timing.ts'
 
 interface AttemptContext {
   id: string
@@ -26,6 +27,7 @@ export function beginAttemptTool(): string | undefined {
   const attempt = attempts.getStore()
   if (!attempt) throw new Error('tool-attempt-required')
   attempt.toolsStarted = true
+  markModelToolExecution()
   attempt.responseReceived()
   return attempt.id
 }
@@ -44,6 +46,7 @@ export interface ModelRequestOptions {
   readonly timeRemainingMs: number
   readonly attemptBudget: number
   readonly canRetry?: () => boolean
+  readonly transport?: 'generate' | 'stream'
 }
 export interface ModelRequestResult {
   readonly text: string
@@ -63,6 +66,7 @@ export interface AttemptRecord {
   readonly error?: string
   readonly hadToolCalls: boolean
   readonly usage?: ModelRequestResult['usage']
+  readonly timing: ModelTiming
 }
 export interface ModelRequestHooks {
   onStart?: (
@@ -117,6 +121,11 @@ export async function executeModelRequest(
     await hooks.onStart?.({ attemptId, retryOf, startedAt, deadlineAt: requestDeadline })
     const controller = new AbortController()
     const signal = AbortSignal.any([options.runSignal, controller.signal])
+    const transport =
+      options.transport ?? (config.optimizations?.modelStreaming ? 'stream' : 'generate')
+    const timing = createModelTiming(transport, startedAt)
+    const markCancelled = () => timing.mark('cancelledMs')
+    signal.addEventListener('abort', markCancelled, { once: true })
     const timer = setTimeout(
       () =>
         controller.abort(
@@ -146,11 +155,33 @@ export async function executeModelRequest(
     let result: Awaited<ReturnType<Agent['generate']>> | undefined
     let failure: unknown
     try {
-      result = await attempts.run(context, () => {
-        signal.throwIfAborted()
-        if (Date.now() >= requestDeadline) throw new Error('budget-exhausted')
-        return abortable(signal, agent.generate(input, { maxSteps: 1, abortSignal: signal }))
-      })
+      result = await attempts.run(context, () =>
+        timing.run(async () => {
+          signal.throwIfAborted()
+          if (Date.now() >= requestDeadline) throw new Error('budget-exhausted')
+          if (transport === 'generate')
+            return abortable(signal, agent.generate(input, { maxSteps: 1, abortSignal: signal }))
+          let streamError: Error | undefined
+          const output = await abortable(
+            signal,
+            agent.stream(input, {
+              maxSteps: 1,
+              abortSignal: signal,
+              onChunk: (chunk) => timing.chunk(chunk),
+              onError: ({ error }) => {
+                streamError = error instanceof Error ? error : new Error(error)
+              },
+            }),
+          )
+          const full = await abortable(signal, output.getFullOutput())
+          if (streamError) throw streamError
+          if (full.finishReason === 'error') throw new Error('model-stream-error')
+          if (!['stop', 'tool-calls'].includes(full.finishReason ?? ''))
+            throw new Error(`model-stream-incomplete:${full.finishReason ?? 'missing-finish'}`)
+          return full
+        }),
+      )
+      timing.mark('responseCompleteMs')
       signal.throwIfAborted()
     } catch (error) {
       failure = signal.aborted ? signal.reason : error
@@ -158,6 +189,7 @@ export async function executeModelRequest(
       context.active = false
       clearTimeout(timer)
       clearTimeout(runTimer)
+      signal.removeEventListener('abort', markCancelled)
     }
     const now = Date.now()
     const error =
@@ -182,6 +214,7 @@ export async function executeModelRequest(
       error,
       hadToolCalls: context.toolsStarted,
       usage: result?.usage as ModelRequestResult['usage'],
+      timing: timing.finish(),
     })
     if (failure === undefined && result)
       return {

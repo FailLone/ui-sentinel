@@ -77,8 +77,84 @@ it('real Mastra tools inherit the model attempt context', async () => {
     runSignal: new AbortController().signal,
     timeRemainingMs: 5000,
     attemptBudget: 1,
+    transport: 'generate',
   })
   expect(attemptId).toBe(result.attemptId)
+})
+
+it('streams through the real SDK, executes only a complete validated tool, and retains final usage', async () => {
+  const { executeModelRequest, beginAttemptTool } = await import('../execution/model-request.ts')
+  let calls = 0
+  const records: any[] = []
+  const model = new MastraLanguageModelV2Mock({
+    doStream: async () => ({
+      stream: new ReadableStream({
+        async start(c) {
+          c.enqueue({ type: 'stream-start', warnings: [] })
+          c.enqueue({ type: 'tool-input-start', id: 'stream-call', toolName: 'observe' })
+          c.enqueue({ type: 'tool-input-delta', id: 'stream-call', delta: '{"required":' })
+          await new Promise((resolve) => setTimeout(resolve, 20))
+          expect(calls).toBe(0)
+          c.enqueue({ type: 'tool-input-delta', id: 'stream-call', delta: 'true}' })
+          c.enqueue({ type: 'tool-input-end', id: 'stream-call' })
+          c.enqueue({
+            type: 'tool-call',
+            toolCallId: 'stream-call',
+            toolName: 'observe',
+            input: '{"required":true}',
+          })
+          c.enqueue({
+            type: 'finish',
+            finishReason: 'tool-calls',
+            usage: { inputTokens: 11, outputTokens: 7, totalTokens: 18 },
+          })
+          c.close()
+        },
+      }),
+    }),
+  })
+  const agent = new Agent({
+    id: 'stream-contract',
+    name: 'stream contract',
+    instructions: 'Use observe.',
+    model,
+    maxRetries: 0,
+    tools: {
+      observe: createTool({
+        id: 'observe',
+        description: 'Observe',
+        inputSchema: z.object({ required: z.literal(true) }),
+        execute: async () => {
+          beginAttemptTool()
+          calls++
+          return { observed: true }
+        },
+      }),
+    },
+  })
+  const result = await executeModelRequest(
+    agent,
+    'Observe',
+    {
+      transport: 'stream',
+      runSignal: new AbortController().signal,
+      timeRemainingMs: 5000,
+      attemptBudget: 1,
+    },
+    {
+      onFinish: (r) => {
+        records.push(r)
+      },
+    },
+  )
+  expect(calls).toBe(1)
+  expect(result.toolResults).toHaveLength(1)
+  expect(result.usage).toMatchObject({ inputTokens: 11, outputTokens: 7 })
+  expect(records[0].timing.transport).toBe('stream')
+  expect(records[0].timing.firstModelDeltaMs).not.toBeNull()
+  expect(records[0].timing.firstToolExecutionMs).toBeGreaterThanOrEqual(
+    records[0].timing.firstModelDeltaMs,
+  )
 })
 
 it('dispatches an empty hypothesis association through the real SDK rule-check schema', async () => {
