@@ -4,6 +4,8 @@
 
 当前实现面向购买靶场。2026-09-23 M4 冻结版本已通过真实模型 smoke、六例诊断及正式 18/18 验收；后续绑定式执行修复版本的学习后复查（M5）6/6 通过，历史失败批次保留。详见 [验收结果](plans/acceptance-results-2026-09-23.md)和 [M5 记录](plans/learning-validation-results-2026-09-23.md)。两个阶段使用各自冻结版本；最新执行层未重跑完整 M4 18 轮。这些结果不等于任意业务都已覆盖或稳定提速已经实现。
 
+最新关键路径改动的实现、失败记录及真实模型对照单列于 [关键路径实验结果](plans/critical-path-results-2026-09-23.md)。当前支持冻结证据后台分析，像素覆盖猜测仍可能无法验证；不能把该能力或并发发生本身当作提速证明。
+
 ## 环境与安装
 
 使用 `.node-version` 指定的 Node 24 LTS，pnpm 10.17.1。不要提交 `.env`、数据库或运行证据。
@@ -66,7 +68,7 @@ pnpm report -- --run RUN_ID
 
 ## 请求超时与任务收尾
 
-`MODEL_REQUEST_TIMEOUT_MS` 默认 60000；`MODEL_REQUEST_MAX_RETRIES` 允许 0 或 1，默认 1。仅在本次尝试尚未开始任何工具、没有未决写操作且仍有预算时重试暂时网络错误。重试计入总请求数，取消和鉴权错误不重试；无法取得的 usage 保留 unknown。主模型响应等待与工具执行分别计时，视觉请求同时受工具和整轮期限限制。当前使用非流式调用，没有首 token 或流式 idle 指标。
+`MODEL_REQUEST_TIMEOUT_MS` 默认 60000；`MODEL_REQUEST_MAX_RETRIES` 允许 0 或 1，默认 1。仅在本次尝试尚未开始任何工具、没有未决写操作且仍有预算时重试暂时网络错误，或恢复未执行工具的输出截断；两者共用原有的一次重试配额。重试计入总请求数，取消和鉴权错误不重试；无法取得的 usage 保留 unknown。主模型响应等待与工具执行分别计时，视觉请求同时受工具和整轮期限限制。当前默认流式调用，记录有效增量、工具执行和响应完成等分段时延；心跳不算进展，尚未引入按空闲时长重试的策略。
 
 工作台从持久事件显示等待模型、执行工具、验证和收尾阶段，以及经过时间和期限。即使模型未返回也能看见请求已经开始。
 
@@ -164,7 +166,7 @@ pnpm experiment:acceptance --minimum
 
 Agent 可调用 `visual_review`，让 Qwen 分析当前保存的截图。页面由一个操作者控制；分析只消费冻结证据，与独立工作重叠。结果作为待验证假设返回，结束前必须汇合；支持使用相同证据的已验证遮挡发现解决重复假设。任务状态、证据版本、消费与关联日志进入 Run 报告，失败不会当作通过。详见 [执行契约](docs/execution-engine.md#冻结证据的后台分析工具契约-18)。
 
-`EXECUTION_EVIDENCE_ANALYSIS=0` 关闭视觉分析工具；`EXECUTION_ANALYSIS_MODE=serial` 使用相同分析工作量进行串行对照。`EXECUTION_MODEL_STREAMING=0`、`EXECUTION_SHORT_FINISH=0` 分别恢复非流式请求和旧收尾协议，用于诊断。所有请求仍共享原 Run 预算；这些开关不是增加预算的入口。
+后台视觉分析尚未通过新增质量/性能门槛，默认关闭；`EXECUTION_EVIDENCE_ANALYSIS=1` 显式启用实验工具，现有视觉动作定位独立可用。`EXECUTION_ANALYSIS_MODE=serial` 使用相同分析工作量进行串行对照。`EXECUTION_MODEL_STREAMING=0`、`EXECUTION_SHORT_FINISH=0` 分别恢复非流式请求和旧收尾协议，用于诊断。所有请求仍共享原 Run 预算；这些开关不是增加预算的入口。
 
 私有 `experiment:efficiency` 增加 `--phase visual-compare --protocol visual-1`：必须同时提供指向同一提交的 `--baseline-ref`、`--candidate-ref`；固定 C0/C2 各两对，共八轮，唯一调度差异为 serial/parallel。无需学习规则目录，禁止加载学习规则。`--protocol finish-1` 用于短收尾十二轮对照，保留原 `efficiency-1` 门槛。
 

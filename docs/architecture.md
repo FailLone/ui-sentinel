@@ -42,7 +42,7 @@ flowchart TB
     V --> K
 ```
 
-图中模块是目标逻辑边界，不表示每个模块都已实现或需要独立服务。当前使用 Mastra Agent/Tools、自有串行执行器、Hono HTTP/SSE、libSQL 和 React 工作台；通用 Workflows、知识检索和分布式任务图尚未按图实现。浏览器动作必须经过工具和执行层；报告事实关联持久证据。
+图中模块是目标逻辑边界，不表示每个模块都已实现或需要独立服务。当前使用 Mastra Agent/Tools、自有串行页面执行器、用于冻结证据分析的 Mastra Workflows、Hono HTTP/SSE、libSQL 和 React 工作台；通用任务图、知识检索和分布式调度尚未按图实现。浏览器动作必须经过工具和执行层；报告事实关联持久证据。
 
 ## 3. 核心模块与责任
 
