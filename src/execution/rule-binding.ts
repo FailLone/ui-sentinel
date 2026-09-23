@@ -7,7 +7,12 @@ export const ruleCheckInput = z
     ruleId: z.string().min(1),
     elementRef: z.string().min(1),
     triggerEvidenceRefs: z.array(z.string().min(1)).length(1),
-    hypothesisId: z.string().min(1).optional(),
+    hypothesisIds: z
+      .array(z.string().regex(/^hyp-/))
+      .max(1)
+      .describe(
+        'Use [] for a known rule check without an existing hypothesis. Otherwise use exactly one existing ID from activeHypotheses. Never invent an ID or the string null.',
+      ),
     bindingReason: z.string().min(1).max(800),
   })
   .strict()

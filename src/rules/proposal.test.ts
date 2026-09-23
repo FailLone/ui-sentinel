@@ -101,7 +101,21 @@ describe('declarative transition lifecycle', () => {
         title: 'x',
         viewport: { width: 1280, height: 768 },
         elements: [],
-        transitionObservations: [observation(false)],
+        transitionObservations: [
+          {
+            ...observation(false),
+            binding: {
+              id: 'binding-1',
+              ruleId: p.id,
+              ruleRevision: '1',
+              operationId: 'operation-1',
+              elementRef: 'e1',
+              snapshotId: 's1',
+              triggerEvidenceRefs: ['response-1'],
+              reason: 'explicit same-operation binding',
+            },
+          },
+        ],
       },
     })
     expect(result.results.find((r) => r.ruleId === p.id)?.verdict).toBe('fail')

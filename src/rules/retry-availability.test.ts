@@ -71,6 +71,14 @@ describe('business-independent retry declaration', () => {
       (
         await compiled.evaluate({
           ...context,
+          snapshot: { ...context.snapshot, transitionObservations: [measured('failed', 0)] },
+        })
+      ).verdict,
+    ).toBe('unknown')
+    expect(
+      (
+        await compiled.evaluate({
+          ...context,
           snapshot: {
             ...context.snapshot,
             transitionObservations: [

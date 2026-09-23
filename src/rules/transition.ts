@@ -151,7 +151,8 @@ export function compileTransitionRule(id: string, config: TransitionRuleConfig):
       const relevant = observations.filter(
         (o) =>
           o.eventType === config.trigger.eventType &&
-          (!o.binding || (o.binding.ruleId === id && o.binding.ruleRevision === '1')),
+          o.binding?.ruleId === id &&
+          o.binding.ruleRevision === '1',
       )
       const verdicts = relevant.map((o) => evaluateTransition(config, o))
       const verdict = verdicts.includes('fail')

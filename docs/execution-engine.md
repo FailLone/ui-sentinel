@@ -643,9 +643,9 @@ tasks.wait 接收任务集合、事件游标和最大等待时长，返回新增
 
 这些约束保证运行过程可继续、可检索、可复盘，并不保证自动发现所有体验问题。当前购物业务提示、结果确认和评估逻辑仍有业务专用部分；多业务通用性和 C0–C5 全量评估需独立验收。
 
-## 已知规则的绑定式检查（2026-09-23，工具契约 10）
+## 已知规则的绑定式检查（2026-09-23，工具契约 11）
 
-`rule_check({ ruleId, elementRef, triggerEvidenceRefs, bindingReason, hypothesisId? })` 用于已有声明式规则。Agent 负责解释当前元素承担什么业务动作，并选择当前元素引用；执行器负责核对引用与证据、派生参数和保存结果。
+`rule_check({ ruleId, elementRef, triggerEvidenceRefs, bindingReason, hypothesisIds })` 用于已有声明式规则。hypothesisIds 使用空数组表示无需新假设，或包含一个已有假设 ID。Agent 负责解释当前元素承担什么业务动作，并选择当前元素引用；执行器负责核对引用与证据、派生参数和保存结果。
 
 - `ruleId` 是内部规则身份，不是业务页面 DOM ID。事件类型、语义 target、condition、等待窗口来自规则与已验证触发事实，禁止 Agent 用自由文本覆盖。未知探索仍使用 `transition_observe`。
 - `observedRuleTriggers` 向 Agent 提供当前公开业务响应的事件引用与操作 ID。工具只接受当前运行、当前操作的已记录触发依据。当前适配器限于购物协议；状态过滤、其他触发类型和未支持条件返回 unknown/unsupported，不从规则条件反推事实成立。
@@ -653,5 +653,6 @@ tasks.wait 接收任务集合、事件游标和最大等待时长，返回新增
 - 输出包含 checkId、bindingId、operationId、verdict、findingId 和证据。结果同时进入 `completedRuleChecks`，无需再读取完整历史或重新提交发现。显式关联的 hypothesis 在 fail/pass 时分别变为 supported/refuted，unknown 保持未解决。
 - 同一业务事件、同一物理节点、相同观察指纹且当前采样仍一致时，可复用已有结果。不同操作、不同节点不能按名称或标题合并。关联同一检查的重复发现提交引用原结果，不新增一条发现。
 - 保存 `rule:bound`、`rule:check-completed`、`rule:check-reused` 或未解决事件，以及原始 transition 测量。规则只读检查不实际点击重试，不证明业务重试处理成功。
+- 已启用的学习规则只消费匹配自身 ID/修订的绑定事实，自由探索采集的无绑定事实不进入该规则的运行期判定。候选正反验证仍可直接评价独立事实 fixture。此边界防止先自由测量、后绑定检查产生两份同类规则发现。
 
 等待窗口仍从测量开始计时。此次绑定修复没有将其升级为“从业务响应时刻起算”的完整 SLA 追踪。

@@ -80,6 +80,7 @@ describe('evidence-bound rule contract', () => {
   it('rejects model overrides for target, timeout and selector', () => {
     const input = {
       ruleId: 'learned',
+      hypothesisIds: [],
       elementRef: 'e1',
       triggerEvidenceRefs: ['response-1'],
       bindingReason: 'same failed operation',

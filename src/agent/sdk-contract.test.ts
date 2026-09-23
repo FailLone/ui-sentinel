@@ -80,3 +80,51 @@ it('real Mastra tools inherit the model attempt context', async () => {
   })
   expect(attemptId).toBe(result.attemptId)
 })
+
+it('dispatches an empty hypothesis association through the real SDK rule-check schema', async () => {
+  const { ruleCheckInput } = await import('../execution/rule-binding.ts')
+  const args = {
+    ruleId: 'learned',
+    elementRef: 'e1',
+    triggerEvidenceRefs: ['event-1'],
+    bindingReason: 'same failed operation',
+    hypothesisIds: [],
+  }
+  let received: unknown
+  const model = new MastraLanguageModelV2Mock({
+    doGenerate: {
+      content: [
+        {
+          type: 'tool-call',
+          toolCallId: 'bound-1',
+          toolName: 'rule_check',
+          input: JSON.stringify(args),
+        },
+      ],
+      finishReason: 'tool-calls',
+      usage: { inputTokens: 1, outputTokens: 1, totalTokens: 2 },
+      warnings: [],
+    },
+  })
+  const agent = new Agent({
+    id: 'bound-rule-schema',
+    name: 'Bound rule schema',
+    instructions: 'Use tool',
+    model,
+    maxRetries: 0,
+    tools: {
+      rule_check: createTool({
+        id: 'rule.check',
+        description: 'Bound check',
+        inputSchema: ruleCheckInput,
+        execute: async (input) => {
+          received = ruleCheckInput.parse(input)
+          return { verdict: 'pass' }
+        },
+      }),
+    },
+  })
+  await agent.generate('Check', { maxSteps: 1 })
+  expect(received).toEqual(args)
+  expect(ruleCheckInput.safeParse({ ...args, hypothesisIds: ['null'] }).success).toBe(false)
+})

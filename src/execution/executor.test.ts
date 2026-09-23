@@ -895,6 +895,7 @@ it.each([false, true])(
         expect(
           await call(tools, 'rule_check', {
             ruleId: 'learned-retry',
+            hypothesisIds: [],
             elementRef: oldRef,
             triggerEvidenceRefs: ['invented'],
             bindingReason: 'label alone',
@@ -906,6 +907,7 @@ it.each([false, true])(
       if (harness.models === 2) {
         const args = {
           ruleId: 'learned-retry',
+          hypothesisIds: [],
           elementRef: packet.observation.elements.find((e: any) => e.text === 'Try Again').ref,
           triggerEvidenceRefs: [packet.observedRuleTriggers[0].eventRef],
           bindingReason:
@@ -920,7 +922,7 @@ it.each([false, true])(
           verificationPlan: 'bound check',
           trigger: 'retryable-failure',
         })
-        result = await call(tools, 'rule_check', { ...args, hypothesisId: hypothesis.id })
+        result = await call(tools, 'rule_check', { ...args, hypothesisIds: [hypothesis.id] })
         expect(result.verdict).toBe(disabled ? 'fail' : 'pass')
         expect(
           await call(tools, 'findings_submit', {
@@ -939,6 +941,7 @@ it.each([false, true])(
       expect(packet.completedRuleChecks).toHaveLength(1)
       const reused = await call(tools, 'rule_check', {
         ruleId: 'learned-retry',
+        hypothesisIds: [],
         elementRef: packet.observation.elements.find((e: any) => e.text === 'Try Again').ref,
         triggerEvidenceRefs: [packet.observedRuleTriggers[0].eventRef],
         bindingReason: 'same operation and unchanged button',
