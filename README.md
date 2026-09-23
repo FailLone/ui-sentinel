@@ -6,6 +6,8 @@
 
 最新关键路径改动的实现、失败记录及真实模型对照单列于 [关键路径实验结果](plans/critical-path-results-2026-09-23.md)。当前支持冻结证据后台分析，像素覆盖猜测仍可能无法验证；不能把该能力或并发发生本身当作提速证明。
 
+当前按 [Agent 决策效率与开源执行方案验证计划](plans/agent-decision-efficiency-plan.md) 推进：定位慢决策的原因、验证信息契约、实测开源完整 Agent 循环，再决定是否采用及继续并行优化。进度见 [实验结果](plans/agent-decision-efficiency-results.md)。
+
 ## 环境与安装
 
 使用 `.node-version` 指定的 Node 24 LTS，pnpm 10.17.1。不要提交 `.env`、数据库或运行证据。
