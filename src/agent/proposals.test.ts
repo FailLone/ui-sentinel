@@ -95,6 +95,23 @@ it('rejects invented state filters not supported by source evidence', async () =
   })
   await expect(generateRuleProposal(finding.id)).rejects.toThrow('does not match recorded facts')
 })
+it('constrains model target keys to measured semantics while allowing generic presentation', async () => {
+  const { finding } = await fixture()
+  model.generate.mockImplementation(async (_input, options) => {
+    const output = { ...declaration, name: 'Any eligible retry action' }
+    expect(options.structuredOutput.schema.safeParse(output).success).toBe(true)
+    expect(
+      options.structuredOutput.schema.safeParse({
+        ...output,
+        expectation: { ...output.expectation, target: 'Retry control' },
+      }).success,
+    ).toBe(false)
+    return { object: output }
+  })
+  const proposal = await generateRuleProposal(finding.id)
+  expect(proposal.ruleConfig.name).toBe('Any eligible retry action')
+  expect(proposal.ruleConfig.expectation).toMatchObject({ target: 'Retry button' })
+})
 it('bounds providers that ignore cancellation and prevents a late result from creating a proposal', async () => {
   const { run, finding } = await fixture()
   let settle!: (value: unknown) => void

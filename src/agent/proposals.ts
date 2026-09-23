@@ -53,6 +53,28 @@ export async function generateRuleProposal(
     .filter((o) => o.evidenceRefs?.some((ref: string) => evidenceRefs.includes(ref)))
   if (!facts.length)
     throw new Error('unsupported: no structured transition observations linked to this finding')
+  const targets: string[] = [
+    ...new Set<string>(
+      facts.flatMap((o) =>
+        (o.samples ?? [])
+          .map((s: { target?: string }) => s.target)
+          .filter(
+            (target: unknown): target is string => typeof target === 'string' && target.length > 0,
+          ),
+      ),
+    ),
+  ]
+  if (!targets.length) throw new Error('unsupported: no recorded semantic targets')
+  // Semantic keys are references to measured facts, not copy that the model may rename.
+  const groundedSchema = schema.extend({
+    expectation: schema.shape.expectation.extend({
+      target: z
+        .enum(targets)
+        .describe(
+          'Exact recorded semantic key; independent of visible button text. Never rename it to broaden scope.',
+        ),
+    }),
+  })
   let revisionFeedback: unknown
   if (previousProposalId) {
     const prior = (
@@ -113,7 +135,7 @@ export async function generateRuleProposal(
           observations: facts,
           revisionFeedback,
         }),
-        { maxSteps: 1, abortSignal: signal, structuredOutput: { schema } },
+        { maxSteps: 1, abortSignal: signal, structuredOutput: { schema: groundedSchema } },
       ),
     )
     signal.throwIfAborted()
@@ -137,7 +159,7 @@ export async function generateRuleProposal(
   } finally {
     clearTimeout(timer)
   }
-  const generated = schema.parse(response.object)
+  const generated = groundedSchema.parse(response.object)
   const parsed = {
     ...generated,
     trigger: {
