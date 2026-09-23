@@ -54,11 +54,19 @@ import { initDatabase, getDbClient } from '../storage/database.ts'
 import { clearRules, registerRule } from '../rules/engine.ts'
 
 import { overlayBlockingRule } from '../rules/builtin/overlay-blocking.ts'
+import { compileTransitionRule } from '../rules/transition.ts'
 let url = '',
   writes = 0,
   responseDelay = 0
 const ids: string[] = []
 const server = createServer((req, res) => {
+  if (req.url?.startsWith('/bound-page')) {
+    res.setHeader('content-type', 'text/html')
+    res.end(
+      `<h1>Checkout</h1><button onclick="fetch('/failed-payment',{method:'POST'}).then(r=>r.json()).then(()=>document.querySelector('h1').textContent='Payment failed order-failed')">Pay</button><button ${req.url.includes('disabled') ? 'disabled' : ''}>Try Again</button><button>Retry upload</button>`,
+    )
+    return
+  }
   if (req.url === '/ambiguous') {
     res.setHeader('content-type', 'text/html')
     res.end('<button>Pay later</button><button>Pay</button><button>Pay</button>')
@@ -864,3 +872,103 @@ it('maps a retryable processing failure to unknown and explains the blocked fini
   })
   expect(writes).toBe(1)
 })
+
+it.each([false, true])(
+  'binds a learned semantic target to the correct actual element, disabled=%s',
+  async (disabled) => {
+    registerRule(
+      compileTransitionRule('learned-retry', {
+        type: 'transition',
+        name: 'Retry availability',
+        description: 'Eligible retry becomes operable',
+        trigger: { eventType: 'retryable-failure' },
+        expectation: { condition: 'element-actionable', target: 'Retry button', timeoutMs: 500 },
+        severity: 'error',
+      }),
+    )
+    let oldRef = '',
+      result: any
+    harness.handler = async (tools: any, prompt: string) => {
+      const packet = JSON.parse(prompt)
+      if (harness.models === 1) {
+        oldRef = packet.observation.elements.find((e: any) => e.text === 'Try Again').ref
+        expect(
+          await call(tools, 'rule_check', {
+            ruleId: 'learned-retry',
+            elementRef: oldRef,
+            triggerEvidenceRefs: ['invented'],
+            bindingReason: 'label alone',
+          }),
+        ).toMatchObject({ verdict: 'unknown' })
+        await call(tools, 'page_act', { type: 'click', role: 'button', name: 'Pay' })
+        return []
+      }
+      if (harness.models === 2) {
+        const args = {
+          ruleId: 'learned-retry',
+          elementRef: packet.observation.elements.find((e: any) => e.text === 'Try Again').ref,
+          triggerEvidenceRefs: [packet.observedRuleTriggers[0].eventRef],
+          bindingReason:
+            'This retry belongs to the visibly failed order; Retry upload is another action',
+        }
+        expect(await call(tools, 'rule_check', { ...args, elementRef: oldRef })).toMatchObject({
+          verdict: 'unknown',
+        })
+        const hypothesis = await call(tools, 'hypotheses_record', {
+          phenomenon: 'same eligible retry check',
+          basis: 'response and visible order',
+          verificationPlan: 'bound check',
+          trigger: 'retryable-failure',
+        })
+        result = await call(tools, 'rule_check', { ...args, hypothesisId: hypothesis.id })
+        expect(result.verdict).toBe(disabled ? 'fail' : 'pass')
+        expect(
+          await call(tools, 'findings_submit', {
+            hypothesisId: hypothesis.id,
+            validationStatus: disabled ? 'supported' : 'refuted',
+            severity: 'info',
+            title: 'Duplicate of same bound check',
+            expected: 'operable',
+            actual: 'same measurement',
+            evidenceRefs: result.evidenceRefs,
+          }),
+        ).toMatchObject({ reused: true, checkId: result.checkId })
+        return []
+      }
+      expect(packet.activeHypotheses).toHaveLength(0)
+      expect(packet.completedRuleChecks).toHaveLength(1)
+      const reused = await call(tools, 'rule_check', {
+        ruleId: 'learned-retry',
+        elementRef: packet.observation.elements.find((e: any) => e.text === 'Try Again').ref,
+        triggerEvidenceRefs: [packet.observedRuleTriggers[0].eventRef],
+        bindingReason: 'same operation and unchanged button',
+      })
+      expect(reused).toMatchObject({ reused: true, checkId: result.checkId })
+      await call(tools, 'run_finish', {
+        businessResult: 'unknown',
+        blocked: true,
+        summary: 'Bound check resolved; no second payment',
+      })
+    }
+    const run = await createRun({
+      goal: 'inspect retry',
+      environmentId: 'test',
+      entryUrl: url + '/bound-page' + (disabled ? '?disabled' : ''),
+      budget: { totalTimeoutMs: 20000, maxModelCalls: 8 },
+    })
+    ids.push(run.id)
+    await startRunExecution(run.id)
+    expect((await getRun(run.id))?.status).toBe('blocked')
+    const measurements = (await getEvents(run.id)).filter((e) => e.type === 'transition:observed')
+    expect(measurements).toHaveLength(1)
+    expect(
+      (measurements[0]!.payload.samples as any[]).every(
+        (s) => s.target === 'Retry button' && s.value === !disabled,
+      ),
+    ).toBe(true)
+    expect(
+      (await getFindings(run.id)).filter((f) => f.validationStatus === 'supported'),
+    ).toHaveLength(disabled ? 1 : 0)
+    expect(writes).toBe(1)
+  },
+)

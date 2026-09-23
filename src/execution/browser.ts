@@ -269,10 +269,25 @@ export async function sampleElementCondition(
 ): Promise<boolean | null> {
   const locator = page.locator(selector)
   if ((await locator.count()) !== 1) return null
-  if (!(await locator.isVisible())) return false
+  const element = await locator.elementHandle()
+  if (!element) return null
+  try {
+    return await sampleBoundElementCondition(element, condition)
+  } finally {
+    await element.dispose()
+  }
+}
+
+export async function sampleBoundElementCondition(
+  element: import('playwright').ElementHandle<SVGElement | HTMLElement>,
+  condition: 'element-visible' | 'element-actionable',
+): Promise<boolean | null> {
+  if (!(await element.evaluate((el) => el.isConnected))) return null
+  if (!(await element.isVisible())) return false
   if (condition === 'element-visible') return true
-  if (!(await locator.isEnabled())) return false
-  return locator.evaluate((element) => {
+  if (!(await element.isEnabled())) return false
+  return element.evaluate((element) => {
+    if (!element.isConnected) return null
     if (element.closest('[inert]')) return false
     const rect = element.getBoundingClientRect()
     const left = Math.max(0, rect.left),

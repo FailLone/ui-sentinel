@@ -18,6 +18,16 @@ export interface TransitionRuleConfig {
   readonly severity: 'error' | 'warning'
 }
 export interface TransitionObservation {
+  readonly binding?: {
+    readonly id: string
+    readonly ruleId: string
+    readonly ruleRevision: string
+    readonly operationId: string
+    readonly elementRef: string
+    readonly snapshotId: string
+    readonly triggerEvidenceRefs: readonly string[]
+    readonly reason: string
+  }
   readonly condition?: 'state-reachable' | 'element-visible' | 'element-actionable'
   readonly eventType: string
   readonly fromState?: string
@@ -138,11 +148,15 @@ export function compileTransitionRule(id: string, config: TransitionRuleConfig):
     enabled: true,
     async evaluate({ snapshot }) {
       const observations = snapshot.transitionObservations ?? []
-      const relevant = observations.filter((o) => o.eventType === config.trigger.eventType)
+      const relevant = observations.filter(
+        (o) =>
+          o.eventType === config.trigger.eventType &&
+          (!o.binding || (o.binding.ruleId === id && o.binding.ruleRevision === '1')),
+      )
       const verdicts = relevant.map((o) => evaluateTransition(config, o))
       const verdict = verdicts.includes('fail')
         ? 'fail'
-        : verdicts.includes('pass')
+        : verdicts.length > 0 && verdicts.every((v) => v === 'pass')
           ? 'pass'
           : 'unknown'
       return {

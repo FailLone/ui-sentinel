@@ -53,7 +53,7 @@ export function createPhaseTracker(budget: RunBudget) {
       if (phase !== 'finalizing') return null
       if (tool === 'page_observe')
         return finalObservations++ < 1 ? null : 'final observation already used'
-      if (tool === 'transition_observe')
+      if (tool === 'transition_observe' || tool === 'rule_check')
         return hasOpenHypotheses && finalMeasurements++ < 1
           ? null
           : 'only one existing investigation can be measured during finalization'

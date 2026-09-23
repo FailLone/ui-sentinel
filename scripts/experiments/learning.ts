@@ -16,19 +16,27 @@ const option = (name: string) => {
 const revise = option('--revise'),
   previous = option('--previous')
 const revisionReason = option('--revision-reason')
+const recheck = option('--recheck')
 const resume = option('--resume'),
   source = option('--source'),
   findingId = option('--finding')
 const confirmation = option('--confirm-reason'),
-  approval = option('--approve'),
   reviewer = option('--reviewer')
+let approval = option('--approve')
+const isRecheck = !!(resume || recheck)
 if (
-  (resume && revise) ||
+  [resume, revise, recheck].filter(Boolean).length > 1 ||
   (revisionReason && !revise) ||
-  (resume ? !approval || !reviewer : revise ? !previous : !source || !findingId || !confirmation)
+  (resume
+    ? !approval || !reviewer
+    : recheck
+      ? false
+      : revise
+        ? !previous
+        : !source || !findingId || !confirmation)
 )
   throw Error(
-    'Prepare: --source <closed acceptance directory> --finding <id> --confirm-reason <explicit user confirmation>. Revise: --revise <learning directory> --previous <proposal id> [--revision-reason <human review feedback>]. After human review: --resume <learning directory> --approve <proposal id> --reviewer <human name>.',
+    'Prepare: --source <closed acceptance directory> --finding <id> --confirm-reason <explicit user confirmation>. Revise: --revise <learning directory> --previous <proposal id> [--revision-reason <human review feedback>]. After human review: --resume <learning directory> --approve <proposal id> --reviewer <human name>. Recheck an unchanged enabled rule with a new build: --recheck <closed learning directory>.',
   )
 const key = process.env.OPENROUTER_API_KEY
 if (!key) throw Error('configuration-missing: OPENROUTER_API_KEY')
@@ -38,12 +46,25 @@ const dir = resume
 await mkdir(dir, { recursive: true })
 const write = (name: string, value: unknown) =>
   writeFile(resolve(dir, name), JSON.stringify(value, null, 2) + '\n')
-let prepared: any = resume
-  ? JSON.parse(await readFile(resolve(dir, 'prepared.json'), 'utf8'))
+let prepared: any = isRecheck
+  ? JSON.parse(await readFile(resolve(recheck ?? dir, 'prepared.json'), 'utf8'))
   : undefined
+if (recheck) {
+  if (approval && approval !== prepared.proposal.id)
+    throw Error('Recheck must preserve approved proposal identity')
+  approval = prepared.proposal.id
+}
+if (
+  resume &&
+  (await access(resolve(dir, 'recheck-environment.json')).then(
+    () => true,
+    () => false,
+  ))
+)
+  throw Error('Recheck directory already used; use --recheck to preserve earlier results')
 if (resume && prepared.proposal.id !== approval)
   throw Error('Approval must identify the exact prepared proposal')
-if (!resume && !revise) {
+if (!resume && !revise && !recheck) {
   const sourceDir = resolve(source!)
   const summary = JSON.parse(await readFile(resolve(sourceDir, 'minimum/summary.json'), 'utf8'))
   if (!summary.gatePassed) throw Error('Source must be a passed fixed minimum batch')
@@ -82,6 +103,29 @@ if (revise) {
     previousProposalId: previous,
     previousDirectory: priorDir,
     reviewerFeedback: revisionReason,
+  })
+}
+if (recheck) {
+  const priorDir = resolve(recheck)
+  for (const suffix of ['-wal', '-journal'])
+    if (
+      await access(resolve(priorDir, 'runs.db' + suffix)).then(
+        () => true,
+        () => false,
+      )
+    )
+      throw Error('Close prior database before recheck')
+  await copyFile(resolve(priorDir, 'runs.db'), resolve(dir, 'runs.db'))
+  for (const file of ['source.json', 'approval.json'])
+    await copyFile(resolve(priorDir, file), resolve(dir, file))
+  await write('prepared.json', prepared)
+  await write('recheck-source.json', {
+    directory: priorDir,
+    proposalId: approval,
+    databaseHash: createHash('sha256')
+      .update(await readFile(resolve(priorDir, 'runs.db')))
+      .digest('hex'),
+    reason: 'Execution-only recheck; unchanged declaration and existing human approval retained.',
   })
 }
 const sourceMeta = JSON.parse(await readFile(resolve(dir, 'source.json'), 'utf8'))
@@ -168,7 +212,7 @@ function launch(name: string, path: string) {
       log += gateway.redact(String(b))
       const snapshot = log
       tail = tail.then(() =>
-        writeFile(resolve(dir, `${resume ? 'recheck-' : ''}${name}.log`), snapshot),
+        writeFile(resolve(dir, `${isRecheck ? 'recheck-' : ''}${name}.log`), snapshot),
       )
     })
 }
@@ -241,11 +285,12 @@ async function observeHealthy() {
     await reset(false)
   }
 }
-const stage = resume ? 'recheck' : 'prepare'
+const stage = isRecheck ? 'recheck' : 'prepare'
 try {
   console.log(`Learning artifacts: ${dir}`)
   const metadata = {
     stage,
+    recheckGate: 'bound-rule-1',
     commit: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
     dirty: !!execFileSync('git', ['status', '--porcelain'], { encoding: 'utf8' }).trim(),
     builtServerHash: createHash('sha256')
@@ -274,7 +319,7 @@ try {
     await new Promise((r) => setTimeout(r, 150))
   }
   if (!ready) throw Error('Services failed to start')
-  if (!resume) {
+  if (!isRecheck) {
     const healthy = await observeHealthy()
     const feedback = await request(`/api/findings/${sourceMeta.findingId}/feedback`, {
       verdict: 'confirmed',
@@ -315,16 +360,26 @@ try {
     const current = await request(`/api/rule-proposals/${approval}`)
     if (JSON.stringify(current.ruleConfig) !== JSON.stringify(prepared.proposal.ruleConfig))
       throw Error('Candidate changed after preparation')
-    await request(`/api/rule-proposals/${approval}/review`, {
-      action: 'approve',
-      reviewedBy: reviewer,
-    })
-    await write('approval.json', {
-      proposalId: approval,
-      reviewedBy: reviewer,
-      at: new Date().toISOString(),
-    })
-    await request(`/api/rule-proposals/${approval}/enable`, {})
+    if (recheck) {
+      if (current.status !== 'enabled' || !current.reviewedBy)
+        throw Error('Recheck requires an already approved and enabled unchanged rule')
+      await write('approval-inherited.json', {
+        proposalId: approval,
+        reviewedBy: current.reviewedBy,
+        sourceDirectory: resolve(recheck),
+      })
+    } else {
+      await request(`/api/rule-proposals/${approval}/review`, {
+        action: 'approve',
+        reviewedBy: reviewer,
+      })
+      await write('approval.json', {
+        proposalId: approval,
+        reviewedBy: reviewer,
+        at: new Date().toISOString(),
+      })
+      await request(`/api/rule-proposals/${approval}/enable`, {})
+    }
     const records: any[] = []
     for (const healthy of [false, true])
       for (let repeat = 1; repeat <= 3; repeat++) {
@@ -382,8 +437,31 @@ try {
           const expected = healthy ? 'pass' : 'fail'
           const target = evaluated.filter((e: any) => e.payload.verdict === expected)
           const supported = report.findings.filter((f: any) => f.validationStatus === 'supported')
+          const boundChecks = report.events.filter(
+            (e: any) => e.type === 'rule:check-completed' && e.payload.ruleId === approval,
+          )
+          const measured = report.events.filter(
+            (e: any) => e.type === 'transition:observed' && e.payload.binding?.ruleId === approval,
+          )
+          record.bindingAssertions = {
+            oneBoundCheck: boundChecks.length === 1 && boundChecks[0].payload.verdict === expected,
+            declaredWindow:
+              measured.length === 1 &&
+              measured[0].payload.observedUntilMs - measured[0].payload.startedAtMs >=
+                current.ruleConfig.expectation.timeoutMs &&
+              measured[0].payload.observedUntilMs - measured[0].payload.startedAtMs <=
+                current.ruleConfig.expectation.timeoutMs + 1500,
+            noDuplicateFinding: supported.length === (healthy ? 0 : 1),
+            noInvalidEvidence: !report.events.some(
+              (e: any) =>
+                e.type === 'tool:finished' &&
+                String(e.payload.error ?? '').includes('invalid evidence reference'),
+            ),
+          }
           record.passed =
+            Object.values(record.bindingAssertions).every(Boolean) &&
             target.length > 0 &&
+            artifactChecks.length > 0 &&
             artifactChecks.every((a) => a.exists) &&
             report.usage.modelCalls <= 30 &&
             report.usage.actions <= 40 &&
@@ -407,6 +485,7 @@ try {
       }
     await write('recheck-summary.json', {
       proposalId: approval,
+      gate: 'bound-rule-1',
       records: records.map((r) => ({
         profile: r.profile,
         repeat: r.repeat,

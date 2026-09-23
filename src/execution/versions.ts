@@ -20,7 +20,7 @@ export function executionVersions() {
     playwright: version('playwright'),
     midscene: version('@midscene/web'),
     lockHash,
-    toolContract: '9',
+    toolContract: '10',
     arenaContract: 'minimum-1',
   }
 }

@@ -144,3 +144,5 @@ pnpm experiment:acceptance --minimum
 候选验证失败或人工要求修订时，可用 `pnpm experiment:learning -- --revise <上次学习目录> --previous <候选 ID>` 将验证反馈交给模型生成新候选；可附加 `--revision-reason <人工审阅意见>` 修订适用范围。旧候选和证据保留，审阅意见不视为启用批准。
 
 准备命令不会批准或启用规则。获得针对具体候选的人工批准后，才能执行 `pnpm experiment:learning -- --resume <学习目录> --approve <proposal-id> --reviewer <人工审阅者>`，进行异常/正常各三次真实 Agent 复查。原始 M4 数据库不修改，学习规则不参与未知发现验收。详见 [M5 验证记录](plans/learning-validation-results-2026-09-23.md)。
+
+已批准且启用的同一规则，在执行器修复后使用 `pnpm experiment:learning -- --recheck <已关闭的学习目录>` 复查。它创建新目录、复制关闭的数据库、核对声明未变化并继承已有人工批准，不覆盖旧结果。绑定式检查还验证单次绑定测量、声明时间窗口、无重复发现及无无效证据引用。

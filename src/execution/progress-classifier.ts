@@ -50,7 +50,11 @@ export function classifyResponse(result: {
     return { category: 'hypothesis', toolsCalled, hasText, basis: 'recorded hypothesis' }
   }
 
-  if (toolsCalled.includes('transition.observe') || toolsCalled.includes('transition_observe')) {
+  if (
+    toolsCalled.some((t) =>
+      ['transition.observe', 'transition_observe', 'rule.check', 'rule_check'].includes(t),
+    )
+  ) {
     return {
       category: 'action',
       toolsCalled,

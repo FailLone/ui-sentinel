@@ -97,6 +97,12 @@ const KEEP_KEYS = new Set([
   'total',
   'start',
   'nextStart',
+  'bindingId',
+  'ruleId',
+  'verdict',
+  'checkId',
+  'operationId',
+  'reused',
 ])
 
 /** One projection, also accepts its own output. Never discard action arguments. */

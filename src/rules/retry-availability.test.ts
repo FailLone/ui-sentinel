@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   evaluateTransition,
+  compileTransitionRule,
   type TransitionObservation,
   type TransitionRuleConfig,
 } from './transition.ts'
@@ -33,6 +34,56 @@ function measured(fromState: string, availableAt: number | null): TransitionObse
 }
 
 describe('business-independent retry declaration', () => {
+  it('keeps individual unknown targets visible and does not reuse another rule binding', async () => {
+    const compiled = compileTransitionRule('retry-rule', rule)
+    const binding = {
+      id: 'b1',
+      ruleId: 'retry-rule',
+      ruleRevision: '1',
+      operationId: 'op1',
+      elementRef: 'e1',
+      snapshotId: 's1',
+      triggerEvidenceRefs: ['response'],
+      reason: 'semantic match',
+    }
+    const good = { ...measured('failed', 0), binding }
+    const unknown = {
+      ...measured('failed', null),
+      binding: { ...binding, id: 'b2', elementRef: 'e2' },
+      samples: [],
+    }
+    const context = {
+      runId: 'run',
+      currentUrl: 'http://localhost',
+      pageTitle: '',
+      timestamp: '',
+      events: [],
+      snapshot: {
+        url: 'http://localhost',
+        title: '',
+        viewport: { width: 1280, height: 720 },
+        elements: [],
+        transitionObservations: [good, unknown],
+      },
+    }
+    expect((await compiled.evaluate(context)).verdict).toBe('unknown')
+    expect(
+      (
+        await compiled.evaluate({
+          ...context,
+          snapshot: {
+            ...context.snapshot,
+            transitionObservations: [
+              {
+                ...good,
+                binding: { ...binding, ruleId: 'another-rule' },
+              },
+            ],
+          },
+        })
+      ).verdict,
+    ).toBe('unknown')
+  })
   it.each(['payment-failed', 'upload-failed', 'load-failed', 'sync-failed'])(
     'uses the same rule for eligible recovery from %s',
     (state) => {

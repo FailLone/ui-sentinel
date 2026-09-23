@@ -5,6 +5,7 @@ import {
   launchBrowser,
   saveScreenshot,
   sampleElementCondition,
+  sampleBoundElementCondition,
   type BrowserWorker,
 } from './browser.ts'
 
@@ -76,6 +77,24 @@ it('samples pointer actionability without clicks, scrolling or confusing enabled
     expect(
       await page.evaluate(() => ({ scroll: scrollY, clicked: document.body.dataset.clicked })),
     ).toEqual({ scroll: 0, clicked: undefined })
+  } finally {
+    await worker.close()
+  }
+})
+
+it('keeps a bound measurement on its physical element rather than following a replacement selector', async () => {
+  const worker = await launchBrowser({ headless: true })
+  try {
+    await worker.page.setContent('<button disabled>Try Again</button>')
+    const handle = await worker.page.locator('button').elementHandle()
+    expect(handle).toBeTruthy()
+    expect(await sampleBoundElementCondition(handle!, 'element-actionable')).toBe(false)
+    await worker.page.locator('button').evaluate((el) => {
+      el.outerHTML = '<button>Other retry</button>'
+    })
+    expect(await sampleBoundElementCondition(handle!, 'element-actionable')).toBeNull()
+    expect(await sampleElementCondition(worker.page, 'button', 'element-actionable')).toBe(true)
+    await handle!.dispose()
   } finally {
     await worker.close()
   }
