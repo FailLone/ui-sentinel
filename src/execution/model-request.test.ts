@@ -1,82 +1,200 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { executeModelRequest, type ModelRequestOptions } from './model-request.ts'
-
-function mockAgent(behavior: () => Promise<{ text: string; toolResults?: unknown[]; usage?: unknown }>) {
-  return { generate: vi.fn(behavior) } as unknown as Parameters<typeof executeModelRequest>[0]
-}
-
-function opts(overrides: Partial<ModelRequestOptions> = {}): ModelRequestOptions {
-  return {
-    runSignal: new AbortController().signal,
-    timeRemainingMs: 120_000,
-    attemptBudget: 5,
-    ...overrides,
-  }
-}
-
-describe('executeModelRequest', () => {
-  beforeEach(() => {
-    vi.useFakeTimers({ shouldAdvanceTime: true })
-  })
-
-  it('returns result on success', async () => {
-    const agent = mockAgent(async () => ({
-      text: 'hello',
-      toolResults: [{ toolName: 'page_act' }],
-      usage: { inputTokens: 100, outputTokens: 50 },
-    }))
-    const result = await executeModelRequest(agent, '{}', opts())
-    expect(result.text).toBe('hello')
-    expect(result.toolResults).toHaveLength(1)
-    expect(result.attempts).toBe(1)
-  })
-
-  it('retries on timeout when no tools executed', async () => {
-    let call = 0
-    const agent = mockAgent(async () => {
-      call++
-      if (call === 1) throw new Error('model-request-timeout')
-      return { text: 'recovered', toolResults: [] }
-    })
-    const records: unknown[] = []
-    const result = await executeModelRequest(agent, '{}', opts(), (r) => records.push(r))
-    expect(result.text).toBe('recovered')
-    expect(result.attempts).toBe(2)
-    expect(result.retriedFrom).toBeDefined()
-    expect(records).toHaveLength(2)
-  })
-
-  it('does not retry auth errors', async () => {
-    const agent = mockAgent(async () => {
-      throw new Error('401 unauthorized')
-    })
-    await expect(executeModelRequest(agent, '{}', opts())).rejects.toThrow('401')
-  })
-
-  it('does not retry when run signal is aborted', async () => {
-    const ac = new AbortController()
-    const agent = mockAgent(async () => {
-      ac.abort(new Error('cancelled'))
-      throw new Error('fetch failed')
-    })
-    await expect(executeModelRequest(agent, '{}', opts({ runSignal: ac.signal }))).rejects.toThrow()
-  })
-
-  it('respects time remaining for request timeout', async () => {
-    const agent = mockAgent(async () => ({ text: 'ok', toolResults: [] }))
-    const result = await executeModelRequest(agent, '{}', opts({ timeRemainingMs: 8000 }))
-    expect(result.text).toBe('ok')
-  })
-
-  it('limits retries to attemptBudget - 1', async () => {
-    let calls = 0
-    const agent = mockAgent(async () => {
+import { it, expect, vi, afterEach } from 'vitest'
+vi.mock('../shared/config.ts', () => ({
+  config: { budget: { modelRequestTimeoutMs: 100, modelRequestMaxRetries: 1 } },
+}))
+import {
+  executeModelRequest,
+  beginAttemptTool,
+  guardModelAttempt,
+  type ModelRequestOptions,
+} from './model-request.ts'
+const opts = (overrides: Partial<ModelRequestOptions> = {}): ModelRequestOptions => ({
+  runSignal: new AbortController().signal,
+  timeRemainingMs: 5000,
+  attemptBudget: 3,
+  ...overrides,
+})
+const agent = (generate: any) => ({ generate }) as Parameters<typeof executeModelRequest>[0]
+afterEach(() => vi.useRealTimers())
+it('bounds a provider that never resolves and records both failed requests', async () => {
+  vi.useFakeTimers()
+  const records: any[] = [],
+    starts: any[] = []
+  const work = executeModelRequest(
+    agent(() => new Promise(() => {})),
+    '{}',
+    opts(),
+    {
+      onStart: (r) => {
+        starts.push(r)
+      },
+      onFinish: (r) => {
+        records.push(r)
+      },
+    },
+  )
+  const assertion = expect(work).rejects.toThrow('model-request-timeout')
+  await vi.runAllTimersAsync()
+  await assertion
+  expect(starts).toHaveLength(2)
+  expect(records).toHaveLength(2)
+  expect(records.every((r) => r.status === 'timeout' && r.usage === undefined)).toBe(true)
+  expect(starts[1].retryOf).toBe(starts[0].attemptId)
+})
+it('never retries an attempt that already started a tool', async () => {
+  let writes = 0
+  await expect(
+    executeModelRequest(
+      agent(async () => {
+        beginAttemptTool()
+        writes++
+        throw Error('fetch failed')
+      }),
+      '{}',
+      opts(),
+    ),
+  ).rejects.toThrow('fetch failed')
+  expect(writes).toBe(1)
+})
+it('rejects a late tool from an expired attempt even while another attempt runs', async () => {
+  vi.useFakeTimers()
+  let calls = 0,
+    writes = 0,
+    lateBlocked = false
+  const work = executeModelRequest(
+    agent(async () => {
       calls++
-      throw new Error('fetch failed')
-    })
-    await expect(
-      executeModelRequest(agent, '{}', opts({ attemptBudget: 1 })),
-    ).rejects.toThrow('fetch failed')
-    expect(calls).toBe(1)
-  })
+      if (calls === 1) {
+        await new Promise((r) => setTimeout(r, 1200))
+        try {
+          beginAttemptTool()
+          writes++
+        } catch {
+          lateBlocked = true
+        }
+        return { text: 'late', toolResults: [] }
+      }
+      await new Promise((r) => setTimeout(r, 50))
+      return { text: 'ok', toolResults: [] }
+    }),
+    '{}',
+    opts(),
+  )
+  await vi.runAllTimersAsync()
+  expect((await work).attempts).toBe(2)
+  expect(writes).toBe(0)
+  expect(lateBlocked).toBe(true)
+})
+it('does not use the model response timer to interrupt bounded tool execution', async () => {
+  vi.useFakeTimers()
+  const records: any[] = []
+  const work = executeModelRequest(
+    agent(async () => {
+      await new Promise((r) => setTimeout(r, 20))
+      beginAttemptTool()
+      await new Promise((r) => setTimeout(r, 200))
+      guardModelAttempt()
+      return { text: 'ok', toolResults: [] }
+    }),
+    '{}',
+    opts(),
+    {
+      onFinish: (r) => {
+        records.push(r)
+      },
+    },
+  )
+  await vi.runAllTimersAsync()
+  await work
+  expect(records[0].modelDurationMs).toBe(20)
+  expect(records[0].durationMs).toBe(220)
+})
+it('honors one remaining attempt and does not retry authentication errors', async () => {
+  let calls = 0
+  await expect(
+    executeModelRequest(
+      agent(async () => {
+        calls++
+        throw Error('401 unauthorized')
+      }),
+      '{}',
+      opts(),
+    ),
+  ).rejects.toThrow('401')
+  expect(calls).toBe(1)
+  await expect(
+    executeModelRequest(
+      agent(async () => {
+        calls++
+        throw Error('fetch failed')
+      }),
+      '{}',
+      opts({ attemptBudget: 1 }),
+    ),
+  ).rejects.toThrow('fetch failed')
+  expect(calls).toBe(2)
+})
+it('cancels backoff and does not dispatch a retry', async () => {
+  vi.useFakeTimers()
+  const ac = new AbortController()
+  let calls = 0
+  const work = executeModelRequest(
+    agent(async () => {
+      calls++
+      throw Error('fetch failed')
+    }),
+    '{}',
+    opts({ runSignal: ac.signal }),
+  )
+  const assertion = expect(work).rejects.toThrow('cancelled')
+  await vi.advanceTimersByTimeAsync(50)
+  ac.abort(Error('cancelled'))
+  await vi.runAllTimersAsync()
+  await assertion
+  expect(calls).toBe(1)
+})
+it('rechecks remaining time and rejects a zero budget before dispatch', async () => {
+  vi.useFakeTimers()
+  let calls = 0
+  const work = executeModelRequest(
+    agent(() => {
+      calls++
+      return new Promise(() => {})
+    }),
+    '{}',
+    opts({ timeRemainingMs: 80 }),
+  )
+  const assertion = expect(work).rejects.toThrow()
+  await vi.runAllTimersAsync()
+  await assertion
+  expect(calls).toBe(1)
+  await expect(
+    executeModelRequest(
+      agent(() => {
+        calls++
+        return Promise.resolve({})
+      }),
+      '{}',
+      opts({ attemptBudget: 0 }),
+    ),
+  ).rejects.toThrow('budget-exhausted')
+  expect(calls).toBe(1)
+})
+
+it('does not dispatch if cancelled while persisting the start event', async () => {
+  const ac = new AbortController()
+  const generate = vi.fn()
+  const finishes: any[] = []
+  await expect(
+    executeModelRequest(agent(generate), '{}', opts({ runSignal: ac.signal }), {
+      onStart: () => {
+        ac.abort(Error('cancelled'))
+      },
+      onFinish: (record) => {
+        finishes.push(record)
+      },
+    }),
+  ).rejects.toThrow('cancelled')
+  expect(generate).not.toHaveBeenCalled()
+  expect(finishes).toMatchObject([{ status: 'cancelled', hadToolCalls: false }])
 })

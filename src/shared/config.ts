@@ -7,6 +7,13 @@ function bounded(name: string, fallback: number, max: number): number {
   return value
 }
 
+function retries(): number {
+  const value = Number(process.env.MODEL_REQUEST_MAX_RETRIES ?? 1)
+  if (!Number.isInteger(value) || value < 0 || value > 1)
+    throw new Error('Invalid MODEL_REQUEST_MAX_RETRIES: expected 0 or 1')
+  return value
+}
+
 export const config = Object.freeze({
   port: bounded('PORT', 4111, 65535),
   arenaPort: bounded('ARENA_PORT', 4173, 65535),
@@ -21,7 +28,7 @@ export const config = Object.freeze({
     maxModelCalls: bounded('RUN_MAX_MODEL_CALLS', 40, 60),
     toolTimeoutMs: bounded('TOOL_TIMEOUT_MS', 15_000, 60_000),
     modelRequestTimeoutMs: bounded('MODEL_REQUEST_TIMEOUT_MS', 60_000, 120_000),
-    modelRequestMaxRetries: bounded('MODEL_REQUEST_MAX_RETRIES', 1, 3),
+    modelRequestMaxRetries: retries(),
   },
 })
 

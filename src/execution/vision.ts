@@ -1,12 +1,14 @@
 import { PlaywrightAgent } from '@midscene/web/playwright/agent'
 import type { Page } from 'playwright'
+import { abortable } from './model-request.ts'
+import { config } from '../shared/config.ts'
 
 /** Only locate; all actions remain under the executor's cancellation/permission boundary. */
 export function createVisionLocator(
   page: Page,
   hooks: {
     signal: AbortSignal
-    beforeModelCall: () => void
+    beforeModelCall: (deadlineAt: number) => void
     onUsage?: (usage: unknown) => void
   },
 ) {
@@ -25,10 +27,21 @@ export function createVisionLocator(
     },
     createOpenAIClient: (client) => {
       const create = client.chat.completions.create.bind(client.chat.completions)
-      client.chat.completions.create = ((body: any, options: any) => {
+      client.chat.completions.create = (async (body: any, options: any) => {
         hooks.signal.throwIfAborted()
-        hooks.beforeModelCall()
-        return create(body, { ...options, signal: hooks.signal, maxRetries: 0 })
+        const deadlineAt = Date.now() + config.budget.modelRequestTimeoutMs
+        hooks.beforeModelCall(deadlineAt)
+        const ac = new AbortController()
+        const signal = AbortSignal.any([hooks.signal, ac.signal])
+        const timer = setTimeout(
+          () => ac.abort(new Error('model-request-timeout')),
+          config.budget.modelRequestTimeoutMs,
+        )
+        try {
+          return await abortable(signal, create(body, { ...options, signal, maxRetries: 0 }))
+        } finally {
+          clearTimeout(timer)
+        }
       }) as typeof client.chat.completions.create
       return client
     },

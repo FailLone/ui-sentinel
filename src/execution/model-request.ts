@@ -1,146 +1,207 @@
+import { AsyncLocalStorage } from 'node:async_hooks'
+import { randomUUID } from 'node:crypto'
 import type { Agent } from '@mastra/core/agent'
 import { config } from '../shared/config.ts'
+
+interface AttemptContext {
+  id: string
+  signal: AbortSignal
+  active: boolean
+  toolsStarted: boolean
+  responseAt?: number
+  responseReceived: () => void
+}
+const attempts = new AsyncLocalStorage<AttemptContext>()
+
+/** Bound to the async invocation, never a mutable global "current attempt". */
+export function guardModelAttempt(): void {
+  const attempt = attempts.getStore()
+  if (!attempt) return
+  attempt.signal.throwIfAborted()
+  if (!attempt.active) throw new Error('model-attempt-expired')
+}
+
+export function beginAttemptTool(): string | undefined {
+  guardModelAttempt()
+  const attempt = attempts.getStore()
+  if (!attempt) throw new Error('tool-attempt-required')
+  attempt.toolsStarted = true
+  attempt.responseReceived()
+  return attempt.id
+}
+
+export function abortable<T>(signal: AbortSignal, operation: Promise<T>): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const abort = () => reject(signal.reason ?? new Error('cancelled'))
+    signal.addEventListener('abort', abort, { once: true })
+    if (signal.aborted) abort()
+    operation.then(resolve, reject).finally(() => signal.removeEventListener('abort', abort))
+  })
+}
 
 export interface ModelRequestOptions {
   readonly runSignal: AbortSignal
   readonly timeRemainingMs: number
   readonly attemptBudget: number
+  readonly canRetry?: () => boolean
 }
-
 export interface ModelRequestResult {
   readonly text: string
   readonly toolResults: readonly Record<string, unknown>[]
   readonly usage: { inputTokens?: number; outputTokens?: number } | undefined
   readonly attemptId: string
   readonly attempts: number
-  readonly retriedFrom?: string
 }
-
-interface AttemptRecord {
+export interface AttemptRecord {
   readonly attemptId: string
+  readonly retryOf?: string
   readonly startedAt: number
+  readonly deadlineAt: number
   readonly durationMs: number
-  readonly status: 'success' | 'timeout' | 'error'
+  readonly modelDurationMs: number
+  readonly status: 'success' | 'timeout' | 'error' | 'cancelled'
   readonly error?: string
   readonly hadToolCalls: boolean
+  readonly usage?: ModelRequestResult['usage']
+}
+export interface ModelRequestHooks {
+  onStart?: (
+    record: Pick<AttemptRecord, 'attemptId' | 'retryOf' | 'startedAt' | 'deadlineAt'>,
+  ) => Promise<void> | void
+  onFinish?: (record: AttemptRecord) => Promise<void> | void
 }
 
-function isRetryableError(error: unknown): boolean {
-  const msg = error instanceof Error ? error.message : String(error)
-  if (msg.includes('cancelled') || msg.includes('aborted')) return false
-  if (msg.includes('auth') || msg.includes('401') || msg.includes('403')) return false
-  if (msg.includes('invalid') || msg.includes('unsupported')) return false
+function retryable(error: unknown): boolean {
+  const e = error as { statusCode?: number; message?: string }
+  if ([400, 401, 403, 404, 422].includes(e?.statusCode ?? 0)) return false
+  const message = e?.message ?? String(error)
+  if (/cancel|auth|unsupported|invalid|401|403/i.test(message)) return false
   return (
-    msg.includes('timeout') ||
-    msg.includes('ECONNRESET') ||
-    msg.includes('ECONNREFUSED') ||
-    msg.includes('fetch failed') ||
-    msg.includes('network') ||
-    msg.includes('500') ||
-    msg.includes('502') ||
-    msg.includes('503') ||
-    msg.includes('529')
+    [408, 429, 500, 502, 503, 504].includes(e?.statusCode ?? 0) ||
+    /model-request-timeout|ECONNRESET|ECONNREFUSED|fetch failed|network|terminated/i.test(message)
   )
 }
 
-function hasToolCalls(result: { toolResults?: unknown }): boolean {
-  const tr = result.toolResults
-  return Array.isArray(tr) && tr.length > 0
+async function backoff(signal: AbortSignal, ms: number) {
+  let timer: ReturnType<typeof setTimeout> | undefined
+  try {
+    await abortable(
+      signal,
+      new Promise<void>((resolve) => {
+        timer = setTimeout(resolve, ms)
+      }),
+    )
+  } finally {
+    clearTimeout(timer)
+  }
 }
-
-let attemptSeq = 0
 
 export async function executeModelRequest(
   agent: Agent,
   input: string,
   options: ModelRequestOptions,
-  onAttempt?: (record: AttemptRecord) => void,
+  hooks: ModelRequestHooks = {},
 ): Promise<ModelRequestResult> {
-  const { runSignal, timeRemainingMs, attemptBudget } = options
-  const maxRetries = Math.min(config.budget.modelRequestMaxRetries, attemptBudget - 1)
-  const attempts: AttemptRecord[] = []
-  let lastError: unknown
-
-  for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    const attemptId = `attempt-${++attemptSeq}`
-    const startedAt = Date.now()
-
-    const requestTimeout = Math.min(
-      config.budget.modelRequestTimeoutMs,
-      Math.max(timeRemainingMs - 2000, 5000),
+  const deadlineAt = Date.now() + options.timeRemainingMs
+  const maxAttempts = Math.min(options.attemptBudget, config.budget.modelRequestMaxRetries + 1)
+  if (maxAttempts < 1) throw new Error('budget-exhausted')
+  let retryOf: string | undefined
+  for (let index = 0; index < maxAttempts; index++) {
+    options.runSignal.throwIfAborted()
+    const startedAt = Date.now(),
+      remaining = deadlineAt - startedAt
+    if (remaining <= 0) throw new Error('budget-exhausted')
+    const attemptId = randomUUID()
+    const requestDeadline = startedAt + Math.min(remaining, config.budget.modelRequestTimeoutMs)
+    // The caller reserves actual request budget before generation, including retries.
+    await hooks.onStart?.({ attemptId, retryOf, startedAt, deadlineAt: requestDeadline })
+    const controller = new AbortController()
+    const signal = AbortSignal.any([options.runSignal, controller.signal])
+    const timer = setTimeout(
+      () =>
+        controller.abort(
+          new Error(
+            remaining <= config.budget.modelRequestTimeoutMs
+              ? 'budget-exhausted'
+              : 'model-request-timeout',
+          ),
+        ),
+      Math.max(0, requestDeadline - Date.now()),
     )
-
-    const requestAc = new AbortController()
-    const combinedSignal = AbortSignal.any([runSignal, requestAc.signal])
-    const timer = setTimeout(() => requestAc.abort(new Error('model-request-timeout')), requestTimeout)
-
+    // Whole decision remains bounded even when a provider ignores cancellation.
+    const runTimer = setTimeout(
+      () => controller.abort(new Error('budget-exhausted')),
+      Math.max(0, deadlineAt - Date.now()),
+    )
+    const context: AttemptContext = {
+      id: attemptId,
+      signal,
+      active: true,
+      toolsStarted: false,
+      responseReceived() {
+        context.responseAt ??= Date.now()
+        clearTimeout(timer)
+      },
+    }
+    let result: Awaited<ReturnType<Agent['generate']>> | undefined
+    let failure: unknown
     try {
-      const result = await agent.generate(input, {
-        maxSteps: 1,
-        abortSignal: combinedSignal,
+      result = await attempts.run(context, () => {
+        signal.throwIfAborted()
+        if (Date.now() >= requestDeadline) throw new Error('budget-exhausted')
+        return abortable(signal, agent.generate(input, { maxSteps: 1, abortSignal: signal }))
       })
-
+      signal.throwIfAborted()
+    } catch (error) {
+      failure = signal.aborted ? signal.reason : error
+    } finally {
+      context.active = false
       clearTimeout(timer)
-      const record: AttemptRecord = {
-        attemptId,
-        startedAt,
-        durationMs: Date.now() - startedAt,
-        status: 'success',
-        hadToolCalls: hasToolCalls(result),
-      }
-      attempts.push(record)
-      onAttempt?.(record)
-
+      clearTimeout(runTimer)
+    }
+    const now = Date.now()
+    const error =
+      failure === undefined
+        ? undefined
+        : String(failure instanceof Error ? failure.message : failure)
+    await hooks.onFinish?.({
+      attemptId,
+      retryOf,
+      startedAt,
+      deadlineAt: requestDeadline,
+      durationMs: now - startedAt,
+      modelDurationMs: (context.responseAt ?? now) - startedAt,
+      status:
+        failure === undefined
+          ? 'success'
+          : options.runSignal.aborted
+            ? 'cancelled'
+            : error === 'model-request-timeout'
+              ? 'timeout'
+              : 'error',
+      error,
+      hadToolCalls: context.toolsStarted,
+      usage: result?.usage as ModelRequestResult['usage'],
+    })
+    if (failure === undefined && result)
       return {
         text: result.text ?? '',
         toolResults: (result.toolResults ?? []) as unknown as readonly Record<string, unknown>[],
         usage: result.usage as ModelRequestResult['usage'],
         attemptId,
-        attempts: attempts.length,
-        ...(attempt > 0 ? { retriedFrom: attempts[attempt - 1]!.attemptId } : {}),
+        attempts: index + 1,
       }
-    } catch (error) {
-      clearTimeout(timer)
-      const isTimeout =
-        error instanceof Error &&
-        (error.message.includes('model-request-timeout') || error.message.includes('timeout'))
-
-      const record: AttemptRecord = {
-        attemptId,
-        startedAt,
-        durationMs: Date.now() - startedAt,
-        status: isTimeout ? 'timeout' : 'error',
-        error: error instanceof Error ? error.message : String(error),
-        hadToolCalls: false,
-      }
-      attempts.push(record)
-      onAttempt?.(record)
-      lastError = error
-
-      if (runSignal.aborted) throw error
-
-      const canRetry =
-        attempt < maxRetries &&
-        isRetryableError(error) &&
-        !record.hadToolCalls &&
-        timeRemainingMs - (Date.now() - startedAt) > 10_000
-
-      if (!canRetry) throw error
-
-      const backoff = Math.min(1000 * (attempt + 1), timeRemainingMs - 5000)
-      if (backoff > 0) {
-        await new Promise<void>((resolve, reject) => {
-          const t = setTimeout(resolve, backoff)
-          const onAbort = () => {
-            clearTimeout(t)
-            reject(runSignal.reason ?? new Error('cancelled'))
-          }
-          runSignal.addEventListener('abort', onAbort, { once: true })
-          if (runSignal.aborted) onAbort()
-        })
-      }
-    }
+    if (
+      options.runSignal.aborted ||
+      context.toolsStarted ||
+      !retryable(failure) ||
+      options.canRetry?.() === false ||
+      index + 1 >= maxAttempts ||
+      deadlineAt - Date.now() <= 1000
+    )
+      throw failure
+    retryOf = attemptId
+    await backoff(options.runSignal, 1000)
   }
-
-  throw lastError ?? new Error('model-request-failed')
+  throw new Error('budget-exhausted')
 }

@@ -9,7 +9,9 @@ describe('classifyResponse', () => {
   })
 
   it('classifies run_finish as finish', () => {
-    const c = classifyResponse({ toolResults: [{ toolName: 'run_finish' }] })
+    const c = classifyResponse({
+      toolResults: [{ toolName: 'run_finish', result: { accepted: true } }],
+    })
     expect(c.category).toBe('finish')
   })
 
@@ -53,7 +55,10 @@ describe('classifyResponse', () => {
 
   it('prioritizes run_finish over page_act when both called', () => {
     const c = classifyResponse({
-      toolResults: [{ toolName: 'page_act' }, { toolName: 'run_finish' }],
+      toolResults: [
+        { toolName: 'page_act' },
+        { toolName: 'run_finish', result: { accepted: true } },
+      ],
     })
     expect(c.category).toBe('finish')
   })
@@ -72,7 +77,10 @@ describe('classifyResponse', () => {
 
   it('extracts tool name from various field names', () => {
     expect(classifyResponse({ toolResults: [{ name: 'page_act' }] }).category).toBe('action')
-    expect(classifyResponse({ toolResults: [{ tool: 'run_finish' }] }).category).toBe('finish')
+    expect(
+      classifyResponse({ toolResults: [{ tool: 'run_finish', result: { accepted: true } }] })
+        .category,
+    ).toBe('finish')
   })
 
   it('extracts tool name from Mastra ToolResultChunk payload', () => {
@@ -106,7 +114,7 @@ describe('summarizeProgress', () => {
       classifyResponse({ toolResults: [{ toolName: 'page_act' }] }),
       classifyResponse({ toolResults: [{ toolName: 'page_act' }] }),
       classifyResponse({ text: 'thinking', toolResults: [] }),
-      classifyResponse({ toolResults: [{ toolName: 'run_finish' }] }),
+      classifyResponse({ toolResults: [{ toolName: 'run_finish', result: { accepted: true } }] }),
     ]
 
     const summary = summarizeProgress(classifications)
@@ -125,4 +133,19 @@ describe('summarizeProgress', () => {
     expect(summary.effectiveActionRate).toBeNull()
     expect(summary.noProgressRate).toBeNull()
   })
+})
+
+it('does not count rejected finish as completion', () => {
+  expect(
+    classifyResponse({
+      toolResults: [
+        {
+          payload: {
+            toolName: 'run_finish',
+            result: { accepted: false, error: 'inspection-incomplete' },
+          },
+        },
+      ],
+    }).category,
+  ).toBe('no-progress')
 })

@@ -8,7 +8,14 @@ vi.mock('../shared/config.ts', () => ({
     databaseUrl: ':memory:',
     agentModel: 'openai/test-explicit-mock',
     visionModel: 'test',
-    budget: { totalTimeoutMs: 20000, maxActions: 10, maxModelCalls: 20, toolTimeoutMs: 15000, modelRequestTimeoutMs: 10000, modelRequestMaxRetries: 1 },
+    budget: {
+      totalTimeoutMs: 20000,
+      maxActions: 10,
+      maxModelCalls: 20,
+      toolTimeoutMs: 15000,
+      modelRequestTimeoutMs: 10000,
+      modelRequestMaxRetries: 1,
+    },
   },
   checkModelConfig: () => ({ ready: true, missing: [] }),
 }))
@@ -75,6 +82,13 @@ const server = createServer((req, res) => {
   if (req.url === '/uncertain-page') {
     res.setHeader('content-type', 'text/html')
     res.end(`<button onclick="fetch('/uncertain',{method:'POST'})">Submit</button>`)
+    return
+  }
+  if (req.url === '/closable-overlay') {
+    res.setHeader('content-type', 'text/html')
+    res.end(
+      `<h1>Store</h1><button style="position:absolute;left:40px;top:40px;width:200px;height:60px" onclick="fetch('/purchase',{method:'POST'}).then(r=>r.json()).then(()=>document.querySelector('h1').textContent='Order Confirmed successfully order-1')">Buy</button><div style="position:fixed;inset:0;background:#ccc;z-index:100">Campaign<button onclick="this.parentElement.remove()">Close</button></div>`,
+    )
     return
   }
   if (req.url === '/overlay') {
@@ -396,7 +410,15 @@ it('retrieves a hypothesis after it leaves the automatic six-turn history', asyn
           basis: 'observation',
           verificationPlan: 'inspect',
         })
-        return [{ payload: { toolName: 'hypotheses_record', args: { phenomenon: `filler-${harness.models}` }, result: h } }]
+        return [
+          {
+            payload: {
+              toolName: 'hypotheses_record',
+              args: { phenomenon: `filler-${harness.models}` },
+              result: h,
+            },
+          },
+        ]
       }
       return [
         {
@@ -422,4 +444,185 @@ it('retrieves a hypothesis after it leaves the automatic six-turn history', asyn
   const run = await makeRun()
   await startRunExecution(run.id)
   expect((await getRun(run.id))?.status).toBe('blocked')
+})
+
+it('does not replay a completed browser write after generation fails', async () => {
+  harness.handler = async (tools: any) => {
+    await call(tools, 'page_act', { type: 'click', role: 'button', name: 'Buy' })
+    throw Error('fetch failed after tool')
+  }
+  const run = await makeRun()
+  await startRunExecution(run.id)
+  expect(writes).toBe(1)
+  expect(harness.models).toBe(1)
+  expect((await getRun(run.id))?.status).toBe('execution-error')
+  expect((await getRun(run.id))?.businessResult).toBe('success')
+})
+it('counts every failed attempt and keeps aggregate usage unknown', async () => {
+  harness.handler = async (tools: any) => {
+    if (harness.models === 1) throw Error('fetch failed')
+    await call(tools, 'run_finish', {
+      businessResult: 'unknown',
+      blocked: true,
+      summary: 'unverified',
+    })
+    return []
+  }
+  const run = await makeRun()
+  await startRunExecution(run.id)
+  expect(harness.models).toBe(2)
+  const final = await getRun(run.id)
+  expect(final?.usage.modelCalls).toBe(2)
+  expect(final?.usage.modelInputTokens).toBeNull()
+  const events = await getEvents(run.id)
+  expect(events.filter((e) => e.type === 'model:request-started')).toHaveLength(2)
+  expect(events.find((e) => e.type === 'run:statistics')?.payload).toMatchObject({
+    requests: { total: 2, error: 1 },
+  })
+})
+it('permits the last budgeted request to finish instead of failing before dispatch', async () => {
+  harness.handler = async (tools: any) => {
+    await call(tools, 'run_finish', { businessResult: 'unknown', blocked: true, summary: 'test' })
+  }
+  const run = await createRun({
+    goal: 'test',
+    environmentId: 'test',
+    entryUrl: url,
+    budget: { maxModelCalls: 1 },
+  })
+  ids.push(run.id)
+  await startRunExecution(run.id)
+  expect(harness.models).toBe(1)
+  expect((await getRun(run.id))?.status).toBe('blocked')
+})
+it('never converts missing run_finish into successful inspection', async () => {
+  harness.handler = async (tools: any) => {
+    if (harness.models === 1)
+      await call(tools, 'page_act', { type: 'click', role: 'button', name: 'Buy' })
+    return []
+  }
+  const run = await makeRun()
+  await startRunExecution(run.id)
+  const final = await getRun(run.id)
+  expect(final?.status).toBe('blocked')
+  expect(final?.stopReason).toBe('no-progress')
+  expect(final?.businessResult).toBe('success')
+  expect((await getEvents(run.id)).some((e) => e.type === 'agent:done')).toBe(false)
+})
+it('rejects success with an unresolved hypothesis and preserves it in the partial report', async () => {
+  harness.handler = async (tools: any) => {
+    await call(tools, 'page_act', { type: 'click', role: 'button', name: 'Buy' })
+    await call(tools, 'hypotheses_record', {
+      phenomenon: 'possible defect',
+      basis: 'observed',
+      verificationPlan: 'measure',
+    })
+    expect(
+      await call(tools, 'run_finish', {
+        businessResult: 'success',
+        blocked: false,
+        summary: 'done',
+      }),
+    ).toMatchObject({ accepted: false, error: 'inspection-incomplete' })
+    expect(
+      await call(tools, 'run_finish', {
+        businessResult: 'success',
+        blocked: true,
+        summary: 'investigation unfinished',
+      }),
+    ).toMatchObject({ accepted: true })
+  }
+  const run = await makeRun()
+  await startRunExecution(run.id)
+  expect((await getRun(run.id))?.status).toBe('blocked')
+  expect((await getEvents(run.id)).some((e) => e.type === 'finish:rejected')).toBe(true)
+})
+
+it('preserves closable overlay evidence after recovery and successful checkout', async () => {
+  registerRule(overlayBlockingRule)
+  harness.handler = async (tools: any) => {
+    const found = await getFindings(ids.at(-1)!)
+    expect(found.some((f) => f.ruleId === 'overlay-blocking')).toBe(true)
+    await call(tools, 'page_act', { type: 'click', role: 'button', name: 'Close' })
+    await call(tools, 'page_act', { type: 'click', role: 'button', name: 'Buy' })
+    await call(tools, 'run_finish', {
+      businessResult: 'success',
+      blocked: false,
+      summary: 'recovered from campaign obstruction and verified checkout',
+    })
+  }
+  const run = await createRun({
+    goal: 'inspect overlays and purchase',
+    environmentId: 'test',
+    entryUrl: url + '/closable-overlay',
+  })
+  ids.push(run.id)
+  await startRunExecution(run.id)
+  expect((await getRun(run.id))?.status).toBe('completed')
+  expect(writes).toBe(1)
+  expect(
+    (await getFindings(run.id)).some(
+      (f) => f.ruleId === 'overlay-blocking' && f.validationStatus === 'supported',
+    ),
+  ).toBe(true)
+})
+it('allows a bounded existing measurement while finalizing', async () => {
+  let hyp = ''
+  harness.handler = async (tools: any, prompt: string) => {
+    const packet = JSON.parse(prompt)
+    if (harness.models === 1) {
+      hyp = (
+        await call(tools, 'hypotheses_record', {
+          phenomenon: 'test input state',
+          basis: 'visible',
+          verificationPlan: 'measure visibility',
+        })
+      ).id
+      return []
+    }
+    expect(packet.phase).toBe('finalizing')
+    expect(
+      await call(tools, 'page_act', { type: 'click', role: 'button', name: 'Buy' }),
+    ).toHaveProperty('error')
+    expect(
+      await call(tools, 'hypotheses_record', {
+        phenomenon: 'new issue',
+        basis: 'test',
+        verificationPlan: 'test',
+      }),
+    ).toHaveProperty('error')
+    const measured = await call(tools, 'transition_observe', {
+      eventType: 'test-event',
+      target: 'buy',
+      selector: 'button',
+      condition: 'element-visible',
+      durationMs: 5000,
+    })
+    expect(measured.observedUntilMs - measured.startedAtMs).toBeGreaterThanOrEqual(5000)
+    await call(tools, 'findings_submit', {
+      hypothesisId: hyp,
+      validationStatus: 'refuted',
+      severity: 'info',
+      title: 'Visible',
+      expected: 'visible',
+      actual: 'visible throughout',
+      evidenceRefs: measured.evidenceRefs,
+    })
+    await call(tools, 'run_finish', {
+      businessResult: 'unknown',
+      blocked: true,
+      summary: 'test measurement complete',
+    })
+  }
+  const run = await createRun({
+    goal: 'test',
+    environmentId: 'test',
+    entryUrl: url,
+    budget: { maxModelCalls: 3, totalTimeoutMs: 20000 },
+  })
+  ids.push(run.id)
+  await startRunExecution(run.id)
+  expect((await getRun(run.id))?.status).toBe('blocked')
+  expect(writes).toBe(0)
+  expect((await getEvents(run.id)).some((e) => e.type === 'finish:accepted')).toBe(true)
 })

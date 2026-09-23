@@ -62,7 +62,17 @@ pnpm report -- --run RUN_ID
 - `evaluate`：固定 C0–C5 各三次，正式 Run API、独立后端和原始证据评分；每轮立即保存（含失败/invalid），最后生成固定门槛摘要。结果在 `data/evaluations/<batch>/`。失败退出非零。测试期间工作台新任务被拒绝；已有学习规则时拒绝将其用于“未知规则发现”的 minimum 评估。
 - `report`：打印工作台链接并导出 `data/reports/<run>.json`。
 
-模型预算默认 300 秒、40 次动作、40 次模型请求（包含视觉请求），单工具默认 15 秒。缺失 token 用量显示 unavailable。任务串行，取消阻止新动作；不确定写结果保留为 `interrupted/reconciliation-required`，不自动重放。
+模型预算默认 300 秒、40 次动作、40 次模型请求（包含视觉请求），单工具默认 15 秒。正式 `minimum` 评估固定为每轮 30 次模型请求，不能通过增大预算改变验收口径。缺失 token 用量显示 unavailable。任务串行，取消阻止新动作；不确定写结果保留为 `interrupted/reconciliation-required`，不自动重放。
+
+## 请求超时与任务收尾
+
+`MODEL_REQUEST_TIMEOUT_MS` 默认 60000；`MODEL_REQUEST_MAX_RETRIES` 允许 0 或 1，默认 1。仅在本次尝试尚未开始任何工具、没有未决写操作且仍有预算时重试暂时网络错误。重试计入总请求数，取消和鉴权错误不重试；无法取得的 usage 保留 unknown。主模型响应等待与工具执行分别计时，视觉请求同时受工具和整轮期限限制。当前使用非流式调用，没有首 token 或流式 idle 指标。
+
+工作台从持久事件显示等待模型、执行工具、验证和收尾阶段，以及经过时间和期限。即使模型未返回也能看见请求已经开始。
+
+连续三轮没有新增页面或调查事实会提醒，五轮触发收尾；剩余请求不超过两次或时间进入预留窗口也会触发收尾。收尾最多两次主模型请求（包括重试），禁止新业务动作，只允许保存结论及有限的补充观察/既有调查测量。已验证业务结果与检查状态分别保存；开放假设或已记录的未覆盖分支会阻止成功结束。当前账本不能证明 Agent 未记录、未发现的检查项已覆盖。
+
+模型超时为 `execution-error/model-request-timeout`；收尾仍未有效调用 `run_finish` 为 `blocked/no-progress` 或 `blocked/finish-incomplete`，不会因为支付成功就把检查改成 completed。整体预算耗尽和未知写结果沿用原有失败/核对语义。
 
 ## 代码规范
 

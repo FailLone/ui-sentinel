@@ -45,7 +45,7 @@ export function createRequestTracker() {
           purpose,
           model,
           startedAt,
-          durationMs: Date.now() - startedAt,
+          durationMs: result.durationMs ?? Date.now() - startedAt,
           inputTokens: result.inputTokens ?? null,
           outputTokens: result.outputTokens ?? null,
           status: result.error ? 'error' : 'success',
@@ -109,6 +109,7 @@ export function createRequestTracker() {
 export type RequestTracker = ReturnType<typeof createRequestTracker>
 
 interface RequestFinishInput {
+  readonly durationMs?: number
   readonly inputTokens?: number
   readonly outputTokens?: number
   readonly error?: string

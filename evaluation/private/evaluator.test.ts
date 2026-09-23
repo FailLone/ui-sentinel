@@ -23,7 +23,7 @@ const report = (extra: Partial<RunReport> = {}): RunReport => ({
 const evidence = (): IndependentEvidence => ({
   fixtureValid: true,
   backend: { orders: [{ id: 'order-1', status: 'paid' }] },
-  budget: { totalTimeoutMs: 300000, maxActions: 40, maxModelCalls: 40 },
+  budget: { totalTimeoutMs: 300000, maxActions: 40, maxModelCalls: 30 },
   hypotheses: [],
   events: [],
   artifacts: {
@@ -175,4 +175,9 @@ it('C5 is proven by owned selector samples over the full window, not its title',
   expect(evaluateRun(r, 'C5', 1, e).overallPass).toBe(true)
   ;(e.artifacts.measurement.data as any).selector = 'unrelated-disabled-control'
   expect(evaluateRun(r, 'C5', 1, e).overallPass).toBe(false)
+})
+
+it('rejects forced partial completion even when business and evidence otherwise match', () => {
+  for (const stopReason of ['no-progress', 'finish-incomplete', 'model-request-timeout'] as const)
+    expect(evaluateRun(report({ stopReason }), 'C0', 1, evidence()).overallPass).toBe(false)
 })

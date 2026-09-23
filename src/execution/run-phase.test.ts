@@ -37,14 +37,14 @@ describe('createPhaseTracker', () => {
     const pt = createPhaseTracker(budget)
     const check = pt.shouldFinalize({ elapsedMs: 100_000, modelCallsUsed: 38, noProgressStreak: 0 })
     expect(check.should).toBe(true)
-    expect(check.reason).toContain('model calls')
+    expect(check.reason).toBe('model-budget-reserve')
   })
 
   it('triggers finalization when time below threshold', () => {
     const pt = createPhaseTracker(budget)
     const check = pt.shouldFinalize({ elapsedMs: 250_000, modelCallsUsed: 10, noProgressStreak: 0 })
     expect(check.should).toBe(true)
-    expect(check.reason).toContain('time remaining')
+    expect(check.reason).toBe('time-budget-reserve')
   })
 
   it('triggers finalization on no-progress streak >= 5', () => {
@@ -66,18 +66,20 @@ describe('createPhaseTracker', () => {
     expect(pt.finalizingBudgetExhausted()).toBe(false)
     pt.countFinalizingCall()
     pt.countFinalizingCall()
-    expect(pt.finalizingBudgetExhausted()).toBe(false)
-    pt.countFinalizingCall()
-    pt.countFinalizingCall()
     expect(pt.finalizingBudgetExhausted()).toBe(true)
   })
 
   it('restricts tools in finalizing', () => {
     const pt = createPhaseTracker(budget)
-    expect(pt.isToolAllowedInFinalizing('run_finish')).toBe(true)
-    expect(pt.isToolAllowedInFinalizing('findings_submit')).toBe(true)
-    expect(pt.isToolAllowedInFinalizing('page_act')).toBe(false)
-    expect(pt.isToolAllowedInFinalizing('page_observe')).toBe(true)
+    pt.enterFinalizing('test')
+    expect(pt.authorizeTool('run_finish', true)).toBeNull()
+    expect(pt.authorizeTool('findings_submit', true)).toBeNull()
+    expect(pt.authorizeTool('page_act', true)).toBeTruthy()
+    expect(pt.authorizeTool('hypotheses_record', true)).toBeTruthy()
+    expect(pt.authorizeTool('page_observe', true)).toBeNull()
+    expect(pt.authorizeTool('page_observe', true)).toBeTruthy()
+    expect(pt.authorizeTool('transition_observe', true)).toBeNull()
+    expect(pt.authorizeTool('transition_observe', true)).toBeTruthy()
   })
 
   it('time threshold is min(60s, 20% of budget)', () => {

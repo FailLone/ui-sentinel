@@ -23,7 +23,19 @@ export function classifyResponse(result: {
   const hasText = typeof result.text === 'string' && result.text.trim().length > 0
 
   if (toolsCalled.includes('run.finish') || toolsCalled.includes('run_finish')) {
-    return { category: 'finish', toolsCalled, hasText, basis: 'called run_finish' }
+    const accepted = toolResults.some((item) => {
+      const payload = item.payload as Record<string, unknown> | undefined
+      const value = (payload?.result ?? item.result) as { accepted?: boolean } | undefined
+      return (
+        ['run_finish', 'run.finish'].includes(extractToolName(item)) && value?.accepted === true
+      )
+    })
+    return {
+      category: accepted ? 'finish' : 'no-progress',
+      toolsCalled,
+      hasText,
+      basis: accepted ? 'run_finish accepted' : 'run_finish not accepted',
+    }
   }
 
   if (toolsCalled.includes('page.act') || toolsCalled.includes('page_act')) {

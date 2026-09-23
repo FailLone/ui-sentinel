@@ -23,9 +23,8 @@ const args = process.argv.slice(2).filter((a) => a !== '--')
 const option = (key: string, defaultValue: string) =>
   args.includes(key) ? args[args.indexOf(key) + 1] : defaultValue
 const suite = option('--suite', 'minimum'),
-  repeats = Number(option('--repeats', '3')),
-  onlyVariant = option('--variant', '')
-const budget = { totalTimeoutMs: 300000, maxActions: 40, maxModelCalls: 40 }
+  repeats = Number(option('--repeats', '3'))
+const budget = { totalTimeoutMs: 300000, maxActions: 40, maxModelCalls: 30 }
 async function request(path: string, body?: unknown) {
   const r = await fetch(base + path, {
     method: body === undefined ? 'GET' : 'POST',
@@ -79,9 +78,7 @@ async function main() {
       startedAt: new Date().toISOString(),
     }
     await writeFile(resolve(dir, 'manifest.json'), JSON.stringify(manifest, null, 2))
-    const allVariants = ['C0', 'C1', 'C2', 'C3', 'C4', 'C5'] as VariantId[]
-    const variants = onlyVariant ? allVariants.filter((v) => v === onlyVariant) : allVariants
-    for (const variant of variants)
+    for (const variant of ['C0', 'C1', 'C2', 'C3', 'C4', 'C5'] as VariantId[])
       for (let repeat = 1; repeat <= 3; repeat++) {
         let runId = 'not-created',
           record: Record<string, unknown> = {},

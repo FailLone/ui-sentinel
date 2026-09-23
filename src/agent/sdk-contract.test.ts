@@ -37,3 +37,46 @@ it('real Mastra runtime dispatches schema tools with maxSteps=1 (deterministic p
   expect(result.toolResults.length).toBe(1)
   expect(result.usage.inputTokens).toBe(12)
 })
+
+it('real Mastra tools inherit the model attempt context', async () => {
+  const { executeModelRequest, beginAttemptTool, guardModelAttempt } = await import(
+    '../execution/model-request.ts'
+  )
+  let attemptId: string | undefined
+  const model = new MastraLanguageModelV2Mock({
+    doGenerate: {
+      content: [
+        { type: 'tool-call', toolCallId: 'call-context', toolName: 'observe', input: '{}' },
+      ],
+      finishReason: 'tool-calls',
+      usage: { inputTokens: 5, outputTokens: 3, totalTokens: 8 },
+      warnings: [],
+    },
+  })
+  const agent = new Agent({
+    id: 'attempt-contract',
+    name: 'attempt contract',
+    instructions: 'Observe using the tool.',
+    model,
+    maxRetries: 0,
+    tools: {
+      observe: createTool({
+        id: 'observe',
+        description: 'observe',
+        inputSchema: z.object({}),
+        execute: async () => {
+          attemptId = beginAttemptTool()
+          await Promise.resolve()
+          guardModelAttempt()
+          return { ok: true }
+        },
+      }),
+    },
+  })
+  const result = await executeModelRequest(agent, 'Observe', {
+    runSignal: new AbortController().signal,
+    timeRemainingMs: 5000,
+    attemptBudget: 1,
+  })
+  expect(attemptId).toBe(result.attemptId)
+})

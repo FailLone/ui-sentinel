@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import type { Finding, RuleProposal, RunEvent, RunReport } from '../shared/types.ts'
-import { artifactUrl, mergeEvents, terminalStatuses } from './state.ts'
+import { artifactUrl, mergeEvents, terminalStatuses, executionStage } from './state.ts'
 import './style.css'
 
 async function api<T>(path: string, body?: unknown): Promise<T> {
@@ -281,6 +281,7 @@ function App() {
       setError(String(failure))
     }
   }
+  const stage = executionStage(events)
   const addProposal = (proposal: RuleProposal) =>
     setProposals((previous) => [...previous.filter((p) => p.id !== proposal.id), proposal])
   return (
@@ -315,6 +316,15 @@ function App() {
         <>
           <section>
             <h2>运行 {runId}</h2>
+            {!terminalStatuses.has(report.status) && (
+              <p aria-live="polite">
+                当前：{stage.label}
+                {stage.elapsedSeconds !== undefined ? ` · 已等待 ${stage.elapsedSeconds} 秒` : ''}
+                {stage.deadlineAt
+                  ? ` · 截止 ${new Date(stage.deadlineAt).toLocaleTimeString()}`
+                  : ''}
+              </p>
+            )}
             <p>
               执行：{report.status} · 业务：{report.businessResult} · 停止原因：
               {report.stopReason ?? '尚未停止'}

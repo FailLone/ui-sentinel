@@ -181,7 +181,9 @@ export function evaluateRun(
   const noAnswerLeak = !evidence.events.some((e) =>
     /\bC[0-5]\b|__control|variant-/.test(JSON.stringify(e.payload)),
   )
-  const unsupportedStatus = !['completed', 'blocked'].includes(report.status)
+  const unsupportedStatus =
+    !['completed', 'blocked'].includes(report.status) ||
+    ['model-request-timeout', 'no-progress', 'finish-incomplete'].includes(report.stopReason ?? '')
   const allEvidencePresent = report.findings
     .filter((f) => f.validationStatus === 'supported')
     .every((f) => hasEvidence(f, evidence))
