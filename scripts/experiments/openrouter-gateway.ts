@@ -15,6 +15,8 @@ export async function startGateway(
   const controllers = new Set<AbortController>()
   let accountedUsd = 0
   let reservedUsd = 0
+  let knownCostUsd = 0
+  let unknownReservedUsd = 0
   let unknownCosts = 0
   const redact = (value: string) =>
     value.split(key).join('[redacted]').split(token).join('[local-token]')
@@ -76,6 +78,10 @@ export async function startGateway(
     run.requests.push(record)
     const start = Date.now(),
       controller = new AbortController()
+    const downstreamClosed = () => {
+      if (!res.writableEnded) controller.abort(new Error('downstream-disconnected'))
+    }
+    res.once('close', downstreamClosed)
     controllers.add(controller)
     const timer = setTimeout(
       () => controller.abort(),
@@ -133,20 +139,29 @@ export async function startGateway(
     } catch (error) {
       record.status = 'error'
       record.error = redact(String(error))
-      if (!res.headersSent) reply(502, 'upstream request failed; see redacted ledger')
-      else res.end()
+      if (!res.destroyed) {
+        if (!res.headersSent) reply(502, 'upstream request failed; see redacted ledger')
+        else res.end()
+      }
     } finally {
       clearTimeout(timer)
-      controllers.delete(controller)
+      res.removeListener('close', downstreamClosed)
       record.durationMs = Date.now() - start
       reservedUsd -= reservation
       const cost = record.usage?.cost
-      if (typeof cost === 'number' && Number.isFinite(cost) && cost >= 0) accountedUsd += cost
-      else {
+      if (typeof cost === 'number' && Number.isFinite(cost) && cost >= 0) {
+        accountedUsd += cost
+        knownCostUsd += cost
+      } else {
         accountedUsd += reservation
+        unknownReservedUsd += reservation
         unknownCosts++
       }
-      await appendFile(`${directory}/ledger.jsonl`, JSON.stringify(record) + '\n')
+      try {
+        await appendFile(`${directory}/ledger.jsonl`, JSON.stringify(record) + '\n')
+      } finally {
+        controllers.delete(controller)
+      }
     }
   })
   await new Promise<void>((r) => server.listen(0, '127.0.0.1', r))
@@ -173,6 +188,8 @@ export async function startGateway(
     },
     spending: () => ({
       accountedUsd,
+      knownCostUsd,
+      unknownReservedUsd,
       reservedUsd,
       unknownCosts,
       limitUsd: spending?.limitUsd ?? null,

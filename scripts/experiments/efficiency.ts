@@ -13,6 +13,7 @@ import {
   efficiencyBudget,
   inspectionGoal,
   efficiencyMetrics,
+  efficiencyTotals,
   scoreBoundRecheck,
 } from './efficiency-protocol.ts'
 import { evaluateRun } from '../../evaluation/private/evaluator.ts'
@@ -461,23 +462,16 @@ try {
         r.metrics.inputTokens !== null &&
         r.metrics.outputTokens !== null,
     )
-  const totals = (arm: string) =>
-    records
-      .filter((r) => r.arm === arm)
-      .reduce(
-        (a, r) => ({
-          requests: a.requests + r.metrics.requests,
-          elapsedMs: a.elapsedMs + (r.metrics.elapsedMs ?? 0),
-          tokens: a.tokens + (r.metrics.inputTokens ?? 0) + (r.metrics.outputTokens ?? 0),
-        }),
-        { requests: 0, elapsedMs: 0, tokens: 0 },
-      )
-  const baseline = totals('baseline'),
-    candidate = totals('candidate')
+  const baseline = efficiencyTotals(records, 'baseline'),
+    candidate = efficiencyTotals(records, 'candidate')
   const performancePassed =
     options.phase === 'compare' &&
     qualityPassed &&
     comparable &&
+    candidate.elapsedMs !== null &&
+    baseline.elapsedMs !== null &&
+    candidate.tokens !== null &&
+    baseline.tokens !== null &&
     candidate.requests <= baseline.requests * 0.8 &&
     candidate.elapsedMs <= baseline.elapsedMs * 0.85 &&
     candidate.tokens <= baseline.tokens

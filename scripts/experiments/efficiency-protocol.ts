@@ -124,6 +124,23 @@ export function efficiencyMetrics(
   }
 }
 
+/** Missing usage makes the aggregate unknown, rather than silently contributing zero. */
+export function efficiencyTotals(records: any[], arm: string) {
+  const selected = records.filter((r) => r.arm === arm)
+  const completeTokens = selected.every(
+    (r) => typeof r.metrics.inputTokens === 'number' && typeof r.metrics.outputTokens === 'number',
+  )
+  return {
+    requests: selected.reduce((n, r) => n + r.metrics.requests, 0),
+    elapsedMs: selected.every((r) => typeof r.metrics.elapsedMs === 'number')
+      ? selected.reduce((n, r) => n + r.metrics.elapsedMs, 0)
+      : null,
+    tokens: completeTokens
+      ? selected.reduce((n, r) => n + r.metrics.inputTokens + r.metrics.outputTokens, 0)
+      : null,
+  }
+}
+
 export function scoreBoundRecheck(
   report: any,
   backend: any,

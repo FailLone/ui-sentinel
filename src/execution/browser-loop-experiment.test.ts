@@ -111,3 +111,66 @@ it('experiment gateway retains failed requests with unknown usage (fake upstream
     await rm(dir, { recursive: true, force: true })
   }
 })
+
+it('cancels upstream on downstream disconnect and retains unknown spending (fake upstream)', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'gateway-cancel-'))
+  let started!: () => void, cancelled!: () => void
+  const begun = new Promise<void>((r) => {
+    started = r
+  })
+  const aborted = new Promise<void>((r) => {
+    cancelled = r
+  })
+  const gateway = await startGateway(
+    'test-secret',
+    dir,
+    (async (_url, init) => {
+      started()
+      return new Promise((_resolve, reject) => {
+        const abort = () => {
+          cancelled()
+          reject(init!.signal!.reason)
+        }
+        if (init!.signal!.aborted) abort()
+        else init!.signal!.addEventListener('abort', abort, { once: true })
+      })
+    }) as typeof fetch,
+    { limitUsd: 1, estimateCost: () => 0.1 },
+  )
+  let timer: ReturnType<typeof setTimeout> | undefined
+  try {
+    gateway.begin('test', 2, 10000)
+    const controller = new AbortController()
+    const request = fetch(gateway.url + '/chat/completions', {
+      method: 'POST',
+      signal: controller.signal,
+      headers: { authorization: `Bearer ${gateway.token}`, 'content-type': 'application/json' },
+      body: JSON.stringify({ model: AGENT_MODEL }),
+    }).catch(() => undefined)
+    await begun
+    controller.abort()
+    await request
+    await Promise.race([
+      aborted,
+      new Promise((_, reject) => {
+        timer = setTimeout(() => reject(Error('upstream not cancelled')), 1000)
+      }),
+    ])
+    const records = await gateway.end()
+    expect(records).toHaveLength(1)
+    expect(records[0]).toMatchObject({ status: 'error', usage: null })
+    expect(gateway.spending()).toMatchObject({
+      knownCostUsd: 0,
+      unknownCosts: 1,
+      unknownReservedUsd: 0.1,
+      accountedUsd: 0.1,
+      reservedUsd: 0,
+    })
+    expect(await readFile(join(dir, 'ledger.jsonl'), 'utf8')).toContain('downstream-disconnected')
+  } finally {
+    clearTimeout(timer)
+    await gateway.end()
+    await gateway.close()
+    await rm(dir, { recursive: true, force: true })
+  }
+})

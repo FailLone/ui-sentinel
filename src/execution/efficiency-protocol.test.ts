@@ -3,6 +3,7 @@ import {
   efficiencyOptions,
   efficiencySchedule,
   efficiencyMetrics,
+  efficiencyTotals,
   scoreBoundRecheck,
 } from '../../scripts/experiments/efficiency-protocol.ts'
 
@@ -112,5 +113,29 @@ describe('private efficiency experiment protocol', () => {
     expect(
       scoreBoundRecheck(report, { orders: [{}] }, [{ exists: true }], 'r', 5000, true).passed,
     ).toBe(false)
+  })
+})
+
+it('does not zero-fill incomplete aggregate tokens or elapsed time', () => {
+  const rows = [
+    {
+      arm: 'candidate',
+      metrics: { requests: 4, elapsedMs: 100, inputTokens: 10, outputTokens: 5 },
+    },
+    {
+      arm: 'candidate',
+      metrics: { requests: 2, elapsedMs: 200, inputTokens: null, outputTokens: null },
+    },
+  ]
+  expect(efficiencyTotals(rows, 'candidate')).toEqual({ requests: 6, elapsedMs: 300, tokens: null })
+  expect(efficiencyTotals(rows.slice(0, 1), 'candidate')).toEqual({
+    requests: 4,
+    elapsedMs: 100,
+    tokens: 15,
+  })
+  expect(efficiencyTotals([{ arm: 'candidate', metrics: { requests: 0 } }], 'candidate')).toEqual({
+    requests: 0,
+    elapsedMs: null,
+    tokens: null,
   })
 })
