@@ -98,7 +98,31 @@
 ## P2：适配前源码核查
 
 - Stagehand 使用项目已锁定的 3.7.3；安装包许可证为 MIT。官方 [Agent 文档](https://docs.stagehand.dev/v3/basics/agent) 支持 DOM 模式、原生循环、自定义工具、取消与回调；本地模型类型支持 chat-completions 网关。保留完整循环，补接检查能力，不重复上一轮仅购买的比较。
-- Browser Use 源码冻结 `d8110c5ff87ccba887aaa726cdb780f2f84bef8d`，版本 0.13.10，MIT，Python >=3.11。来源：[pyproject](https://github.com/browser-use/browser-use/blob/d8110c5ff87ccba887aaa726cdb780f2f84bef8d/pyproject.toml)、[OpenRouter 适配器](https://github.com/browser-use/browser-use/blob/d8110c5ff87ccba887aaa726cdb780f2f84bef8d/browser_use/llm/openrouter/chat.py)、[Agent](https://github.com/browser-use/browser-use/blob/d8110c5ff87ccba887aaa726cdb780f2f84bef8d/browser_use/agent/service.py)。独立 Python 3.12 虚拟环境安装中，不改应用运行依赖。
+- Browser Use 源码冻结 `d8110c5ff87ccba887aaa726cdb780f2f84bef8d`，版本 0.13.10，MIT，Python >=3.11。来源：[pyproject](https://github.com/browser-use/browser-use/blob/d8110c5ff87ccba887aaa726cdb780f2f84bef8d/pyproject.toml)、[OpenRouter 适配器](https://github.com/browser-use/browser-use/blob/d8110c5ff87ccba887aaa726cdb780f2f84bef8d/browser_use/llm/openrouter/chat.py)、[Agent](https://github.com/browser-use/browser-use/blob/d8110c5ff87ccba887aaa726cdb780f2f84bef8d/browser_use/agent/service.py)。独立 Python 3.12 虚拟环境已安装 PyPI 0.13.10，运行前检查实际安装版本和关键接口。源码阅读的提交与 PyPI 分发包分别记录，不宣称二者字节相同。
 - Browser Use 原生 OpenRouter 适配器支持指定 base_url，但默认 max_retries=10；Agent 还默认启用 judge，可单独指定 extraction/judge 模型。这些必须显式配置并经统一网关计数，不能带着默认隐藏调用直接比较。DeepSeek 主循环使用 DOM，Qwen 单独作为视觉工具，不给文本模型静默混入截图。
 
-源码核查只是适配依据，尚不是 Browser Use 在靶场上的成功运行记录。下一步交付原生循环适配器、共同取证/测量/完成约束的无模型验证，再冻结预检及九轮任务对照。
+源码核查只是适配依据，尚不是 Browser Use 在靶场上的成功运行记录。
+
+### 原生循环兼容性预检：两组均通过
+
+冻结提交 `5a8256b`。独立本地页面只包含一个标题，没有靶场业务和隐藏答案；给两组同一任务：读取当前标题，以结构化结果返回并结束。Stagehand 使用真实 `agent.execute()`，Browser Use 使用真实 `Agent.run()`，各自保留原生观察、历史和完成流程。DeepSeek/Wafer、low reasoning、4096 输出上限一致，最多三次请求、每请求 60 秒、单预检 90 秒、估算费用上限 $0.15。原生默认隐藏重试与 Browser Use judge 关闭；所有实际上游请求经过网关。
+
+| 方案 | 原始数据目录（`data/oss-preflight/` 下） | 模型请求 | 已知费用 | 结果 |
+| --- | --- | ---: | ---: | --- |
+| Stagehand 3.7.3 | `2026-09-23T16-34-04-422Z-stagehand` | 3 | $0.000883503 | 正确标题、原生 completed、结构化 output |
+| Browser Use 0.13.10 | `2026-09-23T16-34-39-494Z-browser-use` | 1 | $0.001041135 | 正确标题、原生 done/success、结构化 result |
+
+两组用量完整，依赖清单和哈希存入各自 manifest。Stagehand 三次包含原生观察与最终结构化 done 请求；Browser Use 直接从原生初始页面观察作答。不能把这个小任务的次数差当作 UI 检查性能结论。两方案各使用一次预检机会，没有消费修正批次。
+
+复现环境与命令：
+
+```sh
+uv venv --python 3.12 data/venvs/browser-use
+uv pip install --python data/venvs/browser-use/bin/python browser-use==0.13.10
+pnpm exec tsx scripts/experiments/oss-preflight.ts stagehand
+pnpm exec tsx scripts/experiments/oss-preflight.ts browser-use
+```
+
+这些命令会进行付费预检；本轮已经执行，不因看到复现命令再重复调用。Python 环境只用于实验，应用依赖与默认执行器未替换。网关现在对各 SDK 统一限制单请求 60 秒，避免某个 SDK 的内部等待超过共同协议；网关与事实索引相关八项测试、类型和格式检查通过。
+
+P2 尚未完成：接下来需要原生循环的共同质量工具适配，包括真实截图/DOM、自动规则、公开业务响应、假设登记、连续测量、证据提交及主动完成映射；正常交互写屏障和测量期间页面稳定性必须经过无模型验证。然后才冻结三方案 × C0/C2/C5 的九轮对照。不将读取标题的预检记作任一靶场验收。
