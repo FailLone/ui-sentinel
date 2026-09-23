@@ -21,7 +21,12 @@ const reviewed: AnalysisTask = {
   id: 'retry',
   status: 'completed',
   result: {
-    visual: { coverage: 'reviewed', candidates: [], limitations: [] },
+    visual: {
+      answer: 'Frozen screenshot inspected for the requested question.',
+      coverage: 'reviewed',
+      candidates: [],
+      limitations: [],
+    },
     geometry: { checkedElements: 0, partiallyOutside: [], intercepted: [] },
   },
 }

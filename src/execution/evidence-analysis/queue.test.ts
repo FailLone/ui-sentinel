@@ -29,14 +29,24 @@ const packet = (version = 'v1'): EvidencePacket => ({
   ],
 })
 const result: EvidenceAnalysisResult = {
-  visual: { coverage: 'reviewed', candidates: [], limitations: [] },
+  visual: {
+    answer: 'Frozen screenshot inspected for the requested question.',
+    coverage: 'reviewed',
+    candidates: [],
+    limitations: [],
+  },
   geometry: { checkedElements: 1, partiallyOutside: [], intercepted: [] },
 }
 
 it('uses the installed Mastra parallel workflow to combine independent snapshot analyses', async () => {
   const workflow = createEvidenceWorkflow(async (p) => {
     expect(p.snapshotId).toBe('v1')
-    return { coverage: 'reviewed', candidates: [], limitations: ['No live interaction performed.'] }
+    return {
+      answer: 'Frozen screenshot inspected for the requested question.',
+      coverage: 'reviewed',
+      candidates: [],
+      limitations: ['No live interaction performed.'],
+    }
   })
   const run = await workflow.createRun()
   const r = await run.start({ inputData: packet() })

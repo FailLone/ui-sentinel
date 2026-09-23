@@ -17,6 +17,9 @@ it('requires matching protocol and alternates equal visual workloads', () => {
   ]
   expect(() => efficiencyOptions(args)).toThrow('visual-1')
   expect(efficiencyOptions([...args, '--protocol', 'visual-1']).learningSource).toBeUndefined()
+  expect(efficiencySchedule('visual-diagnostic')).toEqual([
+    { arm: 'candidate', profile: 'C2', repeat: 1 },
+  ])
   const schedule = efficiencySchedule('visual-compare')
   expect(schedule).toHaveLength(8)
   for (const arm of ['baseline', 'candidate'])
@@ -32,7 +35,13 @@ it('rejects absent, unfinished, unreviewed, wrong-fixture or ungrounded visual w
     question: visualReviewQuestion,
     status: 'completed',
     evidenceRefs: ['image', 'snapshot'],
-    result: { visual: { coverage: 'reviewed', candidates: [] } },
+    result: {
+      visual: {
+        answer: 'The primary control is unobscured.',
+        coverage: 'reviewed',
+        candidates: [],
+      },
+    },
   }
   const events = [
     { type: 'model:request-started', payload: { role: 'evidence-analysis' } },

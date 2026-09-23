@@ -89,6 +89,7 @@ it('streams through the real SDK, executes only a complete validated tool, and r
   const model = new MastraLanguageModelV2Mock({
     doStream: async (options) => {
       expect(options.tools?.map((t) => t.name)).toEqual(['observe'])
+      expect(options.toolChoice).toEqual({ type: 'required' })
       return {
         stream: new ReadableStream({
           async start(c) {
@@ -149,6 +150,7 @@ it('streams through the real SDK, executes only a complete validated tool, and r
     {
       transport: 'stream',
       activeTools: ['observe'],
+      requireTool: true,
       runSignal: new AbortController().signal,
       timeRemainingMs: 5000,
       attemptBudget: 1,

@@ -2243,6 +2243,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         JSON.stringify(agentInput),
         {
           activeTools,
+          requireTool: true,
           runSignal: signal,
           timeRemainingMs: budget.totalTimeoutMs - (Date.now() - startedAt),
           attemptBudget: Math.min(

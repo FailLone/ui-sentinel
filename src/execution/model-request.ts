@@ -53,6 +53,7 @@ export interface ModelRequestOptions {
   readonly canRetry?: () => boolean
   readonly transport?: 'generate' | 'stream'
   readonly activeTools?: string[]
+  readonly requireTool?: boolean
 }
 export interface ModelRequestResult {
   readonly text: string
@@ -172,6 +173,7 @@ export async function executeModelRequest(
                 maxSteps: 1,
                 abortSignal: signal,
                 activeTools: options.activeTools,
+                toolChoice: options.requireTool ? 'required' : 'auto',
               }),
             )
           let streamError: Error | undefined
@@ -180,6 +182,7 @@ export async function executeModelRequest(
             agent.stream(input, {
               maxSteps: 1,
               activeTools: options.activeTools,
+              toolChoice: options.requireTool ? 'required' : 'auto',
               abortSignal: signal,
               onChunk: (chunk) => timing.chunk(chunk),
               onError: ({ error }) => {

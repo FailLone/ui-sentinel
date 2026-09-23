@@ -29,7 +29,7 @@ if (!key) throw Error('configuration-missing: OPENROUTER_API_KEY')
 const sha = (ref: string) =>
   execFileSync('git', ['rev-parse', '--verify', `${ref}^{commit}`], { encoding: 'utf8' }).trim()
 const refs = { baseline: sha(options.baseline), candidate: sha(options.candidate) }
-const visual = options.phase === 'visual-compare'
+const visual = options.phase.startsWith('visual-')
 const learning = ['learning-diagnostic', 'compare'].includes(options.phase)
 const goal = visual ? visualInspectionGoal : inspectionGoal
 if (visual && refs.baseline !== refs.candidate)
@@ -109,6 +109,9 @@ const manifest: any = {
   evaluatorHash: hash(await readFile('evaluation/private/evaluator.ts')),
   learningEvaluatorHash: hash(await readFile('scripts/experiments/efficiency-protocol.ts')),
   runnerHash: hash(await readFile('scripts/experiments/efficiency.ts')),
+  ...(visual
+    ? { visualEvaluatorHash: hash(await readFile('scripts/experiments/visual-protocol.ts')) }
+    : {}),
   startedAt: new Date().toISOString(),
   arms: {},
 }
@@ -229,7 +232,7 @@ try {
   console.log(
     `Efficiency ${options.phase}: ${manifest.schedule.length} runs, ${manifest.schedule.length * 30} maximum requests, up to ${manifest.schedule.length * 5} run minutes plus build/reset. Estimated budget limit $${options.maxCostUsd}; unknown billed costs remain reserved.`,
   )
-  for (const name of (options.phase === 'learning-diagnostic'
+  for (const name of (['learning-diagnostic', 'visual-diagnostic'].includes(options.phase)
     ? ['candidate']
     : ['baseline', 'candidate']) as ('baseline' | 'candidate')[]) {
     const cwd = resolve(dir, name)

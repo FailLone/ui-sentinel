@@ -197,6 +197,7 @@ it('joins a required background analysis before completion and exposes older-pag
     })
     return {
       visual: {
+        answer: 'Frozen screenshot inspected for the requested question.',
         coverage: 'reviewed',
         candidates: [
           {
@@ -282,6 +283,7 @@ it('lets the agent resolve a same-evidence visual candidate through a verified f
     })
     return {
       visual: {
+        answer: 'Frozen screenshot inspected for the requested question.',
         coverage: 'reviewed',
         candidates: [
           {
@@ -415,6 +417,7 @@ it.each(['serial', 'parallel'] as const)(
       analysisFinished = true
       return {
         visual: {
+          answer: 'Frozen screenshot inspected for the requested question.',
           coverage: 'reviewed',
           candidates: [],
           limitations: ['Only requested snapshot reviewed.'],

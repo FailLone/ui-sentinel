@@ -18,6 +18,7 @@ export function scoreVisualAnalysis(report: any, profile: string, artifacts: Rec
   const checks = {
     oneReview: tasks.length === 1 && task.question === visualReviewQuestion,
     reviewed: task?.status === 'completed' && visual?.coverage === 'reviewed',
+    answerAvailable: typeof visual?.answer === 'string' && visual.answer.length > 0,
     evidence:
       !!task &&
       task.runId === report.runId &&

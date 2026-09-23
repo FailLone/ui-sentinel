@@ -36,6 +36,7 @@ export const evidencePacketSchema = z.object({
 export type EvidencePacket = z.infer<typeof evidencePacketSchema>
 
 export const visualReviewSchema = z.object({
+  answer: z.string().min(1).max(800),
   coverage: z.enum(['reviewed', 'insufficient-evidence']),
   candidates: z
     .array(
