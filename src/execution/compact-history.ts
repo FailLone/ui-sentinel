@@ -79,6 +79,8 @@ const KEEP_KEYS = new Set([
   'fromState',
   'toState',
   'missingFacts',
+  'finishAdvice',
+  'task',
   'applicability',
   'trigger',
   'sampleSummary',

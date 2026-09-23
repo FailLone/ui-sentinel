@@ -11,7 +11,7 @@ export function createTaskState(goal: string) {
     string,
     { id: string; phenomenon: string; status: string; trigger: HypothesisTrigger }
   >()
-  let unexploredBranches: string[] = []
+  let unexploredBranches: { description: string; trigger: HypothesisTrigger }[] = []
   const triggered = new Set<HypothesisTrigger>(['always'])
   let businessObserved = false
   const applicability = (trigger: HypothesisTrigger) =>
@@ -29,7 +29,7 @@ export function createTaskState(goal: string) {
       if (response.success === true) triggered.add('payment-success')
       if (['rejected', 'declined'].includes(response.status ?? ''))
         triggered.add('payment-rejected')
-      if (response.status === 'failed' && response.canRetry === true)
+      if (response.success === false && response.canRetry === true)
         triggered.add('retryable-failure')
     },
     recordHypothesis(id: string, phenomenon: string, trigger: HypothesisTrigger = 'always') {
@@ -39,8 +39,8 @@ export function createTaskState(goal: string) {
       const h = hypotheses.get(id)
       if (h) h.status = status === 'candidate' ? 'open' : status
     },
-    setBranches(branches: string[]) {
-      unexploredBranches = [...new Set(branches)]
+    setBranches(branches: { description: string; trigger: HypothesisTrigger }[]) {
+      unexploredBranches = [...new Map(branches.map((b) => [JSON.stringify(b), b])).values()]
     },
     hasOpenHypotheses: () =>
       [...hypotheses.values()].some(
@@ -51,7 +51,9 @@ export function createTaskState(goal: string) {
         ...[...hypotheses.values()]
           .filter((h) => relevant(h) && ['open', 'inconclusive'].includes(h.status))
           .map((h) => `hypothesis:${h.id}:${h.status}`),
-        ...unexploredBranches.map((branch) => `unverified:${branch}`),
+        ...unexploredBranches
+          .filter(relevant)
+          .map((branch) => `unverified:${branch.trigger}:${branch.description}`),
       ]
     },
     facts: () =>
@@ -67,7 +69,10 @@ export function createTaskState(goal: string) {
       conditions: hypothesisTriggers
         .filter((t) => t !== 'always')
         .map((trigger) => ({ trigger, applicability: applicability(trigger) })),
-      unexploredBranches,
+      unexploredBranches: unexploredBranches.map((b) => ({
+        ...b,
+        applicability: applicability(b.trigger),
+      })),
     }),
   }
 }

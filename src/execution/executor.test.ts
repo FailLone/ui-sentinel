@@ -64,6 +64,27 @@ const server = createServer((req, res) => {
     res.end('<button>Pay later</button><button>Pay</button><button>Pay</button>')
     return
   }
+  if (req.url === '/failed-payment') {
+    writes++
+    res.setHeader('content-type', 'application/json')
+    res.end(
+      JSON.stringify({
+        success: false,
+        status: 'failed',
+        orderId: 'order-failed',
+        message: 'Payment processing failed. Please try again.',
+        canRetry: true,
+      }),
+    )
+    return
+  }
+  if (req.url === '/retryable-page') {
+    res.setHeader('content-type', 'text/html')
+    res.end(
+      `<h1>Checkout</h1><button onclick="fetch('/failed-payment',{method:'POST'}).then(r=>r.json()).then(()=>document.querySelector('h1').textContent='Payment processing failed. Please try again. order-failed')">Pay</button><button disabled>Retrying...</button>`,
+    )
+    return
+  }
   if (req.url === '/purchase') {
     writes++
     res.setHeader('content-type', 'application/json')
@@ -714,4 +735,99 @@ it('probes without writing and denies a second business write before network dis
   await startRunExecution(run.id)
   expect((await getRun(run.id))?.status).toBe('completed')
   expect((await getEvents(run.id)).some((e) => e.type === 'write:denied')).toBe(true)
+})
+it('accepts completed applicable checks while reporting untriggered branches separately', async () => {
+  harness.handler = async (tools: any) => {
+    await call(tools, 'page_act', { type: 'click', role: 'button', name: 'Buy' })
+    await call(tools, 'exploration_update', {
+      state: 'paid',
+      unexploredBranches: [
+        { description: 'rejection not seen', trigger: 'payment-rejected' },
+        { description: 'no retryable failure', trigger: 'retryable-failure' },
+      ],
+    })
+    const wrong = await call(tools, 'run_finish', {
+      businessResult: 'success',
+      blocked: true,
+      summary: 'branches did not trigger',
+    })
+    expect(wrong).toMatchObject({
+      accepted: false,
+      error: 'no-applicable-blocker',
+      finishAdvice: { businessResult: 'success', blocked: false },
+    })
+    const valid = await call(tools, 'run_finish', {
+      businessResult: 'success',
+      blocked: false,
+      summary: 'applicable scope complete',
+    })
+    expect(valid.accepted).toBe(true)
+  }
+  const run = await makeRun()
+  await startRunExecution(run.id)
+  expect((await getRun(run.id))?.status).toBe('completed')
+  const { buildReport } = await import('../server/routes/runs.ts')
+  const report = await buildReport(run.id)
+  expect(report?.unexploredBranches).toEqual([])
+  expect(report?.untriggeredBranches).toHaveLength(2)
+})
+it('returns explicit state feedback instead of repeatedly asking for impossible rejection evidence', async () => {
+  harness.handler = async (tools: any) => {
+    await call(tools, 'page_act', { type: 'click', role: 'button', name: 'Buy' })
+    const denied = await call(tools, 'run_finish', {
+      businessResult: 'rejected',
+      blocked: false,
+      summary: 'wrong enum',
+    })
+    expect(denied).toMatchObject({
+      accepted: false,
+      error: 'outcome-not-supported',
+      finishAdvice: { businessResult: 'success', blocked: false },
+    })
+    await call(tools, 'run_finish', {
+      businessResult: denied.finishAdvice.businessResult,
+      blocked: false,
+      summary: 'corrected from verified facts',
+    })
+  }
+  const run = await makeRun()
+  await startRunExecution(run.id)
+  expect((await getRun(run.id))?.status).toBe('completed')
+})
+
+it('maps a retryable processing failure to unknown and explains the blocked finish contract', async () => {
+  harness.handler = async (tools: any) => {
+    await call(tools, 'page_act', { type: 'click', role: 'button', name: 'Pay' })
+    const reply = await call(tools, 'run_finish', {
+      businessResult: 'rejected',
+      blocked: false,
+      summary: 'processing failed',
+    })
+    expect(reply).toMatchObject({
+      accepted: false,
+      finishAdvice: {
+        businessResult: 'unknown',
+        blocked: true,
+        businessResponse: { status: 'failed', canRetry: true },
+      },
+    })
+    await call(tools, 'run_finish', {
+      businessResult: reply.finishAdvice.businessResult,
+      blocked: reply.finishAdvice.blocked,
+      summary: 'retry control unavailable',
+    })
+  }
+  const run = await createRun({
+    goal: 'inspect retry',
+    environmentId: 'test',
+    entryUrl: url + '/retryable-page',
+  })
+  ids.push(run.id)
+  await startRunExecution(run.id)
+  expect(await getRun(run.id)).toMatchObject({
+    status: 'blocked',
+    businessResult: 'unknown',
+    stopReason: 'blocked',
+  })
+  expect(writes).toBe(1)
 })

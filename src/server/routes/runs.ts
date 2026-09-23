@@ -231,11 +231,38 @@ export async function buildReport(runId: string) {
         .map((e) => String(e.payload.state ?? e.payload.url ?? 'unknown')),
     ),
   ]
-  const unexploredBranches = events
-    .filter(
-      (e) => e.type === 'exploration:branch-skipped' || e.type === 'exploration:branch-pending',
-    )
-    .map((e) => String(e.payload.branch ?? 'unknown'))
+  const lastTask = [...events]
+    .reverse()
+    .find(
+      (e) =>
+        [
+          'finish:accepted',
+          'execution:partial',
+          'execution:stopped',
+          'exploration:coverage-updated',
+        ].includes(e.type) && e.payload.task,
+    )?.payload.task as
+    | {
+        unexploredBranches?: (
+          | string
+          | { description: string; trigger: string; applicability: string }
+        )[]
+        conditions?: unknown[]
+      }
+    | undefined
+  const unexploredBranches = lastTask?.unexploredBranches
+    ? lastTask.unexploredBranches
+        .filter((b) => typeof b === 'string' || b.applicability !== 'not-triggered')
+        .map((b) => (typeof b === 'string' ? b : b.description))
+    : events
+        .filter(
+          (e) => e.type === 'exploration:branch-skipped' || e.type === 'exploration:branch-pending',
+        )
+        .map((e) => String(e.payload.branch ?? 'unknown'))
+  const untriggeredBranches =
+    lastTask?.unexploredBranches?.filter(
+      (b) => typeof b !== 'string' && b.applicability === 'not-triggered',
+    ) ?? []
   const executionErrors = events.filter((e) =>
     ['action:failed', 'run:error', 'agent:error'].includes(e.type),
   )
@@ -254,6 +281,8 @@ export async function buildReport(runId: string) {
     evidenceRefs: artifacts.map((a) => a.id),
     exploredStates,
     unexploredBranches,
+    untriggeredBranches,
+    conditions: lastTask?.conditions ?? [],
     evaluatedRuleCount: evaluations.length,
     unknownCount:
       evaluations.filter((e) => e.verdict === 'unknown').length +

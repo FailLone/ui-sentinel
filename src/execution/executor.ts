@@ -1127,16 +1127,24 @@ async function executeRun(runId: string): Promise<void> {
       exploration_update: createTool({
         id: 'exploration.update',
         description:
-          'Record reached states and unfinished branches; keeps durable coverage without hidden reasoning.',
-        inputSchema: z.object({ state: z.string(), unexploredBranches: z.array(z.string()) }),
+          'Record reached states and unfinished branches. Give every branch its actual trigger; use always only for an unconditional obligation. The server derives whether a condition triggered. Untriggered branches are reported separately and do not block completion. Send an empty list to clear previously recorded branches after checking them.',
+        inputSchema: z.object({
+          state: z.string(),
+          unexploredBranches: z.array(
+            z.object({ description: z.string(), trigger: z.enum(hypothesisTriggers) }),
+          ),
+        }),
         execute: (input) =>
           serial('exploration_update', async () => {
             notes.push(input)
             taskState.setBranches(input.unexploredBranches)
             await appendEvent(runId, 'exploration:state-reached', { state: input.state })
-            for (const branch of input.unexploredBranches)
-              await appendEvent(runId, 'exploration:branch-skipped', { branch })
-            return input
+            await appendEvent(runId, 'exploration:coverage-updated', { task: taskState.snapshot() })
+            return {
+              state: input.state,
+              task: taskState.snapshot(),
+              missingFacts: taskState.completionGaps(),
+            }
           }),
       }),
       run_finish: createTool({
@@ -1144,8 +1152,16 @@ async function executeRun(runId: string): Promise<void> {
         description:
           'Stop with an observed business outcome or blocked path. Completion never removes earlier findings. Unknown outcomes cannot count as successful completion.',
         inputSchema: z.object({
-          businessResult: z.enum(['success', 'rejected', 'unknown']),
-          blocked: z.boolean(),
+          businessResult: z
+            .enum(['success', 'rejected', 'unknown'])
+            .describe(
+              'success: confirmed paid order. rejected: explicit rejected/declined response with clear UI reason. A retryable processing failure (status failed) is unknown, not rejected; finish it as blocked when recovery cannot proceed.',
+            ),
+          blocked: z
+            .boolean()
+            .describe(
+              'True for an observed blocker or incomplete applicable investigation. False when applicable inspection is complete, even with saved findings. Conditions that never triggered are not blockers.',
+            ),
           summary: z.string(),
         }),
         execute: (input) =>
@@ -1155,13 +1171,29 @@ async function executeRun(runId: string): Promise<void> {
             const gaps = taskState.completionGaps()
             const missingOutcome =
               input.businessResult !== 'unknown' && input.businessResult !== businessResult
+            const unsupportedBlock =
+              input.blocked &&
+              input.businessResult !== 'unknown' &&
+              businessResult !== 'unknown' &&
+              gaps.length === 0
             if (
               missingOutcome ||
+              unsupportedBlock ||
               (!input.blocked && input.businessResult !== 'unknown' && gaps.length > 0)
             ) {
               const result = {
                 accepted: false,
-                error: missingOutcome ? 'outcome-not-supported' : 'inspection-incomplete',
+                error: missingOutcome
+                  ? 'outcome-not-supported'
+                  : unsupportedBlock
+                    ? 'no-applicable-blocker'
+                    : 'inspection-incomplete',
+                finishAdvice: {
+                  businessResult,
+                  blocked: businessResult === 'unknown' || gaps.length > 0,
+                  businessResponse: businessResponses.at(-1),
+                  note: 'Untriggered conditions do not block inspection. failed is a processing failure (unknown), not an explicit rejected/declined outcome. Resolve applicable missingFacts or report them as blocked; then request finish again.',
+                },
                 missingFacts: missingOutcome
                   ? ['verified matching UI and business response for the order']
                   : gaps,
@@ -1278,6 +1310,11 @@ async function executeRun(runId: string): Promise<void> {
         },
         notes: notes.slice(-10),
         task: taskState.snapshot(),
+        finishReadiness: {
+          businessResult,
+          applicableGaps: taskState.completionGaps(),
+          note: 'When applicable checks are complete request run_finish. Untriggered branches are not blockers; processing status failed maps to unknown, blocked=true.',
+        },
         businessOutcomeObserved: {
           businessResult,
           verifiedBusiness,
@@ -1430,6 +1467,7 @@ async function executeRun(runId: string): Promise<void> {
       reason: stopReason,
       error: message,
       sideEffectPending,
+      task: taskState.snapshot(),
     })
   } finally {
     clearTimeout(timer)
