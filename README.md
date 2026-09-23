@@ -113,3 +113,17 @@ pnpm experiment:browser --repeats 3 --arms current,stagehand
 ```
 
 运行真实付费模型，缺凭据明确失败。协议、限制及结果见 [实验计划](plans/browser-loop-experiment.md) 和 [实验结果](plans/browser-loop-experiment-results.md)。本实验只验证购买操作，不代替 C0–C5 的质量检查验收。
+
+
+### 真实验收诊断
+
+```sh
+pnpm build
+pnpm experiment:acceptance
+# 单轮六例全部通过后，接着运行固定 18 轮：
+pnpm experiment:acceptance --minimum
+```
+
+使用本机 `.env` 的 OpenRouter key 和已选 DeepSeek / Qwen 模型。自动分配端口、独立数据库和私有控制 token；先真实 smoke，再串行跑 C0–C5 各一次，通过正式 API 收集报告并使用同一个私有评分器。保存全部失败、模型账单及配置到 `data/acceptance/<batch>/`，结束后清理自己启动的服务。
+
+单轮诊断不计入 18 轮门槛；指定 `--minimum` 时也必须先六例全过，否则保留失败并停止后续批次。学习规则不能混入未知缺陷发现验收，M5 的人工确认/审阅及启用后复查另行记录。

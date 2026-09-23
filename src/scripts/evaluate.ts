@@ -3,27 +3,21 @@ import { writeFile, mkdir, readFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { createHash } from 'node:crypto'
 import { execFileSync } from 'node:child_process'
-import type { VariantId } from '../../evaluation/private/answers.ts'
+import { pathToFileURL } from 'node:url'
+import { evaluationCases } from '../../evaluation/private/suite.ts'
 import {
   evaluateRun,
   summarizeEvaluation,
   type EvalScore,
   type IndependentEvidence,
 } from '../../evaluation/private/evaluator.ts'
-import {
-  resetAndVerify,
-  controlRequest,
-  arenaUrl,
-  assertIdle,
-} from '../../evaluation/private/controller.ts'
+import { resetAndVerify, controlRequest, arenaUrl } from '../../evaluation/private/controller.ts'
 import type { RunReport, RunEvent } from '../shared/types.ts'
 
 const base = process.env.SERVER_URL ?? `http://localhost:${process.env.PORT ?? 4111}`
 const args = process.argv.slice(2).filter((a) => a !== '--')
 const option = (key: string, defaultValue: string) =>
   args.includes(key) ? args[args.indexOf(key) + 1] : defaultValue
-const suite = option('--suite', 'minimum'),
-  repeats = Number(option('--repeats', '3'))
 const budget = { totalTimeoutMs: 300000, maxActions: 40, maxModelCalls: 30 }
 async function request(path: string, body?: unknown) {
   const r = await fetch(base + path, {
@@ -48,14 +42,22 @@ async function wait(runId: string, timeout = budget.totalTimeoutMs + 30000) {
   await request(`/api/runs/${runId}/cancel`, {})
   throw new Error('Run timed out; cancel requested. Further resets require idle queue.')
 }
-async function main() {
-  if (suite !== 'minimum' || repeats !== 3)
-    throw new Error('Fixed minimum suite requires --suite minimum --repeats 3')
+export async function runEvaluation(options: {
+  suite: 'minimum' | 'diagnostic'
+  repeats: number
+  directory?: string
+  beforeRun?: (id: string) => Promise<void> | void
+  afterRun?: (id: string) => Promise<unknown>
+  metadata?: Record<string, unknown>
+}) {
+  const { suite, repeats } = options
+  const cases = evaluationCases(suite, repeats)
   const health = await request('/api/health')
   if (!health.model.ready)
     throw new Error('configuration-missing: ' + health.model.missing.join(', '))
   const lease = await request('/api/evaluation/lease', {})
-  const dir = resolve('data/evaluations', new Date().toISOString().replace(/[:.]/g, '-'))
+  const dir =
+    options.directory ?? resolve('data/evaluations', new Date().toISOString().replace(/[:.]/g, '-'))
   await mkdir(dir, { recursive: true })
   const scores: EvalScore[] = []
   try {
@@ -64,6 +66,7 @@ async function main() {
         'Minimum discovery suite cannot run with learned transition rules enabled; use a fresh isolated evaluation database',
       )
     const manifest = {
+      ...options.metadata,
       suite,
       repeats,
       budget,
@@ -78,14 +81,16 @@ async function main() {
       startedAt: new Date().toISOString(),
     }
     await writeFile(resolve(dir, 'manifest.json'), JSON.stringify(manifest, null, 2))
-    for (const variant of ['C0', 'C1', 'C2', 'C3', 'C4', 'C5'] as VariantId[])
-      for (let repeat = 1; repeat <= 3; repeat++) {
+    for (const variant of cases)
+      for (let repeat = 1; repeat <= repeats; repeat++) {
         let runId = 'not-created',
           record: Record<string, unknown> = {},
           score: EvalScore
         try {
           const fixture = await resetAndVerify(variant)
           record.fixture = fixture
+          await options.beforeRun?.(`${variant}-${repeat}`)
+          console.log(`Starting ${variant} ${repeat}/${repeats}`)
           const run = await request('/api/runs', {
             goal: 'Inspect the purchase journey. Purchase an item; inspect primary action access, response, expected rejection and recovery. Campaigns must not block submit; retryable failures must provide an operable retry within five seconds. Response above ten seconds warrants a warning.',
             environmentId: 'arena',
@@ -150,20 +155,41 @@ async function main() {
             details: { error: String(error) },
           }
         }
+        if (options.afterRun) record.modelRequests = await options.afterRun(`${variant}-${repeat}`)
         scores.push(score)
         record.score = score
         await writeFile(resolve(dir, `${variant}-${repeat}.json`), JSON.stringify(record, null, 2))
-        console.log(`${variant} ${repeat}/3: ${score.classification} (${runId})`)
+        console.log(`${variant} ${repeat}/${repeats}: ${score.classification} (${runId})`)
       }
-    const summary = summarizeEvaluation(scores)
+    const summary =
+      suite === 'minimum'
+        ? summarizeEvaluation(scores)
+        : {
+            suite: 'diagnostic',
+            totalRuns: scores.length,
+            passedRuns: scores.filter((s) => s.overallPass).length,
+            allPassed: scores.length === cases.length && scores.every((s) => s.overallPass),
+            gatePassed: false,
+            scores,
+          }
     await writeFile(resolve(dir, 'summary.json'), JSON.stringify(summary, null, 2))
     console.log(`All ${scores.length} records: ${dir}; gatePassed=${summary.gatePassed}`)
-    if (!summary.gatePassed) process.exitCode = 1
+    return summary
   } finally {
     await request('/api/evaluation/release', { lease: lease.lease })
   }
 }
-main().catch((error) => {
-  console.error(error instanceof Error ? error.message : String(error))
-  process.exitCode = 1
-})
+if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
+  const suite = option('--suite', 'minimum'),
+    repeats = Number(option('--repeats', '3'))
+  if (suite !== 'minimum' || repeats !== 3)
+    throw new Error('Fixed minimum suite requires --suite minimum --repeats 3')
+  runEvaluation({ suite, repeats })
+    .then((summary) => {
+      if (!summary.gatePassed) process.exitCode = 1
+    })
+    .catch((error) => {
+      console.error(error instanceof Error ? error.message : String(error))
+      process.exitCode = 1
+    })
+}
