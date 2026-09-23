@@ -686,3 +686,6 @@ Agent 从当前适用的 `availableJourneys` 摘要选择 `journey_run({ journey
 `transition_observe` 优先接收当前 `elementRef`，执行器验证引用新鲜度、唯一匹配与节点身份后，固定该节点完成只读采样。旧 `selector` 入口保留，但两者只能提供一个；不要让模型手抄长 CSS 路径。节点丢失、歧义或测量中被替换返回 unknown，不能解释为不可操作。
 
 测量明确返回 `evidenceStatus` 和解释；引用含 unknown 样本的测量时，`findings_submit` 拒绝 supported/refuted，要求重新绑定测量或记录 inconclusive。此校验保障测量证据完整性，不代表服务端已经能验证任意自然语言缺陷结论的全部语义。
+
+
+时间窗口采样按固定的 200ms 时钟网格调度，避免“浏览器读取耗时 + 固定等待”逐次累积。规则仍按原始时间戳、完整窗口、边界缺口与最大样本间隔判定；不把超出截止时刻的样本移入窗口，也不放宽 unknown 门槛。
