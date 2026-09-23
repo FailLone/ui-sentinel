@@ -70,6 +70,8 @@ const KEEP_KEYS = new Set([
   'stale',
   'snapshotId',
   'condition',
+  'elementRef',
+  'evidenceStatus',
   'observedUntilMs',
   'startedAtMs',
   'samples',

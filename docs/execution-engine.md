@@ -679,3 +679,10 @@ Agent 从当前适用的 `availableJourneys` 摘要选择 `journey_run({ journey
 首版片段只允许无写入导航。执行期间拦截非 GET/HEAD/OPTIONS 请求；限制持续到 Agent 下一次明确调用 `page_act`，以覆盖延迟请求。一旦已创建订单，原有只读限制继续有效。片段不包含下单/支付授权，也不改变未知写结果的核对流程。导航完成不代表检查覆盖完成，仍由 Agent 调用 `run_finish` 并接受服务端核验。
 
 `EXECUTION_JOURNEYS=0` 可关闭候选加载。当前能力限于有可核对标题和唯一角色名称的路径，不保证任意页面都能提取片段；语义不确定时继续单步探索。
+
+
+### 探索测量的目标与 unknown 边界
+
+`transition_observe` 优先接收当前 `elementRef`，执行器验证引用新鲜度、唯一匹配与节点身份后，固定该节点完成只读采样。旧 `selector` 入口保留，但两者只能提供一个；不要让模型手抄长 CSS 路径。节点丢失、歧义或测量中被替换返回 unknown，不能解释为不可操作。
+
+测量明确返回 `evidenceStatus` 和解释；引用含 unknown 样本的测量时，`findings_submit` 拒绝 supported/refuted，要求重新绑定测量或记录 inconclusive。此校验保障测量证据完整性，不代表服务端已经能验证任意自然语言缺陷结论的全部语义。

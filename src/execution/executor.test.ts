@@ -1066,3 +1066,78 @@ it('reuses evidenced navigation under a write barrier and rejects a changed hand
       ).toBe(true)
   }
 }, 20000)
+
+it.each([false, true])(
+  'measures a novel target using its current elementRef, disabled=%s',
+  async (disabled) => {
+    harness.handler = async (tools: any, prompt: string) => {
+      const packet = JSON.parse(prompt)
+      const elementRef = packet.observation.elements.find((e: any) => e.text === 'Try Again').ref
+      const args = {
+        eventType: 'test',
+        target: 'retry',
+        elementRef,
+        condition: 'element-actionable',
+        durationMs: 250,
+      }
+      const measurement = await call(tools, 'transition_observe', args)
+      expect(measurement.evidenceStatus).toBe('complete')
+      expect(measurement.samples.every((s: any) => s.value === !disabled)).toBe(true)
+      expect(measurement.elementRef).toBe(elementRef)
+      await expect(call(tools, 'transition_observe', args)).rejects.toThrow('stale-or-unknown')
+      await call(tools, 'run_finish', {
+        businessResult: 'unknown',
+        blocked: true,
+        summary: 'read-only target measured',
+      })
+    }
+    const run = await createRun({
+      goal: 'measure target',
+      environmentId: 'test',
+      entryUrl: url + '/bound-page' + (disabled ? '-disabled' : ''),
+    })
+    ids.push(run.id)
+    await startRunExecution(run.id)
+    expect((await getRun(run.id))?.status).toBe('blocked')
+    expect(writes).toBe(0)
+  },
+)
+
+it('keeps unknown samples inconclusive instead of accepting them as negative proof', async () => {
+  harness.handler = async (tools: any) => {
+    const hyp = await call(tools, 'hypotheses_record', {
+      phenomenon: 'retry might be unavailable',
+      basis: 'test',
+      verificationPlan: 'measure actionability',
+    })
+    const measured = await call(tools, 'transition_observe', {
+      eventType: 'test',
+      target: 'retry',
+      selector: '.nonexistent',
+      condition: 'element-actionable',
+      durationMs: 250,
+    })
+    expect(measured.evidenceStatus).toBe('unknown')
+    const claim = {
+      hypothesisId: hyp.id,
+      severity: 'error',
+      title: 'retry unavailable',
+      expected: 'operable',
+      actual: 'unknown target',
+      evidenceRefs: measured.evidenceRefs,
+    }
+    for (const validationStatus of ['supported', 'refuted'])
+      await expect(call(tools, 'findings_submit', { ...claim, validationStatus })).rejects.toThrow(
+        'unknown-measurement',
+      )
+    await call(tools, 'findings_submit', { ...claim, validationStatus: 'inconclusive' })
+    await call(tools, 'run_finish', {
+      businessResult: 'unknown',
+      blocked: true,
+      summary: 'target could not be verified',
+    })
+  }
+  const run = await makeRun()
+  await startRunExecution(run.id)
+  expect((await getFindings(run.id)).map((f) => f.validationStatus)).toEqual(['inconclusive'])
+})
