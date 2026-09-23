@@ -8,7 +8,7 @@ vi.mock('../shared/config.ts', () => ({
     databaseUrl: ':memory:',
     agentModel: 'openai/test-explicit-mock',
     visionModel: 'test',
-    optimizations: { observation: true, ruleRouting: true },
+    optimizations: { observation: true, ruleRouting: true, journeys: true },
     budget: {
       totalTimeoutMs: 20000,
       maxActions: 10,
@@ -56,11 +56,25 @@ import { clearRules, registerRule } from '../rules/engine.ts'
 
 import { overlayBlockingRule } from '../rules/builtin/overlay-blocking.ts'
 import { compileTransitionRule } from '../rules/transition.ts'
+let journeyChange = 'none'
 let url = '',
   writes = 0,
   responseDelay = 0
 const ids: string[] = []
 const server = createServer((req, res) => {
+  if (req.url === '/journey-page') {
+    res.setHeader('content-type', 'text/html')
+    res.end(`<h1>Catalog</h1><button>Open cart</button><script>
+      document.querySelector('button').onclick=function(){
+        if(${journeyChange == 'write'}) {fetch('/purchase',{method:'POST'}).catch(()=>{});return;}
+        document.querySelector('h1').textContent='Cart';
+        var b=document.querySelector('button');b.textContent='Checkout';
+        if(${journeyChange == 'banner'}) {var overlay=document.createElement('div');overlay.textContent='Campaign';overlay.style.cssText='position:fixed;inset:0;background:white;z-index:100';document.body.append(overlay);}
+        b.onclick=function(){document.querySelector('h1').textContent='Checkout';b.textContent='Pay';b.onclick=null;};
+      };
+    </script>`)
+    return
+  }
   if (req.url?.startsWith('/bound-page')) {
     res.setHeader('content-type', 'text/html')
     res.end(
@@ -144,6 +158,7 @@ afterAll(async () => {
 })
 beforeEach(() => {
   clearRules()
+  journeyChange = 'none'
   writes = 0
   responseDelay = 0
   harness.models = 0
@@ -983,3 +998,71 @@ it.each([false, true])(
     expect(writes).toBe(1)
   },
 )
+
+it('reuses evidenced navigation under a write barrier and rejects a changed handler before backend mutation', async () => {
+  const create = async () => {
+    const run = await createRun({
+      goal: 'inspect navigation',
+      environmentId: 'test',
+      entryUrl: url + '/journey-page',
+    })
+    ids.push(run.id)
+    return run
+  }
+  let step = 0
+  harness.handler = async (tools: any) => {
+    if (step < 2)
+      await call(tools, 'page_act', {
+        type: 'click',
+        role: 'button',
+        name: step++ === 0 ? 'Open cart' : 'Checkout',
+      })
+    else
+      await call(tools, 'run_finish', {
+        businessResult: 'unknown',
+        blocked: true,
+        summary: 'navigation inspected; payment not requested',
+      })
+  }
+  const source = await create()
+  await startRunExecution(source.id)
+  expect(
+    (await getEvents(source.id))
+      .filter((e) => e.type === 'action:completed')
+      .map((e) => e.payload.networkWrites),
+  ).toEqual([0, 0])
+  for (const changed of ['none', 'banner', 'write']) {
+    journeyChange = changed
+    let phase = 0
+    let result: any
+    harness.handler = async (tools: any, prompt: string) => {
+      if (phase++ === 0) {
+        const candidate = JSON.parse(prompt).availableJourneys[0]
+        expect(candidate).toBeTruthy()
+        result = await call(tools, 'journey_run', {
+          journeyId: candidate.id,
+          revision: candidate.revision,
+        })
+      } else
+        await call(tools, 'run_finish', {
+          businessResult: 'unknown',
+          blocked: true,
+          summary: 'navigation inspected or safely handed back',
+        })
+    }
+    const run = await create()
+    await startRunExecution(run.id)
+    expect(result).toMatchObject({
+      status: changed === 'none' ? 'completed' : 'handoff',
+      nextStep: changed === 'none' ? 2 : changed === 'banner' ? 1 : 0,
+    })
+    expect(writes).toBe(0)
+    expect((await getRun(run.id))?.stopReason).not.toBe('reconciliation-required')
+    if (changed === 'write')
+      expect(
+        (await getEvents(run.id)).some(
+          (e) => e.type === 'write:denied' && e.payload.reason === 'journey-read-only-boundary',
+        ),
+      ).toBe(true)
+  }
+}, 20000)

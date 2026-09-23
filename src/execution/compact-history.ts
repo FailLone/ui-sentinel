@@ -107,6 +107,11 @@ const KEEP_KEYS = new Set([
   'matching',
   'declaration',
   'routing',
+  'journeyId',
+  'revision',
+  'nextStep',
+  'reason',
+  'completed',
 ])
 
 /** One projection, also accepts its own output. Never discard action arguments. */

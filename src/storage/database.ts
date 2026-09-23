@@ -98,6 +98,14 @@ export async function initDatabase(): Promise<void> {
       FOREIGN KEY (finding_id) REFERENCES findings(id)
     );
 
+    CREATE TABLE IF NOT EXISTS journeys (
+      id TEXT PRIMARY KEY,
+      revision TEXT NOT NULL,
+      source_run_id TEXT NOT NULL,
+      contract TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
     CREATE TABLE IF NOT EXISTS artifacts (
       id TEXT PRIMARY KEY,
       run_id TEXT NOT NULL,

@@ -25,6 +25,7 @@ export const config = Object.freeze({
   optimizations: {
     observation: process.env.EXECUTION_OBSERVATION_REUSE !== '0',
     ruleRouting: process.env.EXECUTION_RULE_ROUTING !== '0',
+    journeys: process.env.EXECUTION_JOURNEYS !== '0',
   },
 
   budget: {
