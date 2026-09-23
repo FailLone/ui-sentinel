@@ -1,7 +1,8 @@
 # 验证靶场库与持续评估设计
 
 日期：2026-09-20  
-状态：设计约定，尚未实现和实测  
+状态：目标设计，包含已实现部分与后续规划；当前实现及冻结验收以[进度记录](../plans/minimum-validation-progress.md)为准
+
 范围：靶场案例、变体、评估答案、维护职责、候选入库、发布回归和成熟阶段的持续验证。
 
 总体设计入口：[应用总体架构](./architecture.md)。配套：[Agent 职责](./agent-responsibilities.md)、[执行层](./execution-engine.md)、[规则库](./rules-and-rule-library.md)、[知识库](./knowledge-and-context.md)。

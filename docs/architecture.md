@@ -1,7 +1,8 @@
 # 应用总体架构
 
 日期：2026-09-20  
-状态：设计约定，尚未实现和实测  
+状态：目标设计，包含已实现部分与后续规划；当前实现及冻结验收以[进度记录](../plans/minimum-validation-progress.md)为准
+
 范围：产品定位、系统模块、Agent 控制循环、执行与数据流、并发隔离、知识演进和部署边界。
 
 ## 1. 产品定位
@@ -41,7 +42,7 @@ flowchart TB
     V --> K
 ```
 
-图中模块是逻辑边界，不表示每个模块都需要一个独立服务。浏览器动作必须经过工具和执行层；Agent 输出报告的事实仍需关联持久证据。
+图中模块是目标逻辑边界，不表示每个模块都已实现或需要独立服务。当前使用 Mastra Agent/Tools、自有串行执行器、Hono HTTP/SSE、libSQL 和 React 工作台；通用 Workflows、知识检索和分布式任务图尚未按图实现。浏览器动作必须经过工具和执行层；报告事实关联持久证据。
 
 ## 3. 核心模块与责任
 
@@ -68,7 +69,7 @@ flowchart TB
 | Midscene.js | 动态视觉定位和语义、视觉判断补充 |
 | 自有规则引擎 | 声明式规则、访问器、生命周期 Hook 和覆盖记录 |
 
-模型供应商、具体模型、数据库产品和依赖版本尚未锁定。这里固定职责边界，不将尚未验证的选项描述为已部署组件。
+当前依赖版本由 package.json / pnpm-lock.yaml 锁定，数据库使用本地 libSQL，模型从配置接入；DeepSeek/Qwen 已有冻结验收记录。上表描述技术职责范围，不能据此认为 Mastra Workflows、Server 或通用知识存储已接入，具体运行约束见 README。
 
 ### 3.2 框架复用与领域自研边界
 
@@ -300,7 +301,7 @@ Mastra Agent / Workflows + 领域调度
 
 靶场在成熟阶段继续承担发布回归、模型成本比较和真实漏报复盘。区分开发、回归与保留评估集，不将已参与调优的案例当作新问题泛化证据。详细设计见[验证靶场库与持续评估](./arena-and-evaluation.md)。
 
-已确定的是架构职责和 TypeScript / Mastra / Playwright / Midscene 技术分工。尚需实现与验证的事项包括依赖版本、模型配置、存储产品、跨 worker 协调机制、定位准确率、截图坐标一致性、规则路由和上下文预算参数。
+已确定的是架构职责和 TypeScript / Mastra / Playwright / Midscene 技术分工。当前已确定运行依赖、模型接入和本地存储，并有受控靶场验证。尚需独立实现或扩大验证的事项包括跨 worker 协调、跨业务定位与事实适配、主动视觉发现、规则路由及不同规模下的上下文预算。
 
 这些事项不得在报告中描述为已实测能力，也不能以未决定具体产品为由省略持久化、隔离和证据等架构要求。
 
@@ -308,7 +309,9 @@ Mastra Agent / Workflows + 领域调度
 
 | 文档 | 详细内容 |
 | --- | --- |
-| [最小可验证路径开发计划](../plans/minimum-validation-plan.md) | 开发顺序、可见交付、靶场矩阵和放行门槛 |
+| [当前实现与进度](../plans/minimum-validation-progress.md) | 冻结验收、已实现范围和未完成项 |
+| [下一轮执行效率计划](../plans/execution-efficiency-plan.md) | 测量、观察优化、规则路由、路径复用与受控对照 |
+| [最小可验证路径开发计划](../plans/minimum-validation-plan.md) | 原始范围、靶场矩阵和放行门槛 |
 | [Agent 职责与整体工作模式](./agent-responsibilities.md) | 八项职责、角色边界、探索循环和评价目标 |
 | [探索策略与未知问题发现](./exploration-strategies.md) | 线索生成、策略契约、交互采样、漏报复盘与独立评估 |
 | [规则与规则库技术设计](./rules-and-rule-library.md) | 规则定义、访问器、Hook、关键路径和规则路由 |

@@ -10,7 +10,7 @@
 
 ## 配置与证据
 
-- 实验协议：[browser-loop-experiment.md](./browser-loop-experiment.md)。
+- 实验协议与复现方式已合并到本文末尾；旧计划可在 Git 历史中查阅。
 - 正式批次：`data/experiments/2026-09-22T11-40-12-274Z/`。
 - DeepSeek：`deepseek/deepseek-v4.1-flash`，low reasoning；Qwen：`qwen/qwen3.7-plus`，qwen3 family，关闭 reasoning。
 - Stagehand 3.7.3，本地 DOM 模式；原执行器基于 d1b6f67。实验依赖变化、锁文件哈希和 dirty 标记已记录。
@@ -76,7 +76,7 @@ Stagehand 的成功证明有可复用的开源完整循环，但它与当前执�
 
 当前组的第二个请求最终记录为 AbortError，缺少 usage；310 秒包含终态/取消等待，不能解读为允许了额外探索预算，也不能当作同样的重复观察循环。该批证实在固定供应商下，保留动作历史的精简观察方案也能完成任务，但当前组受传输停滞影响，不足以独立证明框架间性能差异。暂不继续换供应商反复挑选成功结果。
 
-## 建议的后续实现
+## 当时提出的修复（后续状态见当前进度）
 
 1. 修复历史契约：保留动作参数、动作结果、假设/证据 ID 和未知状态，用单一结构避免二次压缩丢字段。
 2. 把已完成目标、当前调查和未覆盖分支存为独立任务状态，不让六条滚动历史承担全部长期记忆。
@@ -128,3 +128,25 @@ Run：`run-3c483702-e99e-4369-b2f4-ebe0b22ef70c`。后端核对单件订单已�
 这不是与上一批次的严格性能对照，也不是六类质量检测验收：模型和供应商延迟会变化，单次 18 秒不能证明平均耗时下降。迟到工具、重试写安全、请求永不返回、必要测量窗口和部分结果映射由确定性测试覆盖，真实 C1–C5、18 轮稳定性和 M5 仍待验收。
 
 工程检查：27 个测试文件、206 项测试通过；格式、类型、生产构建及六个靶场的准备/隔离检查通过。
+
+
+## 保留的实验协议与复现方式
+
+独立浏览器、端口、数据库与私有 C0 重置；固定 1280×720，先真实 DeepSeek 工具调用和 Qwen 坐标命中 smoke，再检查接入，最后交替运行每组各三次。公共任务是购买恰好一个商品、验证最终支付结果和可见订单 ID 后停止；不重复购买或强制触发其他结果。接入失败、模型失败与超时分别保存，不删除失败样本。
+
+当前执行器保留自己的质量检查提示与规则；Stagehand 使用自己的工具和完成语义，因此这是执行栈对照，不是单一压缩变量实验。Stagehand 固定历史版本 3.7.3、本地 DOM 模式，关闭云 API、持久缓存及内置 screenshot 工具；视觉通过 Qwen 自定义工具，避免把视觉职责转给 DeepSeek。两者共用 300 秒、30 次真实请求及每次输出 4096 tokens 的上限。具体型号和配置以各批 manifest 为准，不能静默更换。
+
+```sh
+pnpm build
+pnpm exec tsx scripts/experiments/browser-loop.ts --smoke-only
+pnpm experiment:browser -- --repeats 1 --arms current,stagehand
+pnpm experiment:browser -- --repeats 3 --arms current,stagehand
+```
+
+从本机 `.env` 读取 `OPENROUTER_API_KEY`，缺配置明确失败，不使用 mock。统一网关记录实际上游请求、错误、usage、供应商、费用及延迟；子进程使用本地临时 token。网关完整读取非流式响应后再转发，不进行隐式重试。密钥不写入清单，原始账本、模型列表、报告与全部结果保存到忽略目录 `data/experiments/<时间>/`。
+
+可通过 `EXPERIMENT_AGENT_PROVIDER` 和 `EXPERIMENT_VISION_PROVIDER` 固定供应商，所选供应商必须实际支持当前模型与工具参数。旧批次曾使用 DeepInfra FP8 / Alibaba，不代表当前可用性保证；配置变化应另起批次。
+
+`current` 始终表示本次构建的正式执行器，不代表历史缺陷代码。历史 `current-history` 临时变体已退役，源码变换与哈希保留在旧批次；不恢复字符串替换入口。这个 runner 只验证 C0 购买与结束，不能代替 C0–C5 质量发现或 M5 验收，也不自动把 Stagehand 接入产品。
+
+历史参考：[OpenRouter 模型列表](https://openrouter.ai/api/v1/models)、[Stagehand v3 Agent](https://docs.stagehand.dev/v3/basics/agent)、[Midscene 模型配置](https://midscenejs.com/model-common-config)。新一轮代码效率对照以[执行效率计划](./execution-efficiency-plan.md)为准。

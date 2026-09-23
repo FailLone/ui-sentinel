@@ -107,7 +107,7 @@ pnpm format:check
 
 服务重启将未完成 Run 标为 interrupted。私有操作者需检查订单和副作用，确认处理方式，再以控制 token 调用 `POST /api/evaluation/reconcile`，body 为 `{"verified":true,"reason":"核对过程与结果"}`。该操作保存核对记录，不重放旧 Run，也不自动回滚订单。没有待执行任务才能解除阻塞。
 
-当前范围和验收状态见 [开发计划](plans/minimum-validation-plan.md) 与 [进度记录](plans/minimum-validation-progress.md)。
+下一轮开发入口：[执行效率与能力复用计划](plans/execution-efficiency-plan.md)。原始交付门槛见 [最小验证计划](plans/minimum-validation-plan.md)，当前状态见 [进度记录](plans/minimum-validation-progress.md)；整体设计见 [架构文档](docs/architecture.md)。
 
 ### 浏览器循环对照实验
 
@@ -118,8 +118,7 @@ pnpm build
 pnpm experiment:browser --repeats 3 --arms current,stagehand
 ```
 
-运行真实付费模型，缺凭据明确失败。协议、限制及结果见 [实验计划](plans/browser-loop-experiment.md) 和 [实验结果](plans/browser-loop-experiment-results.md)。本实验只验证购买操作，不代替 C0–C5 的质量检查验收。
-
+运行真实付费模型，缺凭据明确失败。协议、限制、复现命令与结果统一见 [浏览器循环实验记录](plans/browser-loop-experiment-results.md)。本实验只验证购买操作，不代替 C0–C5 的质量检查验收。
 
 ### 真实验收诊断
 
@@ -133,7 +132,6 @@ pnpm experiment:acceptance --minimum
 使用本机 `.env` 的 OpenRouter key 和已选 DeepSeek / Qwen 模型。自动分配端口、独立数据库和私有控制 token；先真实 smoke，再串行跑 C0–C5 各一次，通过正式 API 收集报告并使用同一个私有评分器。保存全部失败、模型账单及配置到 `data/acceptance/<batch>/`，结束后清理自己启动的服务。
 
 单轮诊断不计入 18 轮门槛；指定 `--minimum` 时也必须先六例全过，否则保留失败并停止后续批次。学习规则不能混入未知缺陷发现验收，M5 的人工确认/审阅及启用后复查另行记录。
-
 
 `transition_observe` 的 `element-actionable` 采样要求目标可见、enabled，且视口内采样点至少一处没有被其他元素截获；不会发送点击或主动滚动。目标缺失或选择器歧义返回 unknown。它是当前时刻的命中采样，不证明事件处理器已成功执行；需要验证业务动作时仍须使用正式动作和反馈证据。
 

@@ -1,7 +1,7 @@
 # 最小可验证路径开发计划
 
 日期：2026-09-20  
-状态：待实施；本文不表示代码或实测已经完成。
+状态：保留的原始范围与验收契约；M0–M5 已有各自冻结版本的验证记录，见[当前进度](./minimum-validation-progress.md)。本文不是下一轮待办，后续开发见[执行效率计划](./execution-efficiency-plan.md)。
 
 依据：[总体架构](../docs/architecture.md)、[Agent 职责](../docs/agent-responsibilities.md)、[执行层](../docs/execution-engine.md)、[规则库](../docs/rules-and-rule-library.md)、[知识与上下文](../docs/knowledge-and-context.md)、[靶场库](../docs/arena-and-evaluation.md)。
 
