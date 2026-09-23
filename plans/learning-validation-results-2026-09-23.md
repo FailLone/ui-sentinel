@@ -1,6 +1,6 @@
 # M5 真实学习闭环验证
 
-状态：准备真实候选；尚未批准、启用或宣称 M5 通过。
+状态：修订候选通过异常、正常恢复、缺失事实验证，等待针对具体候选的人工审阅；尚未批准、启用或宣称 M5 通过。
 
 ## 来源与人工确认
 
@@ -37,3 +37,43 @@
 修订入口：`pnpm experiment:learning -- --revise <上次学习目录> --previous <失败候选 ID>`。它复制已关闭的学习数据库到新目录，复用已有人工确认，重新采集正常对照并调用真实模型；仍不批准、不启用。
 
 当前计时以 transition 测量开始为原点，不代表已经实现支付响应时刻到入口恢复时刻的完整后台追踪。C5 的持续不可操作事实得到验证，但不能据此宣称任意业务的精确恢复 SLA 已可验证。
+
+## 修订候选：待人工审阅
+
+- 冻结代码：`c1087a3`；构建、格式检查及 234 项测试通过。
+- 记录：`data/learning/2026-09-23T08-02-16-954Z/`。
+- 候选：`proposal-e7599b50-0dd0-429f-9cae-b7bc7768f7ae`，来自同一已确认 finding，保留前一候选与验证反馈关联。
+- DeepSeek 真实生成一次，供应商 Wafer，10.23 秒，输入 2,388 / 输出 1,368 tokens，费用 $0.001152732。两次生成合计 $0.002416340；不包括未来启用后复查。
+- 实际发送的 JSON Schema 已允许状态字段为 null；模型选择不限制初始状态，保留目标状态 `retry-actionable`。
+- 原始异常返回 fail，重新采集的真实正常恢复返回 pass，缺失事实返回 unknown，全部符合预期。
+- 正常对照 27 个采样均可操作，包含截图与原始测量；M4 源数据库哈希确认未改变。
+
+实际候选配置（未经人工改写）：
+
+```json
+{
+  "type": "transition",
+  "name": "retryable-failure retry-actionable within 5 seconds",
+  "trigger": {
+    "eventType": "retryable-failure",
+    "toState": "retry-actionable"
+  },
+  "expectation": {
+    "condition": "element-actionable",
+    "target": "Retry button",
+    "timeoutMs": 5000
+  },
+  "severity": "error"
+}
+```
+
+完整模型描述、配置及验证输入见该目录的 `prepared.json`。`Retry button` 是测量目标的语义名称，不要求页面按钮使用固定文案或 ID。触发事件和目标状态仍需 Agent/采集器正确标记；此次静态事实验证尚不能证明启用后的 Agent 复查稳定性。
+
+等待用户对该精确候选的批准。批准范围为隔离 M5 环境启用并运行异常/正常各三次真实模型复查，不影响原始 M4 发现验收。批准后使用同一冻结构建：
+
+```sh
+EXPERIMENT_AGENT_PROVIDER=Wafer pnpm experiment:learning -- \
+  --resume data/learning/2026-09-23T08-02-16-954Z \
+  --approve proposal-e7599b50-0dd0-429f-9cae-b7bc7768f7ae \
+  --reviewer user
+```
