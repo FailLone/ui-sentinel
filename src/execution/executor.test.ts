@@ -8,7 +8,7 @@ vi.mock('../shared/config.ts', () => ({
     databaseUrl: ':memory:',
     agentModel: 'openai/test-explicit-mock',
     visionModel: 'test',
-    budget: { totalTimeoutMs: 20000, maxActions: 10, maxModelCalls: 10, toolTimeoutMs: 15000 },
+    budget: { totalTimeoutMs: 20000, maxActions: 10, maxModelCalls: 20, toolTimeoutMs: 15000, modelRequestTimeoutMs: 10000, modelRequestMaxRetries: 1 },
   },
   checkModelConfig: () => ({ ready: true, missing: [] }),
 }))
@@ -389,7 +389,15 @@ it('retrieves a hypothesis after it leaves the automatic six-turn history', asyn
       hypothesisId = result.id
       return [{ payload: { toolName: 'hypotheses_record', args, result } }]
     }
-    if (harness.models < 9)
+    if (harness.models < 9) {
+      if (harness.models % 4 === 0) {
+        const h = await call(tools, 'hypotheses_record', {
+          phenomenon: `filler-${harness.models}`,
+          basis: 'observation',
+          verificationPlan: 'inspect',
+        })
+        return [{ payload: { toolName: 'hypotheses_record', args: { phenomenon: `filler-${harness.models}` }, result: h } }]
+      }
       return [
         {
           payload: {
@@ -399,6 +407,7 @@ it('retrieves a hypothesis after it leaves the automatic six-turn history', asyn
           },
         },
       ]
+    }
     expect(packet.historyWindow.start).toBeGreaterThan(0)
     expect(JSON.stringify(packet.history)).not.toContain(hypothesisId)
     const old = await call(tools, 'history_read', { start: 0, count: 1 })

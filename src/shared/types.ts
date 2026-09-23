@@ -18,6 +18,9 @@ export type StopReason =
   | 'execution-error'
   | 'blocked'
   | 'reconciliation-required'
+  | 'model-request-timeout'
+  | 'no-progress'
+  | 'finish-incomplete'
 
 export interface RunBudget {
   readonly totalTimeoutMs: number

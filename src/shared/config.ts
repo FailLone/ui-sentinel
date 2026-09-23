@@ -20,6 +20,8 @@ export const config = Object.freeze({
     maxActions: bounded('RUN_MAX_ACTIONS', 40, 40),
     maxModelCalls: bounded('RUN_MAX_MODEL_CALLS', 40, 60),
     toolTimeoutMs: bounded('TOOL_TIMEOUT_MS', 15_000, 60_000),
+    modelRequestTimeoutMs: bounded('MODEL_REQUEST_TIMEOUT_MS', 60_000, 120_000),
+    modelRequestMaxRetries: bounded('MODEL_REQUEST_MAX_RETRIES', 1, 3),
   },
 })
 

@@ -23,7 +23,7 @@ const report = (extra: Partial<RunReport> = {}): RunReport => ({
 const evidence = (): IndependentEvidence => ({
   fixtureValid: true,
   backend: { orders: [{ id: 'order-1', status: 'paid' }] },
-  budget: { totalTimeoutMs: 300000, maxActions: 40, maxModelCalls: 30 },
+  budget: { totalTimeoutMs: 300000, maxActions: 40, maxModelCalls: 40 },
   hypotheses: [],
   events: [],
   artifacts: {
