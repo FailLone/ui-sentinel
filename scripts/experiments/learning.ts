@@ -13,15 +13,20 @@ const option = (name: string) => {
   const i = args.indexOf(name)
   return i < 0 ? undefined : args[i + 1]
 }
+const revise = option('--revise'),
+  previous = option('--previous')
 const resume = option('--resume'),
   source = option('--source'),
   findingId = option('--finding')
 const confirmation = option('--confirm-reason'),
   approval = option('--approve'),
   reviewer = option('--reviewer')
-if (resume ? !approval || !reviewer : !source || !findingId || !confirmation)
+if (
+  (resume && revise) ||
+  (resume ? !approval || !reviewer : revise ? !previous : !source || !findingId || !confirmation)
+)
   throw Error(
-    'Prepare: --source <closed acceptance directory> --finding <id> --confirm-reason <explicit user confirmation>. After human review: --resume <learning directory> --approve <proposal id> --reviewer <human name>.',
+    'Prepare: --source <closed acceptance directory> --finding <id> --confirm-reason <explicit user confirmation>. Revise after failed validation: --revise <learning directory> --previous <proposal id>. After human review: --resume <learning directory> --approve <proposal id> --reviewer <human name>.',
   )
 const key = process.env.OPENROUTER_API_KEY
 if (!key) throw Error('configuration-missing: OPENROUTER_API_KEY')
@@ -36,7 +41,7 @@ let prepared: any = resume
   : undefined
 if (resume && prepared.proposal.id !== approval)
   throw Error('Approval must identify the exact prepared proposal')
-if (!resume) {
+if (!resume && !revise) {
   const sourceDir = resolve(source!)
   const summary = JSON.parse(await readFile(resolve(sourceDir, 'minimum/summary.json'), 'utf8'))
   if (!summary.gatePassed) throw Error('Source must be a passed fixed minimum batch')
@@ -56,6 +61,24 @@ if (!resume) {
     databaseHash: createHash('sha256')
       .update(await readFile(resolve(sourceDir, 'runs.db')))
       .digest('hex'),
+  })
+}
+if (revise) {
+  const priorDir = resolve(revise)
+  const priorSource = JSON.parse(await readFile(resolve(priorDir, 'source.json'), 'utf8'))
+  for (const suffix of ['-wal', '-journal'])
+    if (
+      await access(resolve(priorDir, 'runs.db' + suffix)).then(
+        () => true,
+        () => false,
+      )
+    )
+      throw Error('Close prior learning database before revision')
+  await copyFile(resolve(priorDir, 'runs.db'), resolve(dir, 'runs.db'))
+  await write('source.json', {
+    ...priorSource,
+    previousProposalId: previous,
+    previousDirectory: priorDir,
   })
 }
 const sourceMeta = JSON.parse(await readFile(resolve(dir, 'source.json'), 'utf8'))
@@ -258,7 +281,10 @@ try {
     gateway.begin('proposal-generation', 1, 70000)
     let proposal: any
     try {
-      proposal = await request('/api/rule-proposals', { findingId: sourceMeta.findingId })
+      proposal = await request('/api/rule-proposals', {
+        findingId: sourceMeta.findingId,
+        previousProposalId: sourceMeta.previousProposalId,
+      })
     } finally {
       await write('proposal-requests.json', await gateway.end())
     }

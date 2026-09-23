@@ -21,7 +21,7 @@ const declaration = {
   type: 'transition',
   name: 'Retry access',
   description: 'An operable retry within 5 seconds',
-  trigger: { eventType: 'retryable-failure' },
+  trigger: { eventType: 'retryable-failure', fromState: null, toState: null },
   expectation: { condition: 'element-actionable', target: 'Retry button', timeoutMs: 5000 },
   severity: 'error',
 }
@@ -82,6 +82,7 @@ it('generates an unapproved draft using only finding-linked observations and rec
   })
   const result = await generateRuleProposal(finding.id)
   expect(result.status).toBe('draft')
+  expect(result.ruleConfig.trigger).toEqual({ eventType: 'retryable-failure' })
   expect(result.reviewedBy).toBeNull()
   expect(
     (await getEvents(run.id)).find((e) => e.type === 'proposal:model-request-finished')?.payload,
@@ -113,4 +114,37 @@ it('bounds providers that ignore cancellation and prevents a late result from cr
   expect(proposals.rows).toHaveLength(0)
   const event = (await getEvents(run.id)).find((e) => e.type === 'proposal:model-request-finished')!
   expect(event.payload).toMatchObject({ status: 'cancelled-or-timeout', usage: 'unknown' })
+})
+
+it('links new candidates to same-finding validation feedback and keeps earlier candidates unchanged', async () => {
+  const { finding } = await fixture()
+  model.generate.mockResolvedValue({ object: declaration })
+  const previous = await generateRuleProposal(finding.id)
+  await getDbClient().execute({
+    sql: 'UPDATE rule_proposals SET negative_results=? WHERE id=?',
+    args: [
+      JSON.stringify([
+        {
+          input: JSON.stringify({ eventType: 'retryable-failure', samples: [] }),
+          expected: 'pass',
+          actual: 'unknown',
+          passed: false,
+        },
+      ]),
+      previous.id,
+    ],
+  })
+  model.generate.mockImplementation(async (input: string) => {
+    expect(JSON.parse(input).revisionFeedback).toMatchObject({
+      previousProposalId: previous.id,
+      tests: [{ expected: 'pass', actual: 'unknown' }],
+    })
+    return { object: declaration }
+  })
+  const revision = await generateRuleProposal(finding.id, undefined, previous.id)
+  expect(revision.id).not.toBe(previous.id)
+  const other = await fixture()
+  await expect(generateRuleProposal(other.finding.id, undefined, previous.id)).rejects.toThrow(
+    'same finding',
+  )
 })
