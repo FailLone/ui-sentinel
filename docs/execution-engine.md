@@ -707,3 +707,11 @@ Agent 在每次决策边界接收分析结果。请求 `run_finish` 时若仍有
 流式请求记录响应头、首个有效模型增量、首个工具调用增量、首次工具执行、最后增量、最大增量间隔、取消和完成偏移；不保存推理文本。心跳不延长请求期限，完整工具参数校验前不会执行。首次工具执行是模型等待的终点，SDK 响应完成可能包含工具执行耗时，不能直接当作模型推理耗时。`EXECUTION_MODEL_STREAMING=0` 保留非流式诊断入口。
 
 短收尾只接受 `reason: scope-covered | observed-blocker | unverified-scope`。Agent 仍主动调用结束；业务结果、覆盖缺项、发现和报告说明来自已保存事实。该协议减少重复报告输出，不保证减少供应商内部 reasoning。`EXECUTION_SHORT_FINISH=0` 保留旧协议用于冻结对照。
+
+### 视觉假设关联已有验证（工具契约 19）
+
+同一缺陷可能已被自动规则保存，又被 Qwen 提为视觉候选。工作包的 `reusableFindings` 提供可关联的既有发现；Agent 判断含义相同后调用 `hypotheses_link_finding({ hypothesisId, findingId, bindingReason })`。服务端只允许预先验证的匹配，将假设置为 supported 并保存 `hypothesis:linked`，不新增发现，也不重新测量。
+
+目前的证据适配仅支持 occlusion → overlay-blocking：原截图和快照引用必须相同、已有规则发现必须 supported、候选区域中心必须落在快照中经完整命中采样确认被拦截的可见可用按钮/链接内。不同现场、不同缺陷类别、未采样或其他规则不能套用此通道，继续正常验证。这个窄适配不代表可以自动证明任意视觉语义。
+
+流式响应因 length/error 被拒绝时，仍保存已收到的 usage；未收到的 usage 继续标记未知。失败响应不作为完成，也不通过提高输出预算掩盖协议问题。

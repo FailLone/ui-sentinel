@@ -261,6 +261,135 @@ async function makeRun() {
 }
 const call = (tools: any, name: string, input: any = {}) => tools[name].execute(input, {})
 
+it('lets the agent resolve a same-evidence visual candidate through a verified finding without duplicating it', async () => {
+  config.optimizations.shortFinish = true
+  config.optimizations.evidenceAnalysis = true
+  config.optimizations.analysisMode = 'serial'
+  registerRule(overlayBlockingRule)
+  harness.analyze = async (packet: any, options: any) => {
+    await options.hooks.onStart({
+      attemptId: 'reuse-analysis',
+      startedAt: Date.now(),
+      deadlineAt: Date.now() + 5000,
+    })
+    await options.hooks.onFinish({
+      attemptId: 'reuse-analysis',
+      startedAt: Date.now(),
+      durationMs: 1,
+      modelDurationMs: 1,
+      status: 'success',
+      usage: { inputTokens: 1, outputTokens: 1 },
+    })
+    return {
+      visual: {
+        coverage: 'reviewed',
+        candidates: [
+          {
+            kind: 'occlusion',
+            target: 'Pay',
+            observation: 'Campaign covers Pay.',
+            verification: 'Check saved pointer hit samples.',
+            region: packet.elements.find((e: any) => e.text === 'Pay').bounds,
+          },
+        ],
+        limitations: [],
+      },
+      geometry: { checkedElements: 1, partiallyOutside: [], intercepted: [] },
+    }
+  }
+  let phase = 0
+  harness.handler = async (tools: any, prompt: string) => {
+    if (phase++ === 0) {
+      await call(tools, 'visual_review', { question: 'Is Pay obscured?' })
+      return []
+    }
+    const input = JSON.parse(prompt)
+    expect(input.reusableFindings).toHaveLength(1)
+    const match = input.reusableFindings[0]
+    const result = await call(tools, 'hypotheses_link_finding', {
+      hypothesisId: match.hypothesisId,
+      findingId: match.findingId,
+      bindingReason: 'The saved same-page hit samples verify interception of the same Pay button.',
+    })
+    expect(result).toMatchObject({ validationStatus: 'supported', reused: true })
+    await call(tools, 'run_finish', { reason: 'observed-blocker' })
+    return []
+  }
+  const run = await createRun({
+    goal: 'Inspect Pay accessibility',
+    environmentId: 'test',
+    entryUrl: url + '/overlay',
+  })
+  ids.push(run.id)
+  await startRunExecution(run.id)
+  expect(await getFindings(run.id)).toHaveLength(1)
+  const events = await getEvents(run.id)
+  expect(events.filter((e) => e.type === 'hypothesis:linked')).toHaveLength(1)
+  expect(events.find((e) => e.type === 'finish:accepted')?.payload).toMatchObject({ blocked: true })
+  expect(writes).toBe(0)
+})
+
+it('settles cancelled background request accounting before persisting the terminal run', async () => {
+  config.optimizations.evidenceAnalysis = true
+  let entered!: () => void, releaseMain!: () => void
+  const ready = new Promise<void>((r) => {
+    entered = r
+  })
+  const main = new Promise<void>((r) => {
+    releaseMain = r
+  })
+  harness.analyze = async (_packet: any, options: any) => {
+    const startedAt = Date.now()
+    await options.hooks.onStart({
+      attemptId: 'cancelled-analysis',
+      startedAt,
+      deadlineAt: startedAt + 5000,
+    })
+    const cancelled = new Promise<void>((r) =>
+      options.signal.addEventListener('abort', () => r(), { once: true }),
+    )
+    entered()
+    await cancelled
+    // Simulate SDK cancellation settling after the queue has already observed the abort.
+    await new Promise((r) => setTimeout(r, 30))
+    await options.hooks.onFinish({
+      attemptId: 'cancelled-analysis',
+      startedAt,
+      durationMs: Date.now() - startedAt,
+      modelDurationMs: Date.now() - startedAt,
+      status: 'cancelled',
+      error: 'cancelled',
+      usage: undefined,
+    })
+    throw Error('cancelled')
+  }
+  harness.handler = async (tools: any) => {
+    await call(tools, 'visual_review', { question: 'Inspect the button surface.' })
+    await main
+    return []
+  }
+  const run = await makeRun()
+  const done = startRunExecution(run.id)
+  await ready
+  expect(await cancelRunExecution(run.id)).toBe(true)
+  releaseMain()
+  await done
+  const state = await getRun(run.id)
+  expect(state?.status).toBe('cancelled')
+  expect(state?.usage.modelCalls).toBe(2)
+  expect(state?.usage.modelInputTokens).toBeNull()
+  const events = await getEvents(run.id)
+  const completed = events.find((e) => e.type === 'run:completed')!
+  const request = events.find(
+    (e) => e.type === 'model:request-finished' && e.payload.role === 'evidence-analysis',
+  )!
+  expect(request.payload.status).toBe('cancelled')
+  expect(request.seq).toBeLessThan(completed.seq)
+  expect(events.filter((e) => e.type === 'analysis:state').at(-1)?.payload.status).toBe('cancelled')
+  expect(writes).toBe(0)
+  expect(executionBusy()).toBe(false)
+})
+
 it.each(['serial', 'parallel'] as const)(
   'runs the same frozen analysis with %s decision scheduling',
   async (mode) => {

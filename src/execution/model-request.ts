@@ -179,6 +179,9 @@ export async function executeModelRequest(
             }),
           )
           const full = await abortable(signal, output.getFullOutput())
+          // Failed/incomplete output still has billable usage; never discard it during validation.
+          result = full
+          timing.mark('responseCompleteMs')
           if (streamError) throw streamError
           if (full.finishReason === 'error') throw new Error('model-stream-error')
           if (!['stop', 'tool-calls'].includes(full.finishReason ?? ''))

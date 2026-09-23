@@ -256,3 +256,39 @@ it('retains streamed errors and never retries after any tool has started', async
   ).rejects.toThrow('fetch failed')
   expect(calls).toBe(1)
 })
+
+it('keeps known usage on a length-limited streamed response without treating it as success or retrying', async () => {
+  const records: any[] = []
+  let requests = 0
+  await expect(
+    executeModelRequest(
+      {
+        stream: async () => {
+          requests++
+          return {
+            getFullOutput: async () => ({
+              finishReason: 'length',
+              text: '',
+              toolResults: [],
+              usage: { inputTokens: 9000, outputTokens: 4096 },
+            }),
+          }
+        },
+      } as any,
+      '{}',
+      opts({ transport: 'stream' }),
+      {
+        onFinish: (r) => {
+          records.push(r)
+        },
+      },
+    ),
+  ).rejects.toThrow('model-stream-incomplete:length')
+  expect(requests).toBe(1)
+  expect(records[0]).toMatchObject({
+    status: 'error',
+    hadToolCalls: false,
+    usage: { inputTokens: 9000, outputTokens: 4096 },
+  })
+  expect(records[0].timing.responseCompleteMs).not.toBeNull()
+})

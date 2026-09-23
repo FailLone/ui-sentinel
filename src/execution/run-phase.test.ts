@@ -74,6 +74,7 @@ describe('createPhaseTracker', () => {
     pt.enterFinalizing('test')
     expect(pt.authorizeTool('run_finish', true)).toBeNull()
     expect(pt.authorizeTool('findings_submit', true)).toBeNull()
+    expect(pt.authorizeTool('hypotheses_link_finding', true)).toBeNull()
     expect(pt.authorizeTool('page_act', true)).toBeTruthy()
     expect(pt.authorizeTool('hypotheses_record', true)).toBeTruthy()
     expect(pt.authorizeTool('page_observe', true)).toBeNull()
