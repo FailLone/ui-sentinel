@@ -71,3 +71,11 @@ C2 中 Agent 主动请求 Qwen 判断遮挡与关闭入口。Qwen 返回 occlusi
 `data/efficiency/2026-09-23T14-32-30-891Z`，提交 `70bddb1`。七次请求、20.062s 后失败。Qwen 正确返回答案和一个遮挡候选；第七个主模型请求在网关记录 `TypeError: terminated`、usage 未知，SDK 对调用方暴露为 `finishReason "other" without producing any output`。这次不是输出上限耗尽，不能与此前的 length 失败混为一谈。
 
 补充识别这个精确的空流错误，沿用原有最多一次重试和同一 Run 预算，只有未开始任何工具时允许重试。已经开始工具的请求仍禁止重试；缺失用量保持未知，不按零收费。该诊断不计作通过。
+
+### 区分模型配置与执行器问题
+
+`data/efficiency/2026-09-23T14-35-30-102Z`，提交 `66b52c0` 的 C2 定向诊断仍以 length 失败（七请求、57.312s）。已检查请求原文：已有遮挡发现的复用匹配确实可见，未将“关联工具没有提供”继续当作此次失败的解释。
+
+下一项 `reasoning-replay-1` 固定这份最后决策输入（candidate-C2-1 第七请求），两次顺序请求：low、disabled。固定 DeepSeek/Wafer、stream、工具 schema、4096 输出上限和 60 秒请求期限，无重试，不实例化浏览器或执行任何工具。估算合计上限 $0.10。检查是否返回与已提供证据匹配的有效假设关联工具；该重放不证明完整应用质量或稳定速度。
+
+[OpenRouter reasoning 文档](https://openrouter.ai/docs/guides/best-practices/reasoning-tokens) 说明 reasoning 与可见输出通常共享 max_tokens，全部预算消耗在推理会产生空 content/length；exclude 仅隐藏推理，不减少计算。模型列表显示所选 DeepSeek reasoning 非强制，因此只在独立实验中检查 enabled=false 的实际行为。既有批次的 low 配置和成绩不追改。

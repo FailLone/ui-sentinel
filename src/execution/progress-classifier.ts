@@ -38,7 +38,7 @@ export function classifyResponse(result: {
     }
   }
 
-  if (toolsCalled.includes('page.act') || toolsCalled.includes('page_act')) {
+  if (toolsCalled.some((t) => ['page.act', 'page_act', 'journey.run', 'journey_run'].includes(t))) {
     return { category: 'action', toolsCalled, hasText, basis: 'called page_act' }
   }
 
@@ -46,7 +46,16 @@ export function classifyResponse(result: {
     return { category: 'finding', toolsCalled, hasText, basis: 'submitted finding' }
   }
 
-  if (toolsCalled.includes('hypotheses.record') || toolsCalled.includes('hypotheses_record')) {
+  if (
+    toolsCalled.some((t) =>
+      [
+        'hypotheses.record',
+        'hypotheses_record',
+        'hypotheses.link.finding',
+        'hypotheses_link_finding',
+      ].includes(t),
+    )
+  ) {
     return { category: 'hypothesis', toolsCalled, hasText, basis: 'recorded hypothesis' }
   }
 
@@ -60,6 +69,15 @@ export function classifyResponse(result: {
       toolsCalled,
       hasText,
       basis: 'called transition_observe (measurement)',
+    }
+  }
+
+  if (toolsCalled.some((t) => ['visual.review', 'visual_review'].includes(t))) {
+    return {
+      category: 'observe-only',
+      toolsCalled,
+      hasText,
+      basis: 'requested frozen evidence analysis; completed facts determine progress',
     }
   }
 

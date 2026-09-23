@@ -9,6 +9,7 @@ export async function startGateway(
   directory: string,
   upstreamFetch: typeof fetch = fetch,
   spending?: { limitUsd: number; estimateCost: (body: Record<string, unknown>) => number },
+  agentReasoning: 'low' | 'disabled' = 'low',
 ) {
   const token = randomBytes(24).toString('hex')
   let active: { id: string; limit: number; deadline: number; requests: any[] } | null = null
@@ -46,7 +47,10 @@ export async function startGateway(
     // Same policy for both arms. SDK-specific tool/message schemas remain intact.
     body.max_tokens = 4096
     delete body.max_completion_tokens
-    body.reasoning = body.model === AGENT_MODEL ? { effort: 'low' } : { enabled: false }
+    body.reasoning =
+      body.model === AGENT_MODEL && agentReasoning === 'low'
+        ? { effort: 'low' }
+        : { enabled: false }
     const provider =
       body.model === AGENT_MODEL
         ? process.env.EXPERIMENT_AGENT_PROVIDER

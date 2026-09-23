@@ -174,3 +174,43 @@ it('cancels upstream on downstream disconnect and retains unknown spending (fake
     await rm(dir, { recursive: true, force: true })
   }
 })
+
+it('changes reasoning only for an explicit isolated experimental arm while keeping output and model budgets', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'gateway-reasoning-'))
+  let forwarded: any
+  const gateway = await startGateway(
+    'test-secret',
+    dir,
+    (async (_url, init) => {
+      forwarded = JSON.parse(String(init!.body))
+      return new Response(
+        JSON.stringify({
+          choices: [],
+          usage: { prompt_tokens: 1, completion_tokens: 1, cost: 0.001 },
+        }),
+      )
+    }) as typeof fetch,
+    { limitUsd: 0.1, estimateCost: () => 0.01 },
+    'disabled',
+  )
+  try {
+    gateway.begin('disabled', 1, 5000)
+    const response = await fetch(gateway.url + '/chat/completions', {
+      method: 'POST',
+      headers: { authorization: `Bearer ${gateway.token}`, 'content-type': 'application/json' },
+      body: JSON.stringify({
+        model: AGENT_MODEL,
+        reasoning: { effort: 'high' },
+        max_tokens: 100000,
+      }),
+    })
+    expect(response.ok).toBe(true)
+    expect(forwarded.reasoning).toEqual({ enabled: false })
+    expect(forwarded.max_tokens).toBe(4096)
+    expect(forwarded.model).toBe(AGENT_MODEL)
+  } finally {
+    await gateway.end()
+    await gateway.close()
+    await rm(dir, { recursive: true, force: true })
+  }
+})

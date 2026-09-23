@@ -2319,6 +2319,10 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         findingFacts: [...findingFacts],
         measurementFacts: [...measurementFacts],
         retrievedFacts: [...inspectedResultRefs],
+        analysisFacts: analyses
+          .snapshot()
+          .filter((t) => t.status === 'completed' && t.result)
+          .map((t) => JSON.stringify([t.factVersion, t.operationId, t.question, t.result])),
       }
       const progressCheck = progressDetector.check(progressFacts)
       noToolStreak = progressCheck.isProgress ? 0 : noToolStreak + 1

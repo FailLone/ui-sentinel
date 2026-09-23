@@ -149,3 +149,13 @@ it('does not count rejected finish as completion', () => {
     }).category,
   ).toBe('no-progress')
 })
+
+it('recognizes background analysis, hypothesis linkage and evidenced navigation without equating submission to new facts', () => {
+  expect(classifyResponse({ toolResults: [{ toolName: 'visual_review' }] }).category).toBe(
+    'observe-only',
+  )
+  expect(
+    classifyResponse({ toolResults: [{ toolName: 'hypotheses_link_finding' }] }).category,
+  ).toBe('hypothesis')
+  expect(classifyResponse({ toolResults: [{ toolName: 'journey_run' }] }).category).toBe('action')
+})
