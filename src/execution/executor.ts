@@ -40,6 +40,7 @@ import {
 } from './browser.ts'
 import { createVisionLocator } from './vision.ts'
 import { config, checkModelConfig } from '../shared/config.ts'
+import { sampleWindow } from './sample-window.ts'
 import { agentModel } from '../shared/model.ts'
 import { getDbClient } from '../storage/database.ts'
 import { runChecks, getEnabledRules, getRule } from '../rules/engine.ts'
@@ -687,21 +688,16 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       binding?: TransitionObservation['binding'],
       sample?: () => Promise<boolean | null>,
     ) {
-      const startedAtMs = Date.now(),
-        samples: { atMs: number; target: string; value: boolean | null }[] = []
       if (input.durationMs > budget.totalTimeoutMs - Date.now() + startedAt - 250)
         throw new Error('Insufficient time to complete measurement')
-      do {
-        guard()
-        const value = await (sample
-          ? sample()
-          : sampleElementCondition(page, input.selector, input.condition))
-        samples.push({ atMs: Date.now(), target: input.target, value })
-        if (Date.now() - startedAtMs >= input.durationMs) break
-        await new Promise((r) =>
-          setTimeout(r, Math.min(250, input.durationMs - (Date.now() - startedAtMs))),
-        )
-      } while (true)
+      const window = await sampleWindow({
+        durationMs: input.durationMs,
+        guard,
+        sample: () =>
+          sample ? sample() : sampleElementCondition(page, input.selector, input.condition),
+      })
+      const startedAtMs = window.startedAtMs
+      const samples = window.samples.map((s) => ({ ...s, target: input.target }))
       const obs = await observe()
       const measurement = {
         elementRef: input.elementRef,
