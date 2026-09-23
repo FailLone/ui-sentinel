@@ -1,7 +1,12 @@
 import { describe, it, expect, afterAll } from 'vitest'
 import * as fs from 'node:fs/promises'
 import * as path from 'node:path'
-import { launchBrowser, saveScreenshot, type BrowserWorker } from './browser.ts'
+import {
+  launchBrowser,
+  saveScreenshot,
+  sampleElementCondition,
+  type BrowserWorker,
+} from './browser.ts'
 
 describe('browser worker', () => {
   let worker: BrowserWorker | null = null
@@ -42,4 +47,36 @@ describe('browser worker', () => {
 
     await custom.close()
   })
+})
+
+it('samples pointer actionability without clicks, scrolling or confusing enabled with unoccluded', async () => {
+  const worker = await launchBrowser({ headless: true })
+  try {
+    const page = worker.page
+    await page.setContent(
+      `<style>button{position:absolute;left:40px;top:40px;width:200px;height:80px}#cover{position:fixed;inset:0;z-index:10;background:gray}</style><button onclick="document.body.dataset.clicked='yes'"><span>Pay</span></button><div id="cover"></div>`,
+    )
+    expect(await page.locator('button').isEnabled()).toBe(true)
+    expect(await sampleElementCondition(page, 'button', 'element-visible')).toBe(true)
+    expect(await sampleElementCondition(page, 'button', 'element-actionable')).toBe(false)
+    await expect(page.locator('button').click({ trial: true, timeout: 150 })).rejects.toThrow()
+    await page.locator('#cover').evaluate((el) => el.remove())
+    expect(await sampleElementCondition(page, 'button', 'element-actionable')).toBe(true)
+    await page.locator('button').click({ trial: true, timeout: 500 })
+    await page.locator('button').evaluate((el: HTMLButtonElement) => {
+      el.disabled = true
+    })
+    expect(await sampleElementCondition(page, 'button', 'element-actionable')).toBe(false)
+    await page.locator('button').evaluate((el: HTMLButtonElement) => {
+      el.disabled = false
+      el.style.top = '2000px'
+    })
+    expect(await sampleElementCondition(page, 'button', 'element-actionable')).toBe(false)
+    expect(await sampleElementCondition(page, '.absent', 'element-actionable')).toBeNull()
+    expect(
+      await page.evaluate(() => ({ scroll: scrollY, clicked: document.body.dataset.clicked })),
+    ).toEqual({ scroll: 0, clicked: undefined })
+  } finally {
+    await worker.close()
+  }
 })

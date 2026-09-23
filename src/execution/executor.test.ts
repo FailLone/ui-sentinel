@@ -561,11 +561,44 @@ it('rejects success with an unresolved hypothesis and preserves it in the partia
 
 it('preserves closable overlay evidence after recovery and successful checkout', async () => {
   registerRule(overlayBlockingRule)
-  harness.handler = async (tools: any) => {
-    const found = await getFindings(ids.at(-1)!)
-    expect(found.some((f) => f.ruleId === 'overlay-blocking')).toBe(true)
-    await call(tools, 'page_act', { type: 'click', role: 'button', name: 'Close' })
-    await call(tools, 'page_act', { type: 'click', role: 'button', name: 'Buy' })
+  let findingId = ''
+  harness.handler = async (tools: any, prompt: string) => {
+    if (harness.models === 1) {
+      const found = await getFindings(ids.at(-1)!)
+      findingId = found.find((f) => f.ruleId === 'overlay-blocking')!.id
+      const measured = await call(tools, 'transition_observe', {
+        eventType: 'overlay',
+        target: 'Buy',
+        selector: 'button:first-of-type',
+        condition: 'element-actionable',
+        durationMs: 250,
+      })
+      // Both nested close and underlying buy match this selector: ambiguous is unknown.
+      expect(measured.samples.every((s: { value: unknown }) => s.value === null)).toBe(true)
+      const exact = await call(tools, 'transition_observe', {
+        eventType: 'overlay',
+        target: 'Buy',
+        selector: 'body > button',
+        condition: 'element-actionable',
+        durationMs: 250,
+      })
+      expect(exact.samples.every((s: { value: unknown }) => s.value === false)).toBe(true)
+      await call(tools, 'page_act', { type: 'click', role: 'button', name: 'Close' })
+      await call(tools, 'page_act', { type: 'click', role: 'button', name: 'Buy' })
+      return []
+    }
+    const packet = JSON.parse(prompt)
+    expect(packet.submittedFindings.items).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: findingId,
+          validationStatus: 'supported',
+          title: expect.any(String),
+          evidenceRefs: expect.any(Array),
+        }),
+      ]),
+    )
+    expect(packet.businessOutcomeObserved.businessResult).toBe('success')
     await call(tools, 'run_finish', {
       businessResult: 'success',
       blocked: false,

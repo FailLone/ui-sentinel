@@ -260,3 +260,44 @@ export function isAllowedNavigationUrl(raw: string, entryUrl: string): boolean {
     !/^\/(?:api|src|node_modules|@)/.test(path)
   )
 }
+
+/** Read-only sampling: visible, enabled and at least one pointer-reachable viewport point. */
+export async function sampleElementCondition(
+  page: Page,
+  selector: string,
+  condition: 'element-visible' | 'element-actionable',
+): Promise<boolean | null> {
+  const locator = page.locator(selector)
+  if ((await locator.count()) !== 1) return null
+  if (!(await locator.isVisible())) return false
+  if (condition === 'element-visible') return true
+  if (!(await locator.isEnabled())) return false
+  return locator.evaluate((element) => {
+    if (element.closest('[inert]')) return false
+    const rect = element.getBoundingClientRect()
+    const left = Math.max(0, rect.left),
+      top = Math.max(0, rect.top)
+    const right = Math.min(innerWidth, rect.right),
+      bottom = Math.min(innerHeight, rect.bottom)
+    if (right <= left || bottom <= top) return false
+    const points = [
+      [0.5, 0.5],
+      [0.2, 0.2],
+      [0.8, 0.2],
+      [0.2, 0.8],
+      [0.8, 0.8],
+    ]
+    return points.some(([x, y]) => {
+      let hit = document.elementFromPoint(left + (right - left) * x!, top + (bottom - top) * y!)
+      while (hit?.shadowRoot) {
+        const deep = hit.shadowRoot.elementFromPoint(
+          left + (right - left) * x!,
+          top + (bottom - top) * y!,
+        )
+        if (!deep || deep === hit) break
+        hit = deep
+      }
+      return hit === element || (hit !== null && element.contains(hit))
+    })
+  })
+}

@@ -140,3 +140,20 @@ it('preserves the original payload cursor through history_read as well as fresh 
   expect(next.totalChars).toBe(first.totalChars)
   expect(next.offset).toBe(first.nextOffset)
 })
+
+it('bounds durable finding summaries and explicitly accounts for omitted findings', async () => {
+  const { findingMemory } = await import('./decision-memory.ts')
+  const findings = Array.from({ length: 20 }, (_, i) => ({
+    id: `finding-${i}`,
+    source: 'rule',
+    validationStatus: 'supported',
+    title: '遮挡'.repeat(100),
+    actual: '不可操作😀'.repeat(200),
+    evidenceRefs: ['screen.png', 'facts.json'],
+  }))
+  const memory = findingMemory(findings)
+  expect(Buffer.byteLength(JSON.stringify(memory))).toBeLessThanOrEqual(2000)
+  expect(memory.items.length).toBeGreaterThan(0)
+  expect(memory.items[0]!.id).toBe('finding-19')
+  expect(memory.omitted + memory.items.length).toBe(20)
+})

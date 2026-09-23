@@ -136,3 +136,42 @@ export function decisionMemory(history: readonly HistoryEntry[]) {
   }
   return { latestToolResults: latest, history: older }
 }
+
+/** Durable finding facts survive navigation and recovery without replaying their whole history. */
+export function findingMemory(
+  findings: readonly {
+    id: string
+    title: string
+    actual: string
+    source: string
+    validationStatus: string
+    evidenceRefs: readonly string[]
+  }[],
+) {
+  const items: {
+    id: string
+    title: string
+    actual: string
+    source: string
+    validationStatus: string
+    evidenceRefs: string[]
+  }[] = []
+  for (const f of [...findings].reverse()) {
+    const item = {
+      id: f.id,
+      source: f.source,
+      validationStatus: f.validationStatus,
+      title: f.title.slice(0, 100),
+      actual: f.actual.slice(0, 200),
+      evidenceRefs: f.evidenceRefs.slice(0, 2),
+    }
+    const candidate = {
+      total: findings.length,
+      omitted: findings.length - items.length - 1,
+      items: [...items, item],
+    }
+    if (bytes(candidate) > 2000) break
+    items.push(item)
+  }
+  return { total: findings.length, omitted: findings.length - items.length, items }
+}
