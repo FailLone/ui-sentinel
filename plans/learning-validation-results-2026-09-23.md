@@ -1,6 +1,6 @@
 # M5 真实学习闭环验证
 
-状态：用户要求推广为跨业务重试规则，正在依据审阅意见生成新候选；先前候选不启用。尚未批准、启用或宣称 M5 通过。
+状态：按用户意见生成跨业务重试候选，原始异常/真实正常恢复/缺失事实及 20 个跨业务合成契约用例通过。先前候选不启用；新候选尚未批准或启用，不能宣称 M5 通过。
 
 ## 来源与人工确认
 
@@ -91,3 +91,41 @@ EXPERIMENT_AGENT_PROVIDER=Wafer pnpm experiment:learning -- \
 首次泛化生成记录：`data/learning/2026-09-23T08-21-00-574Z/`，代码 `ec95fcc`（245 项测试通过）。模型将已记录的语义键 `Retry button` 改成 `Retry control`，被事实匹配校验拒绝，未创建候选、更未启用。一次 Wafer 请求 21.90 秒，输入 2,484 / 输出 3,768 tokens，费用 $0.002606076。失败的模型响应和全部测量仍保留。
 
 这不要求增加一个支付专用规则；需要将已有事实语义键作为生成协议的枚举值，而不是自由文案。修复后模型可修改名称和适用说明，但 target 必须引用已观测语义键，不能为表达泛化而发明新引用。
+
+## 通用候选：生成与验证结果
+
+- 代码：`bb684e9`。前一步全套 245 项测试通过；最终语义键枚举修复另跑相关 27 项测试通过，构建与格式检查通过。
+- 记录：`data/learning/2026-09-23T08-22-47-503Z/`。
+- 精确候选：`proposal-fc30e9bb-46bc-40ec-b88b-ff52f0565607`。
+- 单次真实生成：DeepSeek / Wafer，24.69 秒，输入 2,484 / 输出 3,175 tokens，费用 $0.002068260。连同本轮被拒绝的目标改名请求，泛化修订生成总费用 $0.004674336。
+- 模型自行将 `fromState` 和 `toState` 均设为 null，存储时规范化为不限制状态；目标仍为已有语义键 `Retry button`，名称和描述明确适用于任意重试类别。
+- 原始异常 fail、重新采集的真实正常恢复 pass、缺失事实 unknown，全部符合预期。源 M4 数据库哈希未改变。
+- 使用**实际生成的候选配置**补验 20 项合成输入：支付/上传/加载/同步各自的持续不可操作、立即可操作、3 秒后恢复、事实缺失，共 16 项；冷却、次数耗尽、处理中、资格未知的非匹配事件共 4 项。全部符合预期，完整输入和结果保存在 `generic-contract-validation.json`。
+- 合成测试只证明在语义事件已正确分类、目标已正确绑定的前提下，规则无需按业务复制。不能证明 Agent 已能正确处理非支付业务、重试资格或多目标覆盖。
+
+实际候选关键配置：
+
+```json
+{
+  "type": "transition",
+  "name": "retryable failure offers operable retry within configurable timeout",
+  "trigger": { "eventType": "retryable-failure" },
+  "expectation": {
+    "condition": "element-actionable",
+    "target": "Retry button",
+    "timeoutMs": 5000
+  },
+  "severity": "error"
+}
+```
+
+完整模型描述及验证输入保存在该目录的 `prepared.json`，明确区分预期跨业务适用范围和当前已验证的支付案例。用户本次要求是范围修订，因此没有执行 review approve 或 enable，也没有开始六次启用后复查。
+
+仅在用户明确批准上述新候选后，使用同一冻结构建恢复：
+
+```sh
+EXPERIMENT_AGENT_PROVIDER=Wafer pnpm experiment:learning -- \
+  --resume data/learning/2026-09-23T08-22-47-503Z \
+  --approve proposal-fc30e9bb-46bc-40ec-b88b-ff52f0565607 \
+  --reviewer user
+```
