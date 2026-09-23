@@ -4,6 +4,44 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { startGateway, AGENT_MODEL } from '../../scripts/experiments/openrouter-gateway.ts'
 
+it('experiment gateway refuses new requests once estimated spending exceeds the cap (fake upstream)', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'gateway-budget-'))
+  let calls = 0
+  const gateway = await startGateway(
+    'test-secret',
+    dir,
+    (async () => {
+      calls++
+      return new Response(
+        JSON.stringify({
+          choices: [],
+          usage: { prompt_tokens: 4, completion_tokens: 2, cost: 0.7 },
+        }),
+      )
+    }) as typeof fetch,
+    { limitUsd: 1, estimateCost: () => 0.5 },
+  )
+  const call = () =>
+    fetch(gateway.url + '/chat/completions', {
+      method: 'POST',
+      headers: { authorization: `Bearer ${gateway.token}`, 'content-type': 'application/json' },
+      body: JSON.stringify({ model: AGENT_MODEL }),
+    })
+  try {
+    gateway.begin('test', 30, 5000)
+    expect((await call()).status).toBe(200)
+    await gateway.end()
+    gateway.begin('next', 30, 5000)
+    expect((await call()).status).toBe(429)
+    expect(calls).toBe(1)
+    expect(gateway.spending().accountedUsd).toBe(0.7)
+  } finally {
+    await gateway.end()
+    await gateway.close()
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
 it('experiment gateway enforces actual request limits, model allowlist and credential isolation (fake upstream)', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'gateway-test-'))
   let forwarded = 0

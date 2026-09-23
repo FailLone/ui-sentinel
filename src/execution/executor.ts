@@ -1,3 +1,4 @@
+import { ExecutionProfile, profileOperation } from './profiling.ts'
 import { executionVersions } from './versions.ts'
 import { Agent } from '@mastra/core/agent'
 import { createTool } from '@mastra/core/tools'
@@ -109,6 +110,11 @@ export async function cancelRunExecution(runId: string): Promise<boolean> {
 }
 
 async function executeRun(runId: string): Promise<void> {
+  const profile = new ExecutionProfile()
+  return profile.run(() => executeProfiledRun(runId, profile))
+}
+
+async function executeProfiledRun(runId: string, profile: ExecutionProfile): Promise<void> {
   const run = await getRun(runId)
   if (!run || run.status !== 'queued' || cancellationRequests.has(runId)) return
   if (requiresReconciliation) {
@@ -171,6 +177,7 @@ async function executeRun(runId: string): Promise<void> {
   const findingFacts = new Set<string>()
   const measurementFacts = new Set<string>()
   let noToolStreak = 0
+  let noProgressDecisions = 0
   const phaseTracker = createPhaseTracker(budget)
   const progressDetector = createProgressDetector()
   const knownHypothesisIds = new Set<string>()
@@ -254,7 +261,7 @@ async function executeRun(runId: string): Promise<void> {
       })
       try {
         guard()
-        const result = await fn()
+        const result = await profileOperation('tool', fn, { tool, toolCallId })
         await appendEvent(runId, 'tool:finished', {
           attemptId,
           toolCallId,
@@ -293,7 +300,8 @@ async function executeRun(runId: string): Promise<void> {
         : null,
   })
   const persistUsage = () => updateRunStatus(runId, 'running', { usage: reportedUsage() })
-  async function checks() {
+  const checks = () => profileOperation('rules', performChecks)
+  async function performChecks() {
     if (!latest) throw new Error('Observe first')
     const events = await getEvents(runId)
     const result = await runChecks({
@@ -363,7 +371,8 @@ async function executeRun(runId: string): Promise<void> {
     }
     return result
   }
-  async function observe() {
+  const observe = () => profileOperation('observation', performObservation)
+  async function performObservation() {
     guard()
     observeCount++
     latest = await observePage(worker!.page, runId)
@@ -1704,6 +1713,7 @@ async function executeRun(runId: string): Promise<void> {
       }
       const progressCheck = progressDetector.check(progressFacts)
       noToolStreak = progressCheck.isProgress ? 0 : noToolStreak + 1
+      if (!progressCheck.isProgress) noProgressDecisions++
       if (noToolStreak === 3) {
         await appendEvent(runId, 'run:no-progress', {
           streak: noToolStreak,
@@ -1786,6 +1796,7 @@ async function executeRun(runId: string): Promise<void> {
     requestTracker.finishPending('Run ended before request completion')
     const requestSummary = requestTracker.summarize()
     const progressSummary = summarizeProgress(classifications)
+    await appendEvent(runId, 'execution:profile', profile.finish(requestSummary.records))
     await appendEvent(runId, 'run:statistics', {
       requests: {
         total: requestSummary.totalRequests,
@@ -1798,7 +1809,7 @@ async function executeRun(runId: string): Promise<void> {
         totalDurationMs: requestSummary.totalDurationMs,
         avgInputTokensPerCall: requestSummary.avgInputTokensPerCall,
       },
-      progress: progressSummary,
+      progress: { ...progressSummary, noProgressDecisions },
       observations: { total: observeCount, ...staleDetector.getStats() },
       perRequest: requestSummary.records.map((r) => ({
         seq: r.seq,

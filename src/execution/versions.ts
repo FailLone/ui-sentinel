@@ -21,6 +21,7 @@ export function executionVersions() {
     midscene: version('@midscene/web'),
     lockHash,
     toolContract: '11',
+    telemetryContract: '1',
     arenaContract: 'minimum-1',
   }
 }

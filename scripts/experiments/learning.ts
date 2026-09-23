@@ -1,3 +1,4 @@
+import { scoreBoundRecheck } from './efficiency-protocol.ts'
 import 'dotenv/config'
 import { spawn, execFileSync, type ChildProcess } from 'node:child_process'
 import { createServer } from 'node:net'
@@ -431,48 +432,17 @@ try {
             if (exists) await writeFile(resolve(dir, id, encodeURIComponent(artifact.id)), bytes)
           }
           record.artifactChecks = artifactChecks
-          const evaluated = report.events.filter(
-            (e: any) => e.type === 'rule:evaluated' && e.payload.ruleId === approval,
+          const score = scoreBoundRecheck(
+            report,
+            backend,
+            artifactChecks,
+            approval!,
+            current.ruleConfig.expectation.timeoutMs,
+            healthy,
           )
-          const expected = healthy ? 'pass' : 'fail'
-          const target = evaluated.filter((e: any) => e.payload.verdict === expected)
-          const supported = report.findings.filter((f: any) => f.validationStatus === 'supported')
-          const boundChecks = report.events.filter(
-            (e: any) => e.type === 'rule:check-completed' && e.payload.ruleId === approval,
-          )
-          const measured = report.events.filter(
-            (e: any) => e.type === 'transition:observed' && e.payload.binding?.ruleId === approval,
-          )
-          record.bindingAssertions = {
-            oneBoundCheck: boundChecks.length === 1 && boundChecks[0].payload.verdict === expected,
-            declaredWindow:
-              measured.length === 1 &&
-              measured[0].payload.observedUntilMs - measured[0].payload.startedAtMs >=
-                current.ruleConfig.expectation.timeoutMs &&
-              measured[0].payload.observedUntilMs - measured[0].payload.startedAtMs <=
-                current.ruleConfig.expectation.timeoutMs + 1500,
-            noDuplicateFinding: supported.length === (healthy ? 0 : 1),
-            noInvalidEvidence: !report.events.some(
-              (e: any) =>
-                e.type === 'tool:finished' &&
-                String(e.payload.error ?? '').includes('invalid evidence reference'),
-            ),
-          }
-          record.passed =
-            Object.values(record.bindingAssertions).every(Boolean) &&
-            target.length > 0 &&
-            artifactChecks.length > 0 &&
-            artifactChecks.every((a) => a.exists) &&
-            report.usage.modelCalls <= 30 &&
-            report.usage.actions <= 40 &&
-            report.usage.elapsedMs <= 303000 &&
-            backend.orders.length === 1 &&
-            report.events.some((e: any) => e.type === 'finish:accepted') &&
-            !['timed-out', 'execution-error', 'cancelled', 'interrupted'].includes(report.status) &&
-            (healthy
-              ? supported.length === 0
-              : supported.some((f: any) => f.ruleId === approval && f.source === 'rule'))
-          record.expectedRuleVerdict = expected
+          record.bindingAssertions = score.assertions
+          record.passed = score.passed
+          record.expectedRuleVerdict = score.expected
         } catch (error) {
           record.passed = false
           record.error = gateway.redact(String(error))

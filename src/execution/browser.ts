@@ -1,3 +1,4 @@
+import { profileOperation } from './profiling.ts'
 import { chromium, type Browser, type BrowserContext, type Page } from 'playwright'
 import * as path from 'node:path'
 import * as fs from 'node:fs/promises'
@@ -81,6 +82,17 @@ export async function saveEvidence(
   data: Buffer | string,
   metadata: Record<string, unknown> = {},
 ): Promise<string> {
+  return profileOperation('persistence', () => persistEvidence(runId, type, data, metadata), {
+    type,
+  })
+}
+
+async function persistEvidence(
+  runId: string,
+  type: string,
+  data: Buffer | string,
+  metadata: Record<string, unknown>,
+) {
   const { randomUUID } = await import('node:crypto')
   const { getDbClient } = await import('../storage/database.ts')
   const id = `${randomUUID()}.${type === 'screenshot' ? 'png' : 'json'}`
@@ -117,93 +129,95 @@ export async function observePage(page: Page, runId: string) {
   const screenshotPath = await saveEvidence(
     runId,
     'screenshot',
-    await page.screenshot({ fullPage: false }),
+    await profileOperation('screenshot', () => page.screenshot({ fullPage: false })),
     { url: page.url(), viewport: page.viewportSize(), capturedAt: new Date().toISOString() },
   )
-  const observation = await page.evaluate(() => {
-    function selector(el: Element): string {
-      const parts: string[] = []
-      for (let n: Element | null = el; n && n !== document.documentElement; n = n.parentElement) {
-        const tag = n.tagName.toLowerCase()
-        const siblings: Element[] = Array.from(n.parentElement?.children ?? []).filter(
-          (s) => s.tagName === n!.tagName,
-        )
-        parts.unshift(`${tag}:nth-of-type(${siblings.indexOf(n) + 1})`)
+  const observation = await profileOperation('dom', () =>
+    page.evaluate(() => {
+      function selector(el: Element): string {
+        const parts: string[] = []
+        for (let n: Element | null = el; n && n !== document.documentElement; n = n.parentElement) {
+          const tag = n.tagName.toLowerCase()
+          const siblings: Element[] = Array.from(n.parentElement?.children ?? []).filter(
+            (s) => s.tagName === n!.tagName,
+          )
+          parts.unshift(`${tag}:nth-of-type(${siblings.indexOf(n) + 1})`)
+        }
+        return 'html > ' + parts.join(' > ')
       }
-      return 'html > ' + parts.join(' > ')
-    }
-    const elements = Array.from(
-      document.querySelectorAll(
-        'button,a,input,select,textarea,[role="button"],[role="dialog"],[role="alert"],h1,h2,p',
-      ),
-    )
-      .slice(0, 180)
-      .map((el) => {
-        const b = el.getBoundingClientRect(),
-          style = getComputedStyle(el)
-        const visible =
-          b.width > 0 && b.height > 0 && style.visibility !== 'hidden' && style.display !== 'none'
-        const bounds = { x: b.x, y: b.y, width: b.width, height: b.height }
-        const points = [
-          [0.5, 0.5],
-          [0.2, 0.2],
-          [0.8, 0.2],
-          [0.2, 0.8],
-          [0.8, 0.8],
-        ]
-        const hitSamples = points.map(([px, py]) => {
-          const x = b.x + b.width * px,
-            y = b.y + b.height * py
-          const hit = document.elementFromPoint(x, y)
-          const relation = !hit
-            ? 'none'
-            : hit === el
-              ? 'self'
-              : el.contains(hit)
-                ? 'descendant'
-                : hit.contains(el)
-                  ? 'ancestor'
-                  : 'unrelated'
-          const hb = hit?.getBoundingClientRect()
+      const elements = Array.from(
+        document.querySelectorAll(
+          'button,a,input,select,textarea,[role="button"],[role="dialog"],[role="alert"],h1,h2,p',
+        ),
+      )
+        .slice(0, 180)
+        .map((el) => {
+          const b = el.getBoundingClientRect(),
+            style = getComputedStyle(el)
+          const visible =
+            b.width > 0 && b.height > 0 && style.visibility !== 'hidden' && style.display !== 'none'
+          const bounds = { x: b.x, y: b.y, width: b.width, height: b.height }
+          const points = [
+            [0.5, 0.5],
+            [0.2, 0.2],
+            [0.8, 0.2],
+            [0.2, 0.8],
+            [0.8, 0.8],
+          ]
+          const hitSamples = points.map(([px, py]) => {
+            const x = b.x + b.width * px,
+              y = b.y + b.height * py
+            const hit = document.elementFromPoint(x, y)
+            const relation = !hit
+              ? 'none'
+              : hit === el
+                ? 'self'
+                : el.contains(hit)
+                  ? 'descendant'
+                  : hit.contains(el)
+                    ? 'ancestor'
+                    : 'unrelated'
+            const hb = hit?.getBoundingClientRect()
+            return {
+              x,
+              y,
+              hitSelector: hit ? selector(hit) : null,
+              relation,
+              ...(hb
+                ? { blockerBounds: { x: hb.x, y: hb.y, width: hb.width, height: hb.height } }
+                : {}),
+            }
+          })
           return {
-            x,
-            y,
-            hitSelector: hit ? selector(hit) : null,
-            relation,
-            ...(hb
-              ? { blockerBounds: { x: hb.x, y: hb.y, width: hb.width, height: hb.height } }
-              : {}),
+            selector: selector(el),
+            tag: el.tagName.toLowerCase(),
+            text: (el.textContent ?? '').trim().slice(0, 700),
+            visible,
+            bounds,
+            enabled:
+              !('disabled' in el && el.disabled) && el.getAttribute('aria-disabled') !== 'true',
+            attributes: Object.fromEntries(
+              Array.from(el.attributes)
+                .filter((a) =>
+                  ['role', 'type', 'aria-label', 'aria-disabled', 'disabled', 'href'].includes(
+                    a.name,
+                  ),
+                )
+                .map((a) => [a.name, a.value]),
+            ),
+            hitSamples,
           }
         })
-        return {
-          selector: selector(el),
-          tag: el.tagName.toLowerCase(),
-          text: (el.textContent ?? '').trim().slice(0, 700),
-          visible,
-          bounds,
-          enabled:
-            !('disabled' in el && el.disabled) && el.getAttribute('aria-disabled') !== 'true',
-          attributes: Object.fromEntries(
-            Array.from(el.attributes)
-              .filter((a) =>
-                ['role', 'type', 'aria-label', 'aria-disabled', 'disabled', 'href'].includes(
-                  a.name,
-                ),
-              )
-              .map((a) => [a.name, a.value]),
-          ),
-          hitSamples,
-        }
-      })
-    return {
-      url: location.href,
-      title: document.title,
-      viewport: { width: innerWidth, height: innerHeight },
-      elements,
-      text: document.body.innerText.slice(0, 12000),
-      observedAt: new Date().toISOString(),
-    }
-  })
+      return {
+        url: location.href,
+        title: document.title,
+        viewport: { width: innerWidth, height: innerHeight },
+        elements,
+        text: document.body.innerText.slice(0, 12000),
+        observedAt: new Date().toISOString(),
+      }
+    }),
+  )
   const snapshot = { ...observation, screenshotPath }
   const snapshotRef = await saveEvidence(runId, 'snapshot', JSON.stringify(snapshot))
   return { snapshot, evidenceRefs: [screenshotPath, snapshotRef] }
@@ -247,7 +261,7 @@ export async function annotateEvidence(
 }
 
 export async function captureA11yTree(page: Page): Promise<string> {
-  return page.locator('body').ariaSnapshot()
+  return profileOperation('a11y', () => page.locator('body').ariaSnapshot())
 }
 
 export function isAllowedNavigationUrl(raw: string, entryUrl: string): boolean {

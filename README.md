@@ -144,3 +144,14 @@ pnpm experiment:acceptance --minimum
 准备命令不会批准或启用规则。获得针对具体候选的人工批准后，才能执行 `pnpm experiment:learning -- --resume <学习目录> --approve <proposal-id> --reviewer <人工审阅者>`，进行异常/正常各三次真实 Agent 复查。原始 M4 数据库不修改，学习规则不参与未知发现验收。详见 [M5 验证记录](plans/learning-validation-results-2026-09-23.md)。
 
 已批准且启用的同一规则，在执行器修复后使用 `pnpm experiment:learning -- --recheck <已关闭的学习目录>` 复查。它创建新目录、复制关闭的数据库、核对声明未变化并继承已有人工批准，不覆盖旧结果。绑定式检查还验证单次绑定测量、声明时间窗口、无重复发现及无无效证据引用。
+
+
+### 执行效率对照（P0）
+
+`pnpm experiment:efficiency -- --baseline-ref <提交 SHA> --candidate-ref <提交 SHA> --phase diagnostic --max-cost-usd 0.50` 使用两个不可变提交的独立构建，交替运行 C0/C2 各一次，共四轮；共用当前私有评分器，失败时停止扩大样本。两组锁文件须与已安装依赖一致，不能借共享依赖比较不同版本。
+
+`--phase compare --learning-source <已关闭且已批准的学习目录>` 则复制同一已启用声明，交替运行异常/正常各三轮/每组，共十二轮。原始批准与数据库不修改，正式 minimum 的未知发现环境不加载该规则。缺密钥、模型、价格或有效审批明确失败，不生成替身。主模型供应商默认 Wafer，可显式配置；实际路由不符时标为不可比。
+
+清单、隔离构建、每轮记录及原始证据放在 `data/efficiency/<batch>/`。费用限制在发起新请求前按请求大小与模型列表价格估计预留，已发出的请求仍可能收费；缺失费用保留估计占额及 unknown 标记。它是估计支出上限，不是供应商账单的硬上限。
+
+运行报告的 `execution:profile` 事件包含截图、DOM、a11y、规则及持久化的父子 span；`exclusiveMs` 按时间区间分配，嵌套时间不重复累计，并发区间标为 overlap，未覆盖部分为 unattributed。`inclusiveMs` 用于分项诊断，不能相加当作总耗时。未完成 span 保持 unfinished；旧版本没有该事件时显示 unavailable。计时只记录工程阶段，不记录隐藏推理。

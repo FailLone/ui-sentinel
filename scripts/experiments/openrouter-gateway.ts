@@ -8,10 +8,14 @@ export async function startGateway(
   key: string,
   directory: string,
   upstreamFetch: typeof fetch = fetch,
+  spending?: { limitUsd: number; estimateCost: (body: Record<string, unknown>) => number },
 ) {
   const token = randomBytes(24).toString('hex')
   let active: { id: string; limit: number; deadline: number; requests: any[] } | null = null
   const controllers = new Set<AbortController>()
+  let accountedUsd = 0
+  let reservedUsd = 0
+  let unknownCosts = 0
   const redact = (value: string) =>
     value.split(key).join('[redacted]').split(token).join('[local-token]')
   const server = createServer(async (req, res) => {
@@ -51,6 +55,15 @@ export async function startGateway(
       ...(provider ? { only: [provider] } : {}),
     }
     if (body.stream) body.stream_options = { include_usage: true }
+    const reservation = spending?.estimateCost(body) ?? 0
+    if (
+      spending &&
+      (!Number.isFinite(reservation) ||
+        reservation < 0 ||
+        accountedUsd + reservedUsd + reservation > spending.limitUsd)
+    )
+      return reply(429, 'experiment-spending-limit')
+    reservedUsd += reservation
     const record: any = {
       run: run.id,
       seq: run.requests.length + 1,
@@ -126,6 +139,13 @@ export async function startGateway(
       clearTimeout(timer)
       controllers.delete(controller)
       record.durationMs = Date.now() - start
+      reservedUsd -= reservation
+      const cost = record.usage?.cost
+      if (typeof cost === 'number' && Number.isFinite(cost) && cost >= 0) accountedUsd += cost
+      else {
+        accountedUsd += reservation
+        unknownCosts++
+      }
       await appendFile(`${directory}/ledger.jsonl`, JSON.stringify(record) + '\n')
     }
   })
@@ -151,6 +171,12 @@ export async function startGateway(
       server.closeAllConnections()
       await new Promise<void>((r) => server.close(() => r()))
     },
+    spending: () => ({
+      accountedUsd,
+      reservedUsd,
+      unknownCosts,
+      limitUsd: spending?.limitUsd ?? null,
+    }),
     redact,
   }
 }

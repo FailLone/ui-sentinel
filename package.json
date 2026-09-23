@@ -25,7 +25,8 @@
     "format": "biome format --write .",
     "format:check": "biome format .",
     "experiment:acceptance": "tsx scripts/experiments/acceptance.ts",
-    "experiment:learning": "tsx scripts/experiments/learning.ts"
+    "experiment:learning": "tsx scripts/experiments/learning.ts",
+    "experiment:efficiency": "tsx scripts/experiments/efficiency.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "^4.0.72",
