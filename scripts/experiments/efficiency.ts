@@ -31,7 +31,7 @@ const sha = (ref: string) =>
 const refs = { baseline: sha(options.baseline), candidate: sha(options.candidate) }
 const visual = options.phase.startsWith('visual-')
 const learning = ['learning-diagnostic', 'compare'].includes(options.phase)
-const goal = visual ? visualInspectionGoal : inspectionGoal
+const goal = visual ? visualInspectionGoal(options.protocol) : inspectionGoal
 if (visual && refs.baseline !== refs.candidate)
   throw Error('Visual comparison requires the same immutable revision for both modes')
 const dir = resolve('data/efficiency', new Date().toISOString().replace(/[:.]/g, '-'))
@@ -415,7 +415,7 @@ try {
           })
       record.passed = record.score.passed ?? record.score.overallPass
       if (visual) {
-        record.visualScore = scoreVisualAnalysis(report, item.profile, artifacts)
+        record.visualScore = scoreVisualAnalysis(report, item.profile, artifacts, options.protocol)
         record.passed &&= record.visualScore.passed
       }
     } catch (error) {

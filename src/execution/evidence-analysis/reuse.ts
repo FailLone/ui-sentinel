@@ -2,7 +2,7 @@ import type { Finding } from '../../shared/types.ts'
 import type { PageSnapshot } from '../../rules/types.ts'
 import type { VisualReview } from './types.ts'
 
-/** A narrow evidence adapter: pointer interception can confirm a visual occlusion hypothesis. */
+/** A narrow evidence adapter: pointer hit tests establish interception, never visual covering. */
 export function occlusionReuseTarget(
   candidate: VisualReview['candidates'][number],
   finding: Finding,
@@ -10,7 +10,7 @@ export function occlusionReuseTarget(
   evidenceRefs: string[],
 ): string | undefined {
   if (
-    candidate.kind !== 'occlusion' ||
+    candidate.kind !== 'pointer-interception' ||
     finding.source !== 'rule' ||
     finding.ruleId !== 'overlay-blocking' ||
     finding.validationStatus !== 'supported' ||

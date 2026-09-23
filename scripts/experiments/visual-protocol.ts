@@ -1,7 +1,17 @@
-import { visualReviewQuestion } from './efficiency-protocol.ts'
+import {
+  visualReviewQuestion,
+  legacyVisualReviewQuestion,
+  type EfficiencyProtocol,
+} from './efficiency-protocol.ts'
 
 /** Private evaluation only. Expected fixture outcomes never enter the operator's context. */
-export function scoreVisualAnalysis(report: any, profile: string, artifacts: Record<string, any>) {
+export function scoreVisualAnalysis(
+  report: any,
+  profile: string,
+  artifacts: Record<string, any>,
+  protocol: EfficiencyProtocol = 'visual-2',
+) {
+  const question = protocol === 'visual-1' ? legacyVisualReviewQuestion : visualReviewQuestion
   const tasks = report.analysisTasks ?? []
   const events = report.events ?? []
   const task = tasks.length === 1 ? tasks[0] : undefined
@@ -16,7 +26,7 @@ export function scoreVisualAnalysis(report: any, profile: string, artifacts: Rec
   const finish = events.find((e: any) => e.type === 'finish:accepted')
   const ids: string[] = consumed?.payload.hypothesisIds ?? []
   const checks = {
-    oneReview: tasks.length === 1 && task.question === visualReviewQuestion,
+    oneReview: tasks.length === 1 && task.question === question,
     reviewed: task?.status === 'completed' && visual?.coverage === 'reviewed',
     answerAvailable: typeof visual?.answer === 'string' && visual.answer.length > 0,
     evidence:
@@ -30,7 +40,16 @@ export function scoreVisualAnalysis(report: any, profile: string, artifacts: Rec
     expectedCandidates:
       profile === 'C0'
         ? visual?.candidates.length === 0
-        : visual?.candidates.some((c: any) => c.kind === 'occlusion'),
+        : visual?.candidates.some(
+            (c: any) => c.kind === (protocol === 'visual-1' ? 'occlusion' : 'pointer-interception'),
+          ),
+    preciseSupport:
+      protocol === 'visual-1' ||
+      !visual?.candidates.some(
+        (c: any, index: number) =>
+          c.kind === 'occlusion' &&
+          report.hypotheses?.some((h: any) => h.id === ids[index] && h.status === 'supported'),
+      ),
     reviewedBeforeFinish:
       !!completed &&
       !!consumed &&

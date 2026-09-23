@@ -83,3 +83,45 @@ it('rejects absent, unfinished, unreviewed, wrong-fixture or ungrounded visual w
     ).passed,
   ).toBe(false)
 })
+
+it('visual-2 rejects a supported visual-covering claim even alongside a real intercepted control', () => {
+  const events = [
+    { type: 'model:request-started', payload: { role: 'evidence-analysis' } },
+    { type: 'analysis:state', payload: { id: 'a', status: 'completed' } },
+    { type: 'analysis:consumed', payload: { taskId: 'a', hypothesisIds: ['pointer', 'pixels'] } },
+    { type: 'finish:accepted', payload: {} },
+  ].map((e, seq) => ({ ...e, seq }))
+  const report = {
+    runId: 'r',
+    events,
+    hypotheses: [
+      { id: 'pointer', status: 'supported' },
+      { id: 'pixels', status: 'supported' },
+    ],
+    coverage: { unverifiedAnalysisTasks: [] },
+    analysisTasks: [
+      {
+        id: 'a',
+        runId: 'r',
+        factVersion: 'v',
+        question: visualReviewQuestion,
+        status: 'completed',
+        evidenceRefs: ['image', 'snapshot'],
+        result: {
+          visual: {
+            answer: 'A backdrop intercepts the readable control.',
+            coverage: 'reviewed',
+            candidates: [{ kind: 'pointer-interception' }, { kind: 'occlusion' }],
+          },
+        },
+      },
+    ],
+  }
+  const artifacts = {
+    image: { exists: true, type: 'screenshot' },
+    snapshot: { exists: true, type: 'snapshot' },
+  }
+  expect(scoreVisualAnalysis(report, 'C2', artifacts).checks.preciseSupport).toBe(false)
+  report.hypotheses[1]!.status = 'refuted'
+  expect(scoreVisualAnalysis(report, 'C2', artifacts).passed).toBe(true)
+})

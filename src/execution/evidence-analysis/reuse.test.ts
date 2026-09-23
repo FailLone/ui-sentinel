@@ -6,9 +6,9 @@ import type { VisualReview } from './types.ts'
 
 it('requires a matching verified rule, frozen evidence and physically intercepted candidate target', () => {
   const candidate: VisualReview['candidates'][number] = {
-    kind: 'occlusion',
+    kind: 'pointer-interception',
     target: 'Pay',
-    observation: 'Covered',
+    observation: 'Pointer intercepted',
     verification: 'Check hit samples',
     region: { x: 20, y: 20, width: 100, height: 40 },
   }
@@ -51,6 +51,9 @@ it('requires a matching verified rule, frozen evidence and physically intercepte
     ],
   }
   const refs = ['image', 'snapshot']
+  expect(
+    occlusionReuseTarget({ ...candidate, kind: 'occlusion' }, finding, snapshot, refs),
+  ).toBeUndefined()
   expect(occlusionReuseTarget(candidate, finding, snapshot, refs)).toBe('#pay')
   expect(
     occlusionReuseTarget(candidate, finding, snapshot, ['another-image', 'snapshot']),

@@ -353,7 +353,10 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       for (const candidate of task.result?.visual.candidates ?? []) {
         const h = await recordHypothesis({
           runId,
-          phenomenon: `${candidate.kind}: ${candidate.target} — ${candidate.observation}`,
+          phenomenon:
+            candidate.kind === 'pointer-interception'
+              ? `pointer-interception: ${candidate.target} — Pointer hit samples at the candidate control are intercepted by unrelated elements. This does not assert visual covering.`
+              : `${candidate.kind}: ${candidate.target} — ${candidate.observation}`,
           basis: `Unverified visual candidate from ${task.snapshotId}; may describe an older page state. Question: ${task.question}`,
           verificationPlan: candidate.verification,
           status: 'open',
@@ -1510,7 +1513,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       hypotheses_link_finding: createTool({
         id: 'hypotheses.link.finding',
         description:
-          'Resolve a visual hypothesis using an existing verified finding, without duplicating the finding or repeating its measurement. Only use an offered reusableFindings match after checking that it describes the same observed issue. The executor requires matching frozen evidence and sampled interception of the candidate target. Other kinds require normal verification.',
+          'Resolve a visual hypothesis using an existing verified finding, without duplicating the finding or repeating its measurement. Only use an offered reusableFindings match after checking that it describes the same observed issue. Only pointer-interception candidates qualify: the supported claim is sampled pointer interception, not visual covering. The executor requires matching frozen evidence and sampled interception of the candidate target. Other kinds require normal verification.',
         inputSchema: z.object({
           hypothesisId: z.string(),
           findingId: z.string(),

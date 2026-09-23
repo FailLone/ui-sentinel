@@ -8,10 +8,15 @@ export type EfficiencyPhase =
   | 'compare'
   | 'visual-compare'
   | 'visual-diagnostic'
-export type EfficiencyProtocol = 'efficiency-1' | 'finish-1' | 'visual-1'
-export const visualReviewQuestion =
+export type EfficiencyProtocol = 'efficiency-1' | 'finish-1' | 'visual-1' | 'visual-2'
+export const legacyVisualReviewQuestion =
   'Is the primary checkout submit control visually obscured by a campaign or clipped outside the viewport?'
-export const visualInspectionGoal = `${inspectionGoal} On the first checkout screen, before submitting or recovering, request exactly one visual_review with this question: ${JSON.stringify(visualReviewQuestion)}. Continue independent inspection while analysis runs. Review any returned candidates against saved evidence; do not treat a screenshot hypothesis as verified.`
+export const visualReviewQuestion =
+  'Can the primary checkout submit control be seen and reached? Distinguish visual covering, clipping, and pointer interception using the screenshot and supplied hit samples.'
+export function visualInspectionGoal(protocol: EfficiencyProtocol) {
+  const question = protocol === 'visual-1' ? legacyVisualReviewQuestion : visualReviewQuestion
+  return `${inspectionGoal} On the first checkout screen, before submitting or recovering, request exactly one visual_review with this question: ${JSON.stringify(question)}. Continue independent inspection while analysis runs. Review any returned candidates against saved evidence; do not treat a screenshot hypothesis as verified.`
+}
 
 export function efficiencySchedule(phase: EfficiencyPhase) {
   if (phase === 'visual-diagnostic')
@@ -81,10 +86,10 @@ export function efficiencyOptions(args: string[]) {
   const maxCostUsd = Number(fields.get('--max-cost-usd') ?? '2')
   if (!Number.isFinite(maxCostUsd) || maxCostUsd <= 0) throw Error('Invalid --max-cost-usd')
   const protocol = fields.get('--protocol') ?? 'efficiency-1'
-  if (!['efficiency-1', 'finish-1', 'visual-1'].includes(protocol))
+  if (!['efficiency-1', 'finish-1', 'visual-1', 'visual-2'].includes(protocol))
     throw Error('Invalid --protocol')
-  if (phase!.startsWith('visual-') !== (protocol === 'visual-1'))
-    throw Error('visual-1 requires visual-compare or visual-diagnostic')
+  if (phase!.startsWith('visual-') !== protocol.startsWith('visual-'))
+    throw Error('visual-1/visual-2 requires visual-compare or visual-diagnostic')
   return {
     protocol: protocol as EfficiencyProtocol,
     baseline,

@@ -287,7 +287,7 @@ it('lets the agent resolve a same-evidence visual candidate through a verified f
         coverage: 'reviewed',
         candidates: [
           {
-            kind: 'occlusion',
+            kind: 'pointer-interception',
             target: 'Pay',
             observation: 'Campaign covers Pay.',
             verification: 'Check saved pointer hit samples.',
@@ -327,6 +327,14 @@ it('lets the agent resolve a same-evidence visual candidate through a verified f
   expect(await getFindings(run.id)).toHaveLength(1)
   const events = await getEvents(run.id)
   expect(events.filter((e) => e.type === 'hypothesis:linked')).toHaveLength(1)
+  const linkedHypothesis = (
+    await getDbClient().execute({
+      sql: 'SELECT phenomenon FROM hypotheses WHERE run_id=?',
+      args: [run.id],
+    })
+  ).rows[0]!
+  expect(linkedHypothesis.phenomenon).toContain('This does not assert visual covering')
+  expect(linkedHypothesis.phenomenon).not.toContain('Campaign covers Pay.')
   expect(events.find((e) => e.type === 'finish:accepted')?.payload).toMatchObject({ blocked: true })
   expect(writes).toBe(0)
 })

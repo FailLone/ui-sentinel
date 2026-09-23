@@ -41,7 +41,13 @@ export const visualReviewSchema = z.object({
   candidates: z
     .array(
       z.object({
-        kind: z.enum(['occlusion', 'clipped-control', 'visual-hit-area', 'other']),
+        kind: z.enum([
+          'pointer-interception',
+          'occlusion',
+          'clipped-control',
+          'visual-hit-area',
+          'other',
+        ]),
         target: z.string().min(1).max(180),
         observation: z.string().min(1).max(400),
         verification: z.string().min(1).max(300),
