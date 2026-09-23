@@ -5,6 +5,8 @@ export interface InputComposition {
     readonly rules: number
     readonly observation: number
     readonly history: number
+    readonly latestToolResults: number
+    readonly other: number
     readonly notes: number
     readonly budget: number
   }
@@ -17,6 +19,8 @@ export interface InputComposition {
 }
 
 export function analyzeInputComposition(input: {
+  [key: string]: unknown
+  latestToolResults?: unknown
   goal: string
   knownRules: readonly unknown[]
   observation: unknown
@@ -38,15 +42,29 @@ export function analyzeInputComposition(input: {
   const notesBytes = byteLength(notesStr)
   const budgetBytes = byteLength(budgetStr)
 
+  const latestBytes =
+    input.latestToolResults === undefined ? 0 : byteLength(JSON.stringify(input.latestToolResults))
+  const totalBytes = byteLength(JSON.stringify(input))
+  const otherBytes =
+    totalBytes -
+    goalBytes -
+    rulesBytes -
+    observationBytes -
+    historyBytes -
+    notesBytes -
+    budgetBytes -
+    latestBytes
   const observationBreakdown = breakdownObservation(input.observation)
 
   return {
-    totalBytes: goalBytes + rulesBytes + observationBytes + historyBytes + notesBytes + budgetBytes,
+    totalBytes,
     parts: {
       goal: goalBytes,
       rules: rulesBytes,
       observation: observationBytes,
       history: historyBytes,
+      latestToolResults: latestBytes,
+      other: otherBytes,
       notes: notesBytes,
       budget: budgetBytes,
     },
@@ -116,6 +134,8 @@ export function formatCompositionReport(comp: InputComposition): string {
     `  rules: ${comp.parts.rules} (${pct(comp.parts.rules)})`,
     `  observation: ${comp.parts.observation} (${pct(comp.parts.observation)})`,
     `  history: ${comp.parts.history} (${pct(comp.parts.history)})`,
+    `  latestToolResults: ${comp.parts.latestToolResults} (${pct(comp.parts.latestToolResults)})`,
+    `  other: ${comp.parts.other} (${pct(comp.parts.other)})`,
     `  notes: ${comp.parts.notes} (${pct(comp.parts.notes)})`,
     `  budget: ${comp.parts.budget} (${pct(comp.parts.budget)})`,
   ]

@@ -4,6 +4,7 @@ export interface ProgressFacts {
   readonly hypothesisFacts: readonly string[]
   readonly findingFacts: readonly string[]
   readonly measurementFacts: readonly string[]
+  readonly retrievedFacts?: readonly string[]
 }
 export interface ProgressCheckResult {
   readonly isProgress: boolean
@@ -18,6 +19,7 @@ export function createProgressDetector() {
       ...facts.hypothesisFacts.map((f) => `hypothesis:${f}`),
       ...facts.findingFacts.map((f) => `finding:${f}`),
       ...facts.measurementFacts.map((f) => `measurement:${f}`),
+      ...(facts.retrievedFacts ?? []).map((f) => `retrieved:${f}`),
     ]
     const added = current.filter((f) => !seen.has(f))
     for (const fact of current) seen.add(fact)

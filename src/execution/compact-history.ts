@@ -75,6 +75,23 @@ const KEEP_KEYS = new Set([
   'value',
   'outcomeText',
   'action',
+  'eventType',
+  'fromState',
+  'toState',
+  'missingFacts',
+  'applicability',
+  'trigger',
+  'sampleSummary',
+  'resultRef',
+  'omitted',
+  'chunk',
+  'offset',
+  'nextOffset',
+  'totalChars',
+  'format',
+  'total',
+  'start',
+  'nextStart',
 ])
 
 /** One projection, also accepts its own output. Never discard action arguments. */
@@ -92,14 +109,68 @@ export function extractToolSummary(item: Record<string, unknown>): ToolSummary {
       if (key === 'pageText') summary.outcomeText = field
     }
   }
-  if (Array.isArray(result)) summary.results = result
+  if (Array.isArray(result))
+    summary.results = toolName === 'element_details' ? result.map(elementSummary) : result
   else {
     copy((result as Record<string, unknown> | null)?.observation)
     copy(result)
     if (result && typeof result === 'object' && 'results' in result)
-      summary.results = result.results
+      summary.results =
+        toolName === 'checks_run' && Array.isArray(result.results)
+          ? result.results.map((r: any) => ({
+              ruleId: r.ruleId,
+              verdict: r.verdict,
+              severity: r.severity,
+              title: r.title,
+              expected: r.expected,
+              actual: r.actual,
+              evidenceRefs: r.evidenceRefs,
+            }))
+          : result.results
+    if (result && typeof result === 'object' && 'entries' in result)
+      summary.entries = result.entries
+    if (
+      result &&
+      typeof result === 'object' &&
+      'samples' in result &&
+      Array.isArray(result.samples)
+    ) {
+      const samples = result.samples as { atMs: number; target: string; value: unknown }[]
+      delete summary.samples
+      summary.sampleSummary = {
+        count: samples.length,
+        firstAtMs: samples[0]?.atMs,
+        lastAtMs: samples.at(-1)?.atMs,
+        maxGapMs: Math.max(0, ...samples.slice(1).map((s, i) => s.atMs - samples[i]!.atMs)),
+        targets: [...new Set(samples.map((s) => s.target))],
+        values: [...new Set(samples.map((s) => s.value))],
+      }
+    }
   }
   return summary as unknown as ToolSummary
+}
+
+function elementSummary(element: any) {
+  return {
+    ref: element.ref,
+    selector: element.selector,
+    text: element.text,
+    stale: element.stale,
+    error: element.error,
+    snapshotId: element.snapshotId,
+    hit: element.hit ?? {
+      sampled: element.hitSamples?.length ?? 0,
+      blocked: element.hitSamples?.filter((s: any) => s.relation === 'unrelated').length ?? 0,
+      blockers: [
+        ...new Set(
+          element.hitSamples
+            ?.filter((s: any) => s.relation === 'unrelated')
+            .map((s: any) => s.hitSelector) ?? [],
+        ),
+      ],
+    },
+    enabled: element.enabled ?? (element.attributes?.disabled === undefined ? undefined : false),
+  }
 }
 
 function compressEntry(entry: HistoryEntry): CompressedEntry {

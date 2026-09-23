@@ -33,7 +33,9 @@ describe('analyzeInputComposition', () => {
         comp.parts.observation +
         comp.parts.history +
         comp.parts.notes +
-        comp.parts.budget,
+        comp.parts.budget +
+        comp.parts.latestToolResults +
+        comp.parts.other,
     )
   })
 
@@ -152,4 +154,21 @@ describe('formatCompositionReport', () => {
     expect(report).toContain('observation:')
     expect(report).toContain('%')
   })
+})
+
+it('counts the latest result and task ledger in the exact next-request payload size', () => {
+  const input = {
+    goal: '检查',
+    knownRules: [],
+    observation: null,
+    history: [],
+    notes: [],
+    budgetRemaining: {},
+    latestToolResults: { tools: [{ tool: 'history_read', entries: ['关键事实'] }] },
+    task: { conditions: ['not-triggered'] },
+  }
+  const result = analyzeInputComposition(input)
+  expect(result.totalBytes).toBe(Buffer.byteLength(JSON.stringify(input)))
+  expect(result.parts.latestToolResults).toBeGreaterThan(0)
+  expect(result.parts.other).toBeGreaterThan(0)
 })

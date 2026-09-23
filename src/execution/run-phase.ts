@@ -62,6 +62,7 @@ export function createPhaseTracker(budget: RunBudget) {
         'findings_submit',
         'element_details',
         'history_read',
+        'tool_result_read',
         'exploration_update',
         'checks_run',
       ].includes(tool)

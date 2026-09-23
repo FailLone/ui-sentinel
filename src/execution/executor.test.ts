@@ -339,7 +339,7 @@ describe('execution contract regressions', () => {
         const result = await call(tools, 'page_act', args)
         return [{ payload: { toolName: 'page_act', args, result } }]
       }
-      const action = packet.history[0].tools[0]
+      const action = packet.latestToolResults.tools[0]
       expect(action.args.name).toBe('Buy')
       expect(action.outcomeText).toContain('order-1')
       expect(action.status).toBe('completed')
@@ -625,4 +625,93 @@ it('allows a bounded existing measurement while finalizing', async () => {
   expect((await getRun(run.id))?.status).toBe('blocked')
   expect(writes).toBe(0)
   expect((await getEvents(run.id)).some((e) => e.type === 'finish:accepted')).toBe(true)
+})
+
+it('delivers history contents to a later decision that resolves the hypothesis from that packet', async () => {
+  harness.handler = async (tools: any, prompt: string) => {
+    const packet = JSON.parse(prompt)
+    if (harness.models === 1) {
+      const args = {
+        phenomenon: 'possible layout issue',
+        basis: 'visible',
+        verificationPlan: 'inspect',
+      }
+      const result = await call(tools, 'hypotheses_record', args)
+      return [{ payload: { toolName: 'hypotheses_record', args, result } }]
+    }
+    if (harness.models === 2) {
+      const args = { start: 0, count: 1 }
+      const result = await call(tools, 'history_read', args)
+      return [{ payload: { toolName: 'history_read', args, result } }]
+    }
+    const recalled = packet.latestToolResults.tools[0].entries[0].tools[0]
+    expect(recalled.phenomenon).toBe('possible layout issue')
+    expect(recalled.evidenceRefs.length).toBeGreaterThan(0)
+    await call(tools, 'findings_submit', {
+      hypothesisId: recalled.id,
+      validationStatus: 'refuted',
+      severity: 'info',
+      title: 'No obstruction',
+      expected: 'available',
+      actual: 'visible',
+      evidenceRefs: recalled.evidenceRefs,
+    })
+    await call(tools, 'run_finish', {
+      businessResult: 'unknown',
+      blocked: true,
+      summary: 'No purchase attempted',
+    })
+  }
+  const run = await makeRun()
+  await startRunExecution(run.id)
+  expect((await getRun(run.id))?.status).toBe('blocked')
+  expect((await getFindings(run.id))[0]?.validationStatus).toBe('refuted')
+  expect((await getEvents(run.id)).some((e) => e.type === 'finish:accepted')).toBe(true)
+})
+it('retains verified business evidence after leaving the result page', async () => {
+  harness.handler = async (tools: any, prompt: string) => {
+    const packet = JSON.parse(prompt)
+    if (harness.models === 1)
+      await call(tools, 'page_act', { type: 'click', role: 'button', name: 'Buy' })
+    else if (harness.models === 2) {
+      expect(packet.businessOutcomeObserved.verifiedBusiness.orderId).toBe('order-1')
+      await call(tools, 'page_act', { type: 'navigate', url })
+    } else {
+      expect(packet.observation.pageText).not.toContain('Confirmed')
+      expect(packet.businessOutcomeObserved.businessResult).toBe('success')
+      expect(
+        await call(tools, 'run_finish', {
+          businessResult: 'success',
+          blocked: false,
+          summary: 'Retained order evidence',
+        }),
+      ).toMatchObject({ accepted: true })
+    }
+  }
+  const run = await makeRun()
+  await startRunExecution(run.id)
+  expect((await getRun(run.id))?.status).toBe('completed')
+  expect(writes).toBe(1)
+})
+it('probes without writing and denies a second business write before network dispatch', async () => {
+  harness.handler = async (tools: any) => {
+    await call(tools, 'page_act', { type: 'click', role: 'button', name: 'Buy' })
+    expect(writes).toBe(1)
+    expect(
+      await call(tools, 'page_act', { type: 'probe', role: 'button', name: 'Buy' }),
+    ).toMatchObject({ status: 'completed' })
+    expect(writes).toBe(1)
+    const denied = await call(tools, 'page_act', { type: 'click', role: 'button', name: 'Buy' })
+    expect(denied.error).toContain('write-denied')
+    expect(writes).toBe(1)
+    await call(tools, 'run_finish', {
+      businessResult: 'success',
+      blocked: false,
+      summary: 'Original evidence retained; repeat denied',
+    })
+  }
+  const run = await makeRun()
+  await startRunExecution(run.id)
+  expect((await getRun(run.id))?.status).toBe('completed')
+  expect((await getEvents(run.id)).some((e) => e.type === 'write:denied')).toBe(true)
 })
