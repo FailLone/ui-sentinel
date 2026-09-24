@@ -5,6 +5,125 @@ import { join } from 'node:path'
 import { startGateway, AGENT_MODEL } from '../../scripts/experiments/openrouter-gateway.ts'
 import { assertColdDecisionInput } from '../../scripts/experiments/isolation.ts'
 
+it('retains partial upstream reasoning and response identity after a streaming failure without inventing usage', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'gateway-partial-'))
+  let upstream!: ReadableStreamDefaultController<Uint8Array>
+  const encoder = new TextEncoder()
+  const event = {
+    id: 'partial-response',
+    provider: 'fixture-provider',
+    choices: [{ delta: { reasoning: '检查 test-secret', content: '' } }],
+  }
+  const bytes = encoder.encode(`data: ${JSON.stringify(event)}\n\n`)
+  const gateway = await startGateway(
+    'test-secret',
+    dir,
+    (async () =>
+      new Response(
+        new ReadableStream<Uint8Array>({
+          start(controller) {
+            upstream = controller
+            // Split in the middle of a UTF-8 character, as transport boundaries can do.
+            const split = bytes.indexOf(0xe6) + 1
+            controller.enqueue(bytes.slice(0, split))
+            controller.enqueue(bytes.slice(split))
+            controller.enqueue(encoder.encode('data: {"choices":['))
+          },
+        }),
+        { headers: { 'content-type': 'text/event-stream' } },
+      )) as typeof fetch,
+    { limitUsd: 1, estimateCost: () => 0.1 },
+  )
+  try {
+    gateway.begin('partial', 1, 5000)
+    const response = await fetch(gateway.url + '/chat/completions', {
+      method: 'POST',
+      headers: { authorization: `Bearer ${gateway.token}`, 'content-type': 'application/json' },
+      body: JSON.stringify({ model: AGENT_MODEL, stream: true }),
+    })
+    const body = response.text()
+    upstream.error(Error('fixture stream interrupted'))
+    await body
+    const [record] = await gateway.end()
+    expect(record).toMatchObject({
+      status: 'error',
+      transportComplete: false,
+      responseId: 'partial-response',
+      provider: 'fixture-provider',
+      usage: null,
+      streamEventCount: 1,
+      firstContentDeltaMs: null,
+      firstToolDeltaMs: null,
+    })
+    expect(record.firstReasoningDeltaMs).toBeTypeOf('number')
+    expect(record.receivedBytes).toBeGreaterThan(bytes.byteLength)
+    const saved = await readFile(join(dir, 'responses.jsonl'), 'utf8')
+    expect(saved).not.toContain('test-secret')
+    expect(JSON.parse(saved).events[0].choices[0].delta.reasoning).toBe('检查 [redacted]')
+    expect(gateway.spending()).toMatchObject({
+      knownCostUsd: 0,
+      unknownCosts: 1,
+      unknownReservedUsd: 0.1,
+    })
+  } finally {
+    await gateway.close()
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
+it('records complete fragmented SSE and final usage exactly once, including a final line without newline', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'gateway-complete-stream-'))
+  const encoder = new TextEncoder()
+  const raw =
+    'data: {"choices":[{"delta":{"role":"assistant","content":""}}]}\r\n\r\n' +
+    'data: {"id":"complete-response","choices":[{"delta":{"tool_calls":[{"function":{"name":"observe","arguments":"{}"}}]},"finish_reason":"tool_calls"}]}\n\n' +
+    'data: {"choices":[],"usage":{"cost":0.02,"prompt_tokens":5,"completion_tokens":2}}'
+  const gateway = await startGateway(
+    'test-secret',
+    dir,
+    (async () =>
+      new Response(
+        new ReadableStream<Uint8Array>({
+          start(controller) {
+            for (let i = 0; i < raw.length; i += 7)
+              controller.enqueue(encoder.encode(raw.slice(i, i + 7)))
+            controller.close()
+          },
+        }),
+        { headers: { 'content-type': 'text/event-stream' } },
+      )) as typeof fetch,
+    { limitUsd: 1, estimateCost: () => 0.1 },
+  )
+  try {
+    gateway.begin('complete', 1, 5000)
+    const response = await fetch(gateway.url + '/chat/completions', {
+      method: 'POST',
+      headers: { authorization: `Bearer ${gateway.token}`, 'content-type': 'application/json' },
+      body: JSON.stringify({ model: AGENT_MODEL, stream: true }),
+    })
+    expect(await response.text()).toBe(raw)
+    const [record] = await gateway.end()
+    expect(record).toMatchObject({
+      status: 'success',
+      transportComplete: true,
+      streamEventCount: 3,
+      firstReasoningDeltaMs: null,
+      firstContentDeltaMs: null,
+      usage: { cost: 0.02 },
+    })
+    expect(record.firstToolDeltaMs).toBeTypeOf('number')
+    expect(JSON.parse(await readFile(join(dir, 'responses.jsonl'), 'utf8')).events).toHaveLength(3)
+    expect(gateway.spending()).toMatchObject({
+      knownCostUsd: 0.02,
+      unknownCosts: 0,
+      reservedUsd: 0,
+    })
+  } finally {
+    await gateway.close()
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
 it('experiment gateway refuses new requests once estimated spending exceeds the cap (fake upstream)', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'gateway-budget-'))
   let calls = 0

@@ -97,6 +97,12 @@ export async function startGateway(
       inputBytes: Buffer.byteLength(JSON.stringify(body)),
       status: 'pending',
       usage: null,
+      transportComplete: false,
+      receivedBytes: 0,
+      firstStreamByteMs: null,
+      firstReasoningDeltaMs: null,
+      firstContentDeltaMs: null,
+      firstToolDeltaMs: null,
     }
     run.requests.push(record)
     const start = Date.now(),
@@ -110,6 +116,42 @@ export async function startGateway(
       () => controller.abort(),
       Math.max(1, Math.min(60000, run.deadline - Date.now())),
     )
+    const events: any[] = []
+    const decoder = new TextDecoder()
+    let pendingLine = ''
+    const acceptEvent = (event: any) => {
+      events.push(event)
+      if (event.usage) record.usage = event.usage
+      if (event.id) record.responseId = event.id
+      if (event.provider) record.provider = event.provider
+      const elapsed = Date.now() - start
+      for (const choice of event.choices ?? []) {
+        const delta = choice.delta ?? choice.message ?? {}
+        if (
+          (typeof delta.reasoning === 'string' && delta.reasoning.length > 0) ||
+          delta.reasoning_details?.some((d: any) => typeof d.text === 'string' && d.text.length > 0)
+        )
+          record.firstReasoningDeltaMs ??= elapsed
+        if (typeof delta.content === 'string' && delta.content.length > 0)
+          record.firstContentDeltaMs ??= elapsed
+        if (delta.tool_calls?.some((t: any) => t.function?.name || t.function?.arguments))
+          record.firstToolDeltaMs ??= elapsed
+      }
+    }
+    const readLines = (text: string, final = false) => {
+      const lines = (pendingLine + text).split('\n')
+      pendingLine = final ? '' : lines.pop()!
+      for (const line of lines) {
+        if (!line.startsWith('data:')) continue
+        const data = line.slice(5).trim()
+        if (!data || data === '[DONE]') continue
+        try {
+          acceptEvent(JSON.parse(data))
+        } catch {
+          // A truncated final event cannot supply usage or a valid tool call.
+        }
+      }
+    }
     try {
       await appendFile(
         `${directory}/requests.jsonl`,
@@ -130,31 +172,18 @@ export async function startGateway(
         })
       for await (const chunk of upstream.body!) {
         chunks.push(chunk)
-        if (body.stream) res.write(chunk)
+        record.receivedBytes += chunk.byteLength
+        record.firstStreamByteMs ??= Date.now() - start
+        if (body.stream) {
+          readLines(decoder.decode(chunk, { stream: true }))
+          res.write(chunk)
+        }
       }
+      record.transportComplete = true
       const raw = Buffer.concat(chunks).toString()
-      const events = body.stream
-        ? raw
-            .split('\n')
-            .filter((l) => l.startsWith('data: ') && !l.includes('[DONE]'))
-            .flatMap((l) => {
-              try {
-                return [JSON.parse(l.slice(6))]
-              } catch {
-                return []
-              }
-            })
-        : [JSON.parse(raw)]
-      for (const event of events) {
-        if (event.usage) record.usage = event.usage
-        if (event.id) record.responseId = event.id
-        if (event.provider) record.provider = event.provider
-      }
+      if (!body.stream) acceptEvent(JSON.parse(raw))
+      else readLines(decoder.decode(), true)
       record.status = upstream.ok && !events.some((e: any) => e.error) ? 'success' : 'error'
-      await appendFile(
-        `${directory}/responses.jsonl`,
-        redact(JSON.stringify({ run: run.id, seq: record.seq, events })) + '\n',
-      )
       if (!body.stream) {
         res.writeHead(upstream.status, { 'content-type': 'application/json' })
         res.end(raw)
@@ -169,6 +198,8 @@ export async function startGateway(
     } finally {
       clearTimeout(timer)
       res.removeListener('close', downstreamClosed)
+      if (body.stream && !record.transportComplete) readLines(decoder.decode(), true)
+      record.streamEventCount = events.length
       record.durationMs = Date.now() - start
       reservedUsd -= reservation
       const cost = record.usage?.cost
@@ -181,6 +212,18 @@ export async function startGateway(
         unknownCosts++
       }
       try {
+        // Keep received events even when cancellation/error prevents a final usage chunk.
+        await appendFile(
+          `${directory}/responses.jsonl`,
+          redact(
+            JSON.stringify({
+              run: run.id,
+              seq: record.seq,
+              transportComplete: record.transportComplete,
+              events,
+            }),
+          ) + '\n',
+        )
         await appendFile(`${directory}/ledger.jsonl`, JSON.stringify(record) + '\n')
       } finally {
         controllers.delete(controller)
