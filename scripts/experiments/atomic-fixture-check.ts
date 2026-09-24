@@ -187,6 +187,9 @@ try {
         ),
         oneDecision: requests.length === 1 && report.usage.modelCalls === 1,
         knownUsage: report.usage.modelInputTokens === 123,
+        unreachableScope: report.unexploredBranches.some((b: string) =>
+          b.includes('pending conditional outcomes are unverified'),
+        ),
         closed: report.status === 'blocked' && report.businessResult === 'unknown',
         oneFinding:
           report.findings.length === 1 && report.findings[0].validationStatus === 'supported',

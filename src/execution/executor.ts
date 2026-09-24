@@ -1494,6 +1494,19 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
               return reply
             }
           }
+          if (
+            'reason' in parsed &&
+            parsed.reason === 'observed-blocker' &&
+            businessResult === 'unknown' &&
+            taskState.recordBlockedScope()
+          ) {
+            for (const gap of completionGaps()) if (!gaps.includes(gap)) gaps.push(gap)
+            await appendEvent(runId, 'exploration:coverage-updated', {
+              source: 'executor',
+              reason: 'blocked-before-business-outcome',
+              task: taskState.snapshot(),
+            })
+          }
           const input =
             'reason' in parsed
               ? resolveShortFinish(integrity.epoch() ? { reason: 'unverified-scope' } : parsed, {

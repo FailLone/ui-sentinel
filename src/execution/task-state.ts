@@ -42,6 +42,15 @@ export function createTaskState(goal: string) {
     setBranches(branches: { description: string; trigger: HypothesisTrigger }[]) {
       unexploredBranches = [...new Map(branches.map((b) => [JSON.stringify(b), b])).values()]
     },
+    /** A blocked path cannot silently turn pending outcomes into completed or untriggered scope. */
+    recordBlockedScope() {
+      if (businessObserved) return false
+      const description =
+        'No business outcome has been observed. The remaining path and pending conditional outcomes are unverified.'
+      if (unexploredBranches.some((b) => b.description === description)) return false
+      unexploredBranches.push({ description, trigger: 'always' })
+      return true
+    },
     hasOpenHypotheses: () =>
       [...hypotheses.values()].some(
         (h) => relevant(h) && ['open', 'inconclusive'].includes(h.status),

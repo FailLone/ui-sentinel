@@ -1836,6 +1836,16 @@ it('commits an evidenced blocker review through canonical finish without another
   expect(final?.businessResult).toBe('unknown')
   expect(final?.usage.modelCalls).toBe(1)
   expect(final?.usage.modelInputTokens).toBe(123)
+  const accepted = events.find((e) => e.type === 'finish:accepted')!
+  expect((accepted.payload.task as { unexploredBranches: unknown[] }).unexploredBranches).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({
+        trigger: 'always',
+        description: expect.stringContaining('pending conditional outcomes are unverified'),
+      }),
+    ]),
+  )
+  expect(accepted.payload.summary).toContain('Applicable unresolved items: 1')
   expect(harness.models).toBe(0)
   expect(harness.reviews).toBe(1)
   expect(events.filter((e) => e.type === 'finish:accepted')).toHaveLength(1)

@@ -37,3 +37,28 @@ it('treats retry offered after a rejected payment as applicable recovery', () =>
   task.setBranches([{ description: 'retry affordance', trigger: 'retryable-failure' }])
   expect(task.completionGaps()).toHaveLength(1)
 })
+
+it('retains blocked pre-outcome scope without inventing an outcome or losing an existing branch', () => {
+  const task = createTaskState('Inspect purchase')
+  task.observeFacts(undefined, true)
+  task.setBranches([{ description: 'Inspect observed keyboard issue', trigger: 'always' }])
+  expect(task.recordBlockedScope()).toBe(true)
+  expect(task.recordBlockedScope()).toBe(false)
+  expect(task.snapshot().unexploredBranches).toHaveLength(2)
+  expect(
+    task.snapshot().conditions.find((c) => c.trigger === 'payment-success')?.applicability,
+  ).toBe('pending')
+  expect(task.completionGaps()).toContain(
+    'unverified:always:No business outcome has been observed. The remaining path and pending conditional outcomes are unverified.',
+  )
+})
+it.each([
+  { success: true, status: 'paid' },
+  { success: false, status: 'rejected' },
+  { success: false, status: 'failed', canRetry: true },
+])('does not invent unreached business scope after an actual response: %j', (response) => {
+  const task = createTaskState('Inspect outcome')
+  task.observeFacts(response, false)
+  expect(task.recordBlockedScope()).toBe(false)
+  expect(task.completionGaps()).toEqual([])
+})
