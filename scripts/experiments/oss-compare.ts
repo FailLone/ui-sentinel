@@ -13,14 +13,19 @@ import {
 } from '../../evaluation/private/recovery-protocol.ts'
 import { resetAndVerify, controlRequest } from '../../evaluation/private/controller.ts'
 import { inspectionGoal, efficiencyBudget } from './efficiency-protocol.ts'
+import { evaluateHoldout, verifyHoldout, holdoutGoal } from '../../evaluation/private/holdout.ts'
+import { isHoldoutProfile } from './holdout-arena.ts'
 import { assertColdDecisionInput } from './isolation.ts'
 
 const args = process.argv.slice(2)
 const candidate = args.includes('--candidate') ? args[args.indexOf('--candidate') + 1] : undefined
+const holdout = args.includes('--study') && args[args.indexOf('--study') + 1] === 'atomic-holdout'
 const atomicConfirm =
   args.includes('--study') && args[args.indexOf('--study') + 1] === 'atomic-confirm'
 const atomic =
-  atomicConfirm || (args.includes('--study') && args[args.indexOf('--study') + 1] === 'atomic')
+  holdout ||
+  atomicConfirm ||
+  (args.includes('--study') && args[args.indexOf('--study') + 1] === 'atomic')
 const convergence =
   atomic || (args.includes('--study') && args[args.indexOf('--study') + 1] === 'convergence')
 if (args.includes('--study') && !convergence) throw Error('Unknown study')
@@ -37,6 +42,7 @@ if (
         'convergence',
         'atomic',
         'atomic-confirm',
+        'atomic-holdout',
       ].includes(a),
   )
 )
@@ -70,7 +76,7 @@ process.env.EXPERIMENT_AGENT_PROVIDER = 'Wafer'
 process.env.EXPERIMENT_VISION_PROVIDER = 'Alibaba'
 if (convergence && models[0].reasoning?.mandatory)
   throw Error('Fixed model cannot disable reasoning')
-const maxCostUsd = atomicConfirm ? 3 : atomic ? 1 : candidate || convergence ? 3 : 2
+const maxCostUsd = holdout ? 2 : atomicConfirm ? 3 : atomic ? 1 : candidate || convergence ? 3 : 2
 const gateway = await startGateway(key, dir, fetch, {
   limitUsd: maxCostUsd,
   estimateCost: (body) => {
@@ -131,47 +137,51 @@ const dependencies = execFileSync(
   { encoding: 'utf8' },
 )
 await writeFile(join(dir, 'python-dependencies.txt'), dependencies)
-const cases = atomicConfirm
-  ? (['C0', 'C1', 'C2', 'C3', 'C4', 'C5'] as const)
-  : (['C0', 'C2', 'C5'] as const)
-const schedule = atomicConfirm
-  ? cases.flatMap((variant, index) =>
-      [1, 2, 3].flatMap((repeat) =>
-        ((index + repeat) % 2
-          ? ['current-low', 'current-atomic']
-          : ['current-atomic', 'current-low']
-        ).map((arm) => ({ variant, repeat, arm })),
-      ),
-    )
-  : candidate
+const goal = holdout ? holdoutGoal : inspectionGoal
+const cases = holdout
+  ? (['H0', 'H1', 'H2'] as const)
+  : atomicConfirm
+    ? (['C0', 'C1', 'C2', 'C3', 'C4', 'C5'] as const)
+    : (['C0', 'C2', 'C5'] as const)
+const schedule =
+  atomicConfirm || holdout
     ? cases.flatMap((variant, index) =>
         [1, 2, 3].flatMap((repeat) =>
-          ((index + repeat) % 2 ? ['current', candidate] : [candidate, 'current']).map((arm) => ({
-            variant,
-            repeat,
-            arm,
-          })),
+          ((index + repeat) % 2
+            ? ['current-low', 'current-atomic']
+            : ['current-atomic', 'current-low']
+          ).map((arm) => ({ variant, repeat, arm })),
         ),
       )
-    : cases.flatMap((variant, index) => {
-        const arms = atomic
-          ? ['current-low', 'current-atomic']
-          : convergence
-            ? [
-                'current-low',
-                'current-off',
-                'stagehand-low',
-                'stagehand-off',
-                'browser-use-off',
-                'browser-use-flash',
-              ]
-            : ['current', 'stagehand', 'browser-use']
-        return [...arms.slice(index), ...arms.slice(0, index)].map((arm) => ({
-          variant,
-          repeat: 1,
-          arm,
-        }))
-      })
+    : candidate
+      ? cases.flatMap((variant, index) =>
+          [1, 2, 3].flatMap((repeat) =>
+            ((index + repeat) % 2 ? ['current', candidate] : [candidate, 'current']).map((arm) => ({
+              variant,
+              repeat,
+              arm,
+            })),
+          ),
+        )
+      : cases.flatMap((variant, index) => {
+          const arms = atomic
+            ? ['current-low', 'current-atomic']
+            : convergence
+              ? [
+                  'current-low',
+                  'current-off',
+                  'stagehand-low',
+                  'stagehand-off',
+                  'browser-use-off',
+                  'browser-use-flash',
+                ]
+              : ['current', 'stagehand', 'browser-use']
+          return [...arms.slice(index), ...arms.slice(0, index)].map((arm) => ({
+            variant,
+            repeat: 1,
+            arm,
+          }))
+        })
 function profile(arm: string) {
   return {
     framework: arm.startsWith('current')
@@ -187,16 +197,22 @@ function profile(arm: string) {
   }
 }
 const manifest = {
-  protocol: atomicConfirm
-    ? 'atomic-investigation-confirm-1'
-    : atomic
-      ? 'atomic-investigation-diagnostic-1'
-      : convergence
-        ? 'architecture-convergence-screen-2'
-        : candidate
-          ? 'oss-quality-confirm-1'
-          : 'oss-quality-screen-1',
-  evaluationProtocol: convergence ? recoveryProtocol : 'historical-minimum',
+  protocol: holdout
+    ? 'atomic-investigation-holdout-1'
+    : atomicConfirm
+      ? 'atomic-investigation-confirm-1'
+      : atomic
+        ? 'atomic-investigation-diagnostic-1'
+        : convergence
+          ? 'architecture-convergence-screen-2'
+          : candidate
+            ? 'oss-quality-confirm-1'
+            : 'oss-quality-screen-1',
+  evaluationProtocol: holdout
+    ? 'reservation-holdout-1'
+    : convergence
+      ? recoveryProtocol
+      : 'historical-minimum',
   historyIsolation: convergence
     ? 'Fresh database and application server per trial; current model inputs must contain no inherited journeys, enforced before paid forwarding'
     : 'Historical shared environment; not a causal cold-start comparison',
@@ -215,7 +231,7 @@ const manifest = {
   maxOutputTokens: 4096,
   maxCostUsd,
   viewport: { width: 1280, height: 768 },
-  goal: inspectionGoal,
+  goal,
   stagehand: JSON.parse(
     await readFile('node_modules/@browserbasehq/stagehand/package.json', 'utf8'),
   ).version,
@@ -223,7 +239,12 @@ const manifest = {
   pythonDependenciesHash: hash(dependencies),
   lockHash: hash(await readFile('pnpm-lock.yaml')),
   serverHash: hash(await readFile('dist/server/index.js')),
-  evaluatorHash: hash(await readFile('evaluation/private/evaluator.ts')),
+  evaluatorHash: hash(
+    await readFile(holdout ? 'evaluation/private/holdout.ts' : 'evaluation/private/evaluator.ts'),
+  ),
+  holdoutFixtureHash: holdout
+    ? hash(await readFile('scripts/experiments/holdout-arena.ts'))
+    : undefined,
   recoveryEvaluatorHash: convergence
     ? hash(await readFile('evaluation/private/recovery-protocol.ts'))
     : undefined,
@@ -312,7 +333,10 @@ async function waitReady() {
 try {
   console.log(`Frozen ${schedule.length}-run quality comparison; cap $${maxCostUsd}: ${dir}`)
   serverProcess = launch('server', ['dist/server/index.js'])
-  launch('arena', ['dist/arena/index.js'])
+  launch(
+    'arena',
+    holdout ? ['--import', 'tsx', 'scripts/experiments/holdout-arena.ts'] : ['dist/arena/index.js'],
+  )
   await waitReady()
   lease = await request('/api/evaluation/lease', {})
   if (lease.rules.some((r: any) => r.category === 'transition'))
@@ -359,7 +383,14 @@ try {
     }
     let started = false
     try {
-      record.fixture = await resetAndVerify(item.variant)
+      record.fixture = isHoldoutProfile(item.variant)
+        ? await verifyHoldout(
+            item.variant,
+            env.ARENA_URL!,
+            `http://127.0.0.1:${env.ARENA_CONTROL_PORT}`,
+            env.ARENA_CONTROL_TOKEN!,
+          )
+        : await resetAndVerify(item.variant)
       const start = Date.now()
       gateway.begin(id, 30, 300000, {
         agentReasoning: executionProfile.agentReasoning,
@@ -372,7 +403,7 @@ try {
       console.log(`Starting ${id}`)
       if (executionProfile.framework === 'current') {
         const run = await request('/api/runs', {
-          goal: inspectionGoal,
+          goal,
           entryUrl: env.ARENA_URL,
           environmentId,
           budget: efficiencyBudget,
@@ -465,10 +496,14 @@ try {
         budget: efficiencyBudget,
         hypotheses: report.hypotheses,
       }
-      record.score = evaluateRun(report, item.variant, item.repeat, record.evidence)
-      if (convergence) {
-        record.historicalScore = record.score
-        record.score = evaluateRecoveryRun(report, item.variant, item.repeat, record.evidence)
+      if (isHoldoutProfile(item.variant)) {
+        record.score = evaluateHoldout(report, item.variant, record.evidence)
+      } else {
+        record.score = evaluateRun(report, item.variant, item.repeat, record.evidence)
+        if (convergence) {
+          record.historicalScore = record.score
+          record.score = evaluateRecoveryRun(report, item.variant, item.repeat, record.evidence)
+        }
       }
       record.explicitFinish = report.events.some((e: any) => e.type === 'finish:accepted')
       record.providerMatched = record.requests.every(
@@ -500,6 +535,7 @@ try {
     if (
       record.report?.stopReason === 'reconciliation-required' ||
       record.score?.noAnswerLeak === false ||
+      record.score?.assertions?.noAnswerLeak === false ||
       record.evidence?.backend?.orders?.length > 1 ||
       record.error?.includes('Unsettled') ||
       gateway.integrityViolations().length > 0
