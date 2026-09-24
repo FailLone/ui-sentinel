@@ -2,7 +2,13 @@ import { describe, it, expect, vi, beforeAll, afterAll, beforeEach } from 'vites
 import { createServer } from 'node:http'
 import { rm } from 'node:fs/promises'
 
-const harness = vi.hoisted(() => ({ handler: null as any, models: 0, analyze: null as any }))
+const harness = vi.hoisted(() => ({
+  handler: null as any,
+  models: 0,
+  analyze: null as any,
+  review: null as any,
+  reviews: 0,
+}))
 vi.mock('./evidence-analysis/workflow.ts', () => ({
   analyzeEvidence: (packet: any, options: any) => harness.analyze(packet, options),
 }))
@@ -12,6 +18,12 @@ vi.mock('../shared/config.ts', () => ({
     agentModel: 'openai/test-explicit-mock',
     visionModel: 'test',
     optimizations: { observation: true, ruleRouting: true, journeys: true },
+    completionReview: {
+      model: 'typesafe/jev-1.13',
+      expectedModel: 'typesafe/jev-1.13-20260917',
+      apiKey: 'test-only',
+      timeoutMs: 100,
+    },
     budget: {
       totalTimeoutMs: 20000,
       maxActions: 10,
@@ -40,6 +52,13 @@ vi.mock('@mastra/core/agent', () => ({
     }
   },
 }))
+vi.mock('./blocker-review.ts', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('./blocker-review.ts')>()),
+  requestBlockerReview: (...args: any[]) => {
+    harness.reviews++
+    return harness.review(...args)
+  },
+}))
 vi.mock('./vision.ts', () => ({
   createVisionLocator: () => ({
     aiLocate: async () => {
@@ -60,12 +79,25 @@ import { clearRules, registerRule } from '../rules/engine.ts'
 import { overlayBlockingRule } from '../rules/builtin/overlay-blocking.ts'
 import { compileTransitionRule } from '../rules/transition.ts'
 import { config } from '../shared/config.ts'
+let reviewCloseVisible = false
 let journeyChange = 'none'
 let url = '',
   writes = 0,
   responseDelay = 0
 const ids: string[] = []
 const server = createServer((req, res) => {
+  if (req.url === '/review-close-flag') {
+    res.end(JSON.stringify(reviewCloseVisible))
+    return
+  }
+  if (req.url === '/changing-overlay') {
+    res.setHeader('content-type', 'text/html')
+    res.end(
+      `<button style="position:absolute;left:40px;top:40px;width:200px;height:60px">Pay</button><div id="cover" style="position:fixed;inset:0;background:#ccc;z-index:100">Campaign</div><script>const timer=setInterval(async()=>{if(await fetch('/review-close-flag').then(r=>r.json())) {clearInterval(timer);const b=document.createElement('button');b.textContent='Close';b.onclick=()=>b.parentElement.remove();document.getElementById('cover').append(b);}},20)</script>`,
+    )
+    return
+  }
+
   if (req.url === '/intervention-page') {
     res.setHeader('content-type', 'text/html')
     res.end(`<h1>Checkout</h1><button id="pay">Pay</button><button disabled>Required helper</button><script>
@@ -174,11 +206,15 @@ afterAll(async () => {
   await Promise.all(ids.map((id) => rm(`data/artifacts/${id}`, { recursive: true, force: true })))
 })
 beforeEach(() => {
+  config.optimizations.blockerReview = false
+  config.budget.totalTimeoutMs = 20000
+  harness.reviews = 0
   config.optimizations.atomicInvestigation = false
   config.optimizations.shortFinish = false
   config.optimizations.evidenceAnalysis = false
   config.optimizations.analysisMode = 'parallel'
   clearRules()
+  reviewCloseVisible = false
   journeyChange = 'none'
   writes = 0
   responseDelay = 0
@@ -1761,4 +1797,197 @@ it('keeps unknown samples inconclusive instead of accepting them as negative pro
   const run = await makeRun()
   await startRunExecution(run.id)
   expect((await getFindings(run.id)).map((f) => f.validationStatus)).toEqual(['inconclusive'])
+})
+
+function reviewFixture(choice = 'observed-blocker') {
+  return {
+    id: 'local-review',
+    model: 'typesafe/jev-1.13-20260917',
+    provider: 'TypeSafe',
+    answers: { completion: { choice, confidence: 0.8, probabilities: {} } },
+    usage: { input_tokens: 123, output_tokens: 1, cost: 0.0001 },
+  }
+}
+function enableBlockerReview() {
+  config.optimizations.blockerReview = true
+  config.optimizations.shortFinish = true
+  config.budget.totalTimeoutMs = 40000
+  registerRule(overlayBlockingRule)
+}
+it('commits an evidenced blocker review through canonical finish without another explorer request', async () => {
+  enableBlockerReview()
+  harness.review = async (body: any) => {
+    expect(body.state.inspectionState.submittedFindings.total).toBe(1)
+    return reviewFixture()
+  }
+  harness.handler = () => {
+    throw Error('Full exploration unexpectedly dispatched')
+  }
+  const run = await createRun({
+    goal: 'Inspect payment and any blocker',
+    environmentId: 'test',
+    entryUrl: url + '/overlay',
+  })
+  ids.push(run.id)
+  await startRunExecution(run.id)
+  const final = await getRun(run.id)
+  const events = await getEvents(run.id)
+  expect(final?.stopReason).toBe('blocked')
+  expect(final?.businessResult).toBe('unknown')
+  expect(final?.usage.modelCalls).toBe(1)
+  expect(final?.usage.modelInputTokens).toBe(123)
+  expect(harness.models).toBe(0)
+  expect(harness.reviews).toBe(1)
+  expect(events.filter((e) => e.type === 'finish:accepted')).toHaveLength(1)
+  expect(
+    events.some((e) => e.type === 'tool:started' && e.payload.origin === 'completion-review'),
+  ).toBe(true)
+  expect(await getFindings(run.id)).toHaveLength(1)
+})
+it.each(['continue', 'unknown', 'scope-covered', 'error'])(
+  'defers %s review once per fact version and retains full Agent finish',
+  async (choice) => {
+    enableBlockerReview()
+    harness.review = async () => {
+      if (choice === 'error') throw Error('completion-review-timeout')
+      return reviewFixture(choice)
+    }
+    harness.handler = async (tools: any) => {
+      if (harness.models === 1)
+        return [{ toolName: 'page_observe', result: await tools.page_observe.execute({}) }]
+      return [
+        {
+          toolName: 'run_finish',
+          result: await tools.run_finish.execute({ reason: 'observed-blocker' }),
+        },
+      ]
+    }
+    const run = await createRun({
+      goal: 'Inspect payment and any blocker',
+      environmentId: 'test',
+      entryUrl: url + '/overlay',
+    })
+    ids.push(run.id)
+    await startRunExecution(run.id)
+    expect(harness.reviews).toBe(1)
+    expect(harness.models).toBe(2)
+    const final = await getRun(run.id)
+    expect(final?.stopReason).toBe('blocked')
+    expect(final?.usage.modelCalls).toBe(3)
+    if (choice === 'error') expect(final?.usage.modelInputTokens).toBeNull()
+  },
+)
+it('leaves a closable overlay to exploration even if the review model would wrongly finish', async () => {
+  enableBlockerReview()
+  harness.review = async () => reviewFixture()
+  harness.handler = async (tools: any) => {
+    if (harness.models === 1)
+      return [
+        {
+          toolName: 'page_act',
+          result: await tools.page_act.execute({ type: 'click', role: 'button', name: 'Close' }),
+        },
+      ]
+    if (harness.models === 2)
+      return [
+        {
+          toolName: 'page_act',
+          result: await tools.page_act.execute({ type: 'click', role: 'button', name: 'Buy' }),
+        },
+      ]
+    return [
+      {
+        toolName: 'run_finish',
+        result: await tools.run_finish.execute({ reason: 'scope-covered' }),
+      },
+    ]
+  }
+  const run = await createRun({
+    goal: 'Inspect overlay and purchase',
+    environmentId: 'test',
+    entryUrl: url + '/closable-overlay',
+  })
+  ids.push(run.id)
+  await startRunExecution(run.id)
+  expect(harness.reviews).toBe(0)
+  expect(harness.models).toBe(3)
+  expect(writes).toBe(1)
+  expect((await getRun(run.id))?.businessResult).toBe('success')
+})
+it('cannot commit a review after cancellation', async () => {
+  enableBlockerReview()
+  let started!: () => void
+  let release!: () => void
+  const ready = new Promise<void>((r) => {
+    started = r
+  })
+  const wait = new Promise<void>((r) => {
+    release = r
+  })
+  harness.review = async () => {
+    started()
+    await wait
+    return reviewFixture()
+  }
+  harness.handler = () => {
+    throw Error('No explorer after cancellation')
+  }
+  const run = await createRun({
+    goal: 'Inspect blocker',
+    environmentId: 'test',
+    entryUrl: url + '/overlay',
+  })
+  ids.push(run.id)
+  const task = startRunExecution(run.id)
+  await ready
+  await cancelRunExecution(run.id)
+  release()
+  await task
+  expect((await getRun(run.id))?.stopReason).toBe('cancelled')
+  expect((await getEvents(run.id)).filter((e) => e.type === 'finish:accepted')).toHaveLength(0)
+})
+
+it('rejects a previously valid blocker proposal when the page gains a recovery control during review', async () => {
+  enableBlockerReview()
+  harness.review = async () => {
+    reviewCloseVisible = true
+    await new Promise((r) => setTimeout(r, 250))
+    return reviewFixture()
+  }
+  harness.handler = async (tools: any, prompt: string) => {
+    if (harness.models === 1) expect(JSON.parse(prompt).observation.a11yTree).toContain('Close')
+    if (harness.models === 1)
+      return [
+        {
+          toolName: 'page_act',
+          result: await tools.page_act.execute({ type: 'click', role: 'button', name: 'Close' }),
+        },
+      ]
+    return [
+      {
+        toolName: 'run_finish',
+        result: await tools.run_finish.execute({ reason: 'unverified-scope' }),
+      },
+    ]
+  }
+  const run = await createRun({
+    goal: 'Inspect blockage and recovery',
+    environmentId: 'test',
+    entryUrl: url + '/changing-overlay',
+  })
+  ids.push(run.id)
+  await startRunExecution(run.id)
+  const events = await getEvents(run.id)
+  expect(harness.reviews).toBe(1)
+  expect(harness.models).toBe(2)
+  expect(
+    events.some(
+      (e) => e.type === 'finish:rejected' && e.payload.error === 'completion-review-state-changed',
+    ),
+  ).toBe(true)
+  expect(
+    events
+      .filter((e) => e.type === 'completion-review:commit')
+      .every((e) => e.payload.accepted === false),
+  ).toBe(true)
 })

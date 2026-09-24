@@ -24,6 +24,7 @@ export const config = Object.freeze({
 
   optimizations: {
     atomicInvestigation: process.env.EXECUTION_ATOMIC_INVESTIGATION === '1',
+    blockerReview: process.env.EXECUTION_BLOCKER_REVIEW === '1',
     observation: process.env.EXECUTION_OBSERVATION_REUSE !== '0',
     ruleRouting: process.env.EXECUTION_RULE_ROUTING !== '0',
     journeys: process.env.EXECUTION_JOURNEYS !== '0',
@@ -31,6 +32,14 @@ export const config = Object.freeze({
     shortFinish: process.env.EXECUTION_SHORT_FINISH !== '0',
     evidenceAnalysis: process.env.EXECUTION_EVIDENCE_ANALYSIS === '1',
     analysisMode: process.env.EXECUTION_ANALYSIS_MODE === 'serial' ? 'serial' : 'parallel',
+  },
+
+  completionReview: {
+    model: 'typesafe/jev-1.13',
+    expectedModel: 'typesafe/jev-1.13-20260917',
+    endpoint: process.env.COMPLETION_REVIEW_URL ?? 'https://openrouter.ai/api/alpha/decisions',
+    apiKey: process.env.COMPLETION_REVIEW_API_KEY ?? process.env.OPENROUTER_API_KEY ?? '',
+    timeoutMs: 15000,
   },
 
   budget: {
@@ -45,6 +54,8 @@ export const config = Object.freeze({
 
 export function checkModelConfig(): { ready: boolean; missing: string[] } {
   const missing: string[] = []
+  if (config.optimizations.blockerReview && !config.completionReview.apiKey)
+    missing.push('COMPLETION_REVIEW_API_KEY or OPENROUTER_API_KEY')
   if (!config.agentModel) missing.push('AGENT_MODEL')
   if (!config.visionModel) missing.push('VISION_MODEL')
 

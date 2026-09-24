@@ -5,6 +5,7 @@ import { mkdir, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { randomUUID } from 'node:crypto'
 
+const blockerReview = process.argv.includes('--blocker-review')
 const dir = resolve('data/atomic-fixture-check', new Date().toISOString().replace(/[:.]/g, '-'))
 await mkdir(dir, { recursive: true })
 const requests: any[] = []
@@ -12,13 +13,47 @@ const fixture = createServer(async (req, res) => {
   if (req.method === 'GET') {
     res.setHeader('content-type', 'text/html')
     res.end(
-      '<!doctype html><html><head><title>Export recovery</title></head><body><h1>Export failed</h1><button disabled>Resume export</button></body></html>',
+      blockerReview
+        ? '<!doctype html><button style="position:absolute;left:40px;top:40px;width:200px;height:60px">Confirm</button><div style="position:fixed;inset:0;background:white;z-index:100">Notice</div>'
+        : '<!doctype html><html><head><title>Export recovery</title></head><body><h1>Export failed</h1><button disabled>Resume export</button></body></html>',
     )
     return
   }
   let raw = ''
   for await (const chunk of req) raw += String(chunk)
   const body = JSON.parse(raw)
+  if (blockerReview && req.url === '/decisions') {
+    requests.push(body.state)
+    res.setHeader('content-type', 'application/json')
+    res.end(
+      JSON.stringify({
+        id: 'local-decision',
+        model: 'typesafe/jev-1.13-20260917',
+        provider: 'TypeSafe',
+        answers: {
+          completion: {
+            type: 'choice',
+            choice: 'observed-blocker',
+            confidence: 0.8,
+            probabilities: {
+              'scope-covered': 0,
+              'observed-blocker': 0.9,
+              continue: 0.05,
+              unknown: 0.05,
+            },
+          },
+        },
+        usage: { input_tokens: 123, output_tokens: 1, cost: 0 },
+      }),
+    )
+    return
+  }
+  if (blockerReview) {
+    res.writeHead(500)
+    res.end('Unexpected explorer request')
+    return
+  }
+
   const input = JSON.parse(body.messages.find((m: any) => m.role === 'user').content)
   requests.push(input)
   const target = input.observation.elements.find((e: any) => e.tag === 'button')
@@ -79,6 +114,9 @@ const server = spawn(process.execPath, ['dist/server/index.js'], {
     VISION_MODEL_FAMILY: 'qwen3',
     OPENROUTER_API_KEY: '',
     EXECUTION_ATOMIC_INVESTIGATION: '1',
+    EXECUTION_BLOCKER_REVIEW: blockerReview ? '1' : '0',
+    COMPLETION_REVIEW_URL: url + '/decisions',
+    COMPLETION_REVIEW_API_KEY: 'local-only',
     EXECUTION_EVIDENCE_ANALYSIS: '0',
     ARENA_URL: url,
     ARENA_PORT: new URL(url).port,
@@ -118,7 +156,9 @@ try {
   }
   if (!ready) throw Error('fixture server unavailable')
   const run = await get('/api/runs', {
-    goal: 'Inspect the recovery control without business writes.',
+    goal: blockerReview
+      ? 'Inspect access to the Confirm action; record any blocker.'
+      : 'Inspect the recovery control without business writes.',
     entryUrl: url,
     environmentId: 'arena',
     budget: { totalTimeoutMs: 30000, maxActions: 5, maxModelCalls: 6 },
@@ -139,17 +179,31 @@ try {
   const report = await get(`/api/runs/${run.runId}/report`)
   await writeFile(`${dir}/report.json`, JSON.stringify(report, null, 2))
   const count = (type: string) => report.events.filter((e: any) => e.type === type).length
-  const assertions = {
-    explicitFinish: count('finish:accepted') === 1,
-    oneWindow: count('transition:observed') === 1,
-    reused: count('investigation:reused') === 1,
-    oneHypothesis: report.hypotheses.length === 1,
-    boundedHypothesis: report.hypotheses[0]?.phenomenon.includes('measurement window'),
-    oneFinding: report.findings.length === 1 && report.findings[0].validationStatus === 'supported',
-    closed: report.status === 'blocked' && report.stopReason === 'blocked',
-    threeLocalDecisions: requests.length === 3,
-    noBusinessWrite: !count('business:response'),
-  }
+  const assertions = blockerReview
+    ? {
+        explicitFinish: count('finish:accepted') === 1,
+        reviewCommitted: report.events.some(
+          (e: any) => e.type === 'completion-review:commit' && e.payload.accepted,
+        ),
+        oneDecision: requests.length === 1 && report.usage.modelCalls === 1,
+        knownUsage: report.usage.modelInputTokens === 123,
+        closed: report.status === 'blocked' && report.businessResult === 'unknown',
+        oneFinding:
+          report.findings.length === 1 && report.findings[0].validationStatus === 'supported',
+        noBusinessWrite: !count('business:response'),
+      }
+    : {
+        explicitFinish: count('finish:accepted') === 1,
+        oneWindow: count('transition:observed') === 1,
+        reused: count('investigation:reused') === 1,
+        oneHypothesis: report.hypotheses.length === 1,
+        boundedHypothesis: report.hypotheses[0]?.phenomenon.includes('measurement window'),
+        oneFinding:
+          report.findings.length === 1 && report.findings[0].validationStatus === 'supported',
+        closed: report.status === 'blocked' && report.stopReason === 'blocked',
+        threeLocalDecisions: requests.length === 3,
+        noBusinessWrite: !count('business:response'),
+      }
   await writeFile(`${dir}/assertions.json`, JSON.stringify(assertions, null, 2))
   if (!Object.values(assertions).every(Boolean)) throw Error(JSON.stringify(assertions))
   for (const artifact of report.artifacts) {

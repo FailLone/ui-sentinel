@@ -2,7 +2,11 @@ import { it, expect } from 'vitest'
 import { mkdtemp, rm, readFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { startGateway, AGENT_MODEL } from '../../scripts/experiments/openrouter-gateway.ts'
+import {
+  startGateway,
+  AGENT_MODEL,
+  REVIEW_MODEL,
+} from '../../scripts/experiments/openrouter-gateway.ts'
 import { assertColdDecisionInput } from '../../scripts/experiments/isolation.ts'
 
 it('retains redacted non-SSE provider errors for streaming requests and keeps unknown cost reserved', async () => {
@@ -455,6 +459,62 @@ it('rejects inherited trial memory before any paid request and permits an isolat
     expect(() => assertColdDecisionInput({ messages: [] })).toThrow('input-contract')
   } finally {
     await gateway.end()
+    await gateway.close()
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
+it('accounts typed Decisions and explorer calls under the same gateway request and spending limits', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'gateway-decisions-'))
+  let forwarded = 0
+  const gateway = await startGateway(
+    'test-secret',
+    dir,
+    (async (url, init) => {
+      forwarded++
+      expect(url).toBe('https://openrouter.ai/api/alpha/decisions')
+      const body = JSON.parse(String(init?.body))
+      expect(body).not.toHaveProperty('max_tokens')
+      expect(body).not.toHaveProperty('provider')
+      expect(body).not.toHaveProperty('reasoning')
+      return Response.json({
+        id: 'd1',
+        model: 'typesafe/jev-1.13-20260917',
+        provider: 'TypeSafe',
+        answers: { completion: { choice: 'unknown' } },
+        usage: { input_tokens: 100, output_tokens: 1, cost: 0.01 },
+      })
+    }) as typeof fetch,
+    { limitUsd: 0.015, estimateCost: () => 0.01 },
+  )
+  try {
+    gateway.begin('shared', 2, 5000)
+    const send = (model: string, path: string) =>
+      fetch(gateway.url + path, {
+        method: 'POST',
+        headers: { authorization: `Bearer ${gateway.token}`, 'content-type': 'application/json' },
+        body: JSON.stringify({
+          model,
+          state: { goal: 'inspect' },
+          questions: { completion: { type: 'choice' } },
+        }),
+      })
+    const result = await send(REVIEW_MODEL, '/decisions')
+    expect(result.status).toBe(200)
+    await result.text()
+    const blocked = await send(AGENT_MODEL, '/chat/completions')
+    expect(blocked.status).toBe(429)
+    expect(forwarded).toBe(1)
+    const records = await gateway.end()
+    expect(records).toHaveLength(1)
+    expect(records[0]).toMatchObject({
+      model: REVIEW_MODEL,
+      actualModel: 'typesafe/jev-1.13-20260917',
+      provider: 'TypeSafe',
+      usage: { prompt_tokens: 100, completion_tokens: 1, cost: 0.01 },
+    })
+    expect(gateway.spending().knownCostUsd).toBe(0.01)
+  } finally {
     await gateway.close()
     await rm(dir, { recursive: true, force: true })
   }

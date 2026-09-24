@@ -2,6 +2,7 @@ import { createServer } from 'node:http'
 import { randomBytes } from 'node:crypto'
 import { appendFile } from 'node:fs/promises'
 
+export const REVIEW_MODEL = 'typesafe/jev-1.13'
 export const AGENT_MODEL = 'deepseek/deepseek-v4.1-flash'
 export const VISION_MODEL = 'qwen/qwen3.7-plus'
 export async function startGateway(
@@ -35,8 +36,9 @@ export async function startGateway(
       res.end(JSON.stringify({ error: { message } }))
     }
     if (req.headers.authorization !== `Bearer ${token}`) return reply(401, 'Unauthorized')
-    if (req.url !== '/v1/chat/completions' || req.method !== 'POST')
-      return reply(404, 'Only chat completions permitted')
+    const decisions = req.url === '/v1/decisions'
+    if ((!decisions && req.url !== '/v1/chat/completions') || req.method !== 'POST')
+      return reply(404, 'Only chat completions and decisions permitted')
     const run = active
     if (!run || run.requests.length >= run.limit || Date.now() >= run.deadline)
       return reply(429, 'experiment-budget-exhausted')
@@ -50,7 +52,7 @@ export async function startGateway(
     }
     if (active !== run || run.requests.length >= run.limit || Date.now() >= run.deadline)
       return reply(429, 'experiment-budget-exhausted')
-    if (![AGENT_MODEL, VISION_MODEL].includes(body.model))
+    if (!(decisions ? [REVIEW_MODEL] : [AGENT_MODEL, VISION_MODEL]).includes(body.model))
       return reply(400, 'Unexpected model; fallback disabled')
     if (body.model === AGENT_MODEL && run.guardInput) {
       try {
@@ -65,21 +67,28 @@ export async function startGateway(
         return reply(409, violation.error)
       }
     }
-    // Same policy for both arms. SDK-specific tool/message schemas remain intact.
-    body.max_tokens = 4096
-    delete body.max_completion_tokens
-    body.reasoning =
-      body.model === AGENT_MODEL && run.reasoning === 'low' ? { effort: 'low' } : { enabled: false }
-    const provider =
-      body.model === AGENT_MODEL
-        ? process.env.EXPERIMENT_AGENT_PROVIDER
-        : process.env.EXPERIMENT_VISION_PROVIDER
-    body.provider = {
-      allow_fallbacks: false,
-      require_parameters: true,
-      ...(provider ? { only: [provider] } : {}),
+    if (!decisions) {
+      // Same policy for both arms. SDK-specific tool/message schemas remain intact.
+      body.max_tokens = 4096
+      delete body.max_completion_tokens
+      body.reasoning =
+        body.model === AGENT_MODEL && run.reasoning === 'low'
+          ? { effort: 'low' }
+          : { enabled: false }
+      const provider =
+        body.model === AGENT_MODEL
+          ? process.env.EXPERIMENT_AGENT_PROVIDER
+          : process.env.EXPERIMENT_VISION_PROVIDER
+      body.provider = {
+        allow_fallbacks: false,
+        require_parameters: true,
+        ...(provider ? { only: [provider] } : {}),
+      }
+      if (body.stream) body.stream_options = { include_usage: true }
+    } else {
+      if (body.stream || !body.state || !body.questions || Object.keys(body.questions).length !== 1)
+        return reply(400, 'Expected one non-streaming decision question')
     }
-    if (body.stream) body.stream_options = { include_usage: true }
     const reservation = spending?.estimateCost(body) ?? 0
     if (
       spending &&
@@ -121,7 +130,15 @@ export async function startGateway(
     let pendingLine = ''
     const acceptEvent = (event: any) => {
       events.push(event)
-      if (event.usage) record.usage = event.usage
+      if (event.usage)
+        record.usage = decisions
+          ? {
+              ...event.usage,
+              prompt_tokens: event.usage.input_tokens,
+              completion_tokens: event.usage.output_tokens,
+            }
+          : event.usage
+      if (event.model) record.actualModel = event.model
       if (event.id) record.responseId = event.id
       if (event.provider) record.provider = event.provider
       const elapsed = Date.now() - start
@@ -157,12 +174,17 @@ export async function startGateway(
         `${directory}/requests.jsonl`,
         redact(JSON.stringify({ event: 'request', ...record, body })) + '\n',
       )
-      const upstream = await upstreamFetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' },
-        body: JSON.stringify(body),
-        signal: controller.signal,
-      })
+      const upstream = await upstreamFetch(
+        decisions
+          ? 'https://openrouter.ai/api/alpha/decisions'
+          : 'https://openrouter.ai/api/v1/chat/completions',
+        {
+          method: 'POST',
+          headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' },
+          body: JSON.stringify(body),
+          signal: controller.signal,
+        },
+      )
       record.firstByteMs = Date.now() - start
       record.httpStatus = upstream.status
       const chunks: Uint8Array[] = []

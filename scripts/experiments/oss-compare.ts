@@ -5,7 +5,7 @@ import { createServer } from 'node:net'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { resolve, join } from 'node:path'
 import { createClient } from '@libsql/client'
-import { startGateway, AGENT_MODEL, VISION_MODEL } from './openrouter-gateway.ts'
+import { startGateway, AGENT_MODEL, VISION_MODEL, REVIEW_MODEL } from './openrouter-gateway.ts'
 import { evaluateRun } from '../../evaluation/private/evaluator.ts'
 import {
   evaluateRecoveryRun,
@@ -19,12 +19,15 @@ import { assertColdDecisionInput } from './isolation.ts'
 
 const args = process.argv.slice(2)
 const candidate = args.includes('--candidate') ? args[args.indexOf('--candidate') + 1] : undefined
+const blockerReview =
+  args.includes('--study') && args[args.indexOf('--study') + 1] === 'blocker-review'
 const nativeAtomic =
   args.includes('--study') && args[args.indexOf('--study') + 1] === 'native-atomic'
 const holdout = args.includes('--study') && args[args.indexOf('--study') + 1] === 'atomic-holdout'
 const atomicConfirm =
   args.includes('--study') && args[args.indexOf('--study') + 1] === 'atomic-confirm'
 const atomic =
+  blockerReview ||
   holdout ||
   atomicConfirm ||
   (args.includes('--study') && args[args.indexOf('--study') + 1] === 'atomic')
@@ -48,6 +51,7 @@ if (
         'atomic-confirm',
         'atomic-holdout',
         'native-atomic',
+        'blocker-review',
       ].includes(a),
   )
 )
@@ -76,25 +80,42 @@ if (
   )
 )
   throw Error('Missing fixed models or prices')
+if (blockerReview) {
+  const metadata = (await fetch('https://openrouter.ai/api/v1/models/typesafe/jev-1.13/endpoints', {
+    signal: AbortSignal.timeout(15000),
+  }).then((r) => r.json())) as any
+  const endpoint = metadata.data?.endpoints?.find((e: any) => e.provider_name === 'TypeSafe')
+  if (
+    !endpoint ||
+    endpoint.context_length !== 32000 ||
+    Number(endpoint.pricing?.prompt) !== 0.000000042 ||
+    Number(endpoint.pricing?.completion) !== 0
+  )
+    throw Error('Frozen Jev model/price changed')
+  models.push({ id: REVIEW_MODEL, pricing: endpoint.pricing, metadata })
+}
 await save('models.json', models)
 process.env.EXPERIMENT_AGENT_PROVIDER = 'Wafer'
 process.env.EXPERIMENT_VISION_PROVIDER = 'Alibaba'
 if (convergence && models[0].reasoning?.mandatory)
   throw Error('Fixed model cannot disable reasoning')
-const maxCostUsd = nativeAtomic
+const maxCostUsd = blockerReview
   ? 1
-  : holdout
-    ? 2
-    : atomicConfirm
-      ? 3
-      : atomic
-        ? 1
-        : candidate || convergence
-          ? 3
-          : 2
+  : nativeAtomic
+    ? 1
+    : holdout
+      ? 2
+      : atomicConfirm
+        ? 3
+        : atomic
+          ? 1
+          : candidate || convergence
+            ? 3
+            : 2
 const gateway = await startGateway(key, dir, fetch, {
   limitUsd: maxCostUsd,
   estimateCost: (body) => {
+    if (body.model === REVIEW_MODEL) return 0.001344
     const m = models.find((m) => m.id === body.model)
     return (
       Buffer.byteLength(JSON.stringify(body)) * Number(m.pricing.prompt) +
@@ -120,6 +141,9 @@ const env: NodeJS.ProcessEnv = {
   TOOL_TIMEOUT_MS: '15000',
   EXECUTION_EVIDENCE_ANALYSIS: '0',
   EXECUTION_ATOMIC_INVESTIGATION: '0',
+  EXECUTION_BLOCKER_REVIEW: '0',
+  COMPLETION_REVIEW_API_KEY: gateway.token,
+  COMPLETION_REVIEW_URL: gateway.url + '/decisions',
   ARENA_STATIC: '1',
   DATABASE_URL: `file:${dir}/runs.db`,
   ARENA_CONTROL_TOKEN: randomBytes(24).toString('hex'),
@@ -153,13 +177,20 @@ const dependencies = execFileSync(
 )
 await writeFile(join(dir, 'python-dependencies.txt'), dependencies)
 const goal = holdout ? holdoutGoal : inspectionGoal
-const cases = holdout
-  ? (['H0', 'H1', 'H2'] as const)
-  : atomicConfirm
-    ? (['C0', 'C1', 'C2', 'C3', 'C4', 'C5'] as const)
-    : (['C0', 'C2', 'C5'] as const)
-const schedule =
-  atomicConfirm || holdout
+const cases = blockerReview
+  ? (['C1', 'C2', 'C4', 'C5'] as const)
+  : holdout
+    ? (['H0', 'H1', 'H2'] as const)
+    : atomicConfirm
+      ? (['C0', 'C1', 'C2', 'C3', 'C4', 'C5'] as const)
+      : (['C0', 'C2', 'C5'] as const)
+const schedule = blockerReview
+  ? cases.flatMap((variant, index) =>
+      (index % 2 ? ['current-review', 'current-atomic'] : ['current-atomic', 'current-review']).map(
+        (arm) => ({ variant, repeat: 1, arm }),
+      ),
+    )
+  : atomicConfirm || holdout
     ? cases.flatMap((variant, index) =>
         [1, 2, 3].flatMap((repeat) =>
           ((index + repeat) % 2
@@ -210,23 +241,26 @@ function profile(arm: string) {
       ? 'disabled'
       : 'low') as 'disabled' | 'low',
     flash: arm === 'browser-use-flash',
-    atomic: arm.endsWith('-atomic'),
+    atomic: arm.endsWith('-atomic') || arm === 'current-review',
+    blockerReview: arm === 'current-review',
   }
 }
 const manifest = {
-  protocol: nativeAtomic
-    ? 'native-atomic-diagnostic-1'
-    : holdout
-      ? 'atomic-investigation-holdout-1'
-      : atomicConfirm
-        ? 'atomic-investigation-confirm-1'
-        : atomic
-          ? 'atomic-investigation-diagnostic-1'
-          : convergence
-            ? 'architecture-convergence-screen-2'
-            : candidate
-              ? 'oss-quality-confirm-1'
-              : 'oss-quality-screen-1',
+  protocol: blockerReview
+    ? 'selective-blocker-review-1'
+    : nativeAtomic
+      ? 'native-atomic-diagnostic-1'
+      : holdout
+        ? 'atomic-investigation-holdout-1'
+        : atomicConfirm
+          ? 'atomic-investigation-confirm-1'
+          : atomic
+            ? 'atomic-investigation-diagnostic-1'
+            : convergence
+              ? 'architecture-convergence-screen-2'
+              : candidate
+                ? 'oss-quality-confirm-1'
+                : 'oss-quality-screen-1',
   evaluationProtocol: holdout
     ? 'reservation-holdout-1'
     : convergence
@@ -240,7 +274,17 @@ const manifest = {
   ),
   candidate: candidate ?? null,
   commit: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
-  models: [AGENT_MODEL, VISION_MODEL],
+  models: blockerReview ? [AGENT_MODEL, VISION_MODEL, REVIEW_MODEL] : [AGENT_MODEL, VISION_MODEL],
+  completionReview: blockerReview
+    ? {
+        model: REVIEW_MODEL,
+        expectedModel: 'typesafe/jev-1.13-20260917',
+        timeoutMs: 15000,
+        retries: 0,
+        choicesAccepted: ['observed-blocker'],
+        maxPerRun: 3,
+      }
+    : undefined,
   providers: ['Wafer', 'Alibaba'],
   reasoning: convergence
     ? { agent: 'per frozen profile', vision: 'disabled' }
@@ -351,6 +395,7 @@ async function waitReady() {
 }
 try {
   console.log(`Frozen ${schedule.length}-run quality comparison; cap $${maxCostUsd}: ${dir}`)
+  env.EXECUTION_BLOCKER_REVIEW = profile(schedule[0]!.arm).blockerReview ? '1' : '0'
   env.EXECUTION_ATOMIC_INVESTIGATION = profile(schedule[0]!.arm).atomic ? '1' : '0'
   serverProcess = launch('server', ['dist/server/index.js'])
   launch(
@@ -372,6 +417,7 @@ try {
   })
   for (const item of schedule) {
     const executionProfile = profile(item.arm)
+    env.EXECUTION_BLOCKER_REVIEW = executionProfile.blockerReview ? '1' : '0'
     env.EXECUTION_ATOMIC_INVESTIGATION = executionProfile.atomic ? '1' : '0'
     if (convergence && records.length) {
       await request('/api/evaluation/release', { lease: lease.lease })
@@ -529,7 +575,14 @@ try {
       record.explicitFinish = report.events.some((e: any) => e.type === 'finish:accepted')
       record.providerMatched = record.requests.every(
         (r: any) =>
-          r.provider === (r.model === AGENT_MODEL ? 'Wafer' : 'Alibaba') || r.status !== 'success',
+          r.status !== 'success' ||
+          (r.provider ===
+            (r.model === AGENT_MODEL
+              ? 'Wafer'
+              : r.model === REVIEW_MODEL
+                ? 'TypeSafe'
+                : 'Alibaba') &&
+            (r.model !== REVIEW_MODEL || r.actualModel === 'typesafe/jev-1.13-20260917')),
       )
       record.passed = record.score.overallPass && record.explicitFinish && record.providerMatched
       record.costKnownUsd = record.requests.reduce(
