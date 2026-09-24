@@ -1,0 +1,122 @@
+import { createHash } from 'node:crypto'
+import { z } from 'zod'
+import { checkoutProfile, exportProfile } from './profiles/index.ts'
+import { resolveEnvironment } from './environments.ts'
+import type {
+  BusinessContractSnapshot,
+  BusinessProfile,
+  BusinessProfileId,
+  PublicBusinessProfile,
+} from './types.ts'
+
+/**
+ * The registry is the only place a profile may be resolved from. Profiles are frozen at
+ * registration, so a resolved contract cannot be mutated after it has been persisted.
+ */
+const registry: readonly BusinessProfile[] = Object.freeze([checkoutProfile, exportProfile])
+
+export const profileIds = Object.freeze(registry.map((p) => p.id))
+
+export function registeredProfiles(): readonly BusinessProfile[] {
+  return registry
+}
+
+export function resolveProfile(
+  requested: { id: string; revision: string } | string | undefined,
+): BusinessProfile | undefined {
+  if (!requested || typeof requested === 'string') return undefined
+  return registry.find((p) => p.id === requested.id && p.revision === requested.revision)
+}
+
+/**
+ * Stable SHA-256 over the canonical snapshot, excluding the hash field itself.
+ * Object keys are emitted in sorted order at every depth so key order cannot change the hash;
+ * array order is preserved because requirement order is part of the contract.
+ */
+export function contractHash(snapshot: Record<string, unknown> | BusinessContractSnapshot): string {
+  const { hash: _ignored, ...rest } = snapshot as Record<string, unknown>
+  const canonical = (value: unknown): string => {
+    if (value === null || typeof value !== 'object') return JSON.stringify(value) ?? 'null'
+    if (Array.isArray(value)) return `[${value.map(canonical).join(',')}]`
+    const entries = Object.entries(value as Record<string, unknown>)
+      .filter(([, v]) => v !== undefined)
+      .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+    return `{${entries.map(([k, v]) => `${JSON.stringify(k)}:${canonical(v)}`).join(',')}}`
+  }
+  return createHash('sha256').update(canonical(rest)).digest('hex')
+}
+
+export function requireEnvironment(profile: BusinessProfile, environmentId: string) {
+  if (!profile.environments.includes(environmentId as never)) return undefined
+  return resolveEnvironment(environmentId)
+}
+
+/**
+ * Build the frozen snapshot persisted with a run. The caller must resolve the environment
+ * first: a profile that is not registered for an environment has no valid snapshot.
+ */
+export function buildContractSnapshot(
+  profile: BusinessProfile,
+  environmentId: string = profile.defaultEnvironment,
+): BusinessContractSnapshot {
+  const environment = requireEnvironment(profile, environmentId)
+  if (!environment) throw new Error('profile-not-registered-for-environment')
+  const withoutHash = {
+    schemaVersion: '1' as const,
+    profileId: profile.id,
+    revision: profile.revision,
+    adapter: { id: profile.id, revision: profile.adapterRevision },
+    requirements: profile.requirements,
+    retryAvailabilityMs: profile.retryAvailabilityMs,
+    feedbackWarningMs: profile.feedbackWarningMs,
+    effects: profile.effects,
+    environment: {
+      id: environment.id,
+      entryUrl: environment.entryUrl,
+      publicOrigin: environment.publicOrigin,
+    },
+  }
+  return Object.freeze({
+    ...withoutHash,
+    hash: contractHash(withoutHash as unknown as Record<string, unknown>),
+  }) as BusinessContractSnapshot
+}
+
+/** Public projection. Deliberately omits ports, tokens, adapter internals and any answer key. */
+export function listPublicProfiles(): readonly PublicBusinessProfile[] {
+  return registry.map((profile) =>
+    Object.freeze({
+      id: profile.id,
+      revision: profile.revision,
+      name: profile.name,
+      description: profile.description,
+      requirements: profile.requirements,
+      environments: profile.environments,
+      defaultEnvironment: profile.defaultEnvironment,
+    }),
+  )
+}
+
+const requestedSchema = z.object({ id: z.string().min(1), revision: z.string().min(1) }).strict()
+
+export type RequestedProfile =
+  | { readonly kind: 'absent' }
+  | { readonly kind: 'unknown' }
+  | { readonly kind: 'resolved'; readonly profile: BusinessProfile }
+
+/**
+ * Interpret an optional businessProfile field. An absent field is not the same as an unknown
+ * one: the caller decides the legacy fallback for absent, but an explicit unknown id or
+ * revision must never silently degrade to a default.
+ */
+export function parseRequestedProfile(value: unknown): RequestedProfile {
+  if (value === undefined || value === null) return { kind: 'absent' }
+  const parsed = requestedSchema.safeParse(value)
+  if (!parsed.success) return { kind: 'unknown' }
+  const profile = resolveProfile(parsed.data)
+  return profile ? { kind: 'resolved', profile } : { kind: 'unknown' }
+}
+
+export function profileRevisionKey(id: BusinessProfileId, revision: string): string {
+  return `${id}@${revision}`
+}

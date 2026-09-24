@@ -17,6 +17,9 @@ function retries(): number {
 export const config = Object.freeze({
   port: bounded('PORT', 4111, 65535),
   arenaPort: bounded('ARENA_PORT', 4173, 65535),
+  exportArenaPort: bounded('EXPORT_ARENA_PORT', 4183, 65535),
+  exportApiPort: bounded('EXPORT_API_PORT', 4184, 65535),
+  exportControlPort: bounded('EXPORT_CONTROL_PORT', 4185, 65535),
   databaseUrl: process.env.DATABASE_URL ?? 'file:./data/ui-sentinel.db',
 
   agentModel: process.env.AGENT_MODEL ?? '',
