@@ -127,6 +127,18 @@ let exportWorkspaceAtRoot = false
 let b07Enabled = false
 let b07Stage = 0
 let b07JobId = ''
+/** The export workspace for the cancellation test: it starts a job on click. */
+let exportWorkspaceStart = false
+/**
+ * P04: the export create is committed server-side, then the response is lost.
+ *
+ * The write really happened, so the correct handling is `reconciliation-required` - not a silent
+ * replay of the create. What makes the case different from the shopping arena's is that export's
+ * write is a 202 that only starts an asynchronous job: the executor must still reconcile.
+ */
+let exportCreateTruncated = false
+/** P04: how many times the fixture accepted a create, so a replay is visible rather than inferred. */
+let exportCreates = 0
 const server = createServer((req, res) => {
   if (req.url === '/api/checkout') {
     writes++
@@ -235,6 +247,17 @@ const server = createServer((req, res) => {
       )
     return
   }
+  // The plain export workspace used by the cancellation test: one control that starts a job.
+  if (req.url === '/' && exportWorkspaceStart) {
+    res.setHeader('content-type', 'text/html')
+    res.end(`<h1>Exports</h1><p id="job"></p><button id="start">Start export</button><script>
+      document.getElementById('start').onclick=async function(){
+        const d=await fetch('/api/exports',{method:'POST',headers:{'content-type':'application/json'},
+          body:JSON.stringify({datasetId:'orders-q3',format:'csv'})}).then(r=>r.json());
+        document.getElementById('job').textContent=d.jobId+' '+d.phase;
+      };</script>`)
+    return
+  }
   // An asynchronous export workspace: it owns a job and polls it in the background. The poll is a
   // real business read the run did not initiate, which is what makes this a test of attribution -
   // an unrelated action must not adopt the poll's result as its own.
@@ -321,6 +344,18 @@ const server = createServer((req, res) => {
     // A minimal asynchronous export protocol: create returns processing, a status read settles it.
     if (req.method === 'POST' && req.url === '/api/exports') {
       exportJobId = `job-${++exportJobs}`
+      exportCreates++
+      // The job is genuinely created before the response dies: the write is committed and its
+      // result is unknowable to the caller, which is what reconciliation is for.
+      if (exportCreateTruncated) {
+        // The job was created above; the response is what is lost. A 5xx is how the existing P04
+        // case models an uncertain write. Truncating the socket instead makes Chromium re-send the
+        // POST on its own, which puts two creates in the fixture and would make "one write" a
+        // statement about the transport rather than about the executor.
+        res.writeHead(500, { 'content-type': 'application/json' })
+        res.end('{}')
+        return
+      }
       res.setHeader('content-type', 'application/json')
       res.end(
         JSON.stringify({
@@ -430,6 +465,9 @@ beforeEach(() => {
   b07Enabled = false
   b07Stage = 0
   b07JobId = ''
+  exportWorkspaceStart = false
+  exportCreateTruncated = false
+  exportCreates = 0
 })
 
 async function makeRun() {
@@ -2154,5 +2192,115 @@ describe('verified business state across navigation (B07)', () => {
     // reported forever - the run cannot keep claiming a success the business has contradicted.
     expect(sequence[4]?.businessResult, detail).not.toBe('success')
     expect((await getRun(run.id))?.businessResult, detail).not.toBe('success')
+  })
+})
+
+// P04 and P07 on the export business.
+//
+// Both are properties of the executor rather than of a business - an uncertain write must be
+// reconciled, and a late dispatch after cancellation must not happen. They were covered only on the
+// shopping arena, and export's write is a different shape: a 202 that merely *starts* an
+// asynchronous job, so a create whose response is lost leaves a job running that nobody has
+// correlated. The executor must reach the same conclusion there, and it must not reach it by
+// replaying the create, which would leave two jobs for one intent.
+describe('export side-effect and cancellation boundaries (P04, P07)', () => {
+  function bindExport() {
+    return bindProfile(resolveProfile({ id: 'export', revision: '1' })!, {
+      id: 'export-arena',
+      entryUrl: url,
+      publicOrigin: url,
+    })
+  }
+
+  it('P04: an export create whose response is lost is quarantined, never replayed', async () => {
+    exportWorkspaceStart = true
+    exportCreateTruncated = true
+    let dispatched = 0
+    harness.handler = async (tools: any) => {
+      if (dispatched++ === 0) {
+        const result = await call(tools, 'page_act', {
+          type: 'click',
+          role: 'button',
+          name: 'Start export',
+        })
+        // The action itself may report the transport failure; what matters is the run's handling.
+        void result
+        return []
+      }
+      // A second attempt at the same intent. The policy must refuse it rather than write again.
+      await call(tools, 'page_act', { type: 'click', role: 'button', name: 'Start export' })
+      return []
+    }
+    const run = await createRun({
+      goal: 'Start an export',
+      environmentId: 'test',
+      entryUrl: url,
+      businessContract: bindExport() as never,
+    })
+    ids.push(run.id)
+    await startRunExecution(run.id)
+
+    // The uncertain write must be reconciled explicitly, exactly as on the shopping arena.
+    expect((await getRun(run.id))?.stopReason).toBe('reconciliation-required')
+    // And it must not have been replayed: one committed write, one job, not two. An asynchronous
+    // create makes this sharper than on the shopping arena, because a replayed create would leave a
+    // second job running that nothing correlates.
+    expect(exportCreates).toBe(1)
+    expect(exportJobs).toBe(1)
+    // The run reported the uncertainty rather than a business result it could not know.
+    expect((await getRun(run.id))?.businessResult).not.toBe('success')
+    // Release the latch, so the next scenario is not blocked behind this quarantine.
+    await acknowledgeReconciliation()
+    expect(executionBusy()).toBe(false)
+  })
+
+  it('P07: cancelling during an export model turn dispatches no late create', async () => {
+    exportWorkspaceStart = true
+    let release!: () => void, entered!: () => void
+    const ready = new Promise<void>((r) => (entered = r)),
+      waiting = new Promise<void>((r) => (release = r))
+    let late: { status?: string; error?: string } | undefined
+    harness.handler = async (tools: any) => {
+      entered()
+      await waiting
+      // The late action, dispatched only after cancellation has already been requested. Whether it
+      // is refused, or allowed but prevented from reaching the business, the assertion below is that
+      // it must not produce a write.
+      try {
+        late = await call(tools, 'page_act', {
+          type: 'click',
+          role: 'button',
+          name: 'Start export',
+        })
+      } catch (error) {
+        late = { status: 'threw', error: String(error) }
+      }
+    }
+    const run = await createRun({
+      goal: 'Start an export',
+      environmentId: 'test',
+      entryUrl: url,
+      businessContract: bindExport() as never,
+    })
+    ids.push(run.id)
+    const done = startRunExecution(run.id)
+    await ready
+    expect(await cancelRunExecution(run.id)).toBe(true)
+    release()
+    await done
+
+    expect((await getRun(run.id))?.status).toBe('cancelled')
+    // The late action really was attempted and really was refused - it did not simply never run,
+    // which is the difference between a lazy tool call and a protected one.
+    expect(late, 'the late action was never attempted, so this case proves nothing').toBeDefined()
+    // Refused by name, not merely "not completed": a tool call that silently returned nothing would
+    // leave the write unprotected and this test still passing. The refusal is enforced at more than
+    // one layer - removing `throwIfAborted` from the tool guard alone does not defeat it - so this
+    // asserts the behaviour rather than naming the layer that produced it.
+    expect(late?.error, JSON.stringify(late)).toContain('cancelled')
+    // No create reached the business: export's write is a real second job here, so its absence is
+    // direct evidence rather than an inference from an empty event list.
+    expect(exportCreates).toBe(0)
+    expect(exportJobs).toBe(0)
   })
 })
