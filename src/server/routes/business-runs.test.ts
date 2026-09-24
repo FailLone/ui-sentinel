@@ -280,6 +280,44 @@ describe('C08: legacy records stay readable and are never re-versioned', () => {
     expect(report!.business.hash).toMatch(/^[0-9a-f]{64}$/)
   })
 
+  it('C08 export: a contract-less run on the export origin stays unversioned', async () => {
+    // The versioned export case is covered above; the risk on the same origin is the opposite one -
+    // that an old row is retroactively given today's export contract because its URL matches. The
+    // entry is an export-arena URL on purpose, so a report that inferred its contract from the
+    // address would be caught here rather than passing on the checkout origin.
+    const run = await createRun({
+      goal: 'legacy export goal',
+      environmentId: 'export-arena',
+      entryUrl: 'http://localhost:4183',
+    })
+    expect((await getRun(run.id))!.spec.businessContract).toBeUndefined()
+    const { buildReport } = await import('../reports/run-report.ts')
+    const report = await buildReport(run.id)
+    expect(report!.business.status).toBe('legacy-unversioned')
+    // Not "borrows the current requirements": empty, with no profile, hash or effects to grade by.
+    expect(report!.business.requirements).toEqual([])
+    expect(report!.business.profileId).toBeNull()
+    expect(report!.business.hash).toBeNull()
+    expect(report!.business.effects).toBeNull()
+    expect(report!.business.adapter).toBeNull()
+    // And reading it wrote nothing back onto the row.
+    expect((await getRun(run.id))!.spec.businessContract).toBeUndefined()
+
+    // The positive control: the same origin *with* a frozen contract reports versioned, and as
+    // export. That is what shows the result above came from the record being contract-less rather
+    // than from the export origin being unrecognised.
+    const res = await post({
+      goal: 'versioned export',
+      environmentId: 'export-arena',
+      businessProfile: { id: 'export', revision: '1' },
+    })
+    const versionedId = (await res.json()).runId
+    const versioned = await buildReport(versionedId)
+    expect(versioned!.business.status).toBe('versioned')
+    expect(versioned!.business.profileId).toBe('export')
+    expect(versioned!.business.adapter).toEqual({ id: 'export', revision: '1' })
+  })
+
   it('does not silently overwrite a legacy row when a new run is created', async () => {
     const legacy = await createRun({
       goal: 'another legacy',
