@@ -1,6 +1,7 @@
 import { AsyncLocalStorage } from 'node:async_hooks'
 import { randomUUID } from 'node:crypto'
 import type { Agent } from '@mastra/core/agent'
+import type { ChunkType } from '@mastra/core/stream'
 import { config } from '../shared/config.ts'
 import { createModelTiming, markModelToolExecution, type ModelTiming } from './model-timing.ts'
 
@@ -165,6 +166,26 @@ export async function executeModelRequest(
       },
     }
     let result: Awaited<ReturnType<Agent['generate']>> | undefined
+    const toolErrors = new Map<string, Record<string, unknown>>()
+    const onChunk = (chunk: ChunkType<unknown>) => {
+      timing.chunk(chunk)
+      // Mastra emits tool-error separately and excludes it from FullOutput.toolResults.
+      // Keep a failed receipt for the next decision; this is not a provider retry.
+      if (chunk.type !== 'tool-error') return
+      const { toolCallId, toolName, args, error } = chunk.payload
+      const message =
+        error instanceof Error
+          ? error.message
+          : typeof error === 'object' && error !== null && 'message' in error
+            ? String(error.message)
+            : typeof error === 'string'
+              ? error
+              : String(error ?? 'Tool failed without an error message')
+      toolErrors.set(toolCallId, {
+        type: 'tool-error',
+        payload: { toolCallId, toolName, args, result: { status: 'error', error: message } },
+      })
+    }
     let failure: unknown
     try {
       result = await attempts.run(context, () =>
@@ -179,6 +200,7 @@ export async function executeModelRequest(
                 abortSignal: signal,
                 activeTools: options.activeTools,
                 toolChoice: options.requireTool ? 'required' : 'auto',
+                onChunk,
               }),
             )
           let streamError: Error | undefined
@@ -189,7 +211,7 @@ export async function executeModelRequest(
               activeTools: options.activeTools,
               toolChoice: options.requireTool ? 'required' : 'auto',
               abortSignal: signal,
-              onChunk: (chunk) => timing.chunk(chunk),
+              onChunk,
               onError: ({ error }) => {
                 streamError = error instanceof Error ? error : new Error(error)
               },
@@ -244,7 +266,10 @@ export async function executeModelRequest(
     if (failure === undefined && result)
       return {
         text: result.text ?? '',
-        toolResults: (result.toolResults ?? []) as unknown as readonly Record<string, unknown>[],
+        toolResults: [
+          ...((result.toolResults ?? []) as unknown as readonly Record<string, unknown>[]),
+          ...toolErrors.values(),
+        ],
         usage: result.usage as ModelRequestResult['usage'],
         attemptId,
         attempts: index + 1,

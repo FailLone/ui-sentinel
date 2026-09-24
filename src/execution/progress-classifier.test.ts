@@ -150,6 +150,28 @@ it('does not count rejected finish as completion', () => {
   ).toBe('no-progress')
 })
 
+it('keeps failed calls visible without counting them as actions or accepted finishes', () => {
+  const failure = (toolName: string) => ({
+    type: 'tool-error',
+    payload: { toolName, result: { status: 'error', error: 'tool failed' } },
+  })
+  expect(classifyResponse({ toolResults: [failure('page_act')] })).toMatchObject({
+    category: 'no-progress',
+    toolsCalled: ['page_act'],
+  })
+  expect(
+    classifyResponse({ toolResults: [failure('run_finish'), { toolName: 'page_observe' }] }),
+  ).toMatchObject({
+    category: 'observe-only',
+    toolsCalled: ['run_finish', 'page_observe'],
+  })
+  expect(
+    classifyResponse({
+      toolResults: [failure('page_act'), { toolName: 'run_finish', result: { accepted: true } }],
+    }).category,
+  ).toBe('finish')
+})
+
 it('recognizes background analysis, hypothesis linkage and evidenced navigation without equating submission to new facts', () => {
   expect(classifyResponse({ toolResults: [{ toolName: 'visual_review' }] }).category).toBe(
     'observe-only',

@@ -21,6 +21,17 @@ export function classifyResponse(result: {
   const toolResults = result.toolResults ?? []
   const toolsCalled = toolResults.map(extractToolName)
   const hasText = typeof result.text === 'string' && result.text.trim().length > 0
+  const successfulResults = toolResults.filter((item) => item.type !== 'tool-error')
+  if (successfulResults.length !== toolResults.length) {
+    const classification = classifyResponse({ text: result.text, toolResults: successfulResults })
+    return {
+      ...classification,
+      toolsCalled,
+      ...(successfulResults.length === 0
+        ? { category: 'no-progress' as const, basis: 'tool execution failed; no successful result' }
+        : {}),
+    }
+  }
 
   if (toolsCalled.includes('run.finish') || toolsCalled.includes('run_finish')) {
     const accepted = toolResults.some((item) => {
