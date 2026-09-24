@@ -31,6 +31,7 @@ type Report = RunReport & {
   }[]
   evidenceRefs?: string[]
   evaluations?: unknown[]
+  persistence?: { status: string; issues: string[] }
   coverage?: unknown
   hypotheses?: unknown[]
 }
@@ -326,6 +327,12 @@ function App() {
               </p>
             )}
             <p>
+              {report.persistence?.status === 'inconsistent' && (
+                <strong>
+                  执行记录不完整，完成结果未获验证。请先核对业务状态，勿重复提交。
+                  <br />
+                </strong>
+              )}
               执行：{report.status} · 业务：{report.businessResult} · 停止原因：
               {report.stopReason ?? '尚未停止'}
             </p>

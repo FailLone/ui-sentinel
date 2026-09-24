@@ -1,3 +1,4 @@
+import { completionIssues } from '../../execution/completion-integrity.ts'
 import { interventionLimitation } from '../../shared/evidence-integrity.ts'
 import { unresolvedAnalyses } from '../../execution/evidence-analysis/coverage.ts'
 import type { AnalysisTask } from '../../execution/evidence-analysis/queue.ts'
@@ -11,7 +12,7 @@ import {
   createRun,
   getRun,
   getEvents,
-  getFindings,
+  getRunSnapshot,
   isRunActive,
 } from '../../execution/run-manager.ts'
 import { startRunExecution, cancelRunExecution } from '../../execution/executor.ts'
@@ -175,21 +176,15 @@ runRoutes.get('/api/runs/:id/events', async (c) => {
 })
 
 export async function buildReport(runId: string) {
-  const run = await getRun(runId)
-  if (!run) return null
-  const db = getDbClient()
-  const [findings, events, hypothesisRows, artifactRows] = await Promise.all([
-    getFindings(runId),
-    getEvents(runId),
-    db.execute({
-      sql: 'SELECT * FROM hypotheses WHERE run_id = ? ORDER BY created_at',
-      args: [runId],
-    }),
-    db.execute({
-      sql: 'SELECT * FROM artifacts WHERE run_id = ? ORDER BY created_at',
-      args: [runId],
-    }),
-  ])
+  const snapshot = await getRunSnapshot(runId)
+  if (!snapshot) return null
+  const { run, findings, events, hypothesisRows, artifactRows } = snapshot
+  const active = isRunActive(runId)
+  const settled = !active && ['completed', 'blocked'].includes(run.status)
+  const issues = settled ? completionIssues(run, events) : []
+  if (events.some((e) => e.type === 'run:storage-inconsistent'))
+    issues.push('completion-commit-unverified')
+  const invalid = issues.length > 0
   const artifacts = await Promise.all(
     artifactRows.rows.map(async (row) => {
       const id = String(row.id)
@@ -284,15 +279,29 @@ export async function buildReport(runId: string) {
   ]
   return {
     runId,
-    status: run.status,
-    businessResult: run.businessResult,
-    stopReason: run.stopReason,
+    status: invalid
+      ? 'execution-error'
+      : active && terminals.has(run.status)
+        ? 'running'
+        : run.status,
+    businessResult: invalid ? 'unknown' : run.businessResult,
+    stopReason: invalid ? 'reconciliation-required' : run.stopReason,
+    persistence: {
+      status: invalid ? 'inconsistent' : settled ? 'verified' : 'not-final',
+      issues,
+      recordedStatus: run.status,
+      recordedBusinessResult: run.businessResult,
+      recordedStopReason: run.stopReason,
+      readConsistency: 'single-read-transaction',
+    },
     conclusion: {
       reasonCode:
         [...events].reverse().find((e) => e.type === 'finish:accepted')?.payload.reasonCode ?? null,
-      reason:
-        [...events].reverse().find((e) => e.type === 'finish:accepted')?.payload.summary ?? null,
-      source: 'persisted-evidence',
+      reason: invalid
+        ? 'Execution records are incomplete or inconsistent; completion is unverified.'
+        : ([...events].reverse().find((e) => e.type === 'finish:accepted')?.payload.summary ??
+          null),
+      source: invalid ? 'unverified-persistence' : 'persisted-evidence',
       supportedFindingIds: findings
         .filter((f) => f.validationStatus === 'supported')
         .map((f) => f.id),
@@ -332,7 +341,8 @@ export async function buildReport(runId: string) {
       executionErrors,
       unverifiedInterventionScope,
       unverifiedAnalysisTasks: unresolvedAnalyses(analysisTasks).map((t) => t.id),
-      stopReason: run.stopReason,
+      persistenceIssues: issues,
+      stopReason: invalid ? 'reconciliation-required' : run.stopReason,
     },
   }
 }

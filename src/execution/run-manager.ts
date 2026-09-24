@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto'
+import type { Client } from '@libsql/client'
 import { getDbClient, initDatabase } from '../storage/database.ts'
 import { config } from '../shared/config.ts'
 import { cleanEvidenceIntegrity, interventionLimitation } from '../shared/evidence-integrity.ts'
@@ -98,6 +99,28 @@ export async function getRun(id: string): Promise<Run | null> {
 
   if (result.rows.length === 0) return null
   return rowToRun(result.rows[0])
+}
+
+/** One read transaction prevents reports combining a terminal row with an older event view. */
+export async function getRunSnapshot(id: string, db: Client = getDbClient()) {
+  const [runs, findings, events, hypothesisRows, artifactRows] = await db.batch(
+    [
+      { sql: 'SELECT * FROM runs WHERE id=?', args: [id] },
+      { sql: 'SELECT * FROM findings WHERE run_id=? ORDER BY created_at', args: [id] },
+      { sql: 'SELECT * FROM run_events WHERE run_id=? ORDER BY seq', args: [id] },
+      { sql: 'SELECT * FROM hypotheses WHERE run_id=? ORDER BY created_at', args: [id] },
+      { sql: 'SELECT * FROM artifacts WHERE run_id=? ORDER BY created_at', args: [id] },
+    ],
+    'read',
+  )
+  if (!runs!.rows[0]) return null
+  return {
+    run: rowToRun(runs!.rows[0]),
+    findings: findings!.rows.map(rowToFinding),
+    events: events!.rows.map(rowToEvent),
+    hypothesisRows: hypothesisRows!,
+    artifactRows: artifactRows!,
+  }
 }
 
 export async function updateRunStatus(

@@ -74,3 +74,56 @@ describe('run API contracts', () => {
     expect(response.status).toBe(404)
   })
 })
+
+it('rejects the observed failure shape: a completed row with only an early event prefix', async () => {
+  const run = await createRun({
+    goal: 'Inspect purchase',
+    environmentId: 'test',
+    entryUrl: 'http://localhost:4173',
+  })
+  for (let i = 0; i < 8; i++)
+    await appendEvent(run.id, i === 7 ? 'tool:started' : 'page:observed', {})
+  await updateRunStatus(run.id, 'completed', {
+    businessResult: 'success',
+    stopReason: 'goal-reached',
+  })
+  const report = await (await app.request(`/api/runs/${run.id}/report`)).json()
+  expect(report.status).toBe('execution-error')
+  expect(report.businessResult).toBe('unknown')
+  expect(report.stopReason).toBe('reconciliation-required')
+  expect(report.persistence).toMatchObject({
+    status: 'inconsistent',
+    recordedStatus: 'completed',
+    issues: expect.arrayContaining(['terminal-event-missing', 'accepted-finish-missing']),
+  })
+  expect(report.events).toHaveLength(8)
+  expect(report.conclusion.source).toBe('unverified-persistence')
+})
+it('verifies an internally consistent completed report while retaining supported findings', async () => {
+  const run = await createRun({
+    goal: 'Inspect purchase',
+    environmentId: 'test',
+    entryUrl: 'http://localhost:4173',
+  })
+  await appendEvent(run.id, 'finish:accepted', {
+    businessResult: 'success',
+    blocked: false,
+    summary: 'Verified purchase',
+  })
+  await updateRunStatus(run.id, 'completed', {
+    businessResult: 'success',
+    stopReason: 'goal-reached',
+  })
+  await appendEvent(run.id, 'run:completed', {
+    status: 'completed',
+    businessResult: 'success',
+    stopReason: 'goal-reached',
+  })
+  const report = await (await app.request(`/api/runs/${run.id}/report`)).json()
+  expect(report.status).toBe('completed')
+  expect(report.persistence).toMatchObject({
+    status: 'verified',
+    issues: [],
+    readConsistency: 'single-read-transaction',
+  })
+})

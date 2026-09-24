@@ -1,3 +1,4 @@
+import { verifyCompletionCommit } from './completion-integrity.ts'
 import { createEvidenceIntegrity } from './evidence-integrity.ts'
 import { cleanEvidenceIntegrity, interventionLimitation } from '../shared/evidence-integrity.ts'
 import {
@@ -2880,7 +2881,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     const requestSummary = requestTracker.summarize()
     const progressSummary = summarizeProgress(classifications)
     await appendEvent(runId, 'execution:profile', profile.finish(requestSummary.records))
-    await appendEvent(runId, 'run:statistics', {
+    const lastEvent = await appendEvent(runId, 'run:statistics', {
       requests: {
         total: requestSummary.totalRequests,
         agent: requestSummary.agentRequests,
@@ -2911,7 +2912,20 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         toolsCalled: c.toolsCalled,
       })),
     })
-    removeActiveRun(runId)
+    try {
+      await verifyCompletionCommit({ runId, status, businessResult, stopReason, lastEvent })
+    } catch (error) {
+      requiresReconciliation = true
+      // No model retry or business replay follows an uncertain commit.
+      await updateRunStatus(runId, 'interrupted', { stopReason: 'reconciliation-required' })
+      await appendEvent(runId, 'run:storage-inconsistent', {
+        error: String(error),
+        replayAllowed: false,
+      })
+      throw error
+    } finally {
+      removeActiveRun(runId)
+    }
   }
 }
 

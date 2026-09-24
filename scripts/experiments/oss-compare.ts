@@ -15,12 +15,21 @@ import { resetAndVerify, controlRequest } from '../../evaluation/private/control
 import { inspectionGoal, efficiencyBudget } from './efficiency-protocol.ts'
 import { evaluateHoldout, verifyHoldout, holdoutGoal } from '../../evaluation/private/holdout.ts'
 import { isHoldoutProfile } from './holdout-arena.ts'
+import { isBlockerProfile } from './blocker-holdout-arena.ts'
+import {
+  blockerHoldoutGoal,
+  verifyBlockerHoldout,
+  evaluateBlockerHoldout,
+} from '../../evaluation/private/blocker-holdout.ts'
 import { assertColdDecisionInput } from './isolation.ts'
 
 const args = process.argv.slice(2)
 const candidate = args.includes('--candidate') ? args[args.indexOf('--candidate') + 1] : undefined
+const blockerHoldout =
+  args.includes('--study') && args[args.indexOf('--study') + 1] === 'blocker-holdout'
 const blockerReview =
-  args.includes('--study') && args[args.indexOf('--study') + 1] === 'blocker-review'
+  blockerHoldout ||
+  (args.includes('--study') && args[args.indexOf('--study') + 1] === 'blocker-review')
 const nativeAtomic =
   args.includes('--study') && args[args.indexOf('--study') + 1] === 'native-atomic'
 const holdout = args.includes('--study') && args[args.indexOf('--study') + 1] === 'atomic-holdout'
@@ -52,6 +61,7 @@ if (
         'atomic-holdout',
         'native-atomic',
         'blocker-review',
+        'blocker-holdout',
       ].includes(a),
   )
 )
@@ -176,60 +186,74 @@ const dependencies = execFileSync(
   { encoding: 'utf8' },
 )
 await writeFile(join(dir, 'python-dependencies.txt'), dependencies)
-const goal = holdout ? holdoutGoal : inspectionGoal
-const cases = blockerReview
-  ? (['C1', 'C2', 'C4', 'C5'] as const)
-  : holdout
-    ? (['H0', 'H1', 'H2'] as const)
-    : atomicConfirm
-      ? (['C0', 'C1', 'C2', 'C3', 'C4', 'C5'] as const)
-      : (['C0', 'C2', 'C5'] as const)
-const schedule = blockerReview
+const goal = blockerHoldout ? blockerHoldoutGoal : holdout ? holdoutGoal : inspectionGoal
+const cases = blockerHoldout
+  ? (['J0', 'J1'] as const)
+  : blockerReview
+    ? (['C1', 'C2', 'C4', 'C5'] as const)
+    : holdout
+      ? (['H0', 'H1', 'H2'] as const)
+      : atomicConfirm
+        ? (['C0', 'C1', 'C2', 'C3', 'C4', 'C5'] as const)
+        : (['C0', 'C2', 'C5'] as const)
+const schedule = blockerHoldout
   ? cases.flatMap((variant, index) =>
-      (index % 2 ? ['current-review', 'current-atomic'] : ['current-atomic', 'current-review']).map(
-        (arm) => ({ variant, repeat: 1, arm }),
+      [1, 2, 3].flatMap((repeat) =>
+        ((index + repeat) % 2
+          ? ['current-atomic', 'current-review']
+          : ['current-review', 'current-atomic']
+        ).map((arm) => ({ variant, repeat, arm })),
       ),
     )
-  : atomicConfirm || holdout
+  : blockerReview
     ? cases.flatMap((variant, index) =>
-        [1, 2, 3].flatMap((repeat) =>
-          ((index + repeat) % 2
-            ? ['current-low', 'current-atomic']
-            : ['current-atomic', 'current-low']
-          ).map((arm) => ({ variant, repeat, arm })),
-        ),
+        (index % 2
+          ? ['current-review', 'current-atomic']
+          : ['current-atomic', 'current-review']
+        ).map((arm) => ({ variant, repeat: 1, arm })),
       )
-    : candidate
+    : atomicConfirm || holdout
       ? cases.flatMap((variant, index) =>
           [1, 2, 3].flatMap((repeat) =>
-            ((index + repeat) % 2 ? ['current', candidate] : [candidate, 'current']).map((arm) => ({
-              variant,
-              repeat,
-              arm,
-            })),
+            ((index + repeat) % 2
+              ? ['current-low', 'current-atomic']
+              : ['current-atomic', 'current-low']
+            ).map((arm) => ({ variant, repeat, arm })),
           ),
         )
-      : cases.flatMap((variant, index) => {
-          const arms = nativeAtomic
-            ? ['current-atomic', 'stagehand-atomic', 'browser-use-atomic']
-            : atomic
-              ? ['current-low', 'current-atomic']
-              : convergence
-                ? [
-                    'current-low',
-                    'current-off',
-                    'stagehand-low',
-                    'stagehand-off',
-                    'browser-use-off',
-                    'browser-use-flash',
-                  ]
-                : ['current', 'stagehand', 'browser-use']
-          return [...arms.slice(index), ...arms.slice(0, index)].map((arm) => ({
-            variant,
-            repeat: 1,
-            arm,
-          }))
-        })
+      : candidate
+        ? cases.flatMap((variant, index) =>
+            [1, 2, 3].flatMap((repeat) =>
+              ((index + repeat) % 2 ? ['current', candidate] : [candidate, 'current']).map(
+                (arm) => ({
+                  variant,
+                  repeat,
+                  arm,
+                }),
+              ),
+            ),
+          )
+        : cases.flatMap((variant, index) => {
+            const arms = nativeAtomic
+              ? ['current-atomic', 'stagehand-atomic', 'browser-use-atomic']
+              : atomic
+                ? ['current-low', 'current-atomic']
+                : convergence
+                  ? [
+                      'current-low',
+                      'current-off',
+                      'stagehand-low',
+                      'stagehand-off',
+                      'browser-use-off',
+                      'browser-use-flash',
+                    ]
+                  : ['current', 'stagehand', 'browser-use']
+            return [...arms.slice(index), ...arms.slice(0, index)].map((arm) => ({
+              variant,
+              repeat: 1,
+              arm,
+            }))
+          })
 function profile(arm: string) {
   return {
     framework: arm.startsWith('current')
@@ -246,26 +270,30 @@ function profile(arm: string) {
   }
 }
 const manifest = {
-  protocol: blockerReview
-    ? 'selective-blocker-review-1'
-    : nativeAtomic
-      ? 'native-atomic-diagnostic-1'
-      : holdout
-        ? 'atomic-investigation-holdout-1'
-        : atomicConfirm
-          ? 'atomic-investigation-confirm-1'
-          : atomic
-            ? 'atomic-investigation-diagnostic-1'
-            : convergence
-              ? 'architecture-convergence-screen-2'
-              : candidate
-                ? 'oss-quality-confirm-1'
-                : 'oss-quality-screen-1',
-  evaluationProtocol: holdout
-    ? 'reservation-holdout-1'
-    : convergence
-      ? recoveryProtocol
-      : 'historical-minimum',
+  protocol: blockerHoldout
+    ? 'selective-blocker-holdout-1'
+    : blockerReview
+      ? 'selective-blocker-review-1'
+      : nativeAtomic
+        ? 'native-atomic-diagnostic-1'
+        : holdout
+          ? 'atomic-investigation-holdout-1'
+          : atomicConfirm
+            ? 'atomic-investigation-confirm-1'
+            : atomic
+              ? 'atomic-investigation-diagnostic-1'
+              : convergence
+                ? 'architecture-convergence-screen-2'
+                : candidate
+                  ? 'oss-quality-confirm-1'
+                  : 'oss-quality-screen-1',
+  evaluationProtocol: blockerHoldout
+    ? 'studio-blocker-holdout-1'
+    : holdout
+      ? 'reservation-holdout-1'
+      : convergence
+        ? recoveryProtocol
+        : 'historical-minimum',
   historyIsolation: convergence
     ? 'Fresh database and application server per trial; current model inputs must contain no inherited journeys, enforced before paid forwarding'
     : 'Historical shared environment; not a causal cold-start comparison',
@@ -303,8 +331,17 @@ const manifest = {
   lockHash: hash(await readFile('pnpm-lock.yaml')),
   serverHash: hash(await readFile('dist/server/index.js')),
   evaluatorHash: hash(
-    await readFile(holdout ? 'evaluation/private/holdout.ts' : 'evaluation/private/evaluator.ts'),
+    await readFile(
+      blockerHoldout
+        ? 'evaluation/private/blocker-holdout.ts'
+        : holdout
+          ? 'evaluation/private/holdout.ts'
+          : 'evaluation/private/evaluator.ts',
+    ),
   ),
+  blockerFixtureHash: blockerHoldout
+    ? hash(await readFile('scripts/experiments/blocker-holdout-arena.ts'))
+    : undefined,
   holdoutFixtureHash: holdout
     ? hash(await readFile('scripts/experiments/holdout-arena.ts'))
     : undefined,
@@ -400,7 +437,11 @@ try {
   serverProcess = launch('server', ['dist/server/index.js'])
   launch(
     'arena',
-    holdout ? ['--import', 'tsx', 'scripts/experiments/holdout-arena.ts'] : ['dist/arena/index.js'],
+    blockerHoldout
+      ? ['--import', 'tsx', 'scripts/experiments/blocker-holdout-arena.ts']
+      : holdout
+        ? ['--import', 'tsx', 'scripts/experiments/holdout-arena.ts']
+        : ['dist/arena/index.js'],
   )
   await waitReady()
   lease = await request('/api/evaluation/lease', {})
@@ -449,14 +490,21 @@ try {
     }
     let started = false
     try {
-      record.fixture = isHoldoutProfile(item.variant)
-        ? await verifyHoldout(
+      record.fixture = isBlockerProfile(item.variant)
+        ? await verifyBlockerHoldout(
             item.variant,
             env.ARENA_URL!,
             `http://127.0.0.1:${env.ARENA_CONTROL_PORT}`,
             env.ARENA_CONTROL_TOKEN!,
           )
-        : await resetAndVerify(item.variant)
+        : isHoldoutProfile(item.variant)
+          ? await verifyHoldout(
+              item.variant,
+              env.ARENA_URL!,
+              `http://127.0.0.1:${env.ARENA_CONTROL_PORT}`,
+              env.ARENA_CONTROL_TOKEN!,
+            )
+          : await resetAndVerify(item.variant)
       const start = Date.now()
       gateway.begin(id, 30, 300000, {
         agentReasoning: executionProfile.agentReasoning,
@@ -563,7 +611,9 @@ try {
         budget: efficiencyBudget,
         hypotheses: report.hypotheses,
       }
-      if (isHoldoutProfile(item.variant)) {
+      if (isBlockerProfile(item.variant)) {
+        record.score = evaluateBlockerHoldout(report, item.variant, record.evidence)
+      } else if (isHoldoutProfile(item.variant)) {
         record.score = evaluateHoldout(report, item.variant, record.evidence)
       } else {
         record.score = evaluateRun(report, item.variant, item.repeat, record.evidence)

@@ -7,7 +7,7 @@ import { mkdir, writeFile, readFile, copyFile, access } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { createClient } from '@libsql/client'
 import { chromium } from 'playwright'
-import { startGateway, AGENT_MODEL, VISION_MODEL } from './openrouter-gateway.ts'
+import { startGateway, AGENT_MODEL, VISION_MODEL, REVIEW_MODEL } from './openrouter-gateway.ts'
 
 const args = process.argv.slice(2).filter((a) => a !== '--')
 const option = (name: string) => {
@@ -39,6 +39,8 @@ if (
   throw Error(
     'Prepare: --source <closed acceptance directory> --finding <id> --confirm-reason <explicit user confirmation>. Revise: --revise <learning directory> --previous <proposal id> [--revision-reason <human review feedback>]. After human review: --resume <learning directory> --approve <proposal id> --reviewer <human name>. Recheck an unchanged enabled rule with a new build: --recheck <closed learning directory>.',
   )
+if (execFileSync('git', ['status', '--porcelain'], { encoding: 'utf8' }).trim())
+  throw Error('Freeze clean commit before model calls')
 const key = process.env.OPENROUTER_API_KEY
 if (!key) throw Error('configuration-missing: OPENROUTER_API_KEY')
 const dir = resume
@@ -155,7 +157,48 @@ const observations = (
 if (!observations.length) throw Error('No linked source measurements')
 const sourceObservation = observations[0]
 db.close()
-const gateway = await startGateway(key, dir)
+const modelList = (await fetch('https://openrouter.ai/api/v1/models', {
+  signal: AbortSignal.timeout(15000),
+}).then((r) => r.json())) as any
+const pricing = [AGENT_MODEL, VISION_MODEL].map((id) =>
+  modelList.data?.find((m: any) => m.id === id),
+)
+if (
+  pricing.some(
+    (m) =>
+      !m ||
+      !Number.isFinite(Number(m.pricing?.prompt)) ||
+      !Number.isFinite(Number(m.pricing?.completion)),
+  )
+)
+  throw Error('Selected model prices unavailable')
+if (process.env.EXECUTION_BLOCKER_REVIEW === '1') {
+  const metadata = (await fetch('https://openrouter.ai/api/v1/models/typesafe/jev-1.13/endpoints', {
+    signal: AbortSignal.timeout(15000),
+  }).then((r) => r.json())) as any
+  const endpoint = metadata.data?.endpoints?.find((e: any) => e.provider_name === 'TypeSafe')
+  if (
+    !endpoint ||
+    endpoint.context_length !== 32000 ||
+    Number(endpoint.pricing?.prompt) !== 0.000000042 ||
+    Number(endpoint.pricing?.completion) !== 0
+  )
+    throw Error('Frozen Jev model/price changed')
+  pricing.push({ id: REVIEW_MODEL, pricing: endpoint.pricing, metadata })
+}
+await write('models.json', pricing)
+const maxCostUsd = 1
+const gateway = await startGateway(key, dir, fetch, {
+  limitUsd: maxCostUsd,
+  estimateCost: (body) => {
+    if (body.model === REVIEW_MODEL) return 0.001344
+    const model = pricing.find((m) => m.id === body.model)
+    return (
+      Buffer.byteLength(JSON.stringify(body)) * Number(model?.pricing?.prompt) +
+      4096 * Number(model?.pricing?.completion)
+    )
+  },
+})
 const children: ChildProcess[] = []
 const env: NodeJS.ProcessEnv = {
   ...process.env,
@@ -166,6 +209,8 @@ const env: NodeJS.ProcessEnv = {
   VISION_API_KEY: gateway.token,
   VISION_BASE_URL: gateway.url,
   VISION_MODEL_FAMILY: 'qwen3',
+  COMPLETION_REVIEW_API_KEY: gateway.token,
+  COMPLETION_REVIEW_URL: gateway.url + '/decisions',
   DATABASE_URL: `file:${dir}/runs.db`,
   ARENA_STATIC: '1',
   ARENA_CONTROL_TOKEN: randomBytes(32).toString('hex'),
@@ -292,6 +337,8 @@ try {
   const metadata = {
     stage,
     recheckGate: 'bound-rule-1',
+    maxCostUsd,
+    atomicInvestigation: env.EXECUTION_ATOMIC_INVESTIGATION === '1',
     commit: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
     dirty: !!execFileSync('git', ['status', '--porcelain'], { encoding: 'utf8' }).trim(),
     builtServerHash: createHash('sha256')
@@ -299,6 +346,10 @@ try {
       .digest('hex'),
     agentModel: AGENT_MODEL,
     visionModel: VISION_MODEL,
+    blockerReview: env.EXECUTION_BLOCKER_REVIEW === '1',
+    completionReviewModel: env.EXECUTION_BLOCKER_REVIEW === '1' ? REVIEW_MODEL : null,
+    completionExpectedModel:
+      env.EXECUTION_BLOCKER_REVIEW === '1' ? 'typesafe/jev-1.13-20260917' : null,
     agentProvider: process.env.EXPERIMENT_AGENT_PROVIDER ?? 'auto',
     ports: Object.fromEntries(
       ['PORT', 'ARENA_PORT', 'ARENA_API_PORT', 'ARENA_CONTROL_PORT'].map((k) => [k, env[k]]),
@@ -451,7 +502,14 @@ try {
         }
         records.push(record)
         await write(`${id}.json`, record)
+        await write('spending.json', gateway.spending())
         console.log(`${id}: ${record.passed ? 'pass' : 'fail'}`)
+        if (
+          record.report?.stopReason === 'reconciliation-required' ||
+          gateway.integrityViolations().length ||
+          gateway.spending().accountedUsd >= maxCostUsd
+        )
+          throw Error('Integrity or spending stop')
       }
     await write('recheck-summary.json', {
       proposalId: approval,
@@ -491,5 +549,6 @@ try {
         }),
     ),
   )
+  await write('spending.json', gateway.spending())
   await gateway.close()
 }

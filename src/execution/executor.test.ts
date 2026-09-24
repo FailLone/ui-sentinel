@@ -8,6 +8,7 @@ const harness = vi.hoisted(() => ({
   analyze: null as any,
   review: null as any,
   reviews: 0,
+  corruptCommit: false,
 }))
 vi.mock('./evidence-analysis/workflow.ts', () => ({
   analyzeEvidence: (packet: any, options: any) => harness.analyze(packet, options),
@@ -59,6 +60,16 @@ vi.mock('./blocker-review.ts', async (importOriginal) => ({
     return harness.review(...args)
   },
 }))
+vi.mock('./completion-integrity.ts', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('./completion-integrity.ts')>()
+  return {
+    ...actual,
+    verifyCompletionCommit: async (...args: Parameters<typeof actual.verifyCompletionCommit>) => {
+      await actual.verifyCompletionCommit(...args)
+      if (harness.corruptCommit) throw Error('completion-commit-unverified:injected-stale-reader')
+    },
+  }
+})
 vi.mock('./vision.ts', () => ({
   createVisionLocator: () => ({
     aiLocate: async () => {
@@ -209,6 +220,7 @@ beforeEach(() => {
   config.optimizations.blockerReview = false
   config.budget.totalTimeoutMs = 20000
   harness.reviews = 0
+  harness.corruptCommit = false
   config.optimizations.atomicInvestigation = false
   config.optimizations.shortFinish = false
   config.optimizations.evidenceAnalysis = false
@@ -2000,4 +2012,40 @@ it('rejects a previously valid blocker proposal when the page gains a recovery c
       .filter((e) => e.type === 'completion-review:commit')
       .every((e) => e.payload.accepted === false),
   ).toBe(true)
+})
+
+it('quarantines a run after an uncertain completion commit and does not replay its business action', async () => {
+  config.optimizations.shortFinish = true
+  harness.corruptCommit = true
+  harness.handler = async (tools: any) => {
+    if (harness.models === 1)
+      return [
+        {
+          toolName: 'page_act',
+          result: await tools.page_act.execute({ type: 'click', role: 'button', name: 'Buy' }),
+        },
+      ]
+    return [
+      {
+        toolName: 'run_finish',
+        result: await tools.run_finish.execute({ reason: 'scope-covered' }),
+      },
+    ]
+  }
+  const run = await makeRun()
+  try {
+    await expect(startRunExecution(run.id)).rejects.toThrow('completion-commit-unverified')
+    expect(writes).toBe(1)
+    expect((await getRun(run.id))?.stopReason).toBe('reconciliation-required')
+    expect((await getEvents(run.id)).some((e) => e.type === 'run:storage-inconsistent')).toBe(true)
+    expect(executionBusy()).toBe(true)
+    const second = await makeRun()
+    await startRunExecution(second.id)
+    expect((await getRun(second.id))?.stopReason).toBe('reconciliation-required')
+    expect(harness.models).toBe(2)
+    expect(writes).toBe(1)
+  } finally {
+    harness.corruptCommit = false
+    await acknowledgeReconciliation()
+  }
 })

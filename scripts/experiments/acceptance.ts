@@ -4,12 +4,14 @@ import { createServer } from 'node:net'
 import { randomBytes, createHash } from 'node:crypto'
 import { mkdir, writeFile, readFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
-import { startGateway, AGENT_MODEL, VISION_MODEL } from './openrouter-gateway.ts'
+import { startGateway, AGENT_MODEL, VISION_MODEL, REVIEW_MODEL } from './openrouter-gateway.ts'
 
 const args = process.argv.slice(2).filter((a) => a !== '--')
 const minimumOnly = args.includes('--minimum-only')
 if (args.some((a) => !['--minimum', '--minimum-only'].includes(a)) || args.length > 1)
   throw Error('Usage: pnpm experiment:acceptance [--minimum | --minimum-only]')
+if (execFileSync('git', ['status', '--porcelain'], { encoding: 'utf8' }).trim())
+  throw Error('Freeze clean commit before model calls')
 const key = process.env.OPENROUTER_API_KEY
 if (!key) throw Error('configuration-missing: OPENROUTER_API_KEY')
 const dir = resolve('data/acceptance', new Date().toISOString().replace(/[:.]/g, '-'))
@@ -22,6 +24,7 @@ let pricing: any[] = []
 const gateway = await startGateway(key, dir, fetch, {
   limitUsd: maxCostUsd,
   estimateCost: (body) => {
+    if (body.model === REVIEW_MODEL) return 0.001344
     const model = pricing.find((m) => m.id === body.model)
     return (
       Buffer.byteLength(JSON.stringify(body)) * Number(model?.pricing?.prompt) +
@@ -39,6 +42,8 @@ const env: NodeJS.ProcessEnv = {
   VISION_API_KEY: gateway.token,
   VISION_BASE_URL: gateway.url,
   VISION_MODEL_FAMILY: 'qwen3',
+  COMPLETION_REVIEW_API_KEY: gateway.token,
+  COMPLETION_REVIEW_URL: gateway.url + '/decisions',
   RUN_MAX_MODEL_CALLS: '30',
   RUN_MAX_ACTIONS: '40',
   RUN_TOTAL_TIMEOUT_MS: '300000',
@@ -108,6 +113,22 @@ try {
     )
   )
     throw Error('Selected model prices unavailable; no assumed free requests')
+  if (env.EXECUTION_BLOCKER_REVIEW === '1') {
+    const metadata = (await fetch(
+      'https://openrouter.ai/api/v1/models/typesafe/jev-1.13/endpoints',
+      { signal: AbortSignal.timeout(15000) },
+    ).then((r) => r.json())) as any
+    const endpoint = metadata.data?.endpoints?.find((e: any) => e.provider_name === 'TypeSafe')
+    if (
+      !endpoint ||
+      endpoint.context_length !== 32000 ||
+      Number(endpoint.pricing?.prompt) !== 0.000000042 ||
+      Number(endpoint.pricing?.completion) !== 0
+    )
+      throw Error('Frozen Jev model/price changed')
+    selected.push({ id: REVIEW_MODEL, pricing: endpoint.pricing })
+    await write('completion-model.json', metadata)
+  }
   pricing = selected
   await write('models.json', selected)
   console.log(
@@ -123,6 +144,10 @@ try {
         ? 'diagnostic-and-minimum'
         : 'diagnostic',
     atomicInvestigation: env.EXECUTION_ATOMIC_INVESTIGATION === '1',
+    blockerReview: env.EXECUTION_BLOCKER_REVIEW === '1',
+    completionReviewModel: env.EXECUTION_BLOCKER_REVIEW === '1' ? REVIEW_MODEL : null,
+    completionExpectedModel:
+      env.EXECUTION_BLOCKER_REVIEW === '1' ? 'typesafe/jev-1.13-20260917' : null,
     agentProvider: process.env.EXPERIMENT_AGENT_PROVIDER ?? 'auto',
     visionProvider: process.env.EXPERIMENT_VISION_PROVIDER ?? 'auto',
     reasoning: { agent: 'low', vision: 'disabled' },
