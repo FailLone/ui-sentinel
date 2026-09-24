@@ -134,7 +134,7 @@ const server = createServer((req, res) => {
   if (req.url?.startsWith('/bound-page')) {
     res.setHeader('content-type', 'text/html')
     res.end(
-      `<h1>Checkout</h1><button onclick="fetch('/failed-payment',{method:'POST'}).then(r=>r.json()).then(()=>document.querySelector('h1').textContent='Payment failed order-failed')">Pay</button><button ${req.url.includes('disabled') ? 'disabled' : ''}>Try Again</button><button>Retry upload</button>`,
+      `<h1>Checkout</h1><button onclick="fetch('/failed-payment',{method:'POST'}).then(r=>r.json()).then(d=>document.querySelector('h1').textContent=d.message+' '+d.orderId)">Pay</button><button ${req.url.includes('disabled') ? 'disabled' : ''}>Try Again</button><button>Retry upload</button>`,
     )
     return
   }
