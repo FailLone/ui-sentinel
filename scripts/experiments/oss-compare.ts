@@ -13,6 +13,7 @@ import {
 } from '../../evaluation/private/recovery-protocol.ts'
 import { resetAndVerify, controlRequest } from '../../evaluation/private/controller.ts'
 import { inspectionGoal, efficiencyBudget } from './efficiency-protocol.ts'
+import { assertColdDecisionInput } from './isolation.ts'
 
 const args = process.argv.slice(2)
 const candidate = args.includes('--candidate') ? args[args.indexOf('--candidate') + 1] : undefined
@@ -158,11 +159,14 @@ function profile(arm: string) {
 }
 const manifest = {
   protocol: convergence
-    ? 'architecture-convergence-screen-1'
+    ? 'architecture-convergence-screen-2'
     : candidate
       ? 'oss-quality-confirm-1'
       : 'oss-quality-screen-1',
   evaluationProtocol: convergence ? recoveryProtocol : 'historical-minimum',
+  historyIsolation: convergence
+    ? 'Fresh database and application server per trial; current model inputs must contain no inherited journeys, enforced before paid forwarding'
+    : 'Historical shared environment; not a causal cold-start comparison',
   profiles: Object.fromEntries(
     [...new Set(schedule.map((s) => s.arm))].map((arm) => [arm, profile(arm)]),
   ),
@@ -191,6 +195,9 @@ const manifest = {
     ? hash(await readFile('evaluation/private/recovery-protocol.ts'))
     : undefined,
   schedule,
+  databaseFiles: convergence
+    ? schedule.map((_, i) => (i ? `runs-${i}.db` : 'runs.db'))
+    : ['runs.db'],
   stopPolicy:
     'Complete safe scheduled samples including ordinary failures; stop for uncertain writes, leak/evidence integrity, service failure or spending cap. One separately frozen implementation correction at most.',
   quality:
@@ -240,6 +247,8 @@ async function request(path: string, body?: unknown): Promise<any> {
   return r.json()
 }
 function waitChild(child: ChildProcess, timeout: number) {
+  if (child.exitCode !== null || child.signalCode !== null)
+    return Promise.resolve(child.exitCode ?? 1)
   return new Promise<number>((accept, reject) => {
     const timer = setTimeout(() => {
       child.kill('SIGTERM')
@@ -255,27 +264,28 @@ function waitChild(child: ChildProcess, timeout: number) {
     })
   })
 }
-const db = createClient({ url: env.DATABASE_URL! })
+let db = createClient({ url: env.DATABASE_URL! })
 let lease: any
-try {
-  console.log(`Frozen ${schedule.length}-run quality comparison; cap $${maxCostUsd}: ${dir}`)
-  launch('server', ['dist/server/index.js'])
-  launch('arena', ['dist/arena/index.js'])
-  let ready = false
+let serverProcess: ChildProcess
+async function waitReady() {
   for (let i = 0; i < 100; i++) {
     try {
-      if ((await request('/api/health')).model.ready && (await fetch(env.ARENA_URL!)).ok) {
-        ready = true
-        break
-      }
+      if ((await request('/api/health')).model.ready && (await fetch(env.ARENA_URL!)).ok) return
     } catch {}
     await new Promise((r) => setTimeout(r, 150))
   }
-  if (!ready) throw Error('Services unavailable')
+  throw Error('Services unavailable')
+}
+try {
+  console.log(`Frozen ${schedule.length}-run quality comparison; cap $${maxCostUsd}: ${dir}`)
+  serverProcess = launch('server', ['dist/server/index.js'])
+  launch('arena', ['dist/arena/index.js'])
+  await waitReady()
   lease = await request('/api/evaluation/lease', {})
   if (lease.rules.some((r: any) => r.category === 'transition'))
     throw Error('Discovery must not use learned rules')
   await save('rules.json', lease.rules)
+  const rulesSignature = JSON.stringify(lease.rules)
   Object.assign(process.env, {
     PORT: env.PORT,
     ARENA_URL: env.ARENA_URL,
@@ -284,21 +294,53 @@ try {
     ARENA_CONTROL_TOKEN: env.ARENA_CONTROL_TOKEN,
   })
   for (const item of schedule) {
+    if (convergence && records.length) {
+      await request('/api/evaluation/release', { lease: lease.lease })
+      lease = undefined
+      const stopped = waitChild(serverProcess, 5000)
+      serverProcess.kill('SIGTERM')
+      await stopped
+      db.close()
+      env.DATABASE_URL = `file:${dir}/runs-${records.length}.db`
+      db = createClient({ url: env.DATABASE_URL })
+      serverProcess = launch(`server-${records.length}`, ['dist/server/index.js'])
+      await waitReady()
+      lease = await request('/api/evaluation/lease', {})
+      if (JSON.stringify(lease.rules) !== rulesSignature)
+        throw Error('Isolated trial rule set changed')
+    }
     const executionProfile = profile(item.arm)
+    const environmentId = 'arena'
     const id = `${item.variant}-${item.arm}-${item.repeat}`
-    const record: any = { ...item, id, passed: false }
+    const record: any = { ...item, id, environmentId, databaseUrl: env.DATABASE_URL, passed: false }
+    if (convergence) {
+      const runs = await db.execute('SELECT COUNT(*) AS count FROM runs')
+      const journeys = await db.execute('SELECT COUNT(*) AS count FROM journeys')
+      record.isolation = {
+        runCount: Number(runs.rows[0].count),
+        journeyCount: Number(journeys.rows[0].count),
+      }
+      if (record.isolation.runCount || record.isolation.journeyCount)
+        throw Error('Trial database was not empty')
+    }
     let started = false
     try {
       record.fixture = await resetAndVerify(item.variant)
       const start = Date.now()
-      gateway.begin(id, 30, 300000, { agentReasoning: executionProfile.agentReasoning })
+      gateway.begin(id, 30, 300000, {
+        agentReasoning: executionProfile.agentReasoning,
+        guardInput:
+          convergence && executionProfile.framework === 'current'
+            ? assertColdDecisionInput
+            : undefined,
+      })
       started = true
       console.log(`Starting ${id}`)
       if (executionProfile.framework === 'current') {
         const run = await request('/api/runs', {
           goal: inspectionGoal,
           entryUrl: env.ARENA_URL,
-          environmentId: 'arena',
+          environmentId,
           budget: efficiencyBudget,
           viewport: manifest.viewport,
         })
@@ -425,7 +467,8 @@ try {
       record.report?.stopReason === 'reconciliation-required' ||
       record.score?.noAnswerLeak === false ||
       record.evidence?.backend?.orders?.length > 1 ||
-      record.error?.includes('Unsettled')
+      record.error?.includes('Unsettled') ||
+      gateway.integrityViolations().length > 0
     )
       throw Error('Integrity/side-effect stop; preserve batch')
     if (gateway.spending().accountedUsd >= maxCostUsd) throw Error('spending-limit')

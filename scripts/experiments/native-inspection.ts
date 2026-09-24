@@ -69,7 +69,7 @@ export async function createNativeInspection(
     closed = false
   let latestVersion: Awaited<ReturnType<typeof readObservationVersion>> | undefined
   let deniedWrites = 0
-  let lastTimingId = 0
+  let lastTimingKey = ''
   let lastChecks: Awaited<ReturnType<typeof runChecks>> | undefined
   let businessResult: 'success' | 'rejected' | 'unknown' = 'unknown'
   let serial = Promise.resolve()
@@ -161,7 +161,7 @@ export async function createNativeInspection(
   })
   await page.addInitScript(`(() => {
     if(typeof __name==='undefined')window.__name=function(fn){return fn};
-    const state={id:0,dispatchAt:0,before:'',samples:[],inputs:0};
+    const state={documentId:performance.timeOrigin+':'+Math.random(),id:0,dispatchAt:0,before:'',samples:[],inputs:0};
     window.__nativeTiming=state;
     const input=(e)=>{state.id++;state.inputs++;state.dispatchAt=Date.now();state.before=document.body?.innerText||'';state.samples=[];window.__sentinelNativeInput({type:e.type,at:state.dispatchAt}).catch(()=>{})};
     document.addEventListener('pointerdown',input,true);
@@ -204,12 +204,15 @@ export async function createNativeInspection(
       )
       const timing = await page.evaluate(() => {
         const state = (window as any).__nativeTiming
-        if (!state) return null
+        // Reloads create a fresh document with no input. Its initial render is not
+        // a response measured from Unix epoch zero, nor the previous document's action.
+        if (!state || state.id <= 0 || state.dispatchAt <= 0) return null
         const text = document.body.innerText
         const match = state.samples.find((s: any) => s.at >= state.dispatchAt && s.text === text)
         return match && text !== state.before
           ? {
               id: state.id,
+              documentId: state.documentId,
               dispatchAt: state.dispatchAt,
               feedbackAt: match.at,
               durationMs: match.at - state.dispatchAt,
@@ -218,8 +221,9 @@ export async function createNativeInspection(
             }
           : null
       })
-      if (timing && timing.id !== lastTimingId) {
-        lastTimingId = timing.id
+      const timingKey = timing ? `${timing.documentId}:${timing.id}` : ''
+      if (timing && timingKey !== lastTimingKey) {
+        lastTimingKey = timingKey
         await appendEvent(
           runId,
           'response:observed',

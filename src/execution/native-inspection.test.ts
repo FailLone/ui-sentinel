@@ -180,3 +180,33 @@ it('native measurement refuses evidence when another browser input interrupts sa
     await f.close()
   }
 })
+
+it('does not invent epoch-long response timing after reload and keeps new-document input identity distinct', async () => {
+  const f = await fixture(
+    "<button onclick=\"document.querySelector('p').textContent='Changed'\">Go</button><p>Initial</p>",
+  )
+  try {
+    await f.inspection.observe()
+    await f.page.getByRole('button', { name: 'Go' }).click()
+    await f.inspection.observe()
+    const responses = async () =>
+      (await getEvents(f.run.id)).filter((e) => e.type === 'response:observed')
+    expect(await responses()).toHaveLength(1)
+    await f.page.reload()
+    await f.inspection.observe()
+    expect(await responses()).toHaveLength(1)
+    await f.page.getByRole('button', { name: 'Go' }).click()
+    await f.inspection.observe()
+    const measured = await responses()
+    expect(measured).toHaveLength(2)
+    expect(measured[0].payload.documentId).not.toBe(measured[1].payload.documentId)
+    expect(
+      measured.every(
+        (e) => Number(e.payload.dispatchAt) > 0 && Number(e.payload.durationMs) < 10000,
+      ),
+    ).toBe(true)
+    expect((await getFindings(f.run.id)).some((f) => f.ruleId === 'response-time')).toBe(false)
+  } finally {
+    await f.close()
+  }
+})

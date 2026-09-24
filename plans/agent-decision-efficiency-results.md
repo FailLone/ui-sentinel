@@ -4,6 +4,8 @@
 
 对应 [计划](./agent-decision-efficiency-plan.md)。应用基线 `28a7111`，原始记录来自 `data/acceptance/2026-09-23T15-47-07-984Z/`。本轮首先不改默认执行器，不改变模型或检查范围。
 
+后续核查（2026-09-24）：[架构收敛实验](./architecture-convergence-results.md) 发现原比较脚本在同一批次共享 environmentId，后运行的当前执行器可能继承前轮导航片段。因此本文件的 P2 数据不能支持公平冷启动的框架性能归因；原始任务、失败及证据记录仍保留。另有新的恢复评分协议，将合法键盘恢复与 UX 缺陷分开评价，不改写本文旧评分。这些局限需要新隔离批次验证，不能凭本轮阴性结果证明当前架构最优。
+
 ## P0：审计方法与证据
 
 运行 `pnpm exec tsx scripts/experiments/decision-audit.ts`，生成 `data/decision-audit/default-2026-09-23/audit.json`。该离线脚本关联实际发送的 requests、实际返回的 responses、网关 ledger、报告事件及下一请求收到的工具结果，不调用模型。记录原文件和每个输入的 SHA-256，保留输入页面版本、历史窗口、工具参数、结果与已提供证据。

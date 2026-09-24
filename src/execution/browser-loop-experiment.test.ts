@@ -3,6 +3,7 @@ import { mkdtemp, rm, readFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { startGateway, AGENT_MODEL } from '../../scripts/experiments/openrouter-gateway.ts'
+import { assertColdDecisionInput } from '../../scripts/experiments/isolation.ts'
 
 it('experiment gateway refuses new requests once estimated spending exceeds the cap (fake upstream)', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'gateway-budget-'))
@@ -241,6 +242,57 @@ it('freezes reasoning per run and restores the gateway default for later runs', 
     }
     expect(bodies.map((b) => b.reasoning)).toEqual([{ enabled: false }, { effort: 'low' }])
     expect(bodies.every((b) => b.max_tokens === 4096)).toBe(true)
+  } finally {
+    await gateway.end()
+    await gateway.close()
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
+it('rejects inherited trial memory before any paid request and permits an isolated decision', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'gateway-isolation-'))
+  let forwarded = 0
+  const gateway = await startGateway('test-secret', dir, (async () => {
+    forwarded++
+    return new Response(JSON.stringify({ choices: [], usage: { cost: 0 } }))
+  }) as typeof fetch)
+  try {
+    gateway.begin('isolated', 2, 5000, {
+      agentReasoning: 'low',
+      guardInput: assertColdDecisionInput,
+    })
+    for (const inherited of [true, false]) {
+      const response = await fetch(gateway.url + '/chat/completions', {
+        method: 'POST',
+        headers: { authorization: `Bearer ${gateway.token}`, 'content-type': 'application/json' },
+        body: JSON.stringify({
+          model: AGENT_MODEL,
+          messages: [
+            {
+              role: 'user',
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify({
+                    activeTools: ['page_act'],
+                    availableJourneys: inherited ? [{ id: 'from-previous-trial' }] : [],
+                  }),
+                },
+              ],
+            },
+          ],
+        }),
+      })
+      expect(response.status).toBe(inherited ? 409 : 200)
+      await response.text()
+      expect(forwarded).toBe(inherited ? 0 : 1)
+    }
+    expect((await gateway.end()).length).toBe(1)
+    expect(gateway.integrityViolations()).toHaveLength(1)
+    expect(await readFile(join(dir, 'integrity-violations.jsonl'), 'utf8')).toContain(
+      'cross-run-history-detected',
+    )
+    expect(() => assertColdDecisionInput({ messages: [] })).toThrow('input-contract')
   } finally {
     await gateway.end()
     await gateway.close()

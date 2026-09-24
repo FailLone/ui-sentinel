@@ -18,6 +18,7 @@ export async function startGateway(
     deadline: number
     requests: any[]
     reasoning: 'low' | 'disabled'
+    guardInput?: (body: Record<string, any>) => void
   } | null = null
   const controllers = new Set<AbortController>()
   let accountedUsd = 0
@@ -25,6 +26,7 @@ export async function startGateway(
   let knownCostUsd = 0
   let unknownReservedUsd = 0
   let unknownCosts = 0
+  const integrityViolations: { run: string; error: string }[] = []
   const redact = (value: string) =>
     value.split(key).join('[redacted]').split(token).join('[local-token]')
   const server = createServer(async (req, res) => {
@@ -50,6 +52,19 @@ export async function startGateway(
       return reply(429, 'experiment-budget-exhausted')
     if (![AGENT_MODEL, VISION_MODEL].includes(body.model))
       return reply(400, 'Unexpected model; fallback disabled')
+    if (body.model === AGENT_MODEL && run.guardInput) {
+      try {
+        run.guardInput(body)
+      } catch (error) {
+        const violation = { run: run.id, error: redact(String(error)) }
+        integrityViolations.push(violation)
+        await appendFile(
+          `${directory}/integrity-violations.jsonl`,
+          redact(JSON.stringify({ ...violation, body })) + '\n',
+        )
+        return reply(409, violation.error)
+      }
+    }
     // Same policy for both arms. SDK-specific tool/message schemas remain intact.
     body.max_tokens = 4096
     delete body.max_completion_tokens
@@ -180,7 +195,10 @@ export async function startGateway(
       id: string,
       limit = 30,
       durationMs = 300000,
-      policy?: { agentReasoning: 'low' | 'disabled' },
+      policy?: {
+        agentReasoning: 'low' | 'disabled'
+        guardInput?: (body: Record<string, any>) => void
+      },
     ) {
       if (active) throw Error('Previous experiment still active')
       active = {
@@ -189,6 +207,7 @@ export async function startGateway(
         deadline: Date.now() + durationMs,
         requests: [],
         reasoning: policy?.agentReasoning ?? agentReasoning,
+        guardInput: policy?.guardInput,
       }
     },
     async end() {
@@ -213,6 +232,7 @@ export async function startGateway(
       unknownCosts,
       limitUsd: spending?.limitUsd ?? null,
     }),
+    integrityViolations: () => [...integrityViolations],
     redact,
   }
 }

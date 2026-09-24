@@ -1,5 +1,9 @@
 import { it, expect } from 'vitest'
-import { deriveJourneys, type Journey } from './library.ts'
+import { deriveJourneys, loadJourneys, type Journey } from './library.ts'
+import { createRun, appendEvent, updateRunStatus } from '../run-manager.ts'
+import { saveEvidence } from '../browser.ts'
+import { rm } from 'node:fs/promises'
+import { resolve } from 'node:path'
 import { runJourney } from './runner.ts'
 import type { PageSnapshot } from '../../rules/types.ts'
 import type { RunEvent } from '../../shared/types.ts'
@@ -109,4 +113,31 @@ it('hands control back on new anomalies or ambiguous targets without repeating c
 })
 it('honors cancellation between steps', async () => {
   await expect(simulate(journey(), 'cancel')).rejects.toThrow('cancelled')
+})
+
+it('loads prior navigation only within its environment, so independent trial environments start empty', async () => {
+  const source = await createRun({
+    goal: 'Explore',
+    environmentId: 'memory-source',
+    entryUrl: 'http://localhost/store',
+  })
+  try {
+    const refs = new Map<string, string>()
+    for (const [key, snapshot] of snapshots)
+      refs.set(key, await saveEvidence(source.id, 'snapshot', JSON.stringify(snapshot)))
+    for (const event of events)
+      await appendEvent(source.id, event.type, event.payload, {
+        actionId: event.actionId ?? undefined,
+        evidenceRefs: event.evidenceRefs.map((ref) => refs.get(ref)!),
+      })
+    await appendEvent(source.id, 'finish:accepted', {})
+    await updateRunStatus(source.id, 'completed', {
+      stopReason: 'goal-reached',
+      businessResult: 'success',
+    })
+    expect((await loadJourneys('memory-source', 'another-run')).length).toBe(1)
+    expect(await loadJourneys('independent-trial', 'another-run')).toEqual([])
+  } finally {
+    await rm(resolve('data/artifacts', source.id), { recursive: true, force: true })
+  }
 })
