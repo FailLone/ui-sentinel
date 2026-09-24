@@ -86,7 +86,7 @@ import { clearRules, registerRule } from '../rules/engine.ts'
 import { overlayBlockingRule } from '../rules/builtin/overlay-blocking.ts'
 import { compileTransitionRule } from '../rules/transition.ts'
 import { config } from '../shared/config.ts'
-import { buildContractSnapshot, resolveProfile } from '../business/registry.ts'
+import { bindProfile, buildContractSnapshot, resolveProfile } from '../business/registry.ts'
 let reviewCloseVisible = false
 let journeyChange = 'none'
 let url = '',
@@ -103,6 +103,13 @@ const ids: string[] = []
  * and would prove nothing about the adapter under test.
  */
 let paymentOutcome: 'success' | 'failed' | 'uncertain' = 'success'
+/** Export fixture state: how many jobs were created, and whether a status read settles them. */
+let exportJobs = 0
+let exportJobId = ''
+let exportSettled = false
+let exportStatusDelay = 0
+// Serve the export workspace at the root, the way the real arena does (entryPath is '/').
+let exportWorkspaceAtRoot = false
 const server = createServer((req, res) => {
   if (req.url === '/api/checkout') {
     writes++
@@ -173,6 +180,89 @@ const server = createServer((req, res) => {
     )
     return
   }
+  // An asynchronous export workspace: it owns a job and polls it in the background. The poll is a
+  // real business read the run did not initiate, which is what makes this a test of attribution -
+  // an unrelated action must not adopt the poll's result as its own.
+  if (req.url === '/' && exportWorkspaceAtRoot) {
+    res.setHeader('content-type', 'text/html')
+    res.end(`<h1>Exports</h1><p id="job"></p><button id="start">Start export</button>
+      <button id="clear">Clear</button><script>
+      let jobId=null;let poll=null;window.__staleJob='';
+      function show(phase,notice){document.getElementById('job').textContent=(jobId||'')+' '+phase+' '+(notice||'');}
+      document.getElementById('start').onclick=async function(){
+        const r=await fetch('/api/exports',{method:'POST',headers:{'content-type':'application/json'},
+          body:JSON.stringify({datasetId:'orders-q3',format:'csv'})});
+        const d=await r.json();jobId=d.jobId;window.__staleJob=d.jobId;show(d.phase,d.notice);
+        // The workspace refreshes its job status continuously - including after the job settles -
+        // so a status response can land at any moment, including while the user clicks something
+        // else. That ongoing background read is what the action must not mistake for its own.
+        poll=setInterval(async function(){
+          if(!jobId)return;
+          const j=await fetch('/api/exports/'+jobId).then(r=>r.json());
+          if(document.body.innerText.indexOf(jobId)<0)return;
+          show(j.phase,j.notice);
+        },60);
+      };
+      // The Clear control removes the job from the page. It dispatches no write, so nothing it
+      // could be credited with exists. Meanwhile the page keeps refreshing that job's status in
+      // the background: the response arrives, but the job's notice is deliberately not rendered.
+      // An action that adopts that response as its own then waits for a notice the page will never
+      // show, and stalls until the tool timeout.
+      document.getElementById('clear').onclick=async function(){
+        jobId=null;show('cleared','');
+        // The workspace refreshes the job status one more time while clearing it, and that read
+        // outlives the click: its response arrives after the page has already dropped the notice.
+        // A response arriving here is a real business fact about the job - but it is not this
+        // click's result, and nothing the page shows could ever confirm it.
+        await fetch('/api/exports/'+window.__staleJob).catch(function(){});
+        show('cleared','');
+      };
+    </script>`)
+    return
+  }
+  if (req.url?.startsWith('/api/exports')) {
+    // A minimal asynchronous export protocol: create returns processing, a status read settles it.
+    if (req.method === 'POST' && req.url === '/api/exports') {
+      exportJobId = `job-${++exportJobs}`
+      res.setHeader('content-type', 'application/json')
+      res.end(
+        JSON.stringify({
+          jobId: exportJobId,
+          attempt: 0,
+          version: 1,
+          phase: 'processing',
+          notice: null,
+          retry: { permitted: false, remaining: 0, afterMs: 0, prerequisitesMet: false },
+          datasetId: 'orders-q3',
+          format: 'csv',
+        }),
+      )
+      return
+    }
+    const jobId = req.url.split('/')[3] ?? ''
+    const body = JSON.stringify({
+      jobId,
+      attempt: 0,
+      version: exportSettled ? 2 : 1,
+      phase: exportSettled ? 'succeeded' : 'processing',
+      notice: exportSettled ? `Export ready. ${jobId} is available.` : null,
+      retry: { permitted: false, remaining: 0, afterMs: 0, prerequisitesMet: false },
+      datasetId: 'orders-q3',
+      format: 'csv',
+    })
+    // A real status read takes time. The delay is what puts a background poll in flight while
+    // another action is being dispatched, which is the condition under test.
+    if (exportStatusDelay)
+      setTimeout(() => {
+        res.setHeader('content-type', 'application/json')
+        res.end(body)
+      }, exportStatusDelay)
+    else {
+      res.setHeader('content-type', 'application/json')
+      res.end(body)
+    }
+    return
+  }
   if (req.url === '/ambiguous') {
     res.setHeader('content-type', 'text/html')
     res.end('<button>Pay later</button><button>Pay</button><button>Pay</button>')
@@ -235,6 +325,11 @@ beforeEach(() => {
   writes = 0
   responseDelay = 0
   harness.models = 0
+  exportJobs = 0
+  exportJobId = ''
+  exportSettled = false
+  exportStatusDelay = 0
+  exportWorkspaceAtRoot = false
 })
 
 async function makeRun() {
@@ -1730,4 +1825,84 @@ it('quarantines a run after an uncertain completion commit and does not replay i
     harness.corruptCommit = false
     await acknowledgeReconciliation()
   }
+})
+
+// Regression: a business fact belongs to the action that dispatched the request producing it.
+//
+// The export workspace polls its own job in the background. When that poll lands while an
+// unrelated action is in flight, the action used to adopt the poll's fact as its own response and
+// then wait for that job's notice to appear on the page - which a cleared page can never show, so
+// the action ran to the full tool timeout and the run ended in `execution-error`. The action must
+// only ever see facts for operations it dispatched itself.
+describe('asynchronous business response attribution', () => {
+  it('does not adopt a background status poll as the response of an unrelated action', async () => {
+    // Bound to the fixture's own origin: the profile's registered export-arena port is a different
+    // server, and a contract must describe the boundary the run actually operates on.
+    const bound = bindProfile(resolveProfile({ id: 'export', revision: '1' })!, {
+      id: 'export-arena',
+      entryUrl: url,
+      publicOrigin: url,
+    })
+    exportWorkspaceAtRoot = true
+    let phase = 0
+    harness.handler = async (tools: any) => {
+      if (phase++ === 0) {
+        const started = await call(tools, 'page_act', {
+          type: 'click',
+          role: 'button',
+          name: 'Start export',
+        })
+        expect(started.status, JSON.stringify(started).slice(0, 300)).toBe('completed')
+        return []
+      }
+      // Let the job settle, then click Clear. Clearing dispatches no business write, but the page
+      // refreshes the job's status as it goes and deliberately stops rendering that job. An action
+      // that adopts that status response as its own then waits for a notice the page will never
+      // show, and burns the tool timeout.
+      exportSettled = true
+      await new Promise((r) => setTimeout(r, 400))
+      const cleared = await call(tools, 'page_act', {
+        type: 'click',
+        role: 'button',
+        name: 'Clear',
+      })
+      expect(cleared.status, JSON.stringify(cleared).slice(0, 400)).toBe('completed')
+      await call(tools, 'run_finish', { businessResult: 'unknown', blocked: true, summary: 'done' })
+      return []
+    }
+    const run = await createRun({
+      goal: 'Start an export and clear it',
+      environmentId: 'test',
+      entryUrl: url,
+      businessContract: bound as never,
+    })
+    ids.push(run.id)
+    await startRunExecution(run.id)
+    const events = await getEvents(run.id)
+    // The Clear action dispatches no write, so no background status response may be adopted as its
+    // response. A misattributed one makes the action wait for that job's notice to appear on the
+    // page - and when the notice belongs to another job, that wait runs to the tool timeout. So the
+    // run's own outcome is the assertion: it must reach a real conclusion rather than an error.
+    const stops = events
+      .filter((e) => e.type === 'execution:stopped')
+      .map((e) => e.payload as { error?: string; reason?: string })
+    expect(stops, JSON.stringify(stops)).not.toContainEqual(
+      expect.objectContaining({ error: 'tool-timeout' }),
+    )
+    expect((await getRun(run.id))?.status, JSON.stringify(stops)).not.toBe('error')
+    // The Clear action itself must have completed, not failed on a wait it should never perform.
+    const clearedAction = events.filter(
+      (e) => e.type === 'tool:finished' && (e.payload as { tool?: string }).tool === 'page_act',
+    )
+    // The decisive observation is the action's own duration. A misattributed status response makes
+    // the Clear action wait for a notice the page has already dropped, and that wait runs to the
+    // full tool timeout (15s here). Correct attribution means the action finishes as soon as the
+    // click settles - it has no business response to wait for at all.
+    const clearDuration = (clearedAction.at(-1)?.payload as { durationMs?: number } | undefined)
+      ?.durationMs
+    expect(
+      clearDuration,
+      `Clear action durations: ${JSON.stringify(clearedAction.map((e) => (e.payload as { durationMs?: number }).durationMs))}`,
+    ).toBeLessThan(2000)
+  })
 })

@@ -635,6 +635,18 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     // Ordered fact commits: observations, finish and exit all drain this queue before reading
     // facts, so an async response cannot land after the run has already concluded.
     let factTail: Promise<unknown> = Promise.resolve()
+    /**
+     * Operation ids this action's own dispatched writes addressed.
+     *
+     * A page that polls an asynchronous job in the background emits business responses while an
+     * unrelated action is in flight, so "a new fact appeared" does not mean "this action produced
+     * it". Only a fact whose operation this action actually dispatched to counts as its response.
+     */
+    let dispatchedOperations: Set<string> | null = null
+    /** Operation ids of every write this run dispatched, so a response can be traced to one. */
+    const writeOperations = new WeakMap<import('playwright').Request, string>()
+    /** Writes that created an entity: their operation id exists only once the response arrives. */
+    const writeCreates = new WeakSet<import('playwright').Request>()
     const commitFact = async (exchange: {
       url: string
       method: string
@@ -643,6 +655,10 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       body: unknown
       bodyText: string | null
       bodyReadFailed: boolean
+      /** The operation identity of the write that produced this response, when it named one. */
+      dispatchedOperation?: string
+      /** True when this response is the answer to a create this run dispatched. */
+      dispatchedCreate?: boolean
     }) => {
       const request = {
         url: exchange.url,
@@ -707,6 +723,11 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           observationRef: observation.id,
           factEventId: event.id,
         })
+      // Credit the operation to the action that dispatched the write it belongs to. A create names
+      // no entity until its response arrives, and a background poll has no dispatched write behind
+      // it at all - so neither can pass itself off as another action's response.
+      if (exchange.dispatchedOperation || exchange.dispatchedCreate)
+        dispatchedOperations?.add(fact.operationId)
       if (fact.phase !== 'processing') businessCreated = true
     }
     page.on('response', (response) => {
@@ -735,6 +756,11 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         } catch {
           bodyReadFailed = true
         }
+        // The operation a write was aimed at, read from the request itself. A retry names its
+        // entity in the path; a create has none until its response arrives, in which case the
+        // create response is its own provenance.
+        const dispatchedOperation = writeOperations.get(request)
+        const dispatchedCreate = writeCreates.has(request)
         const commit = factTail.then(() =>
           commitFact({
             url,
@@ -744,6 +770,8 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
             body,
             bodyText,
             bodyReadFailed,
+            dispatchedOperation,
+            dispatchedCreate,
           }),
         )
         factTail = commit.catch(() => {})
@@ -801,6 +829,23 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           })
           await route.abort('blockedbyclient')
           return
+        }
+        // Record which operation this write addresses, taken from the adapter's own intent rather
+        // than from the URL shape: the response handler uses it to decide whether the fact it
+        // produces belongs to the action that dispatched this request.
+        //
+        // Only a write this executor caused counts. `sideEffectPending` is true exactly between
+        // dispatching a click and that click's writes settling, so it separates "the action did
+        // this" from "the page did this on its own while the action was in flight" - a page-side
+        // background sync is a real business request, but it is not this action's response.
+        if (sideEffectPending) {
+          if (decision.intent.kind === 'retry') {
+            writeOperations.set(request, decision.intent.operationPath)
+            dispatchedOperations?.add(decision.intent.operationPath)
+          } else if (decision.intent.kind === 'create') {
+            // A create names no entity until its own response arrives, so the commit credits it.
+            writeCreates.add(request)
+          }
         }
       }
       if (
@@ -1216,9 +1261,11 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       let dispatchTime = Date.now()
       const beforeText = await page.locator('body').innerText()
       mutationFailed = false
-      const factIndex = businessFacts.length
       const deniedBefore = deniedWrites
       const writesBefore = networkWrites
+      // This action's own dispatched operations, collected while it is in flight.
+      const actionOperations = new Set<string>()
+      dispatchedOperations = actionOperations
       await page.evaluate(`
           if(window.__sentinelTiming&&window.__sentinelTiming.observer)window.__sentinelTiming.observer.disconnect();
           var timing={dispatchAt:Date.now(),samples:[],observer:null};
@@ -1270,10 +1317,14 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           throw new Error(
             'write-denied: active read-only boundary; return control without replaying this action',
           )
-        const response =
-          businessFacts.length > factIndex
-            ? latestFactForOperation(businessFacts, String(businessFacts.at(-1)?.operationId))
-            : undefined
+        // Only a fact for an operation this action dispatched. A background status poll for another
+        // job can land mid-action; treating it as this action's response would attribute an
+        // unrelated outcome to it and make the executor wait for feedback the page never shows.
+        const response = [...actionOperations]
+          .map((operationId) => latestFactForOperation(businessFacts, operationId))
+          .filter((fact): fact is NonNullable<typeof fact> => Boolean(fact))
+          .sort((a, b) => b.version - a.version || b.attempt - a.attempt)[0]
+        dispatchedOperations = null
         let finalFeedbackVisible = true
         if (response) {
           // The same visible correlation the adapter will apply when verifying the outcome: the

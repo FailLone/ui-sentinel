@@ -4,6 +4,7 @@ import { checkoutProfile, exportProfile } from './profiles/index.ts'
 import { resolveEnvironment } from './environments.ts'
 import type {
   BusinessContractSnapshot,
+  BusinessEnvironmentId,
   BusinessProfile,
   BusinessProfileId,
   PublicBusinessProfile,
@@ -46,7 +47,25 @@ export function resolveProfile(
 export function legacyCompatibleContract(entryUrl: string): BusinessContractSnapshot {
   const profile = resolveProfile(LEGACY_ARENA_PROFILE)
   if (!profile) throw new Error('legacy-profile-unavailable')
-  const environment = { id: 'default' as const, entryUrl, publicOrigin: new URL(entryUrl).origin }
+  return bindProfile(profile, {
+    id: 'default',
+    entryUrl,
+    publicOrigin: new URL(entryUrl).origin,
+  })
+}
+
+/**
+ * Freeze a profile against an explicit environment.
+ *
+ * The environment is supplied rather than looked up, so a caller can bind a profile to a boundary
+ * it already holds - the entry URL a legacy run recorded, or a test fixture's own server. The
+ * profile's own fields are copied, never invented, and the hash is recomputed so a snapshot always
+ * describes itself honestly.
+ */
+export function bindProfile(
+  profile: BusinessProfile,
+  environment: { id: BusinessEnvironmentId; entryUrl: string; publicOrigin: string },
+): BusinessContractSnapshot {
   const withoutHash = {
     schemaVersion: '1' as const,
     profileId: profile.id,
@@ -97,25 +116,7 @@ export function buildContractSnapshot(
 ): BusinessContractSnapshot {
   const environment = requireEnvironment(profile, environmentId)
   if (!environment) throw new Error('profile-not-registered-for-environment')
-  const withoutHash = {
-    schemaVersion: '1' as const,
-    profileId: profile.id,
-    revision: profile.revision,
-    adapter: { id: profile.id, revision: profile.adapterRevision },
-    requirements: profile.requirements,
-    retryAvailabilityMs: profile.retryAvailabilityMs,
-    feedbackWarningMs: profile.feedbackWarningMs,
-    effects: profile.effects,
-    environment: {
-      id: environment.id,
-      entryUrl: environment.entryUrl,
-      publicOrigin: environment.publicOrigin,
-    },
-  }
-  return Object.freeze({
-    ...withoutHash,
-    hash: contractHash(withoutHash as unknown as Record<string, unknown>),
-  }) as BusinessContractSnapshot
+  return bindProfile(profile, environment)
 }
 
 /** Public projection. Deliberately omits ports, tokens, adapter internals and any answer key. */
