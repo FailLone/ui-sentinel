@@ -206,10 +206,12 @@ describe('business configuration validation', () => {
 
 describe('business environments', () => {
   it('resolves the three registered environments and nothing else', () => {
-    expect(resolveEnvironment('arena')!.publicOrigin).toMatch(/^http:\/\/localhost:\d+$/)
-    expect(resolveEnvironment('default')!.publicOrigin).toMatch(/^http:\/\/localhost:\d+$/)
+    // 127.0.0.1, not localhost: the arena binds the loopback address, and a browser treats the
+    // two names as different origins - claiming localhost would refuse the arena's own writes.
+    expect(resolveEnvironment('arena')!.publicOrigin).toMatch(/^http:\/\/127\.0\.0\.1:\d+$/)
+    expect(resolveEnvironment('default')!.publicOrigin).toMatch(/^http:\/\/127\.0\.0\.1:\d+$/)
     const exporting = resolveEnvironment('export-arena')!
-    expect(exporting.publicOrigin).toMatch(/^http:\/\/localhost:\d+$/)
+    expect(exporting.publicOrigin).toMatch(/^http:\/\/127\.0\.0\.1:\d+$/)
     expect(exporting.entryUrl).toContain(exporting.publicOrigin)
     expect(resolveEnvironment('http://evil.example')).toBeUndefined()
     expect(resolveEnvironment('export-arena-2')).toBeUndefined()

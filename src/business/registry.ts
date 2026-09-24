@@ -17,6 +17,9 @@ const registry: readonly BusinessProfile[] = Object.freeze([checkoutProfile, exp
 
 export const profileIds = Object.freeze(registry.map((p) => p.id))
 
+/** The single profile a legacy arena request - and a legacy run - is allowed to mean. */
+export const LEGACY_ARENA_PROFILE = Object.freeze({ id: 'checkout', revision: '1' } as const)
+
 export function registeredProfiles(): readonly BusinessProfile[] {
   return registry
 }
@@ -26,6 +29,39 @@ export function resolveProfile(
 ): BusinessProfile | undefined {
   if (!requested || typeof requested === 'string') return undefined
   return registry.find((p) => p.id === requested.id && p.revision === requested.revision)
+}
+
+/**
+ * Compatibility contract for a run persisted before contracts existed.
+ *
+ * Such a run has no versioned business: nothing about its requirements, thresholds or effects may
+ * be invented from today's registry, and it must not be re-executed after a restart as though it
+ * had been created under the current config. What it *does* have is the entry URL it was created
+ * with, and that recorded URL is the only network boundary it may run against - so its environment
+ * is taken from the run, not from the registry.
+ *
+ * This snapshot is built in memory for execution only. It is never persisted, so the run's stored
+ * record - and therefore its report - stays honestly unversioned.
+ */
+export function legacyCompatibleContract(entryUrl: string): BusinessContractSnapshot {
+  const profile = resolveProfile(LEGACY_ARENA_PROFILE)
+  if (!profile) throw new Error('legacy-profile-unavailable')
+  const environment = { id: 'default' as const, entryUrl, publicOrigin: new URL(entryUrl).origin }
+  const withoutHash = {
+    schemaVersion: '1' as const,
+    profileId: profile.id,
+    revision: profile.revision,
+    adapter: { id: profile.id, revision: profile.adapterRevision },
+    requirements: profile.requirements,
+    retryAvailabilityMs: profile.retryAvailabilityMs,
+    feedbackWarningMs: profile.feedbackWarningMs,
+    effects: profile.effects,
+    environment,
+  }
+  return Object.freeze({
+    ...withoutHash,
+    hash: contractHash(withoutHash as unknown as Record<string, unknown>),
+  }) as BusinessContractSnapshot
 }
 
 /**

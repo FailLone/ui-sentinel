@@ -4,7 +4,10 @@ import { resolveEnvironment } from './environments.ts'
 import {
   decodeFact,
   resolveAdapter,
+  type BusinessAdapter,
   type BusinessFact,
+  type CompatibilityTriggers,
+  type Correlation,
   type PublicExchange,
   type RequestShape,
   type RequestIntent,
@@ -21,10 +24,26 @@ import type { BusinessContractSnapshot } from './types.ts'
  */
 export interface BusinessRuntime {
   readonly contract: BusinessContractSnapshot
+  /** The resolved adapter itself, so shared layers can classify requests without a lookup. */
+  readonly adapter: BusinessAdapter
   readonly adapterId: string
   readonly adapterRevision: string
   classifyRequest(request: RequestShape): RequestIntent
   decodeResponse(exchange: PublicExchange): BusinessFact | null
+  correlateVisible(
+    fact: BusinessFact,
+    observation: { readonly pageText: string; readonly visibleText: readonly string[] },
+  ): Correlation
+  /** The adapter's own compatibility projection, if it declares one. */
+  compatibilityEvent?(
+    exchange: PublicExchange,
+  ): { readonly type: string; readonly payload: Record<string, unknown> } | null
+  /**
+   * Map a fact onto the pre-fact trigger vocabulary, as declared by the run's own adapter. A
+   * business without that history contributes nothing, so shared logic never has to know which
+   * profile it is running to decide whether `payment-*` means anything.
+   */
+  compatibilityTriggers(fact: BusinessFact): CompatibilityTriggers
   /** True when this run's declared adapter revision is still the registered one. */
   adapterAvailable(): boolean
 }
@@ -53,10 +72,21 @@ export function createBusinessRuntime(contract: BusinessContractSnapshot): Busin
     throw new AdapterUnavailableError(contract.environment.id, 'environment')
   return Object.freeze({
     contract,
+    adapter,
     adapterId: adapter.id,
     adapterRevision: adapter.revision,
     classifyRequest: (request: RequestShape) => adapter.classifyRequest(request),
     decodeResponse: (exchange: PublicExchange) => adapter.decodeResponse(exchange),
+    correlateVisible: (
+      fact: BusinessFact,
+      observation: { readonly pageText: string; readonly visibleText: readonly string[] },
+    ) => adapter.correlateVisible(fact, observation),
+    ...(adapter.compatibilityEvent
+      ? {
+          compatibilityEvent: (exchange: PublicExchange) => adapter.compatibilityEvent!(exchange),
+        }
+      : {}),
+    compatibilityTriggers: (fact: BusinessFact) => adapter.compatibilityTriggers?.(fact) ?? {},
     adapterAvailable: () =>
       resolveAdapter(contract.adapter.id, contract.adapter.revision) !== undefined,
   })

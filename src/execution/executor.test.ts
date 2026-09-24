@@ -86,13 +86,46 @@ import { clearRules, registerRule } from '../rules/engine.ts'
 import { overlayBlockingRule } from '../rules/builtin/overlay-blocking.ts'
 import { compileTransitionRule } from '../rules/transition.ts'
 import { config } from '../shared/config.ts'
+import { buildContractSnapshot, resolveProfile } from '../business/registry.ts'
 let reviewCloseVisible = false
 let journeyChange = 'none'
 let url = '',
   writes = 0,
   responseDelay = 0
 const ids: string[] = []
+/**
+ * Fixture business protocol.
+ *
+ * The fixture posts to the *declared* shopping route (`POST /api/checkout`), like the real arena,
+ * and picks its outcome the way the arena does: serving a page configures the outcome for that
+ * page. The executor recognizes a business request by origin, method, path and response schema, so
+ * a fixture that answered on `/purchase` would only work by the body-sniffing the plan forbids -
+ * and would prove nothing about the adapter under test.
+ */
+let paymentOutcome: 'success' | 'failed' | 'uncertain' = 'success'
 const server = createServer((req, res) => {
+  if (req.url === '/api/checkout') {
+    writes++
+    if (paymentOutcome === 'uncertain') {
+      res.writeHead(500, { 'content-type': 'application/json' })
+      res.end('{}')
+      return
+    }
+    res.setHeader('content-type', 'application/json')
+    const body =
+      paymentOutcome === 'failed'
+        ? {
+            success: false,
+            status: 'failed',
+            orderId: 'order-failed',
+            message: 'Payment processing failed. Please try again.',
+            canRetry: true,
+          }
+        : { success: true, status: 'success', orderId: 'order-1' }
+    if (responseDelay) setTimeout(() => res.end(JSON.stringify(body)), responseDelay)
+    else res.end(JSON.stringify(body))
+    return
+  }
   if (req.url === '/review-close-flag') {
     res.end(JSON.stringify(reviewCloseVisible))
     return
@@ -107,10 +140,11 @@ const server = createServer((req, res) => {
 
   if (req.url === '/intervention-page') {
     res.setHeader('content-type', 'text/html')
+    paymentOutcome = 'failed'
     res.end(`<h1>Checkout</h1><button id="pay">Pay</button><button disabled>Required helper</button><script>
       document.getElementById('pay').onclick=async function(){
         this.disabled=true;this.textContent='Retrying...';
-        try{const r=await fetch('/failed-payment',{method:'POST'});const d=await r.json();
+        try{const r=await fetch('/api/checkout',{method:'POST'});const d=await r.json();
           document.querySelector('h1').textContent=d.message+' '+d.orderId;
           this.textContent='Try Again';this.disabled=false;
         }catch{document.querySelector('h1').textContent='Unexpected error order-failed';}
@@ -122,7 +156,7 @@ const server = createServer((req, res) => {
     res.setHeader('content-type', 'text/html')
     res.end(`<h1>Catalog</h1><button>Open cart</button><script>
       document.querySelector('button').onclick=function(){
-        if(${journeyChange == 'write'}) {fetch('/purchase',{method:'POST'}).catch(()=>{});return;}
+        if(${journeyChange == 'write'}) {fetch('/api/checkout',{method:'POST'}).catch(()=>{});return;}
         document.querySelector('h1').textContent='Cart';
         var b=document.querySelector('button');b.textContent='Checkout';
         if(${journeyChange == 'banner'}) {var overlay=document.createElement('div');overlay.textContent='Campaign';overlay.style.cssText='position:fixed;inset:0;background:white;z-index:100';document.body.append(overlay);}
@@ -133,8 +167,9 @@ const server = createServer((req, res) => {
   }
   if (req.url?.startsWith('/bound-page')) {
     res.setHeader('content-type', 'text/html')
+    paymentOutcome = 'failed'
     res.end(
-      `<h1>Checkout</h1><button onclick="fetch('/failed-payment',{method:'POST'}).then(r=>r.json()).then(d=>document.querySelector('h1').textContent=d.message+' '+d.orderId)">Pay</button><button ${req.url.includes('disabled') ? 'disabled' : ''}>Try Again</button><button>Retry upload</button>`,
+      `<h1>Checkout</h1><button onclick="fetch('/api/checkout',{method:'POST'}).then(r=>r.json()).then(d=>document.querySelector('h1').textContent=d.message+' '+d.orderId)">Pay</button><button ${req.url.includes('disabled') ? 'disabled' : ''}>Try Again</button><button>Retry upload</button>`,
     )
     return
   }
@@ -143,51 +178,25 @@ const server = createServer((req, res) => {
     res.end('<button>Pay later</button><button>Pay</button><button>Pay</button>')
     return
   }
-  if (req.url === '/failed-payment') {
-    writes++
-    res.setHeader('content-type', 'application/json')
-    res.end(
-      JSON.stringify({
-        success: false,
-        status: 'failed',
-        orderId: 'order-failed',
-        message: 'Payment processing failed. Please try again.',
-        canRetry: true,
-      }),
-    )
-    return
-  }
   if (req.url === '/retryable-page') {
     res.setHeader('content-type', 'text/html')
+    paymentOutcome = 'failed'
     res.end(
-      `<h1>Checkout</h1><button onclick="fetch('/failed-payment',{method:'POST'}).then(r=>r.json()).then(()=>document.querySelector('h1').textContent='Payment processing failed. Please try again. order-failed')">Pay</button><button disabled>Retrying...</button>`,
+      `<h1>Checkout</h1><button onclick="fetch('/api/checkout',{method:'POST'}).then(r=>r.json()).then(()=>document.querySelector('h1').textContent='Payment processing failed. Please try again. order-failed')">Pay</button><button disabled>Retrying...</button>`,
     )
-    return
-  }
-  if (req.url === '/purchase') {
-    writes++
-    res.setHeader('content-type', 'application/json')
-    setTimeout(
-      () => res.end(JSON.stringify({ success: true, status: 'success', orderId: 'order-1' })),
-      responseDelay,
-    )
-    return
-  }
-  if (req.url === '/uncertain') {
-    writes++
-    res.writeHead(500, { 'content-type': 'application/json' })
-    res.end('{}')
     return
   }
   if (req.url === '/uncertain-page') {
     res.setHeader('content-type', 'text/html')
-    res.end(`<button onclick="fetch('/uncertain',{method:'POST'})">Submit</button>`)
+    paymentOutcome = 'uncertain'
+    res.end(`<button onclick="fetch('/api/checkout',{method:'POST'})">Submit</button>`)
     return
   }
   if (req.url === '/closable-overlay') {
     res.setHeader('content-type', 'text/html')
+    paymentOutcome = 'success'
     res.end(
-      `<h1>Store</h1><button style="position:absolute;left:40px;top:40px;width:200px;height:60px" onclick="fetch('/purchase',{method:'POST'}).then(r=>r.json()).then(()=>document.querySelector('h1').textContent='Order Confirmed successfully order-1')">Buy</button><div style="position:fixed;inset:0;background:#ccc;z-index:100">Campaign<button onclick="this.parentElement.remove()">Close</button></div>`,
+      `<h1>Store</h1><button style="position:absolute;left:40px;top:40px;width:200px;height:60px" onclick="fetch('/api/checkout',{method:'POST'}).then(r=>r.json()).then(()=>document.querySelector('h1').textContent='Order Confirmed successfully order-1')">Buy</button><div style="position:fixed;inset:0;background:#ccc;z-index:100">Campaign<button onclick="this.parentElement.remove()">Close</button></div>`,
     )
     return
   }
@@ -198,9 +207,10 @@ const server = createServer((req, res) => {
     )
     return
   }
+  paymentOutcome = 'success'
   res.setHeader('content-type', 'text/html')
   res.end(
-    `<h1>Store</h1><button onclick="document.querySelector('h1').textContent='Processing...';fetch('/purchase',{method:'POST'}).then(r=>r.json()).then(()=>document.querySelector('h1').textContent='Order Confirmed successfully order-1')">Buy</button>`,
+    `<h1>Store</h1><button onclick="document.querySelector('h1').textContent='Processing...';fetch('/api/checkout',{method:'POST'}).then(r=>r.json()).then(()=>document.querySelector('h1').textContent='Order Confirmed successfully order-1')">Buy</button>`,
   )
 })
 beforeAll(async () => {
@@ -878,7 +888,9 @@ it('retains verified business evidence after leaving the result page', async () 
     if (harness.models === 1)
       await call(tools, 'page_act', { type: 'click', role: 'button', name: 'Buy' })
     else if (harness.models === 2) {
-      expect(packet.businessOutcomeObserved.verifiedBusiness.orderId).toBe('order-1')
+      expect(packet.businessOutcomeObserved.verifiedOperations).toEqual([
+        { operationId: 'order-1', businessResult: 'success' },
+      ])
       await call(tools, 'page_act', { type: 'navigate', url })
     } else {
       expect(packet.observation.pageText).not.toContain('Confirmed')
@@ -988,7 +1000,10 @@ it.each([false, true])(
           evidenceRefs: clean.evidenceRefs,
         })
         savedFinding = finding.id
-        const trigger = (await getEvents(run.id)).find((e) => e.type === 'business:response')!
+        // The trigger is bound to the normalized fact's public observation, so the binding names
+        // the response the retry eligibility was actually read from.
+        const trigger = (await getEvents(run.id)).find((e) => e.type === 'business:observation')!
+        expect(trigger).toBeTruthy()
         const healthyRef = clean.elements.find((e: any) => e.text === 'Try Again').ref
         expect(
           await call(tools, 'rule_check', {
@@ -1189,7 +1204,7 @@ it('maps a retryable processing failure to unknown and explains the blocked fini
       finishAdvice: {
         businessResult: 'unknown',
         blocked: true,
-        businessResponse: { status: 'failed', canRetry: true },
+        response: { phase: 'failed', result: 'unknown', operationId: 'order-failed' },
       },
     })
     await call(tools, 'run_finish', {
@@ -1318,11 +1333,18 @@ it.each([false, true])(
 )
 
 it('reuses evidenced navigation under a write barrier and rejects a changed handler before backend mutation', async () => {
+  // Journey reuse is scoped to a contract identity (R06), so these runs carry one - as every run
+  // created through the API does. Sharing it is what makes the source run's evidence reusable here.
+  const contract = buildContractSnapshot(
+    resolveProfile({ id: 'checkout', revision: '1' })!,
+    'arena',
+  )
   const create = async () => {
     const run = await createRun({
       goal: 'inspect navigation',
       environmentId: 'test',
       entryUrl: url + '/journey-page',
+      businessContract: contract,
     })
     ids.push(run.id)
     return run

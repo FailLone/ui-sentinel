@@ -87,6 +87,19 @@ export type Correlation =
  */
 export type RequestShape = Pick<PublicRequest, 'url' | 'method' | 'origin'>
 
+/**
+ * Legacy trigger projection.
+ *
+ * Rules and task scope were written before normalized facts existed and use trigger names from
+ * that vocabulary (`payment-success`, `payment-rejected`). A business that predates the fact
+ * layer declares here how its facts map back onto those names. A business with no such history
+ * returns nothing rather than borrowing another business's triggers - which is what stops an
+ * export rejection from ever being reported as a payment event.
+ */
+export interface CompatibilityTriggers {
+  readonly paymentOutcome?: 'paid' | 'rejected' | undefined
+}
+
 export interface BusinessAdapter {
   readonly id: BusinessProfileId
   readonly revision: string
@@ -96,4 +109,22 @@ export interface BusinessAdapter {
     fact: BusinessFact,
     observation: { readonly pageText: string; readonly visibleText: readonly string[] },
   ): Correlation
+  /**
+   * Optional thin compatibility projection.
+   *
+   * Adapters that predate the normalized fact layer may expose their original public event here,
+   * so historical event shapes and their readers keep working. The executor appends whatever the
+   * adapter returns without knowing which business produced it, which is what keeps shopping
+   * vocabulary inside the shopping adapter - a business with no such projection returns nothing
+   * rather than fabricating another business's fields.
+   */
+  compatibilityEvent?(
+    exchange: PublicExchange,
+  ): { readonly type: string; readonly payload: Record<string, unknown> } | null
+  /**
+   * Optional mapping of a normalized fact onto the pre-existing trigger vocabulary. Declared by
+   * the adapter, so the executor never branches on a profile id to decide which business's
+   * compatibility meaning applies.
+   */
+  compatibilityTriggers?(fact: BusinessFact): CompatibilityTriggers
 }

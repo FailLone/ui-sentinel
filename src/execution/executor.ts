@@ -75,6 +75,20 @@ import { getDbClient } from '../storage/database.ts'
 import { runChecks, getEnabledRules, getRule } from '../rules/engine.ts'
 import { evaluateTransition, type TransitionObservation } from '../rules/transition.ts'
 import { ruleCheckInput, resolveRuleContract, retryTrigger } from './rule-binding.ts'
+import {
+  normalizeFactEvents,
+  latestFactForOperation,
+  retryableTriggerFromFacts,
+} from '../business/facts.ts'
+import { createSideEffectPolicy } from './side-effect-policy.ts'
+import {
+  createBusinessRuntime,
+  concludeBusinessResult,
+  verifyContractSnapshot,
+  type BusinessRuntime,
+} from '../business/runtime.ts'
+import { legacyCompatibleContract } from '../business/registry.ts'
+import type { BusinessFact } from '../business/adapters/types.ts'
 import type { PageSnapshot } from '../rules/types.ts'
 import type { RunUsage, BusinessResult, StopReason } from '../shared/types.ts'
 import { createRequestTracker, type RequestTracker } from '../agent/model/request-tracker.ts'
@@ -153,9 +167,6 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     stopReason: StopReason = 'budget-exhausted'
   let worker: Awaited<ReturnType<typeof launchBrowser>> | undefined
   let latest: Awaited<ReturnType<typeof observePage>> | undefined
-  let verifiedBusiness:
-    | { orderId: string; businessResult: BusinessResult; evidenceRefs: string[] }
-    | undefined
   const inspectedResultRefs = new Set<string>()
   let attemptTools = 0
   let attemptReads = 0
@@ -163,13 +174,27 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
   let stepId = 'initial'
   const transitions: NonNullable<PageSnapshot['transitionObservations']>[number][] = []
   const notes: unknown[] = []
-  const businessResponses: {
-    success?: boolean
-    status?: string
-    orderId?: string
-    message?: string
-    canRetry?: boolean
-  }[] = []
+  // The run's business is fixed by its persisted contract. A run created before contracts were
+  // persisted has no versioned business at all: it keeps the original shopping *protocol*, but no
+  // requirements, thresholds or effects may be invented for it from today's registry. Its boundary
+  // is the entry URL it was actually created with, which is why the network checks below are
+  // anchored to the run's own recorded environment rather than to a freshly resolved one.
+  const legacyUnversioned = !run.spec.businessContract
+  const businessRuntime: BusinessRuntime = createBusinessRuntime(
+    run.spec.businessContract ?? legacyCompatibleContract(run.spec.entryUrl),
+  )
+  const businessContract = businessRuntime.contract
+  /**
+   * The network boundary this run actually operates on.
+   *
+   * For a versioned run this is the contract's own persisted origin. A legacy run has no persisted
+   * origin, so its boundary is the entry URL it was created with - never the port today's registry
+   * happens to resolve to, which would block the run's own document and let a stale port decide
+   * what the browser may reach.
+   */
+  const runOrigin = new URL(run.spec.entryUrl).origin
+  let businessFacts: BusinessFact[] = []
+  const verifiedByOperation = new Map<string, { result: BusinessResult; evidenceRefs: string[] }>()
 
   const requestTracker = createRequestTracker()
   const ruleEvaluationCache = createRuleEvaluationCache()
@@ -335,9 +360,10 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       timestamp: latest.snapshot.observedAt,
       events,
       factVersion: observationVersion?.reusable ? observationVersion.key : undefined,
-      observedTriggers: [retryTrigger(events, latest.snapshot.text)?.eventType].filter(
-        (s): s is string => !!s,
-      ),
+      observedTriggers: (function () {
+        const t = retryTrigger(events, latest!.snapshot.text)
+        return t ? [t.eventType] : []
+      })(),
       snapshot: { ...latest.snapshot, transitionObservations: transitions } as PageSnapshot,
     }
     const result = await runChecks(
@@ -430,7 +456,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       })
       if (
         sameObservationVersion(observationVersion, before) &&
-        observedBusinessCount === businessResponses.length &&
+        observedBusinessCount === businessFacts.length &&
         observedIntegrityEpoch === integrity.epoch()
       ) {
         observationReused = true
@@ -461,7 +487,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     }
     observationVersion =
       before && after && sameObservationVersion(before, after) ? after : undefined
-    observedBusinessCount = businessResponses.length
+    observedBusinessCount = businessFacts.length
     observedIntegrityEpoch = integrity.epoch()
     const snapshotId = `s${observeCount}`
     latestSlim = elementStore.registerSnapshot(
@@ -483,47 +509,68 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     )
     await checks()
     if (!cleanEvidenceIntegrity(latest.snapshot.evidenceIntegrity)) return latest
-    const response = businessResponses.at(-1)
-    const text = latest.snapshot.text.replace(/\s+/g, ' ')
-    let observed: BusinessResult = 'unknown'
-    if (response?.orderId && text.includes(response.orderId)) {
-      if (response.success === true && /success|confirmed|成功/i.test(text)) observed = 'success'
-      if (
-        ['rejected', 'declined'].includes(response.status ?? '') &&
-        response.message &&
-        text.includes(response.message.replace(/\s+/g, ' ')) &&
-        /declin|reject|failed|拒绝|失败/i.test(text)
+    const overlay = latest.snapshot.elements.some((e) =>
+      e.hitSamples?.some((s) => s.relation === 'unrelated'),
+    )
+    const pageText = latest.snapshot.text.replace(/\s+/g, ' ')
+    // The newest fact per operation, correlated against the page the adapter owns. Another
+    // operation's success, a lone success label or a response with no visible notice cannot
+    // confirm this operation.
+    const operations = [...new Set(businessFacts.map((f) => f.operationId))]
+    for (const operationId of operations) {
+      const fact = latestFactForOperation(businessFacts, operationId)
+      if (!fact) continue
+      const trigger = businessRuntime.compatibilityTriggers(fact)
+      taskState.observeNormalizedFacts(
+        {
+          phase: fact.phase,
+          retryEligibility: fact.retryEligibility,
+          paymentOutcome: trigger.paymentOutcome,
+        },
+        overlay,
       )
-        observed = 'rejected'
-    }
-    taskState.observeFacts(
-      response?.orderId ? response : undefined,
-      latest.snapshot.elements.some((e) => e.hitSamples?.some((s) => s.relation === 'unrelated')),
-    )
-    const newOrder = response?.orderId && response.orderId !== verifiedBusiness?.orderId
-    if (observed !== 'unknown')
-      verifiedBusiness = {
-        orderId: response!.orderId!,
-        businessResult: observed,
-        evidenceRefs: [...latest.evidenceRefs],
+      if (fact.phase === 'processing') continue
+      const correlation = businessRuntime.correlateVisible(fact, {
+        pageText,
+        visibleText: latest.snapshot.elements.filter((e) => e.visible).map((e) => e.text),
+      })
+      if (correlation.kind === 'confirmed') {
+        const concluded = concludeBusinessResult(
+          businessFacts.filter((f) => f.operationId === operationId),
+        )
+        if (concluded !== 'unknown')
+          verifiedByOperation.set(operationId, {
+            result: concluded,
+            evidenceRefs: [...latest.evidenceRefs],
+          })
+      } else if (correlation.kind === 'contradicted') {
+        // A contradicting newer fact invalidates a previously verified result.
+        verifiedByOperation.delete(operationId)
       }
-    else if (
-      newOrder ||
-      (verifiedBusiness &&
-        response?.orderId === verifiedBusiness.orderId &&
-        (verifiedBusiness.businessResult === 'success'
-          ? response.success !== true
-          : !['rejected', 'declined'].includes(response.status ?? '')))
-    )
-      verifiedBusiness = undefined
-    const retained = verifiedBusiness?.businessResult ?? 'unknown'
+    }
+    // A newly observed operation invalidates the earlier conclusion for it.
+    for (const operationId of [...verifiedByOperation.keys()])
+      if (!operations.includes(operationId)) verifiedByOperation.delete(operationId)
+    const concludedResults = [...verifiedByOperation.values()].map((v) => v.result)
+    const retained = concludedResults.includes('success')
+      ? 'success'
+      : concludedResults.length && concludedResults.every((r) => r === 'rejected')
+        ? 'rejected'
+        : 'unknown'
     if (retained !== businessResult) {
       businessResult = retained
       await updateRunStatus(runId, 'running', { businessResult })
       await appendEvent(
         runId,
         'business:verified',
-        { businessResult, verifiedBusiness },
+        {
+          businessResult,
+          contractHash: businessContract.hash,
+          verifiedOperations: [...verifiedByOperation.entries()].map(([operationId, v]) => ({
+            operationId,
+            businessResult: v.result,
+          })),
+        },
         { stepId, evidenceRefs: latest.evidenceRefs },
       )
     }
@@ -554,9 +601,18 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     const page = worker.page
     let mutationFailed = false
     let deniedWrites = 0
-    let orderObserved = false
-    let journeyReadOnly = false
+    let businessCreated = false
     let networkWrites = 0
+    const sideEffectPolicy = createSideEffectPolicy({
+      contract: businessContract,
+      adapter: businessRuntime.adapter,
+      publicOrigin: runOrigin,
+    })
+    // Side-effect budget, reserved before dispatch. A create or retry counts when the request
+    // leaves, not when its response arrives, so two immediate requests cannot both pass.
+    let createsReserved = 0
+    const retriesReserved = new Map<string, number>()
+    const detachedResponses = new Set<import('playwright').Request>()
     const policyDenied = new Set<import('playwright').Request>()
     const pendingWrites = new Set<import('playwright').Request>()
     page.on('request', (request) => {
@@ -576,38 +632,130 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       }
       pendingWrites.delete(request)
     })
-    page.on('response', async (response) => {
-      const request = response.request()
-      if (!pendingWrites.has(request)) return
-      if (response.status() >= 500) mutationFailed = true
-      try {
-        const body = await response.json()
-        if (
-          body &&
-          typeof body === 'object' &&
-          (typeof body.success === 'boolean' || typeof body.status === 'string')
-        ) {
-          businessResponses.push({
-            success: body.success,
-            status: body.status,
-            orderId: body.orderId,
-            message: body.message,
-            canRetry: body.canRetry,
-          })
-          if (body.orderId) orderObserved = true
-          await appendEvent(runId, 'business:response', {
-            statusCode: response.status(),
-            ...businessResponses.at(-1),
-            retryAfterMs: body.retryAfterMs,
-            remainingAttempts: body.remainingAttempts,
-            inProgress: body.inProgress,
-            prerequisitesMet: body.prerequisitesMet,
-          })
-        }
-        pendingWrites.delete(request)
-      } catch {
-        pendingWrites.delete(request)
+    // Ordered fact commits: observations, finish and exit all drain this queue before reading
+    // facts, so an async response cannot land after the run has already concluded.
+    let factTail: Promise<unknown> = Promise.resolve()
+    const commitFact = async (exchange: {
+      url: string
+      method: string
+      origin: string
+      statusCode: number
+      body: unknown
+      bodyText: string | null
+      bodyReadFailed: boolean
+    }) => {
+      const request = {
+        url: exchange.url,
+        method: exchange.method,
+        origin: exchange.origin,
+        statusCode: exchange.statusCode,
+        body: exchange.body,
       }
+      const publicExchange = {
+        request,
+        allowedOrigin: runOrigin,
+        bodyText: exchange.bodyText,
+        bodyReadFailed: exchange.bodyReadFailed,
+      }
+      const compatibility = businessRuntime.compatibilityEvent?.(publicExchange)
+      const fact = businessRuntime.decodeResponse(publicExchange)
+      if (!fact) {
+        // A non-business response is not a fact and not a success. Only a recognized business
+        // response is recorded as an observation: an unrelated document or poll is not the
+        // evidence of anything, and recording it would let a rule bind to the wrong response.
+        if (!compatibility) return
+        const observation = await appendEvent(runId, 'business:observation', {
+          url: exchange.url,
+          method: exchange.method,
+          statusCode: exchange.statusCode,
+          body: exchange.body,
+          bodyReadFailed: exchange.bodyReadFailed,
+          contractHash: businessContract.hash,
+        })
+        await appendEvent(runId, compatibility.type, {
+          ...compatibility.payload,
+          statusCode: exchange.statusCode,
+          observationRef: observation.id,
+        })
+        return
+      }
+      // The public observation is recorded first and is business-neutral: url, method, status and
+      // the raw body, with no interpretation. Every business gets the same record, so a fact - or a
+      // rule bound to one - always cites the response it actually came from.
+      const observation = await appendEvent(runId, 'business:observation', {
+        url: exchange.url,
+        method: exchange.method,
+        statusCode: exchange.statusCode,
+        body: exchange.body,
+        bodyReadFailed: exchange.bodyReadFailed,
+        contractHash: businessContract.hash,
+      })
+      const withSource = {
+        ...fact,
+        contractHash: businessContract.hash,
+        sourceEventId: observation.id,
+      }
+      const event = await appendEvent(runId, 'business:fact', withSource)
+      businessFacts = normalizeFactEvents([
+        ...businessFacts.map((f) => ({ type: 'business:fact', payload: f }) as never),
+        { type: 'business:fact', payload: withSource } as never,
+      ])
+      if (compatibility)
+        await appendEvent(runId, compatibility.type, {
+          ...compatibility.payload,
+          statusCode: exchange.statusCode,
+          observationRef: observation.id,
+          factEventId: event.id,
+        })
+      if (fact.phase !== 'processing') businessCreated = true
+    }
+    page.on('response', (response) => {
+      const request = response.request()
+      // Business responses are observed whether or not they belong to a tracked write, so an
+      // asynchronous status GET is captured; the serialized commit queue keeps ordering.
+      if (detachedResponses.has(request)) detachedResponses.delete(request)
+      const tracked = pendingWrites.has(request)
+      if (tracked && response.status() >= 500) mutationFailed = true
+      const readBody = async () => {
+        const url = request.url()
+        const method = request.method()
+        let origin = ''
+        try {
+          origin = new URL(url).origin
+        } catch {
+          return
+        }
+        let body: unknown = null
+        let bodyText: string | null = null
+        let bodyReadFailed = false
+        try {
+          const text = await response.text()
+          bodyText = text
+          body = text ? JSON.parse(text) : null
+        } catch {
+          bodyReadFailed = true
+        }
+        const commit = factTail.then(() =>
+          commitFact({
+            url,
+            method,
+            origin,
+            statusCode: response.status(),
+            body,
+            bodyText,
+            bodyReadFailed,
+          }),
+        )
+        factTail = commit.catch(() => {})
+        try {
+          await commit
+        } finally {
+          if (tracked) pendingWrites.delete(request)
+        }
+      }
+      void readBody().catch(() => {
+        if (tracked) pendingWrites.delete(request)
+      })
     })
     page.setDefaultTimeout(config.budget.toolTimeoutMs)
     page.setDefaultNavigationTimeout(config.budget.toolTimeoutMs)
@@ -620,31 +768,44 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     )
     await worker.context.route('**/*', async (route) => {
       const request = route.request()
-      // The current shopping inspection permits one order, then read-only inspection.
-      if (
-        (orderObserved || journeyReadOnly) &&
-        !['GET', 'HEAD', 'OPTIONS'].includes(request.method())
-      ) {
-        policyDenied.add(request)
-        pendingWrites.delete(request)
-        deniedWrites++
-        await recordIntervention({
-          kind: 'write-denied',
-          url: request.url(),
+      const url = request.url()
+      let origin = ''
+      try {
+        origin = new URL(url).origin
+      } catch {
+        origin = ''
+      }
+      // Every write is judged by the run's side-effect policy: what the adapter says the request
+      // is, against the contract's budget. Button wording and action intent never grant a write.
+      const isWrite = !['GET', 'HEAD', 'OPTIONS'].includes(request.method())
+      if (isWrite) {
+        const decision = sideEffectPolicy.authorize({
+          url,
           method: request.method(),
+          origin,
         })
-        await appendEvent(runId, 'write:denied', {
-          reason: journeyReadOnly ? 'journey-read-only-boundary' : 'single-order-inspection',
-          method: request.method(),
-          url: request.url(),
-        })
-        await route.abort('blockedbyclient')
-        return
+        if (decision.kind === 'deny') {
+          policyDenied.add(request)
+          pendingWrites.delete(request)
+          deniedWrites++
+          await recordIntervention({
+            kind: 'write-denied',
+            url,
+            method: request.method(),
+          })
+          await appendEvent(runId, 'write:denied', {
+            reason: decision.reason,
+            method: request.method(),
+            url,
+            intent: decision.intent.kind,
+          })
+          await route.abort('blockedbyclient')
+          return
+        }
       }
       if (
-        isAllowedPageUrl(route.request().url(), run.spec.entryUrl) &&
-        (!route.request().isNavigationRequest() ||
-          isAllowedNavigationUrl(route.request().url(), run.spec.entryUrl))
+        isAllowedPageUrl(url, run.spec.entryUrl) &&
+        (!request.isNavigationRequest() || isAllowedNavigationUrl(url, run.spec.entryUrl))
       )
         await route.continue()
       else {
@@ -652,7 +813,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         pendingWrites.delete(request)
         await recordIntervention({
           kind: 'access-denied',
-          url: request.url(),
+          url,
           method: request.method(),
         })
         await appendEvent(runId, 'access:denied', { reason: 'outside-environment' })
@@ -788,7 +949,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       temporalInvestigator = createTemporalInvestigator({
         guard,
         epoch: () =>
-          JSON.stringify([usage.actions, businessResponses.length, page.url(), integrity.epoch()]),
+          JSON.stringify([usage.actions, businessFacts.length, page.url(), integrity.epoch()]),
         version: async () => {
           const version = await readObservationVersion(page)
           return version.reusable ? version.key : undefined
@@ -945,9 +1106,10 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         pageTitle: latest!.snapshot.title,
         timestamp: latest!.snapshot.observedAt,
         events,
-        observedTriggers: [retryTrigger(events, latest!.snapshot.text)?.eventType].filter(
-          (s): s is string => !!s,
-        ),
+        observedTriggers: (function () {
+          const t = retryTrigger(events, latest!.snapshot.text)
+          return t ? [t.eventType] : []
+        })(),
         snapshot: { ...latest!.snapshot, transitionObservations: transitions } as PageSnapshot,
       }
     }
@@ -1054,7 +1216,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       let dispatchTime = Date.now()
       const beforeText = await page.locator('body').innerText()
       mutationFailed = false
-      const responseIndex = businessResponses.length
+      const factIndex = businessFacts.length
       const deniedBefore = deniedWrites
       const writesBefore = networkWrites
       await page.evaluate(`
@@ -1109,19 +1271,24 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
             'write-denied: active read-only boundary; return control without replaying this action',
           )
         const response =
-          businessResponses.length > responseIndex ? businessResponses.at(-1) : undefined
+          businessFacts.length > factIndex
+            ? latestFactForOperation(businessFacts, String(businessFacts.at(-1)?.operationId))
+            : undefined
         let finalFeedbackVisible = true
-        if (response?.orderId) {
+        if (response) {
+          // The same visible correlation the adapter will apply when verifying the outcome: the
+          // operation's identity and its stated notice, read from normalized facts rather than
+          // any business-specific field.
           await page
             .waitForFunction(
-              ({ orderId, message }) => {
+              ({ operationId, notice }) => {
                 const text = document.body.innerText.replace(/\s+/g, ' ')
                 return (
-                  text.includes(orderId!) &&
-                  (!message || text.includes(message.replace(/\s+/g, ' ')))
+                  text.includes(operationId) &&
+                  (!notice || text.includes(notice.replace(/\s+/g, ' ')))
                 )
               },
-              response,
+              { operationId: response.operationId, notice: response.notice },
               {
                 timeout: Math.max(
                   1,
@@ -1222,8 +1389,20 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         evidenceRefs: latest!.evidenceRefs,
       }
     }
+    // Reuse is scoped to this run's own contract identity, so a segment evidenced under a
+    // different profile, revision, adapter or origin is never replayed here.
     const journeys = config.features?.journeys
-      ? await loadJourneys(run.spec.environmentId, runId)
+      ? await loadJourneys(run.spec.environmentId, runId, {
+          profileId: businessContract.profileId,
+          contractHash: businessContract.hash,
+          adapterId: businessContract.adapter.id,
+          adapterRevision: businessContract.adapter.revision,
+          // The identity origin is the contract's persisted origin, on both sides of the comparison:
+          // a source run's stored contract and this run's own contract must agree. A run with no
+          // persisted contract is legacy and never contributes, so this is not a way to reuse
+          // evidence across businesses.
+          origin: businessContract.environment.publicOrigin,
+        })
       : []
     const availableJourneys = () =>
       journeys.filter(
@@ -1320,7 +1499,9 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
               finishAdvice: {
                 businessResult,
                 blocked: businessResult === 'unknown' || gaps.length > 0,
-                businessResponse: businessResponses.at(-1),
+                // The newest normalized fact, not a business-specific response shape: the reporter
+                // of an outcome is the same object for every business.
+                response: businessFacts.at(-1) ?? null,
                 note: 'Untriggered conditions do not block inspection. failed is a processing failure (unknown), not an explicit rejected/declined outcome. Resolve applicable missingFacts or report them as blocked; then request finish again.',
               },
               missingFacts: missingOutcome
@@ -1356,12 +1537,18 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           await appendEvent(runId, 'finish:accepted', {
             ...input,
             task: taskState.snapshot(),
-            verifiedBusiness,
+            verifiedOperations: [...verifiedByOperation.entries()].map(([operationId, v]) => ({
+              operationId,
+              businessResult: v.result,
+            })),
           })
           await appendEvent(runId, 'agent:done', input, {
             stepId,
             evidenceRefs: [
-              ...new Set([...latest!.evidenceRefs, ...(verifiedBusiness?.evidenceRefs ?? [])]),
+              ...new Set([
+                ...latest!.evidenceRefs,
+                ...[...verifiedByOperation.values()].flatMap((v) => v.evidenceRefs),
+              ]),
             ],
           })
           return { accepted: true }
@@ -1399,14 +1586,14 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
               sourceRunId: journey.sourceRunId,
               contract: journey,
             })
-            journeyReadOnly = true
+            sideEffectPolicy.setReadOnly(true)
             try {
               const result = await runJourney(journey, {
                 guard,
                 snapshot: () => latest!.snapshot as PageSnapshot,
                 observe: () => observe(true),
                 blocked: () =>
-                  orderObserved ||
+                  businessCreated ||
                   sideEffectPending ||
                   latest!.snapshot.elements.some(
                     (e) =>
@@ -1432,7 +1619,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
               }
             } finally {
               // Keep the barrier for delayed requests until a new explicit page_act.
-              journeyReadOnly = true
+              sideEffectPolicy.setReadOnly(true)
             }
           }),
       }),
@@ -1614,7 +1801,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         execute: (input) =>
           serial('page_act', () => {
             guard()
-            journeyReadOnly = false
+            sideEffectPolicy.setReadOnly(false)
             return performAction(input)
           }),
       }),
@@ -2143,14 +2330,22 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         },
         businessOutcomeObserved: {
           businessResult,
-          verifiedBusiness,
-          response: businessResponses.at(-1),
+          // Verified operations are reported by their own identity and result. The executor has no
+          // business-specific field to expose here: an order id would be shopping vocabulary that
+          // means nothing to another business.
+          verifiedOperations: [...verifiedByOperation.entries()].map(([operationId, v]) => ({
+            operationId,
+            businessResult: v.result,
+          })),
+          response: businessFacts.at(-1) ?? null,
           writePolicy: {
-            maxOrders: 1,
-            orderObserved,
-            remainingMode: orderObserved
+            maxCreates: businessContract.effects.maxCreates,
+            maxRetriesPerOperation: businessContract.effects.maxRetriesPerOperation,
+            createsSpent: sideEffectPolicy.snapshot().createsReserved,
+            retriesSpent: sideEffectPolicy.snapshot().retriesReserved,
+            remainingMode: businessCreated
               ? 'read-only inspection; use probe/transition_observe, not another submission'
-              : 'one purchase permitted',
+              : 'one create permitted for this business contract',
           },
           hint: 'Business outcome is not inspection completion. Resolve in-scope investigations without repeating the business write.',
         },
@@ -2193,7 +2388,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
               version.key,
               taskState.snapshot(),
               integrity.snapshot(),
-              businessResponses,
+              businessFacts,
               ruleCheckResults,
               [...findingFacts],
               [...measurementFacts],

@@ -1,6 +1,11 @@
 import { z } from 'zod'
 import type { RunEvent } from '../shared/types.ts'
 import type { Rule } from '../rules/types.ts'
+import {
+  normalizeFactEvents,
+  retryableTriggerFromFacts,
+  type RetryableTrigger,
+} from '../business/facts.ts'
 
 export const ruleCheckInput = z
   .object({
@@ -17,25 +22,19 @@ export const ruleCheckInput = z
   })
   .strict()
 
-/** Current public checkout-response adapter; not a universal business-eligibility oracle. */
-export function retryTrigger(events: readonly RunEvent[], pageText: string) {
-  const event = events.filter((e) => e.type === 'business:response').at(-1)
-  if (!event) return undefined
-  const p = event.payload
-  if (
-    p.success !== false ||
-    p.status !== 'failed' ||
-    p.canRetry !== true ||
-    typeof p.orderId !== 'string' ||
-    !p.orderId ||
-    !pageText.includes(p.orderId) ||
-    p.inProgress === true ||
-    p.prerequisitesMet === false ||
-    (typeof p.retryAfterMs === 'number' && p.retryAfterMs > 0) ||
-    (typeof p.remainingAttempts === 'number' && p.remainingAttempts <= 0)
-  )
-    return undefined
-  return { eventRef: event.id, eventType: 'retryable-failure', operationId: p.orderId }
+/**
+ * Retry eligibility for declarative rules, read from normalized business facts.
+ *
+ * The shopping-specific shape is no longer the entry point: a fact produced by any adapter is
+ * normalized first, and the checkout compatibility path lives inside the business layer. Rule
+ * binding therefore never inspects an `orderId`, so binding one approved declaration works for
+ * both businesses without a declaration change.
+ */
+export function retryTrigger(
+  events: readonly RunEvent[],
+  pageText: string,
+): RetryableTrigger | undefined {
+  return retryableTriggerFromFacts(normalizeFactEvents(events), events, pageText)
 }
 
 export function resolveRuleContract(

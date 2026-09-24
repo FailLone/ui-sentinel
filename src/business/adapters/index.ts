@@ -16,6 +16,7 @@ export { decodeFact } from './codec.ts'
 export type {
   BusinessAdapter,
   BusinessFact,
+  CompatibilityTriggers,
   Correlation,
   PublicExchange,
   PublicRequest,

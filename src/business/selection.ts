@@ -1,4 +1,4 @@
-import { buildContractSnapshot, resolveProfile } from './registry.ts'
+import { buildContractSnapshot, LEGACY_ARENA_PROFILE, resolveProfile } from './registry.ts'
 import { businessConfigSchema } from './schema.ts'
 import { resolveEnvironment } from './environments.ts'
 import type { BusinessContractSnapshot, BusinessProfileId } from './types.ts'
@@ -34,8 +34,8 @@ export type BusinessSelection =
   | { readonly kind: 'unknown-profile' }
   | { readonly kind: 'configuration-required'; readonly environmentId: string }
 
-/** The single profile the legacy arena request is allowed to mean. */
-export const LEGACY_ARENA_PROFILE = { id: 'checkout', revision: '1' } as const
+/** Re-exported so callers keep one import site for selection vocabulary. */
+export { LEGACY_ARENA_PROFILE }
 
 export function selectBusinessContract(input: {
   requested?: unknown

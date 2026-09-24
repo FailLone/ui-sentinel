@@ -2,10 +2,21 @@ export const hypothesisTriggers = [
   'always',
   'payment-success',
   'payment-rejected',
+  'business-success',
+  'business-rejected',
   'retryable-failure',
   'overlay-present',
 ] as const
 export type HypothesisTrigger = (typeof hypothesisTriggers)[number]
+
+/** Minimal normalized view of a business fact, so this module needs no adapter dependency. */
+export interface NormalizedFactView {
+  readonly phase: 'processing' | 'succeeded' | 'rejected' | 'failed'
+  readonly retryEligibility: 'allowed' | 'denied' | 'unknown'
+  /** Checkout compatibility only: the response carried a payment-success signal. */
+  readonly paymentOutcome?: 'paid' | 'rejected' | undefined
+}
+
 export function createTaskState(goal: string) {
   const hypotheses = new Map<
     string,
@@ -31,6 +42,27 @@ export function createTaskState(goal: string) {
         triggered.add('payment-rejected')
       if (response.success === false && response.canRetry === true)
         triggered.add('retryable-failure')
+    },
+    /**
+     * Record a normalized business fact.
+     *
+     * Only a *concluded* phase counts as a business outcome. A `processing` fact means the
+     * operation is accepted and still running, so it must leave every conditional branch pending:
+     * treating it as an outcome would silently shrink the remaining scope by declaring the
+     * success, rejection and retry branches unreachable before they could happen.
+     */
+    observeNormalizedFacts(fact: NormalizedFactView | undefined, overlay: boolean) {
+      if (overlay) triggered.add('overlay-present')
+      if (!fact) return
+      if (fact.phase === 'processing') return
+      businessObserved = true
+      if (fact.phase === 'succeeded') triggered.add('business-success')
+      if (fact.phase === 'rejected') triggered.add('business-rejected')
+      if (fact.phase === 'failed' && fact.retryEligibility === 'allowed')
+        triggered.add('retryable-failure')
+      // Checkout compatibility: the approved shopping triggers keep their historical meaning.
+      if (fact.paymentOutcome === 'paid') triggered.add('payment-success')
+      if (fact.paymentOutcome === 'rejected') triggered.add('payment-rejected')
     },
     recordHypothesis(id: string, phenomenon: string, trigger: HypothesisTrigger = 'always') {
       hypotheses.set(id, { id, phenomenon, status: 'open', trigger })

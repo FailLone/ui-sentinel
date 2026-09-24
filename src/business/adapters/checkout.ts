@@ -81,6 +81,50 @@ export const checkoutAdapter: BusinessAdapter = Object.freeze({
     return buildCheckoutFact(body, orderId, exchange)
   },
 
+  /**
+   * Shopping compatibility: the original `business:response` event. The shopping protocol has no
+   * attempt/version field, so the adapter supplies attempt=0 and a stable fact version derived
+   * from the observed status. This is the only producer of these fields; no other business can
+   * emit an orderId.
+   */
+  compatibilityEvent(exchange: PublicExchange) {
+    if (exchange.bodyReadFailed || exchange.bodyText === null) return null
+    if (exchange.request.origin !== exchange.allowedOrigin) return null
+    const path = pathOf(exchange.request.url)
+    if (path !== CHECKOUT_PATH) return null
+    if (!['POST', 'PUT', 'PATCH'].includes(exchange.request.method)) return null
+    const body = exchange.request.body as CheckoutBody | null
+    if (!body || typeof body !== 'object') return null
+    if (typeof body.success !== 'boolean' && typeof body.status !== 'string') return null
+    if (typeof body.orderId !== 'string' || !body.orderId) return null
+    return {
+      type: 'business:response' as const,
+      payload: {
+        statusCode: exchange.request.statusCode,
+        success: body.success,
+        status: body.status,
+        orderId: body.orderId,
+        message: body.message,
+        canRetry: body.canRetry,
+        retryAfterMs: body.retryAfterMs,
+        remainingAttempts: body.remainingAttempts,
+        inProgress: body.inProgress,
+        prerequisitesMet: body.prerequisitesMet,
+      },
+    }
+  },
+
+  /**
+   * Shopping compatibility: the approved pre-fact layer trigger vocabulary. Only the checkout
+   * protocol has a payment concept, so only this adapter maps a fact onto `payment-*`. The export
+   * adapter declares nothing here, which is exactly why its rejections never read as payments.
+   */
+  compatibilityTriggers(fact: BusinessFact) {
+    if (fact.phase === 'succeeded') return { paymentOutcome: 'paid' as const }
+    if (fact.phase === 'rejected') return { paymentOutcome: 'rejected' as const }
+    return {}
+  },
+
   correlateVisible(
     fact: BusinessFact,
     observation: { readonly pageText: string; readonly visibleText: readonly string[] },

@@ -7,6 +7,7 @@ import { resolve } from 'node:path'
 import { runJourney } from './runner.ts'
 import type { PageSnapshot } from '../../rules/types.ts'
 import type { RunEvent } from '../../shared/types.ts'
+import { buildContractSnapshot, resolveProfile } from '../../business/registry.ts'
 
 const snapshot = (heading: string, button: string): PageSnapshot => ({
   url: 'http://localhost/store',
@@ -115,29 +116,83 @@ it('honors cancellation between steps', async () => {
   await expect(simulate(journey(), 'cancel')).rejects.toThrow('cancelled')
 })
 
-it('loads prior navigation only within its environment, so independent trial environments start empty', async () => {
+// R06: a reusable segment belongs to the exact business identity that evidenced it. The same
+// headings and path under a different profile hash, adapter revision or origin is a different
+// business, whose pages only happen to look alike.
+const checkoutContract = buildContractSnapshot(
+  resolveProfile({ id: 'checkout', revision: '1' })!,
+  'arena',
+)
+const identityOf = (contract: typeof checkoutContract) => ({
+  profileId: contract.profileId,
+  contractHash: contract.hash,
+  adapterId: contract.adapter.id,
+  adapterRevision: contract.adapter.revision,
+  origin: contract.environment.publicOrigin,
+})
+
+async function seedSource(environmentId: string, contract: unknown) {
   const source = await createRun({
     goal: 'Explore',
-    environmentId: 'memory-source',
-    entryUrl: 'http://localhost/store',
+    environmentId,
+    entryUrl: `http://127.0.0.1:4173`,
+    ...(contract ? { businessContract: contract as never } : {}),
   })
-  try {
-    const refs = new Map<string, string>()
-    for (const [key, snapshot] of snapshots)
-      refs.set(key, await saveEvidence(source.id, 'snapshot', JSON.stringify(snapshot)))
-    for (const event of events)
-      await appendEvent(source.id, event.type, event.payload, {
-        actionId: event.actionId ?? undefined,
-        evidenceRefs: event.evidenceRefs.map((ref) => refs.get(ref)!),
-      })
-    await appendEvent(source.id, 'finish:accepted', {})
-    await updateRunStatus(source.id, 'completed', {
-      stopReason: 'goal-reached',
-      businessResult: 'success',
+  const refs = new Map<string, string>()
+  for (const [key, snapshot] of snapshots)
+    refs.set(key, await saveEvidence(source.id, 'snapshot', JSON.stringify(snapshot)))
+  for (const event of events)
+    await appendEvent(source.id, event.type, event.payload, {
+      actionId: event.actionId ?? undefined,
+      evidenceRefs: event.evidenceRefs.map((ref) => refs.get(ref)!),
     })
-    expect((await loadJourneys('memory-source', 'another-run')).length).toBe(1)
-    expect(await loadJourneys('independent-trial', 'another-run')).toEqual([])
+  await appendEvent(source.id, 'finish:accepted', {})
+  await updateRunStatus(source.id, 'completed', {
+    stopReason: 'goal-reached',
+    businessResult: 'success',
+  })
+  return source
+}
+
+it('loads prior navigation only under the same contract identity', async () => {
+  const source = await seedSource('arena', checkoutContract)
+  try {
+    expect((await loadJourneys('arena', 'another-run', identityOf(checkoutContract))).length).toBe(
+      1,
+    )
+    // A different environment is a different origin.
+    expect(
+      await loadJourneys('independent-trial', 'another-run', identityOf(checkoutContract)),
+    ).toEqual([])
+    // Same environment, but a changed contract hash: the evidence does not transfer.
+    expect(
+      await loadJourneys('arena', 'another-run', {
+        ...identityOf(checkoutContract),
+        contractHash: 'changed-contract-hash',
+      }),
+    ).toEqual([])
+    expect(
+      await loadJourneys('arena', 'another-run', {
+        ...identityOf(checkoutContract),
+        adapterRevision: '2',
+      }),
+    ).toEqual([])
+    expect(
+      await loadJourneys('arena', 'another-run', {
+        ...identityOf(checkoutContract),
+        origin: 'http://127.0.0.1:9999',
+      }),
+    ).toEqual([])
   } finally {
     await rm(resolve('data/artifacts', source.id), { recursive: true, force: true })
+  }
+})
+
+it('never loads a legacy journey that carries no contract', async () => {
+  const legacy = await seedSource('arena', undefined)
+  try {
+    expect(await loadJourneys('arena', 'another-run', identityOf(checkoutContract))).toEqual([])
+  } finally {
+    await rm(resolve('data/artifacts', legacy.id), { recursive: true, force: true })
   }
 })

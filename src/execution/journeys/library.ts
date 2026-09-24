@@ -10,11 +10,31 @@ export interface JourneyStep {
   after: { pathname: string; headings: string[] }
   source: { actionId: string; beforeRefs: string[]; afterRefs: string[] }
 }
+/**
+ * Business-scoped identity of a reusable segment.
+ *
+ * A journey is only reusable inside the exact contract it was evidenced under: the same page title
+ * and path reached under a different profile, contract revision, adapter revision or origin is a
+ * different business, and its evidence does not transfer. `legacy: true` marks a segment evidenced
+ * before contracts existed; those are never reused by a versioned run.
+ */
+export interface JourneyIdentity {
+  readonly profileId: string
+  readonly contractHash: string
+  readonly adapterId: string
+  readonly adapterRevision: string
+  readonly origin: string
+  readonly environmentId: string
+  readonly legacy?: boolean
+}
+
 export interface Journey {
   id: string
   revision: '1'
   sourceRunId: string
   environmentId: string
+  /** The contract this segment was evidenced under. Absent only for legacy records. */
+  identity?: JourneyIdentity
   writePolicy: 'read-only'
   steps: JourneyStep[]
 }
@@ -46,6 +66,7 @@ export function deriveJourneys(
   environmentId: string,
   events: readonly RunEvent[],
   snapshots: ReadonlyMap<string, PageSnapshot>,
+  identity?: JourneyIdentity,
 ): Journey[] {
   const journeys: Journey[] = []
   let segment: JourneyStep[] = []
@@ -57,7 +78,7 @@ export function deriveJourneys(
         createHash('sha256')
           .update(
             JSON.stringify([
-              environmentId,
+              identity ?? environmentId,
               steps.map(({ action, before, after }) => ({ action, before, after })),
             ]),
           )
@@ -68,6 +89,7 @@ export function deriveJourneys(
         revision: '1',
         sourceRunId: runId,
         environmentId,
+        ...(identity ? { identity } : {}),
         writePolicy: 'read-only',
         steps,
       })
@@ -121,7 +143,6 @@ export function deriveJourneys(
       targets.length !== 1 ||
       !pre.headings.length ||
       !post.headings.length ||
-      /order[- ]\d/i.test(JSON.stringify([pre, post, name])) ||
       JSON.stringify(pre) === JSON.stringify(post)
     ) {
       flush()
@@ -143,9 +164,19 @@ export function deriveJourneys(
   return journeys
 }
 
+/**
+ * Load reusable segments for one run's contract.
+ *
+ * A source run qualifies only when it ran the *same* business identity: same profile, contract
+ * hash, adapter revision and origin. Matching on the environment id alone would let a segment
+ * evidenced under one business be replayed against another whose pages happen to look similar -
+ * which is exactly the cross-business reuse the contract is meant to prevent. A source run with no
+ * persisted contract is legacy and never contributes to a versioned run.
+ */
 export async function loadJourneys(
   environmentId: string,
   currentRunId: string,
+  identity: Omit<JourneyIdentity, 'environmentId'>,
 ): Promise<Journey[]> {
   const db = getDbClient()
   const candidates = await db.execute({
@@ -157,7 +188,18 @@ export async function loadJourneys(
     const sourceId = String(row.id)
     const stored = (await db.execute({ sql: 'SELECT spec FROM runs WHERE id=?', args: [sourceId] }))
       .rows[0]
-    if (JSON.parse(String(stored!.spec)).environmentId !== environmentId) continue
+    const sourceSpec = JSON.parse(String(stored!.spec))
+    if (sourceSpec.environmentId !== environmentId) continue
+    const sourceContract = sourceSpec.businessContract
+    if (!sourceContract) continue
+    if (
+      sourceContract.profileId !== identity.profileId ||
+      sourceContract.hash !== identity.contractHash ||
+      sourceContract.adapter.id !== identity.adapterId ||
+      sourceContract.adapter.revision !== identity.adapterRevision ||
+      sourceContract.environment.publicOrigin !== identity.origin
+    )
+      continue
     const { getEvents } = await import('../run-manager.ts')
     const events = await getEvents(sourceId)
     if (!events.some((e) => e.type === 'finish:accepted')) continue
@@ -175,7 +217,10 @@ export async function loadJourneys(
         /* Missing evidence cannot produce a reusable step. */
       }
     }
-    for (const journey of deriveJourneys(sourceId, environmentId, events, snapshots))
+    for (const journey of deriveJourneys(sourceId, environmentId, events, snapshots, {
+      ...identity,
+      environmentId,
+    }))
       if (!unique.has(journey.id)) unique.set(journey.id, journey)
   }
   // Persist the exact derived contract and provenance; do not synthesize missing historical write evidence.
