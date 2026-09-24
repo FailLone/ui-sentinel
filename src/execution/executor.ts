@@ -359,6 +359,9 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       pageTitle: latest.snapshot.title,
       timestamp: latest.snapshot.observedAt,
       events,
+      // The run's own declared feedback requirement, so the response-time rule judges against what
+      // this contract states rather than a remembered default.
+      feedbackWarningMs: businessContract.feedbackWarningMs,
       factVersion: observationVersion?.reusable ? observationVersion.key : undefined,
       observedTriggers: (function () {
         const t = retryTrigger(events, latest!.snapshot.text)
@@ -1151,6 +1154,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         pageTitle: latest!.snapshot.title,
         timestamp: latest!.snapshot.observedAt,
         events,
+        feedbackWarningMs: businessContract.feedbackWarningMs,
         observedTriggers: (function () {
           const t = retryTrigger(events, latest!.snapshot.text)
           return t ? [t.eventType] : []

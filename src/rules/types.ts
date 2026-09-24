@@ -1,6 +1,16 @@
 export interface RuleContext {
   readonly factVersion?: string
   readonly observedTriggers?: readonly string[]
+  /**
+   * The response-time requirement this run is actually judged against, taken from the run's own
+   * persisted contract rather than from a literal in the rule.
+   *
+   * It is optional because a caller can legitimately have no declared requirement - a run created
+   * before business contracts existed, or a unit caller supplying only events. A rule that cannot
+   * find a declared threshold must not substitute a remembered one: judging a run against a number
+   * its contract never stated is exactly the fabrication this field prevents.
+   */
+  readonly feedbackWarningMs?: number
   readonly runId: string
   readonly currentUrl: string
   readonly pageTitle: string

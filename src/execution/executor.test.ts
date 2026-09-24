@@ -84,6 +84,9 @@ import { initDatabase, getDbClient } from '../storage/database.ts'
 import { clearRules, registerRule } from '../rules/engine.ts'
 
 import { overlayBlockingRule } from '../rules/builtin/overlay-blocking.ts'
+import { responseTimeRule } from '../rules/builtin/response-time.ts'
+/** The rule id under test; named once so a rename cannot silently make the assertion vacuous. */
+const reasonRule = 'response-time'
 import { compileTransitionRule } from '../rules/transition.ts'
 import { config } from '../shared/config.ts'
 import { bindProfile, buildContractSnapshot, resolveProfile } from '../business/registry.ts'
@@ -110,6 +113,20 @@ let exportSettled = false
 let exportStatusDelay = 0
 // Serve the export workspace at the root, the way the real arena does (entryPath is '/').
 let exportWorkspaceAtRoot = false
+/**
+ * B07's staged workspace, served at the root because navigation is confined to the entry path.
+ *
+ * Stage 0 reaches a verified terminal success. Stage 1 is a plain page reached by ordinary
+ * navigation that says nothing about the job. Stage 2 names the job again while its *newest* status
+ * is a failure whose notice the page does not render.
+ *
+ * The status endpoint is honest throughout: it reports version 2 succeeded, then version 3 failed,
+ * for the same entity. Only what the page renders differs, which is what makes this a test of the
+ * executor's rule rather than of a doctored response.
+ */
+let b07Enabled = false
+let b07Stage = 0
+let b07JobId = ''
 const server = createServer((req, res) => {
   if (req.url === '/api/checkout') {
     writes++
@@ -180,6 +197,44 @@ const server = createServer((req, res) => {
     )
     return
   }
+  // B07: one root page whose *rendered* content changes with the stage, so "navigate away" and "a
+  // newer contradictory status appears" are two ordinary page loads rather than an internal switch.
+  if (req.url === '/' && b07Enabled) {
+    res.setHeader('content-type', 'text/html')
+    if (b07Stage === 0)
+      // Stage 0: the workspace that starts a job and renders the settled job's notice, so the
+      // success can be verified against visible evidence.
+      res.end(
+        `<h1>Exports</h1><p id="job"></p><button id="start">Start export</button><script>
+        let jobId=null;
+        document.getElementById('start').onclick=async function(){
+          const d=await fetch('/api/exports',{method:'POST',headers:{'content-type':'application/json'},
+            body:JSON.stringify({datasetId:'orders-q3',format:'csv'})}).then(r=>r.json());
+          jobId=d.jobId;
+          const j=await fetch('/api/exports/'+jobId).then(r=>r.json());
+          // The job and its notice are both rendered, which is what lets the outcome be correlated.
+          document.getElementById('job').textContent=j.jobId+' '+(j.notice||j.phase);
+        };</script>`,
+      )
+    else if (b07Stage === 1)
+      // Stage 1: ordinary navigation to a page that says nothing about the job. The proven result
+      // must survive this - re-observing a page with no business content is not new evidence.
+      res.end('<h1>Exports</h1><p>Nothing selected.</p>')
+    // Stage 2 re-reads the *existing* job - no second create - and shows its identity while
+    // withholding its notice. The read is the page's own, so the executor observes a version-3
+    // failure for the same entity: newer evidence that contradicts the proven success.
+    else
+      res.end(
+        `<h1>Exports</h1><p id="job"></p><script>
+        const jobId=${JSON.stringify(b07JobId)};
+        fetch('/api/exports/'+jobId).then(r=>r.json()).then(function(j){
+          // Identity is rendered; the notice is deliberately not. Identity alone never confirmed an
+          // outcome, so the newest fact cannot be correlated and must not count as confirmation.
+          document.getElementById('job').textContent=j.jobId;
+        });</script>`,
+      )
+    return
+  }
   // An asynchronous export workspace: it owns a job and polls it in the background. The poll is a
   // real business read the run did not initiate, which is what makes this a test of attribution -
   // an unrelated action must not adopt the poll's result as its own.
@@ -221,6 +276,48 @@ const server = createServer((req, res) => {
     return
   }
   if (req.url?.startsWith('/api/exports')) {
+    // B07's staged protocol: the job's own status is honest and versioned, and the *page* decides
+    // whether that status is rendered. The status response is never doctored - only what the user
+    // can see changes between stages, which is exactly the condition B07 describes.
+    if (b07Enabled) {
+      const stageJob = req.url.split('/')[3] ?? ''
+      res.setHeader('content-type', 'application/json')
+      if (req.method === 'POST' && req.url === '/api/exports') {
+        b07JobId = `job-b07-${++exportJobs}`
+        res.end(
+          JSON.stringify({
+            jobId: b07JobId,
+            attempt: 0,
+            version: 1,
+            phase: 'processing',
+            notice: null,
+            retry: { permitted: false, remaining: 0, afterMs: 0, prerequisitesMet: false },
+            datasetId: 'orders-q3',
+            format: 'csv',
+          }),
+        )
+        return
+      }
+      // The status is honest and versioned: succeeded at version 2, then failed at version 3, for
+      // the same entity. The page decides only whether that status is shown.
+      const job = stageJob || b07JobId
+      const failed = b07Stage >= 2
+      res.end(
+        JSON.stringify({
+          jobId: job,
+          attempt: 0,
+          version: failed ? 3 : 2,
+          phase: failed ? 'failed' : 'succeeded',
+          notice: failed
+            ? 'Export could not complete. You may try again.'
+            : `Export ready. ${job} is available.`,
+          retry: { permitted: false, remaining: 0, afterMs: 0, prerequisitesMet: false },
+          datasetId: 'orders-q3',
+          format: 'csv',
+        }),
+      )
+      return
+    }
     // A minimal asynchronous export protocol: create returns processing, a status read settles it.
     if (req.method === 'POST' && req.url === '/api/exports') {
       exportJobId = `job-${++exportJobs}`
@@ -330,6 +427,9 @@ beforeEach(() => {
   exportSettled = false
   exportStatusDelay = 0
   exportWorkspaceAtRoot = false
+  b07Enabled = false
+  b07Stage = 0
+  b07JobId = ''
 })
 
 async function makeRun() {
@@ -564,6 +664,58 @@ it('measures real delayed feedback at 0.5 and 12 seconds without any model reque
     expect(timing.method).toBe('browser-mutation-feedback')
   }
 }, 25000)
+
+// R07 end-to-end: the run's own contract decides the response-time requirement.
+//
+// A 12-second response is a failure against the declared ten seconds and a pass against a contract
+// that asked for twenty. Nothing about the measurement changes between the two runs - only the
+// contract - so a rule that agreed in both cases could not be reading the contract at all.
+it('R07: judges a real measured response against the requirement the run declared', async () => {
+  registerRule(responseTimeRule)
+  const readCheck = async (feedbackWarningMs: number) => {
+    responseDelay = 12_000
+    let phase = 0
+    harness.handler = async (tools: any) => {
+      if (phase++ === 0) await call(tools, 'page_act', { type: 'click', selector: 'button' })
+      else
+        await call(tools, 'run_finish', {
+          businessResult: 'success',
+          blocked: false,
+          summary: 'measured fixture',
+        })
+    }
+    // Bound to a *registered* environment id with the fixture's own origin: the id must be one
+    // this build serves, while the origin the contract records is what the run actually operates on.
+    const bound = bindProfile(resolveProfile({ id: 'checkout', revision: '1' })!, {
+      id: 'arena',
+      entryUrl: url,
+      publicOrigin: url,
+    })
+    const run = await createRun({
+      goal: 'measure feedback',
+      environmentId: 'arena',
+      entryUrl: url,
+      businessContract: { ...bound, feedbackWarningMs } as never,
+    })
+    ids.push(run.id)
+    await startRunExecution(run.id)
+    const events = await getEvents(run.id)
+    const measured = events.find((e) => e.type === 'response:observed')!.payload
+    expect(Number(measured.durationMs)).toBeGreaterThanOrEqual(11_500)
+    const check = events.find(
+      (e) =>
+        e.type === 'rule:evaluated' && (e.payload as { ruleId?: string }).ruleId === reasonRule,
+    )!.payload as { verdict?: string; expected?: string }
+    return check
+  }
+  const strict = await readCheck(10_000)
+  expect(strict.verdict, JSON.stringify(strict)).toBe('fail')
+  expect(strict.expected).toContain('10000')
+  // The identical measurement, judged against a contract that declares twenty seconds.
+  const relaxed = await readCheck(20_000)
+  expect(relaxed.verdict, JSON.stringify(relaxed)).toBe('pass')
+  expect(relaxed.expected).toContain('20000')
+}, 60000)
 
 it('latches shared resources after an uncertain write until explicit reconciliation', async () => {
   harness.handler = async (tools: any) =>
@@ -1904,5 +2056,103 @@ describe('asynchronous business response attribution', () => {
       clearDuration,
       `Clear action durations: ${JSON.stringify(clearedAction.map((e) => (e.payload as { durationMs?: number }).durationMs))}`,
     ).toBeLessThan(2000)
+  })
+})
+
+// B07: a verified terminal outcome survives ordinary navigation, and is withdrawn when the same
+// entity's newest status contradicts it.
+//
+// The two halves belong together because they are the two sides of one rule. An executor that keeps
+// its conclusion forever would fail the second half; one that re-derives from whatever is on screen
+// would fail the first - re-observing a page with no business content is not new evidence about the
+// business, and treating it as such would silently discard a proven result on any navigation.
+describe('verified business state across navigation (B07)', () => {
+  it('retains a proven outcome through navigation, then withdraws it on a newer contradiction', async () => {
+    const bound = bindProfile(resolveProfile({ id: 'export', revision: '1' })!, {
+      id: 'export-arena',
+      entryUrl: url,
+      publicOrigin: url,
+    })
+    b07Enabled = true
+    // The model packet is where the run's own conclusion is reported to the agent, so it is where
+    // retention and withdrawal are observable without reading executor internals.
+    const results: Record<string, unknown>[] = []
+    harness.handler = async (tools: any, prompt: string) => {
+      const packet = JSON.parse(prompt)
+      const observed = packet.businessOutcomeObserved as {
+        businessResult?: string
+        verifiedOperations?: { operationId: string }[]
+      }
+      results.push({ url: packet.observation?.url, ...observed })
+      if (results.length === 1) {
+        // A real run to a terminal success: the create's job settles on the status read, and the
+        // page renders that job's notice, so the outcome verifies against visible evidence.
+        const started = await call(tools, 'page_act', {
+          type: 'click',
+          role: 'button',
+          name: 'Start export',
+        })
+        expect(started.status, JSON.stringify(started).slice(0, 300)).toBe('completed')
+        return []
+      }
+      if (results.length === 2) {
+        // Stage 1: ordinary navigation to a page with no business content. The proven success must
+        // still be the run's conclusion after this - nothing here is new evidence about the job.
+        b07Stage = 1
+        await call(tools, 'page_act', { type: 'navigate', url: `${url}/` })
+        return []
+      }
+      if (results.length === 3) {
+        // Give the run another turn on the contentless page: retention is not a one-turn accident.
+        await call(tools, 'page_observe', {})
+        return []
+      }
+      if (results.length === 4) {
+        // Stage 2: the page re-reads the existing job and shows only its identity. A version-3
+        // failure for the same entity now exists, contradicting the proven success.
+        b07Stage = 2
+        await call(tools, 'page_act', { type: 'navigate', url: `${url}/` })
+        return []
+      }
+      await call(tools, 'run_finish', { businessResult: 'unknown', blocked: true, summary: 'done' })
+      return []
+    }
+    const run = await createRun({
+      goal: 'Export a dataset and then navigate away',
+      environmentId: 'test',
+      entryUrl: url,
+      businessContract: bound as never,
+    })
+    ids.push(run.id)
+    await startRunExecution(run.id)
+
+    const events = await getEvents(run.id)
+    const sequence = results.map((r) => ({
+      url: r.url,
+      businessResult: r.businessResult,
+      verified: (r.verifiedOperations as { operationId: string }[] | undefined)?.length ?? 0,
+    }))
+    const detail = JSON.stringify(sequence)
+    // Turn 2 is the packet built *after* the click: the job's notice was visible, so the outcome is
+    // proven and attributed to the entity by its own id.
+    expect(sequence[1]?.businessResult, detail).toBe('success')
+    expect(sequence[1]?.verified, detail).toBe(1)
+    // Turns 3 and 4 are ordinary navigation onto a page with no business content. Re-observing a
+    // page that says nothing about the job is not new evidence, so the proven success must survive
+    // - including the second time, which rules out "retained by accident for one turn".
+    expect(sequence[2]?.businessResult, detail).toBe('success')
+    expect(sequence[2]?.url, detail).toBe(`${url}/`)
+    expect(sequence[3]?.businessResult, detail).toBe('success')
+    // The page really did stop showing the job, so those turns are genuinely contentless and the
+    // retention above is a real decision rather than the same page being read twice.
+    const navigated = events.filter(
+      (e) => e.type === 'page:observed' && (e.payload as { url?: string }).url === `${url}/`,
+    )
+    expect(navigated.length, detail).toBeGreaterThanOrEqual(3)
+    // The second half: the same entity's newest status is a version-3 failure, so the previously
+    // proven success is no longer the newest word on it. The outcome must be withdrawn rather than
+    // reported forever - the run cannot keep claiming a success the business has contradicted.
+    expect(sequence[4]?.businessResult, detail).not.toBe('success')
+    expect((await getRun(run.id))?.businessResult, detail).not.toBe('success')
   })
 })
