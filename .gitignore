@@ -13,3 +13,4 @@ coverage/
 midscene_run/
 playwright-report/
 test-results/
+.vitest/
