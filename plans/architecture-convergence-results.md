@@ -269,7 +269,7 @@ D5 暴露的错误用实际 Mastra Agent、OpenAI SDK 适配器和本地确定�
 
 D6 验证：54 个测试文件、382 项测试通过，typecheck/build 通过。编译后长期服务预检 `data/persistence-preflight/2026-09-24T09-18-43-869Z/` 六轮通过，正式 API 与停服后独立 SQLite 记录一致，零付费请求。新 SDK 测试的后续动作由本地固定响应选择，只证明反馈通路，不作为真实 Agent 自主纠错成绩。
 
-## Jev 官方资料核查（2026-09-24），尚未实测
+## Jev 官方资料核查与 OpenRouter 连通性更正（2026-09-24）
 
 用户提出 TypeSafe AI System One / Jev。核查官方资料得到一个新的架构候选：让有类型决策模型处理有限、明确的语义判断，生成式模型继续承担开放探索、提出未知假设和生成解释。其潜在价值直指 D4 中持续推理但没有可执行决定的机制；资料并不能证明在本项目有效。
 
@@ -278,7 +278,15 @@ D6 验证：54 个测试文件、382 项测试通过，typecheck/build 通过。
 - [Skill suggestion](https://docs.typesafe.ai/cookbooks/skill_suggestion) 与规则候选检索相近；[Function calling](https://docs.typesafe.ai/cookbooks/function_calling) 展示封闭参数空间分派；[Fan-out](https://docs.typesafe.ai/patterns/fan-out) 可借鉴同一状态上独立问题批处理。后续页面状态依赖真实浏览器动作，不能因此并行操作同一页面。
 - 官方 [工作流评测](https://evals.typesafe.ai/) 以其他大模型的共识作为参考标签，不能替代本项目的真实 UI/业务 oracle；宣传倍率不是本应用端到端加速证据。[开源对照适配器](https://github.com/typesafe-ai/system-one-adapter-python) 可借鉴同问题接口的普通 LLM 对照，而不是当作 Jev 模型本身开源。
 
-若进入实验，优先用已冻结的真实状态做影子重放，评估证据是否覆盖当前具体问题、候选目标/规则选择与是否需要进一步探索。保留 none/unknown/escalate，不把没有匹配规则解释为没有缺陷。程序负责来源有效性、采样覆盖、预算、写入和 finish 合法性；低置信度、状态缺失或不适合封闭候选时交回 DeepSeek。尤其不能靠过早结束降低耗时。应对比原 Agent、同一决策接口上的 DeepSeek、Jev 三组，以区分模型收益与重构收益；质量合格后才做端到端、陌生业务和正常导航记忆验收。当前没有 Jev 真实调用或采用结论。
+若进入实验，优先用已冻结的真实状态做影子重放，评估证据是否覆盖当前具体问题、候选目标/规则选择与是否需要进一步探索。保留 none/unknown/escalate，不把没有匹配规则解释为没有缺陷。程序负责来源有效性、采样覆盖、预算、写入和 finish 合法性；低置信度、状态缺失或不适合封闭候选时交回 DeepSeek。尤其不能靠过早结束降低耗时。应对比原 Agent、同一决策接口上的 DeepSeek、Jev 三组，以区分模型收益与重构收益；质量合格后才做端到端、陌生业务和正常导航记忆验收。当时尚未调用 Jev；下述更正记录了后续连通性实测，仍没有质量或采用结论。
+
+### 更正：无需额外 TypeSafe key，OpenRouter Decisions API 已可用
+
+用户指出 OpenRouter 的 TypeSafe: Jev 1.13 后，重新核查了[模型页](https://openrouter.ai/typesafe/jev-1.13)及[官方调用说明](https://openrouter.ai/blog/insights/what-is-jev/)。模型 ID 为 `typesafe/jev-1.13`，调用 `POST https://openrouter.ai/api/alpha/decisions`，使用现有 OpenRouter key。不能仅把聊天接口的 model 字段换成 Jev。此次标准 `/api/v1/models` 查询仍未返回 Jev，但专属 `/api/v1/models/typesafe/jev-1.13/endpoints` 返回 text→decisions、32,000 context 与 TypeSafe 提供方；此前凭普通列表判断需要新凭据不充分。
+
+已用现有 key 做一次无浏览器副作用、无重试的合成连通性检查，记录在 `data/jev-connectivity/2026-09-24T09-44-45-890Z/`：HTTP 200，实际模型 `typesafe/jev-1.13-20260917`，提供方 TypeSafe；端到端 1,038ms，433 input tokens，返回费用 $0.000018186。初始商品目录尚未执行购买时，返回 continue，分布 continue=0.98 / finish=0.01 / unknown=0.01。这是单次小输入的接口检查，不是完整任务速度、复杂状态准确率或置信度校准的证明。
+
+下一步无需用户提供新凭据。在 D8 执行集成前，优先把相同的冻结状态与四个结束/探索选项接入 Jev 对照；DeepSeek 对照也使用相同的选择契约，避免将删除自由文本解释的收益全部归因于模型。既有原 Agent 与 D7 记录继续作为独立参考。保留 unknown、全部费用/失败和原始概率，不临时调阈值筛掉错误，不把置信度等同于正确率；质量合格后再选择 D8 的审查模型。
 
 ## D7：结束审查影子对比
 
