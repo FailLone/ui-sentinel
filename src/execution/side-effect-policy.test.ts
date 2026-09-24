@@ -32,6 +32,33 @@ describe('side-effect policy (P01, P02, P03, P06, P10)', () => {
     expect(policy.snapshot()).toMatchObject({ createsReserved: 0, retriesReserved: 0 })
   })
 
+  it('P05: export polling after a known 202 is a read, and is never isolated as a write', () => {
+    const policy = createSideEffectPolicy({ contract: exportContract, adapter: exportAdapter })
+    expect(policy.authorize(req('/api/exports', 'POST', EXPORT_ARENA))).toMatchObject({
+      kind: 'allow',
+      intent: { kind: 'create' },
+    })
+    // The asynchronous protocol is: one create, then reads until the job settles. The status and
+    // eligibility reads are the business working as designed, not a boundary being probed - so
+    // they must be allowed without limit and without consuming a budget.
+    for (let i = 0; i < 12; i++) {
+      expect(policy.authorize(req(`/api/exports/job-1`, 'GET', EXPORT_ARENA))).toEqual({
+        kind: 'allow',
+        intent: { kind: 'read' },
+      })
+      expect(policy.authorize(req(`/api/exports/job-1/eligibility`, 'GET', EXPORT_ARENA))).toEqual({
+        kind: 'allow',
+        intent: { kind: 'read' },
+      })
+    }
+    expect(policy.snapshot()).toMatchObject({ createsReserved: 1, retriesReserved: 0 })
+    // Reads stay free, so polling must never be what exhausts the budget and blocks a later retry.
+    expect(policy.authorize(req('/api/exports/job-1/retry', 'POST', EXPORT_ARENA))).toMatchObject({
+      kind: 'allow',
+      intent: { kind: 'retry' },
+    })
+  })
+
   it('P10: permits cart preparation writes and spends only the action budget, then blocks them after the order', () => {
     const policy = createSideEffectPolicy({ contract: checkout, adapter: checkoutAdapter })
     expect(policy.authorize(req('/api/cart/add'))).toMatchObject({ kind: 'allow' })
