@@ -181,6 +181,8 @@ export async function startGateway(
       }
       record.transportComplete = true
       const raw = Buffer.concat(chunks).toString()
+      // A streaming request can receive a non-SSE HTTP error; retain its diagnosis too.
+      if (!upstream.ok) record.error = redact(raw.slice(0, 4096))
       if (!body.stream) acceptEvent(JSON.parse(raw))
       else readLines(decoder.decode(), true)
       record.status = upstream.ok && !events.some((e: any) => e.error) ? 'success' : 'error'

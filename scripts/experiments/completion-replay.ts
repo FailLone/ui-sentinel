@@ -10,6 +10,9 @@ import {
   withCompletionReview,
 } from './completion-review.ts'
 
+const transportCheck = process.argv.slice(2).join(' ') === '--transport-check'
+if (process.argv.length > 2 && !transportCheck) throw Error('Unsupported completion replay option')
+
 const key = process.env.OPENROUTER_API_KEY
 if (!key) throw Error('configuration-missing: OPENROUTER_API_KEY')
 if (execFileSync('git', ['status', '--porcelain'], { encoding: 'utf8' }).trim())
@@ -130,7 +133,27 @@ const frozen = states.flatMap((state, index) => {
     }
   })
 })
-const dir = resolve('data/completion-replay', new Date().toISOString().replace(/[:.]/g, '-'))
+const schedule = transportCheck
+  ? ['forced-with-parallel', 'forced-without-parallel', 'required-without-parallel'].map((arm) => {
+      const source = frozen.find(
+        (item) => item.state.id === 'blocker-handoff' && item.arm === 'review-disabled',
+      )!
+      const body = structuredClone(source.body)
+      if (arm !== 'forced-with-parallel') delete body.parallel_tool_calls
+      if (arm === 'required-without-parallel') body.tool_choice = 'required'
+      return {
+        ...source,
+        arm,
+        body,
+        inputHash: createHash('sha256').update(JSON.stringify(body)).digest('hex'),
+      }
+    })
+  : frozen
+const limitUsd = transportCheck ? 0.1 : 0.5
+const dir = resolve(
+  transportCheck ? 'data/completion-transport' : 'data/completion-replay',
+  new Date().toISOString().replace(/[:.]/g, '-'),
+)
 await mkdir(dir, { recursive: true })
 const save = (name: string, value: unknown) =>
   writeFile(resolve(dir, name), JSON.stringify(value, null, 2) + '\n')
@@ -146,36 +169,43 @@ if (
 )
   throw Error('Missing fixed model/prices')
 await save('model.json', model)
-await save('inputs.json', frozen)
+await save('inputs.json', schedule)
 await save('manifest.json', {
-  protocol: 'completion-review-shadow-1',
+  protocol: transportCheck ? 'completion-transport-1' : 'completion-review-shadow-1',
   commit: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
   sources,
   sourceHashes: hashes,
   model: AGENT_MODEL,
   provider: 'Wafer',
-  maxCostUsd: 0.5,
-  maxRequests: 30,
+  maxCostUsd: limitUsd,
+  maxRequests: schedule.length,
   requestTimeoutMs: 60000,
   maxOutputTokens: 4096,
   retries: 0,
-  reasoning: 'low except review-disabled',
+  reasoning: transportCheck
+    ? 'disabled; transport compatibility only'
+    : 'low except review-disabled',
   sideEffects:
     'None; no browser or tool execution. Three states are explicitly synthetic negatives. Criteria are stored only in this manifest, never sent to the model.',
   failurePolicy: 'Keep failures; stop only for budget/integrity failures, no replacement trials.',
-  schedule: frozen.map(({ state, arm, inputHash }) => ({ ...state, arm, inputHash })),
+  schedule: schedule.map(({ state, arm, inputHash }) => ({ ...state, arm, inputHash })),
 })
 process.env.EXPERIMENT_AGENT_PROVIDER = 'Wafer'
 const gateway = await startGateway(key, dir, fetch, {
-  limitUsd: 0.5,
+  limitUsd,
   estimateCost: (body) =>
     Buffer.byteLength(JSON.stringify(body)) * Number(model.pricing.prompt) +
     4096 * Number(model.pricing.completion),
 })
 const records: any[] = []
-console.log(`30 shadow decisions; cap $0.50; no execution: ${dir}`)
+const cancellation = new AbortController()
+const interrupt = () => cancellation.abort(new Error('experiment-interrupted'))
+process.once('SIGINT', interrupt)
+process.once('SIGTERM', interrupt)
+console.log(`${schedule.length} shadow decisions; cap $${limitUsd}; no execution: ${dir}`)
 try {
-  for (const { state, arm, body, inputHash } of frozen) {
+  for (const { state, arm, body, inputHash } of schedule) {
+    if (cancellation.signal.aborted) break
     const id = `${state.id}-${arm}`
     const record: any = {
       id,
@@ -186,16 +216,21 @@ try {
       semanticReview: 'pending',
     }
     const startedAt = Date.now()
-    gateway.begin(id, 1, 60000, { agentReasoning: arm === 'review-disabled' ? 'disabled' : 'low' })
+    gateway.begin(id, 1, 60000, {
+      agentReasoning: transportCheck || arm === 'review-disabled' ? 'disabled' : 'low',
+    })
     try {
       const response = await fetch(gateway.url + '/chat/completions', {
         method: 'POST',
         headers: { authorization: `Bearer ${gateway.token}`, 'content-type': 'application/json' },
         body: JSON.stringify(body),
-        signal: AbortSignal.timeout(60000),
+        signal: AbortSignal.any([cancellation.signal, AbortSignal.timeout(60000)]),
       })
       if (!response.ok) {
-        record.budgetExhausted = (await response.text()).includes('experiment-spending-limit')
+        const errorBody = gateway.redact(await response.text())
+        record.httpErrorBody = errorBody.slice(0, 4096)
+        record.budgetExhausted = errorBody.includes('experiment-spending-limit')
+        record.configurationFailure = [400, 401, 403, 404, 422].includes(response.status)
         throw Error(`HTTP ${response.status}`)
       }
       const events = (await response.text())
@@ -240,13 +275,15 @@ try {
         `${id}: ${record.transportValid ? JSON.stringify(record.calls) : (record.error ?? record.finishReason)}; ${record.elapsedMs}ms`,
       )
     }
-    if (record.budgetExhausted) break
+    if (record.budgetExhausted || (record.configurationFailure && !transportCheck)) break
   }
 } finally {
   await save('summary.json', {
-    complete: records.length === frozen.length,
+    complete: records.length === schedule.length,
     semanticReview: 'pending',
     spending: gateway.spending(),
   })
   await gateway.close()
+  process.removeListener('SIGINT', interrupt)
+  process.removeListener('SIGTERM', interrupt)
 }

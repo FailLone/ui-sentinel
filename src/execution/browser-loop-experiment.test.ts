@@ -5,6 +5,47 @@ import { join } from 'node:path'
 import { startGateway, AGENT_MODEL } from '../../scripts/experiments/openrouter-gateway.ts'
 import { assertColdDecisionInput } from '../../scripts/experiments/isolation.ts'
 
+it('retains redacted non-SSE provider errors for streaming requests and keeps unknown cost reserved', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'gateway-http-error-'))
+  const gateway = await startGateway(
+    'test-secret',
+    dir,
+    (async () =>
+      Response.json(
+        { error: { message: 'Unsupported parameter test-secret' } },
+        { status: 404 },
+      )) as typeof fetch,
+    { limitUsd: 1, estimateCost: () => 0.1 },
+  )
+  try {
+    gateway.begin('unsupported', 1, 5000)
+    const response = await fetch(gateway.url + '/chat/completions', {
+      method: 'POST',
+      headers: { authorization: `Bearer ${gateway.token}`, 'content-type': 'application/json' },
+      body: JSON.stringify({ model: AGENT_MODEL, stream: true }),
+    })
+    await response.text()
+    const [record] = await gateway.end()
+    expect(record).toMatchObject({
+      status: 'error',
+      httpStatus: 404,
+      streamEventCount: 0,
+      usage: null,
+    })
+    expect(record.error).toContain('Unsupported parameter [redacted]')
+    expect(await readFile(join(dir, 'ledger.jsonl'), 'utf8')).not.toContain('test-secret')
+    expect(gateway.spending()).toMatchObject({
+      knownCostUsd: 0,
+      unknownCosts: 1,
+      unknownReservedUsd: 0.1,
+      reservedUsd: 0,
+    })
+  } finally {
+    await gateway.close()
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
 it('retains partial upstream reasoning and response identity after a streaming failure without inventing usage', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'gateway-partial-'))
   let upstream!: ReadableStreamDefaultController<Uint8Array>

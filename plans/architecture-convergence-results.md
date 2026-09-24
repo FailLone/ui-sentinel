@@ -279,3 +279,7 @@ D5 暴露的错误用实际 Mastra Agent、OpenAI SDK 适配器和本地确定�
 若进入实验，优先用已冻结的真实状态做影子重放，评估证据是否覆盖当前具体问题、候选目标/规则选择与是否需要进一步探索。保留 none/unknown/escalate，不把没有匹配规则解释为没有缺陷。程序负责来源有效性、采样覆盖、预算、写入和 finish 合法性；低置信度、状态缺失或不适合封闭候选时交回 DeepSeek。尤其不能靠过早结束降低耗时。应对比原 Agent、同一决策接口上的 DeepSeek、Jev 三组，以区分模型收益与重构收益；质量合格后才做端到端、陌生业务和正常导航记忆验收。当前没有 Jev 真实调用或采用结论。
 
 D6 验证：54 个测试文件、382 项测试通过，typecheck/build 通过。编译后长期服务预检 `data/persistence-preflight/2026-09-24T09-18-43-869Z/` 六轮通过，正式 API 与停服后独立 SQLite 记录一致，零付费请求。新 SDK 测试的后续动作由本地固定响应选择，只证明反馈通路，不作为真实 Agent 自主纠错成绩。
+
+D7 首次影子批次 `data/completion-replay/2026-09-24T09-26-50-680Z/` 无有效对比结论：原接口请求可执行，但候选六次均 HTTP 404。已中断批次，10 次已发请求、9 条终态账本，其中三次原接口已知费用 $0.0071266；六次 HTTP 错误和中断中的一个请求费用未知，保守占额共 $0.0344736，见 interruption-audit.json。不会拼接重跑后的成功格子。候选同时加入了指定函数 tool_choice 与 parallel_tool_calls=false；公开 Wafer 参数清单支持前者但没有列后者，目前只是兼容性假设。
+
+先补实验网关对流式请求收到非 SSE HTTP 错误的脱敏持久化，并让正式影子批次在配置性 4xx 后停止、SIGINT/SIGTERM 通过取消和账本收尾。增加三请求兼容预检 `completion-replay.ts --transport-check`，同一输入仅比较 forced+parallel / forced 不带 parallel / required 不带 parallel，全部 disabled、无执行、费用上限 $0.10；保留故意无效请求，不作为能力成绩。确认参数原因后再重新冻结完整影子对比。
