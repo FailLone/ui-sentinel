@@ -47,5 +47,7 @@ for (const args of [
   ['exec', 'vite', 'build', '--config', 'src/web/vite.config.ts', '--watch'],
   ['--filter', 'arena', 'dev:api'],
   ['--filter', 'arena', 'dev:ui'],
+  ['--filter', 'arena-export', 'dev:api'],
+  ['--filter', 'arena-export', 'dev:ui'],
 ])
   launch(args).on('exit', (code) => stop(code ?? 1))

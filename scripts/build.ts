@@ -13,6 +13,16 @@ await build({
   sourcemap: true,
 })
 await build({
+  entryPoints: ['arena/export/src/server/index.ts'],
+  outfile: 'dist/arena-export/index.js',
+  bundle: true,
+  platform: 'node',
+  target: 'node22',
+  format: 'esm',
+  packages: 'external',
+  sourcemap: true,
+})
+await build({
   entryPoints: ['arena/checkout/src/server/index.ts'],
   outfile: 'dist/arena/index.js',
   bundle: true,
@@ -24,4 +34,5 @@ await build({
 })
 await viteBuild({ configFile: 'src/web/vite.config.ts' })
 await viteBuild({ configFile: 'arena/checkout/vite.config.ts', root: 'arena/checkout' })
-console.log('Built server, workbench and arena. Start with pnpm start.')
+await viteBuild({ configFile: 'arena/export/vite.config.ts', root: 'arena/export' })
+console.log('Built server, workbench and both arenas. Start with pnpm start.')
