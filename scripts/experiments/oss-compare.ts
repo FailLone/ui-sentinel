@@ -17,7 +17,10 @@ import { assertColdDecisionInput } from './isolation.ts'
 
 const args = process.argv.slice(2)
 const candidate = args.includes('--candidate') ? args[args.indexOf('--candidate') + 1] : undefined
-const atomic = args.includes('--study') && args[args.indexOf('--study') + 1] === 'atomic'
+const atomicConfirm =
+  args.includes('--study') && args[args.indexOf('--study') + 1] === 'atomic-confirm'
+const atomic =
+  atomicConfirm || (args.includes('--study') && args[args.indexOf('--study') + 1] === 'atomic')
 const convergence =
   atomic || (args.includes('--study') && args[args.indexOf('--study') + 1] === 'convergence')
 if (args.includes('--study') && !convergence) throw Error('Unknown study')
@@ -26,7 +29,15 @@ if (candidate && !['stagehand', 'browser-use'].includes(candidate)) throw Error(
 if (
   args.some(
     (a) =>
-      !['--candidate', 'stagehand', 'browser-use', '--study', 'convergence', 'atomic'].includes(a),
+      ![
+        '--candidate',
+        'stagehand',
+        'browser-use',
+        '--study',
+        'convergence',
+        'atomic',
+        'atomic-confirm',
+      ].includes(a),
   )
 )
   throw Error('Unsupported arguments')
@@ -59,7 +70,7 @@ process.env.EXPERIMENT_AGENT_PROVIDER = 'Wafer'
 process.env.EXPERIMENT_VISION_PROVIDER = 'Alibaba'
 if (convergence && models[0].reasoning?.mandatory)
   throw Error('Fixed model cannot disable reasoning')
-const maxCostUsd = atomic ? 1 : candidate || convergence ? 3 : 2
+const maxCostUsd = atomicConfirm ? 3 : atomic ? 1 : candidate || convergence ? 3 : 2
 const gateway = await startGateway(key, dir, fetch, {
   limitUsd: maxCostUsd,
   estimateCost: (body) => {
@@ -120,36 +131,47 @@ const dependencies = execFileSync(
   { encoding: 'utf8' },
 )
 await writeFile(join(dir, 'python-dependencies.txt'), dependencies)
-const cases = ['C0', 'C2', 'C5'] as const
-const schedule = candidate
+const cases = atomicConfirm
+  ? (['C0', 'C1', 'C2', 'C3', 'C4', 'C5'] as const)
+  : (['C0', 'C2', 'C5'] as const)
+const schedule = atomicConfirm
   ? cases.flatMap((variant, index) =>
       [1, 2, 3].flatMap((repeat) =>
-        ((index + repeat) % 2 ? ['current', candidate] : [candidate, 'current']).map((arm) => ({
-          variant,
-          repeat,
-          arm,
-        })),
+        ((index + repeat) % 2
+          ? ['current-low', 'current-atomic']
+          : ['current-atomic', 'current-low']
+        ).map((arm) => ({ variant, repeat, arm })),
       ),
     )
-  : cases.flatMap((variant, index) => {
-      const arms = atomic
-        ? ['current-low', 'current-atomic']
-        : convergence
-          ? [
-              'current-low',
-              'current-off',
-              'stagehand-low',
-              'stagehand-off',
-              'browser-use-off',
-              'browser-use-flash',
-            ]
-          : ['current', 'stagehand', 'browser-use']
-      return [...arms.slice(index), ...arms.slice(0, index)].map((arm) => ({
-        variant,
-        repeat: 1,
-        arm,
-      }))
-    })
+  : candidate
+    ? cases.flatMap((variant, index) =>
+        [1, 2, 3].flatMap((repeat) =>
+          ((index + repeat) % 2 ? ['current', candidate] : [candidate, 'current']).map((arm) => ({
+            variant,
+            repeat,
+            arm,
+          })),
+        ),
+      )
+    : cases.flatMap((variant, index) => {
+        const arms = atomic
+          ? ['current-low', 'current-atomic']
+          : convergence
+            ? [
+                'current-low',
+                'current-off',
+                'stagehand-low',
+                'stagehand-off',
+                'browser-use-off',
+                'browser-use-flash',
+              ]
+            : ['current', 'stagehand', 'browser-use']
+        return [...arms.slice(index), ...arms.slice(0, index)].map((arm) => ({
+          variant,
+          repeat: 1,
+          arm,
+        }))
+      })
 function profile(arm: string) {
   return {
     framework: arm.startsWith('current')
@@ -165,13 +187,15 @@ function profile(arm: string) {
   }
 }
 const manifest = {
-  protocol: atomic
-    ? 'atomic-investigation-diagnostic-1'
-    : convergence
-      ? 'architecture-convergence-screen-2'
-      : candidate
-        ? 'oss-quality-confirm-1'
-        : 'oss-quality-screen-1',
+  protocol: atomicConfirm
+    ? 'atomic-investigation-confirm-1'
+    : atomic
+      ? 'atomic-investigation-diagnostic-1'
+      : convergence
+        ? 'architecture-convergence-screen-2'
+        : candidate
+          ? 'oss-quality-confirm-1'
+          : 'oss-quality-screen-1',
   evaluationProtocol: convergence ? recoveryProtocol : 'historical-minimum',
   historyIsolation: convergence
     ? 'Fresh database and application server per trial; current model inputs must contain no inherited journeys, enforced before paid forwarding'
