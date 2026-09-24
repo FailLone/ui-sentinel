@@ -61,7 +61,14 @@ export function classifyResponse(result: {
 
   if (
     toolsCalled.some((t) =>
-      ['transition.observe', 'transition_observe', 'rule.check', 'rule_check'].includes(t),
+      [
+        'transition.observe',
+        'transition_observe',
+        'rule.check',
+        'rule_check',
+        'investigation.check',
+        'investigation_check',
+      ].includes(t),
     )
   ) {
     return {

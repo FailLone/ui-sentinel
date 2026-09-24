@@ -23,6 +23,7 @@ export const config = Object.freeze({
   visionModel: process.env.VISION_MODEL ?? '',
 
   optimizations: {
+    atomicInvestigation: process.env.EXECUTION_ATOMIC_INVESTIGATION === '1',
     observation: process.env.EXECUTION_OBSERVATION_REUSE !== '0',
     ruleRouting: process.env.EXECUTION_RULE_ROUTING !== '0',
     journeys: process.env.EXECUTION_JOURNEYS !== '0',

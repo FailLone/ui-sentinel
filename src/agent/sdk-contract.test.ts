@@ -3,6 +3,58 @@ import { Agent } from '@mastra/core/agent'
 import { createTool } from '@mastra/core/tools'
 import { MastraLanguageModelV2Mock } from '@mastra/core/test-utils/llm-mock'
 import { z } from 'zod'
+import { temporalInvestigationInput } from '../execution/temporal-investigation.ts'
+
+it('dispatches the atomic investigation declaration through the actual SDK without inventing a hypothesis ID', async () => {
+  const declaration = {
+    phenomenon: 'Export recovery is unavailable',
+    basis: 'Observed disabled control',
+    trigger: 'always',
+    elementRef: 'e9',
+    target: 'Resume export',
+    condition: 'element-actionable',
+    durationMs: 5000,
+    severity: 'warning',
+    freshWindowReason: '',
+  }
+  let received: unknown
+  const model = new MastraLanguageModelV2Mock({
+    doGenerate: {
+      content: [
+        {
+          type: 'tool-call',
+          toolCallId: 'atomic',
+          toolName: 'investigation_check',
+          input: JSON.stringify(declaration),
+        },
+      ],
+      finishReason: 'tool-calls',
+      usage: { inputTokens: 20, outputTokens: 10, totalTokens: 30 },
+      warnings: [],
+    },
+  })
+  const agent = new Agent({
+    id: 'atomic-contract',
+    name: 'Atomic declaration',
+    model,
+    instructions: 'Declare the investigation using its observed target.',
+    maxRetries: 0,
+    tools: {
+      investigation_check: createTool({
+        id: 'investigation.check',
+        description: 'Measure a declared investigation',
+        inputSchema: temporalInvestigationInput,
+        execute: async (input) => {
+          received = input
+          return { hypothesisId: 'owned-generated-id', verdict: 'fail' }
+        },
+      }),
+    },
+  })
+  const result = await agent.generate('Investigate.', { maxSteps: 1 })
+  expect(received).toEqual(declaration)
+  expect(result.toolResults).toHaveLength(1)
+})
 
 it('real Mastra runtime dispatches schema tools with maxSteps=1 (deterministic provider, no remote model)', async () => {
   let calls = 0

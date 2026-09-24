@@ -17,13 +17,16 @@ import { assertColdDecisionInput } from './isolation.ts'
 
 const args = process.argv.slice(2)
 const candidate = args.includes('--candidate') ? args[args.indexOf('--candidate') + 1] : undefined
-const convergence = args.includes('--study') && args[args.indexOf('--study') + 1] === 'convergence'
+const atomic = args.includes('--study') && args[args.indexOf('--study') + 1] === 'atomic'
+const convergence =
+  atomic || (args.includes('--study') && args[args.indexOf('--study') + 1] === 'convergence')
 if (args.includes('--study') && !convergence) throw Error('Unknown study')
 if (convergence && candidate) throw Error('Study and candidate are separate protocols')
 if (candidate && !['stagehand', 'browser-use'].includes(candidate)) throw Error('Invalid candidate')
 if (
   args.some(
-    (a) => !['--candidate', 'stagehand', 'browser-use', '--study', 'convergence'].includes(a),
+    (a) =>
+      !['--candidate', 'stagehand', 'browser-use', '--study', 'convergence', 'atomic'].includes(a),
   )
 )
   throw Error('Unsupported arguments')
@@ -56,7 +59,7 @@ process.env.EXPERIMENT_AGENT_PROVIDER = 'Wafer'
 process.env.EXPERIMENT_VISION_PROVIDER = 'Alibaba'
 if (convergence && models[0].reasoning?.mandatory)
   throw Error('Fixed model cannot disable reasoning')
-const maxCostUsd = candidate || convergence ? 3 : 2
+const maxCostUsd = atomic ? 1 : candidate || convergence ? 3 : 2
 const gateway = await startGateway(key, dir, fetch, {
   limitUsd: maxCostUsd,
   estimateCost: (body) => {
@@ -84,6 +87,7 @@ const env: NodeJS.ProcessEnv = {
   MODEL_REQUEST_MAX_RETRIES: '1',
   TOOL_TIMEOUT_MS: '15000',
   EXECUTION_EVIDENCE_ANALYSIS: '0',
+  EXECUTION_ATOMIC_INVESTIGATION: '0',
   ARENA_STATIC: '1',
   DATABASE_URL: `file:${dir}/runs.db`,
   ARENA_CONTROL_TOKEN: randomBytes(24).toString('hex'),
@@ -128,16 +132,18 @@ const schedule = candidate
       ),
     )
   : cases.flatMap((variant, index) => {
-      const arms = convergence
-        ? [
-            'current-low',
-            'current-off',
-            'stagehand-low',
-            'stagehand-off',
-            'browser-use-off',
-            'browser-use-flash',
-          ]
-        : ['current', 'stagehand', 'browser-use']
+      const arms = atomic
+        ? ['current-low', 'current-atomic']
+        : convergence
+          ? [
+              'current-low',
+              'current-off',
+              'stagehand-low',
+              'stagehand-off',
+              'browser-use-off',
+              'browser-use-flash',
+            ]
+          : ['current', 'stagehand', 'browser-use']
       return [...arms.slice(index), ...arms.slice(0, index)].map((arm) => ({
         variant,
         repeat: 1,
@@ -151,18 +157,21 @@ function profile(arm: string) {
       : arm.startsWith('stagehand')
         ? 'stagehand'
         : 'browser-use',
-    agentReasoning: (convergence && !arm.endsWith('-low') ? 'disabled' : 'low') as
+    agentReasoning: (convergence && !atomic && !arm.endsWith('-low') ? 'disabled' : 'low') as
       | 'disabled'
       | 'low',
     flash: arm === 'browser-use-flash',
+    atomic: arm === 'current-atomic',
   }
 }
 const manifest = {
-  protocol: convergence
-    ? 'architecture-convergence-screen-2'
-    : candidate
-      ? 'oss-quality-confirm-1'
-      : 'oss-quality-screen-1',
+  protocol: atomic
+    ? 'atomic-investigation-diagnostic-1'
+    : convergence
+      ? 'architecture-convergence-screen-2'
+      : candidate
+        ? 'oss-quality-confirm-1'
+        : 'oss-quality-screen-1',
   evaluationProtocol: convergence ? recoveryProtocol : 'historical-minimum',
   historyIsolation: convergence
     ? 'Fresh database and application server per trial; current model inputs must contain no inherited journeys, enforced before paid forwarding'
@@ -294,6 +303,8 @@ try {
     ARENA_CONTROL_TOKEN: env.ARENA_CONTROL_TOKEN,
   })
   for (const item of schedule) {
+    const executionProfile = profile(item.arm)
+    env.EXECUTION_ATOMIC_INVESTIGATION = executionProfile.atomic ? '1' : '0'
     if (convergence && records.length) {
       await request('/api/evaluation/release', { lease: lease.lease })
       lease = undefined
@@ -309,7 +320,6 @@ try {
       if (JSON.stringify(lease.rules) !== rulesSignature)
         throw Error('Isolated trial rule set changed')
     }
-    const executionProfile = profile(item.arm)
     const environmentId = 'arena'
     const id = `${item.variant}-${item.arm}-${item.repeat}`
     const record: any = { ...item, id, environmentId, databaseUrl: env.DATABASE_URL, passed: false }
