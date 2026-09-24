@@ -178,3 +178,5 @@ D7 review-low 在十个影子状态保留了应有的结束/探索选择，但�
 ### D8 前置更新：加入已确认可调用的 Jev
 
 用户指出 OpenRouter 已上架 Jev，已通过现有 OpenRouter key 实测 Decisions API；不再要求 TYPESAFE_API_KEY。先冻结 Jev 与 DeepSeek 的相同选择契约对照，再决定 D8 使用哪个审查模型。两者收到同一公开状态和判断标准，输出仅限 scope-covered / observed-blocker / continue / unknown；原业务事实与最终报告仍由执行器负责。Jev 原始概率与返回的确切模型版本留档，不能将单次连通性检查或高置信度视为采用依据。此更新不撤销 D8 的反例、预算、状态一致性、真实路径与发布验收要求。
+
+Jev 前置对照冻结为 `shared-completion-choice-1`：复用 D7 十个状态，Jev / DeepSeek low 各一次，交替顺序，共 20 请求，无执行、无重试。两组都只输出相同四选一，不要求自由理由；共享完整 inspectionPolicy、inspectionState 和同一问题/选项说明，明确规范化证据优先于历史模型参数。程序不输入私有评分。固定 DeepSeek/Wafer 60s/4096、Jev/TypeSafe 15s 与已观察快照 jev-1.13-20260917；总费用上限 $0.20，分别 $0.18/$0.02，未知调用保守占额。Jev 每请求按 32k 全上下文费用预留，不把输出概率当作领域正确率。要求五个应探索状态不提前结束，五个可结束状态给出领域正确的结束建议，再决定是否做 D8 接入；不重复整个框架矩阵。
