@@ -59,6 +59,8 @@ export async function createRun(
       maxModelCalls: spec.budget?.maxModelCalls ?? config.budget.maxModelCalls,
     },
     viewport: spec.viewport ?? { width: 1280, height: 768 },
+    // Persisted before the run is queued; execution reads this, never the live registry.
+    ...(spec.businessContract ? { businessContract: spec.businessContract } : {}),
   }
 
   const run: Run = {

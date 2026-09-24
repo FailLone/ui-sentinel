@@ -1,3 +1,5 @@
+import type { BusinessContractSnapshot } from '../business/types.ts'
+
 export type RunStatus =
   | 'queued'
   | 'running'
@@ -34,6 +36,12 @@ export interface RunSpec {
   readonly entryUrl: string
   readonly budget: RunBudget
   readonly viewport: { readonly width: number; readonly height: number }
+  /**
+   * The frozen business contract this run was created with. Older runs created before business
+   * contracts existed have no field here; their reports stay readable as legacy-unversioned and
+   * are never retro-fitted with today's requirements.
+   */
+  readonly businessContract?: BusinessContractSnapshot
 }
 
 export interface Run {

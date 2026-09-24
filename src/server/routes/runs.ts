@@ -9,6 +9,8 @@ import { config, checkModelConfig } from '../../shared/config.ts'
 import { createRun, getRun, getEvents, isRunActive } from '../../execution/run-manager.ts'
 import { startRunExecution, cancelRunExecution } from '../../execution/executor.ts'
 import { getDbClient } from '../../storage/database.ts'
+import { listPublicProfiles } from '../../business/registry.ts'
+import { selectBusinessContract, selectionError } from '../../business/selection.ts'
 
 import { canCreateRun, withAdmission } from '../evaluation-access.ts'
 
@@ -16,8 +18,12 @@ export const runRoutes = new Hono()
 const inputSchema = z
   .object({
     goal: z.string().trim().min(1).max(10000),
-    environmentId: z.enum(['default', 'arena']).default('arena'),
+    environmentId: z.enum(['default', 'arena', 'export-arena']).default('arena'),
     entryUrl: z.string().url().optional(),
+    businessProfile: z
+      .object({ id: z.string().min(1), revision: z.string().min(1) })
+      .strict()
+      .optional(),
     budget: z
       .object({
         totalTimeoutMs: z.number().int().positive().max(300000).optional(),
@@ -35,6 +41,39 @@ const inputSchema = z
       .optional(),
   })
   .strict()
+
+/** Public catalogue of registered business contracts. Never includes tokens, ports or answers. */
+runRoutes.get('/api/business-profiles', (c) => c.json({ profiles: listPublicProfiles() }))
+
+/** Read-only: resolve what a selection would mean without creating anything. */
+runRoutes.post('/api/business-profiles/resolve', async (c) => {
+  const body = await c.req.json().catch(() => null)
+  const parsed = z
+    .object({
+      environmentId: z.string().min(1),
+      businessProfile: z.object({ id: z.string(), revision: z.string() }).strict().optional(),
+    })
+    .strict()
+    .safeParse(body)
+  if (!parsed.success) return c.json({ error: 'invalid-request' }, 400)
+  const selection = selectBusinessContract({
+    requested: parsed.data.businessProfile,
+    environmentId: parsed.data.environmentId,
+  })
+  if (selection.kind !== 'resolved') {
+    const error = selectionError(selection)
+    return c.json(error.body, error.status)
+  }
+  return c.json({
+    resolved: true,
+    profileId: selection.contract.profileId,
+    revision: selection.contract.revision,
+    hash: selection.contract.hash,
+    adapter: selection.contract.adapter,
+    environment: selection.contract.environment,
+    legacyDefault: selection.legacyDefault,
+  })
+})
 
 runRoutes.get('/api/runs', async (c) => {
   const result = await getDbClient().execute(
@@ -60,28 +99,40 @@ runRoutes.post('/api/runs', async (c) => {
   if (!parsed.success)
     return c.json({ error: 'invalid-request', details: parsed.error.issues }, 400)
   const body = parsed.data
-  const entryUrl = body.entryUrl ?? `http://localhost:${config.arenaPort}`
-  const url = new URL(entryUrl)
-  if (
-    !['localhost', '127.0.0.1'].includes(url.hostname) ||
-    url.protocol !== 'http:' ||
-    url.port !== String(config.arenaPort) ||
-    url.username ||
-    url.password ||
-    decodeURIComponent(url.pathname).startsWith('/__control')
-  ) {
-    return c.json(
-      {
-        error: 'environment-not-allowed',
-        message: 'This validation build only operates on the configured local arena.',
-      },
-      400,
-    )
+  // Business selection is resolved before any entry URL handling, so an invalid contract cannot
+  // reach the queue or launch a browser. A caller-supplied entryUrl can never widen this: only a
+  // registered environment origin is accepted.
+  const selection = selectBusinessContract({
+    requested: body.businessProfile,
+    environmentId: body.environmentId,
+  })
+  if (selection.kind !== 'resolved') {
+    const error = selectionError(selection)
+    return c.json(error.body, error.status)
+  }
+  const contract = selection.contract
+  const entryUrl = contract.environment.entryUrl
+  if (body.entryUrl && body.entryUrl !== entryUrl) {
+    const url = new URL(body.entryUrl)
+    if (
+      url.origin !== contract.environment.publicOrigin ||
+      url.username ||
+      url.password ||
+      decodeURIComponent(url.pathname).startsWith('/__control')
+    ) {
+      return c.json(
+        {
+          error: 'environment-not-allowed',
+          message: 'This build only operates on the selected business environment origin.',
+        },
+        400,
+      )
+    }
   }
   return withAdmission(async () => {
     if (!canCreateRun(c.req.header('authorization')))
       return c.json({ error: 'evaluation-in-progress' }, 409)
-    const run = await createRun({ ...body, entryUrl })
+    const run = await createRun({ ...body, entryUrl, businessContract: contract })
     void startRunExecution(run.id).catch((err) =>
       console.error(
         `[run:${run.id}] execution error`,
@@ -92,6 +143,11 @@ runRoutes.post('/api/runs', async (c) => {
       {
         runId: run.id,
         status: run.status,
+        businessProfile: {
+          id: contract.profileId,
+          revision: contract.revision,
+          hash: contract.hash,
+        },
         eventsUrl: `/api/runs/${run.id}/events`,
         reportUrl: `/api/runs/${run.id}/report`,
       },
