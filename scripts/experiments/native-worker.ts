@@ -8,7 +8,12 @@ import { tmpdir } from 'node:os'
 import { spawn, type ChildProcess } from 'node:child_process'
 import { z } from 'zod'
 import { createRun, updateRunStatus, appendEvent } from '../../src/execution/run-manager.ts'
-import { createNativeInspection, nativeTask, nativeInstructions } from './native-inspection.ts'
+import {
+  createNativeInspection,
+  nativeTask,
+  nativeInstructions,
+  nativeAtomicInstructions,
+} from './native-inspection.ts'
 
 const arm = process.env.NATIVE_ARM
 if (!['stagehand', 'browser-use'].includes(arm ?? '')) throw Error('Unknown native arm')
@@ -44,7 +49,7 @@ let exit: {
 } = { status: 'execution-error', businessResult: 'unknown', stopReason: 'execution-error' }
 const stop = (reason: string) => {
   if (!abort.signal.aborted) abort.abort(Error(reason))
-  inspection?.close()
+  void inspection?.close()
   driver?.kill('SIGTERM')
   setTimeout(() => driver?.kill('SIGKILL'), 1000).unref()
   void browser?.close().catch(() => {})
@@ -69,10 +74,9 @@ try {
   const page = browser.pages()[0] ?? (await browser.newPage())
   page.setDefaultTimeout(15000)
   page.setDefaultNavigationTimeout(15000)
-  browser.on('page', (newPage) => {
-    if (newPage !== page) void newPage.close()
+  inspection = await createNativeInspection(page, run.id, abort.signal, run.spec.entryUrl, {
+    atomic: process.env.NATIVE_ATOMIC_INVESTIGATION === '1',
   })
-  inspection = await createNativeInspection(page, run.id, abort.signal, run.spec.entryUrl)
   await page.goto(run.spec.entryUrl, { waitUntil: 'domcontentloaded' })
   await inspection.observe()
   const token = randomBytes(24).toString('hex')
@@ -103,7 +107,7 @@ try {
       else if (req.url === '/finish') {
         if (acceptedFinish) throw Error('finish-already-accepted')
         result = acceptedFinish = await inspection!.finish(input)
-        inspection!.close()
+        await inspection!.close()
       } else return reply(404, { error: 'Unknown endpoint' })
       reply(200, result)
     } catch (error) {
@@ -119,7 +123,9 @@ try {
     JSON.stringify(
       {
         goal: nativeTask,
-        instructions: nativeInstructions,
+        instructions:
+          nativeInstructions +
+          (process.env.NATIVE_ATOMIC_INVESTIGATION === '1' ? ' ' + nativeAtomicInstructions : ''),
         tools: Object.entries(inspection.tools).map(([name, tool]) => ({
           name,
           description: tool.description,
@@ -202,7 +208,7 @@ try {
   await appendEvent(run.id, 'execution:stopped', { reason: exit.stopReason, error: record.error })
 } finally {
   clearTimeout(timer)
-  inspection?.close()
+  await inspection?.close()
   driver?.kill('SIGTERM')
   if (rpcServer) {
     rpcServer.closeAllConnections()

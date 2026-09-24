@@ -9,6 +9,7 @@ import { createClient } from '@libsql/client'
 const dir = resolve('data/native-fixture-check', new Date().toISOString().replace(/[:.]/g, '-'))
 await mkdir(dir, { recursive: true })
 let sequence = 0
+let atomic = false
 const bodies: any[] = []
 const server = createServer(async (req, res) => {
   if (req.method === 'GET') {
@@ -25,7 +26,7 @@ const server = createServer(async (req, res) => {
   const text = JSON.stringify(body.messages)
   const hypothesisId = text.match(/hyp-[a-f0-9-]+/g)?.at(-1)
   const qualityRef = text.match(/q\d+-\d+/g)?.at(-1)
-  const actions = [
+  const legacyActions = [
     { name: 'quality_inspect', args: {} },
     {
       name: 'quality_hypothesis',
@@ -52,6 +53,25 @@ const server = createServer(async (req, res) => {
       },
     },
   ]
+  const actions = atomic
+    ? [
+        { name: 'quality_inspect', args: {} },
+        {
+          name: 'quality_investigation',
+          args: {
+            phenomenon: 'Recovery control remains disabled',
+            basis: 'Visible disabled Retry',
+            trigger: 'always',
+            qualityRef,
+            target: 'recovery',
+            condition: 'element-actionable',
+            durationMs: 500,
+            severity: 'error',
+            freshWindowReason: '',
+          },
+        },
+      ]
+    : legacyActions
   let message: any,
     finish = 'stop'
   if (body.response_format) {
@@ -116,15 +136,18 @@ await new Promise<void>((r) => server.listen(0, '127.0.0.1', r))
 const url = `http://127.0.0.1:${(server.address() as any).port}`
 const results: any[] = []
 try {
-  for (const arm of ['stagehand', 'browser-use']) {
+  for (const profile of ['stagehand', 'browser-use', 'stagehand-atomic', 'browser-use-atomic']) {
+    atomic = profile.endsWith('-atomic')
+    const arm = profile.replace('-atomic', '')
     sequence = 0
     bodies.length = 0
-    const output = join(dir, arm)
+    const output = join(dir, profile)
     await mkdir(output)
     const databaseUrl = `file:${output}/runs.db`
     const env = {
       ...process.env,
       NATIVE_ARM: arm,
+      NATIVE_ATOMIC_INVESTIGATION: atomic ? '1' : '0',
       NATIVE_DIR: output,
       ARENA_URL: url,
       DATABASE_URL: databaseUrl,
@@ -173,11 +196,23 @@ try {
       worker?.stopReason === 'blocked' &&
       findings.rows.some((f) => f.source === 'agent' && f.validation_status === 'supported') &&
       events.rows.some((e) => e.type === 'finish:accepted') &&
-      artifacts.rows.some((a) => a.type === 'measurement')
+      artifacts.rows.filter((a) => a.type === 'measurement').length === 1 &&
+      (!atomic ||
+        (events.rows.filter((e) => e.type === 'investigation:completed').length === 1 &&
+          findings.rows.filter((f) => f.source === 'agent').length === 1))
     db.close()
-    results.push({ arm, passed, code, worker, requests: bodies.length, realModel: false })
+    results.push({
+      profile,
+      arm,
+      atomic,
+      passed,
+      code,
+      worker,
+      requests: bodies.length,
+      realModel: false,
+    })
     console.log(
-      `${arm}: ${passed ? 'native quality bridge passed' : 'native quality bridge FAILED'}; ${bodies.length} fake requests`,
+      `${profile}: ${passed ? 'native quality bridge passed' : 'native quality bridge FAILED'}; ${bodies.length} fake requests`,
     )
     if (!passed) process.exitCode = 1
   }

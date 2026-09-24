@@ -6,7 +6,7 @@ import { launchBrowser } from './browser.ts'
 import { createRun, getEvents, getFindings } from './run-manager.ts'
 import { createNativeInspection } from '../../scripts/experiments/native-inspection.ts'
 
-async function fixture(html: string) {
+async function fixture(html: string, atomic = false) {
   let writes = 0
   const web = createServer((req, res) => {
     if (req.method === 'POST') {
@@ -31,7 +31,7 @@ async function fixture(html: string) {
   const run = await createRun({ goal: 'Inspect the page', environmentId: 'arena', entryUrl: url })
   const worker = await launchBrowser()
   const ac = new AbortController()
-  const inspection = await createNativeInspection(worker.page, run.id, ac.signal, url)
+  const inspection = await createNativeInspection(worker.page, run.id, ac.signal, url, { atomic })
   await worker.page.goto(url)
   return {
     ...worker,
@@ -40,7 +40,7 @@ async function fixture(html: string) {
     inspection,
     writes: () => writes,
     async close() {
-      inspection.close()
+      await inspection.close()
       await worker.close()
       web.closeAllConnections()
       await new Promise<void>((r) => web.close(() => r()))
@@ -130,17 +130,13 @@ it('native tools require real continuous evidence and reject stale targets and u
   }
 })
 
-it('native browser writes share a single-order boundary and cancellation prevents late evidence', async () => {
+it('native cancellation prevents late evidence', async () => {
   const f = await fixture(
     "<button onclick=\"fetch('/order',{method:'POST'})\">Pay</button><button disabled>Retry</button>",
   )
   try {
     await f.page.getByText('Pay', { exact: true }).click()
     await f.inspection.observe()
-    await f.page.getByText('Pay', { exact: true }).click()
-    await f.page.waitForTimeout(50)
-    expect(f.writes()).toBe(1)
-    expect(f.inspection.stats().deniedWrites).toBe(1)
     const current = await f.inspection.observe()
     const h: any = await f.inspection.invoke('quality_hypothesis', {
       ...hypothesis,
@@ -206,6 +202,180 @@ it('does not invent epoch-long response timing after reload and keeps new-docume
       ),
     ).toBe(true)
     expect((await getFindings(f.run.id)).some((f) => f.ruleId === 'response-time')).toBe(false)
+  } finally {
+    await f.close()
+  }
+})
+
+const atomicQuestion = {
+  phenomenon: 'Recovery might be permanently unavailable',
+  basis: 'Observed recovery control',
+  trigger: 'always',
+  target: 'recovery',
+  condition: 'element-actionable',
+  durationMs: 500,
+  severity: 'error',
+  freshWindowReason: '',
+}
+
+it('native atomic investigation saves a bounded result once and reuses only unchanged targets', async () => {
+  const f = await fixture('<button disabled>Retry</button>', true)
+  try {
+    let state = await f.inspection.observe()
+    const run = () =>
+      f.inspection.invoke('quality_investigation', {
+        ...atomicQuestion,
+        qualityRef: state.elements[0].qualityRef,
+      }) as Promise<any>
+    const first = await run()
+    expect(first).toMatchObject({
+      verdict: 'fail',
+      validationStatus: 'supported',
+      reused: false,
+      evidenceIntegrity: { status: 'clean' },
+    })
+    expect(first.sampleCount).toBeGreaterThanOrEqual(3)
+    state = await f.inspection.observe()
+    const reused = await run()
+    expect(reused).toMatchObject({
+      hypothesisId: first.hypothesisId,
+      reused: true,
+      window: first.window,
+    })
+    expect(
+      (await getEvents(f.run.id)).filter((e) => e.type === 'transition:observed'),
+    ).toHaveLength(1)
+    const findings = (await getFindings(f.run.id)).filter((f) => f.source === 'agent')
+    expect(findings).toHaveLength(1)
+    expect(findings[0].title).not.toContain('permanently')
+    expect(findings[0].actual).toContain('bounded observation')
+    expect(state.hypotheses[0].status).toBe('supported')
+    await f.page.evaluate(() => {
+      const node = document.querySelector('button')!
+      node.replaceWith(node.cloneNode(true))
+    })
+    await expect(run()).rejects.toThrow('stale-target')
+    state = await f.inspection.observe()
+    const replaced = await run()
+    expect(replaced.reused).toBe(false)
+    expect(replaced.hypothesisId).not.toBe(first.hypothesisId)
+    state = await f.inspection.observe()
+    const fresh: any = await f.inspection.invoke('quality_investigation', {
+      ...atomicQuestion,
+      qualityRef: state.elements[0].qualityRef,
+      freshWindowReason: 'Check whether recovery became available in a later window',
+    })
+    expect(fresh.reused).toBe(false)
+    expect(fresh.window.startedAtMs).toBeGreaterThan(replaced.window.startedAtMs)
+  } finally {
+    await f.close()
+  }
+})
+
+it('native atomic investigation distinguishes visibility from actionability and refutes healthy controls', async () => {
+  const f = await fixture('<button disabled>Retry</button><button>Resume</button>', true)
+  try {
+    let state = await f.inspection.observe()
+    await expect(
+      f.inspection.invoke('quality_investigation', {
+        ...atomicQuestion,
+        trigger: 'retryable-failure',
+        qualityRef: state.elements[0].qualityRef,
+      }),
+    ).rejects.toThrow('trigger-not-observed')
+    expect((await f.inspection.observe()).hypotheses).toHaveLength(0)
+    state = await f.inspection.observe()
+    const visible: any = await f.inspection.invoke('quality_investigation', {
+      ...atomicQuestion,
+      condition: 'element-visible',
+      qualityRef: state.elements.find((e) => e.text === 'Retry')!.qualityRef,
+    })
+    expect(visible).toMatchObject({
+      verdict: 'pass',
+      validationStatus: 'refuted',
+      findingId: undefined,
+    })
+    state = await f.inspection.observe()
+    const healthy: any = await f.inspection.invoke('quality_investigation', {
+      ...atomicQuestion,
+      qualityRef: state.elements.find((e) => e.text === 'Resume')!.qualityRef,
+    })
+    expect(healthy).toMatchObject({ verdict: 'pass', validationStatus: 'refuted' })
+    expect((await getFindings(f.run.id)).filter((f) => f.source === 'agent')).toHaveLength(0)
+  } finally {
+    await f.close()
+  }
+})
+
+it('native write intervention invalidates atomic reuse, legacy claims and clean completion without erasing prior findings', async () => {
+  const f = await fixture(
+    `<button onclick="fetch('/order',{method:'POST'})">Pay</button><button disabled>Retry</button>`,
+    true,
+  )
+  try {
+    await f.page.getByText('Pay', { exact: true }).click()
+    let state = await f.inspection.observe()
+    const question = { ...atomicQuestion, trigger: 'retryable-failure' }
+    const first: any = await f.inspection.invoke('quality_investigation', {
+      ...question,
+      qualityRef: state.elements.find((e) => e.text === 'Retry')!.qualityRef,
+    })
+    expect(first.verdict).toBe('fail')
+    const count = (await getFindings(f.run.id)).length
+    // Programmatic site request: no user input and no DOM mutation. Integrity alone invalidates reuse.
+    await f.page.evaluate(() => fetch('/order', { method: 'POST' }).catch(() => null))
+    expect(f.writes()).toBe(1)
+    expect(f.inspection.stats().deniedWrites).toBe(1)
+    expect(await f.inspection.afterStep()).toEqual({ changed: true })
+    state = await f.inspection.observe()
+    expect(state.evidenceIntegrity.status).toBe('intervened')
+    expect(state.gaps).toHaveLength(1)
+    const second: any = await f.inspection.invoke('quality_investigation', {
+      ...question,
+      qualityRef: state.elements.find((e) => e.text === 'Retry')!.qualityRef,
+    })
+    expect(second).toMatchObject({
+      verdict: 'unknown',
+      validationStatus: 'inconclusive',
+      reused: false,
+      sampleCount: 0,
+    })
+    state = await f.inspection.observe()
+    const legacy: any = await f.inspection.invoke('quality_hypothesis', hypothesis)
+    const measured: any = await f.inspection.invoke('quality_measure', {
+      hypothesisId: legacy.hypothesisId,
+      qualityRef: state.elements.find((e) => e.text === 'Retry')!.qualityRef,
+    })
+    expect(measured.evidenceIntegrity.status).toBe('intervened')
+    await expect(
+      f.inspection.invoke('quality_resolve', { ...claim, hypothesisId: legacy.hypothesisId }),
+    ).rejects.toThrow('measurement')
+    expect(await f.inspection.finish({ reason: 'scope-covered' })).toMatchObject({
+      status: 'blocked',
+      stopReason: 'finish-incomplete',
+    })
+    expect(await getFindings(f.run.id)).toHaveLength(count)
+    await f.page.reload()
+    expect((await f.inspection.observe()).evidenceIntegrity.status).toBe('intervened')
+  } finally {
+    await f.close()
+  }
+})
+
+it('native atomic investigation cannot save a claim after concurrent browser input', async () => {
+  const f = await fixture('<button disabled>Retry</button><button>Other</button>', true)
+  try {
+    const state = await f.inspection.observe()
+    const result = f.inspection.invoke('quality_investigation', {
+      ...atomicQuestion,
+      qualityRef: state.elements[0].qualityRef,
+    })
+    const assertion = expect(result).rejects.toThrow('measurement-interrupted')
+    await f.page.waitForTimeout(180)
+    await f.page.getByText('Other', { exact: true }).click()
+    await assertion
+    expect((await getFindings(f.run.id)).filter((f) => f.source === 'agent')).toHaveLength(0)
+    await expect(f.inspection.finish({ reason: 'scope-covered' })).rejects.toThrow('unresolved')
   } finally {
     await f.close()
   }

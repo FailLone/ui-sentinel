@@ -229,3 +229,23 @@ disabled 在两个 C2 状态重新调查已由自动规则保存的同一遮挡�
 low 在原 C2-2 第 5 请求状态再次超时。新增遥测显示：1.423s 已收到首 reasoning 增量；60s 中断前共收到 953 个事件、12,519 个 reasoning 字符、389,031 字节封装数据，没有任何 tool delta。它直接证明该次失败是持续生成但没有可执行决策，不能解释为一直等不到上游响应，也不能反推原批次未保留部分流的四次请求都属于同一机制。
 
 结论：不采用全局关闭推理，也不把“超时后关闭推理重试”直接加入产品。快但无效的决策不能算提速；本次是状态诊断，不是 12 个完整业务路径。原子工具降低机械步骤有收益，但不能单独解决阻断后的语义收敛。继续探索应改变已有证据与下一步决策的组织方式，或将有类型调查能力接入原生循环做新的公平对照；不再重复相同 low/disabled 重放或仅提高超时上限。
+
+
+## D5 接入预检：原生循环共享调查能力，尚未付费比较
+
+原生 quality_investigation 复用产品 createTemporalInvestigator，保留 Stagehand/Browser Use 自身决策循环；同时给原生桥接补齐执行干预来源、未知范围和新旧调查保护。九项真实浏览器测试通过，覆盖同节点复用、替换失效、新窗口、健康反例、谓词差异、未触发要求、无 DOM 变更的网络干预、旧发现保留及并发输入中断。类型检查通过。
+
+首次本地预检因新增测量代码的局部 window 变量遮蔽浏览器全局而失败，记录保留在 data/native-fixture-check/2026-09-24T08-30-07-152Z；已改为 measurementWindow。修正后 data/native-fixture-check/2026-09-24T08-46-22-650Z 四组真实 SDK 预检全部通过：Stagehand 旧链/原子链分别 6/4 次本地模拟模型请求，Browser Use 分别 5/3 次。每组一个实际测量、支持性发现和原生显式结束。全程零付费调用，不是模型质量或速度证据。
+
+已添加 D5 九轮固定方案和运行入口，尚未运行。用户随后提出 Jev，先核实其能力边界，保留原生对照候选，不把尚未执行的 D5 描述成通过。
+
+## Jev 官方资料核查（2026-09-24），尚未实测
+
+用户提出 TypeSafe AI System One / Jev。核查官方资料得到一个新的架构候选：让有类型决策模型处理有限、明确的语义判断，生成式模型继续承担开放探索、提出未知假设和生成解释。其潜在价值直指 D4 中持续推理但没有可执行决定的机制；资料并不能证明在本项目有效。
+
+- 官方 [System One](https://docs.typesafe.ai/concepts/system-one) 定义文本/JSON 状态到 Choice、Score、Noul 输出，不能直接输入截图或生成任意字符串；[模型页](https://docs.typesafe.ai/models) 当前稳定版本 jev-1.13.0，按输入收费 $0.042/Mtok，输出免费，state 与最长问题合计最多 32k tokens，总请求 64k。准确性、模型版本与本地网络时延仍需验证。
+- 官方 [已知限制](https://docs.typesafe.ai/model-jaggedness/jev-1.13) 明确包含多跳判断、数字计算、无关长上下文和对抗性内容；合法类型不等于语义正确。[confidence](https://docs.typesafe.ai/confidence) 是概率分布的统计量，不能解释为单次决策正确率。
+- [Skill suggestion](https://docs.typesafe.ai/cookbooks/skill_suggestion) 与规则候选检索相近；[Function calling](https://docs.typesafe.ai/cookbooks/function_calling) 展示封闭参数空间分派；[Fan-out](https://docs.typesafe.ai/patterns/fan-out) 可借鉴同一状态上独立问题批处理。后续页面状态依赖真实浏览器动作，不能因此并行操作同一页面。
+- 官方 [工作流评测](https://evals.typesafe.ai/) 以其他大模型的共识作为参考标签，不能替代本项目的真实 UI/业务 oracle；宣传倍率不是本应用端到端加速证据。[开源对照适配器](https://github.com/typesafe-ai/system-one-adapter-python) 可借鉴同问题接口的普通 LLM 对照，而不是当作 Jev 模型本身开源。
+
+若进入实验，优先用已冻结的真实状态做影子重放，评估证据是否覆盖当前具体问题、候选目标/规则选择与是否需要进一步探索。保留 none/unknown/escalate，不把没有匹配规则解释为没有缺陷。程序负责来源有效性、采样覆盖、预算、写入和 finish 合法性；低置信度、状态缺失或不适合封闭候选时交回 DeepSeek。尤其不能靠过早结束降低耗时。应对比原 Agent、同一决策接口上的 DeepSeek、Jev 三组，以区分模型收益与重构收益；质量合格后才做端到端、陌生业务和正常导航记忆验收。当前没有 Jev 真实调用或采用结论。

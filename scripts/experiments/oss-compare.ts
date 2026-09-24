@@ -19,6 +19,8 @@ import { assertColdDecisionInput } from './isolation.ts'
 
 const args = process.argv.slice(2)
 const candidate = args.includes('--candidate') ? args[args.indexOf('--candidate') + 1] : undefined
+const nativeAtomic =
+  args.includes('--study') && args[args.indexOf('--study') + 1] === 'native-atomic'
 const holdout = args.includes('--study') && args[args.indexOf('--study') + 1] === 'atomic-holdout'
 const atomicConfirm =
   args.includes('--study') && args[args.indexOf('--study') + 1] === 'atomic-confirm'
@@ -27,7 +29,9 @@ const atomic =
   atomicConfirm ||
   (args.includes('--study') && args[args.indexOf('--study') + 1] === 'atomic')
 const convergence =
-  atomic || (args.includes('--study') && args[args.indexOf('--study') + 1] === 'convergence')
+  nativeAtomic ||
+  atomic ||
+  (args.includes('--study') && args[args.indexOf('--study') + 1] === 'convergence')
 if (args.includes('--study') && !convergence) throw Error('Unknown study')
 if (convergence && candidate) throw Error('Study and candidate are separate protocols')
 if (candidate && !['stagehand', 'browser-use'].includes(candidate)) throw Error('Invalid candidate')
@@ -43,6 +47,7 @@ if (
         'atomic',
         'atomic-confirm',
         'atomic-holdout',
+        'native-atomic',
       ].includes(a),
   )
 )
@@ -76,7 +81,17 @@ process.env.EXPERIMENT_AGENT_PROVIDER = 'Wafer'
 process.env.EXPERIMENT_VISION_PROVIDER = 'Alibaba'
 if (convergence && models[0].reasoning?.mandatory)
   throw Error('Fixed model cannot disable reasoning')
-const maxCostUsd = holdout ? 2 : atomicConfirm ? 3 : atomic ? 1 : candidate || convergence ? 3 : 2
+const maxCostUsd = nativeAtomic
+  ? 1
+  : holdout
+    ? 2
+    : atomicConfirm
+      ? 3
+      : atomic
+        ? 1
+        : candidate || convergence
+          ? 3
+          : 2
 const gateway = await startGateway(key, dir, fetch, {
   limitUsd: maxCostUsd,
   estimateCost: (body) => {
@@ -164,18 +179,20 @@ const schedule =
           ),
         )
       : cases.flatMap((variant, index) => {
-          const arms = atomic
-            ? ['current-low', 'current-atomic']
-            : convergence
-              ? [
-                  'current-low',
-                  'current-off',
-                  'stagehand-low',
-                  'stagehand-off',
-                  'browser-use-off',
-                  'browser-use-flash',
-                ]
-              : ['current', 'stagehand', 'browser-use']
+          const arms = nativeAtomic
+            ? ['current-atomic', 'stagehand-atomic', 'browser-use-atomic']
+            : atomic
+              ? ['current-low', 'current-atomic']
+              : convergence
+                ? [
+                    'current-low',
+                    'current-off',
+                    'stagehand-low',
+                    'stagehand-off',
+                    'browser-use-off',
+                    'browser-use-flash',
+                  ]
+                : ['current', 'stagehand', 'browser-use']
           return [...arms.slice(index), ...arms.slice(0, index)].map((arm) => ({
             variant,
             repeat: 1,
@@ -189,25 +206,27 @@ function profile(arm: string) {
       : arm.startsWith('stagehand')
         ? 'stagehand'
         : 'browser-use',
-    agentReasoning: (convergence && !atomic && !arm.endsWith('-low') ? 'disabled' : 'low') as
-      | 'disabled'
-      | 'low',
+    agentReasoning: (convergence && !atomic && !nativeAtomic && !arm.endsWith('-low')
+      ? 'disabled'
+      : 'low') as 'disabled' | 'low',
     flash: arm === 'browser-use-flash',
-    atomic: arm === 'current-atomic',
+    atomic: arm.endsWith('-atomic'),
   }
 }
 const manifest = {
-  protocol: holdout
-    ? 'atomic-investigation-holdout-1'
-    : atomicConfirm
-      ? 'atomic-investigation-confirm-1'
-      : atomic
-        ? 'atomic-investigation-diagnostic-1'
-        : convergence
-          ? 'architecture-convergence-screen-2'
-          : candidate
-            ? 'oss-quality-confirm-1'
-            : 'oss-quality-screen-1',
+  protocol: nativeAtomic
+    ? 'native-atomic-diagnostic-1'
+    : holdout
+      ? 'atomic-investigation-holdout-1'
+      : atomicConfirm
+        ? 'atomic-investigation-confirm-1'
+        : atomic
+          ? 'atomic-investigation-diagnostic-1'
+          : convergence
+            ? 'architecture-convergence-screen-2'
+            : candidate
+              ? 'oss-quality-confirm-1'
+              : 'oss-quality-screen-1',
   evaluationProtocol: holdout
     ? 'reservation-holdout-1'
     : convergence
@@ -332,6 +351,7 @@ async function waitReady() {
 }
 try {
   console.log(`Frozen ${schedule.length}-run quality comparison; cap $${maxCostUsd}: ${dir}`)
+  env.EXECUTION_ATOMIC_INVESTIGATION = profile(schedule[0]!.arm).atomic ? '1' : '0'
   serverProcess = launch('server', ['dist/server/index.js'])
   launch(
     'arena',
@@ -432,6 +452,7 @@ try {
               NATIVE_ARM: executionProfile.framework,
               NATIVE_DIR: nativeDir,
               ARENA_CONTROL_TOKEN: '',
+              NATIVE_ATOMIC_INVESTIGATION: executionProfile.atomic ? '1' : '0',
               NATIVE_FLASH_MODE: executionProfile.flash ? '1' : '0',
             },
           ),

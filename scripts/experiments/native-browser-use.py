@@ -56,6 +56,11 @@ async def main():
     async def quality_vision_locate(description: str):
         return await call("quality_vision_locate", {"description": description})
 
+    if "quality_investigation" in descriptions:
+        @tools.action(descriptions["quality_investigation"])
+        async def quality_investigation(phenomenon: str, basis: str, trigger: Literal["always", "payment-success", "payment-rejected", "retryable-failure", "overlay-present"], qualityRef: str, target: str, condition: Literal["element-actionable", "element-visible"], durationMs: int, severity: Literal["error", "warning"], freshWindowReason: str = ""):
+            return await call("quality_investigation", {"phenomenon": phenomenon, "basis": basis, "trigger": trigger, "qualityRef": qualityRef, "target": target, "condition": condition, "durationMs": durationMs, "severity": severity, "freshWindowReason": freshWindowReason})
+
     session = BrowserSession(cdp_url=os.environ["NATIVE_CDP"], allowed_domains=[os.environ["ARENA_URL"]], keep_alive=True, enable_default_extensions=False)
     record = {"completed": False}
     try:
