@@ -12,7 +12,13 @@ export async function startGateway(
   agentReasoning: 'low' | 'disabled' = 'low',
 ) {
   const token = randomBytes(24).toString('hex')
-  let active: { id: string; limit: number; deadline: number; requests: any[] } | null = null
+  let active: {
+    id: string
+    limit: number
+    deadline: number
+    requests: any[]
+    reasoning: 'low' | 'disabled'
+  } | null = null
   const controllers = new Set<AbortController>()
   let accountedUsd = 0
   let reservedUsd = 0
@@ -48,9 +54,7 @@ export async function startGateway(
     body.max_tokens = 4096
     delete body.max_completion_tokens
     body.reasoning =
-      body.model === AGENT_MODEL && agentReasoning === 'low'
-        ? { effort: 'low' }
-        : { enabled: false }
+      body.model === AGENT_MODEL && run.reasoning === 'low' ? { effort: 'low' } : { enabled: false }
     const provider =
       body.model === AGENT_MODEL
         ? process.env.EXPERIMENT_AGENT_PROVIDER
@@ -172,9 +176,20 @@ export async function startGateway(
   return {
     url: `http://127.0.0.1:${(server.address() as any).port}/v1`,
     token,
-    begin(id: string, limit = 30, durationMs = 300000) {
+    begin(
+      id: string,
+      limit = 30,
+      durationMs = 300000,
+      policy?: { agentReasoning: 'low' | 'disabled' },
+    ) {
       if (active) throw Error('Previous experiment still active')
-      active = { id, limit, deadline: Date.now() + durationMs, requests: [] }
+      active = {
+        id,
+        limit,
+        deadline: Date.now() + durationMs,
+        requests: [],
+        reasoning: policy?.agentReasoning ?? agentReasoning,
+      }
     },
     async end() {
       const result = active

@@ -214,3 +214,36 @@ it('changes reasoning only for an explicit isolated experimental arm while keepi
     await rm(dir, { recursive: true, force: true })
   }
 })
+
+it('freezes reasoning per run and restores the gateway default for later runs', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'gateway-profile-'))
+  const bodies: any[] = []
+  const gateway = await startGateway('test-secret', dir, (async (_url, init) => {
+    bodies.push(JSON.parse(String(init!.body)))
+    return new Response(JSON.stringify({ choices: [], usage: { cost: 0 } }))
+  }) as typeof fetch)
+  try {
+    for (const disabled of [true, false]) {
+      gateway.begin(
+        `profile-${disabled}`,
+        1,
+        5000,
+        disabled ? { agentReasoning: 'disabled' } : undefined,
+      )
+      const response = await fetch(gateway.url + '/chat/completions', {
+        method: 'POST',
+        headers: { authorization: `Bearer ${gateway.token}`, 'content-type': 'application/json' },
+        body: JSON.stringify({ model: AGENT_MODEL, reasoning: { effort: 'high' } }),
+      })
+      expect(response.ok).toBe(true)
+      await response.text()
+      expect((await gateway.end()).length).toBe(1)
+    }
+    expect(bodies.map((b) => b.reasoning)).toEqual([{ enabled: false }, { effort: 'low' }])
+    expect(bodies.every((b) => b.max_tokens === 4096)).toBe(true)
+  } finally {
+    await gateway.end()
+    await gateway.close()
+    await rm(dir, { recursive: true, force: true })
+  }
+})

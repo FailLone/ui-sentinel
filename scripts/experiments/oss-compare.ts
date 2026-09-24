@@ -7,13 +7,24 @@ import { resolve, join } from 'node:path'
 import { createClient } from '@libsql/client'
 import { startGateway, AGENT_MODEL, VISION_MODEL } from './openrouter-gateway.ts'
 import { evaluateRun } from '../../evaluation/private/evaluator.ts'
+import {
+  evaluateRecoveryRun,
+  recoveryProtocol,
+} from '../../evaluation/private/recovery-protocol.ts'
 import { resetAndVerify, controlRequest } from '../../evaluation/private/controller.ts'
 import { inspectionGoal, efficiencyBudget } from './efficiency-protocol.ts'
 
 const args = process.argv.slice(2)
 const candidate = args.includes('--candidate') ? args[args.indexOf('--candidate') + 1] : undefined
+const convergence = args.includes('--study') && args[args.indexOf('--study') + 1] === 'convergence'
+if (args.includes('--study') && !convergence) throw Error('Unknown study')
+if (convergence && candidate) throw Error('Study and candidate are separate protocols')
 if (candidate && !['stagehand', 'browser-use'].includes(candidate)) throw Error('Invalid candidate')
-if (args.some((a) => !['--candidate', 'stagehand', 'browser-use'].includes(a)))
+if (
+  args.some(
+    (a) => !['--candidate', 'stagehand', 'browser-use', '--study', 'convergence'].includes(a),
+  )
+)
   throw Error('Unsupported arguments')
 const key = process.env.OPENROUTER_API_KEY
 if (!key) throw Error('configuration-missing')
@@ -42,7 +53,9 @@ if (
 await save('models.json', models)
 process.env.EXPERIMENT_AGENT_PROVIDER = 'Wafer'
 process.env.EXPERIMENT_VISION_PROVIDER = 'Alibaba'
-const maxCostUsd = candidate ? 3 : 2
+if (convergence && models[0].reasoning?.mandatory)
+  throw Error('Fixed model cannot disable reasoning')
+const maxCostUsd = candidate || convergence ? 3 : 2
 const gateway = await startGateway(key, dir, fetch, {
   limitUsd: maxCostUsd,
   estimateCost: (body) => {
@@ -114,20 +127,52 @@ const schedule = candidate
       ),
     )
   : cases.flatMap((variant, index) => {
-      const arms = ['current', 'stagehand', 'browser-use']
+      const arms = convergence
+        ? [
+            'current-low',
+            'current-off',
+            'stagehand-low',
+            'stagehand-off',
+            'browser-use-off',
+            'browser-use-flash',
+          ]
+        : ['current', 'stagehand', 'browser-use']
       return [...arms.slice(index), ...arms.slice(0, index)].map((arm) => ({
         variant,
         repeat: 1,
         arm,
       }))
     })
+function profile(arm: string) {
+  return {
+    framework: arm.startsWith('current')
+      ? 'current'
+      : arm.startsWith('stagehand')
+        ? 'stagehand'
+        : 'browser-use',
+    agentReasoning: (convergence && !arm.endsWith('-low') ? 'disabled' : 'low') as
+      | 'disabled'
+      | 'low',
+    flash: arm === 'browser-use-flash',
+  }
+}
 const manifest = {
-  protocol: candidate ? 'oss-quality-confirm-1' : 'oss-quality-screen-1',
+  protocol: convergence
+    ? 'architecture-convergence-screen-1'
+    : candidate
+      ? 'oss-quality-confirm-1'
+      : 'oss-quality-screen-1',
+  evaluationProtocol: convergence ? recoveryProtocol : 'historical-minimum',
+  profiles: Object.fromEntries(
+    [...new Set(schedule.map((s) => s.arm))].map((arm) => [arm, profile(arm)]),
+  ),
   candidate: candidate ?? null,
   commit: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
   models: [AGENT_MODEL, VISION_MODEL],
   providers: ['Wafer', 'Alibaba'],
-  reasoning: ['low', 'disabled'],
+  reasoning: convergence
+    ? { agent: 'per frozen profile', vision: 'disabled' }
+    : ['low', 'disabled'],
   budget: efficiencyBudget,
   requestTimeoutMs: 60000,
   maxOutputTokens: 4096,
@@ -142,6 +187,9 @@ const manifest = {
   lockHash: hash(await readFile('pnpm-lock.yaml')),
   serverHash: hash(await readFile('dist/server/index.js')),
   evaluatorHash: hash(await readFile('evaluation/private/evaluator.ts')),
+  recoveryEvaluatorHash: convergence
+    ? hash(await readFile('evaluation/private/recovery-protocol.ts'))
+    : undefined,
   schedule,
   stopPolicy:
     'Complete safe scheduled samples including ordinary failures; stop for uncertain writes, leak/evidence integrity, service failure or spending cap. One separately frozen implementation correction at most.',
@@ -236,16 +284,17 @@ try {
     ARENA_CONTROL_TOKEN: env.ARENA_CONTROL_TOKEN,
   })
   for (const item of schedule) {
+    const executionProfile = profile(item.arm)
     const id = `${item.variant}-${item.arm}-${item.repeat}`
     const record: any = { ...item, id, passed: false }
     let started = false
     try {
       record.fixture = await resetAndVerify(item.variant)
       const start = Date.now()
-      gateway.begin(id, 30, 300000)
+      gateway.begin(id, 30, 300000, { agentReasoning: executionProfile.agentReasoning })
       started = true
       console.log(`Starting ${id}`)
-      if (item.arm === 'current') {
+      if (executionProfile.framework === 'current') {
         const run = await request('/api/runs', {
           goal: inspectionGoal,
           entryUrl: env.ARENA_URL,
@@ -272,7 +321,12 @@ try {
           launch(
             `worker-${records.length}`,
             ['--import', 'tsx', 'scripts/experiments/native-worker.ts'],
-            { NATIVE_ARM: item.arm, NATIVE_DIR: nativeDir, ARENA_CONTROL_TOKEN: '' },
+            {
+              NATIVE_ARM: executionProfile.framework,
+              NATIVE_DIR: nativeDir,
+              ARENA_CONTROL_TOKEN: '',
+              NATIVE_FLASH_MODE: executionProfile.flash ? '1' : '0',
+            },
           ),
           310000,
         )
@@ -283,7 +337,7 @@ try {
       }
       record.requests = await gateway.end()
       started = false
-      if (item.arm !== 'current') {
+      if (executionProfile.framework !== 'current') {
         const rows = await db.execute({
           sql: 'SELECT usage FROM runs WHERE id=?',
           args: [record.runId],
@@ -336,6 +390,10 @@ try {
         hypotheses: report.hypotheses,
       }
       record.score = evaluateRun(report, item.variant, item.repeat, record.evidence)
+      if (convergence) {
+        record.historicalScore = record.score
+        record.score = evaluateRecoveryRun(report, item.variant, item.repeat, record.evidence)
+      }
       record.explicitFinish = report.events.some((e: any) => e.type === 'finish:accepted')
       record.providerMatched = record.requests.every(
         (r: any) =>

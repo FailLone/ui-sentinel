@@ -62,6 +62,7 @@ async def main():
         llm = ChatOpenRouter(model="deepseek/deepseek-v4.1-flash", api_key=os.environ["OPENAI_API_KEY"], base_url=os.environ["OPENAI_BASE_URL"], timeout=60, max_retries=0)
         agent = Agent(task=catalog["goal"], llm=llm, browser_session=session, tools=tools,
                       extend_system_message=catalog["instructions"], use_vision=False, page_extraction_llm=llm,
+                      flash_mode=os.environ.get("NATIVE_FLASH_MODE") == "1",
                       judge_llm=llm, use_judge=False, fallback_llm=None, max_failures=1, max_actions_per_step=1,
                       llm_timeout=60, step_timeout=80, directly_open_url=False, final_response_after_failure=False,
                       enable_signal_handler=False, file_system_path=os.environ["NATIVE_FILES"])
