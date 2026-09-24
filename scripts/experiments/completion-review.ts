@@ -33,7 +33,9 @@ Do not invent facts, evidence IDs, defect durations or certainty. Use evidenceRe
     },
   ]
   result.tool_choice = { type: 'function', function: { name: 'completion_review' } }
-  result.parallel_tool_calls = false
+  // Wafer rejects even false for this unsupported parameter under require_parameters.
+  // Validate exactly one review in the caller instead of sending this optional flag.
+  delete result.parallel_tool_calls
   return result
 }
 

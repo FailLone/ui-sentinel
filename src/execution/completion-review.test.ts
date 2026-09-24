@@ -24,6 +24,7 @@ it('keeps all original facts and constraints while replacing execution with a no
   expect(body).toEqual(before)
   expect(review.messages.slice(0, 2)).toEqual(body.messages)
   expect(review.tools.map((t: any) => t.function.name)).toEqual(['completion_review'])
+  expect(review).not.toHaveProperty('parallel_tool_calls')
   expect(review.messages.at(-1).content).toContain(
     'continue/unknown must preserve open exploration',
   )

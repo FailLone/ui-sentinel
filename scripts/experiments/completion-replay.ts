@@ -139,7 +139,8 @@ const schedule = transportCheck
         (item) => item.state.id === 'blocker-handoff' && item.arm === 'review-disabled',
       )!
       const body = structuredClone(source.body)
-      if (arm !== 'forced-with-parallel') delete body.parallel_tool_calls
+      if (arm === 'forced-with-parallel') body.parallel_tool_calls = false
+      else delete body.parallel_tool_calls
       if (arm === 'required-without-parallel') body.tool_choice = 'required'
       return {
         ...source,
@@ -171,7 +172,7 @@ if (
 await save('model.json', model)
 await save('inputs.json', schedule)
 await save('manifest.json', {
-  protocol: transportCheck ? 'completion-transport-1' : 'completion-review-shadow-1',
+  protocol: transportCheck ? 'completion-transport-1' : 'completion-review-shadow-2',
   commit: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
   sources,
   sourceHashes: hashes,

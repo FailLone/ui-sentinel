@@ -283,3 +283,5 @@ D6 验证：54 个测试文件、382 项测试通过，typecheck/build 通过。
 D7 首次影子批次 `data/completion-replay/2026-09-24T09-26-50-680Z/` 无有效对比结论：原接口请求可执行，但候选六次均 HTTP 404。已中断批次，10 次已发请求、9 条终态账本，其中三次原接口已知费用 $0.0071266；六次 HTTP 错误和中断中的一个请求费用未知，保守占额共 $0.0344736，见 interruption-audit.json。不会拼接重跑后的成功格子。候选同时加入了指定函数 tool_choice 与 parallel_tool_calls=false；公开 Wafer 参数清单支持前者但没有列后者，目前只是兼容性假设。
 
 先补实验网关对流式请求收到非 SSE HTTP 错误的脱敏持久化，并让正式影子批次在配置性 4xx 后停止、SIGINT/SIGTERM 通过取消和账本收尾。增加三请求兼容预检 `completion-replay.ts --transport-check`，同一输入仅比较 forced+parallel / forced 不带 parallel / required 不带 parallel，全部 disabled、无执行、费用上限 $0.10；保留故意无效请求，不作为能力成绩。确认参数原因后再重新冻结完整影子对比。
+
+兼容预检 `data/completion-transport/2026-09-24T09-32-37-364Z/` 完成三次：forced+parallel=false 返回 404，删除 parallel 参数后 forced 与 required 都成功，3.983s/5.041s。因此保留指定单个工具，移除未支持的可选并行参数，并在本地验证必须恰好一个审查结果；不放宽供应商、不静默忽略参数。接下来使用 `completion-review-shadow-2` 新批次完整重跑 30 格；不合并旧批次。这次兼容预检不是语义合格证据。
