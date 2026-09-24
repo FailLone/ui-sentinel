@@ -4,6 +4,7 @@ import type {
   Correlation,
   PublicExchange,
   RequestIntent,
+  RequestShape,
 } from './types.ts'
 
 /**
@@ -53,7 +54,7 @@ export const checkoutAdapter: BusinessAdapter = Object.freeze({
   id: 'checkout' as const,
   revision: '1',
 
-  classifyRequest(request): RequestIntent {
+  classifyRequest(request: RequestShape): RequestIntent {
     const path = pathOf(request.url)
     if (!path) return { kind: 'foreign' }
     // Only POST mutates. Reads are recognized by method, never by the body's JSON shape.
@@ -80,7 +81,10 @@ export const checkoutAdapter: BusinessAdapter = Object.freeze({
     return buildCheckoutFact(body, orderId, exchange)
   },
 
-  correlateVisible(fact, observation): Correlation {
+  correlateVisible(
+    fact: BusinessFact,
+    observation: { readonly pageText: string; readonly visibleText: readonly string[] },
+  ): Correlation {
     const text = observation.pageText.replace(/\s+/g, ' ')
     // A verified outcome needs the current operation's identity *and* its stated notice visible.
     // Another task's success, a lone `success` label, or a fabricated field cannot confirm this one.

@@ -4,6 +4,7 @@ import type {
   Correlation,
   PublicExchange,
   RequestIntent,
+  RequestShape,
 } from './types.ts'
 
 /**
@@ -53,7 +54,7 @@ export const exportAdapter: BusinessAdapter = Object.freeze({
   id: 'export' as const,
   revision: '1',
 
-  classifyRequest(request): RequestIntent {
+  classifyRequest(request: RequestShape): RequestIntent {
     const match = matchExportPath(request.url)
     if (!match) return { kind: 'foreign' }
     const method = request.method.toUpperCase()
@@ -97,7 +98,10 @@ export const exportAdapter: BusinessAdapter = Object.freeze({
     return buildExportFact(body, jobId, phase as BusinessFact['phase'])
   },
 
-  correlateVisible(fact, observation): Correlation {
+  correlateVisible(
+    fact: BusinessFact,
+    observation: { readonly pageText: string; readonly visibleText: readonly string[] },
+  ): Correlation {
     const text = observation.pageText.replace(/\s+/g, ' ')
     // The page must show this job's identity. A bare "success" fragment, a different job's notice
     // or a page with no notice at all cannot confirm the outcome of this operation.

@@ -6,7 +6,7 @@ import {
   resolveAdapter,
   type BusinessFact,
   type PublicExchange,
-  type PublicRequest,
+  type RequestShape,
   type RequestIntent,
 } from './adapters/index.ts'
 import type { BusinessContractSnapshot } from './types.ts'
@@ -23,7 +23,7 @@ export interface BusinessRuntime {
   readonly contract: BusinessContractSnapshot
   readonly adapterId: string
   readonly adapterRevision: string
-  classifyRequest(request: PublicRequest): RequestIntent
+  classifyRequest(request: RequestShape): RequestIntent
   decodeResponse(exchange: PublicExchange): BusinessFact | null
   /** True when this run's declared adapter revision is still the registered one. */
   adapterAvailable(): boolean
@@ -55,7 +55,7 @@ export function createBusinessRuntime(contract: BusinessContractSnapshot): Busin
     contract,
     adapterId: adapter.id,
     adapterRevision: adapter.revision,
-    classifyRequest: (request: PublicRequest) => adapter.classifyRequest(request),
+    classifyRequest: (request: RequestShape) => adapter.classifyRequest(request),
     decodeResponse: (exchange: PublicExchange) => adapter.decodeResponse(exchange),
     adapterAvailable: () =>
       resolveAdapter(contract.adapter.id, contract.adapter.revision) !== undefined,

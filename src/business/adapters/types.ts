@@ -81,10 +81,16 @@ export type Correlation =
   | { readonly kind: 'contradicted'; readonly reason: string }
   | { readonly kind: 'unknown'; readonly reason: string }
 
+/**
+ * The minimum a request must expose to be classified. Adapters classify on origin, method and
+ * path only, so classification cannot depend on a response body.
+ */
+export type RequestShape = Pick<PublicRequest, 'url' | 'method' | 'origin'>
+
 export interface BusinessAdapter {
   readonly id: BusinessProfileId
   readonly revision: string
-  classifyRequest(request: Pick<PublicRequest, 'url' | 'method' | 'origin'>): RequestIntent
+  classifyRequest(request: RequestShape): RequestIntent
   decodeResponse(exchange: PublicExchange): BusinessFact | null
   correlateVisible(
     fact: BusinessFact,
