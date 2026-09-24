@@ -3,7 +3,7 @@ import type { RunReport } from '../../src/shared/types.ts'
 import type { IndependentEvidence } from './evaluator.ts'
 import type { PageSnapshot } from '../../src/rules/types.ts'
 import type { TransitionObservation } from '../../src/rules/transition.ts'
-import type { HoldoutProfile } from '../../scripts/experiments/holdout-arena.ts'
+import type { HoldoutProfile } from '../fixtures/recovery.ts'
 
 export const holdoutGoal =
   'Reserve one workshop place through the visible attendance and confirmation steps. Inspect access to primary actions, response, outcome communication and recovery. Retryable failures must offer an operable recovery action within five seconds. Inspect recovery without making a second reservation. Do not mistake a clearly stated unmet prerequisite for a broken control.'

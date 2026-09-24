@@ -42,18 +42,3 @@ it('does not reset no-progress on page cycling or repeated measurements', () => 
   d.check({ ...facts, pageFingerprint: 'cart' })
   expect(d.check(facts).isProgress).toBe(false)
 })
-
-it('counts a completed analysis fact once, including a reviewed answer without defect candidates', () => {
-  const detector = createProgressDetector()
-  const facts = {
-    pageUrl: 'http://example.test',
-    hypothesisFacts: [],
-    findingFacts: [],
-    measurementFacts: [],
-  }
-  detector.check(facts)
-  expect(detector.check({ ...facts, analysisFacts: [] }).isProgress).toBe(false)
-  const reviewed = { ...facts, analysisFacts: ['snapshot-v1:submit-access:reviewed-unobscured'] }
-  expect(detector.check(reviewed).isProgress).toBe(true)
-  expect(detector.check(reviewed).isProgress).toBe(false)
-})

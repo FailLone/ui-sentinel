@@ -1,5 +1,5 @@
 import { chromium } from 'playwright'
-import type { BlockerProfile } from '../../scripts/experiments/blocker-holdout-arena.ts'
+import type { BlockerProfile } from '../fixtures/blocker.ts'
 import type { RunReport } from '../../src/shared/types.ts'
 import type { IndependentEvidence } from './evaluator.ts'
 import type { PageSnapshot } from '../../src/rules/types.ts'

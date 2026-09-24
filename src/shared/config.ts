@@ -22,7 +22,7 @@ export const config = Object.freeze({
   agentModel: process.env.AGENT_MODEL ?? '',
   visionModel: process.env.VISION_MODEL ?? '',
 
-  optimizations: {
+  features: {
     atomicInvestigation: process.env.EXECUTION_ATOMIC_INVESTIGATION !== '0',
     blockerReview: process.env.EXECUTION_BLOCKER_REVIEW === '1',
     observation: process.env.EXECUTION_OBSERVATION_REUSE !== '0',
@@ -30,8 +30,6 @@ export const config = Object.freeze({
     journeys: process.env.EXECUTION_JOURNEYS !== '0',
     modelStreaming: process.env.EXECUTION_MODEL_STREAMING !== '0',
     shortFinish: process.env.EXECUTION_SHORT_FINISH !== '0',
-    evidenceAnalysis: process.env.EXECUTION_EVIDENCE_ANALYSIS === '1',
-    analysisMode: process.env.EXECUTION_ANALYSIS_MODE === 'serial' ? 'serial' : 'parallel',
   },
 
   completionReview: {
@@ -54,7 +52,7 @@ export const config = Object.freeze({
 
 export function checkModelConfig(): { ready: boolean; missing: string[] } {
   const missing: string[] = []
-  if (config.optimizations.blockerReview && !config.completionReview.apiKey)
+  if (config.features.blockerReview && !config.completionReview.apiKey)
     missing.push('COMPLETION_REVIEW_API_KEY or OPENROUTER_API_KEY')
   if (!config.agentModel) missing.push('AGENT_MODEL')
   if (!config.visionModel) missing.push('VISION_MODEL')

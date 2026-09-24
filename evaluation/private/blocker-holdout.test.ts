@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { createBlockerHoldout } from '../../scripts/experiments/blocker-holdout-arena.ts'
+import { createBlockerHoldout } from '../fixtures/blocker.ts'
 import { evaluateBlockerHoldout, verifyBlockerHoldout } from './blocker-holdout.ts'
 
 describe('independent studio blocker holdout', () => {

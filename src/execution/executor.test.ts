@@ -5,20 +5,16 @@ import { rm } from 'node:fs/promises'
 const harness = vi.hoisted(() => ({
   handler: null as any,
   models: 0,
-  analyze: null as any,
   review: null as any,
   reviews: 0,
   corruptCommit: false,
-}))
-vi.mock('./evidence-analysis/workflow.ts', () => ({
-  analyzeEvidence: (packet: any, options: any) => harness.analyze(packet, options),
 }))
 vi.mock('../shared/config.ts', () => ({
   config: {
     databaseUrl: ':memory:',
     agentModel: 'openai/test-explicit-mock',
     visionModel: 'test',
-    optimizations: { observation: true, ruleRouting: true, journeys: true },
+    features: { observation: true, ruleRouting: true, journeys: true },
     completionReview: {
       model: 'typesafe/jev-1.13',
       expectedModel: 'typesafe/jev-1.13-20260917',
@@ -53,8 +49,8 @@ vi.mock('@mastra/core/agent', () => ({
     }
   },
 }))
-vi.mock('./blocker-review.ts', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('./blocker-review.ts')>()),
+vi.mock('../agent/decisions/blocker-review.ts', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../agent/decisions/blocker-review.ts')>()),
   requestBlockerReview: (...args: any[]) => {
     harness.reviews++
     return harness.review(...args)
@@ -217,14 +213,12 @@ afterAll(async () => {
   await Promise.all(ids.map((id) => rm(`data/artifacts/${id}`, { recursive: true, force: true })))
 })
 beforeEach(() => {
-  config.optimizations.blockerReview = false
+  config.features.blockerReview = false
   config.budget.totalTimeoutMs = 20000
   harness.reviews = 0
   harness.corruptCommit = false
-  config.optimizations.atomicInvestigation = false
-  config.optimizations.shortFinish = false
-  config.optimizations.evidenceAnalysis = false
-  config.optimizations.analysisMode = 'parallel'
+  config.features.atomicInvestigation = false
+  config.features.shortFinish = false
   clearRules()
   reviewCloseVisible = false
   journeyChange = 'none'
@@ -233,90 +227,6 @@ beforeEach(() => {
   harness.models = 0
 })
 
-it('joins a required background analysis before completion and exposes older-page candidates as unverified hypotheses', async () => {
-  config.optimizations.shortFinish = true
-  config.optimizations.evidenceAnalysis = true
-  let resolveAnalysis!: () => void
-  const ready = new Promise<void>((resolve) => {
-    resolveAnalysis = resolve
-  })
-  let capturedSnapshot = ''
-  harness.analyze = async (packet: any, options: any) => {
-    capturedSnapshot = packet.snapshotId
-    await options.hooks.onStart({
-      attemptId: 'analysis-attempt',
-      startedAt: Date.now(),
-      deadlineAt: Date.now() + 5000,
-    })
-    await ready
-    await options.hooks.onFinish({
-      attemptId: 'analysis-attempt',
-      startedAt: Date.now(),
-      durationMs: 1,
-      modelDurationMs: 1,
-      status: 'success',
-      usage: { inputTokens: 1, outputTokens: 1 },
-    })
-    return {
-      visual: {
-        answer: 'Frozen screenshot inspected for the requested question.',
-        coverage: 'reviewed',
-        candidates: [
-          {
-            kind: 'visual-hit-area',
-            target: 'Buy control',
-            observation: 'Its apparent surface may exceed its target.',
-            verification: 'Verify pointer behavior on the apparent boundary.',
-            region: { x: 1, y: 1, width: 20, height: 20 },
-          },
-        ],
-        limitations: ['Focus not verified.'],
-      },
-      geometry: { checkedElements: 1, partiallyOutside: [], intercepted: [] },
-    }
-  }
-  let phase = 0
-  harness.handler = async (tools: any, prompt: string) => {
-    if (phase++ === 0) {
-      const task = await call(tools, 'visual_review', {
-        question: 'Inspect apparent clickable area.',
-      })
-      expect(task.taskId).toMatch(/^analysis-/)
-      await call(tools, 'page_act', { type: 'probe', role: 'button', name: 'Buy' })
-      const pending = await call(tools, 'run_finish', { reason: 'scope-covered' })
-      expect(pending).toMatchObject({ accepted: false, error: 'analysis-pending' })
-      resolveAnalysis()
-      return []
-    }
-    const input = JSON.parse(prompt)
-    expect(input.analysisTasks[0].snapshotId).toBe(capturedSnapshot)
-    expect(input.analysisTasks[0].hypothesisIds).toHaveLength(1)
-    expect(input.activeHypotheses).toContain(input.analysisTasks[0].hypothesisIds[0])
-    await call(tools, 'run_finish', { reason: 'unverified-scope' })
-    return []
-  }
-  const run = await makeRun()
-  await startRunExecution(run.id)
-  const events = await getEvents(run.id)
-  expect(
-    events.find((e) => e.type === 'finish:accepted')?.payload,
-    JSON.stringify(
-      events.filter((e) =>
-        ['tool:finished', 'execution:stopped', 'analysis:state'].includes(e.type),
-      ),
-    ),
-  ).toMatchObject({ blocked: true, reasonCode: 'unverified-scope' })
-  expect(
-    (await getFindings(run.id)).filter((f) => f.validationStatus === 'supported'),
-  ).toHaveLength(0)
-  expect(
-    events.filter(
-      (e) => e.type === 'model:request-started' && e.payload.role === 'evidence-analysis',
-    ),
-  ).toHaveLength(1)
-  expect((await getRun(run.id))?.usage.modelCalls).toBe(3)
-  expect(writes).toBe(0)
-})
 async function makeRun() {
   const r = await createRun({ goal: 'buy', environmentId: 'test', entryUrl: url })
   ids.push(r.id)
@@ -324,258 +234,8 @@ async function makeRun() {
 }
 const call = (tools: any, name: string, input: any = {}) => tools[name].execute(input, {})
 
-it('lets the agent resolve a same-evidence visual candidate through a verified finding without duplicating it', async () => {
-  config.optimizations.shortFinish = true
-  config.optimizations.evidenceAnalysis = true
-  config.optimizations.analysisMode = 'serial'
-  registerRule(overlayBlockingRule)
-  harness.analyze = async (packet: any, options: any) => {
-    await options.hooks.onStart({
-      attemptId: 'reuse-analysis',
-      startedAt: Date.now(),
-      deadlineAt: Date.now() + 5000,
-    })
-    await options.hooks.onFinish({
-      attemptId: 'reuse-analysis',
-      startedAt: Date.now(),
-      durationMs: 1,
-      modelDurationMs: 1,
-      status: 'success',
-      usage: { inputTokens: 1, outputTokens: 1 },
-    })
-    return {
-      visual: {
-        answer: 'Frozen screenshot inspected for the requested question.',
-        coverage: 'reviewed',
-        candidates: [
-          {
-            kind: 'pointer-interception',
-            target: 'Pay',
-            observation: 'Campaign covers Pay.',
-            verification: 'Check saved pointer hit samples.',
-            region: packet.elements.find((e: any) => e.text === 'Pay').bounds,
-          },
-        ],
-        limitations: [],
-      },
-      geometry: { checkedElements: 1, partiallyOutside: [], intercepted: [] },
-    }
-  }
-  let phase = 0
-  harness.handler = async (tools: any, prompt: string) => {
-    if (phase++ === 0) {
-      await call(tools, 'visual_review', { question: 'Is Pay obscured?' })
-      return []
-    }
-    const input = JSON.parse(prompt)
-    expect(input.reusableFindings).toHaveLength(1)
-    const match = input.reusableFindings[0]
-    const result = await call(tools, 'hypotheses_link_finding', {
-      hypothesisId: match.hypothesisId,
-      findingId: match.findingId,
-      bindingReason: 'The saved same-page hit samples verify interception of the same Pay button.',
-    })
-    expect(result).toMatchObject({ validationStatus: 'supported', reused: true })
-    await call(tools, 'run_finish', { reason: 'observed-blocker' })
-    return []
-  }
-  const run = await createRun({
-    goal: 'Inspect Pay accessibility',
-    environmentId: 'test',
-    entryUrl: url + '/overlay',
-  })
-  ids.push(run.id)
-  await startRunExecution(run.id)
-  expect(await getFindings(run.id)).toHaveLength(1)
-  const events = await getEvents(run.id)
-  expect(events.filter((e) => e.type === 'hypothesis:linked')).toHaveLength(1)
-  const linkedHypothesis = (
-    await getDbClient().execute({
-      sql: 'SELECT phenomenon FROM hypotheses WHERE run_id=?',
-      args: [run.id],
-    })
-  ).rows[0]!
-  expect(linkedHypothesis.phenomenon).toContain('This does not assert visual covering')
-  expect(linkedHypothesis.phenomenon).not.toContain('Campaign covers Pay.')
-  expect(events.find((e) => e.type === 'finish:accepted')?.payload).toMatchObject({ blocked: true })
-  expect(writes).toBe(0)
-})
-
-it('prevents ordinary finding submission from promoting pixel covering with unrelated interaction evidence', async () => {
-  config.optimizations.shortFinish = true
-  config.optimizations.evidenceAnalysis = true
-  config.optimizations.analysisMode = 'serial'
-  harness.analyze = async () => ({
-    visual: {
-      answer: 'Unverified visual covering claim.',
-      coverage: 'reviewed',
-      limitations: [],
-      candidates: [
-        {
-          kind: 'occlusion',
-          target: 'Buy',
-          observation: 'Possibly covered',
-          verification: 'Inspect pixel coverage',
-          region: { x: 1, y: 1, width: 20, height: 20 },
-        },
-      ],
-    },
-    geometry: { checkedElements: 1, partiallyOutside: [], intercepted: [] },
-  })
-  let phase = 0
-  harness.handler = async (tools: any, prompt: string) => {
-    if (phase++ === 0) {
-      await call(tools, 'visual_review', { question: 'Is Buy visually covered?' })
-      return []
-    }
-    const input = JSON.parse(prompt)
-    const task = input.analysisTasks[0]
-    const finding = {
-      hypothesisId: task.hypothesisIds[0],
-      validationStatus: 'supported',
-      severity: 'warning',
-      title: 'Covered',
-      expected: 'Visible',
-      actual: 'Possibly covered',
-      evidenceRefs: task.evidenceRefs,
-    }
-    await expect(call(tools, 'findings_submit', finding)).rejects.toThrow(
-      'visual-covering-unverified',
-    )
-    await expect(
-      call(tools, 'findings_submit', { ...finding, validationStatus: 'refuted' }),
-    ).rejects.toThrow('visual-covering-unverified')
-    await call(tools, 'findings_submit', { ...finding, validationStatus: 'inconclusive' })
-    await call(tools, 'run_finish', { reason: 'unverified-scope' })
-    return []
-  }
-  const run = await makeRun()
-  await startRunExecution(run.id)
-  expect((await getFindings(run.id)).map((f) => f.validationStatus)).toEqual(['inconclusive'])
-  expect(
-    (await getEvents(run.id)).find((e) => e.type === 'finish:accepted')?.payload,
-  ).toMatchObject({ blocked: true, reasonCode: 'unverified-scope' })
-})
-
-it('settles cancelled background request accounting before persisting the terminal run', async () => {
-  config.optimizations.evidenceAnalysis = true
-  let entered!: () => void, releaseMain!: () => void
-  const ready = new Promise<void>((r) => {
-    entered = r
-  })
-  const main = new Promise<void>((r) => {
-    releaseMain = r
-  })
-  harness.analyze = async (_packet: any, options: any) => {
-    const startedAt = Date.now()
-    await options.hooks.onStart({
-      attemptId: 'cancelled-analysis',
-      startedAt,
-      deadlineAt: startedAt + 5000,
-    })
-    const cancelled = new Promise<void>((r) =>
-      options.signal.addEventListener('abort', () => r(), { once: true }),
-    )
-    entered()
-    await cancelled
-    // Simulate SDK cancellation settling after the queue has already observed the abort.
-    await new Promise((r) => setTimeout(r, 30))
-    await options.hooks.onFinish({
-      attemptId: 'cancelled-analysis',
-      startedAt,
-      durationMs: Date.now() - startedAt,
-      modelDurationMs: Date.now() - startedAt,
-      status: 'cancelled',
-      error: 'cancelled',
-      usage: undefined,
-    })
-    throw Error('cancelled')
-  }
-  harness.handler = async (tools: any) => {
-    await call(tools, 'visual_review', { question: 'Inspect the button surface.' })
-    await main
-    return []
-  }
-  const run = await makeRun()
-  const done = startRunExecution(run.id)
-  await ready
-  expect(await cancelRunExecution(run.id)).toBe(true)
-  releaseMain()
-  await done
-  const state = await getRun(run.id)
-  expect(state?.status).toBe('cancelled')
-  expect(state?.usage.modelCalls).toBe(2)
-  expect(state?.usage.modelInputTokens).toBeNull()
-  const events = await getEvents(run.id)
-  const completed = events.find((e) => e.type === 'run:completed')!
-  const request = events.find(
-    (e) => e.type === 'model:request-finished' && e.payload.role === 'evidence-analysis',
-  )!
-  expect(request.payload.status).toBe('cancelled')
-  expect(request.seq).toBeLessThan(completed.seq)
-  expect(events.filter((e) => e.type === 'analysis:state').at(-1)?.payload.status).toBe('cancelled')
-  expect(writes).toBe(0)
-  expect(executionBusy()).toBe(false)
-})
-
-it.each(['serial', 'parallel'] as const)(
-  'runs the same frozen analysis with %s decision scheduling',
-  async (mode) => {
-    config.optimizations.shortFinish = true
-    config.optimizations.evidenceAnalysis = true
-    config.optimizations.analysisMode = mode
-    let analysisFinished = false
-    harness.analyze = async (_packet: any, options: any) => {
-      await options.hooks.onStart({
-        attemptId: 'schedule-analysis',
-        startedAt: Date.now(),
-        deadlineAt: Date.now() + 5000,
-      })
-      await new Promise((r) => setTimeout(r, 150))
-      await options.hooks.onFinish({
-        attemptId: 'schedule-analysis',
-        startedAt: Date.now(),
-        durationMs: 150,
-        modelDurationMs: 150,
-        status: 'success',
-        usage: { inputTokens: 1, outputTokens: 1 },
-      })
-      analysisFinished = true
-      return {
-        visual: {
-          answer: 'Frozen screenshot inspected for the requested question.',
-          coverage: 'reviewed',
-          candidates: [],
-          limitations: ['Only requested snapshot reviewed.'],
-        },
-        geometry: { checkedElements: 1, partiallyOutside: [], intercepted: [] },
-      }
-    }
-    let phase = 0
-    harness.handler = async (tools: any) => {
-      if (phase++ === 0) {
-        await call(tools, 'visual_review', { question: 'Inspect control layout.' })
-        return []
-      }
-      expect(analysisFinished).toBe(mode === 'serial')
-      // Simulate independent model decision work, without touching the Page.
-      await new Promise((r) => setTimeout(r, 180))
-      await call(tools, 'run_finish', { reason: 'scope-covered' })
-      return []
-    }
-    const run = await makeRun()
-    await startRunExecution(run.id)
-    const events = await getEvents(run.id)
-    expect(events.filter((e) => e.type === 'finish:accepted')).toHaveLength(1)
-    expect(events.filter((e) => e.type === 'analysis:state').at(-1)?.payload.status).toBe(
-      'completed',
-    )
-    expect(writes).toBe(0)
-  },
-)
-
 it('accepts a short explicit finish request and generates the conclusion from persisted facts', async () => {
-  config.optimizations.shortFinish = true
+  config.features.shortFinish = true
   let phase = 0
   harness.handler = async (tools: any) => {
     if (phase++ === 0) {
@@ -605,7 +265,7 @@ it('accepts a short explicit finish request and generates the conclusion from pe
   })
   expect(events.filter((e) => e.type === 'finish:requested')).toHaveLength(1)
   expect(writes).toBe(1)
-  const { buildReport } = await import('../server/routes/runs.ts')
+  const { buildReport } = await import('../server/reports/run-report.ts')
   expect((await buildReport(run.id))?.conclusion).toMatchObject({
     reasonCode: 'scope-covered',
     source: 'persisted-evidence',
@@ -1263,8 +923,8 @@ it('probes without writing and denies a second business write before network dis
 it.each([false, true])(
   'does not turn a policy-induced disabled retry into a supported defect (atomic=%s)',
   async (atomic) => {
-    config.optimizations.atomicInvestigation = atomic
-    config.optimizations.shortFinish = true
+    config.features.atomicInvestigation = atomic
+    config.features.shortFinish = true
     registerRule({
       id: 'retry-control-test',
       revision: '1',
@@ -1446,7 +1106,7 @@ it.each([false, true])(
         .filter((e) => e.seq > intervention.seq && e.type === 'rule:evaluated')
         .every((e) => e.payload.verdict === 'unknown'),
     ).toBe(true)
-    const { buildReport } = await import('../server/routes/runs.ts')
+    const { buildReport } = await import('../server/reports/run-report.ts')
     const report = await buildReport(run.id)
     expect(report?.inspectionIntegrity.status).toBe('intervened')
     expect(report?.inspectionIntegrity.affectedArtifactIds.length).toBeGreaterThan(0)
@@ -1487,7 +1147,7 @@ it('accepts completed applicable checks while reporting untriggered branches sep
   const run = await makeRun()
   await startRunExecution(run.id)
   expect((await getRun(run.id))?.status).toBe('completed')
-  const { buildReport } = await import('../server/routes/runs.ts')
+  const { buildReport } = await import('../server/reports/run-report.ts')
   const report = await buildReport(run.id)
   expect(report?.unexploredBranches).toEqual([])
   expect(report?.untriggeredBranches).toHaveLength(2)
@@ -1821,8 +1481,8 @@ function reviewFixture(choice = 'observed-blocker') {
   }
 }
 function enableBlockerReview() {
-  config.optimizations.blockerReview = true
-  config.optimizations.shortFinish = true
+  config.features.blockerReview = true
+  config.features.shortFinish = true
   config.budget.totalTimeoutMs = 40000
   registerRule(overlayBlockingRule)
 }
@@ -2015,7 +1675,7 @@ it('rejects a previously valid blocker proposal when the page gains a recovery c
 })
 
 it('quarantines a run after an uncertain completion commit and does not replay its business action', async () => {
-  config.optimizations.shortFinish = true
+  config.features.shortFinish = true
   harness.corruptCommit = true
   harness.handler = async (tools: any) => {
     if (harness.models === 1)

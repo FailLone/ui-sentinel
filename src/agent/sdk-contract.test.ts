@@ -92,7 +92,7 @@ it('real Mastra runtime dispatches schema tools with maxSteps=1 (deterministic p
 
 it('real Mastra tools inherit the model attempt context', async () => {
   const { executeModelRequest, beginAttemptTool, guardModelAttempt } = await import(
-    '../execution/model-request.ts'
+    './model/request.ts'
   )
   let attemptId: string | undefined
   const model = new MastraLanguageModelV2Mock({
@@ -135,7 +135,7 @@ it('real Mastra tools inherit the model attempt context', async () => {
 })
 
 it('streams through the real SDK, executes only a complete validated tool, and retains final usage', async () => {
-  const { executeModelRequest, beginAttemptTool } = await import('../execution/model-request.ts')
+  const { executeModelRequest, beginAttemptTool } = await import('./model/request.ts')
   let calls = 0
   const records: any[] = []
   const model = new MastraLanguageModelV2Mock({

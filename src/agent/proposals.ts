@@ -1,6 +1,6 @@
 import { Agent } from '@mastra/core/agent'
 import { randomUUID } from 'node:crypto'
-import { abortable } from '../execution/model-request.ts'
+import { abortable } from './model/request.ts'
 import { z } from 'zod'
 import { getDbClient } from '../storage/database.ts'
 import { config, checkModelConfig } from '../shared/config.ts'

@@ -2,7 +2,7 @@ import { it, expect } from 'vitest'
 import type { RunReport } from '../../src/shared/types.ts'
 import type { IndependentEvidence } from './evaluator.ts'
 import { evaluateHoldout, verifyHoldout } from './holdout.ts'
-import { createHoldoutArena, type HoldoutProfile } from '../../scripts/experiments/holdout-arena.ts'
+import { createHoldoutArena, type HoldoutProfile } from '../fixtures/recovery.ts'
 
 function fixture(profile: HoldoutProfile) {
   const evidence = {

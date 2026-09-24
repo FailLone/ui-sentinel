@@ -60,7 +60,6 @@ export function createPhaseTracker(budget: RunBudget) {
       return [
         'run_finish',
         'findings_submit',
-        'hypotheses_link_finding',
         'element_details',
         'history_read',
         'tool_result_read',

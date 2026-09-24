@@ -1,7 +1,7 @@
 import { createOpenAI } from '@ai-sdk/openai'
 import type { MastraModelConfig } from '@mastra/core/llm'
 import { config } from './config.ts'
-import { withModelTransportTiming } from '../execution/model-timing.ts'
+import { withModelTransportTiming } from '../agent/model/timing.ts'
 
 const [provider, ...rest] = config.agentModel.split('/')
 const modelId = rest.join('/')

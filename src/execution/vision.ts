@@ -1,6 +1,6 @@
 import { PlaywrightAgent } from '@midscene/web/playwright/agent'
 import type { Page } from 'playwright'
-import { abortable } from './model-request.ts'
+import { abortable } from '../agent/model/request.ts'
 import { config } from '../shared/config.ts'
 
 /** Only locate; all actions remain under the executor's cancellation/permission boundary. */
