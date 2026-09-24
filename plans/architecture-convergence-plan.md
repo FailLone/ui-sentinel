@@ -1,6 +1,6 @@
 # 架构选择的持续验证计划
 
-日期：2026-09-24。状态：执行中。用户目标是通过证据找到更优架构或证明当前选择有充分依据；不能以“没有合格候选”结束这项新目标。前轮记录保留在 [决策效率结果](./agent-decision-efficiency-results.md)。
+日期：2026-09-24。状态：已完成。已形成固定约束下的架构选择，见[最终结果](./architecture-convergence-results.md#最终架构决定)。前轮记录保留在 [决策效率结果](./agent-decision-efficiency-results.md)。
 
 ## 什么证据能支持结论
 
@@ -211,3 +211,9 @@ Jev 前置对照冻结为 `shared-completion-choice-1`：复用 D7 十个状态�
 冻结 `oss-compare.ts --study blocker-holdout`：J0/J1 各三对 current-atomic/current-review，交替顺序，12 轮，每轮新 Server/DB，无继承导航。固定 DeepSeek/Wafer low、Qwen/Alibaba，候选新增 TypeSafe Jev 快照 20260917；30 请求/40 动作/300s，每次生成 60s/4096、审查 15s/零重试，全批 $1。计入所有请求和失败；核对实际审查调用，不能把未调用分支的通过当作泛化。质量要求候选六轮全部通过、不误停正常恢复；速度门槛沿用合计至少 15%、请求和费用不增加。全部记录保留，停服后独立 SQLite 对比终态与事件，不能仅凭报告自证。
 
 通过后同一编译产物运行 `EXECUTION_ATOMIC_INVESTIGATION=1 EXECUTION_BLOCKER_REVIEW=1 pnpm experiment:acceptance -- --minimum-only`，固定提供方，带真实视觉 smoke 和正常导航记忆，18 轮整批 $2。再对现有已批准候选运行 learning `--recheck` 六轮（异常/健康各三次），整批 $1。新增模型走统一网关并核查专属 endpoint 的固定价格、上下文与返回快照，不再索取 TypeSafe 凭据。发布结论必须引用这两批原始结果；失败就按失败结论收敛，不能一直替换失败格子直到得到通过。
+
+## 收敛完成
+
+上述独立布局 12/12、正式 minimum 18/18、继承既有批准的规则复查 6/6 均通过；报告、证据与停服后的独立数据库审计已完成。最终选择是现有 Mastra/Playwright 主循环、默认有类型原子调查、显式启用的有限 Jev 阻断审查。最后仅调整原子能力默认值及文档，模型验收已显式启用同样的行为。
+
+本轮研究在这里结束，不再扩展矩阵或追求无限重试后的全绿。结论是固定模型/预算、质量优先及已比较范围内的推荐配置，不是所有未来业务和模型的全局最优证明。未覆盖场景、模型变化或新的同质量更优候选，按结果文档的可推翻条件开启新的有界验证。

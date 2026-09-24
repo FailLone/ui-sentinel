@@ -170,7 +170,11 @@ Agent 可调用 `visual_review`，让 Qwen 分析当前保存的截图。页面�
 
 后台视觉分析尚未通过新增质量/性能门槛，默认关闭；`EXECUTION_EVIDENCE_ANALYSIS=1` 显式启用实验工具，现有视觉动作定位独立可用。`EXECUTION_ANALYSIS_MODE=serial` 使用相同分析工作量进行串行对照。`EXECUTION_MODEL_STREAMING=0`、`EXECUTION_SHORT_FINISH=0` 分别恢复非流式请求和旧收尾协议，用于诊断。所有请求仍共享原 Run 预算；这些开关不是增加预算的入口。
 
-`EXECUTION_ATOMIC_INVESTIGATION=1` 启用单次有类型调查，Agent 声明问题与条件，执行层完成连续测量并保存有界证据；目前保持默认关闭，正在正式验收。执行器干预导致的后续页面状态不能直接报告成站点缺陷，报告会保留来源与未验证范围。参见 [架构验证结果](plans/architecture-convergence-results.md)。
+单次有类型调查已默认启用：Agent 声明问题与条件，执行层完成连续测量并保存有界证据；`EXECUTION_ATOMIC_INVESTIGATION=0` 可恢复分步调查。执行器干预后的页面不能直接报告成站点缺陷，报告保留来源与未验证范围。
+
+可选 `EXECUTION_BLOCKER_REVIEW=1` 使用 Jev 缩短已有充分证据的阻断收尾，默认关闭；配置 `COMPLETION_REVIEW_API_KEY`，或省略该变量以使用 `OPENROUTER_API_KEY`。这是 Decisions API，不是聊天模型替换。它不接管开放探索；现场复杂/变化、存在恢复入口、未解决工作或审查失败时保留完整 Agent。若不需要额外供应商依赖，保持 `0` 即可。推荐的已验收配置为原子调查开启、需要此类收尾加速时显式开启有限审查；后台视觉分析保持关闭。
+
+该配置已有新预约布局 12/12、正式 minimum 18/18、获准规则复查 6/6，以及停服数据库/证据审计。原子能力的默认值调整与这些批次显式启用的行为一致，不代表默认开启 Jev。完整对照及限制见 [架构验证结果](plans/architecture-convergence-results.md#最终架构决定)。记录缺失/不一致时报告显示完成未验证，后续写入需先核对业务状态。
 
 完成独立诊断后，`pnpm experiment:acceptance -- --minimum-only` 运行真实 DeepSeek/Qwen smoke 和固定 18 轮正式 minimum，省去重复的六轮诊断；原 `--minimum` 仍先诊断再验收。该入口用于发布质量验证，不用于对照架构的冷启动性能。
 

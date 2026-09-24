@@ -136,6 +136,14 @@ export interface RunReport {
   readonly status: RunStatus
   readonly businessResult: BusinessResult
   readonly stopReason: StopReason | null
+  readonly persistence?: {
+    readonly status: 'inconsistent' | 'verified' | 'not-final'
+    readonly issues: readonly string[]
+    readonly recordedStatus: RunStatus
+    readonly recordedBusinessResult: BusinessResult
+    readonly recordedStopReason: StopReason | null
+    readonly readConsistency: 'single-read-transaction'
+  }
   readonly findings: readonly Finding[]
   readonly usage: RunUsage
   readonly exploredStates: readonly string[]
