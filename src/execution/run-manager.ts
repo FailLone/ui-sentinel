@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import { getDbClient, initDatabase } from '../storage/database.ts'
 import { config } from '../shared/config.ts'
+import { cleanEvidenceIntegrity, interventionLimitation } from '../shared/evidence-integrity.ts'
 import type {
   Run,
   RunSpec,
@@ -214,8 +215,51 @@ export async function getEvents(runId: string, afterSeq?: number): Promise<reado
   return result.rows.map(rowToEvent)
 }
 
+/** Check saved receipts and the immutable origin of a hypothesis, not model-supplied labels. */
+export async function assertUnmodifiedEvidence(
+  runId: string,
+  evidenceRefs: readonly string[],
+  hypothesisId?: string | null,
+) {
+  const db = getDbClient()
+  const refs = new Set(evidenceRefs)
+  if (hypothesisId) {
+    const hypotheses = await db.execute({
+      sql: 'SELECT evidence_refs FROM hypotheses WHERE id=? AND run_id=?',
+      args: [hypothesisId, runId],
+    })
+    for (const row of hypotheses.rows)
+      for (const ref of JSON.parse(String(row.evidence_refs))) refs.add(ref)
+    const origins = await db.execute({
+      sql: "SELECT payload,evidence_refs FROM run_events WHERE run_id=? AND type='hypothesis:created'",
+      args: [runId],
+    })
+    for (const row of origins.rows)
+      if (JSON.parse(String(row.payload)).hypothesisId === hypothesisId) {
+        for (const ref of JSON.parse(String(row.evidence_refs))) refs.add(ref)
+      }
+  }
+  if (!refs.size) return
+  const artifacts = await db.execute({
+    sql: 'SELECT id,metadata FROM artifacts WHERE run_id=?',
+    args: [runId],
+  })
+  for (const row of artifacts.rows) {
+    if (!refs.has(String(row.id))) continue
+    const metadata = JSON.parse(String(row.metadata))
+    // Historical artifacts have no receipt. New executor captures and derived evidence do.
+    if (
+      metadata.evidenceIntegrity !== undefined &&
+      !cleanEvidenceIntegrity(metadata.evidenceIntegrity)
+    )
+      throw Error(interventionLimitation)
+  }
+}
+
 export async function submitFinding(finding: Omit<Finding, 'id' | 'createdAt'>): Promise<Finding> {
   const db = getDbClient()
+  if (['supported', 'refuted'].includes(finding.validationStatus))
+    await assertUnmodifiedEvidence(finding.runId, finding.evidenceRefs, finding.hypothesisId)
   const id = `finding-${randomUUID()}`
   const now = new Date().toISOString()
 
@@ -278,6 +322,12 @@ export async function recordHypothesis(
     ],
   })
 
+  await appendEvent(
+    h.runId,
+    'hypothesis:created',
+    { hypothesisId: id },
+    { evidenceRefs: [...h.evidenceRefs] },
+  )
   return full
 }
 
@@ -287,6 +337,11 @@ export async function updateHypothesis(
   evidenceRefs?: string[],
 ): Promise<void> {
   const db = getDbClient()
+  if (['supported', 'refuted'].includes(status)) {
+    const rows = await db.execute({ sql: 'SELECT run_id FROM hypotheses WHERE id=?', args: [id] })
+    if (rows.rows.length)
+      await assertUnmodifiedEvidence(String(rows.rows[0].run_id), evidenceRefs ?? [], id)
+  }
   const args: any[] = [status]
 
   let sql = 'UPDATE hypotheses SET status = ?'

@@ -170,6 +170,10 @@ Agent 可调用 `visual_review`，让 Qwen 分析当前保存的截图。页面�
 
 后台视觉分析尚未通过新增质量/性能门槛，默认关闭；`EXECUTION_EVIDENCE_ANALYSIS=1` 显式启用实验工具，现有视觉动作定位独立可用。`EXECUTION_ANALYSIS_MODE=serial` 使用相同分析工作量进行串行对照。`EXECUTION_MODEL_STREAMING=0`、`EXECUTION_SHORT_FINISH=0` 分别恢复非流式请求和旧收尾协议，用于诊断。所有请求仍共享原 Run 预算；这些开关不是增加预算的入口。
 
+`EXECUTION_ATOMIC_INVESTIGATION=1` 启用单次有类型调查，Agent 声明问题与条件，执行层完成连续测量并保存有界证据；目前保持默认关闭，正在正式验收。执行器干预导致的后续页面状态不能直接报告成站点缺陷，报告会保留来源与未验证范围。参见 [架构验证结果](plans/architecture-convergence-results.md)。
+
+完成独立诊断后，`pnpm experiment:acceptance -- --minimum-only` 运行真实 DeepSeek/Qwen smoke 和固定 18 轮正式 minimum，省去重复的六轮诊断；原 `--minimum` 仍先诊断再验收。该入口用于发布质量验证，不用于对照架构的冷启动性能。
+
 私有 `experiment:efficiency` 增加 `--phase visual-compare --protocol visual-1`：必须同时提供指向同一提交的 `--baseline-ref`、`--candidate-ref`；固定 C0/C2 各两对，共八轮，唯一调度差异为 serial/parallel。无需学习规则目录，禁止加载学习规则。`--protocol finish-1` 用于短收尾十二轮对照，保留原 `efficiency-1` 门槛。
 
 [关键路径实验记录](plans/critical-path-results-2026-09-23.md) 保留所有批次与失败。短收尾首批十二轮质量通过，但没有实现性能目标；并行能力成立也不等于端到端稳定提速。

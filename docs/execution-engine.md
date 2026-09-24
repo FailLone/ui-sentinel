@@ -738,3 +738,23 @@ Agent 在每次决策边界接收分析结果。请求 `run_finish` 时若仍有
 `pointer-interception` 与 `occlusion` 分开。命中采样只能支持“候选控件的指针被无关元素拦截”，不能证明弹窗像素覆盖该控件。`hypotheses_link_finding` 仅向前者提供已有 `overlay-blocking` 发现，并要求同一冻结证据与目标区域。支持的命题由执行层限定；视觉模型的自由观察文字保留在原分析中，不随关联一并被认可。视觉覆盖、焦点或时间类命题仍需各自适用的验证。
 
 当前版本没有独立的像素覆盖验证器：来自视觉分析的 `occlusion` 假设经普通 `findings_submit` 也不能被交互测量标成 supported/refuted；应保留为 inconclusive，并在结束时报告覆盖缺口。该限制不禁止候选发现，也不影响已由命中采样证明的 pointer-interception。截图模型自身的描述不是第二份独立验证证据。
+
+### 单次有类型调查（工具契约 22）
+
+`investigation_check` 把未知问题的登记、连续采样、有界判断和保存合并成一次工具调用。Agent 决定现象、公开依据、适用触发条件、当前 elementRef、语义目标、visible/actionable 条件、完整测量窗口与严重度；执行层不替它决定业务要求，也不发布规则或自动结束 Run。已有规则仍走 rule_check，其他未知问题保留旧调查工具。
+
+结果包含 hypothesisId、verdict、validationStatus、原始时间窗口、sampleCount、evidenceRefs、findingId 和 reused。相同操作、页面版本、实际 DOM 节点、谓词与窗口可以复用历史结果；新操作、节点替换、状态变化或显式 freshWindowReason 触发重新测量。复用不会改变原时间。缺失/替换节点、空值、取消或不完整窗口不能产生支持性结论。
+
+假设与发现使用执行层生成的有类型命题，Agent 原自由问题作为来源保存。仅证明测量开始后的指定窗口，不能回填之前已流逝的业务截止时间，不能证明永久故障、点击后的业务逻辑或像素覆盖。自动生成并保存的结果不需要再次 findings_submit，Agent 仍决定继续探索或调用 run_finish。
+
+`EXECUTION_ATOMIC_INVESTIGATION=1` 启用该候选，`0` 回退；当前仍处正式采用验收阶段。独立 C0–C5 比较和陌生预约业务结果见 `plans/architecture-convergence-results.md`，不能把含基线失败的总时间比当作同等质量提速。
+
+### 执行干预与证据来源（工具契约 23）
+
+阻止重复业务写入、拦截环境外请求、关闭不允许的新页面，都可能改变被检页面的行为。执行器先同步建立干预标记，再执行拦截并保存 execution:intervention，记录原因、URL、方法和时序。观察与测量带有不可由 Agent 修改的 evidenceIntegrity 记录；红框截图继承原图来源，不能通过派生图片去掉限制。假设初始证据另存为不可变事件，后续把状态改成 inconclusive 或换用旧证据也不能消除其受干预来源。
+
+干预后的页面可以继续观察用于复盘，但自动规则、声明式检查和未知调查不能对原业务流程给出支持/反驳结论。已知受干预时不再耗费一个完整采样窗口，返回 unknown 与原因；观察过程中发生干预也不能把已取得的 false 样本当作站点故障。持久化层拒绝用受影响证据提交 supported/refuted，规则候选生成与直接创建也执行同一约束。
+
+干预前的已验证业务结果、发现与原始证据保留；“测试环境被改变”不等于业务结果被推翻。其后整个 Run 的新页面状态保守视为受影响，滚动、重读、导航以及 Agent 清空探索分支都不能解除这一服务端范围缺口。需要新的可信 Run 才能重新建立独立现场。站点自身正常返回的失败不属于执行器干预，仍可检查真实恢复缺陷。
+
+Agent 仍主动请求结束。未验证的干预范围强制进入报告，短收尾采用 unverified-scope，业务结果可保留 success/rejected，但检查状态为 blocked，不能伪装完整通过。报告的 inspectionIntegrity 列出干预事件与受影响产物，unexploredBranches、unknownCount 与 coverage 保留这个缺口；即使异常退出或 Agent 未填写说明，也从持久化事件恢复。旧版本无来源标记的历史产物维持兼容，不追溯宣称已获得同等保证。

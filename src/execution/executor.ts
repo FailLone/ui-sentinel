@@ -1,3 +1,5 @@
+import { createEvidenceIntegrity } from './evidence-integrity.ts'
+import { cleanEvidenceIntegrity, interventionLimitation } from '../shared/evidence-integrity.ts'
 import {
   createTemporalInvestigator,
   temporalInvestigationInput,
@@ -213,6 +215,19 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
   const ruleEvaluationCache = createRuleEvaluationCache()
   const classifications: ProgressClassification[] = []
   const taskState = createTaskState(run.spec.goal)
+  const integrity = createEvidenceIntegrity()
+  const evidenceMetadata = () => ({ evidenceIntegrity: integrity.snapshot() })
+  const completionGaps = () => [...taskState.completionGaps(), ...integrity.gaps()]
+  async function recordIntervention(input: Parameters<typeof integrity.intervene>[0]) {
+    const intervention = integrity.intervene(input)
+    await appendEvent(
+      runId,
+      'execution:intervention',
+      { ...intervention, limitation: interventionLimitation },
+      { stepId },
+    )
+    return intervention
+  }
   const findingFacts = new Set<string>()
   const measurementFacts = new Set<string>()
   let noToolStreak = 0
@@ -243,6 +258,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
   let observeCount = 0
   let observationVersion: ObservationVersion | undefined
   let observedBusinessCount = -1
+  let observedIntegrityEpoch = -1
   let observationReused = false
   let latestChecks: Awaited<ReturnType<typeof runChecks>> | undefined
   const elementStore = createElementStore()
@@ -590,7 +606,8 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       })
       if (
         sameObservationVersion(observationVersion, before) &&
-        observedBusinessCount === businessResponses.length
+        observedBusinessCount === businessResponses.length &&
+        observedIntegrityEpoch === integrity.epoch()
       ) {
         observationReused = true
         await appendEvent(runId, 'observation:reused', {
@@ -603,7 +620,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       }
     }
     observeCount++
-    latest = await observePage(worker!.page, runId)
+    latest = await observePage(worker!.page, runId, evidenceMetadata)
     latestA11y = await captureA11yTree(worker!.page)
     let after = optimized ? await readObservationVersion(worker!.page) : undefined
     if (before?.reusable && after?.reusable && before.key !== after.key) {
@@ -612,7 +629,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         evidenceRefs: latest.evidenceRefs,
       })
       before = after
-      latest = await observePage(worker!.page, runId)
+      latest = await observePage(worker!.page, runId, evidenceMetadata)
       latestA11y = await captureA11yTree(worker!.page)
       after = await readObservationVersion(worker!.page)
       if (after.reusable && before.key !== after.key)
@@ -621,6 +638,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     observationVersion =
       before && after && sameObservationVersion(before, after) ? after : undefined
     observedBusinessCount = businessResponses.length
+    observedIntegrityEpoch = integrity.epoch()
     const snapshotId = `s${observeCount}`
     latestSlim = elementStore.registerSnapshot(
       snapshotId,
@@ -640,6 +658,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       { stepId, evidenceRefs: latest.evidenceRefs },
     )
     await checks()
+    if (!cleanEvidenceIntegrity(latest.snapshot.evidenceIntegrity)) return latest
     const response = businessResponses.at(-1)
     const text = latest.snapshot.text.replace(/\s+/g, ' ')
     let observed: BusinessResult = 'unknown'
@@ -779,6 +798,11 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         policyDenied.add(request)
         pendingWrites.delete(request)
         deniedWrites++
+        await recordIntervention({
+          kind: 'write-denied',
+          url: request.url(),
+          method: request.method(),
+        })
         await appendEvent(runId, 'write:denied', {
           reason: journeyReadOnly ? 'journey-read-only-boundary' : 'single-order-inspection',
           method: request.method(),
@@ -794,12 +818,22 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       )
         await route.continue()
       else {
+        policyDenied.add(request)
+        pendingWrites.delete(request)
+        await recordIntervention({
+          kind: 'access-denied',
+          url: request.url(),
+          method: request.method(),
+        })
         await appendEvent(runId, 'access:denied', { reason: 'outside-environment' })
         await route.abort()
       }
     })
     worker.context.on('page', (p) => {
-      if (p !== page) void p.close()
+      if (p !== page)
+        void recordIntervention({ kind: 'popup-denied', url: p.url() })
+          .then(() => p.close())
+          .catch(() => {})
     })
     await page.goto(run.spec.entryUrl, { waitUntil: 'domcontentloaded' })
     await observe()
@@ -857,23 +891,32 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       binding?: TransitionObservation['binding'],
       sample?: () => Promise<boolean | null>,
     ) {
-      if (input.durationMs > budget.totalTimeoutMs - Date.now() + startedAt - 250)
+      if (
+        !integrity.epoch() &&
+        input.durationMs > budget.totalTimeoutMs - Date.now() + startedAt - 250
+      )
         throw new Error('Insufficient time to complete measurement')
-      const window = await sampleWindow({
-        durationMs: input.durationMs,
-        guard,
-        sample: () =>
-          sample ? sample() : sampleElementCondition(page, input.selector, input.condition),
-      })
+      const window = integrity.epoch()
+        ? { startedAtMs: Date.now(), samples: [] as { atMs: number; value: boolean | null }[] }
+        : await sampleWindow({
+            durationMs: input.durationMs,
+            guard,
+            sample: () =>
+              sample ? sample() : sampleElementCondition(page, input.selector, input.condition),
+          })
       const startedAtMs = window.startedAtMs
       const samples = window.samples.map((s) => ({ ...s, target: input.target }))
       const obs = await observe()
       const measurement = {
         elementRef: input.elementRef,
-        evidenceStatus: samples.some((s) => s.value === null) ? 'unknown' : 'complete',
-        summary: samples.some((s) => s.value === null)
-          ? 'Unknown samples mean the target was missing, ambiguous or replaced. They are not false and cannot support or refute a claim; rebind a current elementRef or report inconclusive.'
-          : 'Read-only samples are complete for this target and window; interpret them against the hypothesis.',
+        evidenceIntegrity: integrity.snapshot(),
+        evidenceStatus:
+          integrity.epoch() || samples.some((s) => s.value === null) ? 'unknown' : 'complete',
+        summary: integrity.epoch()
+          ? interventionLimitation
+          : samples.some((s) => s.value === null)
+            ? 'Unknown samples mean the target was missing, ambiguous or replaced. They are not false and cannot support or refute a claim; rebind a current elementRef or report inconclusive.'
+            : 'Read-only samples are complete for this target and window; interpret them against the hypothesis.',
         condition: input.condition,
         selector: input.selector,
         eventType: input.eventType,
@@ -885,7 +928,12 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         samples,
         evidenceRefs: [...obs.evidenceRefs],
       }
-      const ref = await saveEvidence(runId, 'measurement', JSON.stringify(measurement))
+      const ref = await saveEvidence(
+        runId,
+        'measurement',
+        JSON.stringify(measurement),
+        evidenceMetadata(),
+      )
       measurement.evidenceRefs.push(ref)
       transitions.push(measurement)
       await appendEvent(runId, 'transition:observed', measurement, {
@@ -909,7 +957,8 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     if (config.optimizations?.atomicInvestigation)
       temporalInvestigator = createTemporalInvestigator({
         guard,
-        epoch: () => JSON.stringify([usage.actions, businessResponses.length, page.url()]),
+        epoch: () =>
+          JSON.stringify([usage.actions, businessResponses.length, page.url(), integrity.epoch()]),
         version: async () => {
           const version = await readObservationVersion(page)
           return version.reusable ? version.key : undefined
@@ -1088,6 +1137,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     const inspectionSummary = () => ({
       snapshotId: latestSlim?.snapshotId,
       observationReused,
+      evidenceIntegrity: integrity.snapshot(),
       automaticChecks: latestChecks?.results.map(({ ruleId, verdict, actual, evidenceRefs }) => ({
         ruleId,
         verdict,
@@ -1095,10 +1145,10 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         evidenceRefs,
       })),
       completedRuleChecks: ruleCheckResults.slice(-12),
-      applicableGaps: taskState.completionGaps(),
+      applicableGaps: completionGaps(),
       finishAdvice: {
         businessResult,
-        blocked: businessResult === 'unknown' || taskState.completionGaps().length > 0,
+        blocked: businessResult === 'unknown' || completionGaps().length > 0,
         note: 'Automatic checks are already saved. Once scope is covered, call run_finish; do not repeat observe/checks just to confirm these results. Novel issues still require investigation.',
       },
     })
@@ -1297,7 +1347,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
             }, beforeText)
           : null
         if (timing) {
-          const feedback = await observePage(page, runId)
+          const feedback = await observePage(page, runId, evidenceMetadata)
           await appendEvent(
             runId,
             'response:observed',
@@ -1333,6 +1383,8 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         await observe()
         return {
           error: String(error),
+          evidenceIntegrity: integrity.snapshot(),
+          ...(integrity.epoch() ? { limitation: interventionLimitation } : {}),
           action: input,
           status: 'failed',
           elements: referenceIndex(),
@@ -1832,7 +1884,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
                 }
               const d = contract.declaration
               const fingerprint = JSON.stringify(detail.element)
-              if (!input.hypothesisId) {
+              if (!input.hypothesisId && !integrity.epoch()) {
                 for (const cached of boundCache) {
                   if (
                     cached.result.ruleId === input.ruleId &&
@@ -1889,7 +1941,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
                     d.expectation.condition as 'element-visible' | 'element-actionable',
                   ),
               )
-              const verdict = evaluateTransition(d, measurement)
+              const verdict = integrity.epoch() ? 'unknown' : evaluateTransition(d, measurement)
               let findingId: string | undefined
               if (verdict === 'fail') {
                 const f = await submitFinding({
@@ -2148,7 +2200,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
             return {
               state: input.state,
               task: taskState.snapshot(),
-              missingFacts: taskState.completionGaps(),
+              missingFacts: completionGaps(),
             }
           }),
       }),
@@ -2181,14 +2233,19 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
             await observe()
             const pendingRules = await pendingKnownRules()
             const gaps = [
-              ...taskState.completionGaps(),
+              ...completionGaps(),
               ...analysisGaps(),
               ...(pendingRules
                 ? [`known-rules:${pendingRules} applicable checks pending; use rules_search`]
                 : []),
             ]
             const input =
-              'reason' in parsed ? resolveShortFinish(parsed, { businessResult, gaps }) : parsed
+              'reason' in parsed
+                ? resolveShortFinish(integrity.epoch() ? { reason: 'unverified-scope' } : parsed, {
+                    businessResult,
+                    gaps,
+                  })
+                : parsed
             const missingOutcome =
               input.businessResult !== 'unknown' && input.businessResult !== businessResult
             const unsupportedBlock =
@@ -2394,9 +2451,10 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         },
         notes: notes.slice(-10),
         task: taskState.snapshot(),
+        evidenceIntegrity: integrity.snapshot(),
         finishReadiness: {
           businessResult,
-          applicableGaps: taskState.completionGaps(),
+          applicableGaps: completionGaps(),
           note: 'When applicable checks are complete request run_finish. Untriggered branches are not blockers; processing status failed maps to unknown, blocked=true.',
         },
         businessOutcomeObserved: {

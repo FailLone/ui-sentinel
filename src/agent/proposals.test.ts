@@ -69,6 +69,34 @@ it('requires confirmed feedback before spending a model request', async () => {
   await expect(generateRuleProposal(finding.id)).rejects.toThrow('Human confirmation')
   expect(model.generate).not.toHaveBeenCalled()
 })
+it('rejects executor-intervened evidence before a model call or a direct rule draft, even with confirmation', async () => {
+  const { run, finding } = await fixture()
+  await getDbClient().execute({
+    sql: 'INSERT INTO artifacts (id,run_id,type,file_path,metadata) VALUES (?,?,?,?,?)',
+    args: [
+      'owned-measurement',
+      run.id,
+      'measurement',
+      '/not-read-by-this-test',
+      JSON.stringify({
+        evidenceIntegrity: { version: 1, status: 'intervened', interventionIds: ['denied'] },
+      }),
+    ],
+  })
+  model.generate.mockClear()
+  await expect(generateRuleProposal(finding.id)).rejects.toThrow('inspection-intervention')
+  expect(model.generate).not.toHaveBeenCalled()
+  const { createProposal } = await import('../rules/proposal.ts')
+  await expect(
+    createProposal(finding.id, {
+      ...declaration,
+      type: 'transition',
+      severity: 'error',
+      trigger: { eventType: 'retryable-failure' },
+      expectation: { condition: 'element-actionable', target: 'Retry button', timeoutMs: 5000 },
+    }),
+  ).rejects.toThrow('inspection-intervention')
+})
 it('generates an unapproved draft using only finding-linked observations and records usage', async () => {
   const { run, finding } = await fixture()
   await appendEvent(run.id, 'transition:observed', {

@@ -16,6 +16,7 @@ export interface RuleEvent {
 }
 
 export interface PageSnapshot {
+  readonly evidenceIntegrity?: import('../shared/evidence-integrity.ts').EvidenceIntegrity
   readonly url: string
   readonly title: string
   readonly viewport: { readonly width: number; readonly height: number }

@@ -1,3 +1,4 @@
+import type { EvidenceIntegrity } from '../shared/evidence-integrity.ts'
 import { profileOperation } from './profiling.ts'
 import { chromium, type Browser, type BrowserContext, type Page } from 'playwright'
 import * as path from 'node:path'
@@ -125,12 +126,21 @@ export function isAllowedPageUrl(raw: string, entryUrl: string): boolean {
   }
 }
 
-export async function observePage(page: Page, runId: string) {
+export async function observePage(
+  page: Page,
+  runId: string,
+  evidenceMetadata: () => { evidenceIntegrity?: EvidenceIntegrity } = () => ({}),
+) {
   const screenshotPath = await saveEvidence(
     runId,
     'screenshot',
     await profileOperation('screenshot', () => page.screenshot({ fullPage: false })),
-    { url: page.url(), viewport: page.viewportSize(), capturedAt: new Date().toISOString() },
+    {
+      url: page.url(),
+      viewport: page.viewportSize(),
+      capturedAt: new Date().toISOString(),
+      ...evidenceMetadata(),
+    },
   )
   const observation = await profileOperation('dom', () =>
     page.evaluate(() => {
@@ -218,8 +228,9 @@ export async function observePage(page: Page, runId: string) {
       }
     }),
   )
-  const snapshot = { ...observation, screenshotPath }
-  const snapshotRef = await saveEvidence(runId, 'snapshot', JSON.stringify(snapshot))
+  const metadata = evidenceMetadata()
+  const snapshot = { ...observation, screenshotPath, ...metadata }
+  const snapshotRef = await saveEvidence(runId, 'snapshot', JSON.stringify(snapshot), metadata)
   return { snapshot, evidenceRefs: [screenshotPath, snapshotRef] }
 }
 
@@ -233,10 +244,11 @@ export async function annotateEvidence(
 ): Promise<string> {
   const { getDbClient } = await import('../storage/database.ts')
   const result = await getDbClient().execute({
-    sql: 'SELECT file_path FROM artifacts WHERE id=? AND run_id=? AND type=?',
+    sql: 'SELECT file_path,metadata FROM artifacts WHERE id=? AND run_id=? AND type=?',
     args: [sourceId, runId, 'screenshot'],
   })
   if (!result.rows.length) throw new Error('Original screenshot missing')
+  const sourceMetadata = JSON.parse(String(result.rows[0].metadata))
   const png = await fs.readFile(String(result.rows[0].file_path))
   const context = await browser.newContext({ viewport, serviceWorkers: 'block' })
   try {
@@ -254,6 +266,9 @@ export async function annotateEvidence(
       sourceRef: sourceId,
       coordinateSource: 'DOM hit-test',
       rectangles: rects,
+      ...(sourceMetadata.evidenceIntegrity === undefined
+        ? {}
+        : { evidenceIntegrity: sourceMetadata.evidenceIntegrity }),
     })
   } finally {
     await context.close()

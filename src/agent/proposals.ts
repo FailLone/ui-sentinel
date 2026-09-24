@@ -5,7 +5,7 @@ import { z } from 'zod'
 import { getDbClient } from '../storage/database.ts'
 import { config, checkModelConfig } from '../shared/config.ts'
 import { agentModel } from '../shared/model.ts'
-import { appendEvent } from '../execution/run-manager.ts'
+import { appendEvent, assertUnmodifiedEvidence } from '../execution/run-manager.ts'
 import { createProposal } from '../rules/proposal.ts'
 
 const schema = z.object({
@@ -43,6 +43,11 @@ export async function generateRuleProposal(
   })
   if (feedback.rows[0]?.verdict !== 'confirmed')
     throw new Error('Human confirmation required before proposal generation')
+  await assertUnmodifiedEvidence(
+    String(f.run_id),
+    JSON.parse(String(f.evidence_refs)),
+    f.hypothesis_id == null ? undefined : String(f.hypothesis_id),
+  )
   const observations = await db.execute({
     sql: "SELECT payload FROM run_events WHERE run_id=? AND type='transition:observed' ORDER BY seq",
     args: [f.run_id!],

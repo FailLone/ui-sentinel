@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto'
 import { getDbClient } from '../storage/database.ts'
+import { assertUnmodifiedEvidence } from '../execution/run-manager.ts'
 import type { RuleProposal, RuleProposalStatus, RuleTestResult } from '../shared/types.ts'
 
 import {
@@ -21,13 +22,19 @@ export async function createProposal(
   const now = new Date().toISOString()
 
   validateRuleConfig(ruleConfig)
-  const finding = await db.execute({ sql: 'SELECT id FROM findings WHERE id=?', args: [findingId] })
+  const finding = await db.execute({ sql: 'SELECT * FROM findings WHERE id=?', args: [findingId] })
   const feedback = await db.execute({
     sql: 'SELECT verdict FROM finding_feedback WHERE finding_id=? ORDER BY created_at DESC,rowid DESC LIMIT 1',
     args: [findingId],
   })
   if (!finding.rows.length || feedback.rows[0]?.verdict !== 'confirmed')
     throw new Error('A human-confirmed finding is required')
+  const origin = finding.rows[0]!
+  await assertUnmodifiedEvidence(
+    String(origin.run_id),
+    JSON.parse(String(origin.evidence_refs)),
+    origin.hypothesis_id == null ? undefined : String(origin.hypothesis_id),
+  )
 
   const proposal: RuleProposal = {
     id,

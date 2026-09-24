@@ -7,8 +7,9 @@ import { resolve } from 'node:path'
 import { startGateway, AGENT_MODEL, VISION_MODEL } from './openrouter-gateway.ts'
 
 const args = process.argv.slice(2).filter((a) => a !== '--')
-if (args.some((a) => a !== '--minimum'))
-  throw Error('Usage: pnpm experiment:acceptance [--minimum]')
+const minimumOnly = args.includes('--minimum-only')
+if (args.some((a) => !['--minimum', '--minimum-only'].includes(a)) || args.length > 1)
+  throw Error('Usage: pnpm experiment:acceptance [--minimum | --minimum-only]')
 const key = process.env.OPENROUTER_API_KEY
 if (!key) throw Error('configuration-missing: OPENROUTER_API_KEY')
 const dir = resolve('data/acceptance', new Date().toISOString().replace(/[:.]/g, '-'))
@@ -110,11 +111,18 @@ try {
   pricing = selected
   await write('models.json', selected)
   console.log(
-    `Workload: real DeepSeek/Qwen smoke + six diagnostic runs${args.includes('--minimum') ? ' + fixed 18-run acceptance' : ''}; estimated budget limit $${maxCostUsd}.`,
+    `Workload: real DeepSeek/Qwen smoke${minimumOnly ? ' + fixed 18-run acceptance' : ' + six diagnostic runs' + (args.includes('--minimum') ? ' + fixed 18-run acceptance' : '')}; estimated budget limit $${maxCostUsd}.`,
   )
   const sourceDiff = execFileSync('git', ['diff', 'HEAD'], { encoding: 'utf8' })
   await writeFile(resolve(dir, 'runner.patch'), sourceDiff)
   const metadata = {
+    commit: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
+    mode: minimumOnly
+      ? 'minimum-only'
+      : args.includes('--minimum')
+        ? 'diagnostic-and-minimum'
+        : 'diagnostic',
+    atomicInvestigation: env.EXECUTION_ATOMIC_INVESTIGATION === '1',
     agentProvider: process.env.EXPERIMENT_AGENT_PROVIDER ?? 'auto',
     visionProvider: process.env.EXPERIMENT_VISION_PROVIDER ?? 'auto',
     reasoning: { agent: 'low', vision: 'disabled' },
@@ -170,16 +178,16 @@ try {
     },
     afterRun: () => gateway.end(),
   })
-  const diagnostic = await runEvaluation(options('diagnostic', 1))
-  await write('diagnostic-result.json', diagnostic)
-  if (!('allPassed' in diagnostic) || !diagnostic.allPassed) {
+  const diagnostic = minimumOnly ? undefined : await runEvaluation(options('diagnostic', 1))
+  if (diagnostic) await write('diagnostic-result.json', diagnostic)
+  if (diagnostic && (!('allPassed' in diagnostic) || !diagnostic.allPassed)) {
     await write('next-stage.json', {
       minimum: 'not-started',
       learning: 'not-started',
       reason: 'Diagnostic failures need investigation before the fixed 18-run batch.',
     })
     process.exitCode = 1
-  } else if (args.includes('--minimum')) {
+  } else if (minimumOnly || args.includes('--minimum')) {
     const minimum = await runEvaluation(options('minimum', 3))
     await write('minimum-result.json', minimum)
     if (!minimum.gatePassed) process.exitCode = 1

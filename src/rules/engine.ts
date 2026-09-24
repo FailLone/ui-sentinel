@@ -1,5 +1,6 @@
 import type { Rule, RuleContext, RuleResult } from './types.ts'
 import { ruleApplicability, type createRuleEvaluationCache } from './routing.ts'
+import { cleanEvidenceIntegrity, interventionLimitation } from '../shared/evidence-integrity.ts'
 
 const registry = new Map<string, Rule>()
 
@@ -32,6 +33,29 @@ export async function runChecks(
   options?: { route: boolean; cache: ReturnType<typeof createRuleEvaluationCache> },
 ): Promise<ChecksRunResult> {
   const enabled = getEnabledRules()
+
+  // Do not run a rule or reuse its cache against an executor-altered environment.
+  if (
+    context.snapshot.evidenceIntegrity !== undefined &&
+    !cleanEvidenceIntegrity(context.snapshot.evidenceIntegrity)
+  ) {
+    return {
+      evaluatedCount: 0,
+      summary: interventionLimitation,
+      results: enabled.map((rule) => ({
+        ruleId: rule.id,
+        ruleRevision: rule.revision,
+        verdict: 'unknown' as const,
+        severity: 'info' as const,
+        title: 'Inspection environment changed by executor',
+        expected: 'Evidence from an unmodified business flow',
+        actual: interventionLimitation,
+        confidence: 0,
+        evidenceRefs: [],
+        details: { evidenceIntegrity: context.snapshot.evidenceIntegrity },
+      })),
+    }
+  }
 
   if (enabled.length === 0) {
     return {

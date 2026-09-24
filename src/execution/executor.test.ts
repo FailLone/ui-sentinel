@@ -66,6 +66,19 @@ let url = '',
   responseDelay = 0
 const ids: string[] = []
 const server = createServer((req, res) => {
+  if (req.url === '/intervention-page') {
+    res.setHeader('content-type', 'text/html')
+    res.end(`<h1>Checkout</h1><button id="pay">Pay</button><button disabled>Required helper</button><script>
+      document.getElementById('pay').onclick=async function(){
+        this.disabled=true;this.textContent='Retrying...';
+        try{const r=await fetch('/failed-payment',{method:'POST'});const d=await r.json();
+          document.querySelector('h1').textContent=d.message+' '+d.orderId;
+          this.textContent='Try Again';this.disabled=false;
+        }catch{document.querySelector('h1').textContent='Unexpected error order-failed';}
+      };
+    </script>`)
+    return
+  }
   if (req.url === '/journey-page') {
     res.setHeader('content-type', 'text/html')
     res.end(`<h1>Catalog</h1><button>Open cart</button><script>
@@ -161,6 +174,7 @@ afterAll(async () => {
   await Promise.all(ids.map((id) => rm(`data/artifacts/${id}`, { recursive: true, force: true })))
 })
 beforeEach(() => {
+  config.optimizations.atomicInvestigation = false
   config.optimizations.shortFinish = false
   config.optimizations.evidenceAnalysis = false
   config.optimizations.analysisMode = 'parallel'
@@ -1188,15 +1202,213 @@ it('probes without writing and denies a second business write before network dis
     expect(writes).toBe(1)
     await call(tools, 'run_finish', {
       businessResult: 'success',
-      blocked: false,
+      blocked: true,
       summary: 'Original evidence retained; repeat denied',
     })
   }
   const run = await makeRun()
   await startRunExecution(run.id)
-  expect((await getRun(run.id))?.status).toBe('completed')
+  expect((await getRun(run.id))?.status).toBe('blocked')
+  expect((await getRun(run.id))?.businessResult).toBe('success')
   expect((await getEvents(run.id)).some((e) => e.type === 'write:denied')).toBe(true)
 })
+it.each([false, true])(
+  'does not turn a policy-induced disabled retry into a supported defect (atomic=%s)',
+  async (atomic) => {
+    config.optimizations.atomicInvestigation = atomic
+    config.optimizations.shortFinish = true
+    registerRule({
+      id: 'retry-control-test',
+      revision: '1',
+      name: 'Recovery control',
+      description: 'Inspect recovery',
+      category: 'interaction',
+      enabled: true,
+      async evaluate(ctx) {
+        return {
+          ruleId: this.id,
+          ruleRevision: '1',
+          verdict: ctx.snapshot.elements.some(
+            (e) => e.text === 'Retrying...' && e.enabled === false,
+          )
+            ? 'fail'
+            : 'pass',
+          severity: 'error',
+          title: 'Disabled recovery',
+          expected: 'Operable recovery',
+          actual: 'Recovery state',
+          evidenceRefs: [],
+          confidence: 1,
+          details: {},
+        }
+      },
+    })
+    registerRule(
+      compileTransitionRule('learned-retry', {
+        type: 'transition',
+        name: 'Recovery becomes operable',
+        description: 'Operable recovery expected',
+        trigger: { eventType: 'retryable-failure' },
+        expectation: { condition: 'element-actionable', target: 'Recovery', timeoutMs: 250 },
+        severity: 'error',
+      }),
+    )
+    const run = await createRun({
+      goal: 'Inspect recovery; Required helper must always be operable.',
+      environmentId: 'test',
+      entryUrl: url + '/intervention-page',
+    })
+    ids.push(run.id)
+    let savedFinding = ''
+    let clean: any
+    harness.handler = async (tools: any, prompt: string) => {
+      if (harness.models === 1) {
+        clean = await call(tools, 'page_act', { type: 'click', role: 'button', name: 'Pay' })
+        const hypothesis = await call(tools, 'hypotheses_record', {
+          phenomenon: 'Required helper is disabled',
+          basis: 'Goal requires an operable helper; snapshot has enabled=false.',
+          verificationPlan: 'Inspect the saved DOM state',
+          trigger: 'always',
+        })
+        const finding = await call(tools, 'findings_submit', {
+          hypothesisId: hypothesis.id,
+          validationStatus: 'supported',
+          severity: 'error',
+          title: 'Required helper disabled',
+          expected: 'Helper enabled',
+          actual: 'Visible helper has enabled=false',
+          evidenceRefs: clean.evidenceRefs,
+        })
+        savedFinding = finding.id
+        const trigger = (await getEvents(run.id)).find((e) => e.type === 'business:response')!
+        const healthyRef = clean.elements.find((e: any) => e.text === 'Try Again').ref
+        expect(
+          await call(tools, 'rule_check', {
+            ruleId: 'learned-retry',
+            elementRef: healthyRef,
+            triggerEvidenceRefs: [trigger.id],
+            hypothesisIds: [],
+            bindingReason: 'Visible recovery for the failed operation',
+          }),
+        ).toMatchObject({ verdict: 'pass' })
+
+        const denied = await call(tools, 'page_act', {
+          type: 'click',
+          role: 'button',
+          name: 'Try Again',
+        })
+        expect(denied.error).toContain('write-denied')
+        expect(denied.evidenceIntegrity.status).toBe('intervened')
+        const bad = denied.elements.find((e: any) => e.text === 'Retrying...')
+        expect(bad.enabled).toBe(false)
+        expect(writes).toBe(1)
+        const bound = await call(tools, 'rule_check', {
+          ruleId: 'learned-retry',
+          elementRef: bad.ref,
+          triggerEvidenceRefs: [trigger.id],
+          hypothesisIds: [],
+          bindingReason: 'Same recovery after an execution intervention',
+        })
+        expect(bound.verdict).toBe('unknown')
+        return
+      }
+      const bad = JSON.parse(prompt).observation.elements.find((e: any) => e.text === 'Retrying...')
+      if (atomic) {
+        expect(
+          await call(tools, 'investigation_check', {
+            phenomenon: 'Recovery disabled after denied write',
+            basis: 'Actual button now disabled',
+            trigger: 'retryable-failure',
+            elementRef: bad.ref,
+            target: 'Recovery',
+            condition: 'element-actionable',
+            durationMs: 5000,
+            severity: 'error',
+            freshWindowReason: '',
+          }),
+        ).toMatchObject({
+          verdict: 'unknown',
+          validationStatus: 'inconclusive',
+          sampleCount: 0,
+          evidenceIntegrity: { status: 'intervened' },
+        })
+      } else {
+        const h = await call(tools, 'hypotheses_record', {
+          phenomenon: 'Recovery disabled after denied write',
+          basis: 'Actual button now disabled',
+          verificationPlan: 'Measure actionability',
+          trigger: 'retryable-failure',
+        })
+        const measurement = await call(tools, 'transition_observe', {
+          hypothesisId: h.id,
+          eventType: 'retryable-failure',
+          target: 'Recovery',
+          elementRef: bad.ref,
+          condition: 'element-actionable',
+          durationMs: 5000,
+        })
+        expect(measurement).toMatchObject({
+          evidenceStatus: 'unknown',
+          samples: [],
+          evidenceIntegrity: { status: 'intervened' },
+        })
+        const claim = {
+          hypothesisId: h.id,
+          validationStatus: 'supported',
+          severity: 'error',
+          title: 'Recovery defect',
+          expected: 'Operable control',
+          actual: 'Control disabled',
+        }
+        await expect(
+          call(tools, 'findings_submit', { ...claim, evidenceRefs: measurement.evidenceRefs }),
+        ).rejects.toThrow('inspection-intervention')
+        // Clean historical artifacts cannot launder a hypothesis originating in an intervened state.
+        await expect(
+          call(tools, 'findings_submit', { ...claim, evidenceRefs: clean.evidenceRefs }),
+        ).rejects.toThrow('inspection-intervention')
+        await call(tools, 'findings_submit', {
+          ...claim,
+          validationStatus: 'inconclusive',
+          evidenceRefs: measurement.evidenceRefs,
+        })
+      }
+      // User navigation and clearing Agent-authored branches do not clear this server-owned gap.
+      const observed = await call(tools, 'page_act', {
+        type: 'navigate',
+        url: url + '/intervention-page',
+      })
+      expect(observed.inspection.evidenceIntegrity.status).toBe('intervened')
+      await call(tools, 'exploration_update', {
+        state: 'inspection limited by policy',
+        unexploredBranches: [],
+      })
+      expect(await call(tools, 'run_finish', { reason: 'unverified-scope' })).toMatchObject({
+        accepted: true,
+      })
+    }
+    await startRunExecution(run.id)
+    expect((await getRun(run.id))?.status).toBe('blocked')
+    const supported = (await getFindings(run.id)).filter((f) => f.validationStatus === 'supported')
+    expect(supported.map((f) => f.id)).toEqual([savedFinding])
+    const events = await getEvents(run.id)
+    const intervention = events.find((e) => e.type === 'execution:intervention')!
+    expect(
+      events
+        .filter((e) => e.seq > intervention.seq && e.type === 'rule:evaluated')
+        .every((e) => e.payload.verdict === 'unknown'),
+    ).toBe(true)
+    const { buildReport } = await import('../server/routes/runs.ts')
+    const report = await buildReport(run.id)
+    expect(report?.inspectionIntegrity.status).toBe('intervened')
+    expect(report?.inspectionIntegrity.affectedArtifactIds.length).toBeGreaterThan(0)
+    expect(report?.unexploredBranches.some((s) => s.startsWith('inspection-intervention:'))).toBe(
+      true,
+    )
+    expect(report?.unknownCount).toBeGreaterThan(0)
+  },
+)
+
 it('accepts completed applicable checks while reporting untriggered branches separately', async () => {
   harness.handler = async (tools: any) => {
     await call(tools, 'page_act', { type: 'click', role: 'button', name: 'Buy' })

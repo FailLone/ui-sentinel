@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import type { Rule } from './types.ts'
+import { cleanEvidenceIntegrity, type EvidenceIntegrity } from '../shared/evidence-integrity.ts'
 
 export interface TransitionRuleConfig {
   readonly type: 'transition'
@@ -18,6 +19,7 @@ export interface TransitionRuleConfig {
   readonly severity: 'error' | 'warning'
 }
 export interface TransitionObservation {
+  readonly evidenceIntegrity?: EvidenceIntegrity
   readonly binding?: {
     readonly id: string
     readonly ruleId: string
@@ -88,6 +90,11 @@ export function evaluateTransition(
 ): 'pass' | 'fail' | 'unknown' {
   validateRuleConfig(config)
   if (!observationSchema.safeParse(observation).success) return 'unknown'
+  if (
+    observation.evidenceIntegrity !== undefined &&
+    !cleanEvidenceIntegrity(observation.evidenceIntegrity)
+  )
+    return 'unknown'
   if (observation.condition && observation.condition !== config.expectation.condition)
     return 'unknown'
   if (

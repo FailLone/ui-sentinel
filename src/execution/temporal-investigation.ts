@@ -2,6 +2,7 @@ import { z } from 'zod'
 import type { ElementHandle } from 'playwright'
 import { evaluateTransition, type TransitionObservation } from '../rules/transition.ts'
 import { hypothesisTriggers } from './task-state.ts'
+import type { EvidenceIntegrity } from '../shared/evidence-integrity.ts'
 
 export const temporalInvestigationInput = z.object({
   phenomenon: z.string().min(1).max(800),
@@ -22,6 +23,7 @@ type BoundTarget = {
   version?: string
 }
 export interface InvestigationResult {
+  evidenceIntegrity?: EvidenceIntegrity
   hypothesisId: string
   verdict: 'pass' | 'fail' | 'unknown'
   validationStatus: 'supported' | 'refuted' | 'inconclusive'
@@ -105,6 +107,7 @@ export function createTemporalInvestigator(deps: {
               measurement,
             )
         const result: InvestigationResult = {
+          evidenceIntegrity: measurement.evidenceIntegrity,
           hypothesisId,
           verdict,
           validationStatus:
@@ -121,7 +124,7 @@ export function createTemporalInvestigator(deps: {
           scope:
             'Only the declared DOM condition on the bound node during this recorded window. Does not prove pixel covering, click-handler behavior, permanent failure, or what happened before measurement began. The Agent owns requirement applicability and semantic target selection.',
         }
-        const actual = `${input.target}: ${input.condition} ${verdict === 'fail' ? 'was false throughout the covered window' : verdict === 'pass' ? 'was true at a sampled point within the window' : 'could not be conclusively evaluated'}; ${measurement.samples.length} samples, evaluated interval ${measurement.startedAtMs}–${measurement.startedAtMs + input.durationMs}, declared duration ${input.durationMs}ms. This is a bounded observation, not a claim about an earlier deadline or permanent state.`
+        const actual = `${input.target}: ${input.condition} ${verdict === 'fail' ? 'was false throughout the covered window' : verdict === 'pass' ? 'was true at a sampled point within the window' : 'could not be conclusively evaluated'}; ${measurement.samples.length} samples, declared interval ${measurement.startedAtMs}–${measurement.startedAtMs + input.durationMs}, declared duration ${input.durationMs}ms. This is a bounded observation, not a claim about an earlier deadline or permanent state.`
         result.findingId = await deps.complete(input, result, actual)
         deps.guard()
         const version = await deps.version()

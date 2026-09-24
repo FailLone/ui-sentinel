@@ -1,3 +1,4 @@
+import { interventionLimitation } from '../../shared/evidence-integrity.ts'
 import { unresolvedAnalyses } from '../../execution/evidence-analysis/coverage.ts'
 import type { AnalysisTask } from '../../execution/evidence-analysis/queue.ts'
 import { Hono } from 'hono'
@@ -252,15 +253,21 @@ export async function buildReport(runId: string) {
         conditions?: unknown[]
       }
     | undefined
-  const unexploredBranches = lastTask?.unexploredBranches
-    ? lastTask.unexploredBranches
-        .filter((b) => typeof b === 'string' || b.applicability !== 'not-triggered')
-        .map((b) => (typeof b === 'string' ? b : b.description))
-    : events
-        .filter(
-          (e) => e.type === 'exploration:branch-skipped' || e.type === 'exploration:branch-pending',
-        )
-        .map((e) => String(e.payload.branch ?? 'unknown'))
+  const interventions = events.filter((e) => e.type === 'execution:intervention')
+  const unverifiedInterventionScope = interventions.length ? [interventionLimitation] : []
+  const unexploredBranches = [
+    ...(lastTask?.unexploredBranches
+      ? lastTask.unexploredBranches
+          .filter((b) => typeof b === 'string' || b.applicability !== 'not-triggered')
+          .map((b) => (typeof b === 'string' ? b : b.description))
+      : events
+          .filter(
+            (e) =>
+              e.type === 'exploration:branch-skipped' || e.type === 'exploration:branch-pending',
+          )
+          .map((e) => String(e.payload.branch ?? 'unknown'))),
+    ...unverifiedInterventionScope,
+  ]
   const untriggeredBranches =
     lastTask?.unexploredBranches?.filter(
       (b) => typeof b !== 'string' && b.applicability === 'not-triggered',
@@ -293,6 +300,13 @@ export async function buildReport(runId: string) {
         .filter((f) => ['candidate', 'inconclusive'].includes(f.validationStatus))
         .map((f) => f.id),
     },
+    inspectionIntegrity: {
+      status: interventions.length ? 'intervened' : 'no-recorded-intervention',
+      interventions: interventions.map((e) => ({ ...e.payload, eventId: e.id, seq: e.seq })),
+      affectedArtifactIds: artifacts
+        .filter((a) => a.metadata.evidenceIntegrity?.status === 'intervened')
+        .map((a) => a.id),
+    },
     findings,
     usage: run.usage,
     budget: run.spec.budget,
@@ -309,12 +323,14 @@ export async function buildReport(runId: string) {
     evaluatedRuleCount: evaluations.length,
     unknownCount:
       evaluations.filter((e) => e.verdict === 'unknown').length +
-      findings.filter((f) => f.validationStatus === 'inconclusive').length,
+      findings.filter((f) => f.validationStatus === 'inconclusive').length +
+      unverifiedInterventionScope.length,
     coverage: {
       exploredStates,
       unexploredBranches,
       checks: evaluations.length ? 'checked' : 'not-checked',
       executionErrors,
+      unverifiedInterventionScope,
       unverifiedAnalysisTasks: unresolvedAnalyses(analysisTasks).map((t) => t.id),
       stopReason: run.stopReason,
     },
