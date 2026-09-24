@@ -34,6 +34,40 @@ type Report = RunReport & {
   persistence?: { status: string; issues: string[] }
   coverage?: unknown
   hypotheses?: unknown[]
+  business?: {
+    status: 'versioned' | 'legacy-unversioned'
+    profileId: string | null
+    revision: string | null
+    hash: string | null
+    adapter: { id: string; revision: string } | null
+    requirements: { id: string; revision: string; text: string; source: unknown }[]
+    effects: { maxCreates: number; maxRetriesPerOperation: number } | null
+    environment: { id: string; entryUrl: string; publicOrigin: string } | null
+    integrity: 'verified' | 'hash-mismatch' | 'not-applicable'
+  }
+}
+
+/** The public catalogue entry for a business profile. Carries no ports, tokens or answers. */
+type ProfileOption = {
+  id: string
+  revision: string
+  name: string
+  description: string
+  environments: readonly string[]
+  defaultEnvironment: string
+}
+
+/**
+ * The business the workbench offers.
+ *
+ * A profile's own `defaultEnvironment` and `entryUrl` come from the server's contract resolution,
+ * never from a client-side guess: the environment a run belongs to is part of what is being
+ * verified, so the workbench must not decide it. The goal text is a plain starting point, not a
+ * hint about what to find.
+ */
+const DEFAULT_GOALS: Record<string, string> = {
+  checkout: '检查购买流程，验证主要操作可用、业务结果明确以及失败后的恢复路径。',
+  export: '使用公开数据集生成一份 CSV 导出，检查该流程及其实际触发的恢复体验，有依据地报告并结束。',
 }
 function FindingCard({
   finding,
@@ -192,7 +226,9 @@ function App() {
       '',
   )
   const [openId, setOpenId] = useState(runId),
-    [goal, setGoal] = useState('检查购买流程，验证主要操作可用、业务结果明确以及失败后的恢复路径。')
+    [goal, setGoal] = useState(DEFAULT_GOALS.checkout!)
+  const [profiles, setProfiles] = useState<readonly ProfileOption[]>([])
+  const [profileId, setProfileId] = useState('checkout')
   const [health, setHealth] = useState('连接中'),
     [ready, setReady] = useState(false),
     [error, setError] = useState('')
@@ -221,6 +257,21 @@ function App() {
     return () => {
       stopped = true
       clearInterval(timer)
+    }
+  }, [])
+  // The catalogue of businesses this build can run. Loaded once: it is configuration, not run
+  // state, and a failure here is surfaced rather than silently falling back to a default business.
+  useEffect(() => {
+    let stopped = false
+    void api<{ profiles: ProfileOption[] }>('/api/business-profiles')
+      .then((body) => {
+        if (!stopped) setProfiles(body.profiles)
+      })
+      .catch((failure) => {
+        if (!stopped) setError(String(failure))
+      })
+    return () => {
+      stopped = true
     }
   }, [])
   useEffect(() => {
@@ -267,7 +318,16 @@ function App() {
   async function start() {
     try {
       setError('')
-      const result = await api<{ runId: string }>('/api/runs', { goal, environmentId: 'arena' })
+      const profile = profiles.find((p) => p.id === profileId)
+      if (!profile) throw new Error('请选择业务配置')
+      // The environment is the profile's own declared default, taken from the catalogue rather
+      // than assumed here - a mismatch would be refused by the API anyway, and silently sending
+      // `arena` for the export business would make the selection look honoured when it was not.
+      const result = await api<{ runId: string }>('/api/runs', {
+        goal,
+        environmentId: profile.defaultEnvironment,
+        businessProfile: { id: profile.id, revision: profile.revision },
+      })
       setRunId(result.runId)
       setOpenId(result.runId)
     } catch (failure) {
@@ -296,11 +356,33 @@ function App() {
       <section>
         <h2>开始检查</h2>
         <label>
+          业务配置
+          <select
+            value={profileId}
+            onChange={(e) => {
+              const next = e.target.value
+              setProfileId(next)
+              // The goal text is a starting point for that business, not a hint about findings.
+              setGoal(DEFAULT_GOALS[next] ?? '')
+            }}
+          >
+            {profiles.map((profile) => (
+              <option key={profile.id} value={profile.id}>
+                {profile.name}（{profile.id}@{profile.revision}）
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
           检查目标
           <textarea value={goal} onChange={(e) => setGoal(e.target.value)} />
         </label>
-        <p>环境：本地购买靶场</p>
-        <button disabled={!ready || !goal.trim()} onClick={start}>
+        <p>
+          环境：
+          {profiles.find((p) => p.id === profileId)?.environments.join('、') ?? '加载中'}
+          {profiles.length === 0 && ' · 业务配置加载失败时不会回退到默认业务'}
+        </p>
+        <button disabled={!ready || !goal.trim() || !profiles.length} onClick={start}>
           开始检查
         </button>
         <hr />
@@ -336,6 +418,48 @@ function App() {
               执行：{report.status} · 业务：{report.businessResult} · 停止原因：
               {report.stopReason ?? '尚未停止'}
             </p>
+            {report.business && (
+              <div className="business">
+                {report.business.status === 'legacy-unversioned' ? (
+                  // A real state, not a missing value: this run executed before contracts were
+                  // versioned, so today's requirements would be a fabrication.
+                  <p>
+                    <strong>未版本化历史运行。</strong>
+                    该任务创建于业务契约存在之前，不套用当前业务要求；其日志与证据仍可核对。
+                  </p>
+                ) : (
+                  <>
+                    <p>
+                      业务契约：{report.business.profileId}@{report.business.revision} · 适配器{' '}
+                      {report.business.adapter?.id}@{report.business.adapter?.revision} · 环境{' '}
+                      {report.business.environment?.id}
+                      {report.business.integrity === 'hash-mismatch' && (
+                        <strong> · 契约哈希与内容不一致，本次结果不可作为该契约的证据</strong>
+                      )}
+                    </p>
+                    <details>
+                      <summary>当次要求（{report.business.requirements.length}）</summary>
+                      <p>
+                        hash <code>{report.business.hash}</code> · 写入上限{' '}
+                        {report.business.effects?.maxCreates} · 每次操作重试上限{' '}
+                        {report.business.effects?.maxRetriesPerOperation}
+                      </p>
+                      <ul>
+                        {report.business.requirements.map((requirement) => (
+                          <li key={`${requirement.id}@${requirement.revision}`}>
+                            {requirement.text}
+                            <small>
+                              {' '}
+                              （{requirement.id}@{requirement.revision}）
+                            </small>
+                          </li>
+                        ))}
+                      </ul>
+                    </details>
+                  </>
+                )}
+              </div>
+            )}
             <p>
               动作 {report.usage.actions} · 模型请求 {report.usage.modelCalls} · 耗时{' '}
               {(report.usage.elapsedMs / 1000).toFixed(1)} 秒 · 输入/输出 token{' '}

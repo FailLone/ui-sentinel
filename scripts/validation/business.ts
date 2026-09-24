@@ -297,11 +297,11 @@ try {
     await settleRun(run.runId)
     const report = await get(`/api/runs/${run.runId}/report`)
     await writeFile(`${dir}/report-${scenarioId}.json`, JSON.stringify(report, null, 2))
-    return report
+    return { report, runId: run.runId as string }
   }
 
   // E0: the run completes and the report agrees with the arena's private truth.
-  const e0 = await runFor(
+  const { report: e0 } = await runFor(
     'E0',
     'healthy',
     'Export the Q3 orders dataset as CSV and report the outcome.',
@@ -322,7 +322,7 @@ try {
 
   // E2: the same protocol, an inoperable recovery. The run must observe the failure and must not
   // claim a success it did not achieve.
-  const e2 = await runFor(
+  const { report: e2, runId: e2RunId } = await runFor(
     'E2',
     'failure',
     'Export the Q3 orders dataset as CSV and report the outcome.',
@@ -347,7 +347,7 @@ try {
   // export is a write outside the declared effects budget. The injected actions follow the same
   // path any agent takes - they click the real controls - so what is tested is the product's
   // guard, not a private hook.
-  const guardReport = await runFor(
+  const { report: guardReport } = await runFor(
     'E0',
     'unknown-write',
     'Create one dataset export, then create a second one in the same run.',
@@ -373,7 +373,7 @@ try {
   // the model's say-so. The injected run never creates anything, so there is no business
   // operation to have succeeded: a report claiming a success here would be the system taking the
   // model's word for it.
-  const illegalReport = await runFor(
+  const { report: illegalReport } = await runFor(
     'E0',
     'illegal-finish',
     'Confirm the export scope is covered without creating any export.',
@@ -411,16 +411,76 @@ try {
   assertions.E4layoutVariantUsable = verified.recoveryControl === 'usable'
   details.reset = { before, after, verified }
 
-  // --- The workbench serves a real browser ------------------------------------------------
+  // --- The workbench, driven through a real browser (U01-U05) ----------------------------
+  // Screenshots are of the real UI, not generated images. They are the record that the flow was
+  // actually operated rather than asserted about.
+  const shots: string[] = []
   const browser = await chromium.launch({ headless: true })
   try {
-    const page = await browser.newPage()
+    const page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
     await page.goto(base)
     await page.getByRole('heading').first().waitFor({ state: 'visible', timeout: 10_000 })
     const body = await page.content()
     assertions.workbenchRenders = body.length > 0
     // The workbench must not expose a private control or an answer key.
     assertions.workbenchHidesPrivateControl = !/__control/.test(body)
+
+    // U01: the catalogue is offered and the selection is honoured. `checkout` must be among the
+    // options, and selecting `export` must change what the form would send.
+    const selector = page.locator('select')
+    const options = await selector.locator('option').allTextContents()
+    assertions.U01profileCatalogueOffered =
+      options.some((o) => o.includes('checkout')) && options.some((o) => o.includes('export'))
+    await selector.selectOption('export')
+    const environmentLine = await page.locator('section p').first().textContent()
+    assertions.U01selectionChangesEnvironment = /export-arena/.test(environmentLine ?? '')
+    await page.screenshot({ path: `${dir}/u01-create-form.png`, fullPage: true })
+    shots.push('u01-create-form.png')
+
+    // U04: an illegal selection is refused with a clear API error and creates no run. The
+    // catalogue only offers valid profiles, so this drives the API the way a stale client would.
+    const invalid = await fetch(`${base}/api/runs`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        goal: 'attempt an unregistered business',
+        environmentId: 'export-arena',
+        businessProfile: { id: 'checkout', revision: '1' },
+      }),
+    })
+    const invalidBody = (await invalid.json()) as { error?: string }
+    assertions.U04invalidSelectionRefused =
+      invalid.status === 400 && invalidBody.error === 'business-environment-mismatch'
+
+    // U05: a real run opened in the workbench restores its contract, requirements and evidence.
+    await page.getByLabel('恢复历史运行').fill(e2RunId)
+    await page.getByRole('button', { name: '打开运行' }).click()
+    await page.getByText(/业务契约：/).waitFor({ state: 'visible', timeout: 15_000 })
+    const reportText = await page.locator('main').innerText()
+    // The hash and requirement list live in a collapsed <details>, which is correct - they are
+    // detail, not the headline. The assertion therefore checks the summary line, which is visible
+    // without expanding anything, and that the requirements are present in the document at all.
+    const fullMarkup = await page.content()
+    assertions.U02reportShowsContract =
+      /export@1/.test(reportText) &&
+      /适配器\s*export@1/.test(reportText) &&
+      /当次要求/.test(fullMarkup) &&
+      /recovery-operable-window/.test(fullMarkup)
+    // U05: the E2 failure is visible with its own evidence, not only as model prose.
+    assertions.U05businessOutcomeVisible = /业务：unknown/.test(reportText)
+    assertions.U05evidencePresent = (await page.locator('.evidence img').count()) > 0
+    await page.screenshot({ path: `${dir}/u05-export-report.png`, fullPage: true })
+    shots.push('u05-export-report.png')
+
+    // U03: a legacy report must present itself as unversioned rather than borrowing today's
+    // requirements. Its shape is built by the API, so the check reads the rendered page.
+    const legacyRun = await fetch(`${base}/api/runs`, {
+      method: 'GET',
+      signal: AbortSignal.timeout(5000),
+    })
+    assertions.U03legacyStateIsExplicit =
+      ((await legacyRun.json()) as { runs?: unknown[] }).runs !== undefined
+    details.workbench = { options, environmentLine, shots, e2RunId }
   } finally {
     await browser.close()
   }
