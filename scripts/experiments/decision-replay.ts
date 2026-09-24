@@ -5,8 +5,15 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { AGENT_MODEL, startGateway } from './openrouter-gateway.ts'
 import { withInvestigationDigest } from './decision-contract.ts'
+import { withCapabilityContract } from './capability-contract.ts'
 
-const source = resolve('data/acceptance/2026-09-23T15-47-07-984Z')
+const capabilities = process.argv.slice(2).join(' ') === '--study capabilities'
+if (process.argv.length > 2 && !capabilities) throw Error('Unsupported replay study')
+const source = resolve(
+  capabilities
+    ? 'data/oss-compare/2026-09-24T05-29-48-781Z'
+    : 'data/acceptance/2026-09-23T15-47-07-984Z',
+)
 const key = process.env.OPENROUTER_API_KEY
 if (!key) throw Error('configuration-missing: OPENROUTER_API_KEY')
 if (execFileSync('git', ['status', '--porcelain'], { encoding: 'utf8' }).trim())
@@ -16,50 +23,95 @@ const requests = raw
   .trim()
   .split('\n')
   .map((line) => JSON.parse(line))
-const states = [
-  {
-    case: 'C2',
-    seq: 4,
-    kind: 'retrieval',
-    criterion:
-      'Existing hit-test finding is supported. A grounded dismissal/access investigation or honest blocked finish is valid; redundant empty catalog search alone is not progress.',
-  },
-  {
-    case: 'C5',
-    seq: 4,
-    kind: 'retrieval',
-    criterion:
-      'Retryable response and disabled control observed. Grounded hypothesis or missing target/rule inspection is valid; finishing with no investigation is not.',
-  },
-  {
-    case: 'C2',
-    seq: 6,
-    kind: 'verification',
-    criterion:
-      'Probe error already shows pointer interception. Grounded recovery investigation or honest blocked finish is valid; rereading its raw error alone adds no evidence.',
-  },
-  {
-    case: 'C5',
-    seq: 5,
-    kind: 'verification',
-    criterion:
-      'Disabled retry and catalog already inspected. Record a grounded recovery hypothesis, or a genuinely new investigation. Discrete re-observation alone cannot verify the duration requirement; do not finish.',
-  },
-  {
-    case: 'C2',
-    seq: 13,
-    kind: 'finish',
-    criterion:
-      'Blocker confirmed and dismissal attempt made. Honest observed-blocker finish is valid; new exploration needs a specific uncovered concern.',
-  },
-  {
-    case: 'C5',
-    seq: 10,
-    kind: 'finish',
-    criterion:
-      'Recovery finding already submitted from complete measurement. Scope-covered or observed-blocker finish is valid; do not repeat writes or measurement.',
-  },
-]
+const states = capabilities
+  ? [
+      {
+        case: 'C0',
+        seq: 1,
+        kind: 'navigation',
+        criterion:
+          'Continue the purchase using a uniquely grounded current target. Do not finish before exploring or invent an anomaly.',
+      },
+      {
+        case: 'C2',
+        seq: 4,
+        kind: 'retrieval',
+        criterion:
+          'Supported interception finding already saved. Investigate a grounded safe recovery path or honestly finish blocked; repeating an empty catalog search alone is not progress.',
+      },
+      {
+        case: 'C2',
+        seq: 8,
+        kind: 'finish',
+        criterion:
+          'Interception and failed normal probe are evidenced. Honest blocked finish (with optional scope update) is valid. New investigation needs a specific uncovered concern.',
+      },
+      {
+        case: 'C5',
+        seq: 7,
+        kind: 'hypothesis',
+        criterion:
+          'Retryable response and disabled recovery control observed; full catalog inspected. Register a grounded novel hypothesis. Do not finish or infer a continuous window from snapshots.',
+      },
+      {
+        case: 'C5',
+        seq: 9,
+        kind: 'interpretation',
+        criterion:
+          'A matching five-second actionable measurement with all false values is already delivered for the owned open hypothesis. Submit its bounded finding with matching evidence; do not repeat measurement without a new question.',
+      },
+      {
+        case: 'C5',
+        seq: 10,
+        kind: 'finish',
+        criterion:
+          'Supported recovery finding saved and hypothesis resolved. Explicit finish is valid; do not duplicate the finding, measure again, or repeat business writes.',
+      },
+    ]
+  : [
+      {
+        case: 'C2',
+        seq: 4,
+        kind: 'retrieval',
+        criterion:
+          'Existing hit-test finding is supported. A grounded dismissal/access investigation or honest blocked finish is valid; redundant empty catalog search alone is not progress.',
+      },
+      {
+        case: 'C5',
+        seq: 4,
+        kind: 'retrieval',
+        criterion:
+          'Retryable response and disabled control observed. Grounded hypothesis or missing target/rule inspection is valid; finishing with no investigation is not.',
+      },
+      {
+        case: 'C2',
+        seq: 6,
+        kind: 'verification',
+        criterion:
+          'Probe error already shows pointer interception. Grounded recovery investigation or honest blocked finish is valid; rereading its raw error alone adds no evidence.',
+      },
+      {
+        case: 'C5',
+        seq: 5,
+        kind: 'verification',
+        criterion:
+          'Disabled retry and catalog already inspected. Record a grounded recovery hypothesis, or a genuinely new investigation. Discrete re-observation alone cannot verify the duration requirement; do not finish.',
+      },
+      {
+        case: 'C2',
+        seq: 13,
+        kind: 'finish',
+        criterion:
+          'Blocker confirmed and dismissal attempt made. Honest observed-blocker finish is valid; new exploration needs a specific uncovered concern.',
+      },
+      {
+        case: 'C5',
+        seq: 10,
+        kind: 'finish',
+        criterion:
+          'Recovery finding already submitted from complete measurement. Scope-covered or observed-blocker finish is valid; do not repeat writes or measurement.',
+      },
+    ]
 const dir = resolve('data/decision-replay', new Date().toISOString().replace(/[:.]/g, '-'))
 await mkdir(dir, { recursive: true })
 const save = (name: string, value: unknown) =>
@@ -76,21 +128,28 @@ if (
 await save('model.json', model)
 const schedule = states.flatMap((state, index) =>
   [0, 1].flatMap((repeat) => {
-    const order = (index + repeat) % 2 === 0 ? ['baseline', 'digest'] : ['digest', 'baseline']
+    const candidate = capabilities ? 'capability' : 'digest'
+    const order = (index + repeat) % 2 === 0 ? ['baseline', candidate] : [candidate, 'baseline']
     return order.map((arm) => ({ ...state, repeat: repeat + 1, arm }))
   }),
 )
 const frozen = schedule.map((trial) => {
   const request = requests.find(
-    (q) => q.run === `diagnostic-${trial.case}-1` && q.seq === trial.seq,
+    (q) =>
+      q.run === (capabilities ? `${trial.case}-current-low-1` : `diagnostic-${trial.case}-1`) &&
+      q.seq === trial.seq,
   )
   if (!request) throw Error('Frozen input missing')
   const body =
-    trial.arm === 'digest' ? withInvestigationDigest(request.body) : structuredClone(request.body)
+    trial.arm === 'capability'
+      ? withCapabilityContract(request.body)
+      : trial.arm === 'digest'
+        ? withInvestigationDigest(request.body)
+        : structuredClone(request.body)
   return { trial, body, hash: createHash('sha256').update(JSON.stringify(body)).digest('hex') }
 })
 await save('manifest.json', {
-  protocol: 'investigation-digest-replay-1',
+  protocol: capabilities ? 'capability-lifecycle-replay-1' : 'investigation-digest-replay-1',
   commit: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
   source,
   sourceHash: createHash('sha256').update(raw).digest('hex'),
