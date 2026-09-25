@@ -9,6 +9,20 @@ import {
   type BrowserWorker,
 } from './browser.ts'
 
+/**
+ * Budget for Playwright's own trial-click cross-check in the actionability test.
+ *
+ * The product sampler (`sampleElementCondition`) is what the assertion is really about, and it is
+ * synchronous and instant. This trial click only exists so the test does not grade the sampler
+ * against itself. Playwright polls for actionability internally, so a tight budget here measures
+ * browser startup contention rather than the behaviour under test - under full-suite concurrency
+ * (one Chromium per worker, 14 on this host) the same actionable button needed up to ~3.7s. Generous
+ * by design: it is only a ceiling, so a slower machine cannot turn a correct page into a failure.
+ * The falsifying half is unaffected and runs before it - against the covering overlay the click must
+ * still reject, and slowness only makes that rejection more certain.
+ */
+const ACTIONABILITY_CROSS_CHECK_MS = 15_000
+
 describe('browser worker', () => {
   let worker: BrowserWorker | null = null
 
@@ -63,7 +77,15 @@ it('samples pointer actionability without clicks, scrolling or confusing enabled
     await expect(page.locator('button').click({ trial: true, timeout: 150 })).rejects.toThrow()
     await page.locator('#cover').evaluate((el) => el.remove())
     expect(await sampleElementCondition(page, 'button', 'element-actionable')).toBe(true)
-    await page.locator('button').click({ trial: true, timeout: 500 })
+    // This trial click is an independent cross-check of the sampler above: Playwright must agree the
+    // button is actionable. It polls internally, so the budget is a ceiling on *how long we wait for
+    // that agreement*, not a measurement of click latency - therefore it must clear the worst case of
+    // the machine, not the best. Measured on a 14-core host: with 14 Chromium instances launching at
+    // once this call needs up to ~3.7s even though the element is genuinely actionable, whereas the
+    // same page settles in ~30ms when the suite is not saturated. A 500ms ceiling made the assertion
+    // fail ~60% of full-suite runs while the product sampler on the line above passed every time -
+    // i.e. it graded browser startup contention, not actionability.
+    await page.locator('button').click({ trial: true, timeout: ACTIONABILITY_CROSS_CHECK_MS })
     await page.locator('button').evaluate((el: HTMLButtonElement) => {
       el.disabled = true
     })
