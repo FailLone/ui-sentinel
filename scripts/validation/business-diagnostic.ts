@@ -209,22 +209,47 @@ try {
 
   // --- smoke -----------------------------------------------------------------------------
   // A real run must be able to reach a conclusion at all before any variant means anything.
+  //
+  // The first version of this check passed vacuously: it only rejected `execution-error` and
+  // `interrupted`, so a run that made *no model call at all* counted as a pass. The gateway meters
+  // per run and refuses every request outside an open window, so a script that forgets `begin()`
+  // produces runs that fail instantly and still look like a green smoke. The check below therefore
+  // requires the run to have made model calls and to have ended for a business reason.
   const smoke = await (async () => {
     await resetAndVerifyExport('E0')
-    const run = await get('/api/runs', {
-      goal: GOAL,
-      environmentId: 'export-arena',
-      businessProfile: { id: 'export', revision: '1' },
-      budget: { totalTimeoutMs: 300_000, maxActions: 40, maxModelCalls: 30 },
-    })
-    const state = await settle(run.runId)
-    return { runId: run.runId, status: state.status, stopReason: state.stopReason }
+    gateway.begin('smoke', 30, 300_000)
+    try {
+      const run = await get('/api/runs', {
+        goal: GOAL,
+        environmentId: 'export-arena',
+        businessProfile: { id: 'export', revision: '1' },
+        budget: { totalTimeoutMs: 300_000, maxActions: 40, maxModelCalls: 30 },
+      })
+      const state = await settle(run.runId)
+      const modelRequests = await gateway.end()
+      return {
+        runId: run.runId,
+        status: state.status,
+        stopReason: state.stopReason,
+        modelRequests: modelRequests.length,
+      }
+    } catch (error) {
+      await gateway.end().catch(() => [])
+      throw error
+    }
   })()
   await write('smoke.json', smoke)
+  // `timed-out`/`budget-exhausted` in under a couple of seconds is not a slow model, it is a run
+  // that was refused. Requiring real model traffic is what distinguishes the two.
   const smokePassed =
-    !['execution-error', 'interrupted'].includes(String(smoke.status)) &&
-    smoke.stopReason !== 'reconciliation-required'
+    !['execution-error', 'interrupted', 'timed-out'].includes(String(smoke.status)) &&
+    !['reconciliation-required', 'budget-exhausted'].includes(String(smoke.stopReason)) &&
+    smoke.modelRequests > 0
   results.push({ case: 'smoke', passed: smokePassed, detail: smoke })
+  if (!smokePassed) throw Error(`smoke failed: ${JSON.stringify(smoke)}`)
+
+  // The smoke is the gate: variants are not attempted through a gateway that just refused
+  // everything, because five identical failures would say nothing about the variants.
 
   // --- the five variants ------------------------------------------------------------------
   for (const variant of ['E0', 'E1', 'E2', 'E3', 'E4'] as ExportVariantId[]) {
@@ -235,6 +260,9 @@ try {
       // as a product failure.
       const verified = await resetAndVerifyExport(variant)
       record.fixture = { jobId: verified.jobId, truth: verified.truth, requests: verified.requests }
+      // The gateway meters per run: without an open window every model call is refused, which is how
+      // the first diagnostic produced five instant failures that looked like product defects.
+      gateway.begin(variant, 30, 300_000)
       const run = await get('/api/runs', {
         goal: GOAL,
         environmentId: 'export-arena',
@@ -352,8 +380,12 @@ try {
       record.passed = false
       record.error = gateway.redact(String(error))
       paidFailures++
+    } finally {
+      // Always closed, so a failed variant cannot leave the window open and stall the next one.
+      record.modelRequests = (await gateway.end()).length
     }
     results.push(record)
+    await write(`${String(record.case)}-record.json`, record)
     await write('spending.json', gateway.spending())
     console.log(`${String(record.case)}: ${record.passed ? 'pass' : 'fail'}`)
     if (gateway.spending().accountedUsd >= maxCostUsd) {
