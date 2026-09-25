@@ -139,10 +139,12 @@ function launch(...argv: string[]) {
     })
 }
 
-const base = `http://127.0.0.1:${env.PORT}`
-// The private controller reads this, so the diagnostic points it at the arena it started.
+// The private controller is a library the diagnostic itself calls, and it reads its port and token
+// from the process environment - so the same values the child services get must be visible here too.
 env.EXPORT_ARENA_URL = `http://127.0.0.1:${env.EXPORT_ARENA_PORT}`
-process.env.EXPORT_ARENA_URL = env.EXPORT_ARENA_URL
+Object.assign(process.env, env)
+
+const base = `http://127.0.0.1:${env.PORT}`
 const get = async (path: string, body?: unknown) => {
   const response = await fetch(base + path, {
     method: body === undefined ? 'GET' : 'POST',
