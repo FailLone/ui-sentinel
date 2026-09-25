@@ -4,6 +4,53 @@
 
 只有实际运行过的命令才标为通过；本文件所有数字均来自本机 `data/` 下的原始证据，命令与退出码逐条对应。
 
+## 本次会话做了什么，还剩什么阻塞
+
+**接受了远端更新，并把连带的失真结论改正。** `origin/main` 的 `766615b` 改的不只是代码，还有**计划文档本身**：批准来源从「原作者本机目录」改成 Git 附带的 fixture。合并（`1a033fc`）后原先写在 README/交接记录里的「原批准来源缺失」「592 用例」等结论已经失真，全部按实测改正。
+
+**执行了批准来源的校验与导入（本次会话的主任务）：**
+
+```sh
+pnpm fixture:approved-retry -- --verify
+# → verified:true, proposalId proposal-fc30e9bb-…, files:14,
+#   ruleConfigSha256 f3ac227c94ea…, paidModelRequests:0
+pnpm fixture:approved-retry
+# → 生成 data/fixtures/approved-retry，approvalActionPerformed:false
+```
+
+`DEFAULT_APPROVED_SOURCE` 已切到该路径（`c1f3786`）；formal manifest 实测 `approval.ok:true`、`reviewedBy:user`、声明哈希与 fixture 自记录值一致。**这是迁移既有批准，不是新批准，未调用 approve/enable。**
+
+**定位并修复了一个真实测试缺陷（原先被我自己误判为「偶发 flake」）。** 详见偏差 7(c)：`browser.test.ts` 的失败**不是产品缺陷**——失败时产品采样器每次都通过，超时的是 Playwright 自己的交叉核对；根因是并发启动多个 Chromium 时该调用需要秒级，而预算是固定 500ms。修复后连续 8 次全量运行全部 `602 passed`。
+
+**在最终 tip 重跑了全部免费门槛并重新生成 bundle**，全部 exit 0、零付费请求（逐条见「验收追踪」）。
+
+---
+
+### 当前阻塞（只有一条，且是产品级接口裁定，dev 端不应自行裁定）
+
+**E2 的 `defect_eligibilityCited` 未过。** 该断言要求 E2 的支持性 finding 引用一个解析后含顶层 `prerequisite` 键的**资源**产物（业务自己发布的 `GET /api/exports/:jobId/eligibility`）。
+
+已核实的事实，供裁定：
+
+| 事实 | 证据 |
+| --- | --- |
+| `resource` 产物**确实产生且可用** | E2 报告 `artifacts` 中 `a589cc67` 类型 `resource`、`available=true` |
+| agent 的 finding 只引用 screenshot/snapshot/measurement | E2 finding `evidenceRefs` 恰为 `.png` + 两个 `.json`（截图/快照/测量） |
+| 走**被产品引导**的那条路径时 agent 无法提供证据 | `temporalInvestigationInstructions` 要求「prefer investigation_check，无需 hypotheses_record/transition_observe/findings_submit」；而 `investigation_check` 的输入 schema（`temporal-investigation.ts:7-17`）**没有证据字段**，其 finding 的 `evidenceRefs` 由执行器从测量本身组装（`executor.ts:1188` ← `temporal-investigation.ts:122` ← `executor.ts:1046`） |
+| 旧路径**可以**提供证据 | `findings_submit` 的 `findingInput` 确实接受 agent 的 `evidenceRefs`（`src/execution/tool-inputs.ts:77`） |
+| `eligibilityCited` 是 scorer 加的严格化 | 它**不在**验收计划 §7 的 E04 反例清单里（该清单为「无测量/窗口不足/全 null/错误目标/有干预」），但 §6 确实点名要求 E2 保存「资格来源」 |
+
+**为什么不再重跑诊断：** 这条阻碍不是「再跑一次可能通过」的随机性问题，而是**结构性的**——被引导的那条路径在 schema 上就没有证据字段。原样重跑必然复现同一条失败，只会再花钱。计划 §8.4 也要求同一阻碍两次诊断/修复后停止盲目重跑、交付证据给主 Agent，已照办。
+
+**两条可选修法（均为计划级决定，dev 端不自行裁定）：**
+
+1. 让 `investigation_check` 像 `findings_submit` 那样接受 agent 声明的支撑证据引用——这是影响**每个**业务的 agent 证据契约变更，需要自己的验收证据，且改后构建 hash 必然变化、诊断必须重跑。
+2. 认定验收计划的「资格来源」要求本就应在旧路径上满足（即 scorer 的严格化越过了计划意图）。
+
+**明确未做**（都是计划禁止或会削弱门槛的）：放宽 `eligibilityCited` 去接受工作台渲染的提示（那是客户端投影，不是业务源）；在 `complete()` 里特判塞入资源引用（会让断言按构造满足）；删除该断言；把 agent 引到旧路径只为点亮一格。
+
+**另一条独立的硬约束：** 合并改动了 `src/storage/database.ts`，server 构建 `c2b288c2…` → `cddcc990…`。`--formal` 对诊断做逐字节构建校验，所以**无论 E2 怎么裁定，旧诊断 `06-04-47-808Z` 都已作废**，必须重新冻结并重跑诊断才能授权正式批次。
+
 ## 版本与来源
 
 | 字段 | 实际值 |
