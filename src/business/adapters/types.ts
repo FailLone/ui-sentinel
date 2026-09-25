@@ -127,6 +127,8 @@ export interface BusinessAdapter {
   readonly id: BusinessProfileId
   readonly revision: string
   classifyRequest(request: RequestShape): RequestIntent
+  /** Declare a public download route and the entity it belongs to; never grants access by itself. */
+  downloadOperation?(request: RequestShape): string | null
   decodeResponse(exchange: PublicExchange): BusinessFact | null
   correlateVisible(
     fact: BusinessFact,

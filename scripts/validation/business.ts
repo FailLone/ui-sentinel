@@ -131,6 +131,7 @@ const SCENARIOS = {
     click('Start export'),
     settle,
     settle,
+    { name: 'page_act', args: { type: 'click', role: 'link', name: 'Download export' } },
     { name: 'run_finish', args: { reason: 'scope-covered' } },
   ],
   // A recoverable failure. The run observes it and finishes honestly blocked: the preflight tests
@@ -351,6 +352,11 @@ try {
   const e0Truth = await exportControlRequest('/__control/state')
   const facts = e0.events.filter((e: any) => e.type === 'business:fact').map((e: any) => e.payload)
   assertions.E0createsExactlyOneJob = e0Truth.creates === 1
+  assertions.E0downloadRequested = e0Truth.requests.some(
+    (r: { method: string; path: string }) => r.method === 'GET' && r.path.endsWith('/download'),
+  )
+  assertions.E0downloadPreservesIntegrity =
+    e0.status === 'completed' && e0.inspectionIntegrity.status === 'no-recorded-intervention'
   assertions.E0observedSucceededFact = facts.some((f: any) => f.phase === 'succeeded')
   assertions.E0factCitesPublicEvidence = facts.every(
     (f: any) => typeof f.sourceEventId === 'string' && f.sourceEventId.length > 0,

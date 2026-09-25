@@ -1,3 +1,4 @@
+import { isAllowedBusinessDownload } from './download-policy.ts'
 import { createRunQueue } from './run-queue.ts'
 import {
   actionInput,
@@ -988,7 +989,14 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       }
       if (
         isAllowedPageUrl(url, run.spec.entryUrl) &&
-        (!request.isNavigationRequest() || isAllowedNavigationUrl(url, run.spec.entryUrl))
+        (!request.isNavigationRequest() ||
+          isAllowedNavigationUrl(url, run.spec.entryUrl) ||
+          isAllowedBusinessDownload(
+            { url, method: request.method(), origin: new URL(url).origin },
+            businessRuntime,
+            (id) => ownedOperations.has(id),
+            (id) => latestFactForOperation(businessFacts, id),
+          ))
       )
         await route.continue()
       else {

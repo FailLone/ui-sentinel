@@ -118,6 +118,8 @@ let exportSettled = false
 let exportStatusDelay = 0
 // Serve the export workspace at the root, the way the real arena does (entryPath is '/').
 let exportWorkspaceAtRoot = false
+let exportDownloadMode: 'owned' | 'foreign' | 'private' | null = null
+let exportDownloads = 0
 /**
  * B07's staged workspace, served at the root because navigation is confined to the entry path.
  *
@@ -155,6 +157,15 @@ let exportCreates = 0
  */
 let exportEligibilityWorkspace = false
 const server = createServer((req, res) => {
+  if (exportDownloadMode && req.url?.endsWith('/download')) {
+    exportDownloads++
+    res.writeHead(200, {
+      'content-type': 'text/csv',
+      'content-disposition': 'attachment; filename="export.csv"',
+    })
+    res.end('id,value\n1,export-data')
+    return
+  }
   if (req.url === '/api/checkout') {
     writes++
     if (paymentOutcome === 'uncertain') {
@@ -301,7 +312,14 @@ const server = createServer((req, res) => {
     res.end(`<h1>Exports</h1><p id="job"></p><button id="start">Start export</button>
       <button id="clear">Clear</button><script>
       let jobId=null;let poll=null;window.__staleJob='';
-      function show(phase,notice){document.getElementById('job').textContent=(jobId||'')+' '+phase+' '+(notice||'');}
+      function show(phase,notice){
+        document.getElementById('job').textContent=(jobId||'')+' '+phase+' '+(notice||'');
+        if(phase==='succeeded' && ${!!exportDownloadMode} && !document.getElementById('download')) {
+          const a=document.createElement('a');a.id='download';a.textContent='Download export';
+          a.href=${exportDownloadMode === 'private'} ? '/__control/download' : '/api/exports/'+(${exportDownloadMode === 'foreign'} ? 'job-other' : jobId)+'/download';
+          document.body.append(a);
+        }
+      }
       document.getElementById('start').onclick=async function(){
         const r=await fetch('/api/exports',{method:'POST',headers:{'content-type':'application/json'},
           body:JSON.stringify({datasetId:'orders-q3',format:'csv'})});
@@ -552,6 +570,8 @@ beforeEach(() => {
   exportSettled = false
   exportStatusDelay = 0
   exportWorkspaceAtRoot = false
+  exportDownloadMode = null
+  exportDownloads = 0
   b07Enabled = false
   b07Stage = 0
   b07JobId = ''
@@ -2561,5 +2581,44 @@ it.each(['hash', 'adapter', 'origin'])(
     await startRunExecution(run.id)
     expect((await getRun(run.id))?.status).toBe('execution-error')
     expect(harness.models).toBe(0)
+  },
+)
+
+it.each(['owned', 'foreign', 'private'] as const)(
+  'keeps a %s export download inside the declared boundary',
+  async (mode) => {
+    exportWorkspaceAtRoot = true
+    exportSettled = true
+    exportDownloadMode = mode
+    harness.handler = async (tools: any) => {
+      await call(tools, 'page_act', { type: 'click', role: 'button', name: 'Start export' })
+      await new Promise((r) => setTimeout(r, 350))
+      await call(tools, 'page_observe')
+      await call(tools, 'page_act', { type: 'click', role: 'link', name: 'Download export' })
+      await call(tools, 'run_finish', {
+        businessResult: 'success',
+        blocked: mode !== 'owned',
+        summary: 'Download inspected',
+      })
+      return []
+    }
+    const businessContract = bindProfile(resolveProfile({ id: 'export', revision: '1' })!, {
+      id: 'export-arena',
+      entryUrl: url,
+      publicOrigin: url,
+    })
+    const run = await createRun({
+      goal: 'Export and download its result',
+      environmentId: 'test',
+      entryUrl: url,
+      businessContract,
+    })
+    ids.push(run.id)
+    await startRunExecution(run.id)
+    expect(exportCreates).toBe(1)
+    expect(exportDownloads).toBe(mode === 'owned' ? 1 : 0)
+    const events = await getEvents(run.id)
+    expect(events.some((e) => e.type === 'execution:intervention')).toBe(mode !== 'owned')
+    expect((await getRun(run.id))?.status).toBe(mode === 'owned' ? 'completed' : 'blocked')
   },
 )

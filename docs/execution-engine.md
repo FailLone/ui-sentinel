@@ -73,3 +73,6 @@ EXECUTION_BLOCKER_REVIEW 默认关闭。开启时使用 OpenRouter Decisions API
 未达发布门槛的后台视觉分析运行代码及工具已移除。历史报告的 analysis 记录仍可读取，兼容逻辑仅位于 src/server/reports/legacy-analysis*；Midscene/Qwen 视觉定位仍保留。新运行不再创建后台分析任务。
 
 验证命令与边界见[开发约定](development.md)和[靶场与评估](arena-and-evaluation.md)。
+
+
+公开产物下载由业务适配器的 `downloadOperation(request)` 声明，执行器只放行同源 GET、属于本轮创建且最新事实为 succeeded 的实体。它是页面点击下载时的窄导航例外，不放开任意 API、源文件、其他实体或私有控制路由；每次重定向仍重新检查边界。购物适配器未声明下载入口，原导航约束不变。

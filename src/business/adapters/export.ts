@@ -66,6 +66,17 @@ export const exportAdapter: BusinessAdapter = Object.freeze({
   id: 'export' as const,
   revision: '1',
 
+  downloadOperation(request: RequestShape): string | null {
+    if (request.method.toUpperCase() !== 'GET') return null
+    try {
+      const url = new URL(request.url)
+      if (url.search || url.origin !== request.origin) return null
+      return /^\/api\/exports\/([A-Za-z0-9_-]+)\/download$/.exec(url.pathname)?.[1] ?? null
+    } catch {
+      return null
+    }
+  },
+
   classifyRequest(request: RequestShape): RequestIntent {
     const match = matchExportPath(request.url)
     if (!match) return { kind: 'foreign' }
