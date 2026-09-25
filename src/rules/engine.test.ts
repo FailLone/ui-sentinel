@@ -6,7 +6,7 @@ import {
   businessOutcomeRule,
   responseTimeRule,
 } from './builtin/index.ts'
-import type { RuleContext, PageSnapshot } from './types.ts'
+import type { RuleContext, RuleEvent, PageSnapshot } from './types.ts'
 
 function makeSnapshot(overrides?: Partial<PageSnapshot>): PageSnapshot {
   return {
@@ -15,6 +15,40 @@ function makeSnapshot(overrides?: Partial<PageSnapshot>): PageSnapshot {
     viewport: { width: 1280, height: 768 },
     elements: [],
     ...overrides,
+  }
+}
+
+/**
+ * A normalized `business:fact`, the shape the rule layer reads.
+ *
+ * The business-outcome rule used to read the shopping `business:response` payload; it now correlates
+ * the normalized fact's `operationId`/`notice`, which is what makes it work for export as well as
+ * checkout. These integration tests therefore supply the fact shape, not the legacy response.
+ */
+function outcomeFact(fields: {
+  operationId: string
+  phase: 'succeeded' | 'rejected' | 'failed'
+  notice: string
+}): RuleEvent {
+  return {
+    type: 'business:fact',
+    timestamp: new Date().toISOString(),
+    payload: {
+      schemaVersion: '1',
+      profileId: 'checkout',
+      contractHash: 'a'.repeat(64),
+      operationId: fields.operationId,
+      attempt: 0,
+      version: 1,
+      phase: fields.phase,
+      result: fields.phase === 'succeeded' ? 'success' : 'rejected',
+      retryEligibility: 'denied',
+      notice: fields.notice,
+      retry: null,
+      sourceEventId: 'obs-1',
+      evidenceRefs: [],
+      observedAt: new Date().toISOString(),
+    },
   }
 }
 
@@ -131,11 +165,7 @@ describe('business-outcome rule', () => {
   it('detects success outcome', async () => {
     const ctx = makeContext({
       events: [
-        {
-          type: 'business:response',
-          timestamp: new Date().toISOString(),
-          payload: { orderId: 'order-1', status: 'success', message: 'Payment successful!' },
-        },
+        outcomeFact({ operationId: 'order-1', phase: 'succeeded', notice: 'Payment successful!' }),
       ],
       snapshot: makeSnapshot({
         elements: [
@@ -160,21 +190,18 @@ describe('business-outcome rule', () => {
     })
     const result = await businessOutcomeRule.evaluate(ctx)
     expect(result.verdict).toBe('pass')
-    expect(result.details.outcome).toBe('success')
+    // The detail reports the normalized fact's phase; `result` is the business-independent outcome.
+    expect(result.details.outcome).toBe('succeeded')
   })
 
   it('detects rejection with retry', async () => {
     const ctx = makeContext({
       events: [
-        {
-          type: 'business:response',
-          timestamp: new Date().toISOString(),
-          payload: {
-            orderId: 'order-2',
-            status: 'rejected',
-            message: 'Payment declined: Insufficient funds',
-          },
-        },
+        outcomeFact({
+          operationId: 'order-2',
+          phase: 'rejected',
+          notice: 'Payment declined: Insufficient funds',
+        }),
       ],
       snapshot: makeSnapshot({
         elements: [
@@ -200,6 +227,6 @@ describe('business-outcome rule', () => {
     const result = await businessOutcomeRule.evaluate(ctx)
     expect(result.verdict).toBe('pass')
     expect(result.details.outcome).toBe('rejected')
-    expect(result.details.matchingOrder).toBe(true)
+    expect(result.details.matchingOperation).toBe(true)
   })
 })
