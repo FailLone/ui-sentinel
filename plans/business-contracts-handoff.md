@@ -9,7 +9,7 @@
 | 字段 | 实际值 |
 | --- | --- |
 | base SHA / 开工时 main SHA | `1b377bb7d1bcbeb0ae607930ddc8506a486175ab`（main；= 本分支 merge-base） |
-| 开发分支 / head SHA | `dev/business-contracts-export` / 最后一个**代码**提交 `8447a73`（其后仅有只改 `plans/`、`README.md`、`docs/` 的文档提交，不改变构建产物）；分支共 34 个提交，tip 用 `git rev-parse HEAD` 取得 |
+| 开发分支 / head SHA | `dev/business-contracts-export` / 最后一个**代码**提交 `8447a73`（其后仅有只改 `plans/`、`README.md`、`docs/` 的文档提交，不改变构建产物）。分支 tip 与提交数用 `git rev-parse HEAD` / `git rev-list --count <base>..HEAD` 取得——不在此写死，因为它会随本记录自身的提交而变 |
 | PR 或 bundle / bundle base | 未创建 PR、未 push（push 被会话权限拒绝，见「偏差」第 6 项）。已交付 bundle `ui-sentinel-business-contracts.bundle`（仓库根目录）；**base `1b377bb7d1bcbeb0ae607930ddc8506a486175ab`**（= `origin/main` 现有提交），head = 该 bundle 内 `dev/business-contracts-export` 的 tip，用 `git bundle verify <file>` 打印。`git bundle verify` 通过 |
 | Server 构建 / lockfile / 靶场构建 hash | server `c2b288c2dd49e4f2b1b8ea59fe42cff785ecfdfc37238dc1afc492f9fb19d796`；`pnpm-lock.yaml` `a83d99f740493e28ea5a0da4072cd87bf3b89f59e638970893cbc17ca6858701`；arena `a83102517b9589dbf061d371aee35fe6291ca76e4d937b9e7fab48fe19e3825f`；arena-export `0f8332916ed593764ebebe0adeab644b24290c85833f441440f4af8c941cef72` |
 | checkout / export 契约 hash 与 adapter revision | checkout@1 / adapter `checkout@1` / `5f8c5307a1e31f51dcd227be3101f670a6fc7e34389e9fac44f731b1c019fc83`；export@1 / adapter `export@1` / `996f98f28ca663bf894a47ec7aafd0cc028778f4056276b5faf96b80202cb6bd`（均在默认端口 4173/4183 下计算，命令见「快速接手」§5） |
