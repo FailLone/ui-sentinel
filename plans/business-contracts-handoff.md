@@ -9,7 +9,7 @@
 | 字段 | 实际值 |
 | --- | --- |
 | base SHA / 开工时 main SHA | `1b377bb7d1bcbeb0ae607930ddc8506a486175ab`（main；= 本分支 merge-base） |
-| 开发分支 / head SHA | `dev/business-contracts-export` / `8447a73`（base 之后 32 个提交） |
+| 开发分支 / head SHA | `dev/business-contracts-export` / 最后一个**代码**提交 `8447a73`（base 之后 33 个提交）；其后仅有若干只改 `plans/`、`README.md`、`docs/` 的文档提交，分支 tip 用 `git rev-parse HEAD` 取得 |
 | PR 或 bundle / bundle base | 未创建 PR、未 push、未生成 bundle（见「偏差」第 6 项） |
 | Server 构建 / lockfile / 靶场构建 hash | server `c2b288c2dd49e4f2b1b8ea59fe42cff785ecfdfc37238dc1afc492f9fb19d796`；`pnpm-lock.yaml` `a83d99f740493e28ea5a0da4072cd87bf3b89f59e638970893cbc17ca6858701`；arena `a83102517b9589dbf061d371aee35fe6291ca76e4d937b9e7fab48fe19e3825f`；arena-export `0f8332916ed593764ebebe0adeab644b24290c85833f441440f4af8c941cef72` |
 | checkout / export 契约 hash 与 adapter revision | checkout@1 / adapter `checkout@1` / `5f8c5307a1e31f51dcd227be3101f670a6fc7e34389e9fac44f731b1c019fc83`；export@1 / adapter `export@1` / `996f98f28ca663bf894a47ec7aafd0cc028778f4056276b5faf96b80202cb6bd`（均在默认端口 4173/4183 下计算，命令见「快速接手」§5） |
@@ -17,6 +17,8 @@
 | 原批准来源 / 候选 ID / 声明 hash | **不存在**。计划指定的 `data/learning/2026-09-24T10-57-41-736Z`（候选 `proposal-fc30e9bb-46bc-40ec-b88b-ff52f0565607`）在本机缺失（`data/learning/` 整个目录不存在），未伪造批准 |
 
 hash 是按环境计算的：契约快照含 `environment.publicOrigin`，每次运行的运行期端口都不同，所以报告里的 hash 逐次不同（例如诊断 E0 `f9ffa0d6…`、预检 `ea478d91…`）。上表给的是**固定默认端口下的规范 hash**，用于比较契约内容本身；这与 C06「改变环境产生新 hash」是同一规则，不是不一致。
+
+**诊断与 HEAD 是同一构建**：`8447a73` 重新 `pnpm build` 后 `dist/server/index.js` 的 hash 与诊断 manifest 记录的 `c2b288c2…` **逐字节相同**，且 `283ea36..HEAD` 对 `src/`、`arena/`、`evaluation/`、`scripts/build.ts` 的 diff 为空（本阶段最后两个提交只动 `scripts/validation/`）。所以 G4 的结论不受构建漂移影响，正式 runner 的 `diagnostic-not-passed` 拒绝也不是「构建不同」造成的。反过来：一旦 E2 的接口问题被修复，构建 hash 必然改变，届时**必须重新冻结并重跑诊断**，不能沿用本次诊断授权正式批次。
 
 ## 阶段进度
 
@@ -56,17 +58,19 @@ hash 是按环境计算的：契约快照含 `environment.publicOrigin`，每次
 
 ## 验收追踪
 
-命令与退出码均为本机实测。`pnpm` 命令均在本分支 HEAD=`8447a73` 上运行；`dist/*` hash 见版本表。
+命令与退出码均为本机实测。代码门槛在冻结提交 `8447a73` 上运行（`pnpm test` 592/592、`pnpm validate:business -- --preflight` 28/28、`pnpm test:fixtures:export`）；文档提交之后又重跑过 `format:check`、`typecheck`、`build`（重建产物 hash 不变）、`preflight` 与全量 `test`，结果相同。`dist/*` hash 见版本表。
+
+**一个会偶发非零退出的已知 flake**：`src/execution/browser.test.ts` 的 500ms 试点击竞态（详见「偏差」第 7(c) 项）。本文件所有「592/592」都是实际运行结果，但其中至少一次中间运行曾因该 flake 显示 591/592 后重跑通过；不要把它读成"从未失败"。
 
 | 门槛 | 命令、测试文件/用例 | 退出码/实际结果 | 原始证据 |
 | --- | --- | --- | --- |
 | G0 免费基线 | `pnpm install --frozen-lockfile` / `format:check` / `typecheck` / `test` / `build` / `test:fixtures` / `validate:persistence` / `validate:investigation` / `validate:blocker-review` | 全部 exit 0（见下方逐条） | 本机终端；`data/persistence-preflight/`、`data/atomic-fixture-check/` |
-| G0 `pnpm test` | vitest run | exit 0，**70 文件 / 592 用例全通过** | — |
+| G0 `pnpm test` | vitest run | exit 0，**70 文件 / 592 用例全通过**（当前 tip 上重复运行亦然） | — |
 | G0 `pnpm test:fixtures` | `scripts/verify-fixtures.ts` | exit 0，C0–C5 六例真值全部核对 | `data/verification/` |
 | G0 `pnpm test:fixtures:export` | `scripts/verify-export-fixtures.ts` | exit 0，E0–E4 五变体，含 F04 判别（E1 usable/recovered，E2 inoperable/not recovered，两者 `backendPermitsRetry=true`） | `data/verification/export-fixtures.json` |
-| G0 `pnpm validate:persistence` | 编译服务 + Mastra + Chromium + 本地固定模型 | exit 0，runs=6 durable，`paidModelRequests: 0` | `data/persistence-preflight/2026-09-25T05-51-47-278Z/` |
-| G0 `pnpm validate:investigation` | 同上 | exit 0，9 断言全 true，`paidModelRequests: 0` | — |
-| G0 `pnpm validate:blocker-review` | 同上 | exit 0，8 断言全 true，`paidModelRequests: 0` | — |
+| G0 `pnpm validate:persistence` | 编译服务 + Mastra + Chromium + 本地固定模型 | exit 0，runs=6 durable，`paidModelRequests: 0` | `data/persistence-preflight/2026-09-25T07-04-41-674Z/`（另 `…05-51-47-278Z/`） |
+| G0 `pnpm validate:investigation` | 同上 | exit 0，9 断言全 true，`paidModelRequests: 0` | `data/atomic-fixture-check/2026-09-25T07-05-35-593Z/` |
+| G0 `pnpm validate:blocker-review` | 同上 | exit 0，8 断言全 true，`paidModelRequests: 0` | `data/atomic-fixture-check/2026-09-25T07-05-38-813Z/` |
 | G1 C01–C08 | `src/business/selection.test.ts`、`src/server/routes/business-runs.test.ts` | 通过（在 `pnpm test` 内） | — |
 | G1 B01–B10 | `src/business/facts.test.ts`、`src/business/normalization.test.ts`、`src/execution/task-state-normalized.test.ts`、`src/execution/executor.test.ts`（B07） | 通过 | — |
 | G1 P01–P10 | `src/execution/side-effect-policy.test.ts`（P01–P03、P05、P06、P10）、`src/execution/executor.test.ts`（P04、P07）、`src/execution/security.test.ts`（P08）、`arena/export/src/server/api.test.ts`（P09） | 通过 | — |
@@ -147,9 +151,11 @@ E2 的 run 行为本身正确：声明 `Try again recovery button`，26 样本�
 
 **5. `.env.example` 未更新（会话限制，需人工编辑）。** 该文件（以及 `.env`）被用户的显式 `Read` 拒绝规则覆盖，我未读取、未绕过，也不通过任何其他工具、编码或子代理去取。后果：新增的导出端口/token（`EXPORT_ARENA_PORT`、`EXPORT_API_PORT`、`EXPORT_CONTROL_PORT`、`EXPORT_CONTROL_TOKEN`）未在其中记录。默认值已存在于 `src/shared/config.ts`，且每个脚本都显式设置它们，功能无缺失，但示例文件是陈旧的。
 
-**6. 交付形态。** 未 push 开发分支、未创建 draft PR、未生成 bundle——这三者都是对外可见的副作用动作。分支与全部提交已在本机 `dev/business-contracts-export` 上，base `1b377bb7d1bcbeb0ae607930ddc8506a486175ab`、head `8447a73`（32 提交），工作树干净，可直接 `git push -u origin dev/business-contracts-export` 或 `git bundle create … 1b377bb..HEAD`。**未合并 main。**
+**6. 交付形态。** 未 push 开发分支、未创建 draft PR、未生成 bundle——这三者都是对外可见的副作用动作。分支与全部提交已在本机 `dev/business-contracts-export` 上，base `1b377bb7d1bcbeb0ae607930ddc8506a486175ab`，工作树干净，可直接 `git push -u origin dev/business-contracts-export` 或 `git bundle create <file> 1b377bb..HEAD`。**未合并 main。**
 
-**7. 已知限制（非阻碍）。** (a) `P04` 的 export 夹具把不确定写入建模为 create 提交后的 5xx，而非 `req.socket.destroy()`——截断流会让 Chromium 自行重发 POST，一次点击产生两次 create，那样测到的是传输层而非执行器；与既有 checkout P04 用例保持一致。(b) `P07` 断言迟到工具调用**按名**被拒，而非只断言「没有发生 create」（第一版是空断言：迟到调用根本没到达，去掉 `throwIfAborted` 也不影响保护）。(c) `browser.test.ts` 的 "samples pointer actionability" 在全量运行中偶发 500ms 试点击超时，隔离运行 3/3 通过，该文件本分支未改动——记为 flaky，未修。(d) 此 libSQL 客户端拒绝 `?mode=ro`/`?immutable=1`（`URL_PARAM_NOT_SUPPORTED`），只读来自 `PRAGMA query_only`（真实拒绝，已测）。
+按计划要求区分两类提交：**实际验收代码**止于 `8447a73`（其 `dist/server/index.js` hash `c2b288c2…` 与诊断 manifest 逐字节一致）；其后的文档提交只动 `plans/`、`README.md`、`docs/`，不改变任何构建产物，因此 G4 的结论仍属于这一构建。若主 Agent 修复 E2 的接口问题，构建 hash 必然改变，`8447a73` 的构建与其诊断即作废，必须重新冻结并重跑诊断后才可授权正式批次。
+
+**7. 已知限制（非阻碍）。** (a) `P04` 的 export 夹具把不确定写入建模为 create 提交后的 5xx，而非 `req.socket.destroy()`——截断流会让 Chromium 自行重发 POST，一次点击产生两次 create，那样测到的是传输层而非执行器；与既有 checkout P04 用例保持一致。(b) `P07` 断言迟到工具调用**按名**被拒，而非只断言「没有发生 create」（第一版是空断言：迟到调用根本没到达，去掉 `throwIfAborted` 也不影响保护）。(c) `browser.test.ts` 的 "samples pointer actionability without clicks…" 在全量运行中**偶发**失败：`locator.click: Timeout 500ms exceeded`（元素已解析到，卡在 visibility/enabled/stability 检查）。该文件本分支零 diff（`git diff 1b377bb..HEAD -- src/execution/browser.test.ts src/execution/browser.ts` 为空），隔离运行 3/3 通过，同一 tip 上紧接着的全量运行 592/592 通过。属于机器负载下的 500ms 试点击竞态，**未修**且未被掩盖：本文件如实记录它会让 `pnpm test` **偶发非零退出**，主 Agent 复跑时若命中同一现象，这不是本阶段的回归。这条不应被当作"592/592 已通过"的同义反复。(d) 此 libSQL 客户端拒绝 `?mode=ro`/`?immutable=1`（`URL_PARAM_NOT_SUPPORTED`），只读来自 `PRAGMA query_only`（真实拒绝，已测）。
 
 ## 快速接手与演示
 
