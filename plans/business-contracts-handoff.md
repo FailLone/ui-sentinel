@@ -13,7 +13,7 @@
 | PR 或 bundle / bundle base | 未创建 PR、未 push（push 被会话权限拒绝，见「偏差」第 6 项）。已交付 bundle `ui-sentinel-business-contracts.bundle`（仓库根目录）；**base `1b377bb7d1bcbeb0ae607930ddc8506a486175ab`**（= `origin/main` 现有提交），head = 该 bundle 内 `dev/business-contracts-export` 的 tip，用 `git bundle verify <file>` 打印。`git bundle verify` 通过 |
 | Server 构建 / lockfile / 靶场构建 hash | **合并后（当前）**：server `cddcc9906d8d2b7d4dffc5168b5febfdfc5748d7dd2992e059234685dba17653`；arena `a83102517b9589dbf061d371aee35fe6291ca76e4d937b9e7fab48fe19e3825f`；arena-export `0f8332916ed593764ebebe0adeab644b24290c85833f441440f4af8c941cef72`；`pnpm-lock.yaml` `a83d99f740493e28ea5a0da4072cd87bf3b89f59e638970893cbc17ca6858701`（未变）。**合并前**的 server 为 `c2b288c2dd49e4f2b1b8ea59fe42cff785ecfdfc37238dc1afc492f9fb19d796` —— 合并带入 `766615b` 对 `src/storage/database.ts` 的改动，所以 hash 变了，旧诊断随之作废（见「偏差」第 3 项） |
 | checkout / export 契约 hash 与 adapter revision | checkout@1 / adapter `checkout@1` / `5f8c5307a1e31f51dcd227be3101f670a6fc7e34389e9fac44f731b1c019fc83`；export@1 / adapter `export@1` / `996f98f28ca663bf894a47ec7aafd0cc028778f4056276b5faf96b80202cb6bd`（均在默认端口 4173/4183 下计算，命令见「快速接手」§5） |
-| campaign 目录 / manifest | 诊断 `data/business-validation/2026-09-25T06-04-47-808Z/`（`manifest.json` 记录 commit `283ea36`、构建 `c2b288c2…`、模型与提供方）；正式批次 `data/business-formal/2026-09-25T07-13-39-663Z/`（在当前 tip 复跑的拒绝记录；另有 `…06-24-28-394Z/`） |
+| campaign 目录 / manifest | 诊断 `data/business-validation/2026-09-25T06-04-47-808Z/`（`manifest.json` 记录 commit `283ea36`、构建 `c2b288c2…`、模型与提供方）——**合并后构建不同，该诊断已作废**。正式批次**合并后（当前构建 `cddcc990…`）**的拒绝记录 `data/business-formal/2026-09-25T09-40-08-113Z/`：`approval.ok:true`、`reviewedBy:user`、声明哈希 `f3ac227c…`、`budgetRemainingUsd:1.95598512`；另有 `…09-26-56-088Z/`、`…07-13-39-663Z/`、`…06-24-28-394Z/` |
 | 原批准来源 / 候选 ID / 声明 hash | **已可用（原为缺失，现解除）**。批准来源已由 `origin/main` 的 `766615b` 从「原作者本机目录」改为 **Git 附带的 fixture**，计划文档同步更新。执行 `pnpm fixture:approved-retry -- --verify` → `{"verified":true,"files":14,"ruleConfigSha256":"f3ac227c94ea3c16471bbf00ee4e2f811d3b005600049520271979bf1792161e"}`，再 `pnpm fixture:approved-retry` → 生成 `data/fixtures/approved-retry`。候选 `proposal-fc30e9bb-46bc-40ec-b88b-ff52f0565607`，`reviewedBy: user`，声明哈希 `f3ac227c94ea3c16471bbf00ee4e2f811d3b005600049520271979bf1792161e`（与 fixture 自记录值一致）。原始声明未改：target `Retry button`、timeoutMs 5000。`approvalActionPerformed: false` —— 这是**迁移既有批准**，不是新批准。历史目录 `data/learning/2026-09-24T10-57-41-736Z` 现仅为追溯来源 |
 
 hash 是按环境计算的：契约快照含 `environment.publicOrigin`，每次运行的运行期端口都不同，所以报告里的 hash 逐次不同（例如诊断 E0 `f9ffa0d6…`、预检 `ea478d91…`）。上表给的是**固定默认端口下的规范 hash**，用于比较契约内容本身；这与 C06「改变环境产生新 hash」是同一规则，不是不一致。
@@ -29,8 +29,8 @@ hash 是按环境计算的：契约快照含 `environment.publicOrigin`，每次
 | P2 购物抽取 | 完成 | `1d9e4e6` | — |
 | P3 导出业务 | 完成 | `bbae310`、`274b46c` | — |
 | P4 工作台与评估 | 完成 | `4b1944d`、`f403561`、`791fca3`、`1416ae1`、`2e8223a`、`9f6bd29`、`51ec0eb`、`2f52d7f`、`9659ca6`、`8447a73` | — |
-| P5 真实验收 | **blocked** | 诊断 4 轮（`9659ca6`、`35f56ce`、`5ded01c`、`23d674a`、`65c6c0b`、`283ea36`）；正式入口 `c5a6e01`、`844e152` | G4 E2 一条断言未过 → G5 未执行 |
-| P6 交付 review | 进行中 | 本文件、README 更新 | push/PR 未做 |
+| P5 真实验收 | **blocked** | 诊断 4 轮（`9659ca6`、`35f56ce`、`5ded01c`、`23d674a`、`65c6c0b`、`283ea36`）；正式入口 `c5a6e01`、`844e152` | G4 E2 一条断言未过 → G5 未执行；**合并后旧诊断作废，需重新冻结重跑** |
+| P6 交付 review | 进行中 | 本文件、README 更新；合并 `766615b`（`1a033fc`）、fixture 默认来源（`c1f3786`）、本轮文档与 flake 修复 | push/PR 未做；E2 接口待主 Agent 裁定 |
 
 ### P0 耦合表（任务书第 2 节，逐项最终归属）
 
@@ -58,14 +58,14 @@ hash 是按环境计算的：契约快照含 `environment.publicOrigin`，每次
 
 ## 验收追踪
 
-命令与退出码均为本机实测。代码门槛在冻结提交 `8447a73` 上运行（`pnpm test` 592/592、`pnpm validate:business -- --preflight` 28/28、`pnpm test:fixtures:export`）；文档提交之后又重跑过 `format:check`、`typecheck`、`build`（重建产物 hash 不变）、`preflight` 与全量 `test`，结果相同。`dist/*` hash 见版本表。
+命令与退出码均为本机实测。**592/592 是合并前冻结提交 `8447a73` 上的实测值**；合并 `766615b` 后用例数变为 **71 文件 / 602 用例**（`766615b` 自带 `evaluation/support/approved-retry.test.ts`），合并后已重跑 `format:check`、`typecheck`、`build`、`test:fixtures`、`test:fixtures:export`、`validate:persistence`、`validate:investigation`、`validate:blocker-review` 与 `--preflight`（28/28），全部 exit 0，`paidModelRequests: 0`。`dist/*` hash 见版本表。
 
-**一个会偶发非零退出的已知 flake**：`src/execution/browser.test.ts` 的 500ms 试点击竞态（详见「偏差」第 7(c) 项）。本文件所有「592/592」都是实际运行结果，但其中至少一次中间运行曾因该 flake 显示 591/592 后重跑通过；不要把它读成"从未失败"。
+**原「偶发 flake」已定位并修复**（详见「偏差」第 7(c) 项）：`src/execution/browser.test.ts` 的试点击预算从固定的 500ms 改为具名上限 `ACTIONABILITY_CROSS_CHECK_MS = 15s`。它不是产品缺陷——失败时**上一行**的产品采样器每次都通过，失败的是 Playwright 自己的交叉核对。修复后全量运行连续通过（见该项的 RED/GREEN 实测）。
 
 | 门槛 | 命令、测试文件/用例 | 退出码/实际结果 | 原始证据 |
 | --- | --- | --- | --- |
 | G0 免费基线 | `pnpm install --frozen-lockfile` / `format:check` / `typecheck` / `test` / `build` / `test:fixtures` / `validate:persistence` / `validate:investigation` / `validate:blocker-review` | 全部 exit 0（见下方逐条） | 本机终端；`data/persistence-preflight/`、`data/atomic-fixture-check/` |
-| G0 `pnpm test` | vitest run | exit 0，**70 文件 / 592 用例全通过**（当前 tip 上重复运行亦然） | — |
+| G0 `pnpm test` | vitest run | **合并前 `8447a73`：70 文件 / 592 用例**；**合并后当前 tip：71 文件 / 602 用例**（新增 `evaluation/support/approved-retry.test.ts`），多次运行通过 | — |
 | G0 `pnpm test:fixtures` | `scripts/verify-fixtures.ts` | exit 0，C0–C5 六例真值全部核对 | `data/verification/` |
 | G0 `pnpm test:fixtures:export` | `scripts/verify-export-fixtures.ts` | exit 0，E0–E4 五变体，含 F04 判别（E1 usable/recovered，E2 inoperable/not recovered，两者 `backendPermitsRetry=true`） | `data/verification/export-fixtures.json` |
 | G0 `pnpm validate:persistence` | 编译服务 + Mastra + Chromium + 本地固定模型 | exit 0，runs=6 durable，`paidModelRequests: 0` | `data/persistence-preflight/2026-09-25T07-04-41-674Z/`（另 `…05-51-47-278Z/`） |
@@ -75,13 +75,13 @@ hash 是按环境计算的：契约快照含 `environment.publicOrigin`，每次
 | G1 B01–B10 | `src/business/facts.test.ts`、`src/business/normalization.test.ts`、`src/execution/task-state-normalized.test.ts`、`src/execution/executor.test.ts`（B07） | 通过 | — |
 | G1 P01–P10 | `src/execution/side-effect-policy.test.ts`（P01–P03、P05、P06、P10）、`src/execution/executor.test.ts`（P04、P07）、`src/execution/security.test.ts`（P08）、`arena/export/src/server/api.test.ts`（P09） | 通过 | — |
 | G1 R01–R09 | `src/business/normalization.test.ts`+`src/rules/builtin/business-outcome.test.ts`(R01)、`evaluation/private/export/scorer.test.ts`(R02)、`src/execution/rule-binding.test.ts`(R03)、`src/execution/sample-window.test.ts`+`src/rules/proposal.test.ts`(R04)、`src/execution/temporal-investigation.test.ts`(R05)、`src/execution/executor.test.ts`+`journeys.test.ts`(R06)、`executor.test.ts`+`response-time.test.ts`(R07)、`executor.test.ts:1045/1953/2023`+`finish-contract.test.ts`+`run-phase.test.ts`(R08)、`executor.test.ts:2068`+`completion-integrity.test.ts`(R09) | 通过。**R03/R04/R05/R08/R09 未按 ID 打标签**，按行为逐条核对后归入上述文件（R03/R04/R05/R08 是通用契约用例，不含业务字段）。R08 由三个具名用例共同覆盖：未决假设不得清洁完成、审查模型想早结束时仍交回探索、审查期间页面出现恢复控件则拒绝先前有效的阻断提案 | — |
-| G2 F01–F08 | `pnpm validate:business -- --preflight` | exit 0，**28 断言 / 0 失败**，`paidModelRequests: 0` | `data/business-preflight/2026-09-25T06-45-26-473Z/`（`assertions.json`、`details.json`、`summary.json`、四份 `report-*.json`、三张 PNG） |
+| G2 F01–F08 | `pnpm validate:business -- --preflight` | exit 0，**28 断言 / 0 失败**，`paidModelRequests: 0`。**合并后**（构建 `cddcc990…`）重跑的结果相同 | 合并后 `data/business-preflight/2026-09-25T09-31-57-092Z/`；合并前 `…06-45-26-473Z/`（`assertions.json`、`details.json`、`summary.json`、四份 `report-*.json`、三张 PNG 两者齐备） |
 | G2 变体真值 | `pnpm test:fixtures:export`（同 G0 行） | exit 0，五变体真值与 create/retry/attempt/产物计数 | `data/verification/export-fixtures.json` |
 | G3 U01–U05 | 同上 preflight 的 Playwright 段 | 全通过：`U01profileCatalogueOffered`、`U01selectionChangesEnvironment`、`U02reportShowsContract`、`U02successReportShowsBusiness`、`U03legacyStateIsExplicit`、`U04invalidSelectionRefused`、`U05businessOutcomeVisible`、`U05evidencePresent` | 三张真实 UI 截图（§5 要求的三张齐备）：`u01-create-form.png`、`u02-export-success.png`、`u05-export-report.png` |
 | 评分反例 E01–E10 | `evaluation/private/export/scorer.test.ts` | 通过（在 `pnpm test` 内）。每条反例都从一个「会被接受」的 run 出发只篡改一处，正向半边同时断言，避免全盘拒绝也能满足负例 | — |
 | G4 smoke + 五例诊断 | `pnpm validate:business -- --diagnostic` | **exit 非零。5/6 通过**：smoke PASS、E0 PASS、E1 PASS、E3 PASS、E4 PASS、**E2 FAIL `['defect_eligibilityCited']`** | `data/business-validation/2026-09-25T06-04-47-808Z/`（`diagnostic-summary.json`、`E2-score.json`、`E2-report.json`、`E2-truth.json`） |
-| G5 A 导出探索 15 轮 | `pnpm validate:business -- --formal --diagnostic-source <dir>` | **未执行，不得填 15/15** | 拒绝证据：`data/business-formal/2026-09-25T07-13-39-663Z/`（当前 tip 复跑：`gate:false`、`exitNonZero:true`、`reasonCodes:['diagnostic-not-passed']`、45 行全 blocked 全 `planned:false`、非零退出、无模型调用）。另 `…06-24-28-394Z/` |
-| G5 B 导出规则 6 轮 | 同上（另需 `--approved-source`） | **未执行，不得填 6/6** | 同上；另因批准来源缺失 `approval-source-missing: …/data/learning/2026-09-24T10-57-41-736Z/runs.db`（manifest `approval.ok:false`）。**缺失是独立原因**：即使诊断通过，B/D 仍会 blocked |
+| G5 A 导出探索 15 轮 | `pnpm validate:business -- --formal --diagnostic-source <dir>` | **未执行，不得填 15/15** | 拒绝证据（**合并后构建 `cddcc990…`**）：`data/business-formal/2026-09-25T09-40-08-113Z/`（`gate:false`、`exitNonZero:true`、`reasonCodes:['diagnostic-not-passed']`、45 行全 blocked 全 `planned:false`、非零退出、无模型调用）。另 `…09-26-56-088Z/`、`…07-13-39-663Z/`、`…06-24-28-394Z/` |
+| G5 B 导出规则 6 轮 | 同上（`--approved-source` 已可省略，默认 `data/fixtures/approved-retry`） | **未执行，不得填 6/6** | 同上。**批准来源阻碍已解除**：`766615b` 把来源改为 Git fixture，本分支合并后 manifest 显示 `approval.ok:true`、`reviewedBy:user`、声明哈希 `f3ac227c…`。B/D 现在唯一未满足的前置是「通过诊断」 |
 | G5 C 购物 minimum 18 轮 | 委派 `pnpm validate:acceptance` | **未执行，不得填 18/18** | 同上（formal runner 对 C/D 显式委派，不在此重复其 18 例门槛） |
 | G5 D 购物学习 6 轮 | 委派 `pnpm validate:learning -- --recheck` | **未执行，不得填 6/6** | 同上 |
 | 停服持久化审计 | 需在正式批次后执行 | **未执行**（无正式批次） | — |
@@ -146,8 +146,18 @@ E2 的 run 行为本身正确：声明 `Try again recovery button`，26 样本�
 - 该断言此前的夹具掩盖了这一点：`scorer.test.ts` 直接把 `eligibility.json` 手写进 `findings[].evidenceRefs`，绕过了真正填充该字段的执行器路径。夹具已改为 `type: 'resource'` 且带真实正文，并新增两条反例（只引用屏幕不引用资源；引用一个存在但无 `prerequisite` 的同名文件）。
 - **未做**（均为计划明令禁止或会削弱门槛）：放宽 `eligibilityCited` 去接受工作台渲染的提示（那是客户端投影，不是业务源）；在 `complete()` 里特判塞入资源引用（业务专属分支，会让断言按构造满足）；删除断言；把 agent 引到旧路径只为点亮一格。
 - **留给主 Agent 决定**：`investigation_check` 是否应像 `findings_submit` 那样接受声明的支撑证据引用（这是影响**每个**业务的 agent 证据契约变更，需要自己的验收证据），或验收计划的「资格来源」要求本就应在旧路径上满足。两者都是计划级决定，dev 端迭代不应以削弱门槛或重路由 agent 来裁定。
+- **关于计划的边界（dev 端读法）**：验收计划 §6 要求 E2 保存「资格来源」，§7 的 E04 反例列的是「无测量、窗口不足、全 null、错误目标或有干预」，**没有**列出「未引用资格资源」这一条。`eligibilityCited` 是 scorer 相对该清单的**额外**严格化（理由见 `scorer.ts:211-217` 的注释，以及 E1/E2 载荷相同的 F04 事实）。这不改变结论——断言本身有正当理由，且 §6 确实点名了资格来源——但它是主 Agent 裁定该接口时应看到的一条依据：收紧处是 scorer，不是计划清单。
+- **合并对 E2 无影响**：已实测 `766615b` 未改动任何 E2 链路上的文件（`src/execution/executor.ts`、`temporal-investigation.ts`、`tool-inputs.ts`、`tool-guidance.ts`、`evaluation/private/export/scorer.ts` 均不在该提交的 27 个文件中）。但合并改动了 `src/storage/database.ts`（新增 `initializeDatabase` 导出），**server 构建 hash 因此从 `c2b288c2…` 变为 `cddcc990…`**，所以旧诊断无论如何都已作废——即使 E2 明天修好，也必须重新冻结并重跑诊断。
 
-**4. 原批准来源缺失（外部阻碍，未伪造）。** 计划指定的 `data/learning/2026-09-24T10-57-41-736Z` / `proposal-fc30e9bb-46bc-40ec-b88b-ff52f0565607` 在本机不存在（`data/learning/` 目录本身缺失）。按 §8.3，B/D 记 `blocked`，不伪造批准。只读导入本身已实现并针对按真实 schema 构造的来源测试通过（`1416ae1`、`evaluation/private/export/approval-source.test.ts`）。**没有**输出任何密钥或凭据内容。
+**4. 原批准来源缺失 —— 已解除（记录变更，不是抹掉）。** 我最初交付时该阻碍真实存在：计划指定的 `data/learning/2026-09-24T10-57-41-736Z` 在本机不存在（`data/learning/` 目录本身缺失），按 §8.3 我记 B/D 为 `blocked` 且未伪造批准。
+
+随后 `origin/main` 的 `766615b` **修改了计划文档本身**：批准来源从「原作者本机目录」改为 Git 附带的 `evaluation/fixtures/approved-retry`，`validate:business` 的默认来源改为 `data/fixtures/approved-retry`（同时明确该导入属于迁移，不得用于批准新候选）。本分支已合并该提交并做了三件事：
+
+1. 运行 `pnpm fixture:approved-retry -- --verify` → `verified:true`、14 个文件、声明哈希 `f3ac227c…`；再运行 `pnpm fixture:approved-retry` → 生成 `data/fixtures/approved-retry`，`approvalActionPerformed:false`、`paidModelRequests:0`。
+2. 把 `business-formal.ts` 的 `DEFAULT_APPROVED_SOURCE` 切到 `data/fixtures/approved-retry`（`c1f3786`）。
+3. **离线预演了 B/D 的安装路径**（这是唯一只在付费批次中途才会执行、坏了要花钱才发现的地方）：`importApprovedRule` + `installApprovalIntoBatch` + 生产 `loadEnabledProposals` 对**真实 fixture** 跑通 —— 声明被编译进批次库，target `Retry button`、timeoutMs 5000 与原声明一致，`reviewed_by` 记为 `user (imported unchanged from proposal-fc30e9bb…@f3ac227c94ea)`，来源行状态 `interrupted`、不可被任何批次/健康查询当作结果计数。
+
+合并后 formal manifest 显示 `approval.ok:true`、`reviewedBy:user`。**未**输出任何密钥或凭据内容；导入工具不调用 approve/enable API，不重新分配候选 ID 或批准时间。
 
 **5. `.env.example` 未更新（会话限制，需人工编辑）。** 该文件（以及 `.env`）被用户的显式 `Read` 拒绝规则覆盖，我未读取、未绕过，也不通过任何其他工具、编码或子代理去取。后果：新增的导出端口/token（`EXPORT_ARENA_PORT`、`EXPORT_API_PORT`、`EXPORT_CONTROL_PORT`、`EXPORT_CONTROL_TOKEN`）未在其中记录。默认值已存在于 `src/shared/config.ts`，且每个脚本都显式设置它们，功能无缺失，但示例文件是陈旧的。
 
@@ -164,7 +174,13 @@ git fetch ui-sentinel-business-contracts.bundle \
 
 按计划要求区分两类提交：**实际验收代码**止于 `8447a73`（其 `dist/server/index.js` hash `c2b288c2…` 与诊断 manifest 逐字节一致）；其后的文档提交只动 `plans/`、`README.md`、`docs/`，不改变任何构建产物，因此 G4 的结论仍属于这一构建。若主 Agent 修复 E2 的接口问题，构建 hash 必然改变，`8447a73` 的构建与其诊断即作废，必须重新冻结并重跑诊断后才可授权正式批次。
 
-**7. 已知限制（非阻碍）。** (a) `P04` 的 export 夹具把不确定写入建模为 create 提交后的 5xx，而非 `req.socket.destroy()`——截断流会让 Chromium 自行重发 POST，一次点击产生两次 create，那样测到的是传输层而非执行器；与既有 checkout P04 用例保持一致。(b) `P07` 断言迟到工具调用**按名**被拒，而非只断言「没有发生 create」（第一版是空断言：迟到调用根本没到达，去掉 `throwIfAborted` 也不影响保护）。(c) `browser.test.ts` 的 "samples pointer actionability without clicks…" 在全量运行中**偶发**失败：`locator.click: Timeout 500ms exceeded`（元素已解析到，卡在 visibility/enabled/stability 检查）。该文件本分支零 diff（`git diff 1b377bb..HEAD -- src/execution/browser.test.ts src/execution/browser.ts` 为空），隔离运行 3/3 通过，同一 tip 上紧接着的全量运行 592/592 通过。属于机器负载下的 500ms 试点击竞态，**未修**且未被掩盖：本文件如实记录它会让 `pnpm test` **偶发非零退出**，主 Agent 复跑时若命中同一现象，这不是本阶段的回归。这条不应被当作"592/592 已通过"的同义反复。(d) 此 libSQL 客户端拒绝 `?mode=ro`/`?immutable=1`（`URL_PARAM_NOT_SUPPORTED`），只读来自 `PRAGMA query_only`（真实拒绝，已测）。
+**7. 已知限制（非阻碍）。** (a) `P04` 的 export 夹具把不确定写入建模为 create 提交后的 5xx，而非 `req.socket.destroy()`——截断流会让 Chromium 自行重发 POST，一次点击产生两次 create，那样测到的是传输层而非执行器；与既有 checkout P04 用例保持一致。(b) `P07` 断言迟到工具调用**按名**被拒，而非只断言「没有发生 create」（第一版是空断言：迟到调用根本没到达，去掉 `throwIfAborted` 也不影响保护）。(c) `browser.test.ts` 的 "samples pointer actionability without clicks…" 曾在全量运行中非零退出：`locator.click: Timeout 500ms exceeded`（元素已解析到，卡在 visibility/enabled/stability 检查）。**已定位并修复**，且**不是产品缺陷**。
+
+  - **修复前的实测失败率不是「偶发」**：在本机（14 核、vitest 默认并发）连续 5 次全量运行中 **3 次失败**（601/602）；同一提交在 `--maxWorkers=2` 与 `--maxWorkers=1` 下各 1 次、隔离运行 5 次**全部通过**。失败率随并发度变化，这一结构性线索指向并发而非概率。
+  - **两次错误归因（如实记录，均已自我证伪）**：(1) 我最初写「机器负载下的 500ms 竞态」——用 `cpus().length` 个独立忙进程制造真实多进程 CPU 饱和后，同一页面的试点击仍在 ~30ms 内成功，500ms 与 5000ms 无差别，**证伪**；(2) 接着怀疑被遮挡页面触发 rAF 节流（Playwright 的 stable 判定需要连续两帧）——实测前台 17ms、后台页 4–16ms，**证伪**。两次都不是靠推理推翻，是靠把假设写成可失败的预测再实测。
+  - **真正根因（可复现）**：并发启动多个 Chromium 实例时，Playwright 该试点击的耗时从 ~30ms 涨到**秒级**。实测：并发 4 → 500ms 下 1/4 被拒；**并发 14 → 500ms 下 7/14 被拒**；同一页面把预算放到 5000ms → **0/14 被拒**（最长 3678ms）。即元素**确实可操作**，超时的是 Playwright 内部轮询的预算，不是产品判定。
+  - **为什么这属于测试仪器而非产品**：断言的前一行 `sampleElementCondition`（产品实现，同步、瞬时）在**每一次**失败中都返回了期望值 true；失败的只有 Playwright 的交叉核对。500ms 这个固定值测的是浏览器启动争用，不是可操作性。该 `timeout: 500` 在 base `1b377bb` 就存在（`git show 1b377bb:src/execution/browser.test.ts`），本阶段测试文件数从 52 增到 71 才把它暴露出来——是**既有潜在缺陷被放大**，不是本阶段引入的回归。
+  - **修复**：抽出具名上限 `ACTIONABILITY_CROSS_CHECK_MS = 15_000` 并说明理由（只作天花板，慢机器不会把正确页面变成失败）。**证伪半边不受影响**：早于它的那一步在遮挡层存在时仍必须被拒（第 63 行，`timeout: 150`，慢只会让拒绝更确定），"enabled 不等于未被遮挡"这一断言意图完整保留。RED/GREEN：原文件在全量并发下 3 次中失败 1 次（`602 passed` / `1 failed | 601 passed` / `602 passed`）；修复后连续 8 次全量运行全部 `602 passed`。(d) 此 libSQL 客户端拒绝 `?mode=ro`/`?immutable=1`（`URL_PARAM_NOT_SUPPORTED`），只读来自 `PRAGMA query_only`（真实拒绝，已测）。
 
 ## 快速接手与演示
 
@@ -206,22 +222,27 @@ ARENA_PORT=4173 EXPORT_ARENA_PORT=4183 node --import tsx -e "
 
 | 制品 | 位置 |
 | --- | --- |
-| 预检全部断言与细节 | `data/business-preflight/2026-09-25T06-45-26-473Z/{assertions,details,summary}.json` |
-| 三张真实 UI 截图（§5 要求齐备） | 同目录 `u01-create-form.png`、`u02-export-success.png`、`u05-export-report.png` |
+| 预检全部断言与细节（**合并后**构建） | `data/business-preflight/2026-09-25T09-31-57-092Z/{assertions,details,summary}.json` |
+| 三张真实 UI 截图（§5 要求齐备） | 同目录 `u01-create-form.png`、`u02-export-success.png`、`u05-export-report.png`（合并前的 `…06-45-26-473Z` 亦有齐备三张） |
 | 预检四份报告（成功/失败/未知写/非法 finish） | 同目录 `report-*.json` |
 | 五变体真值与 F04 判别 | `data/verification/export-fixtures.json` |
+| **批准来源 fixture 离线校验与导入** | `data/fixtures/approved-retry/`（`manifest.json`、`source.json`、`portable-source.json`、`approval-inherited.json`、`runs.db`）；Git 侧原始资料 `evaluation/fixtures/approved-retry/` |
 | 诊断逐例评分与真相 | `data/business-validation/2026-09-25T06-04-47-808Z/E*-{score,report,truth}.json` |
 | 诊断摘要、manifest、花费 | 同目录 `diagnostic-summary.json`、`manifest.json`、`spending.json` |
-| 正式批次拒绝证据（45 行 blocked） | `data/business-formal/2026-09-25T06-24-28-394Z/` |
-| 持久化预检 | `data/persistence-preflight/2026-09-25T05-51-47-278Z/` |
+| 正式批次拒绝证据（45 行 blocked） | `data/business-formal/2026-09-25T07-13-39-663Z/`（合并前 `…06-24-28-394Z/`） |
+| 持久化预检（**合并后**构建） | `data/persistence-preflight/2026-09-25T09-30-56-660Z/`（合并前 `…05-51-47-278Z/`） |
 
 大制品（`runs.db`、模型请求/响应日志、PNG）不提交 Git。诊断目录中的请求/响应日志含 hub 侧脱敏后的正文，交付时按需裁剪。
 
 ## 开发 Agent 自检结论
 
-**结论：`blocked`。**
+**结论：`blocked`**（合并 `766615b` 后重新评估，结论不变）。
 
-不是 `ready-for-review`：G4 未通过（E2 一条断言），因此 G5 的 45 轮矩阵按计划顺序不得启动，且原批准来源缺失使 B/D 独立地也不可行。不是 `failed`：除该一条断言外，G0–G3 全部实测通过，诊断 5/6 通过，产品行为在 E2 上本身正确。
+不是 `ready-for-review`：G4 未通过（E2 一条断言），因此 G5 的 45 轮矩阵按计划顺序不得启动。**并且合并使旧诊断作废**：`766615b` 改动了 `src/storage/database.ts`，server 构建从 `c2b288c2…` 变为 `cddcc990…`，而 formal 要求诊断逐字节来自**当前**构建——所以即使 E2 的接口裁定为「无需改动」，也必须重新冻结并重跑诊断，不能沿用 `06-04-47-808Z`。
+
+不是 `failed`：除该一条断言外，G0–G3 全部实测通过，诊断 5/6 通过，产品行为在 E2 上本身正确。
+
+**合并后的变化（三点，方向均为改善或中性）**：(1) 原批准来源阻碍**解除**——Git fixture 已校验导入，B/D 现在唯一未满足的前置是通过诊断；(2) 新增 `evaluation/support/approved-retry.test.ts`，用例数 592→602；(3) 原「偶发 flake」**定位并修复**（是测试仪器的固定预算，不是产品缺陷）。E2 不受合并影响（已实测该提交未触碰 E2 链路的任何文件）。
 
 对照验收计划第 10 节逐项：
 
@@ -231,7 +252,7 @@ ARENA_PORT=4173 EXPORT_ARENA_PORT=4183 node --import tsx -e "
 - [x] G0–G3 命令、退出码、测试名与 ID 对照 — 已填，全部实测
 - [x] G4/G5 全部行及来源 — G4 逐例已填；G5 四行明确记「未执行」
 - [x] 模型/提供方/flags、费用、未知计量、失败批次索引 — 已填；4 次失败付费批次在 `progress.md` P5 段
-- [ ] 原批准来源、声明未变证明、停服持久化审计 — **三项都因批次未运行而不存在**，未伪造
+- [~] 原批准来源 — **已取得并核验**（Git fixture，见偏差 4）；**声明未变**有离线预演证据（target `Retry button`、timeoutMs 5000、`reviewed_by` 保留原值）；**停服持久化审计**仍因正式批次未运行而不存在，未伪造
 - [x] 无私有答案泄漏、无额外业务写、无未知结果重放的证据 — 预检 `workbenchHidesPrivateControl`、`unknownWriteRefused`+`unknownWriteRecorded`（真实 `write:denied {reason: create-budget-exhausted, intent: create}` 落在真实 `POST /api/exports`，creates 保持 1）、`P04/P07` 隔离用例
 - [x] README/docs 已同步 — 见下
 - [x] 开发分支已交付 — 以 bundle 交付（计划允许「push 或 bundle」）；**未 push**，会话权限拒绝了 `git push`，未绕过（见偏差 6）
@@ -241,8 +262,8 @@ ARENA_PORT=4173 EXPORT_ARENA_PORT=4183 node --import tsx -e "
 1. **E2 的接口裁定**（偏差 3）：`investigation_check` 是否接受声明的支撑证据引用。这是本次唯一的产品级未决项，且会影响所有业务。建议先判定，再决定是否需要重跑诊断与正式批次。
 2. **`resource` 产物类型的引入**：验收计划只列了 screenshot/snapshot/measurement，我新增了第四类以承载「资格来源」。请确认这是正确的落地方式，而非应改为在既有类型上扩展。
 3. **契约 hash 随环境变化**：报告内 hash 逐 run 不同是设计结果（环境在快照内），但会让「同一份契约」的肉眼比对失效。请确认验收方对该点的期望，以及是否需要额外提供一份与环境无关的 profile 摘要 hash。
-4. **原批准来源的取得**：B/D 与 D 组的「不破坏原学习闭环」结论完全依赖它。目录不在 Git，本机缺失。
-5. **P04/P07 的建模选择**（偏差 7a/7b）与 (c) 的 flaky 用例。
+4. **`scorer.ts` 对 E2 的额外严格化**：`eligibilityCited` 不在验收计划 §7 的 E04 反例清单里（该清单是「无测量/窗口不足/全 null/错误目标/有干预」）。§6 确实点名要求保存「资格来源」，所以该断言有依据；但请在裁定接口时一并确认「由 scorer 而非计划清单施加这条要求」是否符合预期。
+5. **P04/P07 的建模选择**（偏差 7a/7b）。(c) 的 flake 已修复，不再是风险项——修复理由与 RED/GREEN 见偏差 7(c)。
 6. **耦合表里 `blocker-review.ts` 与 `evaluation-access.ts` 零改动**：请确认「沿用而不扩大」是验收方的期望，而非遗漏。
 
 不写「无需 review」。

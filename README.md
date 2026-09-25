@@ -100,12 +100,12 @@ pnpm evaluate -- --suite minimum --repeats 3
 pnpm validate:business -- --diagnostic
 # 同一冻结构建的正式四组 45 轮（见下）：
 pnpm validate:business -- --formal --diagnostic-source <通过诊断的目录> \
-  [--approved-source <已关闭学习目录>] [--groups A,C]
+  [--approved-source <已关闭学习目录，默认 data/fixtures/approved-retry>] [--groups A,C]
 ```
 
 validate:acceptance 无参数只跑六例诊断；--minimum 为诊断通过后再跑 18 轮。真实验收要求干净提交，记录模型、提供方、编译哈希和全部失败。费用通过网关估算预留，未知费用不当成零；可配置 VALIDATION_MAX_COST_USD、VALIDATION_AGENT_PROVIDER、VALIDATION_VISION_PROVIDER。复现当前基线时指定 Wafer/Alibaba 并显式启用有限审查。参见[靶场与验收](docs/arena-and-evaluation.md)。
 
-validate:business 的三个入口刻意是三个模块：一个误设的标志不能把免费检查变成付费批次，也不能让诊断结果被读成正式批次。`--diagnostic` 需要 OPENROUTER_API_KEY（缺 key 明确非零退出，不 mock）。`--formal` 要求 `--diagnostic-source` 指向来自**当前冻结构建**的通过诊断（逐字节校验构建 hash），严格拒绝未知或冲突选项，并在任何模型调用之前完成计划判定——判定不通过时写满 45 行 blocked 后立即非零退出，不产出半个矩阵。缺 `--approved-source` 时 B/D 记 blocked，仍完成可安全进行的 A/C，最终非零退出，绝不伪造批准。诊断与正式批次**共享**同一个 `VALIDATION_MAX_COST_USD` 上限（默认 $2），新建输出目录不重置额度。组 C/D 委派给既有 `validate:acceptance` 与 `validate:learning -- --recheck`，不重复其门槛。
+validate:business 的三个入口刻意是三个模块：一个误设的标志不能把免费检查变成付费批次，也不能让诊断结果被读成正式批次。`--diagnostic` 需要 OPENROUTER_API_KEY（缺 key 明确非零退出，不 mock）。`--formal` 要求 `--diagnostic-source` 指向来自**当前冻结构建**的通过诊断（逐字节校验构建 hash），严格拒绝未知或冲突选项，并在任何模型调用之前完成计划判定——判定不通过时写满 45 行 blocked 后立即非零退出，不产出半个矩阵。`--approved-source` 默认取 `data/fixtures/approved-retry`（由 `pnpm fixture:approved-retry` 从 Git 资料生成）；来源不可用或无法核验时 B/D 记 blocked，仍完成可安全进行的 A/C，最终非零退出，绝不伪造批准。诊断与正式批次**共享**同一个 `VALIDATION_MAX_COST_USD` 上限（默认 $2），新建输出目录不重置额度。组 C/D 委派给既有 `validate:acceptance` 与 `validate:learning -- --recheck`，不重复其门槛。
 
 pnpm arena:reset -- --case C0 是受控制 token 保护的私有入口，活动/排队/待核对任务存在时拒绝重置；不要提供给被测 Agent。pnpm report -- --run RUN_ID 导出报告。
 
@@ -117,7 +117,7 @@ pnpm arena:reset -- --case C0 是受控制 token 保护的私有入口，活动/
 pnpm validate:learning -- --recheck <已关闭且已批准的学习目录>
 ```
 
-跨机器可先运行 `pnpm fixture:approved-retry`，从 Git 中的[原批准资料](evaluation/fixtures/approved-retry/README.md)生成 `data/fixtures/approved-retry`，再将该路径传给 `--recheck` 或下一阶段的 `--approved-source`。导入不调用模型，也不重新批准规则。
+跨机器无需原作者的本机目录：先运行 `pnpm fixture:approved-retry -- --verify`（离线校验）再运行 `pnpm fixture:approved-retry`，从 Git 中的[原批准资料](evaluation/fixtures/approved-retry/README.md)生成 `data/fixtures/approved-retry`，再将该路径传给 `--recheck` 或 `--approved-source`（`validate:business -- --formal` 已默认使用它）。导入不调用模型、不重新批准规则，也不重新分配候选 ID 或批准时间——它是既有批准的迁移，不能用于批准新候选。
 
 生成、修订和首次批准的命令见[规则文档](docs/rules-and-rule-library.md)。历史报告从持久记录恢复；缺少结束证据或记录不一致时不声称完成。
 
@@ -129,7 +129,7 @@ pnpm validate:learning -- --recheck <已关闭且已批准的学习目录>
 
 已采用架构的真实基线为独立布局 12/12、正式 minimum 18/18、获准规则复查 6/6，包含停服数据库与证据审计。它不是任意业务、视觉发现召回或全局最优证明。原存储异常根因仍未知，当前有拒绝假完成和阻止重复执行的保护。该历史成绩**不属于**业务契约阶段，也不构成其验收结果。
 
-业务契约阶段的进展与限制以[交接记录](plans/business-contracts-handoff.md)为准。截至该记录，免费门槛（格式、类型、592 用例、构建、两个靶场夹具、持久化、原子调查、有限审查、业务预检 28 断言）全部实测通过；真实模型的五例诊断 5/6 通过，导出 E2 有一条断言未过，因此正式 45 轮矩阵未执行，开发自检结论为 **blocked**。已知限制：原批准来源不在本机（B/D 组不可行），`.env.example` 尚未记录导出端口与 token。
+业务契约阶段的进展与限制以[交接记录](plans/business-contracts-handoff.md)为准。截至该记录，免费门槛（格式、类型、602 用例、构建、两个靶场夹具、持久化、原子调查、有限审查、业务预检 28 断言）全部实测通过；真实模型的五例诊断 5/6 通过，导出 E2 有一条断言未过，因此正式 45 轮矩阵未执行，开发自检结论为 **blocked**。原批准来源**已解除**（`766615b` 改为 Git 附带的 `evaluation/fixtures/approved-retry`，本机已导入并离线核对，B/D 现在唯一未满足的前置是通过诊断）；已知限制：`.env.example` 尚未记录导出端口与 token（该文件被本会话的读取拒绝规则覆盖，需人工编辑）。
 
 - [架构与 Agent 职责](docs/architecture.md)
 - [执行层](docs/execution-engine.md)

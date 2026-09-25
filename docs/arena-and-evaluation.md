@@ -54,12 +54,14 @@ pnpm validate:business -- --preflight
 pnpm validate:business -- --diagnostic
 # 正式四组 45 轮（诊断必须来自当前冻结构建）
 pnpm validate:business -- --formal --diagnostic-source <通过的诊断目录> \
-  [--approved-source <已关闭学习目录>] [--groups A,C]
+  [--approved-source <已关闭学习目录，默认 data/fixtures/approved-retry>] [--groups A,C]
 ```
 
 validate:acceptance 无参数执行 smoke + 六例诊断；--minimum 为诊断通过后继续正式 18 轮。入口要求干净提交，保存版本、编译哈希、请求、报告与评分。网关明确记录估算费用、实际 usage 或未知项，不把未知费用当零。停止/预算错误仍计入记录。
 
 validate:business 的三个入口是三个独立模块：一个误设的标志不能把免费检查变成付费批次，也不能让诊断结果被读成正式批次。`--preflight` 主动清空真实凭据，`--diagnostic`/`--formal` 缺 key 明确非零退出、不 mock。`--formal` 在**任何模型调用之前**完成计划判定，判定不通过时写满 45 行 blocked 后立即非零退出；诊断与正式批次共享同一个 `VALIDATION_MAX_COST_USD` 累计上限，新建输出目录不重置额度。正式矩阵为四组：A 导出自主探索 15 轮（内置规则，E0–E4 各三次）、B 导出规则迁移 6 轮（载入原批准声明，E1/E2 各三次）、C 原购物 minimum 18 轮、D 原购物学习复查 6 轮。C/D 委派给既有 runner，不重述其门槛。每组独立数据库，跨组不借用任何发现、假设或规则状态。
+
+B/D 需要的已批准声明来自 `data/fixtures/approved-retry`（默认来源），由 `pnpm fixture:approved-retry` 从 Git 资料离线校验并导入：保持原候选 ID、人工审阅者、声明 target/timeoutMs 与批准时间，不调用 approve/enable API。它是既有批准的迁移，不能用于批准新候选；`portable-source.json` 区分历史数据库与新摘录数据库的哈希，两者不同是正常现象。批次安装前可离线核对：导入的声明会被编译进批次库，其来源行状态为 `interrupted`，不会被任何批次或健康查询当作结果计数。
 
 OpenRouter 验证网关的模型固定在 evaluation/support/model-gateway.ts；提供方和费用上限通过 VALIDATION_AGENT_PROVIDER、VALIDATION_VISION_PROVIDER、VALIDATION_MAX_COST_USD 设置。复现已采纳基线时固定 Agent 为 Wafer、视觉为 Alibaba，并显式 EXECUTION_BLOCKER_REVIEW=1；仅改默认开关的运行不能标成相同条件对照。
 
