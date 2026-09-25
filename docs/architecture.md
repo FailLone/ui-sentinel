@@ -23,15 +23,39 @@ flowchart LR
 
 | 模块 | 当前责任 |
 | --- | --- |
+| src/business | 业务契约配置与校验、注册表与冻结、公开协议适配器、规范化事实、副作用策略输入 |
 | src/agent | 探索政策、有限上下文、模型请求与计时、结束判断、规则候选生成 |
 | src/execution | 队列与取消、页面控制、工具验证、预算、事实与证据、可靠终结 |
 | src/rules | 规则目录、按事实路由、共享检查、声明式时序规则 |
-| src/server | HTTP/SSE、控制接口、持久报告组装 |
+| src/server | HTTP/SSE、控制接口、业务配置解析、持久报告组装 |
 | src/storage | 数据表与事务；模型 SDK 不拥有运行状态 |
-| src/web | 本地任务创建、报告、日志、证据及反馈操作 |
-| arena / evaluation | 可重复业务靶场、私有真值、评分与验收支撑 |
+| src/web | 本地任务创建（含业务选择）、报告、日志、证据及反馈操作 |
+| arena / evaluation | 可重复业务靶场（购物、导出）、私有真值、评分与验收支撑 |
 
 Mastra Core 提供 Agent/Tools；Playwright 提供浏览器状态、动作和证据；Midscene/Qwen 提供必要的视觉定位。Hono、libSQL、React 分别负责服务、持久化、工作台。没有 Effect 依赖，也没有保留第二套 Stagehand/Browser Use 运行循环。
+
+## 业务契约层
+
+执行器只有一个，业务差异全部来自版本化配置与可信适配器——通用代码不按 checkout/export、页面标题或 case ID 分支。
+
+```mermaid
+flowchart LR
+  API[POST /api/runs] --> Reg[注册表: 已知 profile@revision]
+  Reg --> Sel{配置与环境匹配?}
+  Sel -->|否| R400[400, 不入队]
+  Sel -->|是| Snap[冻结契约快照 + 自排除 SHA-256]
+  Snap --> Run[RunSpec.businessContract]
+  Run --> Adapter[适配器: origin+method+path+schema]
+  Adapter --> Fact[business:fact 规范化]
+  Fact --> Exec[执行器 / 规则 / 任务状态]
+  Fact --> Rep[报告: profile/revision/hash/要求来源]
+```
+
+契约快照含公开要求、`retryAvailabilityMs`、`feedbackWarningMs`、写入上限、环境边界、adapter revision 与 `hash`；hash 排除自身、按键排序稳定。**快照先持久化再入队**，活动任务不重读可变配置。同一环境内相同内容产生相同 hash；要求、策略、环境或 adapter 版本变化产生新 hash。环境每次启动的端口不同，所以运行期 hash 逐次不同，这是环境在快照内的直接结果。
+
+适配器只解释浏览器已观察的公开请求/响应，不自己调用业务 API、不持有 Page 或私有控制器，也不能被 Agent 动态注册。它按 origin、method、path 与响应 schema 识别请求，产出统一事实；读取失败、截断、非法 ID、无归属响应一律不升级为可靠事实。适配器可选择**保留**某个公开业务资源（`retainResource`），执行器将其正文逐字持久化为 `resource` 证据并追加 `business:resource` 事件——用于「业务为什么这样表现」这类必须以业务自己发布的文档为依据的断言，而不是以页面渲染出的样子为依据。
+
+运行时按 `operationId`（实体身份）与 `attempt`（该实体尝试次数）组织事实，去重与排序键包含两者与业务状态版本；乱序旧响应不能覆盖新成功，新操作或矛盾版本会使已核实终态失效。异步业务（导出）的 `processing` 是已接受操作而非未知写入，随后允许公开只读轮询，等待明确业务状态；真正未知的写入仍走 reconciliation-required，不自动重放、不靠 GET 猜测取消隔离。
 
 ## Agent 的职责
 
@@ -54,7 +78,9 @@ Agent 不拥有无限执行权限：动作预算、导航边界、重复写入�
 
 ## 当前部署与并发边界
 
-当前为受信单机、loopback 服务；Web 是同端口工作台。任务串行，页面只有一个写入者。尚未实现多用户认证、远程 Worker 或分布式调度。当前业务适配仍偏向购物，第二个完整业务是[下一步计划](../plans/next-development-plan.md)。
+当前为受信单机、loopback 服务；Web 是同端口工作台。任务串行，页面只有一个写入者。尚未实现多用户认证、远程 Worker 或分布式调度。两个业务（购物 `checkout@1`、导出 `export@1`）已接入同一执行器；导出的公开协议不含变体编号、故障描述或私有开关，服务端私有变体策略由独立 loopback 端口与 token 保护，浏览器不可达。
+
+历史运行不带业务契约字段，报告显示 `legacy-unversioned` 而不套用今天的默认配置；未完成的旧任务重启后仍为 interrupted，不重放。业务契约阶段的实际进展、未决项与已知限制见[交接记录](../plans/business-contracts-handoff.md)。
 
 未来多机部署可由唯一控制服务暴露 Web/API，Worker 主动连接控制服务，不要求每个 Worker 暴露公网端口。共享账号的服务端状态不能通过复制浏览器 storageState 隔离；只有确认资源独立的任务才能并行，登录快照不是数据库事务分叉。该设计暂不实施。
 
@@ -62,4 +88,4 @@ Agent 不拥有无限执行权限：动作预算、导航边界、重复写入�
 
 发现关联截图、动作、规则版本、实际测量和来源；红框是证据副本，不覆盖原图。DOM 命中拦截不自动证明视觉遮挡，执行器拦截造成的现象不能归因于被测产品。
 
-已完成的最小验证与已知限制统一见[验收基线](validation-baseline.md)。PRD/Figma 导入、完整知识检索、主动视觉体验发现仍是后续方向，不因本文列出其职责就视为实现。
+已完成的最小验证与已知限制统一见[验收基线](validation-baseline.md)；业务契约阶段另见[交接记录](../plans/business-contracts-handoff.md)。PRD/Figma 导入、完整知识检索、主动视觉体验发现仍是后续方向，不因本文列出其职责就视为实现。新模型筛选、后台视觉分析、并发业务写、多机调度、插件平台与向量库明确不在范围内。

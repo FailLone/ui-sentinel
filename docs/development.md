@@ -6,6 +6,7 @@
 
 | 位置 | 内容 |
 | --- | --- |
+| src/business | 业务契约配置与校验、注册表与冻结、公开协议适配器、规范化事实；不得含私有答案或控制 token |
 | src/agent/context | 有限上下文、历史恢复、决策记忆与输入计量 |
 | src/agent/model | 模型请求、尝试跟踪、超时、流与工具回执 |
 | src/agent/decisions | 完成选择与可选有限阻断审查 |
@@ -19,8 +20,11 @@
 | evaluation/fixtures | 独立业务场景及私有控制器 |
 | evaluation/private | 私有真值与评分器，不暴露给被测 Agent |
 | evaluation/support | 隔离验证使用的模型网关、成本与请求记录 |
+| arena/export | React 导出靶场与独立私有控制器（loopback 独立端口 + token） |
 
 测试就近放置。运行模块不得依赖 scripts 或 evaluation；评估可以通过正式 API 测试运行服务。新增业务预期不能从靶场 case 编号、私有控制状态或评分答案推导。
+
+通用执行器**不得**按 checkout/export、页面标题或 case ID 特判；业务差异只能来自版本化配置与注册的适配器（`src/business/`）。环境是显式白名单，契约不能放宽网络边界。新增可复用行为的检查入口是 `pnpm typecheck && pnpm test`，加一次针对性的免费预检；不要每阶段跑付费矩阵。
 
 ## 本轮整理的迁移
 
@@ -50,14 +54,16 @@ pnpm typecheck
 pnpm test
 pnpm build
 pnpm test:fixtures
+pnpm test:fixtures:export
 pnpm validate:persistence
 pnpm validate:investigation
 pnpm validate:blocker-review
+pnpm validate:business -- --preflight
 ```
 
-上述测试不调用付费模型。集成预检使用固定模型服务，但运行真实 SDK、编译后的 Server 和浏览器，不应冒充真实模型验收。
+上述测试不调用付费模型。集成预检使用固定模型服务，但运行真实 SDK、编译后的 Server 和浏览器，不应冒充真实模型验收。`--preflight` 主动清空真实网关凭据，所以它不可能意外变成付费运行；付费入口是 `--diagnostic` 与 `--formal`，两者缺 key 明确非零退出。
 
-变更探索政策、业务语义或规则判定后，再按计划运行相关真实场景；正式 minimum 固定 C0–C5 各三轮，共 18 轮。日常用户任务只运行其自身一次检查，18 轮属于开发验收协议。
+变更探索政策、业务语义或规则判定后，再按计划运行相关真实场景；正式 minimum 固定 C0–C5 各三轮，共 18 轮。日常用户任务只运行其自身一次检查，18 轮属于开发验收协议。正式批次只在最终候选构建上完整跑一次；源码、提示、规则或私有判定变更后必须重新冻结，旧结果保留，不能拼接新旧构建凑数。
 
 格式使用 Biome，TypeScript 7 做类型检查，暂不增加严格 lint。不要为移动文件添加复刻实现的测试，但必须保留真实安全契约回归。测试失败先修复，不改门槛来宣称通过。
 
