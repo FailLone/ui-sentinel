@@ -80,8 +80,8 @@ hash 是按环境计算的：契约快照含 `environment.publicOrigin`，每次
 | G3 U01–U05 | 同上 preflight 的 Playwright 段 | 全通过：`U01profileCatalogueOffered`、`U01selectionChangesEnvironment`、`U02reportShowsContract`、`U02successReportShowsBusiness`、`U03legacyStateIsExplicit`、`U04invalidSelectionRefused`、`U05businessOutcomeVisible`、`U05evidencePresent` | 三张真实 UI 截图（§5 要求的三张齐备）：`u01-create-form.png`、`u02-export-success.png`、`u05-export-report.png` |
 | 评分反例 E01–E10 | `evaluation/private/export/scorer.test.ts` | 通过（在 `pnpm test` 内）。每条反例都从一个「会被接受」的 run 出发只篡改一处，正向半边同时断言，避免全盘拒绝也能满足负例 | — |
 | G4 smoke + 五例诊断 | `pnpm validate:business -- --diagnostic` | **exit 非零。5/6 通过**：smoke PASS、E0 PASS、E1 PASS、E3 PASS、E4 PASS、**E2 FAIL `['defect_eligibilityCited']`** | `data/business-validation/2026-09-25T06-04-47-808Z/`（`diagnostic-summary.json`、`E2-score.json`、`E2-report.json`、`E2-truth.json`） |
-| G5 A 导出探索 15 轮 | `pnpm validate:business -- --formal --diagnostic-source <dir>` | **未执行，不得填 15/15** | 拒绝证据：`data/business-formal/2026-09-25T06-24-28-394Z/`（`gate:false`、`reasonCodes:['diagnostic-not-passed']`、45 行 blocked） |
-| G5 B 导出规则 6 轮 | 同上（另需 `--approved-source`） | **未执行，不得填 6/6** | 同上；另因批准来源缺失 `approval-source-missing: …/data/learning/2026-09-24T10-57-41-736Z/runs.db` |
+| G5 A 导出探索 15 轮 | `pnpm validate:business -- --formal --diagnostic-source <dir>` | **未执行，不得填 15/15** | 拒绝证据：`data/business-formal/2026-09-25T07-13-39-663Z/`（当前 tip 复跑：`gate:false`、`exitNonZero:true`、`reasonCodes:['diagnostic-not-passed']`、45 行全 blocked 全 `planned:false`、非零退出、无模型调用）。另 `…06-24-28-394Z/` |
+| G5 B 导出规则 6 轮 | 同上（另需 `--approved-source`） | **未执行，不得填 6/6** | 同上；另因批准来源缺失 `approval-source-missing: …/data/learning/2026-09-24T10-57-41-736Z/runs.db`（manifest `approval.ok:false`）。**缺失是独立原因**：即使诊断通过，B/D 仍会 blocked |
 | G5 C 购物 minimum 18 轮 | 委派 `pnpm validate:acceptance` | **未执行，不得填 18/18** | 同上（formal runner 对 C/D 显式委派，不在此重复其 18 例门槛） |
 | G5 D 购物学习 6 轮 | 委派 `pnpm validate:learning -- --recheck` | **未执行，不得填 6/6** | 同上 |
 | 停服持久化审计 | 需在正式批次后执行 | **未执行**（无正式批次） | — |
