@@ -52,12 +52,15 @@ export function createExportApp(options: ExportArenaOptions) {
   app.get('/api/exports/ui', (c) => c.json({ presentation: getPresentation() }))
 
   app.post('/api/exports', async (c) => {
-    audit('POST', '/api/exports')
     const body = await c.req
       .json<{ datasetId?: string; format?: string }>()
       .catch(() => ({}) as { datasetId?: string; format?: string })
     // The selection is required, not defaulted: an agent must actually choose, so a pre-filled
     // form cannot stand in for completing the task.
+    audit('POST', '/api/exports', {
+      datasetId: String(body.datasetId ?? ''),
+      format: String(body.format ?? ''),
+    })
     const result = createJob({ datasetId: body.datasetId ?? '', format: body.format ?? '' })
     if (!result.ok)
       return c.json(

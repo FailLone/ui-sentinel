@@ -62,3 +62,16 @@ it.each([
   expect(task.recordBlockedScope()).toBe(false)
   expect(task.completionGaps()).toEqual([])
 })
+
+it('preserves downstream scope after a failed operation even when no hypothesis remains open', () => {
+  const task = createTaskState('Inspect recovery')
+  task.observeNormalizedFacts({ phase: 'failed', retryEligibility: 'allowed' }, false)
+  expect(task.recordBlockedScope(true)).toBe(true)
+  expect(task.recordBlockedScope(true)).toBe(false)
+  expect(task.snapshot().unexploredBranches).toEqual([
+    expect.objectContaining({
+      trigger: 'always',
+      description: expect.stringContaining('downstream'),
+    }),
+  ])
+})

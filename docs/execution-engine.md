@@ -23,7 +23,10 @@ src/agent/policy.ts 提供探索政策；上下文和模型传输位于 src/agen
 | history_read / tool_result_read | 分页恢复历史与原始结果，交付给下一轮模型 |
 | run_finish | 明确请求结束，由执行器验证并提交 |
 
-**证据引用的两条路径不同**，使用时需注意：`findings_submit` 接受 Agent 提供的 `evidenceRefs`；`investigation_check`（原子调查）的输入 schema **没有**证据字段，其 finding 的 `evidenceRefs` 由执行器从测量本身组装（截图、快照、测量文件）。产品引导倾向后者，因此以某个已保留业务资源为依据的断言，需要走能声明证据引用的路径。这一差异记录在[交接记录](../plans/business-contracts-handoff.md)的未决项中，尚未裁定。
+`investigation_check`、`rule_check` 与 `findings_submit` 均支持 Agent 声明 `evidenceRefs`。前两者保留自动生成的截图、快照与测量，同时附带经当前 run 归属校验的业务依据；不接受凭空或其他任务的引用。原子调查的复用键包含依据和语义 target，不能用旧结果代替不同依据的新问题。公开资源保留原始响应正文，模型读取预算不足时显式标注截断。
+
+结束时，未知业务结果必须保留恢复及后续路径的未验证范围，即使 Agent 选择了 `scope-covered`。执行层据已记录事实生成报告；不能因为假设已解决而声称业务路径全部覆盖。响应处理按到达顺序排队，观察和结束前有界等待，终态提交后不再接受迟到事实。
+
 
 具体字段以源码 schema 为准；新增工具需有适用条件、最小必要输入、结构化结果、失败反馈和副作用说明，不向模型暴露内部数据库或评估答案。
 

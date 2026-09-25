@@ -62,6 +62,7 @@ export interface RecoveryPrerequisite {
 export interface AuditEntry {
   readonly method: string
   readonly path: string
+  readonly selection?: { datasetId: string; format: string }
 }
 
 interface ArenaState {
@@ -114,8 +115,12 @@ export function getPresentation(): 'default' | 'rewritten' {
  * Called by the HTTP layer, not by the state functions: auditing inside them would count the
  * server's own internal reads too, and the point of the log is to show what the page actually did.
  */
-export function audit(method: string, path: string): void {
-  state.requests.push({ method, path })
+export function audit(
+  method: string,
+  path: string,
+  selection?: { datasetId: string; format: string },
+): void {
+  state.requests.push({ method, path, ...(selection ? { selection: { ...selection } } : {}) })
 }
 
 /** Random and variant-free: an id must not let a grader or an agent infer which variant ran. */
@@ -124,7 +129,7 @@ function newJobId(): string {
 }
 
 function artifactFor(datasetId: string, format: string): ExportArtifact {
-  const rows = ['id,value', '1,alpha', '2,beta']
+  const rows = ['id,value', `1,${datasetId}-alpha`, `2,${datasetId}-beta`]
   return {
     datasetId,
     format,
@@ -310,6 +315,12 @@ export function getArenaState() {
     retries: state.retries,
     jobs: state.jobs.size,
     artifacts: state.artifacts.length,
+    attempts: [...state.jobs.values()].map((j) => j.attempt),
+    operations: [...state.jobs.values()].map((j) => ({
+      jobId: j.jobId,
+      attempt: j.attempt,
+      phase: j.phase,
+    })),
     artifactContents: state.artifacts.map((a) => ({ ...a })),
     requests: state.requests.map((r) => ({ ...r })),
   }

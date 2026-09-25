@@ -562,7 +562,8 @@ async function runCampaign() {
                 : await controlRequest('/__control/state'))
             if (
               report.stopReason === 'reconciliation-required' ||
-              report.persistence?.status !== 'verified' ||
+              report.persistence?.status === 'inconsistent' ||
+              (report.persistence?.issues?.length ?? 0) > 0 ||
               downloaded.index.some((a) => !a.exists)
             )
               stop = 'integrity-stop'
@@ -574,8 +575,12 @@ async function runCampaign() {
                   new URL(e.payload.url).pathname === '/api/exports',
               )
               const selection = {
-                datasetId: creation?.payload.body?.datasetId ?? '',
-                format: creation?.payload.body?.format ?? '',
+                datasetId:
+                  truth.requests.find((r: any) => r.method === 'POST' && r.path === '/api/exports')
+                    ?.selection?.datasetId ?? '',
+                format:
+                  truth.requests.find((r: any) => r.method === 'POST' && r.path === '/api/exports')
+                    ?.selection?.format ?? '',
               }
               score = scoreExportRun(row.case as ExportVariantId, {
                 truth,

@@ -65,6 +65,7 @@ export interface ExportRunInput {
       readonly evidenceRefs: readonly string[]
       readonly hypothesisId?: string | null
     }[]
+    readonly unexploredBranches?: readonly unknown[]
     readonly hypotheses?: readonly {
       readonly id: string
       readonly status: string
@@ -352,6 +353,8 @@ export function scoreExportRun(variant: ExportVariantId, input: ExportRunInput):
           phase?: string
           contractHash?: string
           result?: string
+          attempt?: number
+          version?: number
         },
     )
   // Every fact must belong to the job this run created, carry this run's contract, and cite the
@@ -374,7 +377,9 @@ export function scoreExportRun(variant: ExportVariantId, input: ExportRunInput):
       .filter((id): id is string => typeof id === 'string'),
   )
   assertions.factsBelongToCreatedJob =
-    facts.length > 0 && facts.every((f) => !!f.operationId && createdJobs.has(f.operationId))
+    createdJobs.size === 1 &&
+    facts.length > 0 &&
+    facts.every((f) => !!f.operationId && createdJobs.has(f.operationId))
   assertions.factsCarryContract = facts.every((f) => f.contractHash === contract.hash)
   assertions.factsCitePublicEvidence = report.events
     .filter((e) => e.type === 'business:fact')
@@ -396,10 +401,10 @@ export function scoreExportRun(variant: ExportVariantId, input: ExportRunInput):
       : expected.businessResult === 'rejected'
         ? 'rejected'
         : 'failed'
-  assertions.terminalPhaseMatchesTruth =
-    expected.businessResult === 'unknown'
-      ? terminalPhases.includes('failed') && terminalPhases.every((phase) => phase !== 'succeeded')
-      : terminalPhases.includes(expectedPhase)
+  const currentFact = [...facts].sort(
+    (a, b) => (b.attempt ?? 0) - (a.attempt ?? 0) || (b.version ?? 0) - (a.version ?? 0),
+  )[0]
+  assertions.terminalPhaseMatchesTruth = currentFact?.phase === expectedPhase
   // Processing is never an outcome: a report that treated one as its result would have claimed a
   // business conclusion the business had not yet produced.
   assertions.notConcludedWhileProcessing =
@@ -516,9 +521,7 @@ export function scoreExportRun(variant: ExportVariantId, input: ExportRunInput):
         ? defect.source === 'rule' && defect.ruleId === approved.id
         : defect.source === 'agent')
     // A blocked run must leave its uncovered scope behind, not report a clean sweep.
-    assertions.blockedLeavesUnexploredScope =
-      (report as { unexploredBranches?: readonly unknown[] }).unexploredBranches === undefined ||
-      ((report as { unexploredBranches?: readonly unknown[] }).unexploredBranches?.length ?? 0) > 0
+    assertions.blockedLeavesUnexploredScope = (report.unexploredBranches?.length ?? 0) > 0
   }
 
   // --- Answer leakage (E08) --------------------------------------------------------------

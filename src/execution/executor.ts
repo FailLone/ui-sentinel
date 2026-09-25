@@ -754,17 +754,12 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           const resource = businessRuntime.retainResource?.(publicExchange)
           if (!resource || (resource.operationId && !ownedOperations.has(resource.operationId)))
             return
-          const resourceRef = await saveEvidence(
-            runId,
-            'resource',
-            JSON.stringify(resource.value),
-            {
-              ...evidenceMetadata(),
-              resourceKind: resource.kind,
-              operationId: resource.operationId,
-              url: exchange.url,
-            },
-          )
+          const resourceRef = await saveEvidence(runId, 'resource', exchange.bodyText!, {
+            ...evidenceMetadata(),
+            resourceKind: resource.kind,
+            operationId: resource.operationId,
+            url: exchange.url,
+          })
           // Newest-wins per (kind, operation): a re-read of the same resource supersedes the older
           // copy rather than accumulating, so the agent is offered the current document and the
           // finding cites the version that was actually in force. Distinct kinds and distinct
@@ -1652,12 +1647,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
               return reply
             }
           }
-          if (
-            'reason' in parsed &&
-            parsed.reason === 'observed-blocker' &&
-            businessResult === 'unknown' &&
-            taskState.recordBlockedScope()
-          ) {
+          if (businessResult === 'unknown' && taskState.recordBlockedScope(true)) {
             for (const gap of completionGaps()) if (!gaps.includes(gap)) gaps.push(gap)
             await appendEvent(runId, 'exploration:coverage-updated', {
               source: 'executor',
@@ -1667,10 +1657,16 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           }
           const input =
             'reason' in parsed
-              ? resolveShortFinish(integrity.epoch() ? { reason: 'unverified-scope' } : parsed, {
-                  businessResult,
-                  gaps,
-                })
+              ? resolveShortFinish(
+                  integrity.epoch() ||
+                    (businessResult === 'unknown' && parsed.reason === 'scope-covered')
+                    ? { reason: 'unverified-scope' }
+                    : parsed,
+                  {
+                    businessResult,
+                    gaps,
+                  },
+                )
               : parsed
           const missingOutcome =
             input.businessResult !== 'unknown' && input.businessResult !== businessResult

@@ -107,6 +107,9 @@ function e2Input(): ExportRunInput {
       status: 'blocked',
       businessResult: 'unknown',
       stopReason: 'blocked',
+      unexploredBranches: [
+        { trigger: 'always', description: 'Recovery and downstream results unverified' },
+      ],
       persistence: { status: 'verified', issues: [] },
       events: [
         event('business:observation', {
@@ -902,5 +905,13 @@ it('rejects wrong-job resources and invented selectors even when the measurement
         },
       },
     }).assertions.defect_selectorBound,
+  ).toBe(false)
+})
+
+it('cannot bypass blocked scope verification by omitting the report field', () => {
+  const input = e2Input()
+  expect(
+    scoreExportRun('E2', { ...input, report: { ...input.report, unexploredBranches: undefined } })
+      .assertions.blockedLeavesUnexploredScope,
   ).toBe(false)
 })

@@ -419,18 +419,7 @@ try {
           artifactContents: truth.artifactContents,
         },
         requests: truth.requests,
-        report: {
-          runId: report.runId,
-          status: report.status,
-          businessResult: report.businessResult,
-          stopReason: report.stopReason,
-          persistence: report.persistence,
-          events: report.events,
-          findings: report.findings,
-          hypotheses: report.hypotheses,
-          usage: report.usage,
-          budget: report.budget,
-        },
+        report,
         artifacts,
         contract: {
           profileId: report.business.profileId,
@@ -444,18 +433,8 @@ try {
           },
           effects: report.business.effects,
         },
-        selection: (() => {
-          const e = report.events.find(
-            (e: any) =>
-              e.type === 'business:observation' &&
-              e.payload.method === 'POST' &&
-              new URL(e.payload.url).pathname === '/api/exports',
-          )
-          return {
-            datasetId: e?.payload.body?.datasetId ?? '',
-            format: e?.payload.body?.format ?? '',
-          }
-        })(),
+        selection: truth.requests.find((r: any) => r.method === 'POST' && r.path === '/api/exports')
+          ?.selection ?? { datasetId: '', format: '' },
         rules: declarations,
         // The semantic target the run itself declared for its recovery measurement, read from the
         // run's own declaration. A discovery group has no approved rule to inherit, so without this

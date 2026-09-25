@@ -75,10 +75,11 @@ export function createTaskState(goal: string) {
       unexploredBranches = [...new Map(branches.map((b) => [JSON.stringify(b), b])).values()]
     },
     /** A blocked path cannot silently turn pending outcomes into completed or untriggered scope. */
-    recordBlockedScope() {
-      if (businessObserved) return false
-      const description =
-        'No business outcome has been observed. The remaining path and pending conditional outcomes are unverified.'
+    recordBlockedScope(unresolvedOutcome = false) {
+      if (businessObserved && !unresolvedOutcome) return false
+      const description = businessObserved
+        ? 'The business outcome remains unknown. Recovery and its downstream outcomes are unverified.'
+        : 'No business outcome has been observed. The remaining path and pending conditional outcomes are unverified.'
       if (unexploredBranches.some((b) => b.description === description)) return false
       unexploredBranches.push({ description, trigger: 'always' })
       return true

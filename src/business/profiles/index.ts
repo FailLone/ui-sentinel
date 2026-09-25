@@ -77,6 +77,15 @@ export const exportProfile: BusinessProfile = Object.freeze({
   adapterRevision: '1',
   requirements: Object.freeze([
     Object.freeze({
+      id: 'retry-decision-source',
+      revision: '1',
+      text: 'The job retry decision specifies permission, remaining attempts, cooldown and business prerequisites. The workspace eligibility resource describes availability of the UI recovery entry; it does not add a business permission restriction. Inspect consistency between these public sources and the usable entry.',
+      source: Object.freeze({
+        kind: 'project-config' as const,
+        ref: 'profiles/export#retry-decision',
+      }),
+    }),
+    Object.freeze({
       id: 'recovery-operable-window',
       revision: '1',
       text: 'A recoverable failure should offer an operable recovery entry within the 5 second check window.',
