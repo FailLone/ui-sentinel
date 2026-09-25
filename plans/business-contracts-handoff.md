@@ -67,17 +67,17 @@ hash 是按环境计算的：契约快照含 `environment.publicOrigin`，每次
 | 门槛 | 命令、测试文件/用例 | 退出码/实际结果 | 原始证据 |
 | --- | --- | --- | --- |
 | G0 免费基线 | `pnpm install --frozen-lockfile` / `format:check` / `typecheck` / `test` / `build` / `test:fixtures` / `validate:persistence` / `validate:investigation` / `validate:blocker-review` | 全部 exit 0（见下方逐条） | 本机终端；`data/persistence-preflight/`、`data/atomic-fixture-check/` |
-| G0 `pnpm test` | vitest run | **合并前 `8447a73`：70 文件 / 592 用例**；**合并后当前 tip：71 文件 / 602 用例**（新增 `evaluation/support/approved-retry.test.ts`），多次运行通过 | — |
+| G0 `pnpm test` | vitest run | **合并前 `8447a73`：70 文件 / 592 用例**；**合并后当前 tip：71 文件 / 602 用例**（新增 `evaluation/support/approved-retry.test.ts`）。flake 修复后**连续 8 次全量运行全部 `602 passed`**（修复前同并发下 3 次中失败 1 次，详见偏差 7c） | — |
 | G0 `pnpm test:fixtures` | `scripts/verify-fixtures.ts` | exit 0，C0–C5 六例真值全部核对 | `data/verification/` |
 | G0 `pnpm test:fixtures:export` | `scripts/verify-export-fixtures.ts` | exit 0，E0–E4 五变体，含 F04 判别（E1 usable/recovered，E2 inoperable/not recovered，两者 `backendPermitsRetry=true`） | `data/verification/export-fixtures.json` |
-| G0 `pnpm validate:persistence` | 编译服务 + Mastra + Chromium + 本地固定模型 | exit 0，runs=6 durable，`paidModelRequests: 0` | `data/persistence-preflight/2026-09-25T07-04-41-674Z/`（另 `…05-51-47-278Z/`） |
-| G0 `pnpm validate:investigation` | 同上 | exit 0，9 断言全 true，`paidModelRequests: 0` | `data/atomic-fixture-check/2026-09-25T07-05-35-593Z/` |
-| G0 `pnpm validate:blocker-review` | 同上 | exit 0，8 断言全 true，`paidModelRequests: 0` | `data/atomic-fixture-check/2026-09-25T07-05-38-813Z/` |
+| G0 `pnpm validate:persistence` | 编译服务 + Mastra + Chromium + 本地固定模型 | exit 0，6 个 run 全 durable（93–101 事件、26–28 产物），`paidModelRequests: 0`。**最终 tip** 重跑结果相同 | **最终 tip** `data/persistence-preflight/2026-09-25T10-35-30-189Z/`；另 `…09-30-56-660Z/`、`…07-04-41-674Z/`、`…05-51-47-278Z/` |
+| G0 `pnpm validate:investigation` | 同上 | exit 0，9 断言全 true，`paidModelRequests: 0`。**最终 tip** 重跑结果相同 | **最终 tip** `data/atomic-fixture-check/2026-09-25T10-36-24-018Z/`（另 `…10-36-27-117Z/` 为 blocker-review）；早前 `…07-05-35-593Z/` |
+| G0 `pnpm validate:blocker-review` | 同上 | exit 0，8 断言全 true，`paidModelRequests: 0`。**最终 tip** 重跑结果相同 | **最终 tip** `data/atomic-fixture-check/2026-09-25T10-36-27-117Z/`；早前 `…07-05-38-813Z/` |
 | G1 C01–C08 | `src/business/selection.test.ts`、`src/server/routes/business-runs.test.ts` | 通过（在 `pnpm test` 内） | — |
 | G1 B01–B10 | `src/business/facts.test.ts`、`src/business/normalization.test.ts`、`src/execution/task-state-normalized.test.ts`、`src/execution/executor.test.ts`（B07） | 通过 | — |
 | G1 P01–P10 | `src/execution/side-effect-policy.test.ts`（P01–P03、P05、P06、P10）、`src/execution/executor.test.ts`（P04、P07）、`src/execution/security.test.ts`（P08）、`arena/export/src/server/api.test.ts`（P09） | 通过 | — |
 | G1 R01–R09 | `src/business/normalization.test.ts`+`src/rules/builtin/business-outcome.test.ts`(R01)、`evaluation/private/export/scorer.test.ts`(R02)、`src/execution/rule-binding.test.ts`(R03)、`src/execution/sample-window.test.ts`+`src/rules/proposal.test.ts`(R04)、`src/execution/temporal-investigation.test.ts`(R05)、`src/execution/executor.test.ts`+`journeys.test.ts`(R06)、`executor.test.ts`+`response-time.test.ts`(R07)、`executor.test.ts:1045/1953/2023`+`finish-contract.test.ts`+`run-phase.test.ts`(R08)、`executor.test.ts:2068`+`completion-integrity.test.ts`(R09) | 通过。**R03/R04/R05/R08/R09 未按 ID 打标签**，按行为逐条核对后归入上述文件（R03/R04/R05/R08 是通用契约用例，不含业务字段）。R08 由三个具名用例共同覆盖：未决假设不得清洁完成、审查模型想早结束时仍交回探索、审查期间页面出现恢复控件则拒绝先前有效的阻断提案 | — |
-| G2 F01–F08 | `pnpm validate:business -- --preflight` | exit 0，**28 断言 / 0 失败**，`paidModelRequests: 0`。**合并后**（构建 `cddcc990…`）重跑的结果相同 | 合并后 `data/business-preflight/2026-09-25T09-31-57-092Z/`；合并前 `…06-45-26-473Z/`（`assertions.json`、`details.json`、`summary.json`、四份 `report-*.json`、三张 PNG 两者齐备） |
+| G2 F01–F08 | `pnpm validate:business -- --preflight` | exit 0，**28 断言 / 0 失败**，`paidModelRequests: 0`。**最终 tip**（含本轮 flake 修复与文档提交，构建仍 `cddcc990…`）重跑结果相同 | **最终 tip** `data/business-preflight/2026-09-25T10-36-36-832Z/`（三张 PNG 齐备）；合并后 `…09-31-57-092Z/`；合并前 `…06-45-26-473Z/` |
 | G2 变体真值 | `pnpm test:fixtures:export`（同 G0 行） | exit 0，五变体真值与 create/retry/attempt/产物计数 | `data/verification/export-fixtures.json` |
 | G3 U01–U05 | 同上 preflight 的 Playwright 段 | 全通过：`U01profileCatalogueOffered`、`U01selectionChangesEnvironment`、`U02reportShowsContract`、`U02successReportShowsBusiness`、`U03legacyStateIsExplicit`、`U04invalidSelectionRefused`、`U05businessOutcomeVisible`、`U05evidencePresent` | 三张真实 UI 截图（§5 要求的三张齐备）：`u01-create-form.png`、`u02-export-success.png`、`u05-export-report.png` |
 | 评分反例 E01–E10 | `evaluation/private/export/scorer.test.ts` | 通过（在 `pnpm test` 内）。每条反例都从一个「会被接受」的 run 出发只篡改一处，正向半边同时断言，避免全盘拒绝也能满足负例 | — |
@@ -224,7 +224,7 @@ ARENA_PORT=4173 EXPORT_ARENA_PORT=4183 node --import tsx -e "
 
 | 制品 | 位置 |
 | --- | --- |
-| 预检全部断言与细节（**合并后**构建） | `data/business-preflight/2026-09-25T09-31-57-092Z/{assertions,details,summary}.json` |
+| 预检全部断言与细节（**最终 tip** 构建） | `data/business-preflight/2026-09-25T10-36-36-832Z/{assertions,details,summary}.json` |
 | 三张真实 UI 截图（§5 要求齐备） | 同目录 `u01-create-form.png`、`u02-export-success.png`、`u05-export-report.png`（合并前的 `…06-45-26-473Z` 亦有齐备三张） |
 | 预检四份报告（成功/失败/未知写/非法 finish） | 同目录 `report-*.json` |
 | 五变体真值与 F04 判别 | `data/verification/export-fixtures.json` |
@@ -232,7 +232,8 @@ ARENA_PORT=4173 EXPORT_ARENA_PORT=4183 node --import tsx -e "
 | 诊断逐例评分与真相 | `data/business-validation/2026-09-25T06-04-47-808Z/E*-{score,report,truth}.json` |
 | 诊断摘要、manifest、花费 | 同目录 `diagnostic-summary.json`、`manifest.json`、`spending.json` |
 | 正式批次拒绝证据（45 行 blocked） | `data/business-formal/2026-09-25T07-13-39-663Z/`（合并前 `…06-24-28-394Z/`） |
-| 持久化预检（**合并后**构建） | `data/persistence-preflight/2026-09-25T09-30-56-660Z/`（合并前 `…05-51-47-278Z/`） |
+| 持久化预检（**最终 tip** 构建） | `data/persistence-preflight/2026-09-25T10-35-30-189Z/`（合并后 `…09-30-56-660Z/`，合并前 `…05-51-47-278Z/`） |
+| 原子调查 / 有限审查（**最终 tip**） | `data/atomic-fixture-check/2026-09-25T10-36-24-018Z/`、`…10-36-27-117Z/` |
 
 大制品（`runs.db`、模型请求/响应日志、PNG）不提交 Git。诊断目录中的请求/响应日志含 hub 侧脱敏后的正文，交付时按需裁剪。
 
