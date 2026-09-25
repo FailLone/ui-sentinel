@@ -1,0 +1,132 @@
+{
+  "runs": [
+    {
+      "id": "run-06b5fa59-aeb3-446d-8e34-c68f229aaa3f",
+      "spec": "{\"goal\":\"Inspect the purchase journey. Purchase an item; inspect primary action access, response, expected rejection and recovery. Campaigns must not block submit; retryable failures must provide an operable retry within five seconds. Response above ten seconds warrants a warning.\",\"environmentId\":\"arena\",\"entryUrl\":\"http://127.0.0.1:57997\",\"budget\":{\"totalTimeoutMs\":300000,\"maxActions\":40,\"maxModelCalls\":30},\"viewport\":{\"width\":1280,\"height\":768}}",
+      "status": "blocked",
+      "business_result": "unknown",
+      "stop_reason": "blocked",
+      "usage": "{\"actions\":4,\"modelCalls\":13,\"elapsedMs\":58619,\"modelInputTokens\":77741,\"modelOutputTokens\":4764}",
+      "created_at": "2026-09-23T07:34:31.910Z",
+      "updated_at": "2026-09-23T07:35:30.531Z"
+    }
+  ],
+  "run_events": [
+    {
+      "id": "evt-585fe75c-680f-4fe2-be75-9757e636ebec",
+      "run_id": "run-06b5fa59-aeb3-446d-8e34-c68f229aaa3f",
+      "seq": 91,
+      "type": "business:response",
+      "timestamp": "2026-09-23T07:34:48.790Z",
+      "step_id": null,
+      "action_id": null,
+      "payload": "{\"statusCode\":402,\"success\":false,\"status\":\"failed\",\"orderId\":\"order-1790148888775-hvpaq0\",\"message\":\"Payment processing failed. Please try again.\",\"canRetry\":true}",
+      "evidence_refs": "[]"
+    },
+    {
+      "id": "evt-a47b4c86-b35d-49f5-80e5-4c3ac0116ae9",
+      "run_id": "run-06b5fa59-aeb3-446d-8e34-c68f229aaa3f",
+      "seq": 130,
+      "type": "transition:observed",
+      "timestamp": "2026-09-23T07:35:03.464Z",
+      "step_id": "action-4",
+      "action_id": null,
+      "payload": "{\"condition\":\"element-actionable\",\"selector\":\"html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > button:nth-of-type(1)\",\"eventType\":\"retryable-failure\",\"fromState\":\"retrying-disabled\",\"toState\":\"retry-actionable\",\"startedAtMs\":1790148898417,\"observedUntilMs\":1790148903463,\"samples\":[{\"atMs\":1790148898422,\"target\":\"Retry button\",\"value\":false},{\"atMs\":1790148898681,\"target\":\"Retry button\",\"value\":false},{\"atMs\":1790148898938,\"target\":\"Retry button\",\"value\":false},{\"atMs\":1790148899196,\"target\":\"Retry button\",\"value\":false},{\"atMs\":1790148899453,\"target\":\"Retry button\",\"value\":false},{\"atMs\":1790148899712,\"target\":\"Retry button\",\"value\":false},{\"atMs\":1790148899970,\"target\":\"Retry button\",\"value\":false},{\"atMs\":1790148900228,\"target\":\"Retry button\",\"value\":false},{\"atMs\":1790148900484,\"target\":\"Retry button\",\"value\":false},{\"atMs\":1790148900739,\"target\":\"Retry button\",\"value\":false},{\"atMs\":1790148900999,\"target\":\"Retry button\",\"value\":false},{\"atMs\":1790148901257,\"target\":\"Retry button\",\"value\":false},{\"atMs\":1790148901516,\"target\":\"Retry button\",\"value\":false},{\"atMs\":1790148901779,\"target\":\"Retry button\",\"value\":false},{\"atMs\":1790148902037,\"target\":\"Retry button\",\"value\":false},{\"atMs\":1790148902293,\"target\":\"Retry button\",\"value\":false},{\"atMs\":1790148902555,\"target\":\"Retry button\",\"value\":false},{\"atMs\":1790148902814,\"target\":\"Retry button\",\"value\":false},{\"atMs\":1790148903075,\"target\":\"Retry button\",\"value\":false},{\"atMs\":1790148903332,\"target\":\"Retry button\",\"value\":false},{\"atMs\":1790148903423,\"target\":\"Retry button\",\"value\":false}],\"evidenceRefs\":[\"3df823e7-01ee-4d52-b663-f1e0ee70b2d9.png\",\"400f90cd-e3be-455d-98cc-0eb42b07fd79.json\",\"6bc02ad4-83f6-4add-93c6-a76b954c7fa4.json\"]}",
+      "evidence_refs": "[\"3df823e7-01ee-4d52-b663-f1e0ee70b2d9.png\",\"400f90cd-e3be-455d-98cc-0eb42b07fd79.json\",\"6bc02ad4-83f6-4add-93c6-a76b954c7fa4.json\"]"
+    }
+  ],
+  "findings": [
+    {
+      "id": "finding-7d1433e4-4ce6-4099-80d6-814d38d5161b",
+      "run_id": "run-06b5fa59-aeb3-446d-8e34-c68f229aaa3f",
+      "source": "agent",
+      "rule_id": null,
+      "rule_revision": null,
+      "hypothesis_id": "hyp-97b83f20-f1e7-4be5-8221-276d4262d9e3",
+      "validation_status": "supported",
+      "severity": "error",
+      "title": "Retryable payment failure offers no operable retry within 5 seconds",
+      "expected": "After a retryable payment failure, an operable retry control becomes available within 5 seconds.",
+      "actual": "Order response returned status=failed, canRetry=true, message \"Payment processing failed. Please try again.\" A button labeled \"Retrying...\" is shown but remains disabled throughout a measured 5-second window (21 actionability samples, all not-actionable) and is still disabled on re-observation. No operable retry is offered within 5 seconds.",
+      "step_id": "action-4",
+      "evidence_refs": "[\"3df823e7-01ee-4d52-b663-f1e0ee70b2d9.png\",\"400f90cd-e3be-455d-98cc-0eb42b07fd79.json\",\"6bc02ad4-83f6-4add-93c6-a76b954c7fa4.json\",\"a0271a3f-aacc-4eb4-9b4c-96d4bcca2c15.png\",\"ad31a52a-e09c-4f1f-a23b-9f157e324707.json\"]",
+      "created_at": "2026-09-23T07:35:21.076Z"
+    }
+  ],
+  "finding_feedback": [
+    {
+      "id": "fb-b7e2cbbd-d5ac-42a9-8060-d4f8846d4593",
+      "finding_id": "finding-7d1433e4-4ce6-4099-80d6-814d38d5161b",
+      "verdict": "confirmed",
+      "reason": "用户在当前会话明确回复：确认，生成规则候选。确认支付 canRetry=true 后重试按钮完整五秒不可操作的 C5 发现；此确认不批准规则启用。",
+      "created_at": "2026-09-23T08:22:54.240Z"
+    }
+  ],
+  "hypotheses": [
+    {
+      "id": "hyp-97b83f20-f1e7-4be5-8221-276d4262d9e3",
+      "run_id": "run-06b5fa59-aeb3-446d-8e34-c68f229aaa3f",
+      "phenomenon": "After a retryable payment failure, the retry control must become operable within 5 seconds.",
+      "basis": "Public requirement: retryable failure must offer an operable retry within 5 seconds. Order response returned canRetry=true with message 'Payment processing failed. Please try again.' and a button labeled 'Retrying...' that is currently disabled.",
+      "verification_plan": "Observe the retry button state over a bounded window (up to ~5s) using transition_observe measuring element-actionable; capture whether it becomes enabled/actionable within 5 seconds. If it remains disabled past 5s, that is a defect.",
+      "status": "supported",
+      "evidence_refs": "[\"3df823e7-01ee-4d52-b663-f1e0ee70b2d9.png\",\"400f90cd-e3be-455d-98cc-0eb42b07fd79.json\",\"6bc02ad4-83f6-4add-93c6-a76b954c7fa4.json\",\"a0271a3f-aacc-4eb4-9b4c-96d4bcca2c15.png\",\"ad31a52a-e09c-4f1f-a23b-9f157e324707.json\"]",
+      "created_at": "2026-09-23T07:34:51.817Z"
+    }
+  ],
+  "rule_proposals": [
+    {
+      "id": "proposal-fc30e9bb-46bc-40ec-b88b-ff52f0565607",
+      "finding_id": "finding-7d1433e4-4ce6-4099-80d6-814d38d5161b",
+      "rule_config": "{\"type\":\"transition\",\"name\":\"retryable failure offers operable retry within configurable timeout\",\"description\":\"When a retryable-failure occurs and business evidence establishes that retry is currently permitted, the retry control should become operable within the configured timeoutMs budget (observed business budget: 5000 ms). No incidental faulty UI state such as retrying-disabled is required; healthy recovery is also in scope. Intended reusable scope: retryable-failure occurrences for retry-category controls generally. Validated scope: the payment retry failure scenario only, plus an observed healthy counterexample where a retryable-failure transition reached an actionable retry control. A button label alone does not establish retry eligibility; cooldown, exhausted attempts, ongoing operations, or unmet prerequisites do not establish eligibility.\",\"trigger\":{\"eventType\":\"retryable-failure\"},\"expectation\":{\"condition\":\"element-actionable\",\"target\":\"Retry button\",\"timeoutMs\":5000},\"severity\":\"error\"}",
+      "status": "enabled",
+      "positive_results": "[{\"input\":\"{\\\"condition\\\":\\\"element-actionable\\\",\\\"selector\\\":\\\"html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > button:nth-of-type(1)\\\",\\\"eventType\\\":\\\"retryable-failure\\\",\\\"fromState\\\":\\\"retrying-disabled\\\",\\\"toState\\\":\\\"retry-actionable\\\",\\\"startedAtMs\\\":1790148898417,\\\"observedUntilMs\\\":1790148903463,\\\"samples\\\":[{\\\"atMs\\\":1790148898422,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":false},{\\\"atMs\\\":1790148898681,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":false},{\\\"atMs\\\":1790148898938,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":false},{\\\"atMs\\\":1790148899196,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":false},{\\\"atMs\\\":1790148899453,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":false},{\\\"atMs\\\":1790148899712,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":false},{\\\"atMs\\\":1790148899970,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":false},{\\\"atMs\\\":1790148900228,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":false},{\\\"atMs\\\":1790148900484,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":false},{\\\"atMs\\\":1790148900739,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":false},{\\\"atMs\\\":1790148900999,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":false},{\\\"atMs\\\":1790148901257,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":false},{\\\"atMs\\\":1790148901516,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":false},{\\\"atMs\\\":1790148901779,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":false},{\\\"atMs\\\":1790148902037,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":false},{\\\"atMs\\\":1790148902293,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":false},{\\\"atMs\\\":1790148902555,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":false},{\\\"atMs\\\":1790148902814,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":false},{\\\"atMs\\\":1790148903075,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":false},{\\\"atMs\\\":1790148903332,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":false},{\\\"atMs\\\":1790148903423,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":false}],\\\"evidenceRefs\\\":[\\\"3df823e7-01ee-4d52-b663-f1e0ee70b2d9.png\\\",\\\"400f90cd-e3be-455d-98cc-0eb42b07fd79.json\\\",\\\"6bc02ad4-83f6-4add-93c6-a76b954c7fa4.json\\\"]}\",\"expected\":\"fail\",\"actual\":\"fail\",\"passed\":true}]",
+      "negative_results": "[{\"input\":\"{\\\"eventType\\\":\\\"retryable-failure\\\",\\\"condition\\\":\\\"element-actionable\\\",\\\"fromState\\\":\\\"retryable-failure\\\",\\\"toState\\\":\\\"retry-actionable\\\",\\\"startedAtMs\\\":1790151768757,\\\"observedUntilMs\\\":1790151774186,\\\"samples\\\":[{\\\"atMs\\\":1790151768769,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":true},{\\\"atMs\\\":1790151768979,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":true},{\\\"atMs\\\":1790151769190,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":true},{\\\"atMs\\\":1790151769400,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":true},{\\\"atMs\\\":1790151769608,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":true},{\\\"atMs\\\":1790151769813,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":true},{\\\"atMs\\\":1790151770023,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":true},{\\\"atMs\\\":1790151770234,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":true},{\\\"atMs\\\":1790151770443,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":true},{\\\"atMs\\\":1790151770649,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":true},{\\\"atMs\\\":1790151770859,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":true},{\\\"atMs\\\":1790151771064,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":true},{\\\"atMs\\\":1790151771275,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":true},{\\\"atMs\\\":1790151771484,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":true},{\\\"atMs\\\":1790151771691,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":true},{\\\"atMs\\\":1790151771897,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":true},{\\\"atMs\\\":1790151772105,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":true},{\\\"atMs\\\":1790151772313,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":true},{\\\"atMs\\\":1790151772524,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":true},{\\\"atMs\\\":1790151772734,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":true},{\\\"atMs\\\":1790151772940,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":true},{\\\"atMs\\\":1790151773152,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":true},{\\\"atMs\\\":1790151773360,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":true},{\\\"atMs\\\":1790151773566,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":true},{\\\"atMs\\\":1790151773774,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":true},{\\\"atMs\\\":1790151773980,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":true},{\\\"atMs\\\":1790151774186,\\\"target\\\":\\\"Retry button\\\",\\\"value\\\":true}],\\\"evidenceRefs\\\":[\\\"healthy-counterexample.png\\\",\\\"healthy-counterexample.json\\\"]}\",\"expected\":\"pass\",\"actual\":\"pass\",\"passed\":true},{\"input\":\"{\\\"eventType\\\":\\\"retryable-failure\\\",\\\"startedAtMs\\\":0,\\\"observedUntilMs\\\":0,\\\"samples\\\":[],\\\"evidenceRefs\\\":[]}\",\"expected\":\"unknown\",\"actual\":\"unknown\",\"passed\":true}]",
+      "reviewed_by": "user",
+      "created_at": "2026-09-23T08:23:19.005Z",
+      "updated_at": "2026-09-23T08:27:07.434Z"
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "3df823e7-01ee-4d52-b663-f1e0ee70b2d9.png",
+      "run_id": "run-06b5fa59-aeb3-446d-8e34-c68f229aaa3f",
+      "type": "screenshot",
+      "file_path": "artifacts/3df823e7-01ee-4d52-b663-f1e0ee70b2d9.png",
+      "metadata": "{\"url\":\"http://127.0.0.1:57997/\",\"viewport\":{\"width\":1280,\"height\":768},\"capturedAt\":\"2026-09-23T07:35:03.445Z\"}",
+      "created_at": "2026-09-23 07:35:03"
+    },
+    {
+      "id": "400f90cd-e3be-455d-98cc-0eb42b07fd79.json",
+      "run_id": "run-06b5fa59-aeb3-446d-8e34-c68f229aaa3f",
+      "type": "snapshot",
+      "file_path": "artifacts/400f90cd-e3be-455d-98cc-0eb42b07fd79.json",
+      "metadata": "{}",
+      "created_at": "2026-09-23 07:35:03"
+    },
+    {
+      "id": "6bc02ad4-83f6-4add-93c6-a76b954c7fa4.json",
+      "run_id": "run-06b5fa59-aeb3-446d-8e34-c68f229aaa3f",
+      "type": "measurement",
+      "file_path": "artifacts/6bc02ad4-83f6-4add-93c6-a76b954c7fa4.json",
+      "metadata": "{}",
+      "created_at": "2026-09-23 07:35:03"
+    },
+    {
+      "id": "a0271a3f-aacc-4eb4-9b4c-96d4bcca2c15.png",
+      "run_id": "run-06b5fa59-aeb3-446d-8e34-c68f229aaa3f",
+      "type": "screenshot",
+      "file_path": "artifacts/a0271a3f-aacc-4eb4-9b4c-96d4bcca2c15.png",
+      "metadata": "{\"url\":\"http://127.0.0.1:57997/\",\"viewport\":{\"width\":1280,\"height\":768},\"capturedAt\":\"2026-09-23T07:35:10.303Z\"}",
+      "created_at": "2026-09-23 07:35:10"
+    },
+    {
+      "id": "ad31a52a-e09c-4f1f-a23b-9f157e324707.json",
+      "run_id": "run-06b5fa59-aeb3-446d-8e34-c68f229aaa3f",
+      "type": "snapshot",
+      "file_path": "artifacts/ad31a52a-e09c-4f1f-a23b-9f157e324707.json",
+      "metadata": "{}",
+      "created_at": "2026-09-23 07:35:10"
+    }
+  ]
+}

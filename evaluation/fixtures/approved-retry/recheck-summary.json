@@ -1,0 +1,95 @@
+{
+  "proposalId": "proposal-fc30e9bb-46bc-40ec-b88b-ff52f0565607",
+  "gate": "bound-rule-1",
+  "records": [
+    {
+      "profile": "abnormal",
+      "repeat": 1,
+      "runId": "run-8bc4d4fd-7098-436e-967b-8bc8316943f9",
+      "passed": true,
+      "usage": {
+        "actions": 4,
+        "modelCalls": 7,
+        "elapsedMs": 41644,
+        "modelInputTokens": 56022,
+        "modelOutputTokens": 1653
+      }
+    },
+    {
+      "profile": "abnormal",
+      "repeat": 2,
+      "runId": "run-6a3492fe-6128-4aef-9859-0ef6212325bb",
+      "passed": true,
+      "usage": {
+        "actions": 5,
+        "modelCalls": 8,
+        "elapsedMs": 68754,
+        "modelInputTokens": 67333,
+        "modelOutputTokens": 4228
+      }
+    },
+    {
+      "profile": "abnormal",
+      "repeat": 3,
+      "runId": "run-1f8d835f-6364-4bad-96df-7cfcb6cf33e6",
+      "passed": true,
+      "usage": {
+        "actions": 4,
+        "modelCalls": 6,
+        "elapsedMs": 50389,
+        "modelInputTokens": 47345,
+        "modelOutputTokens": 1574
+      }
+    },
+    {
+      "profile": "healthy",
+      "repeat": 1,
+      "runId": "run-9f4b4070-3b85-4bc2-bf39-c8cc7b4dcb77",
+      "passed": true,
+      "usage": {
+        "actions": 4,
+        "modelCalls": 5,
+        "elapsedMs": 50766,
+        "modelInputTokens": 38789,
+        "modelOutputTokens": 1367
+      }
+    },
+    {
+      "profile": "healthy",
+      "repeat": 2,
+      "runId": "run-f9862085-a432-440a-9d3b-7cd0bf3554e2",
+      "passed": true,
+      "usage": {
+        "actions": 4,
+        "modelCalls": 5,
+        "elapsedMs": 43627,
+        "modelInputTokens": 38733,
+        "modelOutputTokens": 1237
+      }
+    },
+    {
+      "profile": "healthy",
+      "repeat": 3,
+      "runId": "run-900ee576-dcc4-4a47-9044-be6e49bfd040",
+      "passed": true,
+      "usage": {
+        "actions": 4,
+        "modelCalls": 5,
+        "elapsedMs": 23373,
+        "modelInputTokens": 38841,
+        "modelOutputTokens": 1253
+      }
+    }
+  ],
+  "passed": true,
+  "baseline": {
+    "runId": "run-06b5fa59-aeb3-446d-8e34-c68f229aaa3f",
+    "usage": {
+      "actions": 4,
+      "modelCalls": 13,
+      "elapsedMs": 58619,
+      "modelInputTokens": 77741,
+      "modelOutputTokens": 4764
+    }
+  }
+}

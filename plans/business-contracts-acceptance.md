@@ -202,11 +202,20 @@ C/D 复用原正式验收和 learning runner 的校验，允许抽取共享编�
 
 ### 8.3 原批准来源
 
-默认本机来源参考 data/learning/2026-09-24T10-57-41-736Z，候选 ID proposal-fc30e9bb-46bc-40ec-b88b-ff52f0565607。目录不在 Git 中，别的机器可能没有。
+Git 已附带[可移交的原批准资料](../evaluation/fixtures/approved-retry/README.md)，无需原作者的本机目录。开发 Agent 拉取后先运行：
+
+```sh
+pnpm fixture:approved-retry -- --verify
+pnpm fixture:approved-retry
+```
+
+默认生成 data/fixtures/approved-retry，供 --approved-source 使用；已存在时不覆盖，可使用 --out <新目录>。validate:business 的默认批准来源改为 data/fixtures/approved-retry。原历史目录 data/learning/2026-09-24T10-57-41-736Z 仅作为追溯来源，不再是跨机器前置依赖。候选 ID 仍为 proposal-fc30e9bb-46bc-40ec-b88b-ff52f0565607。
 
 prepared.json 描述生成时的候选，状态可能仍是 validating；**不能单凭它证明批准**。必须核对已关闭 runs.db 的最终 enabled 状态、reviewedBy、原 ruleConfig，以及 approval-inherited.json 等审阅/继承记录；按现有 learning --recheck 的核验要求只读复制到隔离工作库。记录源数据库 hash、声明 hash、候选 ID/修订和原批准来源。原声明的语义 target、timeoutMs 与适用性不得修改。
 
-源缺失时仍完成 G0–G4 和可做的 A/C，B/D 标记 blocked，不伪造审批。若确实需要改声明，先输出具体 diff 和正反例验证，再请求用户批准新候选；可继续独立工作。当前计划优先保持原声明，不预先索取新的批准。
+导入工具会核对原批准、声明、证据归属及 fail/pass/unknown 记录后，在新目录重建兼容数据库，并将相同字节的原始证据恢复到本机 data/artifacts/<原runId>/（冲突拒绝覆盖）；它不是重新批准。portable-source.json 区分原数据库 hash 与新摘录数据库 hash，后者不同是正常现象。来源只含必要记录，不是完整历史运行，recheck-summary.json 只作追溯，不计入当前 B/D 通过数。
+
+源缺失时先检查是否拉取了本 Git 资料并完成导入；损坏或无法核验时仍完成 G0–G4 和可做的 A/C，B/D 标记 blocked，不伪造审批。若确实需要改声明，先输出具体 diff 和正反例验证，再请求用户批准新候选；可继续独立工作。当前计划优先保持原声明，不预先索取新的批准。
 
 ### 8.4 冻结参数、费用与停止条件
 

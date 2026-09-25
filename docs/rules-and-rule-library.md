@@ -53,6 +53,8 @@ pnpm validate:learning -- --resume <学习目录> --approve <候选ID> --reviewe
 pnpm validate:learning -- --recheck <已关闭且已批准学习目录>
 ```
 
+其他机器无需取得原始整个 data 目录。执行 `pnpm fixture:approved-retry` 可从[Git 中的批准资料](../evaluation/fixtures/approved-retry/README.md)恢复 `data/fixtures/approved-retry`，作为既有规则的复查来源。导入保持原声明、候选 ID、人工审阅者和时间，不调用 approve/enable API；新规则不能借此跳过审批。
+
 只有收到对应人工授权，操作者才应使用确认或首次批准参数。复查要求保持原批准与声明，并使用新目录保存失败，不能覆盖原记录。
 
 ## 扩展的验收要求

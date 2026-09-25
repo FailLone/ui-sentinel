@@ -199,7 +199,7 @@ workspace 包名使用 arena-export，避免和现有 arena 重名。建议默�
 
 先在 plans/business-contracts-handoff.md 建立记录，列 base SHA、业务耦合表、阶段状态、命令/退出码/证据链接及未决事项。记录基线验证，不调用模型。后续只维护这一个交接记录，不新建每日 plan。
 
-通过条件：第 2 节每项有归属说明；确认旧批准记录是否可读取，但不改它，不输出密钥。完成后继续 P1。
+通过条件：第 2 节每项有归属说明；从 evaluation/fixtures/approved-retry 校验并导入旧批准资料（pnpm fixture:approved-retry），确认生成的 data/fixtures/approved-retry 可读取，但不改原声明/批准，不输出密钥。完成后继续 P1。
 
 ### P1：配置、API、冻结与历史读取
 
@@ -244,7 +244,7 @@ workspace 包名使用 arena-export，避免和现有 arena 重名。建议默�
 - 根据页面文字“成功”、HTTP 200、无适用规则或无报错宣称完成。
 - 把 processing、预期拒绝与技术失败合并成同一个终态。
 - 禁用已有未知写保护，或将新任务创建伪装为一次 retry。
-- 直接修改数据库将候选标为 approved/enabled，或把 prepared.json 里的候选当成最终批准证明。
+- 直接修改数据库将候选标为 approved/enabled，或把 prepared.json 里的候选当成最终批准证明。允许使用 fixture:approved-retry 在新目录校验并恢复原已批准记录；这属于迁移，不能用于批准新候选。
 - 让 scorer 接受模型自报成功而不核对独立业务和证据。
 - 缩短五秒真实测量、放宽超时/调用上限、关闭检查、删除失败样本换取通过。
 - 用固定模型预检、单次演示或旧基线声称新的真实模型验收完成。
