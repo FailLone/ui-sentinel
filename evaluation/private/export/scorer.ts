@@ -107,6 +107,14 @@ export interface ExportRunInput {
     readonly reviewedBy: string | null
     readonly ruleConfig: Record<string, unknown>
   }
+  /**
+   * The semantic target the run itself declared for its recovery measurement, when it made one.
+   *
+   * A discovery run has no approved rule to inherit, so this is the agent's own binding - and R02
+   * requires the samples to carry that declared key rather than the control's visible text. Absent
+   * here, the approved declaration's shape is used instead, which is the rule-migration case.
+   */
+  readonly declaredTarget?: string
   /** Set by the caller when the fixture or its evidence could not be produced at all. */
   readonly invalidReason?: string
 }
@@ -207,16 +215,22 @@ function defectFindingValid(input: ExportRunInput, finding: { evidenceRefs: read
       r.artifact?.data !== null &&
       'prerequisite' in (r.artifact.data as Record<string, unknown>),
   )
+  // The target to measure against. A discovery run carries no approved declaration to inherit, so the
+  // agent names the recovery control itself and R02 requires its samples to carry *that* declared
+  // semantic key rather than a copy of the button's visible text. Comparing against a target the run
+  // cannot read would report a complete measurement of a disabled control as `unknown` and discard
+  // the finding - which is what a hardcoded target did to the real E2 run.
+  const declaredTarget = input.declaredTarget ?? RETRY_DECLARATION_SHAPE.target
   const windows = measurements.map((observation) => {
     const verdict = evaluateTransition(
       {
         type: 'transition',
-        name: RETRY_DECLARATION_SHAPE.target,
+        name: declaredTarget,
         description: 'retry must become actionable inside the declared window',
         trigger: { eventType: RETRY_DECLARATION_SHAPE.eventType },
         expectation: {
           condition: 'element-actionable',
-          target: RETRY_DECLARATION_SHAPE.target,
+          target: declaredTarget,
           timeoutMs: contract.retryAvailabilityMs,
         },
         severity: 'error',

@@ -222,6 +222,24 @@ async function settle(runId: string) {
 const GOAL =
   'Use a public dataset to produce a CSV export and inspect that flow and the recovery experience it actually triggers. Respect the public requirements and operation limits, report with evidence and finish.'
 
+/**
+ * The semantic target the run declared for its own recovery measurement, if it made one.
+ *
+ * Taken from the run's declaration rather than from the control's visible text: R02 requires the
+ * samples to carry the declared semantic key, and the key is the run's own binding. This is what the
+ * scorer measures a discovery run against, since that group has no approved rule to inherit.
+ */
+function declaredRecoveryTarget(
+  events: readonly { type: string; payload: unknown }[],
+): string | undefined {
+  for (const event of [...events].reverse()) {
+    if (event.type !== 'investigation:declared') continue
+    const target = (event.payload as { target?: unknown }).target
+    if (typeof target === 'string' && target) return target
+  }
+  return undefined
+}
+
 const results: Record<string, unknown>[] = []
 let paidFailures = 0
 
@@ -424,6 +442,11 @@ try {
         },
         selection: { datasetId: 'orders-q3', format: 'csv' },
         rules: declarations,
+        // The semantic target the run itself declared for its recovery measurement, read from the
+        // run's own declaration. A discovery group has no approved rule to inherit, so without this
+        // the scorer would measure against a target the run could not read and discard a complete
+        // measurement as unproven.
+        declaredTarget: declaredRecoveryTarget(report.events),
       }
       const score = scoreExportRun(variant, scorerInput)
       record.report = {

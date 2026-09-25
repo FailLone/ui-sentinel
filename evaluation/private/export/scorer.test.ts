@@ -770,3 +770,63 @@ describe('scorer counterexamples (E01-E10)', () => {
     )
   })
 })
+
+it('E2: accepts the run’s own declared semantic target, which is what a discovery group has', () => {
+  // Group A runs with built-in rules only, so there is no approved declaration to inherit. The agent
+  // names the recovery target itself, and R02 requires its samples to carry *that* declared semantic
+  // key rather than a copy of the button's visible text - a measurement whose target is a label the
+  // agent typed cannot be tied to a real control.
+  //
+  // The scorer used to compare samples against a hardcoded `'Retry button'`. That string appears
+  // nowhere the run can read, so a complete and correct measurement of a disabled control was
+  // reported as `unknown` and its finding discarded - which is what happened to the real E2 run, in
+  // which the agent declared 'Try again recovery button', sampled it 26 times over 5s and got every
+  // sample false. The declaration is the run's own artefact, so it is the run's declaration the
+  // scorer must measure against.
+  const declaredTarget = 'Try again recovery button'
+  const input = e2Input()
+  const measured = {
+    ...inoperableWindow(),
+    selector: '#retry',
+    samples: inoperableWindow().samples.map((s) => ({ ...s, target: declaredTarget })),
+  }
+  const score = scoreExportRun('E2', {
+    ...input,
+    declaredTarget,
+    artifacts: {
+      ...input.artifacts,
+      'measurement.json': { type: 'measurement', exists: true, data: measured },
+    },
+    report: {
+      ...input.report,
+      findings: input.report.findings.map((f) => ({ ...f, evidenceRefs: [...f.evidenceRefs] })),
+    },
+  })
+  expect(score.assertions.defect_fullWindowCovered).toBe(true)
+  expect(score.assertions.defect_stableTarget).toBe(true)
+  expect(score.passed).toBe(true)
+})
+
+it('E2: still rejects samples that drift away from the declared target', () => {
+  // The counterexample the target check exists for: samples alternating onto another control do not
+  // describe one measurement, whatever the declared key is.
+  const input = e2Input()
+  const drifted = {
+    ...inoperableWindow(),
+    selector: '#retry',
+    samples: inoperableWindow().samples.map((s, i) => ({
+      ...s,
+      target: i % 2 ? 'Cancel button' : 'Try again recovery button',
+    })),
+  }
+  const score = scoreExportRun('E2', {
+    ...input,
+    declaredTarget: 'Try again recovery button',
+    artifacts: {
+      ...input.artifacts,
+      'measurement.json': { type: 'measurement', exists: true, data: drifted },
+    },
+  })
+  expect(score.assertions.defect_stableTarget).toBe(false)
+  expect(score.passed).toBe(false)
+})
