@@ -17,8 +17,11 @@ export function getDbClient(): Client {
 }
 
 export async function initDatabase(): Promise<void> {
-  const db = getDbClient()
+  await initializeDatabase(getDbClient())
+}
 
+/** Also used by trusted import tools with a separate, newly-created database. */
+export async function initializeDatabase(db: Client): Promise<void> {
   await db.executeMultiple(`
     CREATE TABLE IF NOT EXISTS runs (
       id TEXT PRIMARY KEY,

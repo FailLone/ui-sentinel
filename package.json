@@ -28,9 +28,10 @@
     "validate:persistence": "tsx scripts/validation/persistence.ts",
     "validate:investigation": "tsx scripts/validation/investigation.ts",
     "validate:blocker-review": "tsx scripts/validation/investigation.ts --blocker-review",
-    "arena:export:start": "EXPORT_ARENA_STATIC=1 node dist/arena-export/index.js",
+"arena:export:start": "EXPORT_ARENA_STATIC=1 node dist/arena-export/index.js",
     "test:fixtures:export": "tsx scripts/verify-export-fixtures.ts",
-    "validate:business": "tsx scripts/validation/business.ts"
+    "validate:business": "tsx scripts/validation/business.ts",
+    "fixture:approved-retry": "tsx scripts/validation/approved-retry.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "^4.0.72",

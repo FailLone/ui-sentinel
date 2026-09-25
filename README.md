@@ -117,6 +117,8 @@ pnpm arena:reset -- --case C0 是受控制 token 保护的私有入口，活动/
 pnpm validate:learning -- --recheck <已关闭且已批准的学习目录>
 ```
 
+跨机器可先运行 `pnpm fixture:approved-retry`，从 Git 中的[原批准资料](evaluation/fixtures/approved-retry/README.md)生成 `data/fixtures/approved-retry`，再将该路径传给 `--recheck` 或下一阶段的 `--approved-source`。导入不调用模型，也不重新批准规则。
+
 生成、修订和首次批准的命令见[规则文档](docs/rules-and-rule-library.md)。历史报告从持久记录恢复；缺少结束证据或记录不一致时不声称完成。
 
 规则绑定读规范化事实，不再依赖 `orderId`，所以同一份已批准的重试声明既能绑定订单也能绑定导出任务。声明里的 `expectation.target`（如 "Retry button"）是**语义采样键**，不要求实际按钮文字相同——文案改成「重新生成」的页面仍应绑到同一份声明，采样值取声明的键而不是复制按钮文字。反馈阈值（`feedbackWarningMs`）与重试窗口（`retryAvailabilityMs`）同样来自当次契约：运行没有声明可靠阈值时判 `unknown`，不套用记忆中的十秒。Journey 复用按契约身份（profile、contract hash、adapter revision、origin）隔离，标题和路径相同但契约不同的页面不复用，无契约的旧 Journey 不参与新任务。

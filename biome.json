@@ -7,7 +7,13 @@
   },
   "files": {
     "ignoreUnknown": true,
-    "includes": ["**", "!**/dist", "!**/node_modules", "!**/*.md"]
+    "includes": [
+      "**",
+      "!**/dist",
+      "!**/node_modules",
+      "!**/*.md",
+      "!evaluation/fixtures/approved-retry/**"
+    ]
   },
   "formatter": {
     "enabled": true,
@@ -22,6 +28,10 @@
       "semicolons": "asNeeded"
     }
   },
-  "linter": { "enabled": false },
-  "assist": { "enabled": false }
+  "linter": {
+    "enabled": false
+  },
+  "assist": {
+    "enabled": false
+  }
 }
