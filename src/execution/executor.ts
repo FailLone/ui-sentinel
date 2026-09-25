@@ -215,6 +215,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     operationId: string | null
     url: string
     evidenceRefs: string[]
+    value: unknown
   }[] = []
 
   const requestTracker = createRequestTracker()
@@ -736,6 +737,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
             operationId: resource.operationId,
             url: exchange.url,
             evidenceRefs: [resourceRef],
+            value: resource.value,
           }
           if (existing >= 0) retainedResources[existing] = entry
           else retainedResources.push(entry)
@@ -2480,14 +2482,16 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         },
         // Public business documents this run retained as evidence. A claim about one of these - a
         // recovery control that cannot be operated although the backend permits the retry, say -
-        // must cite the resource itself, not only the screen it produced. The refs are the IDs a
-        // finding may reference; the body is not repeated here, because the agent reads it from the
-        // observation that carried it. The guidance is emitted only when there is something to
-        // cite, so a business that publishes no such resource is told nothing about them.
+        // must cite the resource itself, not only the screen it produced. The published body is
+        // included so the resource is *consultable*: a ref an agent is told to cite but cannot read
+        // is not evidence it can reason from, and the E2 run's basis quoted the job payload's
+        // `prerequisitesMet` while the resource said the opposite. Bounded, because it is business
+        // JSON the run did not author.
         retainedResources: retainedResources.map((r) => ({
           kind: r.kind,
           operationId: r.operationId,
           evidenceRefs: r.evidenceRefs,
+          value: boundedResource(r.value),
         })),
         ...(retainedResources.length
           ? {
@@ -2892,6 +2896,27 @@ export function abortable<T>(signal: AbortSignal, operation: Promise<T>): Promis
 }
 
 const HISTORY_TOOL_BUDGET = 8000
+
+/**
+ * Bound a retained business resource before putting it in the agent's context.
+ *
+ * The resource is the business's own document, so it is passed through as-is - the point is that the
+ * agent reads the source rather than an executor summary of it. It is still bounded and truncated
+ * with an explicit marker, because a business that publishes a large body must not be able to spend
+ * the run's context on one response. Omission is disclosed rather than silent, so the agent can see
+ * that it is reading part of the document instead of inferring that it saw all of it.
+ */
+const RESOURCE_BUDGET = 4000
+function boundedResource(value: unknown): unknown {
+  const serialized = JSON.stringify(value)
+  if (serialized === undefined) return null
+  if (serialized.length <= RESOURCE_BUDGET) return value
+  return {
+    truncated: true,
+    bytes: serialized.length,
+    preview: serialized.slice(0, RESOURCE_BUDGET),
+  }
+}
 
 export function compactToolResults(toolResults: unknown): string {
   const full = JSON.stringify(toolResults)

@@ -258,7 +258,7 @@ const server = createServer((req, res) => {
     return
   }
   // The E2-shaped workspace: start a job, then ask the server for recovery eligibility exactly as
-// the real arena does, and render the disabled control the unmet prerequisite produces.
+  // the real arena does, and render the disabled control the unmet prerequisite produces.
   if (req.url === '/' && exportEligibilityWorkspace) {
     res.setHeader('content-type', 'text/html')
     res.end(`<h1>Exports</h1><p id="job"></p><button id="start">Start export</button>
@@ -2405,7 +2405,9 @@ describe('retained business resources (F04)', () => {
       publicOrigin: url,
     })
     let clicked = false
-    harness.handler = async (tools: any) => {
+    const prompts: string[] = []
+    harness.handler = async (tools: any, prompt: string) => {
+      prompts.push(prompt)
       if (!clicked) {
         clicked = true
         // Starting the export drives the workspace's own eligibility fetch: the resource is read
@@ -2470,5 +2472,14 @@ describe('retained business resources (F04)', () => {
     // A finding may only cite refs it owns, so the ref must be reachable by its own id.
     const resourceId = String(resourceRows[0]!.id)
     expect((await getEvents(run.id)).some((e) => e.evidenceRefs.includes(resourceId))).toBe(true)
+
+    // And the resource must be *consultable*: an agent told to cite a ref it cannot read is being
+    // asked to cite something it never saw. The published body travels with the ref, because a
+    // claim about the prerequisite has to be checked against the business's own answer rather than
+    // against the job payload - which states the opposite.
+    const offered = prompts.join('\n')
+    expect(offered).toContain('recovery-eligibility')
+    expect(offered).toContain('not available from this workspace')
+    expect(offered).toContain('backendPermitsRetry')
   })
 })
