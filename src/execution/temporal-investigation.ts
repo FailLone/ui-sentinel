@@ -1,3 +1,4 @@
+import { completedCheckNextStep } from './tool-guidance.ts'
 import { z } from 'zod'
 import type { ElementHandle } from 'playwright'
 import { evaluateTransition, type TransitionObservation } from '../rules/transition.ts'
@@ -131,8 +132,7 @@ export function createTemporalInvestigator(deps: {
           sampleCount: measurement.samples.length,
           evidenceRefs: [...new Set([...measurement.evidenceRefs, ...(input.evidenceRefs ?? [])])],
           reused: false,
-          nextStep:
-            'This bounded investigation is resolved and saved. Do not repeat the measurement or submit the finding again. Continue a safe permitted recovery if one is operable; if the observed blocker prevents the remaining path, call run_finish with reason observed-blocker. The report will preserve the unverified downstream scope.',
+          nextStep: completedCheckNextStep(verdict),
           scope:
             'Only the declared DOM condition on the bound node during this recorded window. Does not prove pixel covering, click-handler behavior, permanent failure, or what happened before measurement began. The Agent owns requirement applicability and semantic target selection.',
         }

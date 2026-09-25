@@ -90,3 +90,18 @@ export function retainedResourceGuidance(kinds: readonly string[]): string {
     ' produced; the rendered state is a consequence, and the resource is the business source.'
   )
 }
+
+/** A saved check resolves its measurement, not the whole journey. Unknown remains unfinished. */
+export function completedCheckNextStep(
+  verdict: 'pass' | 'fail' | 'unknown' | 'not-applicable',
+): string {
+  if (verdict === 'unknown')
+    return 'This check is unresolved. Gather justified new evidence or record the missing scope and call run_finish with reason unverified-scope. Do not claim the check passed or failed.'
+  if (verdict === 'not-applicable')
+    return 'This check did not apply. Continue the applicable inspection; this is not a passing measurement.'
+  const decision =
+    verdict === 'pass'
+      ? 'If the journey still requires a permitted recovery and the control is operable, perform it and verify the result; a passing probe is not a completed recovery.'
+      : 'The failed check and its finding are already saved. A failed business operation is not an unresolved investigation. Continue a safe permitted recovery if one is operable; if the observed blocker prevents the remaining path, call run_finish with reason observed-blocker. The server preserves unverified downstream scope.'
+  return `${decision} Do not repeat the measurement, recreate the finding, or write a report. If no applicable work remains, call run_finish with reason scope-covered.`
+}

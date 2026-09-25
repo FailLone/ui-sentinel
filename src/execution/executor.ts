@@ -119,6 +119,7 @@ import {
   missingOutcomeFacts,
   pageActDescription,
   retainedResourceGuidance,
+  completedCheckNextStep,
 } from './tool-guidance.ts'
 
 const queue = createRunQueue(executeRun)
@@ -2214,6 +2215,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
                 operationId: binding.operationId,
                 elementRef: input.elementRef,
                 verdict,
+                nextStep: completedCheckNextStep(verdict),
                 findingId,
                 evidenceRefs: measurement.evidenceRefs,
                 hypothesisId: input.hypothesisId,
@@ -2231,13 +2233,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
                 stepId,
                 evidenceRefs: measurement.evidenceRefs,
               })
-              return {
-                ...result,
-                summary:
-                  verdict === 'unknown'
-                    ? 'Unresolved; report the evidence gap or investigate with new facts.'
-                    : 'Check complete and saved. Reuse this result; do not resubmit it. Continue remaining scope or run_finish.',
-              }
+              return result
             } finally {
               if (!retained) await handle.dispose()
             }
@@ -2538,7 +2534,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         finishReadiness: {
           businessResult,
           applicableGaps: completionGaps(),
-          note: 'When applicable checks are complete request run_finish. Untriggered branches are not blockers; processing status failed maps to unknown, blocked=true.',
+          note: 'A saved pass or fail resolves that check. A failed operation does not require further investigation merely because businessResult is unknown. If an evidenced blocker prevents safe recovery, call run_finish with observed-blocker; unknown is then an honest business result. If scope is covered, call run_finish with scope-covered. A processing operation or unresolved evidence still requires waiting, investigation or an explicit unverified-scope report.',
         },
         businessOutcomeObserved: {
           businessResult,
@@ -2555,9 +2551,12 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
             maxRetriesPerOperation: businessContract.effects.maxRetriesPerOperation,
             createsSpent: sideEffectPolicy.snapshot().createsReserved,
             retriesSpent: sideEffectPolicy.snapshot().retriesReserved,
-            remainingMode: businessCreated
-              ? 'read-only inspection; use probe/transition_observe, not another submission'
-              : 'one create permitted for this business contract',
+            createsRemaining: Math.max(
+              0,
+              businessContract.effects.maxCreates - sideEffectPolicy.snapshot().createsReserved,
+            ),
+            recoveryPolicy:
+              'Create and retry have separate budgets. A retry of the current owned operation is permitted only by its latest business facts and remaining retry allowance. Use an operable UI control; never force a disabled control or replay an uncertain write.',
           },
           hint: 'Business outcome is not inspection completion. Resolve in-scope investigations without repeating the business write.',
         },

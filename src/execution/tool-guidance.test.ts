@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import {
+  completedCheckNextStep,
   finishNote,
   finishOutcomeDescription,
   journeyRunDescription,
@@ -85,4 +86,12 @@ describe('tool guidance follows the run contract', () => {
     expect(description).toMatch(/read-only/i)
     expect(description).toMatch(/replay uncertain actions/i)
   })
+})
+
+it('distinguishes completed measurements from recovery and unresolved evidence', () => {
+  expect(completedCheckNextStep('pass')).toContain('passing probe is not a completed recovery')
+  expect(completedCheckNextStep('fail')).toContain('if the observed blocker prevents')
+  expect(completedCheckNextStep('unknown')).toContain('check is unresolved')
+  expect(completedCheckNextStep('unknown')).not.toContain('finding are already saved')
+  expect(completedCheckNextStep('not-applicable')).toContain('not a passing measurement')
 })

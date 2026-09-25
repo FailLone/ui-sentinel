@@ -279,7 +279,7 @@ export async function executeModelRequest(
       throw failure
     if (error === 'model-stream-incomplete:length') {
       const notice =
-        'The preceding request reached its output limit before executing any tool. No tool from that request ran. Use the unchanged evidence to choose one justified available tool. Keep arguments concise; do not repeat completed work.'
+        'The preceding request reached its output limit before executing any tool. No tool from that request ran. Use the unchanged evidence to choose one justified available tool. Keep arguments concise; do not repeat completed work. If inspection is complete or an evidenced blocker prevents progress, request run_finish with the appropriate reason; do not compose a report or re-derive saved check results. If evidence is missing or a safe recovery remains, choose that next investigation or action. Tool availability and all execution guards are unchanged.'
       if (typeof input === 'string') {
         try {
           const value = JSON.parse(input)
