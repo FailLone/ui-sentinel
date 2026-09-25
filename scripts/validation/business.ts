@@ -22,16 +22,34 @@ import {
  */
 const PREFLIGHT_ONLY = '--preflight'
 const DIAGNOSTIC = '--diagnostic'
+const FORMAL = '--formal'
 const args = process.argv.slice(2).filter((a) => a !== '--')
 
 /**
- * `--diagnostic` is a different script on purpose.
+ * `--diagnostic` and `--formal` are different scripts on purpose.
  *
- * The preflight blanks every real credential so it can never become a paid run; the diagnostic
- * exists to make one. Keeping them in one file would mean a single mis-set flag could turn a free
- * check into a paid batch, so the flag re-executes the diagnostic module with its own argv and
- * exits - the two never share a process.
+ * The preflight blanks every real credential so it can never become a paid run; the other two exist
+ * to make paid runs. Keeping them in one file would mean a single mis-set flag could turn a free
+ * check into a paid batch - so each flag re-executes its own module with its own argv and exits. The
+ * formal batch additionally takes its own options, which are passed through untouched so its strict
+ * parser is the only thing that decides what they mean.
  */
+if (args.includes(FORMAL)) {
+  const { spawnSync } = await import('node:child_process')
+  // `--formal` is consumed here and the remaining options are passed through untouched, so the
+  // formal module's own strict parser is the only thing that decides what they mean.
+  const result = spawnSync(
+    process.execPath,
+    [
+      '--import',
+      'tsx',
+      'scripts/validation/business-formal.ts',
+      ...args.filter((a) => a !== FORMAL),
+    ],
+    { stdio: 'inherit', env: process.env },
+  )
+  process.exit(result.status ?? 1)
+}
 if (args.includes(DIAGNOSTIC)) {
   if (args.length !== 1) throw Error('Usage: pnpm validate:business -- --diagnostic')
   const { spawnSync } = await import('node:child_process')
@@ -46,7 +64,7 @@ if (args.includes(DIAGNOSTIC)) {
   process.exit(result.status ?? 1)
 }
 if (args.some((a) => a !== PREFLIGHT_ONLY))
-  throw Error('Usage: pnpm validate:business --preflight | --diagnostic')
+  throw Error('Usage: pnpm validate:business --preflight | --diagnostic | --formal [options]')
 // A local model only. If a real gateway key is present it is deliberately blanked for the child
 // processes, so a preflight can never become a paid run by accident.
 const dir = resolve('data/business-preflight', new Date().toISOString().replace(/[:.]/g, '-'))
