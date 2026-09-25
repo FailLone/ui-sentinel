@@ -34,7 +34,11 @@ import {
   installApprovalIntoBatch,
   loadBatchDeclarations,
 } from '../../evaluation/private/export/approval-source.ts'
-import { planCampaign, FORMAL_MATRIX, type GroupId } from '../../evaluation/private/export/campaign.ts'
+import {
+  planCampaign,
+  FORMAL_MATRIX,
+  type GroupId,
+} from '../../evaluation/private/export/campaign.ts'
 import { scoreBoundRecheck } from '../../evaluation/private/learning.ts'
 import {
   REQUIRED_PROVIDERS,
@@ -69,8 +73,8 @@ const groupsArg = option('--groups')
 const known = new Set(['--diagnostic-source', '--approved-source', '--groups'])
 // Strict option parsing: an unknown or malformed flag is refused rather than ignored, so a typo
 // cannot silently change which groups run or which diagnostic authorises them.
-for (const arg of args) if (arg.startsWith('--') && !known.has(arg))
-  throw Error(`unknown option: ${arg}`)
+for (const arg of args)
+  if (arg.startsWith('--') && !known.has(arg)) throw Error(`unknown option: ${arg}`)
 if (!diagnosticSource)
   throw Error(
     'Usage: pnpm validate:business -- --formal --diagnostic-source <passed diagnostic directory> ' +
@@ -105,6 +109,8 @@ const dir = resolve('data/business-formal', new Date().toISOString().replace(/[:
 await mkdir(dir, { recursive: true })
 const write = (name: string, value: unknown) =>
   writeFile(resolve(dir, name), JSON.stringify(value, null, 2) + '\n')
+/** Text artifacts are written verbatim: JSON-encoding a `.md` or `.jsonl` would escape every line. */
+const writeText = (name: string, text: string) => writeFile(resolve(dir, name), text)
 
 const maxCostUsd = Number(process.env.VALIDATION_MAX_COST_USD ?? '2')
 if (!Number.isFinite(maxCostUsd) || maxCostUsd <= 0) throw Error('Invalid VALIDATION_MAX_COST_USD')
@@ -112,7 +118,9 @@ if (!Number.isFinite(maxCostUsd) || maxCostUsd <= 0) throw Error('Invalid VALIDA
 const builtServerHash = createHash('sha256')
   .update(await readFile('dist/server/index.js'))
   .digest('hex')
-const lockHash = createHash('sha256').update(await readFile('pnpm-lock.yaml')).digest('hex')
+const lockHash = createHash('sha256')
+  .update(await readFile('pnpm-lock.yaml'))
+  .digest('hex')
 const headSha = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim()
 
 /**
@@ -179,8 +187,7 @@ for (const group of requestedGroups)
   if (!FORMAL_MATRIX.some((g) => g.group === group))
     throw Error(`unknown group: ${group}; expected one of A, B, C, D`)
 
-const budgetRemainingUsd =
-  maxCostUsd - (await spentIn(diagnosticSource!)) - (await spentIn(dir))
+const budgetRemainingUsd = maxCostUsd - (await spentIn(diagnosticSource!)) - (await spentIn(dir))
 
 const plan = planCampaign({
   diagnostic,
@@ -233,21 +240,31 @@ console.log(JSON.stringify({ planned: plan.run.map((g) => g.group), blocked: pla
 // The plan gates everything. A batch with no valid diagnostic runs nothing at all - not "most of"
 // the matrix - and reports every group as not-run with the reason.
 if (plan.diagnosticRefused || !plan.run.length) {
-  await write(
-    'runs.jsonl',
-    FORMAL_MATRIX.map((g) =>
-      JSON.stringify({
-        group: g.group,
-        case: null,
-        repeat: null,
-        planned: false,
-        runId: null,
-        status: 'blocked',
-        reason: plan.blocked.find((b) => b.group === g.group)?.reason ?? 'no-valid-diagnostic',
-        buildHash: builtServerHash,
-      }),
-    ).join('\n') + '\n',
+  // Every group is recorded, with the case/repeat expansion of the matrix it would have run. A
+  // refusal that emitted nothing would look like a batch with no failures rather than one that
+  // never started.
+  const blockedRows = FORMAL_MATRIX.filter(
+    (g) => !plan.run.some((r) => r.group === g.group),
+  ).flatMap((g) =>
+    g.cases.flatMap((c) =>
+      Array.from({ length: g.repeats }, (_, i) =>
+        JSON.stringify({
+          group: g.group,
+          case: c,
+          repeat: i + 1,
+          planned: false,
+          runId: null,
+          status: 'blocked',
+          reason:
+            plan.blocked.find((b) => b.group === g.group)?.reason ??
+            plan.reasonCodes[0] ??
+            'not-planned',
+          buildHash: builtServerHash,
+        }),
+      ),
+    ),
   )
+  await writeText('runs.jsonl', blockedRows.join('\n') + '\n')
   await write('scoreboard.json', {
     gate: false,
     gatePassed: false,
@@ -257,7 +274,7 @@ if (plan.diagnosticRefused || !plan.run.length) {
     scored: null,
     note: 'No run executed: the campaign plan refused the batch before any model call.',
   })
-  await write('summary.md', summaryMarkdown(plan, [], [], null))
+  await writeText('summary.md', summaryMarkdown(plan, [], blockedRows, null))
   console.error(`Blocked before any run: ${plan.reasonCodes.join(', ')}`)
   process.exitCode = 1
 } else {
@@ -294,7 +311,10 @@ async function runCampaign() {
     )
       throw Error(`Model price unavailable for ${model}`)
   }
-  await write('models.json', pricing.data?.filter((m) => [AGENT_MODEL, VISION_MODEL].includes(m.id)))
+  await write(
+    'models.json',
+    pricing.data?.filter((m) => [AGENT_MODEL, VISION_MODEL].includes(m.id)),
+  )
 
   const gateway = await startGateway(apiKey, dir, fetch, {
     limitUsd: maxCostUsd,
@@ -495,7 +515,13 @@ async function runCampaign() {
               // start from a fresh arena; without this the agent's own click is answered 409 and no
               // business fact is ever decoded.
               await exportControlRequest('/__control/reset', { variant: exportVariant })
-              if (sequencingGaps(['fixture-verified', 'arena-reset-after-verification', 'truth-asserted']).length)
+              if (
+                sequencingGaps([
+                  'fixture-verified',
+                  'arena-reset-after-verification',
+                  'truth-asserted',
+                ]).length
+              )
                 throw Error('campaign-sequencing-incomplete')
               record.fixture = { jobId: verified.jobId, truth: verified.truth }
               gateway.begin(`${group.group}-${variant}-${repeat}`, 30, 300_000)
@@ -568,7 +594,9 @@ async function runCampaign() {
               // eighteen-case minimum and six-run recheck here. The plan allows shared orchestration
               // as long as the original commands stay compatible; duplicating the evaluator would
               // let the two drift.
-              throw Error('checkout-groups-delegated: run pnpm validate:acceptance and pnpm validate:learning --recheck')
+              throw Error(
+                'checkout-groups-delegated: run pnpm validate:acceptance and pnpm validate:learning --recheck',
+              )
             }
             record.report = {
               status: (record.score as any)?.status,
@@ -582,7 +610,7 @@ async function runCampaign() {
           }
           rows.push(row as BatchRow)
           records.push(record)
-          await write('runs.jsonl', rows.map((r) => JSON.stringify(r)).join('\n') + '\n')
+          await writeText('runs.jsonl', rows.map((r) => JSON.stringify(r)).join('\n') + '\n')
           await write(`${group.group}-${variant}-${repeat}.json`, record)
           await write('spending.json', gateway.spending())
           console.log(`${group.group} ${variant} ${repeat}: ${row.status}`)
@@ -618,11 +646,13 @@ async function runCampaign() {
     await assertExportIdle().catch(() => {})
   }
 
-  const expectedPlan = plan.run.flatMap((g) => g.cases.map((c) => ({
-    group: g.group,
-    case: c,
-    repeats: g.repeats,
-  })))
+  const expectedPlan = plan.run.flatMap((g) =>
+    g.cases.map((c) => ({
+      group: g.group,
+      case: c,
+      repeats: g.repeats,
+    })),
+  )
   const batch = scoreExportBatch(rows, expectedPlan)
   // B/D were blocked before anything ran, so their rows are recorded as blocked rather than
   // omitted: a scoreboard that silently lacked them would read as a complete 33-run batch.
@@ -641,7 +671,10 @@ async function runCampaign() {
       })),
     )
   })
-  await write('runs.jsonl', [...rows, ...blockedRows].map((r) => JSON.stringify(r)).join('\n') + '\n')
+  await writeText(
+    'runs.jsonl',
+    [...rows, ...blockedRows].map((r) => JSON.stringify(r)).join('\n') + '\n',
+  )
 
   const scoreboard = {
     gate: false,
@@ -652,7 +685,7 @@ async function runCampaign() {
     stop: stop || null,
   }
   await write('scoreboard.json', scoreboard)
-  await write('summary.md', summaryMarkdown(plan, rows, blockedRows, stop || null))
+  await writeText('summary.md', summaryMarkdown(plan, rows, blockedRows, stop || null))
   console.log(JSON.stringify({ scoreboard }, null, 2))
   // Never green while any group is blocked or the batch is incomplete, per the plan.
   if (plan.exitNonZero || !batch.passed) process.exitCode = 1
@@ -686,8 +719,10 @@ async function downloadArtifacts(
     available: boolean
   }[]
 }> {
-  const artifacts: Record<string, { type: string; exists: boolean; sha256?: string; data?: unknown }> =
-    {}
+  const artifacts: Record<
+    string,
+    { type: string; exists: boolean; sha256?: string; data?: unknown }
+  > = {}
   const index: {
     runId: string
     artifactId: string
@@ -735,19 +770,21 @@ async function downloadArtifacts(
 function summaryMarkdown(
   plan: ReturnType<typeof planCampaign>,
   rows: readonly BatchRow[],
-  blockedRows: readonly Record<string, unknown>[],
+  blockedRows: readonly unknown[],
   stop: string | null,
 ): string {
   const passed = rows.filter((r) => r.status === 'passed').length
+  const failed = rows.filter((r) => r.status === 'failed').length
   return [
     '# Business formal campaign',
     '',
     `Planned groups: ${plan.run.map((g) => g.group).join(', ') || '(none)'}`,
     `Blocked groups: ${plan.blocked.map((b) => `${b.group} (${b.reason})`).join(', ') || '(none)'}`,
-    `Runs executed: ${rows.length}; passed: ${passed}; failed: ${rows.length - passed}`,
+    `Runs executed: ${rows.length}; passed: ${passed}; failed: ${failed}`,
     `Rows recorded blocked: ${blockedRows.length}`,
     `Stop: ${stop ?? '(none)'}`,
     '',
     'A batch with any blocked group never gates. Blocked groups are recorded, never omitted.',
+    'This file states counts only; the per-run assertions are in scoreboard.json and runs.jsonl.',
   ].join('\n')
 }
