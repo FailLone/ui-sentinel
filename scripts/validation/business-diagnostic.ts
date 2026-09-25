@@ -12,6 +12,7 @@ import {
 } from '../../evaluation/support/model-gateway.ts'
 import {
   assertExportIdle,
+  assertTruth,
   exportControlRequest,
   resetAndVerifyExport,
   type ExportVariantId,
@@ -21,6 +22,7 @@ import {
   verifyArtifactBytes,
   type ExportRunInput,
 } from '../../evaluation/private/export/scorer.ts'
+import { sequencingGaps } from '../../evaluation/private/export/diagnostic-sequencing.ts'
 import { loadBatchDeclarations } from '../../evaluation/private/export/approval-source.ts'
 import {
   REQUIRED_PROVIDERS,
@@ -307,7 +309,25 @@ try {
       // behaviour does not match its declared truth is reported as an unusable fixture rather than
       // as a product failure.
       const verified = await resetAndVerifyExport(variant)
-      record.fixture = { jobId: verified.jobId, truth: verified.truth, requests: verified.requests }
+      // The verification drives its own browser through the whole flow, which *uses* the arena's one
+      // permitted create. Without a second reset the agent's run starts against a spent arena: its
+      // own click is answered `409 export-already-created`, no business fact is ever decoded, and the
+      // run ends blocked with zero findings - which is exactly what the second paid diagnostic
+      // produced on all five variants, twice, before this line existed. The verified fixture state is
+      // recorded as the fixture's, and the run must begin from a fresh one.
+      const fixture = { jobId: verified.jobId, truth: verified.truth, requests: verified.requests }
+      // An unusable fixture must be reported as a broken fixture, not graded as a product result.
+      assertTruth(variant, verified.truth)
+      await exportControlRequest('/__control/reset', { variant })
+      const preconditions = [
+        'fixture-verified',
+        'arena-reset-after-verification',
+        'truth-asserted',
+      ] as const
+      if (sequencingGaps(preconditions).length)
+        throw Error(`diagnostic-sequencing-incomplete: ${sequencingGaps(preconditions).join(', ')}`)
+      record.fixture = fixture
+      record.preconditions = preconditions
       // The gateway meters per run: without an open window every model call is refused, which is how
       // the first diagnostic produced five instant failures that looked like product defects.
       gateway.begin(variant, 30, 300_000)
