@@ -32,7 +32,7 @@
 
 最终候选实测：format:check、typecheck、build 全通过；73 文件 / 619 测试通过；购物六例与导出五例 fixture 全通过；持久化六轮、原子调查、有限审查通过；扩展业务预检 30 断言通过、付费调用为零。浏览器工作台检查和真实截图包含在预检。
 
-下载修复预检：/private/tmp/ui-sentinel-download-review/data/business-preflight/2026-09-25T16-53-02-346Z；此前主工作区预检位于 data/business-preflight/2026-09-25T16-04-24-429Z（28断言）。测试日志仅本机 /tmp，核心可复现命令在 README 与验收计划；数据目录不提交 Git。
+下载修复主工作区预检：data/business-preflight/2026-09-25T17-02-16-311Z（30断言）；隔离工作树验证位于 /private/tmp/ui-sentinel-download-review/data/business-preflight/2026-09-25T16-53-02-346Z。测试日志仅本机 /tmp，核心可复现命令在 README 与验收计划；数据目录不提交 Git。
 
 ## 原批准与兼容
 
@@ -84,10 +84,35 @@
 
 截至上述批次，含 dev 报告历史费用及保守预留累计 accounted=$1.504189066，其中唯一未知费用预留$0.0154398（前一正式批次2次请求）；$2预算余额$0.495810934。已向用户请求把整个审查/修复轮次累计上限提高到$3，以覆盖下载修复后的完整同构建验收。未获确认前不得按$3启动。
 
-最终代码已推送审查分支前的门槛：格式、类型、构建、619测试与30预检已通过；新候选真实诊断和45轮结果另行追加。在完整45轮及停服审计全过之前不标 accepted、不以两批44/45拼接通过、不合并 main。
+当前修复代码已推送 review/business-contracts-export：格式、类型、构建、619测试与30预检已通过；最新真实诊断见下节。在完整45轮及停服审计全过之前不标 accepted、不以两批44/45拼接通过、不合并 main。
 
 ## 范围和限制
 
 本轮覆盖购物与异步导出两种明确声明的业务。它不证明任意网站、所有视觉体验问题、模型稳定最优或永不超时。已有通过样本仍存在重复检索与收尾耗时波动，记录保留；本轮不继续扩展性能实验。
 
 原审批、未知写隔离、原子测量和证据完整性要求不变。下载权限来自可信适配器和当前事实，Agent 无权新增路由或豁免。准备文件和历史成绩均不能代替实际规则执行。诊断引用及批准来源汇总在 manifest.json 内，逐轮原始报告/真值/请求/下载索引在各组 record.json；顶层保留45行 runs.jsonl、scoreboard、artifact-index 与 durability-audit。
+
+
+## 最新候选诊断与待执行门槛
+
+代码20b6406，诊断时文档提交cffdc6e；诊断 data/business-validation/2026-09-25T17-03-47-620Z，**smoke+E0–E4 6/6通过**，$0.09390136，无未知费用。Server SHA-256 `6c5dad88954c43336b72407c9735c23441e4425e57dbc54aef12efaeb00ddb1b`；完整构建 hash `7f7e760d8c99a5e8e5c9bf917e0f8702ea871791d9a51e23527130296cf645a1`。之后只更新文档，不改变此构建。
+
+| 样本 | 报告 | 模型调用 | elapsed ms |
+| --- | --- | --- | --- |
+| E0 | completed / success | 16 | 184110 |
+| E1 | completed / success | 9 | 38532 |
+| E2 | blocked / unknown | 8 | 106226 |
+| E3 | completed / rejected | 16 | 171307 |
+| E4 | completed / success | 8 | 41863 |
+
+目前累计 accounted **$1.598090426**，含原dev报告和历史未知预留；$2预算剩 **$0.401909574**。上一完整矩阵单独耗费$0.543640718，因此新完整45轮等待已提出的$3总预算确认。用户未确认前不按增加后的预算运行；没有新批准规则的请求。
+
+若用户确认总上限$3，下一步已有完整可执行命令（本机路径）：
+
+```sh
+VALIDATION_MAX_COST_USD=1.495810934 pnpm validate:business -- --formal \
+  --diagnostic-source data/business-validation/2026-09-25T17-03-47-620Z \
+  --approved-source data/fixtures/approved-retry
+```
+
+这里的1.495810934是$3扣除本次诊断前的全部旧费用；formal会再扣除所引用诊断$0.09390136，不重复授予预算。命令必须在当前相同完整构建、干净提交执行。所有45轮及四组停服审计全过后，更新本记录为accepted、合并main并push。若有质量失败继续保留固定矩阵，先修根因；未知副作用/隔离/持久化问题按既定停止条件处理。
