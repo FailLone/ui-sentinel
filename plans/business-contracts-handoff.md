@@ -10,7 +10,7 @@
 | --- | --- |
 | base SHA / 开工时 main SHA | `1b377bb7d1bcbeb0ae607930ddc8506a486175ab`（main；= 本分支 merge-base） |
 | 开发分支 / head SHA | `dev/business-contracts-export` / 最后一个**代码**提交 `8447a73`（其后仅有只改 `plans/`、`README.md`、`docs/` 的文档提交，不改变构建产物）；分支共 34 个提交，tip 用 `git rev-parse HEAD` 取得 |
-| PR 或 bundle / bundle base | 未创建 PR、未 push、未生成 bundle（见「偏差」第 6 项） |
+| PR 或 bundle / bundle base | 未创建 PR、未 push（push 被会话权限拒绝，见「偏差」第 6 项）。已交付 bundle `ui-sentinel-business-contracts.bundle`（仓库根目录）；**base `1b377bb7d1bcbeb0ae607930ddc8506a486175ab`**（= `origin/main` 现有提交），head = 该 bundle 内 `dev/business-contracts-export` 的 tip，用 `git bundle verify <file>` 打印。`git bundle verify` 通过 |
 | Server 构建 / lockfile / 靶场构建 hash | server `c2b288c2dd49e4f2b1b8ea59fe42cff785ecfdfc37238dc1afc492f9fb19d796`；`pnpm-lock.yaml` `a83d99f740493e28ea5a0da4072cd87bf3b89f59e638970893cbc17ca6858701`；arena `a83102517b9589dbf061d371aee35fe6291ca76e4d937b9e7fab48fe19e3825f`；arena-export `0f8332916ed593764ebebe0adeab644b24290c85833f441440f4af8c941cef72` |
 | checkout / export 契约 hash 与 adapter revision | checkout@1 / adapter `checkout@1` / `5f8c5307a1e31f51dcd227be3101f670a6fc7e34389e9fac44f731b1c019fc83`；export@1 / adapter `export@1` / `996f98f28ca663bf894a47ec7aafd0cc028778f4056276b5faf96b80202cb6bd`（均在默认端口 4173/4183 下计算，命令见「快速接手」§5） |
 | campaign 目录 / manifest | 诊断 `data/business-validation/2026-09-25T06-04-47-808Z/`；正式 `data/business-formal/2026-09-25T06-24-28-394Z/` |
@@ -151,7 +151,16 @@ E2 的 run 行为本身正确：声明 `Try again recovery button`，26 样本�
 
 **5. `.env.example` 未更新（会话限制，需人工编辑）。** 该文件（以及 `.env`）被用户的显式 `Read` 拒绝规则覆盖，我未读取、未绕过，也不通过任何其他工具、编码或子代理去取。后果：新增的导出端口/token（`EXPORT_ARENA_PORT`、`EXPORT_API_PORT`、`EXPORT_CONTROL_PORT`、`EXPORT_CONTROL_TOKEN`）未在其中记录。默认值已存在于 `src/shared/config.ts`，且每个脚本都显式设置它们，功能无缺失，但示例文件是陈旧的。
 
-**6. 交付形态。** 未 push 开发分支、未创建 draft PR、未生成 bundle——这三者都是对外可见的副作用动作。分支与全部提交已在本机 `dev/business-contracts-export` 上，base `1b377bb7d1bcbeb0ae607930ddc8506a486175ab`，工作树干净，可直接 `git push -u origin dev/business-contracts-export` 或 `git bundle create <file> 1b377bb..HEAD`。**未合并 main。**
+**6. 交付形态：已 bundle，未 push。** 计划要求「push 此开发分支或交付 bundle」，后者的条件已满足：
+
+```sh
+git bundle verify ui-sentinel-business-contracts.bundle
+# → lower is okay；需要 base 1b377bb7d1bcbeb0ae607930ddc8506a486175ab（已在 origin/main）
+git fetch ui-sentinel-business-contracts.bundle \
+  'refs/heads/dev/business-contracts-export:refs/heads/dev/business-contracts-export'
+```
+
+接收者若从 `origin/main` 的 clone 取用，base 已存在，无需额外传输。**未 push、未创建 PR**：`git push` 被本会话的权限规则拒绝，我未以其他方式（改 remote、换协议、动 hook 或子代理）绕过该拒绝。`origin` 当前只有 `main`，推送可能附带分支保护等仓库设置，交由主 Agent 或用户决定。**未合并 main。**
 
 按计划要求区分两类提交：**实际验收代码**止于 `8447a73`（其 `dist/server/index.js` hash `c2b288c2…` 与诊断 manifest 逐字节一致）；其后的文档提交只动 `plans/`、`README.md`、`docs/`，不改变任何构建产物，因此 G4 的结论仍属于这一构建。若主 Agent 修复 E2 的接口问题，构建 hash 必然改变，`8447a73` 的构建与其诊断即作废，必须重新冻结并重跑诊断后才可授权正式批次。
 
@@ -225,7 +234,7 @@ ARENA_PORT=4173 EXPORT_ARENA_PORT=4183 node --import tsx -e "
 - [ ] 原批准来源、声明未变证明、停服持久化审计 — **三项都因批次未运行而不存在**，未伪造
 - [x] 无私有答案泄漏、无额外业务写、无未知结果重放的证据 — 预检 `workbenchHidesPrivateControl`、`unknownWriteRefused`+`unknownWriteRecorded`（真实 `write:denied {reason: create-budget-exhausted, intent: create}` 落在真实 `POST /api/exports`，creates 保持 1）、`P04/P07` 隔离用例
 - [x] README/docs 已同步 — 见下
-- [ ] 开发分支已 push — **未做**，需主 Agent 或用户授权（见偏差 6）
+- [x] 开发分支已交付 — 以 bundle 交付（计划允许「push 或 bundle」）；**未 push**，会话权限拒绝了 `git push`，未绕过（见偏差 6）
 
 ### 主 Agent 应优先审查的风险
 
