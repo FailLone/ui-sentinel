@@ -9,7 +9,7 @@
 | 字段 | 实际值 |
 | --- | --- |
 | base SHA / 开工时 main SHA | `1b377bb7d1bcbeb0ae607930ddc8506a486175ab`（main；= 本分支 merge-base） |
-| 开发分支 / head SHA | `dev/business-contracts-export`。已合并 `origin/main` 的 `766615b`（合并提交 `1a033fc`，双亲都在），随后 `c1f3786` 把 formal 的默认批准来源切到 Git fixture。分支 tip 与提交数用 `git rev-parse HEAD` / `git rev-list --count <base>..HEAD` 取得——不在此写死，因为它会随本记录自身的提交而变 |
+| 开发分支 / head SHA | `dev/business-contracts-export`。已合并 `origin/main` 的 `766615b`（合并提交 `1a033fc`，双亲都在），随后 `c1f3786` 把 formal 的默认批准来源切到 Git fixture，`8d6c0f5` 修复测试仪器（见偏差 7c），`9817609` 同步文档。分支 tip 与提交数用 `git rev-parse HEAD` / `git rev-list --count <base>..HEAD` 取得——不在此写死，因为它会随本记录自身的提交而变 |
 | PR 或 bundle / bundle base | 未创建 PR、未 push（push 被会话权限拒绝，见「偏差」第 6 项）。已交付 bundle `ui-sentinel-business-contracts.bundle`（仓库根目录）；**base `1b377bb7d1bcbeb0ae607930ddc8506a486175ab`**（= `origin/main` 现有提交），head = 该 bundle 内 `dev/business-contracts-export` 的 tip，用 `git bundle verify <file>` 打印。`git bundle verify` 通过 |
 | Server 构建 / lockfile / 靶场构建 hash | **合并后（当前）**：server `cddcc9906d8d2b7d4dffc5168b5febfdfc5748d7dd2992e059234685dba17653`；arena `a83102517b9589dbf061d371aee35fe6291ca76e4d937b9e7fab48fe19e3825f`；arena-export `0f8332916ed593764ebebe0adeab644b24290c85833f441440f4af8c941cef72`；`pnpm-lock.yaml` `a83d99f740493e28ea5a0da4072cd87bf3b89f59e638970893cbc17ca6858701`（未变）。**合并前**的 server 为 `c2b288c2dd49e4f2b1b8ea59fe42cff785ecfdfc37238dc1afc492f9fb19d796` —— 合并带入 `766615b` 对 `src/storage/database.ts` 的改动，所以 hash 变了，旧诊断随之作废（见「偏差」第 3 项） |
 | checkout / export 契约 hash 与 adapter revision | checkout@1 / adapter `checkout@1` / `5f8c5307a1e31f51dcd227be3101f670a6fc7e34389e9fac44f731b1c019fc83`；export@1 / adapter `export@1` / `996f98f28ca663bf894a47ec7aafd0cc028778f4056276b5faf96b80202cb6bd`（均在默认端口 4173/4183 下计算，命令见「快速接手」§5） |
@@ -18,7 +18,9 @@
 
 hash 是按环境计算的：契约快照含 `environment.publicOrigin`，每次运行的运行期端口都不同，所以报告里的 hash 逐次不同（例如诊断 E0 `f9ffa0d6…`、预检 `ea478d91…`）。上表给的是**固定默认端口下的规范 hash**，用于比较契约内容本身；这与 C06「改变环境产生新 hash」是同一规则，不是不一致。
 
-**诊断与 HEAD 是同一构建**：`8447a73` 重新 `pnpm build` 后 `dist/server/index.js` 的 hash 与诊断 manifest 记录的 `c2b288c2…` **逐字节相同**，且 `283ea36..HEAD` 对 `src/`、`arena/`、`evaluation/`、`scripts/build.ts` 的 diff 为空（本阶段最后两个提交只动 `scripts/validation/`）。所以 G4 的结论不受构建漂移影响，正式 runner 的 `diagnostic-not-passed` 拒绝也不是「构建不同」造成的。反过来：一旦 E2 的接口问题被修复，构建 hash 必然改变，届时**必须重新冻结并重跑诊断**，不能沿用本次诊断授权正式批次。
+**诊断与冻结提交 `8447a73` 是同一构建（合并前）**：当时 `pnpm build` 后 `dist/server/index.js` 的 hash 与诊断 manifest 记录的 `c2b288c2…` **逐字节相同**，且 `283ea36..8447a73` 对 `src/`、`arena/`、`evaluation/`、`scripts/build.ts` 的 diff 为空。所以在**合并前**，G4 的结论不受构建漂移影响，正式 runner 的 `diagnostic-not-passed` 拒绝也不是「构建不同」造成的。
+
+**合并后这一前提已失效。** 合入 `766615b` 带入 `src/storage/database.ts` 的改动（`initDatabase` 委托给新的 `initializeDatabase`——行为等价的重构，但字节不同），server 构建变为 `cddcc990…`。`--formal` 对诊断的构建 hash 做**逐字节**校验，因此 `06-04-47-808Z` 现在无论 E2 是否修复都**不能**授权正式批次。本阶段我提交的 `8d6c0f5`（测试）与 `9817609`（文档）都不改变构建产物（hash 仍为 `cddcc990…`），所以**没有**再引入新的构建漂移。
 
 ## 阶段进度
 
