@@ -1,6 +1,6 @@
 # 业务契约开发交接记录
 
-状态：**blocked**（见文末自检结论）。执行依据为[任务书](next-development-plan.md)和[验收计划](business-contracts-acceptance.md)。
+状态：**主 Agent review / 修复与复验中**。下面 dev 交接正文保留为接收时记录，最新进度见文末。执行依据为[任务书](next-development-plan.md)和[验收计划](business-contracts-acceptance.md)。
 
 只有实际运行过的命令才标为通过；本文件所有数字均来自本机 `data/` 下的原始证据，命令与退出码逐条对应。
 
@@ -320,4 +320,16 @@ ARENA_PORT=4173 EXPORT_ARENA_PORT=4183 node --import tsx -e "
 
 ## 主 Agent review 与更正
 
-尚未进行。由主 Agent 填写发现、优先级、修复提交、复验范围/构建、最终接受或未通过结论。开发 Agent 不预填通过，不自行合并 main。
+2026-09-25 接收 fail 22 bundle（e915105）。审查确认未达成本轮目标，不能按“仅 E2 未通过”接收。
+
+已更正：
+
+- P1：原子调查缺少支撑证据入口。investigation_check / rule_check 支持受归属验证的 evidenceRefs；保留测量与依据，复用键纳入依据及语义 target。
+- P1：重试写仅计数，未核对当前资格和本轮创建的实体。现在调度前同时核验实体、最新 attempt/version、资格和额度。
+- P1：旧失败仍可触发规则，旧成功仍可覆盖新 processing。改为每实体最新事实；没有当前可见实体不能绑定重试。
+- P1：响应读取队列未 drain，迟到读取可污染终态。现在按响应入队、观察/结束前有界等待，关闭后拒绝新提交。
+- P1：正式 runner 的 C/D 是抛错占位，分组数据库未接到服务，最终 gate 被写死。已补齐同网关四组执行、独立服务/数据库、相同原评分器、预算扣除诊断、全45行记录与停服审计。
+- P1：评分器错误地把所有观察都视为创建来源，任意 selector / prerequisite 都可充当证据，失败行也可能通过批次汇总。已加强身份、真实引用、目标、来源与逐轮通过验证，并增加篡改反例。
+- 补齐 .env.example；复用契约 canonical hash；拒绝损坏契约；抽取下载/停服证据审计与完整构建指纹，取消重复实现。
+
+免费验证：全量605项通过；新增审计与评分反例20项通过；业务预检28断言通过；两靶场 fixture、persistence、investigation、blocker-review均 exit 0。后续更改正在补跑针对回归；最终真实诊断与45轮结果尚未生成，暂不标 accepted。

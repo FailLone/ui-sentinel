@@ -89,7 +89,12 @@ import { responseTimeRule } from '../rules/builtin/response-time.ts'
 const reasonRule = 'response-time'
 import { compileTransitionRule } from '../rules/transition.ts'
 import { config } from '../shared/config.ts'
-import { bindProfile, buildContractSnapshot, resolveProfile } from '../business/registry.ts'
+import {
+  contractHash,
+  bindProfile,
+  buildContractSnapshot,
+  resolveProfile,
+} from '../business/registry.ts'
 let reviewCloseVisible = false
 let journeyChange = 'none'
 let url = '',
@@ -817,7 +822,11 @@ it('R07: judges a real measured response against the requirement the run declare
       goal: 'measure feedback',
       environmentId: 'arena',
       entryUrl: url,
-      businessContract: { ...bound, feedbackWarningMs } as never,
+      businessContract: {
+        ...bound,
+        feedbackWarningMs,
+        hash: contractHash({ ...bound, feedbackWarningMs }),
+      } as never,
     })
     ids.push(run.id)
     await startRunExecution(run.id)
@@ -1704,10 +1713,11 @@ it.each([false, true])(
 it('reuses evidenced navigation under a write barrier and rejects a changed handler before backend mutation', async () => {
   // Journey reuse is scoped to a contract identity (R06), so these runs carry one - as every run
   // created through the API does. Sharing it is what makes the source run's evidence reusable here.
-  const contract = buildContractSnapshot(
-    resolveProfile({ id: 'checkout', revision: '1' })!,
-    'arena',
-  )
+  const contract = bindProfile(resolveProfile({ id: 'checkout', revision: '1' })!, {
+    id: 'arena',
+    entryUrl: url + '/journey-page',
+    publicOrigin: url,
+  })
   const create = async () => {
     const run = await createRun({
       goal: 'inspect navigation',
@@ -2399,6 +2409,7 @@ describe('export side-effect and cancellation boundaries (P04, P07)', () => {
 describe('retained business resources (F04)', () => {
   it('retains the recovery eligibility resource the page consulted, as citable evidence', async () => {
     exportEligibilityWorkspace = true
+    config.features.atomicInvestigation = true
     const bound = bindProfile(resolveProfile({ id: 'export', revision: '1' })!, {
       id: 'export-arena',
       entryUrl: url,
@@ -2417,7 +2428,37 @@ describe('retained business resources (F04)', () => {
         await new Promise((r) => setTimeout(r, 600))
         return []
       }
-      await call(tools, 'page_observe', {})
+      const observed = await call(tools, 'page_observe', {})
+      const resources = await getDbClient().execute({
+        sql: "SELECT id FROM artifacts WHERE type='resource'",
+      })
+      const ref = String(resources.rows.at(-1)!.id)
+      const detail = JSON.stringify(observed)
+      const parsed = typeof observed === 'string' ? JSON.parse(observed) : observed
+      const candidates = parsed.elements ?? parsed.snapshot?.elements ?? []
+      const target = candidates.find((e: any) => /Retry|Recover/i.test(e.text ?? e.name ?? ''))
+      if (!target) throw Error('retry target missing: ' + detail.slice(0, 1200))
+      const args = {
+        phenomenon: 'Recovery unavailable',
+        basis: 'Published eligibility conflicts with backend permission',
+        trigger: 'retryable-failure',
+        elementRef: target.ref,
+        target: 'Retry button',
+        condition: 'element-actionable',
+        durationMs: 500,
+        severity: 'error',
+        evidenceRefs: [ref],
+      }
+      await expect(
+        call(tools, 'investigation_check', { ...args, evidenceRefs: ['not-owned'] }),
+      ).rejects.toThrow('invalid evidence reference')
+      const checked = await call(tools, 'investigation_check', args)
+      expect(checked.evidenceRefs).toContain(ref)
+      await call(tools, 'run_finish', {
+        businessResult: 'unknown',
+        blocked: true,
+        summary: 'Recovery measured',
+      })
       return []
     }
     const run = await createRun({
@@ -2483,3 +2524,37 @@ describe('retained business resources (F04)', () => {
     expect(offered).toContain('backendPermitsRetry')
   })
 })
+
+it.each(['hash', 'adapter', 'origin'])(
+  'refuses a %s-invalid persisted contract before invoking models',
+  async (kind) => {
+    const valid = bindProfile(resolveProfile({ id: 'export', revision: '1' })!, {
+      id: 'export-arena',
+      entryUrl: url,
+      publicOrigin: url,
+    })
+    const contract =
+      kind === 'adapter'
+        ? { ...valid, adapter: { ...valid.adapter, revision: 'unavailable' } }
+        : kind === 'origin'
+          ? {
+              ...valid,
+              environment: { ...valid.environment, publicOrigin: 'https://another.example' },
+            }
+          : { ...valid, hash: 'wrong' }
+    if (kind !== 'hash') contract.hash = contractHash(contract)
+    harness.handler = () => {
+      throw Error('No model may run')
+    }
+    const run = await createRun({
+      goal: 'Inspect export',
+      environmentId: 'test',
+      entryUrl: url,
+      businessContract: contract,
+    })
+    ids.push(run.id)
+    await startRunExecution(run.id)
+    expect((await getRun(run.id))?.status).toBe('execution-error')
+    expect(harness.models).toBe(0)
+  },
+)

@@ -1,5 +1,5 @@
 import type { Rule } from '../types.ts'
-import { normalizeFactEvents } from '../../business/facts.ts'
+import { normalizeFactEvents, latestFactForOperation } from '../../business/facts.ts'
 
 /**
  * Correlate the current business operation with what the page shows.
@@ -41,7 +41,9 @@ export const businessOutcomeRule: Rule = {
         evidenceRefs: [],
       })),
     )
-    const fact = facts.at(-1)
+    const latestId = [...events].reverse().find((e) => e.type === 'business:fact')
+      ?.payload.operationId
+    const fact = typeof latestId === 'string' ? latestFactForOperation(facts, latestId) : undefined
     const text = snapshot.elements
       .filter((e) => e.visible)
       .map((e) => e.text)

@@ -203,18 +203,33 @@ function defectFindingValid(input: ExportRunInput, finding: { evidenceRefs: read
     )
   // The page must be showing the job this run created: a measurement against some other entity
   // would be evidence about a different operation.
-  const jobVisible = hasText(
-    snapshots.find((s) => s.elements.length),
-    (text) =>
-      text.includes(input.truth.artifactContents?.[0]?.datasetId ?? '') || /job-/.test(text),
+  const created = input.report.events.find(
+    (e) =>
+      e.type === 'business:observation' &&
+      e.payload.method === 'POST' &&
+      (() => {
+        try {
+          return new URL(String(e.payload.url)).pathname === '/api/exports'
+        } catch {
+          return false
+        }
+      })(),
   )
-  // The recovery eligibility the agent was meant to consult, cited as the run's own evidence.
-  const eligibilityCited = refs.some(
-    (r) =>
-      typeof r.artifact?.data === 'object' &&
-      r.artifact?.data !== null &&
-      'prerequisite' in (r.artifact.data as Record<string, unknown>),
-  )
+  const jobId = (created?.payload.body as { jobId?: string } | undefined)?.jobId
+  const jobVisible = !!jobId && snapshots.some((s) => hasText(s, (text) => text.includes(jobId)))
+  const eligibilityCited = refs.some((r) => {
+    const body = r.artifact?.data as
+      | { jobId?: string; prerequisite?: unknown; backendPermitsRetry?: boolean }
+      | undefined
+    return (
+      r.artifact?.type === 'resource' &&
+      !!jobId &&
+      body?.jobId === jobId &&
+      typeof body.prerequisite === 'object' &&
+      body.prerequisite !== null &&
+      body.backendPermitsRetry === true
+    )
+  })
   // The target to measure against. A discovery run carries no approved declaration to inherit, so the
   // agent names the recovery control itself and R02 requires its samples to carry *that* declared
   // semantic key rather than a copy of the button's visible text. Comparing against a target the run
@@ -243,10 +258,14 @@ function defectFindingValid(input: ExportRunInput, finding: { evidenceRefs: read
     // The referenced element must exist in a cited snapshot with the same selector, so the
     // measurement is tied to a real control rather than to a label the agent typed.
     const selectorBound =
-      !!observation.selector ||
+      !!observation.selector &&
       snapshots.some((s) =>
         s.elements?.some(
-          (el) => el.tag === 'button' && el.visible && el.enabled === false && targets.has(el.text),
+          (el) =>
+            el.selector === observation.selector &&
+            el.tag === 'button' &&
+            el.visible &&
+            el.enabled === false,
         ),
       )
     return {
@@ -339,7 +358,18 @@ export function scoreExportRun(variant: ExportVariantId, input: ExportRunInput):
   // public response it came from. A fact from another entity cannot support this run's conclusion.
   const createdJobs = new Set(
     report.events
-      .filter((e) => e.type === 'business:observation')
+      .filter(
+        (e) =>
+          e.type === 'business:observation' &&
+          e.payload.method === 'POST' &&
+          (() => {
+            try {
+              return new URL(String(e.payload.url)).pathname === '/api/exports'
+            } catch {
+              return false
+            }
+          })(),
+      )
       .map((e) => (e.payload as { body?: { jobId?: string } }).body?.jobId)
       .filter((id): id is string => typeof id === 'string'),
   )
@@ -348,7 +378,14 @@ export function scoreExportRun(variant: ExportVariantId, input: ExportRunInput):
   assertions.factsCarryContract = facts.every((f) => f.contractHash === contract.hash)
   assertions.factsCitePublicEvidence = report.events
     .filter((e) => e.type === 'business:fact')
-    .every((e) => typeof (e.payload as { sourceEventId?: unknown }).sourceEventId === 'string')
+    .every((e) =>
+      report.events.some(
+        (source) =>
+          source.id === e.payload.sourceEventId &&
+          source.type === 'business:observation' &&
+          (source.payload.body as { jobId?: unknown })?.jobId === e.payload.operationId,
+      ),
+    )
 
   // The terminal fact must be the one the expectation names. This is where a "succeeded" fact for
   // a job whose truth is `failed` is caught, rather than being read as a success.
@@ -361,7 +398,7 @@ export function scoreExportRun(variant: ExportVariantId, input: ExportRunInput):
         : 'failed'
   assertions.terminalPhaseMatchesTruth =
     expected.businessResult === 'unknown'
-      ? terminalPhases.every((phase) => phase !== 'succeeded')
+      ? terminalPhases.includes('failed') && terminalPhases.every((phase) => phase !== 'succeeded')
       : terminalPhases.includes(expectedPhase)
   // Processing is never an outcome: a report that treated one as its result would have claimed a
   // business conclusion the business had not yet produced.
@@ -408,6 +445,7 @@ export function scoreExportRun(variant: ExportVariantId, input: ExportRunInput):
   assertions.healthyVariantHasNoSupportedFinding =
     expected.finding === 'required' ? true : supported.length === 0
   assertions.noDuplicateFindings =
+    (expected.finding !== 'required' || supported.length === 1) &&
     new Set(supported.map((f) => `${f.ruleId ?? f.hypothesisId ?? ''}:${f.evidenceRefs.join('|')}`))
       .size === supported.length
   assertions.supportedFindingsHaveEvidence = supported.every(
@@ -423,10 +461,12 @@ export function scoreExportRun(variant: ExportVariantId, input: ExportRunInput):
     // E06/E07: the run must have executed the approved rule, and a real check must exist - an
     // exploratory finding alone would mean the rule was loaded but never exercised.
     assertions.approvedRuleExecuted = ruleVerdicts.some(
-      (v) => v.ruleId === approved.id && v.verdict !== undefined,
+      (v) => v.ruleId === approved.id && v.verdict === (variant === 'E2' ? 'fail' : 'pass'),
     )
     assertions.approvedRuleCheckCompleted = ruleChecks.some(
-      (e) => (e.payload as { ruleId?: string }).ruleId === approved.id,
+      (e) =>
+        e.payload.ruleId === approved.id &&
+        e.payload.verdict === (variant === 'E2' ? 'fail' : 'pass'),
     )
     // The declaration must be the approved one, unchanged. A rule whose target, timeout or
     // applicability moved is a different declaration wearing the same id.
@@ -437,7 +477,8 @@ export function scoreExportRun(variant: ExportVariantId, input: ExportRunInput):
     assertions.approvedDeclarationUnchanged =
       declared.trigger?.eventType === RETRY_DECLARATION_SHAPE.eventType &&
       declared.expectation?.condition === RETRY_DECLARATION_SHAPE.condition &&
-      declared.expectation?.target === RETRY_DECLARATION_SHAPE.target
+      declared.expectation?.target === RETRY_DECLARATION_SHAPE.target &&
+      declared.expectation?.timeoutMs === contract.retryAvailabilityMs
     // Approval provenance: an enabled rule with no named human reviewer has no approval to inherit.
     assertions.approvalProvenancePresent = !!approved.reviewedBy && approved.reviewedBy.length > 0
   } else {
@@ -470,7 +511,10 @@ export function scoreExportRun(variant: ExportVariantId, input: ExportRunInput):
         assertions[`defect_${name}`] = false
     }
     assertions.defectFindingIsRuleOrAgentSourced =
-      !!defect && ['rule', 'agent'].includes(defect.source)
+      !!defect &&
+      (approved
+        ? defect.source === 'rule' && defect.ruleId === approved.id
+        : defect.source === 'agent')
     // A blocked run must leave its uncovered scope behind, not report a clean sweep.
     assertions.blockedLeavesUnexploredScope =
       (report as { unexploredBranches?: readonly unknown[] }).unexploredBranches === undefined ||
@@ -568,7 +612,10 @@ export function scoreExportBatch(
     planComplete: missing.length === 0,
     countsMatchPlan: counts.every((c) => c.observed === c.expected),
     // One build throughout: results from different builds must never be summed.
-    singleBuild: builds.length <= 1,
+    singleBuild: builds.length === 1 && rows.every((r) => !!r.buildHash),
+    everyRunPassed:
+      rows.length > 0 && rows.every((r) => r.status === 'passed' && r.score?.passed === true),
+    uniqueRuns: new Set(rows.map((r) => r.runId)).size === rows.length,
     // A row is only `passed` if its own run scored a pass - never because a group average is high.
     passedRowsAreScoredPasses: rows.every((r) => r.status !== 'passed' || r.score?.passed === true),
     // `not-run` and `blocked` rows are recorded rather than omitted, so the failure distribution is

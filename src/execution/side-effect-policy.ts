@@ -1,4 +1,10 @@
-import type { BusinessAdapter, RequestIntent, RequestShape } from '../business/adapters/types.ts'
+import { retryVerdict } from '../business/runtime.ts'
+import type {
+  BusinessFact,
+  BusinessAdapter,
+  RequestIntent,
+  RequestShape,
+} from '../business/adapters/types.ts'
 import type { BusinessContractSnapshot } from '../business/types.ts'
 
 /**
@@ -45,6 +51,8 @@ export function createSideEffectPolicy(input: {
    * boundary the run was created with instead of to whatever the registry resolves today.
    */
   publicOrigin?: string
+  currentFact?: (operationId: string) => BusinessFact | undefined
+  ownsOperation?: (operationId: string) => boolean
 }): SideEffectPolicy {
   const { contract, adapter } = input
   const boundaryOrigin = input.publicOrigin ?? contract.environment.publicOrigin
@@ -83,6 +91,11 @@ export function createSideEffectPolicy(input: {
           return { kind: 'allow', intent }
         }
         case 'retry': {
+          if (!input.ownsOperation?.(intent.operationPath)) return deny('unknown-operation', intent)
+          const fact = input.currentFact?.(intent.operationPath)
+          if (!fact) return deny('retry-decision-missing', intent)
+          const eligibility = retryVerdict(fact, contract)
+          if (!eligibility.eligible) return deny(eligibility.reason, intent)
           const used = retriesByOperation.get(intent.operationPath) ?? 0
           if (used >= contract.effects.maxRetriesPerOperation)
             return deny('retry-budget-exhausted', intent)

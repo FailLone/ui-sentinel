@@ -19,6 +19,13 @@ export const ruleCheckInput = z
         'Use [] for a known rule check without an existing hypothesis. Otherwise use exactly one existing ID from activeHypotheses. Never invent an ID or the string null.',
       ),
     bindingReason: z.string().min(1).max(800),
+    evidenceRefs: z
+      .array(z.string().min(1))
+      .max(16)
+      .optional()
+      .describe(
+        'Existing supporting artifact IDs consulted for applicability, including relevant public business resources.',
+      ),
   })
   .strict()
 

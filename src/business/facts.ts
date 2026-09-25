@@ -41,8 +41,8 @@ export function latestFactForOperation(
     .reduce<BusinessFact | undefined>(
       (best, fact) =>
         !best ||
-        fact.version > best.version ||
-        (fact.version === best.version && fact.attempt > best.attempt)
+        fact.attempt > best.attempt ||
+        (fact.attempt === best.attempt && fact.version > best.version)
           ? fact
           : best,
       undefined,
@@ -78,7 +78,14 @@ export function retryableTriggerFromFacts(
   legacyEvents: readonly RunEvent[] = [],
   pageText = '',
 ): RetryableTrigger | undefined {
-  const candidates = facts.filter((f) => f.phase === 'failed' && f.retryEligibility === 'allowed')
+  const candidates = [...new Set(facts.map((f) => f.operationId))]
+    .map((id) => latestFactForOperation(facts, id)!)
+    .filter(
+      (f) =>
+        f.phase === 'failed' &&
+        f.retryEligibility === 'allowed' &&
+        pageText.includes(f.operationId),
+    )
   for (const fact of [...candidates].sort((a, b) => (factOrderKey(a) < factOrderKey(b) ? 1 : -1))) {
     if (!retryAllowedFromSignal(fact.retry)) continue
     if (!fact.sourceEventId) continue
@@ -92,7 +99,7 @@ export function retryableTriggerFromFacts(
   // Compatibility: a shopping response already recorded as business:response under the old
   // shape still reaches a trigger, so existing shopping observations keep their meaning. Only
   // the checkout adapter produces these fields, so export can never satisfy this path.
-  return legacyCheckoutTrigger(legacyEvents, pageText)
+  return facts.length ? undefined : legacyCheckoutTrigger(legacyEvents, pageText)
 }
 
 /**

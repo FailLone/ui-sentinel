@@ -86,7 +86,7 @@ export function retainedResourceGuidance(kinds: readonly string[]): string {
   return (
     ` This run retained public business resources (${[...new Set(kinds)].join(', ')}).` +
     ' A claim about why the business behaves as it does - for example whether recovery is permitted' +
-    ' at all - must cite the resource itself from retainedResources, not only the screen it' +
+    ' at all - must cite the resource itself from retainedResources in investigation_check.evidenceRefs or rule_check.evidenceRefs, not only the screen it' +
     ' produced; the rendered state is a consequence, and the resource is the business source.'
   )
 }

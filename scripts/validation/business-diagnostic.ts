@@ -1,4 +1,5 @@
 import 'dotenv/config'
+import { buildIdentity } from '../../evaluation/support/build-identity.ts'
 import { spawn, execFileSync, type ChildProcess } from 'node:child_process'
 import { createServer } from 'node:net'
 import { randomBytes, createHash } from 'node:crypto'
@@ -72,6 +73,8 @@ const maxCostUsd = Number(process.env.VALIDATION_MAX_COST_USD ?? '2')
 if (!Number.isFinite(maxCostUsd) || maxCostUsd <= 0) throw Error('Invalid VALIDATION_MAX_COST_USD')
 
 /** The frozen build this diagnostic authorises. A formal batch must name this same hash. */
+const build = await buildIdentity()
+await write('build-identity.json', build)
 const builtServerHash = createHash('sha256')
   .update(await readFile('dist/server/index.js'))
   .digest('hex')
@@ -244,12 +247,13 @@ const results: Record<string, unknown>[] = []
 let paidFailures = 0
 
 try {
-  write('manifest.json', {
+  await write('manifest.json', {
     campaignId: dir,
     kind: 'business-diagnostic',
     realModel: true,
     commit: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
     builtServerHash,
+    buildHash: build.hash,
     agentModel: AGENT_MODEL,
     visionModel: VISION_MODEL,
     // The plan requires the actual model/provider/snapshot to be recorded, not assumed. The
@@ -440,7 +444,18 @@ try {
           },
           effects: report.business.effects,
         },
-        selection: { datasetId: 'orders-q3', format: 'csv' },
+        selection: (() => {
+          const e = report.events.find(
+            (e: any) =>
+              e.type === 'business:observation' &&
+              e.payload.method === 'POST' &&
+              new URL(e.payload.url).pathname === '/api/exports',
+          )
+          return {
+            datasetId: e?.payload.body?.datasetId ?? '',
+            format: e?.payload.body?.format ?? '',
+          }
+        })(),
         rules: declarations,
         // The semantic target the run itself declared for its recovery measurement, read from the
         // run's own declaration. A discovery group has no approved rule to inherit, so without this
@@ -489,6 +504,7 @@ try {
     kind: 'business-diagnostic',
     realModel: true,
     builtServerHash,
+    buildHash: build.hash,
     planned,
     results: results.map((r) => ({ case: r.case, passed: r.passed, runId: r.runId ?? null })),
     notRun: planned.filter((p) => !results.some((r) => r.case === p)),
@@ -499,6 +515,7 @@ try {
   await write('diagnostic-reference.json', {
     directory: dir,
     builtServerHash,
+    buildHash: build.hash,
     passed,
     at: new Date().toISOString(),
   })

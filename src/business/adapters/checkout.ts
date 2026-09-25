@@ -60,8 +60,8 @@ export const checkoutAdapter: BusinessAdapter = Object.freeze({
     // Only POST mutates. Reads are recognized by method, never by the body's JSON shape.
     if (request.method === 'GET' || request.method === 'HEAD' || request.method === 'OPTIONS')
       return { kind: 'read' }
-    if (path === CHECKOUT_PATH) return { kind: 'create' }
-    if (CART_PATHS.includes(path)) return { kind: 'prepare' }
+    if (request.method === 'POST' && path === CHECKOUT_PATH) return { kind: 'create' }
+    if (request.method === 'POST' && CART_PATHS.includes(path)) return { kind: 'prepare' }
     return { kind: 'other-write' }
   },
 

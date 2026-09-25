@@ -114,7 +114,11 @@ describe('normalized business facts (B03, B06, B10)', () => {
 
 describe('normalized retryable trigger (R01, B09)', () => {
   it('offers a retryable trigger from a normalized eligible failure with no order id field', () => {
-    const trigger = retryableTriggerFromFacts(normalizeFactEvents([factEvent(exportFact())]))
+    const trigger = retryableTriggerFromFacts(
+      normalizeFactEvents([factEvent(exportFact())]),
+      [],
+      'job-1',
+    )
     expect(trigger).toMatchObject({
       operationId: 'job-1',
       eventType: 'retryable-failure',
@@ -171,7 +175,26 @@ describe('normalized retryable trigger (R01, B09)', () => {
 
   it('prefers the normalized fact over the checkout compatibility path', () => {
     const facts = normalizeFactEvents([factEvent(exportFact({ operationId: 'job-9' }))])
-    const trigger = retryableTriggerFromFacts(facts)
+    const trigger = retryableTriggerFromFacts(facts, [], 'job-9')
     expect(trigger!.operationId).toBe('job-9')
   })
+})
+
+it('retires old retry eligibility after a newer attempt or status, even with a legacy failure present', () => {
+  const old = factEvent(exportFact({ version: 99 }))
+  const legacy = legacyResponse({
+    success: false,
+    status: 'failed',
+    orderId: 'job-1',
+    canRetry: true,
+  })
+  for (const phase of ['processing', 'succeeded', 'rejected']) {
+    const facts = normalizeFactEvents([
+      old,
+      factEvent(exportFact({ attempt: 1, version: 1, phase })),
+    ])
+    expect(latestFactForOperation(facts, 'job-1')?.phase).toBe(phase)
+    expect(retryableTriggerFromFacts(facts, [legacy], 'job-1')).toBeUndefined()
+  }
+  expect(retryableTriggerFromFacts(normalizeFactEvents([old]), [], 'another job')).toBeUndefined()
 })

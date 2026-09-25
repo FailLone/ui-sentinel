@@ -1,8 +1,16 @@
 import 'dotenv/config'
+import { buildIdentity } from '../../evaluation/support/build-identity.ts'
+import {
+  downloadRunEvidence,
+  auditStoppedGroup,
+} from '../../evaluation/support/campaign-evidence.ts'
+import { evaluateRun } from '../../evaluation/private/evaluator.ts'
+import { resetAndVerify, controlRequest, assertIdle } from '../../evaluation/private/controller.ts'
+import type { VariantId } from '../../evaluation/private/answers.ts'
 import { spawn, execFileSync, type ChildProcess } from 'node:child_process'
 import { createServer } from 'node:net'
 import { randomBytes, createHash } from 'node:crypto'
-import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { createClient } from '@libsql/client'
 import {
@@ -12,7 +20,6 @@ import {
   REVIEW_MODEL,
 } from '../../evaluation/support/model-gateway.ts'
 import {
-  assertExportIdle,
   assertTruth,
   exportControlRequest,
   resetAndVerifyExport,
@@ -21,13 +28,8 @@ import {
 import {
   scoreExportRun,
   scoreExportBatch,
-  verifyArtifactBytes,
-  auditDurability,
   type BatchRow,
-  type ExportRunInput,
-  type ExportScore,
 } from '../../evaluation/private/export/scorer.ts'
-import { sequencingGaps } from '../../evaluation/private/export/diagnostic-sequencing.ts'
 import {
   assertClosed,
   importApprovedRule,
@@ -44,6 +46,12 @@ import {
   REQUIRED_PROVIDERS,
   resolveProviders,
 } from '../../evaluation/private/export/diagnostic-config.ts'
+
+const RUN_BUDGET = { totalTimeoutMs: 300000, maxActions: 40, maxModelCalls: 30 }
+const EXPORT_GOAL =
+  'Use a public dataset to produce a CSV export and inspect that flow and the recovery experience it actually triggers. Respect the public requirements and operation limits, report with evidence and finish.'
+const CHECKOUT_GOAL =
+  'Inspect the purchase journey. Purchase an item; inspect primary action access, response, expected rejection and recovery. Campaigns must not block submit; retryable failures must provide an operable retry within five seconds. Response above ten seconds warrants a warning.'
 
 /**
  * G5: the formal 45-run campaign.
@@ -63,6 +71,15 @@ import {
  *     output directory does not grant a fresh $2.
  */
 const args = process.argv.slice(2).filter((a) => a !== '--')
+for (let i = 0; i < args.length; i += 2) {
+  if (
+    !['--diagnostic-source', '--approved-source', '--groups'].includes(args[i]!) ||
+    !args[i + 1] ||
+    args[i + 1]!.startsWith('--') ||
+    args.indexOf(args[i]!) !== i
+  )
+    throw Error('Malformed or duplicate option: ' + args[i])
+}
 const option = (name: string) => {
   const i = args.indexOf(name)
   return i < 0 ? undefined : args[i + 1]
@@ -121,6 +138,8 @@ const writeText = (name: string, text: string) => writeFile(resolve(dir, name), 
 const maxCostUsd = Number(process.env.VALIDATION_MAX_COST_USD ?? '2')
 if (!Number.isFinite(maxCostUsd) || maxCostUsd <= 0) throw Error('Invalid VALIDATION_MAX_COST_USD')
 
+const build = await buildIdentity()
+await write('build-identity.json', build)
 const builtServerHash = createHash('sha256')
   .update(await readFile('dist/server/index.js'))
   .digest('hex')
@@ -140,7 +159,9 @@ async function spentIn(directory: string): Promise<number> {
   const report = await readFile(resolve(directory, 'spending.json'), 'utf8')
     .then((text) => JSON.parse(text) as { accountedUsd?: number })
     .catch(() => null)
-  return Number(report?.accountedUsd ?? 0)
+  if (!report || !Number.isFinite(report.accountedUsd) || Number(report.accountedUsd) < 0)
+    throw Error('diagnostic-spending-unavailable')
+  return Number(report.accountedUsd)
 }
 
 // --- the diagnostic reference -------------------------------------------------------------
@@ -152,13 +173,13 @@ let diagnosticReason = ''
 try {
   const reference = JSON.parse(
     await readFile(resolve(diagnosticSource!, 'diagnostic-reference.json'), 'utf8'),
-  ) as { directory?: string; builtServerHash?: string; passed?: boolean }
+  ) as { directory?: string; builtServerHash?: string; passed?: boolean; buildHash?: string }
   if (typeof reference.passed !== 'boolean' || typeof reference.builtServerHash !== 'string')
     diagnosticReason = 'diagnostic-reference-malformed'
   else
     diagnostic = {
       directory: resolve(diagnosticSource!),
-      passed: reference.passed,
+      passed: reference.passed && reference.buildHash === build.hash,
       buildHash: reference.builtServerHash,
     }
 } catch (error) {
@@ -189,11 +210,12 @@ try {
 const requestedGroups = (
   groupsArg ? groupsArg.split(',').map((g) => g.trim()) : ['A', 'B', 'C', 'D']
 ) as GroupId[]
+if (new Set(requestedGroups).size !== requestedGroups.length) throw Error('Duplicate groups')
 for (const group of requestedGroups)
   if (!FORMAL_MATRIX.some((g) => g.group === group))
     throw Error(`unknown group: ${group}; expected one of A, B, C, D`)
 
-const budgetRemainingUsd = maxCostUsd - (await spentIn(diagnosticSource!)) - (await spentIn(dir))
+const budgetRemainingUsd = maxCostUsd - (await spentIn(diagnosticSource!))
 
 const plan = planCampaign({
   diagnostic,
@@ -210,6 +232,7 @@ await write('manifest.json', {
   baseSha: execFileSync('git', ['merge-base', 'main', 'HEAD'], { encoding: 'utf8' }).trim(),
   headSha,
   builtServerHash,
+  buildHash: build.hash,
   lockHash,
   agentModel: AGENT_MODEL,
   visionModel: VISION_MODEL,
@@ -295,406 +318,406 @@ if (plan.diagnosticRefused || !plan.run.length) {
  * anything A discovered, and a shared store would make that structural rather than asserted.
  */
 async function runCampaign() {
-  const reservePort = async () => {
-    const server = createServer()
-    await new Promise<void>((r) => server.listen(0, '127.0.0.1', r))
-    const port = (server.address() as { port: number }).port
-    await new Promise<void>((r) => server.close(() => r()))
-    return String(port)
-  }
-
   const pricing = (await fetch('https://openrouter.ai/api/v1/models', {
     signal: AbortSignal.timeout(15000),
   }).then((r) => r.json())) as {
-    data?: { id: string; pricing?: { prompt: string; completion: string } }[]
+    data: { id: string; pricing: { prompt: string; completion: string } }[]
   }
-  for (const model of [AGENT_MODEL, VISION_MODEL]) {
-    const entry = pricing.data?.find((m) => m.id === model)
+  for (const id of [AGENT_MODEL, VISION_MODEL]) {
+    const model = pricing.data.find((m) => m.id === id)
     if (
-      !entry ||
-      !Number.isFinite(Number(entry.pricing?.prompt)) ||
-      !Number.isFinite(Number(entry.pricing?.completion))
+      !model ||
+      !Number.isFinite(Number(model.pricing?.prompt)) ||
+      !Number.isFinite(Number(model.pricing?.completion))
     )
-      throw Error(`Model price unavailable for ${model}`)
+      throw Error(`Model price unavailable: ${id}`)
   }
-  await write(
-    'models.json',
-    pricing.data?.filter((m) => [AGENT_MODEL, VISION_MODEL].includes(m.id)),
-  )
-
+  // The diagnostic already consumed part of this campaign's budget.
   const gateway = await startGateway(apiKey, dir, fetch, {
-    limitUsd: maxCostUsd,
+    limitUsd: budgetRemainingUsd,
     estimateCost: (body) => {
       if (body.model === REVIEW_MODEL) return 0.001344
-      const model = pricing.data?.find((m) => m.id === body.model)
+      const model = pricing.data.find((m) => m.id === body.model)!
       return (
-        Buffer.byteLength(JSON.stringify(body)) * Number(model?.pricing?.prompt) +
-        4096 * Number(model?.pricing?.completion)
+        Buffer.byteLength(JSON.stringify(body)) * Number(model.pricing.prompt) +
+        4096 * Number(model.pricing.completion)
       )
     },
   })
-
-  const rows: BatchRow[] = []
-  const records: Record<string, unknown>[] = []
-  const children: ChildProcess[] = []
-  let log = ''
+  const rows: BatchRow[] = FORMAL_MATRIX.flatMap((g) =>
+    g.cases.flatMap((c) =>
+      Array.from({ length: g.repeats }, (_, i) => ({
+        group: g.group,
+        case: c,
+        repeat: i + 1,
+        planned: true,
+        runId: null,
+        status: plan.run.some((p) => p.group === g.group)
+          ? ('not-run' as const)
+          : ('blocked' as const),
+        buildHash: builtServerHash,
+      })),
+    ),
+  )
+  const audits: unknown[] = []
+  const artifactIndex: unknown[] = []
   let stop = ''
-
-  const launch = (argv: string[], env: NodeJS.ProcessEnv) => {
-    const child = spawn(process.execPath, argv, { env, stdio: ['ignore', 'pipe', 'pipe'] })
-    children.push(child)
-    for (const stream of [child.stdout, child.stderr])
-      stream?.on('data', (b) => {
-        log += gateway.redact(String(b))
-      })
-    return child
-  }
-  const wait = (child: ChildProcess, timeoutMs: number) =>
-    new Promise<number>((resolveExit, rejectExit) => {
-      const timer = setTimeout(() => {
-        child.kill('SIGTERM')
-        rejectExit(Error('child-timeout'))
-      }, timeoutMs)
-      child.once('error', (error) => {
-        clearTimeout(timer)
-        rejectExit(error)
-      })
-      child.once('exit', (code) => {
-        clearTimeout(timer)
-        resolveExit(code ?? 1)
-      })
+  const diagnosticSpend = maxCostUsd - budgetRemainingUsd
+  const saveProgress = async () => {
+    await writeText('runs.jsonl', rows.map((row) => JSON.stringify(row)).join('\n') + '\n')
+    await write('artifact-index.json', artifactIndex)
+    await write('spending.json', {
+      ...gateway.spending(),
+      diagnosticAccountedUsd: diagnosticSpend,
+      campaignAccountedUsd: diagnosticSpend + gateway.spending().accountedUsd,
     })
-
-  try {
-    // Both arenas and the service, on one frozen build. A campaign that switched builds mid-run
-    // would be comparing results it cannot compare, so the hash is asserted rather than recorded.
-    const serverEnv: NodeJS.ProcessEnv = {
-      ...process.env,
-      AGENT_MODEL: `openai/${AGENT_MODEL}`,
-      OPENAI_API_KEY: gateway.token,
-      OPENAI_BASE_URL: gateway.url,
-      VISION_MODEL,
-      VISION_API_KEY: gateway.token,
-      VISION_BASE_URL: gateway.url,
-      VISION_MODEL_FAMILY: 'qwen3',
-      COMPLETION_REVIEW_API_KEY: gateway.token,
-      COMPLETION_REVIEW_URL: gateway.url + '/decisions',
-      PORT: await reservePort(),
-      ARENA_PORT: await reservePort(),
-      ARENA_API_PORT: await reservePort(),
-      ARENA_CONTROL_PORT: await reservePort(),
-      EXPORT_ARENA_PORT: await reservePort(),
-      EXPORT_API_PORT: await reservePort(),
-      EXPORT_CONTROL_PORT: await reservePort(),
-      ARENA_CONTROL_TOKEN: randomBytes(32).toString('hex'),
-      EXPORT_CONTROL_TOKEN: randomBytes(32).toString('hex'),
-      ARENA_STATIC: '1',
-      EXPORT_ARENA_STATIC: '1',
-      EXECUTION_ATOMIC_INVESTIGATION: '1',
-      EXECUTION_BLOCKER_REVIEW: '1',
-      VALIDATION_AGENT_PROVIDER: providers.agent,
-      VALIDATION_VISION_PROVIDER: providers.vision,
-      DATABASE_URL: `file:${dir}/batch.db`,
-      OPENROUTER_API_KEY: '',
-      RUN_MAX_MODEL_CALLS: '30',
-      RUN_MAX_ACTIONS: '40',
-      RUN_TOTAL_TIMEOUT_MS: '300000',
-      MODEL_REQUEST_TIMEOUT_MS: '60000',
-      MODEL_REQUEST_MAX_RETRIES: '1',
-      TOOL_TIMEOUT_MS: '15000',
-      OTEL_SDK_DISABLED: 'true',
-    }
-    serverEnv.EXPORT_ARENA_URL = `http://127.0.0.1:${serverEnv.EXPORT_ARENA_PORT}`
-    Object.assign(process.env, serverEnv)
-
-    const base = `http://127.0.0.1:${serverEnv.PORT}`
-    const get = async (path: string, body?: unknown) => {
-      const response = await fetch(base + path, {
-        method: body === undefined ? 'GET' : 'POST',
-        headers: {
-          'content-type': 'application/json',
-          authorization: `Bearer ${serverEnv.ARENA_CONTROL_TOKEN}`,
-        },
-        ...(body === undefined ? {} : { body: JSON.stringify(body) }),
-        signal: AbortSignal.timeout(path === '/api/runs' ? 60000 : 15000),
+  }
+  await saveProgress()
+  const port = async () => {
+    const socket = createServer()
+    await new Promise<void>((r) => socket.listen(0, '127.0.0.1', r))
+    const value = String((socket.address() as { port: number }).port)
+    await new Promise<void>((r) => socket.close(() => r()))
+    return value
+  }
+  const kill = async (child: ChildProcess) => {
+    if (child.exitCode !== null || child.signalCode !== null) return
+    await new Promise<void>((done) => {
+      const timer = setTimeout(() => child.kill('SIGKILL'), 3000)
+      child.once('exit', () => {
+        clearTimeout(timer)
+        done()
       })
-      if (!response.ok)
-        throw Error(`${path}: ${response.status} ${gateway.redact(await response.text())}`)
-      return response.json() as Promise<any>
-    }
-
-    launch(['dist/server/index.js'], serverEnv)
-    launch(['dist/arena/index.js'], serverEnv)
-    launch(['dist/arena-export/index.js'], serverEnv)
-    let ready = false
-    for (let i = 0; i < 160; i++) {
-      try {
-        if (
-          (await fetch(`${base}/api/health`)).ok &&
-          (await fetch(serverEnv.EXPORT_ARENA_URL!)).ok
-        ) {
-          ready = true
-          break
-        }
-      } catch {}
-      await new Promise((r) => setTimeout(r, 250))
-    }
-    if (!ready) throw Error('Services failed to start')
-
-    const settle = async (runId: string) => {
-      const deadline = Date.now() + 330_000
-      while (true) {
-        const state = await get(`/api/runs/${runId}`)
-        if (!['queued', 'running'].includes(state.status) && !state.active) return state
-        if (Date.now() > deadline) {
-          await get(`/api/runs/${runId}/cancel`, {})
-          throw Error('Run exceeded its own budget without stopping; cancellation requested')
-        }
-        await new Promise((r) => setTimeout(r, 250))
-      }
-    }
-
-    const EXPORT_GOAL =
-      'Use a public dataset to produce a CSV export and inspect that flow and the recovery experience it actually triggers. Respect the public requirements and operation limits, report with evidence and finish.'
-    const CHECKOUT_GOAL =
-      'Inspect the purchase journey. Purchase an item; inspect primary action access, response, expected rejection and recovery. Campaigns must not block submit; retryable failures must provide an operable retry within five seconds. Response above ten seconds warrants a warning.'
-
-    /** The group's own isolated store, so results never cross between groups. */
-    const groupDatabase = (group: GroupId) => `file:${dir}/${group.toLowerCase()}/runs.db`
-
+      child.kill('SIGTERM')
+    })
+  }
+  try {
     for (const group of plan.run) {
-      await mkdir(resolve(dir, group.group.toLowerCase()), { recursive: true })
-      // The group's database is created empty. For B/D the approved declaration is installed
-      // read-only; for A/C nothing is, which is what makes "no equivalent retry rule" a fact about
-      // the store rather than about the batch's intent.
-      const groupClient = createClient({ url: groupDatabase(group.group) })
-      if (group.rules === 'approved-imported' && approved.ok) {
-        const { initDatabase } = await import('../../src/storage/database.ts')
-        await initDatabase()
-        await installApprovalIntoBatch({
-          client: groupClient,
-          imported: approved.imported,
-          batchEnvironmentId: group.business === 'export' ? 'export-arena' : 'arena',
-          batchEntryUrl:
-            group.business === 'export'
-              ? `http://127.0.0.1:${serverEnv.EXPORT_ARENA_PORT}`
-              : `http://127.0.0.1:${serverEnv.ARENA_PORT}`,
-        })
+      if (stop) break
+      const groupDir = resolve(dir, group.group)
+      await mkdir(groupDir, { recursive: true })
+      const env: NodeJS.ProcessEnv = {
+        ...process.env,
+        AGENT_MODEL: `openai/${AGENT_MODEL}`,
+        OPENAI_API_KEY: gateway.token,
+        OPENAI_BASE_URL: gateway.url,
+        VISION_MODEL,
+        VISION_API_KEY: gateway.token,
+        VISION_BASE_URL: gateway.url,
+        VISION_MODEL_FAMILY: 'qwen3',
+        COMPLETION_REVIEW_API_KEY: gateway.token,
+        COMPLETION_REVIEW_URL: gateway.url + '/decisions',
+        ARENA_CONTROL_TOKEN: randomBytes(32).toString('hex'),
+        EXPORT_CONTROL_TOKEN: randomBytes(32).toString('hex'),
+        ARENA_STATIC: '1',
+        EXPORT_ARENA_STATIC: '1',
+        EXECUTION_ATOMIC_INVESTIGATION: '1',
+        EXECUTION_BLOCKER_REVIEW: '1',
+        VALIDATION_AGENT_PROVIDER: providers.agent,
+        VALIDATION_VISION_PROVIDER: providers.vision,
+        DATABASE_URL: `file:${groupDir}/runs.db`,
+        OPENROUTER_API_KEY: '',
+        RUN_MAX_MODEL_CALLS: '30',
+        RUN_MAX_ACTIONS: '40',
+        RUN_TOTAL_TIMEOUT_MS: '300000',
+        MODEL_REQUEST_TIMEOUT_MS: '60000',
+        MODEL_REQUEST_MAX_RETRIES: '1',
+        TOOL_TIMEOUT_MS: '15000',
+        OTEL_SDK_DISABLED: 'true',
       }
-      const declarations = await loadBatchDeclarations(groupClient)
-      groupClient.close()
-
-      for (const variant of group.cases)
-        for (let repeat = 1; repeat <= group.repeats; repeat++) {
-          // A mutable row is filled in as the run progresses and frozen once at the end: `BatchRow`
-          // is readonly because the scorer must not be able to rewrite a result it is judging.
-          const row: {
-            group: string
-            case: string
-            repeat: number
-            planned: boolean
-            runId: string | null
-            status: 'not-run' | 'failed' | 'passed' | 'blocked'
-            buildHash: string | null
-            score?: ExportScore
-          } = {
-            group: group.group,
-            case: variant,
-            repeat,
-            planned: true,
-            runId: null,
-            status: 'not-run',
+      for (const key of [
+        'PORT',
+        'ARENA_PORT',
+        'ARENA_API_PORT',
+        'ARENA_CONTROL_PORT',
+        'EXPORT_ARENA_PORT',
+        'EXPORT_API_PORT',
+        'EXPORT_CONTROL_PORT',
+      ])
+        env[key] = await port()
+      env.SERVER_URL = `http://127.0.0.1:${env.PORT}`
+      env.ARENA_URL = `http://127.0.0.1:${env.ARENA_PORT}`
+      env.EXPORT_ARENA_URL = `http://127.0.0.1:${env.EXPORT_ARENA_PORT}`
+      Object.assign(process.env, env)
+      const client = createClient({ url: env.DATABASE_URL! })
+      const { initializeDatabase } = await import('../../src/storage/database.ts')
+      await initializeDatabase(client)
+      const approval =
+        group.rules === 'approved-imported' && approved.ok ? approved.imported : undefined
+      if (approval)
+        await installApprovalIntoBatch({
+          client,
+          imported: approval,
+          batchEnvironmentId: group.business === 'export' ? 'export-arena' : 'arena',
+          batchEntryUrl: group.business === 'export' ? env.EXPORT_ARENA_URL! : env.ARENA_URL!,
+        })
+      const declarations = await loadBatchDeclarations(client)
+      client.close()
+      const children: ChildProcess[] = []
+      const records: any[] = []
+      let log = ''
+      const launch = (path: string) => {
+        const child = spawn(process.execPath, [path], { env, stdio: ['ignore', 'pipe', 'pipe'] })
+        children.push(child)
+        for (const stream of [child.stdout, child.stderr])
+          stream?.on('data', (b) => {
+            log += gateway.redact(String(b))
+          })
+      }
+      const base = env.SERVER_URL!
+      const request = async (path: string, body?: unknown) => {
+        const response = await fetch(base + path, {
+          method: body === undefined ? 'GET' : 'POST',
+          headers: {
+            'content-type': 'application/json',
+            authorization: `Bearer ${env.ARENA_CONTROL_TOKEN}`,
+          },
+          ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+          signal: AbortSignal.timeout(15000),
+        })
+        if (!response.ok)
+          throw Error(`${path}: ${response.status} ${gateway.redact(await response.text())}`)
+        return response.json() as Promise<any>
+      }
+      let lease: string | undefined
+      try {
+        launch('dist/server/index.js')
+        launch('dist/arena/index.js')
+        launch('dist/arena-export/index.js')
+        let ready = false
+        for (let i = 0; i < 160; i++) {
+          try {
+            if (
+              (await request('/api/health')).model.ready &&
+              (await fetch(env.ARENA_URL!)).ok &&
+              (await fetch(env.EXPORT_ARENA_URL!)).ok
+            ) {
+              ready = true
+              break
+            }
+          } catch {}
+          await new Promise((r) => setTimeout(r, 250))
+        }
+        if (!ready) throw Error('Services failed to start')
+        const acquired = await request('/api/evaluation/lease', {})
+        lease = acquired.lease
+        if (
+          approval
+            ? !acquired.rules.some((r: any) => r.id === approval.proposalId)
+            : acquired.rules.some((r: any) => r.category === 'transition')
+        )
+          throw Error('runtime-rule-isolation-failed')
+        for (let i = 0; i < rows.length; i++) {
+          const row = rows[i]!
+          if (row.group !== group.group || stop) continue
+          const record: any = {
+            group: row.group,
+            case: row.case,
+            repeat: row.repeat,
             buildHash: builtServerHash,
           }
-          const record: Record<string, unknown> = {
-            group: group.group,
-            case: variant,
-            repeat,
-            buildHash: builtServerHash,
-          }
+          const output = resolve(groupDir, `${row.case}-${row.repeat}`)
+          await mkdir(output, { recursive: true })
+          let score: any
+          let runId: string | null = null
           try {
             if (group.business === 'export') {
-              const exportVariant = variant as ExportVariantId
-              const verified = await resetAndVerifyExport(exportVariant)
-              assertTruth(exportVariant, verified.truth)
-              // The verification drives the arena's one permitted create itself, so the run must
-              // start from a fresh arena; without this the agent's own click is answered 409 and no
-              // business fact is ever decoded.
-              await exportControlRequest('/__control/reset', { variant: exportVariant })
-              if (
-                sequencingGaps([
-                  'fixture-verified',
-                  'arena-reset-after-verification',
-                  'truth-asserted',
-                ]).length
-              )
-                throw Error('campaign-sequencing-incomplete')
-              record.fixture = { jobId: verified.jobId, truth: verified.truth }
-              gateway.begin(`${group.group}-${variant}-${repeat}`, 30, 300_000)
-              const run = await get('/api/runs', {
-                goal: EXPORT_GOAL,
-                environmentId: 'export-arena',
-                businessProfile: { id: 'export', revision: '1' },
-                budget: { totalTimeoutMs: 300_000, maxActions: 40, maxModelCalls: 30 },
+              record.fixture = await resetAndVerifyExport(row.case as ExportVariantId)
+              assertTruth(row.case as ExportVariantId, record.fixture.truth)
+              await exportControlRequest('/__control/reset', { variant: row.case })
+            } else if (group.group === 'C')
+              record.fixture = await resetAndVerify(row.case as VariantId)
+            else {
+              await assertIdle()
+              await controlRequest('/__control/reset', {
+                variant: 'C5',
+                learningRetryAvailable: row.case === 'healthy',
               })
-              row.runId = run.runId
-              record.runId = run.runId
-              await settle(run.runId)
-              const report = await get(`/api/runs/${run.runId}/report`)
-              const truth = await exportControlRequest('/__control/state')
-              const downloaded = await downloadArtifacts(base, run.runId, report)
-              const artifacts = downloaded.artifacts
-              const score = scoreExportRun(exportVariant, {
-                truth: {
-                  creates: truth.creates,
-                  retries: truth.retries,
-                  jobs: truth.jobs,
-                  artifacts: truth.artifacts,
-                  attempts: undefined,
-                  artifactContents: truth.artifactContents,
-                },
+            }
+            gateway.begin(`${row.group}-${row.case}-${row.repeat}`, 30, 300000)
+            const run = await request('/api/runs', {
+              goal: group.business === 'export' ? EXPORT_GOAL : CHECKOUT_GOAL,
+              environmentId: group.business === 'export' ? 'export-arena' : 'arena',
+              businessProfile: { id: group.business, revision: '1' },
+              budget: RUN_BUDGET,
+            })
+            runId = run.runId
+            const deadline = Date.now() + 330000
+            while (true) {
+              const current = await request(`/api/runs/${runId}`)
+              if (!['queued', 'running'].includes(current.status) && !current.active) break
+              if (Date.now() > deadline) {
+                await request(`/api/runs/${runId}/cancel`, {})
+                throw Error('run-did-not-settle')
+              }
+              await new Promise((r) => setTimeout(r, 250))
+            }
+            const report = (record.report = await request(`/api/runs/${runId}/report`))
+            const downloaded = await downloadRunEvidence(base, report, resolve(output, 'artifacts'))
+            record.artifactIndex = downloaded.index
+            artifactIndex.push(...downloaded.index)
+            const truth = (record.truth =
+              group.business === 'export'
+                ? await exportControlRequest('/__control/state')
+                : await controlRequest('/__control/state'))
+            if (
+              report.stopReason === 'reconciliation-required' ||
+              report.persistence?.status !== 'verified' ||
+              downloaded.index.some((a) => !a.exists)
+            )
+              stop = 'integrity-stop'
+            if (group.business === 'export') {
+              const creation = report.events.find(
+                (e: any) =>
+                  e.type === 'business:observation' &&
+                  e.payload.method === 'POST' &&
+                  new URL(e.payload.url).pathname === '/api/exports',
+              )
+              const selection = {
+                datasetId: creation?.payload.body?.datasetId ?? '',
+                format: creation?.payload.body?.format ?? '',
+              }
+              score = scoreExportRun(row.case as ExportVariantId, {
+                truth,
                 requests: truth.requests,
-                report: {
-                  runId: report.runId,
-                  status: report.status,
-                  businessResult: report.businessResult,
-                  stopReason: report.stopReason,
-                  persistence: report.persistence,
-                  events: report.events,
-                  findings: report.findings,
-                  hypotheses: report.hypotheses,
-                  usage: report.usage,
-                  budget: report.budget,
-                },
-                artifacts,
+                report,
+                artifacts: downloaded.artifacts,
                 contract: {
-                  profileId: report.business.profileId,
-                  revision: report.business.revision,
-                  hash: report.business.hash,
+                  ...report.business,
                   retryAvailabilityMs: 5000,
-                  adapter: report.business.adapter,
                   environment: {
                     id: report.business.environment.id,
                     origin: report.business.environment.publicOrigin,
                   },
-                  effects: report.business.effects,
                 },
-                selection: { datasetId: 'orders-q3', format: 'csv' },
+                selection,
                 rules: declarations,
-                approvedRule:
-                  group.rules === 'approved-imported' && approved.ok
-                    ? {
-                        id: approved.imported.proposalId,
-                        revision: approved.imported.ruleRevision,
-                        reviewedBy: approved.imported.reviewedBy,
-                        ruleConfig: approved.imported.ruleConfig,
-                      }
-                    : undefined,
-                declaredTarget: declaredRecoveryTarget(report.events),
+                approvedRule: approval
+                  ? {
+                      id: approval.proposalId,
+                      revision: approval.ruleRevision,
+                      reviewedBy: approval.reviewedBy,
+                      ruleConfig: approval.ruleConfig,
+                    }
+                  : undefined,
+                declaredTarget: approval ? undefined : declaredRecoveryTarget(report.events),
               })
-              row.status = score.passed ? 'passed' : 'failed'
-              row.score = score
-              record.score = { passed: score.passed, failedAssertions: score.failedAssertions }
-            } else {
-              // Groups C/D reuse the existing checkout acceptance runner rather than restating its
-              // eighteen-case minimum and six-run recheck here. The plan allows shared orchestration
-              // as long as the original commands stay compatible; duplicating the evaluator would
-              // let the two drift.
-              throw Error(
-                'checkout-groups-delegated: run pnpm validate:acceptance and pnpm validate:learning --recheck',
+              // Independently download the generated business artifact, rather than trusting its presence.
+              if (truth.artifacts > 0) {
+                const jobId = creation?.payload.body?.jobId
+                const response = await fetch(
+                  `${env.EXPORT_ARENA_URL}/api/exports/${jobId}/download`,
+                  { signal: AbortSignal.timeout(15000) },
+                )
+                const body = await response.text()
+                await writeFile(resolve(output, 'export-download.txt'), body)
+                const expected = truth.artifactContents.find(
+                  (a: any) => a.datasetId === selection.datasetId && a.format === selection.format,
+                )
+                const matches =
+                  response.ok &&
+                  expected &&
+                  body ===
+                    (selection.format === 'json'
+                      ? JSON.stringify(expected.rows)
+                      : expected.rows.join('\n'))
+                if (!matches)
+                  score = {
+                    ...score,
+                    passed: false,
+                    failedAssertions: [...score.failedAssertions, 'download-content-mismatch'],
+                  }
+              }
+            } else if (group.group === 'C') {
+              const checked = evaluateRun(report, row.case as VariantId, row.repeat, {
+                fixtureValid: record.fixture.valid === true,
+                backend: truth,
+                artifacts: downloaded.artifacts,
+                events: report.events,
+                budget: RUN_BUDGET,
+                hypotheses: report.hypotheses,
+              })
+              score = { ...checked, passed: checked.overallPass }
+            } else
+              score = scoreBoundRecheck(
+                report,
+                truth,
+                Object.values(downloaded.artifacts),
+                approval!.proposalId,
+                (approval!.ruleConfig.expectation as { timeoutMs: number }).timeoutMs,
+                row.case === 'healthy',
               )
-            }
-            record.report = {
-              status: (record.score as any)?.status,
-              failedAssertions: (record.score as any)?.failedAssertions,
-            }
+            if (stop) score = { ...score, passed: false }
+            record.score = score
           } catch (error) {
-            row.status = 'failed'
             record.error = gateway.redact(String(error))
+            score = { passed: false, error: record.error }
+            const health = await request('/api/health').catch(() => null)
+            if (!health || health.activeRuns || health.queuedRuns || health.storage?.ok !== true)
+              stop = 'isolation-or-integrity-stop'
           } finally {
-            record.modelRequests = (await gateway.end()).length
+            record.modelRequests = await gateway.end()
           }
-          rows.push(row as BatchRow)
           records.push(record)
-          await writeText('runs.jsonl', rows.map((r) => JSON.stringify(r)).join('\n') + '\n')
-          await write(`${group.group}-${variant}-${repeat}.json`, record)
-          await write('spending.json', gateway.spending())
-          console.log(`${group.group} ${variant} ${repeat}: ${row.status}`)
-          // Integrity stops end the batch immediately: continuing past a reconciliation-required
-          // run or an exhausted budget would produce rows that cannot be compared.
-          if (gateway.spending().accountedUsd >= maxCostUsd) {
+          rows[i] = { ...row, runId, status: score?.passed ? 'passed' : 'failed', score }
+          await writeFile(resolve(output, 'record.json'), JSON.stringify(record, null, 2) + '\n')
+          await saveProgress()
+          console.log(`${group.group} ${row.case} ${row.repeat}: ${rows[i]!.status}`)
+          if (gateway.spending().accountedUsd >= budgetRemainingUsd)
             stop = 'campaign-budget-exhausted'
-            break
-          }
         }
-      if (stop) break
+      } finally {
+        if (lease) await request('/api/evaluation/release', { lease }).catch(() => {})
+        await Promise.all(children.map(kill))
+        await writeFile(resolve(groupDir, 'server.log'), log)
+        const audit = await auditStoppedGroup(
+          env.DATABASE_URL!,
+          records,
+          approval ? { id: approval.proposalId, ruleConfig: approval.ruleConfig } : undefined,
+        )
+        audits.push({ group: group.group, ...audit })
+        await write('durability-audit.json', audits)
+        if (!audit.passed) stop = 'durability-audit-failed'
+      }
     }
   } catch (error) {
     stop = gateway.redact(String(error))
     console.error(stop)
   } finally {
-    for (const child of children) if (child.exitCode === null) child.kill('SIGTERM')
-    await Promise.all(
-      children.map(
-        (child) =>
-          new Promise<void>((r) => {
-            if (child.exitCode !== null || child.signalCode !== null) return r()
-            child.once('exit', () => r())
-            setTimeout(() => {
-              child.kill('SIGKILL')
-              r()
-            }, 3000).unref()
-          }),
-      ),
-    )
-    await write('server.log', log)
     await gateway.close()
-    await assertExportIdle().catch(() => {})
+    await saveProgress()
   }
-
-  const expectedPlan = plan.run.flatMap((g) =>
-    g.cases.map((c) => ({
-      group: g.group,
-      case: c,
-      repeats: g.repeats,
-    })),
+  const batch = scoreExportBatch(
+    rows,
+    FORMAL_MATRIX.flatMap((g) =>
+      g.cases.map((c) => ({ group: g.group, case: c, repeats: g.repeats })),
+    ),
   )
-  const batch = scoreExportBatch(rows, expectedPlan)
-  // B/D were blocked before anything ran, so their rows are recorded as blocked rather than
-  // omitted: a scoreboard that silently lacked them would read as a complete 33-run batch.
-  const blockedRows = plan.blocked.flatMap((b) => {
-    const group = FORMAL_MATRIX.find((g) => g.group === b.group)!
-    return group.cases.flatMap((c) =>
-      Array.from({ length: group.repeats }, (_, i) => ({
-        group: b.group,
-        case: c,
-        repeat: i + 1,
-        planned: false,
-        runId: null,
-        status: 'blocked' as const,
-        reason: b.reason,
-        buildHash: builtServerHash,
-      })),
-    )
+  const gatePassed = batch.passed && !stop && !plan.exitNonZero && audits.length === 4
+  await write('scoreboard.json', {
+    gatePassed,
+    batch,
+    stop,
+    groups: FORMAL_MATRIX.map((g) => ({
+      group: g.group,
+      passed: rows.filter((r) => r.group === g.group && r.status === 'passed').length,
+      total: g.runs,
+    })),
   })
   await writeText(
-    'runs.jsonl',
-    [...rows, ...blockedRows].map((r) => JSON.stringify(r)).join('\n') + '\n',
+    'summary.md',
+    `# Business acceptance\n\nGate: ${gatePassed}\n\n${rows.filter((r) => r.status === 'passed').length}/45 passed. Stop: ${stop || 'none'}.\n`,
   )
-
-  const scoreboard = {
-    gate: false,
-    gatePassed: false,
-    batch,
-    blocked: plan.blocked,
-    reasonCodes: plan.reasonCodes,
-    stop: stop || null,
-  }
-  await write('scoreboard.json', scoreboard)
-  await writeText('summary.md', summaryMarkdown(plan, rows, blockedRows, stop || null))
-  console.log(JSON.stringify({ scoreboard }, null, 2))
-  // Never green while any group is blocked or the batch is incomplete, per the plan.
-  if (plan.exitNonZero || !batch.passed) process.exitCode = 1
+  console.log(
+    JSON.stringify({
+      directory: dir,
+      gatePassed,
+      stop,
+      passed: rows.filter((r) => r.status === 'passed').length,
+      total: rows.length,
+    }),
+  )
+  if (!gatePassed) process.exitCode = 1
 }
 
 /** The semantic target the run declared for its own recovery measurement, when it made one. */
@@ -707,70 +730,6 @@ function declaredRecoveryTarget(
     if (typeof target === 'string' && target) return target
   }
   return undefined
-}
-
-/** Download a run's evidence through the public API and hash the real bytes. */
-async function downloadArtifacts(
-  base: string,
-  runId: string,
-  report: { artifacts: { id: string; type: string; available: boolean }[] },
-): Promise<{
-  artifacts: Record<string, { type: string; exists: boolean; sha256?: string; data?: unknown }>
-  index: {
-    runId: string
-    artifactId: string
-    type: string
-    bytes: number
-    sha256: string
-    available: boolean
-  }[]
-}> {
-  const artifacts: Record<
-    string,
-    { type: string; exists: boolean; sha256?: string; data?: unknown }
-  > = {}
-  const index: {
-    runId: string
-    artifactId: string
-    type: string
-    bytes: number
-    sha256: string
-    available: boolean
-  }[] = []
-  for (const artifact of report.artifacts) {
-    const url = `${base}/api/runs/${runId}/artifacts/${encodeURIComponent(artifact.id)}`
-    const bytes = new Uint8Array(
-      await fetch(url, { signal: AbortSignal.timeout(15000) })
-        .then((r) => (r.ok ? r.arrayBuffer() : new ArrayBuffer(0)))
-        .catch(() => new ArrayBuffer(0)),
-    )
-    const check = verifyArtifactBytes(artifact.id, artifact.type, bytes, {
-      available: artifact.available,
-    })
-    let data: unknown
-    if (check.exists && !artifact.type.includes('screenshot')) {
-      try {
-        data = JSON.parse(Buffer.from(bytes).toString('utf8'))
-      } catch {
-        /* a non-JSON artifact has no parsed payload */
-      }
-    }
-    artifacts[artifact.id] = {
-      type: artifact.type,
-      exists: check.exists,
-      sha256: check.sha256,
-      data,
-    }
-    index.push({
-      runId,
-      artifactId: artifact.id,
-      type: artifact.type,
-      bytes: check.bytes,
-      sha256: check.sha256,
-      available: check.exists,
-    })
-  }
-  return { artifacts, index }
 }
 
 function summaryMarkdown(

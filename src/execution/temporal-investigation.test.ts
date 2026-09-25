@@ -164,3 +164,15 @@ it('aborts a running measurement without publishing a completed verdict', async 
     await f.close()
   }
 })
+
+it('retains declared supporting evidence separately from the measured predicate', async () => {
+  const f = await fixture()
+  try {
+    const result = await f.investigator.run({ ...input, evidenceRefs: ['resource-owned'] })
+    expect(result.evidenceRefs).toEqual(['measurement-1', 'resource-owned'])
+    expect(result.verdict).toBe('fail')
+    expect(f.completed[0].evidenceRefs).toContain('resource-owned')
+  } finally {
+    await f.close()
+  }
+})

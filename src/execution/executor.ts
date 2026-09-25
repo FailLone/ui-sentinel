@@ -155,6 +155,27 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     })
     return
   }
+  const legacyUnversioned = !run.spec.businessContract
+  let businessRuntime: BusinessRuntime
+  try {
+    const contract = run.spec.businessContract ?? legacyCompatibleContract(run.spec.entryUrl)
+    if (!verifyContractSnapshot(contract)) throw Error('business-contract-hash-mismatch')
+    if (contract.environment.publicOrigin !== new URL(run.spec.entryUrl).origin)
+      throw Error('business-contract-origin-mismatch')
+    businessRuntime = createBusinessRuntime(contract)
+  } catch (error) {
+    await appendEvent(runId, 'execution:stopped', {
+      reason: 'execution-error',
+      error: String(error),
+    })
+    await updateRunStatus(runId, 'execution-error', { stopReason: 'execution-error' })
+    await appendEvent(runId, 'run:completed', {
+      status: 'execution-error',
+      businessResult: 'unknown',
+      stopReason: 'execution-error',
+    })
+    return
+  }
   const active = registerActiveRun(runId),
     signal = active.abortController.signal
   const startedAt = Date.now(),
@@ -186,10 +207,6 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
   // requirements, thresholds or effects may be invented for it from today's registry. Its boundary
   // is the entry URL it was actually created with, which is why the network checks below are
   // anchored to the run's own recorded environment rather than to a freshly resolved one.
-  const legacyUnversioned = !run.spec.businessContract
-  const businessRuntime: BusinessRuntime = createBusinessRuntime(
-    run.spec.businessContract ?? legacyCompatibleContract(run.spec.entryUrl),
-  )
   const businessContract = businessRuntime.contract
   /**
    * The network boundary this run actually operates on.
@@ -201,6 +218,9 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
    */
   const runOrigin = new URL(run.spec.entryUrl).origin
   let businessFacts: BusinessFact[] = []
+  const ownedOperations = new Set<string>()
+  let drainResponses: () => Promise<void> = async () => {}
+  let closeResponses: () => Promise<void> = async () => {}
   const verifiedByOperation = new Map<string, { result: BusinessResult; evidenceRefs: string[] }>()
   /**
    * Public business resources this run retained, keyed by their artifact id.
@@ -470,6 +490,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     profileOperation('observation', () => performObservation(allowReuse))
   async function performObservation(allowReuse: boolean) {
     guard()
+    await drainResponses()
     observationReused = false
     const optimized = config.features?.observation === true
     let before = optimized ? await readObservationVersion(worker!.page) : undefined
@@ -512,6 +533,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     }
     observationVersion =
       before && after && sameObservationVersion(before, after) ? after : undefined
+    await drainResponses()
     observedBusinessCount = businessFacts.length
     observedIntegrityEpoch = integrity.epoch()
     const snapshotId = `s${observeCount}`
@@ -554,15 +576,14 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         },
         overlay,
       )
+      const concluded = concludeBusinessResult([fact])
+      if (concluded === 'unknown') verifiedByOperation.delete(operationId)
       if (fact.phase === 'processing') continue
       const correlation = businessRuntime.correlateVisible(fact, {
         pageText,
         visibleText: latest.snapshot.elements.filter((e) => e.visible).map((e) => e.text),
       })
       if (correlation.kind === 'confirmed') {
-        const concluded = concludeBusinessResult(
-          businessFacts.filter((f) => f.operationId === operationId),
-        )
         if (concluded !== 'unknown')
           verifiedByOperation.set(operationId, {
             result: concluded,
@@ -632,11 +653,11 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       contract: businessContract,
       adapter: businessRuntime.adapter,
       publicOrigin: runOrigin,
+      currentFact: (id) => latestFactForOperation(businessFacts, id),
+      ownsOperation: (id) => ownedOperations.has(id),
     })
     // Side-effect budget, reserved before dispatch. A create or retry counts when the request
     // leaves, not when its response arrives, so two immediate requests cannot both pass.
-    let createsReserved = 0
-    const retriesReserved = new Map<string, number>()
     const detachedResponses = new Set<import('playwright').Request>()
     const policyDenied = new Set<import('playwright').Request>()
     const pendingWrites = new Set<import('playwright').Request>()
@@ -660,6 +681,23 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     // Ordered fact commits: observations, finish and exit all drain this queue before reading
     // facts, so an async response cannot land after the run has already concluded.
     let factTail: Promise<unknown> = Promise.resolve()
+    const responseTasks = new Set<Promise<void>>()
+    let responseError: unknown
+    let responsesClosed = false
+    drainResponses = async () => {
+      const deadline = Date.now() + config.budget.toolTimeoutMs
+      while (responseTasks.size) {
+        guard()
+        if (Date.now() >= deadline) throw Error('business-response-timeout')
+        await new Promise((r) => setTimeout(r, 10))
+      }
+      if (responseError) throw responseError
+      guard()
+    }
+    closeResponses = async () => {
+      responsesClosed = true
+      await factTail
+    }
     /**
      * Operation ids this action's own dispatched writes addressed.
      *
@@ -685,6 +723,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       /** True when this response is the answer to a create this run dispatched. */
       dispatchedCreate?: boolean
     }) => {
+      if (responsesClosed || signal.aborted || finished) return
       const request = {
         url: exchange.url,
         method: exchange.method,
@@ -713,7 +752,8 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           // agent consulted, not a summary the executor composed - with the classification kept in
           // its metadata, so a finding can cite the business's own document.
           const resource = businessRuntime.retainResource?.(publicExchange)
-          if (!resource) return
+          if (!resource || (resource.operationId && !ownedOperations.has(resource.operationId)))
+            return
           const resourceRef = await saveEvidence(
             runId,
             'resource',
@@ -776,6 +816,9 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         })
         return
       }
+      if (exchange.dispatchedCreate) ownedOperations.add(fact.operationId)
+      if (!ownedOperations.has(fact.operationId)) return
+      if (exchange.dispatchedOperation && exchange.dispatchedOperation !== fact.operationId) return
       // The public observation is recorded first and is business-neutral: url, method, status and
       // the raw body, with no interpretation. Every business gets the same record, so a fact - or a
       // rule bound to one - always cites the response it actually came from.
@@ -812,6 +855,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       if (fact.phase !== 'processing') businessCreated = true
     }
     page.on('response', (response) => {
+      if (responsesClosed || signal.aborted || finished) return
       const request = response.request()
       // Business responses are observed whether or not they belong to a tracked write, so an
       // asynchronous status GET is captured; the serialized commit queue keeps ordering.
@@ -842,29 +886,35 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         // create response is its own provenance.
         const dispatchedOperation = writeOperations.get(request)
         const dispatchedCreate = writeCreates.has(request)
-        const commit = factTail.then(() =>
-          commitFact({
-            url,
-            method,
-            origin,
-            statusCode: response.status(),
-            body,
-            bodyText,
-            bodyReadFailed,
-            dispatchedOperation,
-            dispatchedCreate,
-          }),
-        )
-        factTail = commit.catch(() => {})
+        const commit = commitFact({
+          url,
+          method,
+          origin,
+          statusCode: response.status(),
+          body,
+          bodyText,
+          bodyReadFailed,
+          dispatchedOperation,
+          dispatchedCreate,
+        })
         try {
           await commit
         } finally {
           if (tracked) pendingWrites.delete(request)
         }
       }
-      void readBody().catch(() => {
-        if (tracked) pendingWrites.delete(request)
-      })
+      const task = factTail
+        .then(readBody)
+        .catch((error) => {
+          if (!signal.aborted && !responsesClosed) responseError = error
+          if (tracked) {
+            mutationFailed = true
+            pendingWrites.delete(request)
+          }
+        })
+        .finally(() => responseTasks.delete(task))
+      responseTasks.add(task)
+      factTail = task
     })
     page.setDefaultTimeout(config.budget.toolTimeoutMs)
     page.setDefaultNavigationTimeout(config.budget.toolTimeoutMs)
@@ -888,6 +938,12 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       // is, against the contract's budget. Button wording and action intent never grant a write.
       const isWrite = !['GET', 'HEAD', 'OPTIONS'].includes(request.method())
       if (isWrite) {
+        if (signal.aborted || finished || responsesClosed || mutationFailed) {
+          policyDenied.add(request)
+          pendingWrites.delete(request)
+          await route.abort('blockedbyclient')
+          return
+        }
         const decision = sideEffectPolicy.authorize({
           url,
           method: request.method(),
@@ -919,7 +975,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         // dispatching a click and that click's writes settling, so it separates "the action did
         // this" from "the page did this on its own while the action was in flight" - a page-side
         // background sync is a real business request, but it is not this action's response.
-        if (sideEffectPending) {
+        {
           if (decision.intent.kind === 'retry') {
             writeOperations.set(request, decision.intent.operationPath)
             dispatchedOperations?.add(decision.intent.operationPath)
@@ -1113,6 +1169,11 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         },
         record: async (input) => {
           if (
+            input.trigger === 'retryable-failure' &&
+            !retryTrigger(await getEvents(runId), latest!.snapshot.text)
+          )
+            throw Error('investigation-trigger-not-observed')
+          if (
             input.trigger !== 'always' &&
             !taskState
               .snapshot()
@@ -1138,7 +1199,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
               freshWindowReason: input.freshWindowReason,
             }),
             status: 'open',
-            evidenceRefs: latest!.evidenceRefs,
+            evidenceRefs: [...new Set([...latest!.evidenceRefs, ...(input.evidenceRefs ?? [])])],
           })
           knownHypothesisIds.add(h.id)
           taskState.recordHypothesis(h.id, h.phenomenon, input.trigger)
@@ -1392,6 +1453,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           if (Date.now() > responseDeadline) throw new Error('reconciliation-required')
           await new Promise((r) => setTimeout(r, 50))
         }
+        await drainResponses()
         guard()
         if (mutationFailed) throw new Error('reconciliation-required')
         sideEffectPending = false
@@ -1695,7 +1757,16 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
                 'Test a grounded novel expectation that a current target becomes visible or pointer-actionable within a declared continuous measurement window. Registers hypothesis, binds the node, measures, evaluates the declared predicate and saves a bounded finding or refutation in one call. It does not prove requirement applicability, click behavior, pixel covering or any deadline before measurement starts. Select element-actionable for operability. Existing learned rules still use rule_check. Identical unchanged investigations reuse their historical result; freshWindowReason requests a new window for a specific remaining question. After completion do not duplicate the finding or measurement; continue remaining scope or run_finish.',
               inputSchema: temporalInvestigationInput,
               execute: (input) =>
-                serial('investigation_check', () => temporalInvestigator!.run(input)),
+                serial('investigation_check', async () => {
+                  const refs = input.evidenceRefs ?? []
+                  const owned = await getDbClient().execute({
+                    sql: 'SELECT id FROM artifacts WHERE run_id=?',
+                    args: [runId],
+                  })
+                  if (refs.some((id) => !owned.rows.some((a) => a.id === id)))
+                    throw Error('invalid evidence reference')
+                  return temporalInvestigator!.run(input)
+                }),
             }),
           }
         : {}),
@@ -1962,12 +2033,18 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       rule_check: createTool({
         id: 'rule.check',
         description:
-          'Check an existing learned rule against a current elementRef. Select the element semantically and explain its relation to the failed operation. Use observedRuleTriggers.eventRef as triggerEvidenceRefs. The server derives the semantic target, condition and full measurement window; do not invent these. Results and evidence are saved automatically; do not submit the same finding again. Use hypothesisIds: [] unless linking exactly one existing hypothesis for this investigation.',
+          'Check an existing learned rule against a current elementRef. Select the element semantically and explain its relation to the failed operation. Use observedRuleTriggers.eventRef as triggerEvidenceRefs. Cite consulted public business resources in evidenceRefs. The server derives the semantic target, condition and full measurement window; do not invent these. Results and evidence are saved automatically; do not submit the same finding again. Use hypothesisIds: [] unless linking exactly one existing hypothesis for this investigation.',
         inputSchema: ruleCheckInput,
         execute: (raw) =>
           serial('rule_check', async () => {
             const parsed = ruleCheckInput.parse(raw)
             const input = { ...parsed, hypothesisId: parsed.hypothesisIds[0] }
+            const owned = await getDbClient().execute({
+              sql: 'SELECT id FROM artifacts WHERE run_id=?',
+              args: [runId],
+            })
+            if (input.evidenceRefs?.some((id) => !owned.rows.some((r) => r.id === id)))
+              throw Error('invalid evidence reference')
             const rule = getRule(input.ruleId)
             let contract: ReturnType<typeof resolveRuleContract>
             const detail = elementStore.getDetail(input.elementRef)
@@ -2092,6 +2169,9 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
                     d.expectation.condition as 'element-visible' | 'element-actionable',
                   ),
               )
+              measurement.evidenceRefs = [
+                ...new Set([...measurement.evidenceRefs, ...(input.evidenceRefs ?? [])]),
+              ]
               const verdict = integrity.epoch() ? 'unknown' : evaluateTransition(d, measurement)
               let findingId: string | undefined
               if (verdict === 'fail') {
@@ -2804,6 +2884,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     clearTimeout(timer)
     // Invalidate all in-flight tools before persisting the terminal report.
     if (!signal.aborted) active.abortController.abort(new Error('run-ended'))
+    await closeResponses()
     await temporalInvestigator?.close()
     if (worker) await worker.close().catch(() => {})
     if (stopReason === 'reconciliation-required') queue.requireReconciliation()

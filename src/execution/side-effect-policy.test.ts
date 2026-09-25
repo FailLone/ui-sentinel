@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { createSideEffectPolicy } from './side-effect-policy.ts'
 import { buildContractSnapshot, resolveProfile } from '../business/registry.ts'
 import { checkoutAdapter } from '../business/adapters/checkout.ts'
+import type { BusinessFact } from '../business/adapters/types.ts'
 import { exportAdapter } from '../business/adapters/export.ts'
 import { resolveEnvironment } from '../business/environments.ts'
 
@@ -14,6 +15,19 @@ const exportContract = buildContractSnapshot(
 /** The contract's own origin, so the default request is same-origin as the run really is. */
 const ARENA = resolveEnvironment('arena')!.publicOrigin
 const EXPORT_ARENA = resolveEnvironment('export-arena')!.publicOrigin
+
+const eligible = {
+  operationId: 'job-1',
+  attempt: 0,
+  version: 2,
+  phase: 'failed',
+  retryEligibility: 'allowed',
+  retry: { permitted: true, remaining: 1, afterMs: 0, prerequisitesMet: true },
+} as BusinessFact
+const knownOperation = {
+  currentFact: (id: string) => (id === 'job-1' ? eligible : undefined),
+  ownsOperation: (id: string) => id === 'job-1',
+}
 
 const req = (path: string, method = 'POST', origin = ARENA) => ({
   url: `${origin}${path}`,
@@ -33,7 +47,11 @@ describe('side-effect policy (P01, P02, P03, P06, P10)', () => {
   })
 
   it('P05: export polling after a known 202 is a read, and is never isolated as a write', () => {
-    const policy = createSideEffectPolicy({ contract: exportContract, adapter: exportAdapter })
+    const policy = createSideEffectPolicy({
+      contract: exportContract,
+      adapter: exportAdapter,
+      ...knownOperation,
+    })
     expect(policy.authorize(req('/api/exports', 'POST', EXPORT_ARENA))).toMatchObject({
       kind: 'allow',
       intent: { kind: 'create' },
@@ -87,7 +105,11 @@ describe('side-effect policy (P01, P02, P03, P06, P10)', () => {
   })
 
   it('P03: reserves the create budget before dispatch, so two back-to-back requests cannot both pass', () => {
-    const policy = createSideEffectPolicy({ contract: exportContract, adapter: exportAdapter })
+    const policy = createSideEffectPolicy({
+      contract: exportContract,
+      adapter: exportAdapter,
+      ...knownOperation,
+    })
     const first = policy.authorize(req('/api/exports', 'POST', EXPORT_ARENA))
     const second = policy.authorize(req('/api/exports', 'POST', EXPORT_ARENA))
     expect(first).toMatchObject({ kind: 'allow' })
@@ -97,7 +119,11 @@ describe('side-effect policy (P01, P02, P03, P06, P10)', () => {
   })
 
   it('P02: permits exactly one retry of the created entity, and the retry is not a create', () => {
-    const policy = createSideEffectPolicy({ contract: exportContract, adapter: exportAdapter })
+    const policy = createSideEffectPolicy({
+      contract: exportContract,
+      adapter: exportAdapter,
+      ...knownOperation,
+    })
     policy.authorize(req('/api/exports', 'POST', EXPORT_ARENA))
     const retry = policy.authorize(req('/api/exports/job-1/retry', 'POST', EXPORT_ARENA))
     expect(retry).toMatchObject({ kind: 'allow', intent: { kind: 'retry' } })
@@ -111,7 +137,11 @@ describe('side-effect policy (P01, P02, P03, P06, P10)', () => {
   })
 
   it('P03: a retry for a different entity cannot borrow the consumed allowance', () => {
-    const policy = createSideEffectPolicy({ contract: exportContract, adapter: exportAdapter })
+    const policy = createSideEffectPolicy({
+      contract: exportContract,
+      adapter: exportAdapter,
+      ...knownOperation,
+    })
     policy.authorize(req('/api/exports', 'POST', EXPORT_ARENA))
     policy.authorize(req('/api/exports/job-1/retry', 'POST', EXPORT_ARENA))
     // One retry per entity, one entity per run: a cross-entity retry is over the limit.
@@ -121,7 +151,11 @@ describe('side-effect policy (P01, P02, P03, P06, P10)', () => {
   })
 
   it('P06: refuses an undeclared write URL and a write under a read-only journey', () => {
-    const policy = createSideEffectPolicy({ contract: exportContract, adapter: exportAdapter })
+    const policy = createSideEffectPolicy({
+      contract: exportContract,
+      adapter: exportAdapter,
+      ...knownOperation,
+    })
     expect(policy.authorize(req('/api/exports/telemetry', 'POST', EXPORT_ARENA))).toEqual({
       kind: 'deny',
       reason: 'undeclared-write',
@@ -154,4 +188,28 @@ describe('side-effect policy (P01, P02, P03, P06, P10)', () => {
       reason: 'create-budget-exhausted',
     })
   })
+})
+
+it('denies retries of unknown entities and every non-eligible current state before spending allowance', () => {
+  for (const changed of [
+    { phase: 'processing' },
+    { phase: 'succeeded' },
+    { retryEligibility: 'unknown' },
+    { retry: { ...eligible.retry!, prerequisitesMet: false } },
+    { retry: { ...eligible.retry!, afterMs: 100 } },
+    { retry: { ...eligible.retry!, remaining: 0 } },
+  ]) {
+    const p = createSideEffectPolicy({
+      contract: exportContract,
+      adapter: exportAdapter,
+      ownsOperation: (id) => id === 'job-1',
+      currentFact: () => ({ ...eligible, ...changed }) as BusinessFact,
+    })
+    p.authorize(req('/api/exports', 'POST', EXPORT_ARENA))
+    expect(p.authorize(req('/api/exports/job-1/retry', 'POST', EXPORT_ARENA)).kind).toBe('deny')
+    expect(p.authorize(req('/api/exports/job-other/retry', 'POST', EXPORT_ARENA)).reason).toBe(
+      'unknown-operation',
+    )
+    expect(p.snapshot().retriesReserved).toBe(0)
+  }
 })

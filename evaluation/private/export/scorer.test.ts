@@ -87,6 +87,7 @@ function snapshot(jobId = JOB) {
 
 /** A passing E2 run: blocked, unknown, one fully-measured inoperable-window finding. */
 function e2Input(): ExportRunInput {
+  seq = 0
   return {
     truth: {
       creates: 1,
@@ -197,7 +198,7 @@ function e2Input(): ExportRunInput {
         type: 'resource',
         exists: true,
         data: {
-          jobId: 'job-1',
+          jobId: JOB,
           prerequisite: { scope: 'export.retry', note: 'Retrying is not available.', met: false },
           backendPermitsRetry: true,
         },
@@ -220,6 +221,7 @@ function e2Input(): ExportRunInput {
 /** A passing E0 run: one create, a succeeded terminal fact, a real artifact. */
 function e0Input(): ExportRunInput {
   const input = e2Input()
+  seq = 0
   return {
     ...input,
     truth: {
@@ -649,7 +651,7 @@ describe('scorer counterexamples (E01-E10)', () => {
     expect(retargeted.passed).toBe(false)
     // The requirement itself was relaxed.
     const relaxed = withRule({ timeoutMs: 60_000 }, 'human-delegated')
-    expect(relaxed.assertions.approvedDeclarationUnchanged).toBe(true)
+    expect(relaxed.assertions.approvedDeclarationUnchanged).toBe(false)
     // An enabled rule with no named reviewer has no approval to inherit. The scorer checks
     // provenance; `enabled` alone is never treated as proof of approval.
     const unapproved = withRule({}, null)
@@ -748,6 +750,12 @@ describe('scorer counterexamples (E01-E10)', () => {
       pass('A', 'E2', 3),
     ]
     expect(scoreExportBatch(full, plan).passed).toBe(true)
+    expect(
+      scoreExportBatch(
+        full.map((r, i) => (i ? r : { ...r, status: 'failed', score: { passed: false } as never })),
+        plan,
+      ).passed,
+    ).toBe(false)
     // (a) only the successful rounds were kept.
     const survivors = scoreExportBatch([full[0]!, full[3]!], plan)
     expect(survivors.assertions.planComplete).toBe(false)
@@ -865,4 +873,34 @@ it('E2: still rejects samples that drift away from the declared target', () => {
   })
   expect(score.assertions.defect_stableTarget).toBe(false)
   expect(score.passed).toBe(false)
+})
+
+it('rejects wrong-job resources and invented selectors even when the measurement itself is complete', () => {
+  const input = e2Input()
+  const resource = input.artifacts['eligibility.json']!
+  expect(
+    scoreExportRun('E2', {
+      ...input,
+      artifacts: {
+        ...input.artifacts,
+        'eligibility.json': {
+          ...resource,
+          data: { ...(resource.data as object), jobId: 'someone-else' },
+        },
+      },
+    }).assertions.defect_eligibilityCited,
+  ).toBe(false)
+  const measurement = input.artifacts['measurement.json']!
+  expect(
+    scoreExportRun('E2', {
+      ...input,
+      artifacts: {
+        ...input.artifacts,
+        'measurement.json': {
+          ...measurement,
+          data: { ...(measurement.data as object), selector: '#imaginary' },
+        },
+      },
+    }).assertions.defect_selectorBound,
+  ).toBe(false)
 })

@@ -1,5 +1,4 @@
-import { createHash } from 'node:crypto'
-import { resolveProfile } from './registry.ts'
+import { contractHash } from './registry.ts'
 import { resolveEnvironment } from './environments.ts'
 import {
   decodeFact,
@@ -103,17 +102,7 @@ export function createBusinessRuntime(contract: BusinessContractSnapshot): Busin
 
 /** Verify a snapshot's own hash before trusting it. Detects a tampered or truncated record. */
 export function verifyContractSnapshot(contract: BusinessContractSnapshot): boolean {
-  const { hash, ...rest } = contract
-  const canonical = (value: unknown): string => {
-    if (value === null || typeof value !== 'object') return JSON.stringify(value) ?? 'null'
-    if (Array.isArray(value)) return `[${value.map(canonical).join(',')}]`
-    const entries = Object.entries(value as Record<string, unknown>)
-      .filter(([, v]) => v !== undefined)
-      .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
-    return `{${entries.map(([k, v]) => `${JSON.stringify(k)}:${canonical(v)}`).join(',')}}`
-  }
-  const expected = createHash('sha256').update(canonical(rest)).digest('hex')
-  return expected === hash
+  return contractHash(contract) === contract.hash
 }
 
 /**
@@ -132,11 +121,15 @@ export type RetryEligibility = BusinessFact['retryEligibility']
 
 /** A business outcome may only be concluded from a succeeded or rejected fact with an identity. */
 export function concludeBusinessResult(facts: readonly BusinessFact[]): FactResult {
-  const correlated = facts.filter((f) => f.operationId && f.phase !== 'processing')
-  const succeeded = correlated.filter((f) => f.phase === 'succeeded')
-  if (succeeded.length) return 'success'
-  const rejected = correlated.filter((f) => f.phase === 'rejected')
-  if (rejected.length && rejected.length === correlated.length) return 'rejected'
+  const latest = [...new Set(facts.map((f) => f.operationId))].map(
+    (id) =>
+      facts
+        .filter((f) => f.operationId === id)
+        .sort((a, b) => b.attempt - a.attempt || b.version - a.version)[0]!,
+  )
+  if (!latest.length) return 'unknown'
+  if (latest.every((f) => f.phase === 'succeeded')) return 'success'
+  if (latest.every((f) => f.phase === 'rejected')) return 'rejected'
   return 'unknown'
 }
 

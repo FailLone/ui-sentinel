@@ -14,6 +14,13 @@ export const temporalInvestigationInput = z.object({
   durationMs: z.number().int().min(250).max(12000),
   severity: z.enum(['error', 'warning']),
   freshWindowReason: z.string().max(800).default(''),
+  evidenceRefs: z
+    .array(z.string().min(1))
+    .max(16)
+    .optional()
+    .describe(
+      'Existing evidence artifact IDs supporting requirement applicability, such as the public business resource consulted. Never invent IDs.',
+    ),
 })
 export type TemporalInvestigationInput = z.infer<typeof temporalInvestigationInput>
 type BoundTarget = {
@@ -37,7 +44,7 @@ export interface InvestigationResult {
 }
 export const temporalInvestigationInstructions =
   'For a novel observed timing/visibility/operability anomaly with a current elementRef, prefer investigation_check. ' +
-  'Declare the grounded question, applicable trigger, condition and full required duration. It registers the hypothesis, measures continuously and saves the bounded result in one call; no separate hypotheses_record, transition_observe or findings_submit is needed for that same claim. ' +
+  'Cite consulted business resources in evidenceRefs to preserve the basis for applicability. Declare the grounded question, applicable trigger, condition and full required duration. It registers the hypothesis, measures continuously and saves the bounded result in one call; no separate hypotheses_record, transition_observe or findings_submit is needed for that same claim. ' +
   'Select element-actionable for operability; element-visible proves only visibility. Do not investigate an ineligible or untriggered expectation. ' +
   'The window begins when measurement starts; it does not reconstruct an earlier deadline. Reused results retain their original time window. Request a new window only with freshWindowReason describing the additional question. ' +
   'Review saved results and continue other scope or explicitly run_finish. A pass refutes only the declared bounded defect; it does not prove the whole page correct. Legacy investigation tools remain available for other kinds of questions.'
@@ -71,6 +78,8 @@ export function createTemporalInvestigator(deps: {
           input.trigger,
           input.condition,
           input.durationMs,
+          input.target,
+          [...(input.evidenceRefs ?? [])].sort(),
         ])
         if (!input.freshWindowReason && bound.version) {
           for (const prior of cache) {
@@ -119,7 +128,7 @@ export function createTemporalInvestigator(deps: {
             durationMs: input.durationMs,
           },
           sampleCount: measurement.samples.length,
-          evidenceRefs: measurement.evidenceRefs,
+          evidenceRefs: [...new Set([...measurement.evidenceRefs, ...(input.evidenceRefs ?? [])])],
           reused: false,
           scope:
             'Only the declared DOM condition on the bound node during this recorded window. Does not prove pixel covering, click-handler behavior, permanent failure, or what happened before measurement began. The Agent owns requirement applicability and semantic target selection.',

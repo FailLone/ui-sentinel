@@ -48,6 +48,11 @@ function matchExportPath(url: string): {
   if (path !== COLLECTION_PATH && !path.startsWith(`${COLLECTION_PATH}/`)) return null
   const segments = path.split('/').filter(Boolean)
   if (segments[0] !== 'api' || segments[1] !== 'exports') return null
+  if (
+    segments.length > 4 ||
+    (segments.length === 4 && !['retry', 'eligibility'].includes(segments[3]!))
+  )
+    return null
   const jobFromPath = segments[2] ?? null
   return {
     segments,
@@ -82,9 +87,14 @@ export const exportAdapter: BusinessAdapter = Object.freeze({
     const match = matchExportPath(exchange.request.url)
     if (!match) return null
     const method = exchange.request.method.toUpperCase()
-    const isStatusRead = (method === 'GET' || method === 'HEAD') && !!match.jobFromPath
-    const isMutation = ['POST', 'PUT', 'PATCH'].includes(method)
-    if (!isStatusRead && !isMutation) return null
+    const isStatusRead = method === 'GET' && match.segments.length === 3
+    const isMutation = method === 'POST' && (match.segments.length === 2 || match.isRetry)
+    if (
+      (!isStatusRead && !isMutation) ||
+      exchange.request.statusCode < 200 ||
+      exchange.request.statusCode >= 300
+    )
+      return null
     const body = exchange.request.body as ExportBody | null
     if (!body || typeof body !== 'object') return null
     const phase = String(body.phase ?? '')
@@ -160,7 +170,7 @@ function buildExportFact(
     retry === null
       ? 'unknown'
       : retry.permitted === true &&
-          retry.prerequisitesMet !== false &&
+          retry.prerequisitesMet === true &&
           Number(retry.remaining ?? 0) > 0 &&
           Number(retry.afterMs ?? 0) <= 0
         ? 'allowed'
@@ -183,7 +193,7 @@ function buildExportFact(
             permitted: retry.permitted === true,
             remaining: Number(retry.remaining ?? 0),
             afterMs: Number(retry.afterMs ?? 0),
-            prerequisitesMet: retry.prerequisitesMet !== false,
+            prerequisitesMet: retry.prerequisitesMet === true,
           },
     sourceEventId: null,
     evidenceRefs: [],
