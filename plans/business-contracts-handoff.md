@@ -13,7 +13,7 @@
 | PR 或 bundle / bundle base | 未创建 PR、未 push（push 被会话权限拒绝，见「偏差」第 6 项）。已交付 bundle `ui-sentinel-business-contracts.bundle`（仓库根目录）；**base `1b377bb7d1bcbeb0ae607930ddc8506a486175ab`**（= `origin/main` 现有提交），head = 该 bundle 内 `dev/business-contracts-export` 的 tip，用 `git bundle verify <file>` 打印。`git bundle verify` 通过 |
 | Server 构建 / lockfile / 靶场构建 hash | server `c2b288c2dd49e4f2b1b8ea59fe42cff785ecfdfc37238dc1afc492f9fb19d796`；`pnpm-lock.yaml` `a83d99f740493e28ea5a0da4072cd87bf3b89f59e638970893cbc17ca6858701`；arena `a83102517b9589dbf061d371aee35fe6291ca76e4d937b9e7fab48fe19e3825f`；arena-export `0f8332916ed593764ebebe0adeab644b24290c85833f441440f4af8c941cef72` |
 | checkout / export 契约 hash 与 adapter revision | checkout@1 / adapter `checkout@1` / `5f8c5307a1e31f51dcd227be3101f670a6fc7e34389e9fac44f731b1c019fc83`；export@1 / adapter `export@1` / `996f98f28ca663bf894a47ec7aafd0cc028778f4056276b5faf96b80202cb6bd`（均在默认端口 4173/4183 下计算，命令见「快速接手」§5） |
-| campaign 目录 / manifest | 诊断 `data/business-validation/2026-09-25T06-04-47-808Z/`；正式 `data/business-formal/2026-09-25T06-24-28-394Z/` |
+| campaign 目录 / manifest | 诊断 `data/business-validation/2026-09-25T06-04-47-808Z/`（`manifest.json` 记录 commit `283ea36`、构建 `c2b288c2…`、模型与提供方）；正式批次 `data/business-formal/2026-09-25T07-13-39-663Z/`（在当前 tip 复跑的拒绝记录；另有 `…06-24-28-394Z/`） |
 | 原批准来源 / 候选 ID / 声明 hash | **不存在**。计划指定的 `data/learning/2026-09-24T10-57-41-736Z`（候选 `proposal-fc30e9bb-46bc-40ec-b88b-ff52f0565607`）在本机缺失（`data/learning/` 整个目录不存在），未伪造批准 |
 
 hash 是按环境计算的：契约快照含 `environment.publicOrigin`，每次运行的运行期端口都不同，所以报告里的 hash 逐次不同（例如诊断 E0 `f9ffa0d6…`、预检 `ea478d91…`）。上表给的是**固定默认端口下的规范 hash**，用于比较契约内容本身；这与 C06「改变环境产生新 hash」是同一规则，不是不一致。
