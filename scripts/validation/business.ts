@@ -21,8 +21,32 @@ import {
  * script, so a passing run here says the machinery works, not that the system found a defect.
  */
 const PREFLIGHT_ONLY = '--preflight'
+const DIAGNOSTIC = '--diagnostic'
 const args = process.argv.slice(2).filter((a) => a !== '--')
-if (args.some((a) => a !== PREFLIGHT_ONLY)) throw Error('Usage: pnpm validate:business --preflight')
+
+/**
+ * `--diagnostic` is a different script on purpose.
+ *
+ * The preflight blanks every real credential so it can never become a paid run; the diagnostic
+ * exists to make one. Keeping them in one file would mean a single mis-set flag could turn a free
+ * check into a paid batch, so the flag re-executes the diagnostic module with its own argv and
+ * exits - the two never share a process.
+ */
+if (args.includes(DIAGNOSTIC)) {
+  if (args.length !== 1) throw Error('Usage: pnpm validate:business -- --diagnostic')
+  const { spawnSync } = await import('node:child_process')
+  const result = spawnSync(
+    process.execPath,
+    ['--import', 'tsx', 'scripts/validation/business-diagnostic.ts'],
+    {
+      stdio: 'inherit',
+      env: process.env,
+    },
+  )
+  process.exit(result.status ?? 1)
+}
+if (args.some((a) => a !== PREFLIGHT_ONLY))
+  throw Error('Usage: pnpm validate:business --preflight | --diagnostic')
 // A local model only. If a real gateway key is present it is deliberately blanked for the child
 // processes, so a preflight can never become a paid run by accident.
 const dir = resolve('data/business-preflight', new Date().toISOString().replace(/[:.]/g, '-'))
