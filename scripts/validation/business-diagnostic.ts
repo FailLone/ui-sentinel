@@ -22,6 +22,10 @@ import {
   type ExportRunInput,
 } from '../../evaluation/private/export/scorer.ts'
 import { loadBatchDeclarations } from '../../evaluation/private/export/approval-source.ts'
+import {
+  REQUIRED_PROVIDERS,
+  resolveProviders,
+} from '../../evaluation/private/export/diagnostic-config.ts'
 import { createClient } from '@libsql/client'
 
 /**
@@ -42,6 +46,19 @@ if (execFileSync('git', ['status', '--porcelain'], { encoding: 'utf8' }).trim())
   throw Error('Freeze clean commit before model calls')
 const key = process.env.OPENROUTER_API_KEY
 if (!key) throw Error('configuration-missing: OPENROUTER_API_KEY')
+
+// The baseline is pinned to named providers. An unset variable is not "the default" - it is no
+// constraint at all, which is how an earlier diagnostic silently ran on DeepInfra and Sail Research
+// and then exhausted the fixed 300s budget mid-inspection. The runner applies the pin itself so the
+// documented command reproduces the baseline; an explicit *different* provider is refused, because
+// that would be a different batch filed under this one's name.
+const providers = resolveProviders(process.env)
+if (!providers.ok)
+  throw Error(
+    `configuration-refused: this batch runs the ${JSON.stringify(REQUIRED_PROVIDERS)} baseline, ` +
+      `but VALIDATION_AGENT_PROVIDER/VALIDATION_VISION_PROVIDER request another provider ` +
+      `(${providers.reasonCodes.join(', ')}); unset them to run the baseline`,
+  )
 
 const dir = resolve('data/business-validation', new Date().toISOString().replace(/[:.]/g, '-'))
 await mkdir(dir, { recursive: true })
@@ -117,6 +134,13 @@ const env: NodeJS.ProcessEnv = {
   EXPORT_CONTROL_TOKEN: randomBytes(32).toString('hex'),
   ARENA_STATIC: '1',
   EXPORT_ARENA_STATIC: '1',
+  // The plan's fixed baseline condition: atomic investigation on, bounded Jev review on, providers
+  // pinned. The gateway turns the two provider names into OpenRouter's `provider.only`, so every
+  // call in this batch is served by the same endpoints the accepted baseline was recorded on.
+  EXECUTION_ATOMIC_INVESTIGATION: '1',
+  EXECUTION_BLOCKER_REVIEW: '1',
+  VALIDATION_AGENT_PROVIDER: providers.agent,
+  VALIDATION_VISION_PROVIDER: providers.vision,
   DATABASE_URL: `file:${dir}/runs.db`,
   // The child processes never see the real key: every model call goes through the metering gateway.
   OPENROUTER_API_KEY: '',
@@ -137,6 +161,25 @@ function launch(...argv: string[]) {
     stream?.on('data', (b) => {
       log += gateway.redact(String(b))
     })
+  return child
+}
+
+/** Resolve a child's exit code, or kill it and report failure when it overruns its own budget. */
+function wait(child: ChildProcess, timeoutMs: number) {
+  return new Promise<number>((resolveExit, rejectExit) => {
+    const timer = setTimeout(() => {
+      child.kill('SIGTERM')
+      rejectExit(Error('child-timeout'))
+    }, timeoutMs)
+    child.once('error', (error) => {
+      clearTimeout(timer)
+      rejectExit(error)
+    })
+    child.once('exit', (code) => {
+      clearTimeout(timer)
+      resolveExit(code ?? 1)
+    })
+  })
 }
 
 // The private controller is a library the diagnostic itself calls, and it reads its port and token
@@ -189,6 +232,14 @@ try {
     builtServerHash,
     agentModel: AGENT_MODEL,
     visionModel: VISION_MODEL,
+    // The plan requires the actual model/provider/snapshot to be recorded, not assumed. The
+    // provider names are the pinned ones the gateway sends as `provider.only`; the ledger in this
+    // directory records which endpoint served each call, so the pin is checkable after the fact.
+    agentProvider: providers.agent,
+    visionProvider: providers.vision,
+    providerSource: providers.source,
+    atomicInvestigation: true,
+    blockerReview: true,
     limitUsd: maxCostUsd,
     plan: ['smoke', ...(['E0', 'E1', 'E2', 'E3', 'E4'] as const)],
   })
@@ -208,43 +259,40 @@ try {
   if (!ready) throw Error('Services failed to start')
 
   // --- smoke -----------------------------------------------------------------------------
-  // A real run must be able to reach a conclusion at all before any variant means anything.
+  // The plan names this task as the project's "真实 DeepSeek/Qwen smoke", and the project already
+  // has one: `smoke-model.ts` asserts positively that the agent invoked a schema tool exactly once
+  // and that a vision coordinate landed on the requested control, then exits non-zero if not.
   //
-  // The first version of this check passed vacuously: it only rejected `execution-error` and
-  // `interrupted`, so a run that made *no model call at all* counted as a pass. The gateway meters
-  // per run and refuses every request outside an open window, so a script that forgets `begin()`
-  // produces runs that fail instantly and still look like a green smoke. The check below therefore
-  // requires the run to have made model calls and to have ended for a business reason.
-  const smoke = await (async () => {
-    await resetAndVerifyExport('E0')
-    gateway.begin('smoke', 30, 300_000)
-    try {
-      const run = await get('/api/runs', {
-        goal: GOAL,
-        environmentId: 'export-arena',
-        businessProfile: { id: 'export', revision: '1' },
-        budget: { totalTimeoutMs: 300_000, maxActions: 40, maxModelCalls: 30 },
-      })
-      const state = await settle(run.runId)
-      const modelRequests = await gateway.end()
-      return {
-        runId: run.runId,
-        status: state.status,
-        stopReason: state.stopReason,
-        modelRequests: modelRequests.length,
-      }
-    } catch (error) {
-      await gateway.end().catch(() => [])
-      throw error
-    }
-  })()
+  // The earlier version of this file invented a *full business run* as its smoke and gated the
+  // variants on a rejection list. Both parts were wrong. The rejection list let a run that ended
+  // `blocked`/`no-progress` - an agent that concluded nothing - pass as a green smoke, and using a
+  // 300s business run for a connectivity check spent a sixth of the campaign budget proving
+  // something the five variants prove anyway. The gate now checks the smoke's own positive
+  // assertion (its exit code) and its recorded artifact, so a model or vision failure stops the
+  // batch instead of being laundered into a variant failure.
+  gateway.begin('smoke', 6, 90_000)
+  const smokeStartedAt = Date.now()
+  let smokeExit: number
+  try {
+    smokeExit = await wait(launch('--import', 'tsx', 'scripts/cli/smoke-model.ts'), 95_000)
+  } finally {
+    await write('smoke-requests.json', await gateway.end())
+  }
+  const smokeReport = await readFile('data/smoke/model.json', 'utf8')
+    .then((text) => JSON.parse(text) as Record<string, unknown>)
+    .catch(() => null)
+  // The smoke writes to a shared `data/smoke/model.json`, so a report from an earlier run could
+  // still be sitting there. Its `at` must fall inside this smoke's own window, otherwise a crashed
+  // smoke would be read as a passing one.
+  const smokeReportedAt = Date.parse(String(smokeReport?.at ?? ''))
+  const smokeFresh = Number.isFinite(smokeReportedAt) && smokeReportedAt >= smokeStartedAt
+  const smoke = { exitCode: smokeExit, report: smokeReport, fresh: smokeFresh }
   await write('smoke.json', smoke)
-  // `timed-out`/`budget-exhausted` in under a couple of seconds is not a slow model, it is a run
-  // that was refused. Requiring real model traffic is what distinguishes the two.
   const smokePassed =
-    !['execution-error', 'interrupted', 'timed-out'].includes(String(smoke.status)) &&
-    !['reconciliation-required', 'budget-exhausted'].includes(String(smoke.stopReason)) &&
-    smoke.modelRequests > 0
+    smokeExit === 0 &&
+    smokeFresh &&
+    smokeReport?.hit === 'Confirm purchase' &&
+    smokeReport?.toolCalls === 1
   results.push({ case: 'smoke', passed: smokePassed, detail: smoke })
   if (!smokePassed) throw Error(`smoke failed: ${JSON.stringify(smoke)}`)
 
