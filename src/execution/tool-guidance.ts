@@ -71,3 +71,22 @@ export function missingOutcomeFacts(): readonly string[] {
   // business - the UI and the business response must agree - so it names neither.
   return ['verified matching UI and business response']
 }
+
+/**
+ * What a supported finding must cite, given the resources this run actually retained.
+ *
+ * A business may publish a document that is not a fact about its entity's state - export's
+ * recovery eligibility is one - and a claim about that document has to cite it, or the claim rests
+ * only on how one screen rendered. Nothing here names a business: the string is emitted when the
+ * run holds a retained resource, and stays silent when it holds none, so a business without the
+ * concept is told nothing about it.
+ */
+export function retainedResourceGuidance(kinds: readonly string[]): string {
+  if (!kinds.length) return ''
+  return (
+    ` This run retained public business resources (${[...new Set(kinds)].join(', ')}).` +
+    ' A claim about why the business behaves as it does - for example whether recovery is permitted' +
+    ' at all - must cite the resource itself from retainedResources, not only the screen it' +
+    ' produced; the rendered state is a consequence, and the resource is the business source.'
+  )
+}

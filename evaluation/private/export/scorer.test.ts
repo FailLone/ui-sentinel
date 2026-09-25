@@ -188,10 +188,19 @@ function e2Input(): ExportRunInput {
         data: { ...inoperableWindow(), selector: '#retry' },
       },
       'snapshot.json': { type: 'snapshot', exists: true, data: snapshot() },
+      // The retained public resource, exactly as the executor persists it: the business's own
+      // published document, verbatim, with the classification kept in artifact metadata rather than
+      // wrapped around the body. The fixture used to hand-write this as a `snapshot`, a type no
+      // producer emitted for it - which is how the assertion passed in tests and failed on every
+      // real run.
       'eligibility.json': {
-        type: 'snapshot',
+        type: 'resource',
         exists: true,
-        data: { prerequisite: { met: false } },
+        data: {
+          jobId: 'job-1',
+          prerequisite: { scope: 'export.retry', note: 'Retrying is not available.', met: false },
+          backendPermitsRetry: true,
+        },
       },
     },
     contract: {
@@ -465,6 +474,33 @@ describe('scorer counterexamples (E01-E10)', () => {
         score.assertions[expectedFailure],
         `${name}: ${JSON.stringify(score.assertions)}`,
       ).toBe(false)
+      expect(score.passed, name).toBe(false)
+    }
+    // The eligibility source is the point of this variant, not a formality: E1 and E2 publish the
+    // same failure payload, so without the resource the claim rests on one disabled control. A
+    // finding that cites only the screen it produced does not support it.
+    for (const [name, refs] of [
+      ['without the eligibility resource', ['measurement.json', 'defect.png', 'snapshot.json']],
+      [
+        'with something merely named like it',
+        ['measurement.json', 'defect.png', 'snapshot.json', 'not-the-resource.json'],
+      ],
+    ] as [string, string[]][]) {
+      const base = e2Input()
+      const score = scoreExportRun('E2', {
+        ...base,
+        report: {
+          ...base.report,
+          findings: base.report.findings.map((f) => ({ ...f, evidenceRefs: refs })),
+        },
+        artifacts: {
+          ...base.artifacts,
+          // Exists and is downloadable, but states no prerequisite: the assertion is about the
+          // business source, not about a file being present under a suggestive name.
+          'not-the-resource.json': { type: 'resource', exists: true, data: { jobId: 'job-1' } },
+        },
+      })
+      expect(score.assertions.defect_eligibilityCited, name).toBe(false)
       expect(score.passed, name).toBe(false)
     }
     // An intervention in the run means the evidence describes the executor, not the product.

@@ -118,6 +118,7 @@ import {
   journeyRunDescription,
   missingOutcomeFacts,
   pageActDescription,
+  retainedResourceGuidance,
 } from './tool-guidance.ts'
 
 const queue = createRunQueue(executeRun)
@@ -201,6 +202,20 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
   const runOrigin = new URL(run.spec.entryUrl).origin
   let businessFacts: BusinessFact[] = []
   const verifiedByOperation = new Map<string, { result: BusinessResult; evidenceRefs: string[] }>()
+  /**
+   * Public business resources this run retained, keyed by their artifact id.
+   *
+   * These are not facts about the entity's state, so they are kept separately: they are the
+   * business's own documents that a claim must cite when the claim is about them. The E2 defect -
+   * a recovery control that cannot be operated although the API permits the retry - is legible only
+   * against the eligibility resource, whose prerequisite the workspace itself obeys.
+   */
+  const retainedResources: {
+    kind: string
+    operationId: string | null
+    url: string
+    evidenceRefs: string[]
+  }[] = []
 
   const requestTracker = createRequestTracker()
   const ruleEvaluationCache = createRuleEvaluationCache()
@@ -688,7 +703,62 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         // A non-business response is not a fact and not a success. Only a recognized business
         // response is recorded as an observation: an unrelated document or poll is not the
         // evidence of anything, and recording it would let a rule bind to the wrong response.
-        if (!compatibility) return
+        if (!compatibility) {
+          // A resource this business publishes alongside its entity is retained as the run's own
+          // citable evidence before it is judged as a fact. Export recovery is why this exists: the
+          // eligibility resource is the only public source separating a broken control from a
+          // deliberately unavailable recovery, and it carries no `phase` of its own, so it is not a
+          // fact about the entity. The artifact is the published body *verbatim* - the source an
+          // agent consulted, not a summary the executor composed - with the classification kept in
+          // its metadata, so a finding can cite the business's own document.
+          const resource = businessRuntime.retainResource?.(publicExchange)
+          if (!resource) return
+          const resourceRef = await saveEvidence(
+            runId,
+            'resource',
+            JSON.stringify(resource.value),
+            {
+              ...evidenceMetadata(),
+              resourceKind: resource.kind,
+              operationId: resource.operationId,
+              url: exchange.url,
+            },
+          )
+          // Newest-wins per (kind, operation): a re-read of the same resource supersedes the older
+          // copy rather than accumulating, so the agent is offered the current document and the
+          // finding cites the version that was actually in force. Distinct kinds and distinct
+          // entities each keep their own entry.
+          const existing = retainedResources.findIndex(
+            (r) => r.kind === resource.kind && r.operationId === resource.operationId,
+          )
+          const entry = {
+            kind: resource.kind,
+            operationId: resource.operationId,
+            url: exchange.url,
+            evidenceRefs: [resourceRef],
+          }
+          if (existing >= 0) retainedResources[existing] = entry
+          else retainedResources.push(entry)
+          await appendEvent(runId, 'business:observation', {
+            url: exchange.url,
+            method: exchange.method,
+            statusCode: exchange.statusCode,
+            body: exchange.body,
+            bodyReadFailed: exchange.bodyReadFailed,
+            contractHash: businessContract.hash,
+          })
+          await appendEvent(
+            runId,
+            'business:resource',
+            {
+              kind: resource.kind,
+              operationId: resource.operationId,
+              contractHash: businessContract.hash,
+            },
+            { evidenceRefs: [resourceRef] },
+          )
+          return
+        }
         const observation = await appendEvent(runId, 'business:observation', {
           url: exchange.url,
           method: exchange.method,
@@ -2408,6 +2478,24 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           },
           hint: 'Business outcome is not inspection completion. Resolve in-scope investigations without repeating the business write.',
         },
+        // Public business documents this run retained as evidence. A claim about one of these - a
+        // recovery control that cannot be operated although the backend permits the retry, say -
+        // must cite the resource itself, not only the screen it produced. The refs are the IDs a
+        // finding may reference; the body is not repeated here, because the agent reads it from the
+        // observation that carried it. The guidance is emitted only when there is something to
+        // cite, so a business that publishes no such resource is told nothing about them.
+        retainedResources: retainedResources.map((r) => ({
+          kind: r.kind,
+          operationId: r.operationId,
+          evidenceRefs: r.evidenceRefs,
+        })),
+        ...(retainedResources.length
+          ? {
+              retainedResourceGuidance: retainedResourceGuidance(
+                retainedResources.map((r) => r.kind),
+              ).trim(),
+            }
+          : {}),
         budgetRemaining: {
           actions: budget.maxActions - usage.actions,
           modelCalls: budget.maxModelCalls - usage.modelCalls,

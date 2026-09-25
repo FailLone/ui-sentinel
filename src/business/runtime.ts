@@ -11,6 +11,7 @@ import {
   type PublicExchange,
   type RequestShape,
   type RequestIntent,
+  type RetainedResource,
 } from './adapters/index.ts'
 import type { BusinessContractSnapshot } from './types.ts'
 
@@ -38,6 +39,11 @@ export interface BusinessRuntime {
   compatibilityEvent?(
     exchange: PublicExchange,
   ): { readonly type: string; readonly payload: Record<string, unknown> } | null
+  /**
+   * Recognize a public business resource the run must retain as citable evidence, if this
+   * business declares any. Absent for a business with no such resource.
+   */
+  retainResource?(exchange: PublicExchange): RetainedResource | null
   /**
    * Map a fact onto the pre-fact trigger vocabulary, as declared by the run's own adapter. A
    * business without that history contributes nothing, so shared logic never has to know which
@@ -85,6 +91,9 @@ export function createBusinessRuntime(contract: BusinessContractSnapshot): Busin
       ? {
           compatibilityEvent: (exchange: PublicExchange) => adapter.compatibilityEvent!(exchange),
         }
+      : {}),
+    ...(adapter.retainResource
+      ? { retainResource: (exchange: PublicExchange) => adapter.retainResource!(exchange) }
       : {}),
     compatibilityTriggers: (fact: BusinessFact) => adapter.compatibilityTriggers?.(fact) ?? {},
     adapterAvailable: () =>

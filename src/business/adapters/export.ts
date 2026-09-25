@@ -5,6 +5,7 @@ import type {
   PublicExchange,
   RequestIntent,
   RequestShape,
+  RetainedResource,
 } from './types.ts'
 
 /**
@@ -31,11 +32,12 @@ interface ExportBody {
   } | null
 }
 
-/** Match `/api/exports` and `/api/exports/:jobId(/retry)?`, returning the path segments. */
+/** Match `/api/exports` and `/api/exports/:jobId(/retry|/eligibility)?`, returning segments. */
 function matchExportPath(url: string): {
   segments: string[]
   jobFromPath: string | null
   isRetry: boolean
+  isEligibility: boolean
 } | null {
   let path: string
   try {
@@ -47,7 +49,12 @@ function matchExportPath(url: string): {
   const segments = path.split('/').filter(Boolean)
   if (segments[0] !== 'api' || segments[1] !== 'exports') return null
   const jobFromPath = segments[2] ?? null
-  return { segments, jobFromPath, isRetry: segments[3] === 'retry' }
+  return {
+    segments,
+    jobFromPath,
+    isRetry: segments[3] === 'retry',
+    isEligibility: segments[3] === 'eligibility',
+  }
 }
 
 export const exportAdapter: BusinessAdapter = Object.freeze({
@@ -110,6 +117,34 @@ export const exportAdapter: BusinessAdapter = Object.freeze({
     if (!text.includes(fact.notice.replace(/\s+/g, ' ')))
       return { kind: 'contradicted', reason: 'notice-not-visible' }
     return { kind: 'confirmed', operationId: fact.operationId, evidenceRefs: [] }
+  },
+
+  /**
+   * The recovery eligibility resource, retained as the run's own evidence.
+   *
+   * The workspace asks the server for this before drawing a recovery control, and it is the only
+   * public source that separates E1 from E2: both publish the same failure payload with
+   * `retry.permitted` and `prerequisitesMet` true, while this resource alone states that the
+   * workspace's prerequisite is unmet even though the backend permits the retry. Without it the
+   * E2 finding has no independent basis beyond the disabled control on one screenshot.
+   */
+  retainResource(exchange: PublicExchange): RetainedResource | null {
+    if (exchange.bodyReadFailed || exchange.bodyText === null) return null
+    if (exchange.request.origin !== exchange.allowedOrigin) return null
+    const match = matchExportPath(exchange.request.url)
+    if (!match || !match.isEligibility || !match.jobFromPath) return null
+    if (exchange.request.method.toUpperCase() !== 'GET') return null
+    const body = exchange.request.body
+    if (!body || typeof body !== 'object') return null
+    const prerequisite = (body as { prerequisite?: unknown }).prerequisite
+    // The schema is the recognition, not the path alone: a job status read shares the collection
+    // prefix, and a document that merely happens to come from this path states no prerequisite.
+    if (!prerequisite || typeof prerequisite !== 'object') return null
+    const named = (body as { jobId?: unknown }).jobId
+    // The resource must describe the entity the path addressed, matching the same rule the fact
+    // path uses: a response naming a different job is not evidence about the one that was queried.
+    if (typeof named === 'string' && named && named !== match.jobFromPath) return null
+    return { kind: 'recovery-eligibility', operationId: match.jobFromPath, value: body }
   },
 })
 

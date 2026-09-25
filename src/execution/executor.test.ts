@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeAll, afterAll, beforeEach } from 'vitest'
 import { createServer } from 'node:http'
-import { rm } from 'node:fs/promises'
+import { readFile, rm } from 'node:fs/promises'
 
 const harness = vi.hoisted(() => ({
   handler: null as any,
@@ -139,6 +139,16 @@ let exportWorkspaceStart = false
 let exportCreateTruncated = false
 /** P04: how many times the fixture accepted a create, so a replay is visible rather than inferred. */
 let exportCreates = 0
+/**
+ * The E2-shaped workspace: a recoverable failure whose *published prerequisite* is unmet.
+ *
+ * The page asks the server for recovery eligibility before drawing the control - which is what the
+ * real arena does - so the eligibility response is a genuine page-driven business read rather than
+ * a fetch the test made on the run's behalf. The job payload is deliberately identical to the
+ * healthy case (`permitted: true`, `prerequisitesMet: true`); only the eligibility resource
+ * separates them, which is exactly F04's shape.
+ */
+let exportEligibilityWorkspace = false
 const server = createServer((req, res) => {
   if (req.url === '/api/checkout') {
     writes++
@@ -247,6 +257,26 @@ const server = createServer((req, res) => {
       )
     return
   }
+  // The E2-shaped workspace: start a job, then ask the server for recovery eligibility exactly as
+// the real arena does, and render the disabled control the unmet prerequisite produces.
+  if (req.url === '/' && exportEligibilityWorkspace) {
+    res.setHeader('content-type', 'text/html')
+    res.end(`<h1>Exports</h1><p id="job"></p><button id="start">Start export</button>
+      <p id="notice"></p><button id="retry" disabled>Try again</button><script>
+      async function load(){
+        const d=await fetch('/api/exports',{method:'POST',headers:{'content-type':'application/json'},
+          body:JSON.stringify({datasetId:'orders-q3',format:'csv'})}).then(r=>r.json());
+        const j=await fetch('/api/exports/'+d.jobId).then(r=>r.json());
+        document.getElementById('job').textContent=j.jobId+' '+(j.notice||j.phase);
+        // The workspace asks the server for the authoritative prerequisite rather than inferring
+        // it from the job, and honours the answer by leaving the control inoperable.
+        const e=await fetch('/api/exports/'+d.jobId+'/eligibility').then(r=>r.json());
+        document.getElementById('notice').textContent=e.prerequisite.note;
+        document.getElementById('retry').disabled=!e.prerequisite.met;
+      }
+      document.getElementById('start').onclick=load;</script>`)
+    return
+  }
   // The plain export workspace used by the cancellation test: one control that starts a job.
   if (req.url === '/' && exportWorkspaceStart) {
     res.setHeader('content-type', 'text/html')
@@ -299,6 +329,59 @@ const server = createServer((req, res) => {
     return
   }
   if (req.url?.startsWith('/api/exports')) {
+    // The E2-shaped protocol: the create settles to a *failed* job that the API still permits
+    // retrying, while the eligibility resource publishes an unmet prerequisite. The control is
+    // rendered disabled, as the arena does - the whole defect is that gap.
+    if (exportEligibilityWorkspace) {
+      const segments = req.url.split('/').filter(Boolean)
+      const job = segments[2] ?? ''
+      res.setHeader('content-type', 'application/json')
+      if (req.method === 'POST' && req.url === '/api/exports') {
+        const id = `job-elig-${++exportJobs}`
+        res.end(
+          JSON.stringify({
+            jobId: id,
+            attempt: 0,
+            version: 1,
+            phase: 'processing',
+            notice: null,
+            retry: { permitted: false, remaining: 0, afterMs: 0, prerequisitesMet: false },
+            datasetId: 'orders-q3',
+            format: 'csv',
+          }),
+        )
+        return
+      }
+      if (segments[3] === 'eligibility') {
+        res.end(
+          JSON.stringify({
+            jobId: job,
+            prerequisite: {
+              scope: 'export.retry',
+              note: 'Retrying this export is not available from this workspace.',
+              met: false,
+            },
+            backendPermitsRetry: true,
+          }),
+        )
+        return
+      }
+      // The job payload is identical to the healthy case: `retry.permitted` is true and the
+      // prerequisites are met. Nothing here can carry the E2 claim.
+      res.end(
+        JSON.stringify({
+          jobId: job,
+          attempt: 0,
+          version: 2,
+          phase: 'failed',
+          notice: 'Export could not complete. You may try again.',
+          retry: { permitted: true, remaining: 1, afterMs: 0, prerequisitesMet: true },
+          datasetId: 'orders-q3',
+          format: 'csv',
+        }),
+      )
+      return
+    }
     // B07's staged protocol: the job's own status is honest and versioned, and the *page* decides
     // whether that status is rendered. The status response is never doctored - only what the user
     // can see changes between stages, which is exactly the condition B07 describes.
@@ -468,6 +551,7 @@ beforeEach(() => {
   exportWorkspaceStart = false
   exportCreateTruncated = false
   exportCreates = 0
+  exportEligibilityWorkspace = false
 })
 
 async function makeRun() {
@@ -2302,5 +2386,89 @@ describe('export side-effect and cancellation boundaries (P04, P07)', () => {
     // direct evidence rather than an inference from an empty event list.
     expect(exportCreates).toBe(0)
     expect(exportJobs).toBe(0)
+  })
+})
+
+// F04: the recovery eligibility resource.
+//
+// E1 and E2 publish the same failure payload - same notice, same `retry.permitted`,
+// `prerequisitesMet` true - so nothing in the job response separates "the control is broken" from
+// "recovery is deliberately unavailable". The eligibility resource is the only public source that
+// does, and it is the source the workspace itself consults. A run must retain it as evidence, or
+// the E2 finding it is required to report has no independent basis beyond one screenshot.
+describe('retained business resources (F04)', () => {
+  it('retains the recovery eligibility resource the page consulted, as citable evidence', async () => {
+    exportEligibilityWorkspace = true
+    const bound = bindProfile(resolveProfile({ id: 'export', revision: '1' })!, {
+      id: 'export-arena',
+      entryUrl: url,
+      publicOrigin: url,
+    })
+    let clicked = false
+    harness.handler = async (tools: any) => {
+      if (!clicked) {
+        clicked = true
+        // Starting the export drives the workspace's own eligibility fetch: the resource is read
+        // by the page, not by the test on the run's behalf.
+        await call(tools, 'page_act', { type: 'click', role: 'button', name: 'Start export' })
+        // Let the workspace finish its status read and its eligibility request before observing.
+        await new Promise((r) => setTimeout(r, 600))
+        return []
+      }
+      await call(tools, 'page_observe', {})
+      return []
+    }
+    const run = await createRun({
+      goal: 'Start an export and inspect recovery',
+      environmentId: 'test',
+      entryUrl: url,
+      businessContract: bound as never,
+    })
+    ids.push(run.id)
+    await startRunExecution(run.id)
+
+    // The resource is retained under the adapter's own declared kind, and its body is the
+    // published document - not a summary the executor composed.
+    const retained = (await getEvents(run.id)).filter(
+      (e) => e.type === 'business:resource' || e.type === 'business:observation',
+    )
+    const eligibility = retained.find((e) =>
+      String((e.payload as { url?: string }).url ?? '').includes('/eligibility'),
+    )
+    expect(
+      eligibility,
+      `no eligibility observation was recorded; events: ${JSON.stringify(retained.map((e) => [e.type, (e.payload as { url?: string }).url]))}`,
+    ).toBeDefined()
+    expect(
+      (eligibility!.payload as { body?: { prerequisite?: { met?: boolean } } }).body?.prerequisite
+        ?.met,
+    ).toBe(false)
+    // And it must be exposed as a citable artifact, which is what lets a finding reference the
+    // source it consulted rather than only the control's appearance.
+    const artifacts = await getDbClient().execute({
+      sql: 'SELECT id,type,file_path,metadata FROM artifacts WHERE run_id=?',
+      args: [run.id],
+    })
+    const resourceRows = artifacts.rows.filter((r) => String(r.type) === 'resource')
+    expect(
+      resourceRows.length,
+      `artifact types: ${JSON.stringify(artifacts.rows.map((r) => r.type))}`,
+    ).toBe(1)
+    // The artifact body is the business's own published document, not a summary the executor
+    // composed: a claim about the prerequisite must be checkable against the source itself.
+    const body = JSON.parse(await readFile(String(resourceRows[0]!.file_path), 'utf8'))
+    expect(body.prerequisite).toEqual({
+      scope: 'export.retry',
+      note: 'Retrying this export is not available from this workspace.',
+      met: false,
+    })
+    expect(body.backendPermitsRetry).toBe(true)
+    // The classification is metadata, so the body stays verbatim.
+    const metadata = JSON.parse(String(resourceRows[0]!.metadata))
+    expect(metadata.resourceKind).toBe('recovery-eligibility')
+    expect(metadata.operationId).toBe('job-elig-1')
+    // A finding may only cite refs it owns, so the ref must be reachable by its own id.
+    const resourceId = String(resourceRows[0]!.id)
+    expect((await getEvents(run.id)).some((e) => e.evidenceRefs.includes(resourceId))).toBe(true)
   })
 })

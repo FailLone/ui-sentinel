@@ -22,5 +22,6 @@ export type {
   PublicRequest,
   RequestIntent,
   RequestShape,
+  RetainedResource,
   RetrySignal,
 } from './types.ts'

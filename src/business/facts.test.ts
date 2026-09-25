@@ -202,6 +202,65 @@ describe('export adapter (B02, B03)', () => {
     expect(JSON.stringify(fact)).not.toContain('orderId')
     expect(fact.profileId).toBe('export')
   })
+
+  it('declares the recovery eligibility resource as evidence the run must retain', () => {
+    // F04: the eligibility resource is the source an agent is meant to consult, and E2's defect is
+    // precisely the contradiction it publishes (prerequisite unmet, backend permits retry). The job
+    // payload cannot carry that claim - it is identical for E1 and E2 - so a run that does not
+    // retain this resource has no citable basis for the finding the acceptance plan requires
+    // ("保存原图、当前任务可见反馈、资格来源、稳定目标、完整测量").
+    const declared = exportAdapter.retainResource?.(
+      exchange('http://localhost:4183/api/exports/job-1/eligibility', 'GET', {
+        jobId: 'job-1',
+        prerequisite: { scope: 'export.retry', note: 'Retrying is not available.', met: false },
+        backendPermitsRetry: true,
+      }),
+    )
+    expect(declared?.kind).toBe('recovery-eligibility')
+    expect((declared?.value as { prerequisite?: { met?: boolean } })?.prerequisite?.met).toBe(false)
+  })
+
+  it('does not retain the resource from another origin or a body it cannot read', () => {
+    // Retention is recognition, not capture: a same-shaped document elsewhere is another site's
+    // response, and an unreadable body is not evidence of anything.
+    expect(
+      exportAdapter.retainResource?.(
+        exchange(
+          'http://other.example/api/exports/job-1/eligibility',
+          'GET',
+          { jobId: 'job-1', prerequisite: { met: false } },
+          { allowedOrigin: 'http://localhost:4183' },
+        ),
+      ),
+    ).toBeNull()
+    expect(
+      exportAdapter.retainResource?.(
+        exchange(
+          'http://localhost:4183/api/exports/job-1/eligibility',
+          'GET',
+          {},
+          { bodyReadFailed: true, bodyText: null },
+        ),
+      ),
+    ).toBeNull()
+    // A shape that is not this resource is not retained under this business's name.
+    expect(
+      exportAdapter.retainResource?.(
+        exchange('http://localhost:4183/api/exports/job-1/eligibility', 'GET', {
+          jobId: 'job-1',
+          phase: 'failed',
+          attempt: 0,
+          version: 2,
+        }),
+      ),
+    ).toBeNull()
+  })
+
+  it('declares no retained resource for checkout, which has no such source', () => {
+    // The capability is adapter-declared, so a business without the concept contributes nothing
+    // rather than borrowing the export protocol's meaning.
+    expect(checkoutAdapter.retainResource).toBeUndefined()
+  })
 })
 
 describe('fact integrity (B04, B05)', () => {

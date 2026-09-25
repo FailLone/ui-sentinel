@@ -82,6 +82,29 @@ export type Correlation =
   | { readonly kind: 'unknown'; readonly reason: string }
 
 /**
+ * A public business resource a run must retain as citable evidence.
+ *
+ * Some business claims are about a resource the business publishes *alongside* its entity, not
+ * about the entity's own response. Export recovery is the case that forced this: E2's defect is the
+ * contradiction between the recovery eligibility resource (prerequisite unmet) and the API's own
+ * answer (the backend permits the retry), while the job payload is byte-identical for E1 and E2 and
+ * therefore cannot carry the claim at all. An agent that does not retain the resource has nothing
+ * independent to cite, so "the control was inoperable although recovery was permitted" stays an
+ * assertion about one screen rather than a finding about the business.
+ *
+ * Declared by the adapter, never by the executor: a business without the concept contributes
+ * nothing rather than borrowing another business's resource meaning.
+ */
+export interface RetainedResource {
+  /** Stable business-neutral name for what was retained, e.g. `recovery-eligibility`. */
+  readonly kind: string
+  /** The entity this resource describes, when it names one. */
+  readonly operationId: string | null
+  /** The resource's own published body, retained verbatim. */
+  readonly value: unknown
+}
+
+/**
  * The minimum a request must expose to be classified. Adapters classify on origin, method and
  * path only, so classification cannot depend on a response body.
  */
@@ -121,6 +144,15 @@ export interface BusinessAdapter {
   compatibilityEvent?(
     exchange: PublicExchange,
   ): { readonly type: string; readonly payload: Record<string, unknown> } | null
+  /**
+   * Recognize a public business resource this run must retain as evidence.
+   *
+   * Recognition is by the adapter's own origin, method and path plus the response schema, exactly
+   * like `decodeResponse` - so another site's same-shaped document is not retained under this
+   * business's name. Returning `null` means "not a resource of this business's", which is also the
+   * answer for every exchange a business without the concept sees.
+   */
+  retainResource?(exchange: PublicExchange): RetainedResource | null
   /**
    * Optional mapping of a normalized fact onto the pre-existing trigger vocabulary. Declared by
    * the adapter, so the executor never branches on a profile id to decide which business's
