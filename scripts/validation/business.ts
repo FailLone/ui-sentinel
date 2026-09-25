@@ -343,7 +343,7 @@ try {
   }
 
   // E0: the run completes and the report agrees with the arena's private truth.
-  const { report: e0 } = await runFor(
+  const { report: e0, runId: e0RunId } = await runFor(
     'E0',
     'healthy',
     'Export the Q3 orders dataset as CSV and report the outcome.',
@@ -497,7 +497,10 @@ try {
     // U05: a real run opened in the workbench restores its contract, requirements and evidence.
     await page.getByLabel('恢复历史运行').fill(e2RunId)
     await page.getByRole('button', { name: '打开运行' }).click()
-    await page.getByText(/业务契约：/).waitFor({ state: 'visible', timeout: 15_000 })
+    // Wait for this run's own outcome, not for the contract line: the previous report already
+    // renders one, so waiting on it returns before the restored run has loaded and the assertions
+    // below would grade whichever report happened to still be on screen.
+    await page.getByText(/业务：unknown/).waitFor({ state: 'visible', timeout: 15_000 })
     const reportText = await page.locator('main').innerText()
     // The hash and requirement list live in a collapsed <details>, which is correct - they are
     // detail, not the headline. The assertion therefore checks the summary line, which is visible
@@ -514,6 +517,18 @@ try {
     await page.screenshot({ path: `${dir}/u05-export-report.png`, fullPage: true })
     shots.push('u05-export-report.png')
 
+    // The successful export report. The acceptance plan asks for three real-UI images - the create
+    // form, a successful export report and the defect evidence - and this is the second: the same
+    // report view showing the business's own success rather than only the blocked case.
+    await page.getByLabel('恢复历史运行').fill(e0RunId)
+    await page.getByRole('button', { name: '打开运行' }).click()
+    // Same rule as above: wait on the outcome that distinguishes this run from the one on screen.
+    await page.getByText(/业务：success/).waitFor({ state: 'visible', timeout: 15_000 })
+    const successText = await page.locator('main').innerText()
+    assertions.U02successReportShowsBusiness = /业务：success/.test(successText)
+    await page.screenshot({ path: `${dir}/u02-export-success.png`, fullPage: true })
+    shots.push('u02-export-success.png')
+
     // U03: a legacy report must present itself as unversioned rather than borrowing today's
     // requirements. Its shape is built by the API, so the check reads the rendered page.
     const legacyRun = await fetch(`${base}/api/runs`, {
@@ -522,7 +537,7 @@ try {
     })
     assertions.U03legacyStateIsExplicit =
       ((await legacyRun.json()) as { runs?: unknown[] }).runs !== undefined
-    details.workbench = { options, environmentLine, shots, e2RunId }
+    details.workbench = { options, environmentLine, shots, e2RunId, e0RunId }
   } finally {
     await browser.close()
   }
