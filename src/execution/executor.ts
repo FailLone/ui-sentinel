@@ -848,6 +848,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       if (exchange.dispatchedOperation || exchange.dispatchedCreate)
         dispatchedOperations?.add(fact.operationId)
       if (fact.phase !== 'processing') businessCreated = true
+      return true
     }
     page.on('response', (response) => {
       if (responsesClosed || signal.aborted || finished) return
@@ -893,7 +894,11 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           dispatchedCreate,
         })
         try {
-          await commit
+          const acknowledged = await commit
+          // A transport success does not establish the result of a business write. An unreadable
+          // receipt or one without a recognized operation can hide a committed create/retry.
+          if (tracked && (dispatchedCreate || dispatchedOperation) && !acknowledged)
+            mutationFailed = true
         } finally {
           if (tracked) pendingWrites.delete(request)
         }

@@ -141,7 +141,7 @@ let exportWorkspaceStart = false
  * replay of the create. What makes the case different from the shopping arena's is that export's
  * write is a 202 that only starts an asynchronous job: the executor must still reconcile.
  */
-let exportCreateTruncated = false
+let exportCreateReceipt: 'valid' | 'lost' | 'malformed' | 'unrecognized' = 'valid'
 /** P04: how many times the fixture accepted a create, so a replay is visible rather than inferred. */
 let exportCreates = 0
 /**
@@ -435,13 +435,15 @@ const server = createServer((req, res) => {
       exportCreates++
       // The job is genuinely created before the response dies: the write is committed and its
       // result is unknowable to the caller, which is what reconciliation is for.
-      if (exportCreateTruncated) {
+      if (exportCreateReceipt !== 'valid') {
         // The job was created above; the response is what is lost. A 5xx is how the existing P04
         // case models an uncertain write. Truncating the socket instead makes Chromium re-send the
         // POST on its own, which puts two creates in the fixture and would make "one write" a
         // statement about the transport rather than about the executor.
-        res.writeHead(500, { 'content-type': 'application/json' })
-        res.end('{}')
+        res.writeHead(exportCreateReceipt === 'lost' ? 500 : 202, {
+          'content-type': 'application/json',
+        })
+        res.end(exportCreateReceipt === 'malformed' ? '{' : '{}')
         return
       }
       res.setHeader('content-type', 'application/json')
@@ -554,7 +556,7 @@ beforeEach(() => {
   b07Stage = 0
   b07JobId = ''
   exportWorkspaceStart = false
-  exportCreateTruncated = false
+  exportCreateReceipt = 'valid'
   exportCreates = 0
   exportEligibilityWorkspace = false
 })
@@ -2306,47 +2308,50 @@ describe('export side-effect and cancellation boundaries (P04, P07)', () => {
     })
   }
 
-  it('P04: an export create whose response is lost is quarantined, never replayed', async () => {
-    exportWorkspaceStart = true
-    exportCreateTruncated = true
-    let dispatched = 0
-    harness.handler = async (tools: any) => {
-      if (dispatched++ === 0) {
-        const result = await call(tools, 'page_act', {
-          type: 'click',
-          role: 'button',
-          name: 'Start export',
-        })
-        // The action itself may report the transport failure; what matters is the run's handling.
-        void result
+  it.each(['lost', 'malformed', 'unrecognized'] as const)(
+    'P04: an export create with a %s receipt is quarantined, never replayed',
+    async (receipt) => {
+      exportWorkspaceStart = true
+      exportCreateReceipt = receipt
+      let dispatched = 0
+      harness.handler = async (tools: any) => {
+        if (dispatched++ === 0) {
+          const result = await call(tools, 'page_act', {
+            type: 'click',
+            role: 'button',
+            name: 'Start export',
+          })
+          // The action itself may report the transport failure; what matters is the run's handling.
+          void result
+          return []
+        }
+        // A second attempt at the same intent. The policy must refuse it rather than write again.
+        await call(tools, 'page_act', { type: 'click', role: 'button', name: 'Start export' })
         return []
       }
-      // A second attempt at the same intent. The policy must refuse it rather than write again.
-      await call(tools, 'page_act', { type: 'click', role: 'button', name: 'Start export' })
-      return []
-    }
-    const run = await createRun({
-      goal: 'Start an export',
-      environmentId: 'test',
-      entryUrl: url,
-      businessContract: bindExport() as never,
-    })
-    ids.push(run.id)
-    await startRunExecution(run.id)
+      const run = await createRun({
+        goal: 'Start an export',
+        environmentId: 'test',
+        entryUrl: url,
+        businessContract: bindExport() as never,
+      })
+      ids.push(run.id)
+      await startRunExecution(run.id)
 
-    // The uncertain write must be reconciled explicitly, exactly as on the shopping arena.
-    expect((await getRun(run.id))?.stopReason).toBe('reconciliation-required')
-    // And it must not have been replayed: one committed write, one job, not two. An asynchronous
-    // create makes this sharper than on the shopping arena, because a replayed create would leave a
-    // second job running that nothing correlates.
-    expect(exportCreates).toBe(1)
-    expect(exportJobs).toBe(1)
-    // The run reported the uncertainty rather than a business result it could not know.
-    expect((await getRun(run.id))?.businessResult).not.toBe('success')
-    // Release the latch, so the next scenario is not blocked behind this quarantine.
-    await acknowledgeReconciliation()
-    expect(executionBusy()).toBe(false)
-  })
+      // The uncertain write must be reconciled explicitly, exactly as on the shopping arena.
+      expect((await getRun(run.id))?.stopReason).toBe('reconciliation-required')
+      // And it must not have been replayed: one committed write, one job, not two. An asynchronous
+      // create makes this sharper than on the shopping arena, because a replayed create would leave a
+      // second job running that nothing correlates.
+      expect(exportCreates).toBe(1)
+      expect(exportJobs).toBe(1)
+      // The run reported the uncertainty rather than a business result it could not know.
+      expect((await getRun(run.id))?.businessResult).not.toBe('success')
+      // Release the latch, so the next scenario is not blocked behind this quarantine.
+      await acknowledgeReconciliation()
+      expect(executionBusy()).toBe(false)
+    },
+  )
 
   it('P07: cancelling during an export model turn dispatches no late create', async () => {
     exportWorkspaceStart = true

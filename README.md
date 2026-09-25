@@ -105,7 +105,7 @@ pnpm validate:business -- --formal --diagnostic-source <通过诊断的目录> \
 
 validate:acceptance 无参数只跑六例诊断；--minimum 为诊断通过后再跑 18 轮。真实验收要求干净提交，记录模型、提供方、编译哈希和全部失败。费用通过网关估算预留，未知费用不当成零；可配置 VALIDATION_MAX_COST_USD、VALIDATION_AGENT_PROVIDER、VALIDATION_VISION_PROVIDER。复现当前基线时指定 Wafer/Alibaba 并显式启用有限审查。参见[靶场与验收](docs/arena-and-evaluation.md)。
 
-validate:business 的三个入口刻意是三个模块：一个误设的标志不能把免费检查变成付费批次，也不能让诊断结果被读成正式批次。`--diagnostic` 需要 OPENROUTER_API_KEY（缺 key 明确非零退出，不 mock）。`--formal` 要求 `--diagnostic-source` 指向来自**当前冻结构建**的通过诊断（逐字节校验构建 hash），严格拒绝未知或冲突选项，并在任何模型调用之前完成计划判定——判定不通过时写满 45 行 blocked 后立即非零退出，不产出半个矩阵。`--approved-source` 默认取 `data/fixtures/approved-retry`（由 `pnpm fixture:approved-retry` 从 Git 资料生成）；来源不可用或无法核验时 B/D 记 blocked，仍完成可安全进行的 A/C，最终非零退出，绝不伪造批准。诊断与正式批次**共享**同一个 `VALIDATION_MAX_COST_USD` 上限（默认 $2），新建输出目录不重置额度。组 C/D 委派给既有 `validate:acceptance` 与 `validate:learning -- --recheck`，不重复其门槛。
+validate:business 的三个入口刻意是三个模块：一个误设的标志不能把免费检查变成付费批次，也不能让诊断结果被读成正式批次。`--diagnostic` 需要 OPENROUTER_API_KEY（缺 key 明确非零退出，不 mock）。`--formal` 要求 `--diagnostic-source` 指向来自**当前冻结构建**的通过诊断（逐字节校验构建 hash），严格拒绝未知或冲突选项，并在任何模型调用之前完成计划判定——判定不通过时写满 45 行 blocked 后立即非零退出，不产出半个矩阵。`--approved-source` 默认取 `data/fixtures/approved-retry`（由 `pnpm fixture:approved-retry` 从 Git 资料生成）；来源不可用或无法核验时 B/D 记 blocked，仍完成可安全进行的 A/C，最终非零退出，绝不伪造批准。诊断与正式批次**共享**同一个 `VALIDATION_MAX_COST_USD` 上限（默认 $2），新建输出目录不重置额度。组 C/D 复用原 minimum 和获准规则评分器，在本批次的独立服务、数据库与共享模型网关上执行。
 
 pnpm arena:reset -- --case C0 是受控制 token 保护的私有入口，活动/排队/待核对任务存在时拒绝重置；不要提供给被测 Agent。pnpm report -- --run RUN_ID 导出报告。
 
