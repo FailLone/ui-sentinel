@@ -2257,7 +2257,9 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         execute: (request) => finishInspection(request),
       }),
     }
-    const policy = inspectionPolicy(run.spec.goal, config.features)
+    // The inspected business's own requirements, from its frozen contract, so an export run is not
+    // briefed with the shopping requirements and vice versa.
+    const policy = inspectionPolicy(run.spec.goal, config.features, businessContract)
     const reviewedStates = new Set<string>()
     const refreshedReviewVersions = new Set<string>()
     const agent = new Agent({
