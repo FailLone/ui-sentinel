@@ -101,8 +101,14 @@ if (!providers.ok)
  * Recorded here as a literal rather than probed, because the plan names it and a batch should be
  * reproducible from the plan: a default that searched for "whatever learning directory is around"
  * would let a different machine silently authorise a different rule.
+ *
+ * The plan moved this from the original author's local learning directory to the Git-backed
+ * fixture, so the source is now something a new checkout can actually obtain:
+ * `pnpm fixture:approved-retry` verifies and imports it. The historical directory is a provenance
+ * reference only, not a cross-machine prerequisite. Importing is a migration of an existing human
+ * approval, never a new approval.
  */
-const DEFAULT_APPROVED_SOURCE = 'data/learning/2026-09-24T10-57-41-736Z'
+const DEFAULT_APPROVED_SOURCE = 'data/fixtures/approved-retry'
 const DEFAULT_PROPOSAL_ID = 'proposal-fc30e9bb-46bc-40ec-b88b-ff52f0565607'
 
 const dir = resolve('data/business-formal', new Date().toISOString().replace(/[:.]/g, '-'))
