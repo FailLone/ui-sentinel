@@ -113,6 +113,12 @@ import {
 import { createPhaseTracker } from './run-phase.ts'
 import { createProgressDetector, type ProgressFacts } from './progress-detector.ts'
 import { legacyFinishInput, shortFinishInput, resolveShortFinish } from './finish-contract.ts'
+import {
+  finishNote,
+  journeyRunDescription,
+  missingOutcomeFacts,
+  pageActDescription,
+} from './tool-guidance.ts'
 
 const queue = createRunQueue(executeRun)
 export const {
@@ -1557,11 +1563,9 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
                 // The newest normalized fact, not a business-specific response shape: the reporter
                 // of an outcome is the same object for every business.
                 response: businessFacts.at(-1) ?? null,
-                note: 'Untriggered conditions do not block inspection. failed is a processing failure (unknown), not an explicit rejected/declined outcome. Resolve applicable missingFacts or report them as blocked; then request finish again.',
+                note: finishNote(),
               },
-              missingFacts: missingOutcome
-                ? ['verified matching UI and business response for the order']
-                : gaps,
+              missingFacts: missingOutcome ? missingOutcomeFacts() : gaps,
             }
             await appendEvent(runId, 'finish:rejected', result)
             return result
@@ -1625,8 +1629,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         : {}),
       journey_run: createTool({
         id: 'journey.run',
-        description:
-          'Execute a previously evidenced read-only navigation segment from availableJourneys, at most three actions with per-step checks. Writes, anomalies, changed conditions or ambiguity return control. Do not use it to purchase/pay or replay uncertain actions. No list call is needed for already supplied candidates.',
+        description: journeyRunDescription(),
         inputSchema: journeyInput,
         execute: (input) =>
           serial('journey_run', async () => {
@@ -1850,8 +1853,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       }),
       page_act: createTool({
         id: 'page.act',
-        description:
-          'Perform exactly one non-forced interaction. type=probe checks click actionability without dispatching a click; use for recovery controls after an order result. This shopping inspection permits only one order and blocks further network writes after it. Prefer role+name from the a11y tree (e.g. role="button", name="Add to Cart"). Use selector as fallback from element_details. Use visualDescription only if neither works. Pre-action evidence is always captured. Never repeat an uncertain write.',
+        description: pageActDescription(businessContract, config.features),
         inputSchema: actionInput,
         execute: (input) =>
           serial('page_act', () => {
