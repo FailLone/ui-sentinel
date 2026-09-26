@@ -1957,9 +1957,14 @@ it.each(['blocked', 'healthy', 'continue', 'unknown', 'changed'])(
           bindingReason: 'This control recovers the failed operation; Retry upload is unrelated',
         })
         expect(result.verdict).toBe(mode === 'healthy' ? 'pass' : 'fail')
+        if (mode === 'healthy') expect(result.nextStep).toContain('ZERO remaining retry allowance')
         return [{ toolName: 'rule_check', result }]
       }
       expect(mode).not.toBe('blocked')
+      if (mode === 'healthy')
+        expect(packet.businessOutcomeObserved.writePolicy.retriesRemainingForCurrentOperation).toBe(
+          0,
+        )
       return [
         {
           toolName: 'run_finish',

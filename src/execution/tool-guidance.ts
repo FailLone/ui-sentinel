@@ -94,11 +94,14 @@ export function retainedResourceGuidance(kinds: readonly string[]): string {
 /** A saved check resolves its measurement, not the whole journey. Unknown remains unfinished. */
 export function completedCheckNextStep(
   verdict: 'pass' | 'fail' | 'unknown' | 'not-applicable',
+  retryBudgetRemaining?: number,
 ): string {
   if (verdict === 'unknown')
     return 'This check is unresolved. Gather justified new evidence or record the missing scope and call run_finish with reason unverified-scope. Do not claim the check passed or failed.'
   if (verdict === 'not-applicable')
     return 'This check did not apply. Continue the applicable inspection; this is not a passing measurement.'
+  if (verdict === 'pass' && retryBudgetRemaining === 0)
+    return 'The retry control passed its operability check; this establishes no defect. This inspection has ZERO remaining retry allowance, even if the business itself permits retries. Do not click the retry control or try a second create. Actual recovery remains unverified because of the inspection limit. If other applicable inspection remains, continue it; otherwise call run_finish with reason unverified-scope. The server records that downstream scope. Do not repeat this measurement or compose a report.'
   const decision =
     verdict === 'pass'
       ? 'If the journey still requires a permitted recovery and the control is operable, perform it and verify the result; a passing probe is not a completed recovery.'

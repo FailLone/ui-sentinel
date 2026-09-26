@@ -95,3 +95,12 @@ it('distinguishes completed measurements from recovery and unresolved evidence',
   expect(completedCheckNextStep('unknown')).not.toContain('finding are already saved')
   expect(completedCheckNextStep('not-applicable')).toContain('not a passing measurement')
 })
+
+it('does not invite a retry outside the inspection allowance after a healthy measurement', () => {
+  const guidance = completedCheckNextStep('pass', 0)
+  expect(guidance).toContain('ZERO remaining retry allowance')
+  expect(guidance).toContain('unverified-scope')
+  expect(guidance).not.toContain('perform it')
+  expect(completedCheckNextStep('pass', 1)).toContain('perform it')
+  expect(completedCheckNextStep('unknown', 0)).toContain('check is unresolved')
+})

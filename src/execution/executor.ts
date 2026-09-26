@@ -1139,6 +1139,10 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     if (config.features?.atomicInvestigation)
       temporalInvestigator = createTemporalInvestigator({
         guard,
+        retryBudgetRemaining: () => {
+          const fact = businessFacts.at(-1)
+          return fact ? sideEffectPolicy.retryBudgetRemaining(fact.operationId) : undefined
+        },
         epoch: () =>
           JSON.stringify([usage.actions, businessFacts.length, page.url(), integrity.epoch()]),
         version: async () => {
@@ -2263,7 +2267,10 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
                 operationId: binding.operationId,
                 elementRef: input.elementRef,
                 verdict,
-                nextStep: completedCheckNextStep(verdict),
+                nextStep: completedCheckNextStep(
+                  verdict,
+                  sideEffectPolicy.retryBudgetRemaining(binding.operationId),
+                ),
                 findingId,
                 evidenceRefs: measurement.evidenceRefs,
                 hypothesisId: input.hypothesisId,
@@ -2601,12 +2608,15 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
             maxRetriesPerOperation: businessContract.effects.maxRetriesPerOperation,
             createsSpent: sideEffectPolicy.snapshot().createsReserved,
             retriesSpent: sideEffectPolicy.snapshot().retriesReserved,
+            retriesRemainingForCurrentOperation: businessFacts.at(-1)
+              ? sideEffectPolicy.retryBudgetRemaining(businessFacts.at(-1)!.operationId)
+              : null,
             createsRemaining: Math.max(
               0,
               businessContract.effects.maxCreates - sideEffectPolicy.snapshot().createsReserved,
             ),
             recoveryPolicy:
-              'Create and retry have separate budgets. A retry of the current owned operation is permitted only by its latest business facts and remaining retry allowance. Use an operable UI control; never force a disabled control or replay an uncertain write.',
+              'Business permission and inspection allowance are separate requirements; BOTH must permit the write. Zero inspection retry allowance forbids clicking retry even when the business says permitted. Do not test that prohibition by attempting the write. Once other inspection is complete, finish with unverified-scope for recovery outside the allowance. With positive allowance, use an operable UI control only when current business facts permit it; never force a disabled control or replay an uncertain write.',
           },
           hint: 'Business outcome is not inspection completion. Resolve in-scope investigations without repeating the business write.',
         },

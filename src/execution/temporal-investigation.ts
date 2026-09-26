@@ -65,6 +65,7 @@ export function createTemporalInvestigator(deps: {
     actual: string,
   ) => Promise<string | undefined>
   reused: (result: InvestigationResult) => Promise<void>
+  retryBudgetRemaining?: () => number | undefined
 }) {
   const cache: { signature: string; target: BoundTarget; result: InvestigationResult }[] = []
   return {
@@ -132,7 +133,10 @@ export function createTemporalInvestigator(deps: {
           sampleCount: measurement.samples.length,
           evidenceRefs: [...new Set([...measurement.evidenceRefs, ...(input.evidenceRefs ?? [])])],
           reused: false,
-          nextStep: completedCheckNextStep(verdict),
+          nextStep: completedCheckNextStep(
+            verdict,
+            input.trigger === 'retryable-failure' ? deps.retryBudgetRemaining?.() : undefined,
+          ),
           scope:
             'Only the declared DOM condition on the bound node during this recorded window. Does not prove pixel covering, click-handler behavior, permanent failure, or what happened before measurement began. The Agent owns requirement applicability and semantic target selection.',
         }

@@ -36,6 +36,25 @@ const req = (path: string, method = 'POST', origin = ARENA) => ({
 })
 
 describe('side-effect policy (P01, P02, P03, P06, P10)', () => {
+  it('reports the remaining per-operation inspection allowance without reserving a write', () => {
+    const policy = createSideEffectPolicy({
+      contract: exportContract,
+      adapter: exportAdapter,
+      ...knownOperation,
+    })
+    expect(policy.retryBudgetRemaining('job-1')).toBe(1)
+    expect(policy.snapshot().retriesReserved).toBe(0)
+    expect(policy.authorize(req('/api/exports/job-1/retry', 'POST', EXPORT_ARENA)).kind).toBe(
+      'allow',
+    )
+    expect(policy.retryBudgetRemaining('job-1')).toBe(0)
+    expect(policy.retryBudgetRemaining('another-job')).toBe(1)
+    expect(
+      createSideEffectPolicy({ contract: checkout, adapter: checkoutAdapter }).retryBudgetRemaining(
+        'order-1',
+      ),
+    ).toBe(0)
+  })
   it('permits reads without consuming any budget', () => {
     const policy = createSideEffectPolicy({ contract: checkout, adapter: checkoutAdapter })
     for (const path of ['/api/cart', '/api/checkout'])

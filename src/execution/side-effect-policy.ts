@@ -32,6 +32,7 @@ export interface SideEffectPolicy {
   authorize(request: RequestShape): SideEffectDecision
   setReadOnly(value: boolean): void
   readonly readOnly: boolean
+  retryBudgetRemaining(operationId: string): number
   snapshot(): {
     readonly createsReserved: number
     readonly retriesReserved: number
@@ -123,6 +124,11 @@ export function createSideEffectPolicy(input: {
     get readOnly() {
       return readOnly
     },
+    retryBudgetRemaining: (operationId) =>
+      Math.max(
+        0,
+        contract.effects.maxRetriesPerOperation - (retriesByOperation.get(operationId) ?? 0),
+      ),
     snapshot: () => ({
       createsReserved,
       retriesReserved,
