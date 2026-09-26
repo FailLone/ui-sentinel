@@ -1,4 +1,18 @@
 import type { BusinessContractSnapshot } from '../business/types.ts'
+import type { BusinessFact } from '../business/adapters/types.ts'
+
+export function recoveryPolicyDescription(
+  fact: Pick<BusinessFact, 'phase' | 'result'> | undefined,
+): string {
+  const boundary =
+    'Business permission and inspection allowance are separate requirements; BOTH must permit the write. Zero inspection retry allowance forbids clicking retry even when the business says permitted. Do not test that prohibition by attempting the write. '
+  return (
+    boundary +
+    (fact?.phase === 'failed' && fact.result === 'unknown'
+      ? 'Recovery of this failed operation remains unverified if the inspection retry allowance is zero. In that case, once other applicable inspection is complete, call run_finish with unverified-scope. With positive allowance, use an operable control only when current business facts permit it; never force a disabled control or replay an uncertain write.'
+      : 'A zero allowance does not itself create missing scope. A verified success or expected rejection can complete this run after its applicable checks; do not invent a required retry merely to force another outcome. Processing still requires observing its outcome or honestly reporting a real blocker. Never force a disabled control or replay an uncertain write.')
+  )
+}
 
 /**
  * The agent-facing guidance that depends on which business is being inspected.

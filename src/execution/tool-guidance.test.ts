@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   completedCheckNextStep,
+  recoveryPolicyDescription,
   finishNote,
   finishOutcomeDescription,
   journeyRunDescription,
@@ -103,4 +104,19 @@ it('does not invite a retry outside the inspection allowance after a healthy mea
   expect(guidance).not.toContain('perform it')
   expect(completedCheckNextStep('pass', 1)).toContain('perform it')
   expect(completedCheckNextStep('unknown', 0)).toContain('check is unresolved')
+})
+
+it('does not turn an expected terminal outcome into missing retry scope', () => {
+  for (const fact of [
+    { phase: 'rejected', result: 'rejected' },
+    { phase: 'succeeded', result: 'success' },
+    { phase: 'processing', result: 'unknown' },
+  ] as const) {
+    const guidance = recoveryPolicyDescription(fact)
+    expect(guidance).toContain('A zero allowance does not itself create missing scope')
+    expect(guidance).not.toContain('call run_finish with unverified-scope')
+  }
+  expect(recoveryPolicyDescription({ phase: 'failed', result: 'unknown' })).toContain(
+    'call run_finish with unverified-scope',
+  )
 })

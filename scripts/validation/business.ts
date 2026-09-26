@@ -6,6 +6,10 @@ import { randomBytes, randomUUID } from 'node:crypto'
 import { resolve } from 'node:path'
 import { chromium } from 'playwright'
 import {
+  readObservationVersion,
+  readCompletionVersion,
+} from '../../src/execution/observation-version.ts'
+import {
   assertExportIdle,
   exportControlRequest,
   resetAndVerifyExport,
@@ -466,6 +470,11 @@ try {
   const browser = await chromium.launch({ headless: true })
   try {
     const page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
+    await page.goto(exportArena)
+    await page.getByRole('radio').first().waitFor({ state: 'visible' })
+    await page.evaluate(() => document.fonts.ready)
+    assertions.exportChoiceCompletionVersion = (await readCompletionVersion(page)).reusable
+    assertions.exportFormDoesNotReuseObservations = !(await readObservationVersion(page)).reusable
     await page.goto(base)
     await page.getByRole('heading').first().waitFor({ state: 'visible', timeout: 10_000 })
     const body = await page.content()

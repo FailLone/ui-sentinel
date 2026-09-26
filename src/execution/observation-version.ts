@@ -10,8 +10,19 @@ export interface ObservationVersion {
 
 /** Local validation data never enters the model context. Dynamic surfaces conservatively opt out. */
 export async function readObservationVersion(page: Page): Promise<ObservationVersion> {
+  return readVersion(page, false)
+}
+
+/** Completion proposals may include native choice controls whose live checked/value state is
+ * fingerprinted. This does not authorize observation or rule-result cache reuse on forms.
+ */
+export async function readCompletionVersion(page: Page): Promise<ObservationVersion> {
+  return readVersion(page, true)
+}
+
+async function readVersion(page: Page, nativeChoices: boolean): Promise<ObservationVersion> {
   const state = await profileOperation('validation', () =>
-    page.evaluate(() => {
+    page.evaluate((nativeChoices) => {
       const host = window as typeof window & {
         __sentinelObservation?: {
           document: Document
@@ -34,7 +45,8 @@ export async function readObservationVersion(page: Page): Promise<ObservationVer
         document.readyState !== 'complete' ||
         document.fonts.status !== 'loaded' ||
         !!document.querySelector(
-          'canvas,video,audio,iframe,object,embed,img,svg,input,textarea,select,[contenteditable],li,summary',
+          'canvas,video,audio,iframe,object,embed,img,svg,textarea,select,[contenteditable],li,summary,' +
+            (nativeChoices ? 'input:not([type="radio"]):not([type="checkbox"])' : 'input'),
         ) ||
         document.getAnimations().some((a) => a.playState === 'running' || a.pending)
       if (dynamic) return { reusable: false, reason: 'dynamic-or-large-document', value: '' }
@@ -79,6 +91,7 @@ export async function readObservationVersion(page: Page): Promise<ObservationVer
           Array.from(style, (p) => style.getPropertyValue(p)),
           'value' in el ? el.value : null,
           'checked' in el ? el.checked : null,
+          'indeterminate' in el ? el.indeterminate : null,
           el.scrollTop,
           el.scrollLeft,
           hit,
@@ -102,7 +115,7 @@ export async function readObservationVersion(page: Page): Promise<ObservationVer
           values,
         ]),
       }
-    }),
+    }, nativeChoices),
   )
   return {
     key: createHash('sha256').update(state.value).digest('hex'),

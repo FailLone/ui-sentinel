@@ -231,7 +231,7 @@ const server = createServer((req, res) => {
     res.setHeader('content-type', 'text/html')
     paymentOutcome = 'failed'
     res.end(
-      `<h1>Checkout</h1><button onclick="fetch('/api/checkout',{method:'POST'}).then(r=>r.json()).then(d=>document.querySelector('h1').textContent=d.message+' '+d.orderId)">Pay</button><button id="retry" ${req.url.includes('disabled') ? 'disabled' : ''}>Try Again</button><button>Retry upload</button>${req.url.includes('changing') ? `<script>const timer=setInterval(async()=>{if(await fetch('/review-close-flag').then(r=>r.json())) {clearInterval(timer);document.getElementById('retry').disabled=false;}},20)</script>` : ''}`,
+      `<h1>Checkout</h1>${req.url.includes('choices') ? '<label>Dataset<input id="choice" type="radio" name="dataset"></label>' : ''}<button onclick="fetch('/api/checkout',{method:'POST'}).then(r=>r.json()).then(d=>document.querySelector('h1').textContent=d.message+' '+d.orderId)">Pay</button><button id="retry" ${req.url.includes('disabled') ? 'disabled' : ''}>Try Again</button><button>Retry upload</button>${req.url.includes('changing') ? `<script>const timer=setInterval(async()=>{if(await fetch('/review-close-flag').then(r=>r.json())) {clearInterval(timer);${req.url.includes('choices') ? "document.getElementById('choice').checked=true;" : "document.getElementById('retry').disabled=false;"}}},20)</script>` : ''}`,
     )
     return
   }
@@ -1910,7 +1910,7 @@ function enableBlockerReview() {
   registerRule(overlayBlockingRule)
 }
 
-it.each(['blocked', 'healthy', 'continue', 'unknown', 'changed'])(
+it.each(['blocked', 'healthy', 'continue', 'unknown', 'changed', 'choices', 'choices-changed'])(
   'reviews the current learned retry failure without hiding other controls: %s',
   async (mode) => {
     enableBlockerReview()
@@ -1933,7 +1933,7 @@ it.each(['blocked', 'healthy', 'continue', 'unknown', 'changed'])(
       })
       expect(state.observation.a11yTree).toContain('Retry upload')
       expect(state.pendingKnownRuleChecks).toBe(0)
-      if (mode === 'changed') {
+      if (mode === 'changed' || mode === 'choices-changed') {
         reviewCloseVisible = true
         await new Promise((resolve) => setTimeout(resolve, 250))
       }
@@ -1960,7 +1960,7 @@ it.each(['blocked', 'healthy', 'continue', 'unknown', 'changed'])(
         if (mode === 'healthy') expect(result.nextStep).toContain('ZERO remaining retry allowance')
         return [{ toolName: 'rule_check', result }]
       }
-      expect(mode).not.toBe('blocked')
+      expect(['blocked', 'choices']).not.toContain(mode)
       if (mode === 'healthy')
         expect(packet.businessOutcomeObserved.writePolicy.retriesRemainingForCurrentOperation).toBe(
           0,
@@ -1979,17 +1979,18 @@ it.each(['blocked', 'healthy', 'continue', 'unknown', 'changed'])(
         url +
         '/bound-page' +
         (mode === 'healthy' ? '' : '?disabled') +
-        (mode === 'changed' ? '&changing' : ''),
+        (mode.includes('changed') ? '&changing' : '') +
+        (mode.includes('choices') ? '&choices' : ''),
     })
     ids.push(run.id)
     await startRunExecution(run.id)
     expect(harness.reviews).toBe(mode === 'healthy' ? 0 : 1)
-    expect(harness.models).toBe(mode === 'blocked' ? 2 : 3)
+    expect(harness.models).toBe(['blocked', 'choices'].includes(mode) ? 2 : 3)
     const events = await getEvents(run.id)
     expect(events.filter((e) => e.type === 'finish:accepted')).toHaveLength(1)
     expect(
       events.filter((e) => e.type === 'completion-review:commit' && e.payload.accepted),
-    ).toHaveLength(mode === 'blocked' ? 1 : 0)
+    ).toHaveLength(['blocked', 'choices'].includes(mode) ? 1 : 0)
     expect(writes).toBe(1)
   },
 )

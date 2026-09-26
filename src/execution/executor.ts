@@ -30,6 +30,7 @@ import { createRuleEvaluationCache, ruleCatalog } from '../rules/routing.ts'
 import type { RuleContext } from '../rules/types.ts'
 import {
   readObservationVersion,
+  readCompletionVersion,
   sameObservationVersion,
   type ObservationVersion,
 } from './observation-version.ts'
@@ -121,6 +122,7 @@ import {
   pageActDescription,
   retainedResourceGuidance,
   completedCheckNextStep,
+  recoveryPolicyDescription,
 } from './tool-guidance.ts'
 
 const queue = createRunQueue(executeRun)
@@ -286,6 +288,8 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
   const completedInvestigations: InvestigationResult[] = []
   let observeCount = 0
   let observationVersion: ObservationVersion | undefined
+  let completionObservationVersion: ObservationVersion | undefined
+  let deferCompletionReview = false
   let observedBusinessCount = -1
   let observedIntegrityEpoch = -1
   let observationReused = false
@@ -496,6 +500,9 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     observationReused = false
     const optimized = config.features?.observation === true
     let before = optimized ? await readObservationVersion(worker!.page) : undefined
+    const beforeReview = config.features?.blockerReview
+      ? await readCompletionVersion(worker!.page)
+      : undefined
     if (optimized && allowReuse && latest && before) {
       await appendEvent(runId, 'observation:validated', {
         version: before.key,
@@ -535,6 +542,11 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     }
     observationVersion =
       before && after && sameObservationVersion(before, after) ? after : undefined
+    const afterReview = beforeReview ? await readCompletionVersion(worker!.page) : undefined
+    completionObservationVersion =
+      beforeReview && afterReview && sameObservationVersion(beforeReview, afterReview)
+        ? afterReview
+        : undefined
     await drainResponses()
     observedBusinessCount = businessFacts.length
     observedIntegrityEpoch = integrity.epoch()
@@ -1685,7 +1697,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
               : []),
           ]
           if (review) {
-            const currentVersion = await readObservationVersion(page)
+            const currentVersion = await readCompletionVersion(page)
             const current = await getFindings(runId)
             const eligible = blockerEvidenceEligible({
               businessResult,
@@ -2615,8 +2627,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
               0,
               businessContract.effects.maxCreates - sideEffectPolicy.snapshot().createsReserved,
             ),
-            recoveryPolicy:
-              'Business permission and inspection allowance are separate requirements; BOTH must permit the write. Zero inspection retry allowance forbids clicking retry even when the business says permitted. Do not test that prohibition by attempting the write. Once other inspection is complete, finish with unverified-scope for recovery outside the allowance. With positive allowance, use an operable UI control only when current business facts permit it; never force a disabled control or replay an uncertain write.',
+            recoveryPolicy: recoveryPolicyDescription(businessFacts.at(-1)),
           },
           hint: 'Business outcome is not inspection completion. Resolve in-scope investigations without repeating the business write.',
         },
@@ -2654,6 +2665,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       if (
         config.features?.blockerReview &&
         config.features?.shortFinish &&
+        !deferCompletionReview &&
         reviewedStates.size < 3 &&
         budget.maxModelCalls - usage.modelCalls >= 3 &&
         budget.totalTimeoutMs - (Date.now() - startedAt) > 20000 &&
@@ -2673,7 +2685,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           phase: phaseTracker.phase,
         })
       ) {
-        const version = await readObservationVersion(page)
+        const version = await readCompletionVersion(page)
         const reviewKey = createHash('sha256')
           .update(
             JSON.stringify([
@@ -2691,7 +2703,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         await appendEvent(runId, 'completion-review:eligibility', {
           factVersion: reviewKey,
           fitsContext: !!body,
-          observationVersion,
+          observationVersion: completionObservationVersion,
           currentVersion: version,
           alreadyReviewed: reviewedStates.has(reviewKey),
         })
@@ -2700,7 +2712,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         if (
           body &&
           version.reusable &&
-          !sameObservationVersion(observationVersion, version) &&
+          !sameObservationVersion(completionObservationVersion, version) &&
           refreshedReviewVersions.size < 2 &&
           !refreshedReviewVersions.has(version.key)
         ) {
@@ -2710,7 +2722,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         }
         if (
           body &&
-          sameObservationVersion(observationVersion, version) &&
+          sameObservationVersion(completionObservationVersion, version) &&
           !reviewedStates.has(reviewKey)
         ) {
           reviewedStates.add(reviewKey)
@@ -2793,6 +2805,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
               break
             }
             // A fresh finish check may have revealed changed facts or new analysis; rebuild the input.
+            deferCompletionReview = true
             continue
           }
           await appendEvent(runId, 'completion-review:deferred', {
@@ -2808,6 +2821,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         }
       }
       const inputComposition = analyzeInputComposition(agentInput)
+      deferCompletionReview = false
       let lastRecord: ReturnType<ReturnType<RequestTracker['startRequest']>['finish']> | undefined
       const handles = new Map<string, ReturnType<RequestTracker['startRequest']>>()
       const result = await executeModelRequest(

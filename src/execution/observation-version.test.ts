@@ -1,6 +1,45 @@
 import { it, expect } from 'vitest'
 import { launchBrowser } from './browser.ts'
-import { readObservationVersion, sameObservationVersion } from './observation-version.ts'
+import {
+  readObservationVersion,
+  readCompletionVersion,
+  sameObservationVersion,
+} from './observation-version.ts'
+
+it('versions native choice state for completion without enabling observation cache reuse', async () => {
+  const worker = await launchBrowser()
+  try {
+    await worker.page.setContent(
+      '<label>Dataset<input type="radio" name="dataset" value="orders"></label><input type="checkbox"><button disabled>Retry</button>',
+    )
+    expect((await readObservationVersion(worker.page)).reusable).toBe(false)
+    let version = await readCompletionVersion(worker.page)
+    expect(version.reusable).toBe(true)
+    expect(sameObservationVersion(version, await readCompletionVersion(worker.page))).toBe(true)
+    for (const property of ['checked', 'value', 'indeterminate'] as const) {
+      await worker.page
+        .locator('input[type=checkbox]')
+        .evaluate((el: HTMLInputElement, property) => {
+          if (property === 'value') el.value = 'changed'
+          else el[property] = true
+        }, property)
+      const next = await readCompletionVersion(worker.page)
+      expect(next.key).not.toBe(version.key)
+      version = next
+    }
+    for (const markup of [
+      '<input>',
+      '<input type="file">',
+      '<select><option>A</option></select>',
+      '<canvas></canvas>',
+    ]) {
+      await worker.page.setContent(markup)
+      expect((await readCompletionVersion(worker.page)).reusable).toBe(false)
+    }
+  } finally {
+    await worker.close()
+  }
+})
 
 it('invalidates same-text layout, CSSOM, hit changes, node replacement and scroll', async () => {
   const worker = await launchBrowser()
