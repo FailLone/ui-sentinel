@@ -1323,6 +1323,45 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           ),
       ).length
     }
+    // A completed learned retry check is as real as an automatic failure. Preserve its exact
+    // trigger and element identity; an old failed attempt or a now-operable control cannot
+    // authorize the narrow reviewer. Other controls remain visible to its semantic judgment.
+    const measuredRetryBlocker = async () => {
+      const trigger = retryTrigger(await getEvents(runId), latest?.snapshot.text ?? '')
+      if (!trigger) return undefined
+      for (const cached of boundCache) {
+        const result = cached.result
+        const rule = getEnabledRules().find((r) => r.id === result.ruleId)
+        if (
+          cached.triggerRef !== trigger.eventRef ||
+          result.operationId !== trigger.operationId ||
+          result.verdict !== 'fail' ||
+          !result.findingId ||
+          cached.lastValue !== false ||
+          rule?.declaration?.trigger.eventType !== 'retryable-failure' ||
+          rule.declaration.expectation.condition !== 'element-actionable'
+        )
+          continue
+        try {
+          const previous = JSON.parse(cached.fingerprint) as { tag: string; text: string }
+          const identity = await cached.handle.evaluate((el) => ({
+            connected: el.isConnected,
+            tag: el.tagName.toLowerCase(),
+            text: (el.textContent ?? '').trim().slice(0, 700),
+          }))
+          if (
+            identity.connected &&
+            identity.tag === previous.tag &&
+            identity.text === previous.text &&
+            (await sampleBoundElementCondition(cached.handle, 'element-actionable')) === false
+          )
+            return { ...result, triggerRef: cached.triggerRef }
+        } catch {
+          // Detached or otherwise unmeasurable controls require full Agent exploration.
+        }
+      }
+      return undefined
+    }
     const inspectionSummary = () => ({
       snapshotId: latestSlim?.snapshotId,
       observationReused,
@@ -1653,6 +1692,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
               supportedFinding: current.some((f) => f.validationStatus === 'supported'),
               currentFailure: latestChecks?.results.some((r) => r.verdict === 'fail') ?? false,
               recoveryOpportunity: await hasRecoveryOpportunity(page),
+              measuredRetryBlocker: !!(await measuredRetryBlocker()),
               phase: phaseTracker.phase,
             })
             if (!eligible || !sameObservationVersion(review.version, currentVersion)) {
@@ -2469,6 +2509,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         ? ruleCatalog(getEnabledRules(), await currentRuleContext())
         : undefined
       const pendingRules = await pendingKnownRules()
+      const retryBlocker = config.features?.blockerReview ? await measuredRetryBlocker() : undefined
       const activeTools = Object.keys(tools).filter((name) => {
         if (name === 'investigation_check') return phaseTracker.phase !== 'finalizing'
         if (name === 'transition_observe') return taskState.hasOpenHypotheses()
@@ -2510,6 +2551,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           retryTrigger(await getEvents(runId), latest?.snapshot.text ?? ''),
         ].filter(Boolean),
         completedRuleChecks: ruleCheckResults.slice(-12),
+        ...(retryBlocker ? { measuredRetryBlocker: retryBlocker } : {}),
         ...(config.features?.atomicInvestigation
           ? { completedInvestigations: completedInvestigations.slice(-12) }
           : {}),
@@ -2617,6 +2659,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           ),
           currentFailure: latestChecks?.results.some((r) => r.verdict === 'fail') ?? false,
           recoveryOpportunity: await hasRecoveryOpportunity(page),
+          measuredRetryBlocker: !!retryBlocker,
           phase: phaseTracker.phase,
         })
       ) {

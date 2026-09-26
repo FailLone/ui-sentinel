@@ -231,7 +231,7 @@ const server = createServer((req, res) => {
     res.setHeader('content-type', 'text/html')
     paymentOutcome = 'failed'
     res.end(
-      `<h1>Checkout</h1><button onclick="fetch('/api/checkout',{method:'POST'}).then(r=>r.json()).then(d=>document.querySelector('h1').textContent=d.message+' '+d.orderId)">Pay</button><button ${req.url.includes('disabled') ? 'disabled' : ''}>Try Again</button><button>Retry upload</button>`,
+      `<h1>Checkout</h1><button onclick="fetch('/api/checkout',{method:'POST'}).then(r=>r.json()).then(d=>document.querySelector('h1').textContent=d.message+' '+d.orderId)">Pay</button><button id="retry" ${req.url.includes('disabled') ? 'disabled' : ''}>Try Again</button><button>Retry upload</button>${req.url.includes('changing') ? `<script>const timer=setInterval(async()=>{if(await fetch('/review-close-flag').then(r=>r.json())) {clearInterval(timer);document.getElementById('retry').disabled=false;}},20)</script>` : ''}`,
     )
     return
   }
@@ -1909,6 +1909,85 @@ function enableBlockerReview() {
   config.budget.totalTimeoutMs = 40000
   registerRule(overlayBlockingRule)
 }
+
+it.each(['blocked', 'healthy', 'continue', 'unknown', 'changed'])(
+  'reviews the current learned retry failure without hiding other controls: %s',
+  async (mode) => {
+    enableBlockerReview()
+    registerRule(
+      compileTransitionRule('learned-retry', {
+        type: 'transition',
+        name: 'Retry availability',
+        description: 'Eligible retry becomes operable',
+        trigger: { eventType: 'retryable-failure' },
+        expectation: { condition: 'element-actionable', target: 'Retry button', timeoutMs: 500 },
+        severity: 'error',
+      }),
+    )
+    harness.review = async (body: any) => {
+      const state = body.state.inspectionState
+      expect(state.measuredRetryBlocker).toMatchObject({
+        ruleId: 'learned-retry',
+        verdict: 'fail',
+        operationId: 'order-failed',
+      })
+      expect(state.observation.a11yTree).toContain('Retry upload')
+      expect(state.pendingKnownRuleChecks).toBe(0)
+      if (mode === 'changed') {
+        reviewCloseVisible = true
+        await new Promise((resolve) => setTimeout(resolve, 250))
+      }
+      return reviewFixture(['continue', 'unknown'].includes(mode) ? mode : 'observed-blocker')
+    }
+    harness.handler = async (tools: any, prompt: string) => {
+      const packet = JSON.parse(prompt)
+      if (harness.models === 1)
+        return [
+          {
+            toolName: 'page_act',
+            result: await call(tools, 'page_act', { type: 'click', role: 'button', name: 'Pay' }),
+          },
+        ]
+      if (harness.models === 2) {
+        const result = await call(tools, 'rule_check', {
+          ruleId: 'learned-retry',
+          hypothesisIds: [],
+          elementRef: packet.observation.elements.find((e: any) => e.text === 'Try Again').ref,
+          triggerEvidenceRefs: [packet.observedRuleTriggers[0].eventRef],
+          bindingReason: 'This control recovers the failed operation; Retry upload is unrelated',
+        })
+        expect(result.verdict).toBe(mode === 'healthy' ? 'pass' : 'fail')
+        return [{ toolName: 'rule_check', result }]
+      }
+      expect(mode).not.toBe('blocked')
+      return [
+        {
+          toolName: 'run_finish',
+          result: await call(tools, 'run_finish', { reason: 'unverified-scope' }),
+        },
+      ]
+    }
+    const run = await createRun({
+      goal: 'Inspect the operation and its recovery',
+      environmentId: 'test',
+      entryUrl:
+        url +
+        '/bound-page' +
+        (mode === 'healthy' ? '' : '?disabled') +
+        (mode === 'changed' ? '&changing' : ''),
+    })
+    ids.push(run.id)
+    await startRunExecution(run.id)
+    expect(harness.reviews).toBe(mode === 'healthy' ? 0 : 1)
+    expect(harness.models).toBe(mode === 'blocked' ? 2 : 3)
+    const events = await getEvents(run.id)
+    expect(events.filter((e) => e.type === 'finish:accepted')).toHaveLength(1)
+    expect(
+      events.filter((e) => e.type === 'completion-review:commit' && e.payload.accepted),
+    ).toHaveLength(mode === 'blocked' ? 1 : 0)
+    expect(writes).toBe(1)
+  },
+)
 it('commits an evidenced blocker review through canonical finish without another explorer request', async () => {
   enableBlockerReview()
   harness.review = async (body: any) => {

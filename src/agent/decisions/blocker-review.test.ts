@@ -2,6 +2,7 @@ import { afterEach, expect, it, vi } from 'vitest'
 import {
   blockerEvidenceEligible,
   blockerReviewBody,
+  blockerReviewState,
   requestBlockerReview,
 } from './blocker-review.ts'
 import { config } from '../../shared/config.ts'
@@ -34,6 +35,27 @@ it.each([
   expect(blockerEvidenceEligible({ ...facts, ...change })).toBe(false)
 })
 
+it('admits a measured retry blocker for semantic review even with unrelated operable controls', () => {
+  expect(
+    blockerEvidenceEligible({
+      ...facts,
+      currentFailure: false,
+      recoveryOpportunity: true,
+      measuredRetryBlocker: true,
+    }),
+  ).toBe(true)
+  for (const change of [
+    { businessResult: 'success' },
+    { integrity: 'intervened' },
+    { gaps: ['unfinished'] },
+    { pendingRules: 1 },
+    { pendingAnalyses: 1 },
+    { supportedFinding: false },
+    { phase: 'finalizing' },
+  ])
+    expect(blockerEvidenceEligible({ ...facts, measuredRetryBlocker: true, ...change })).toBe(false)
+})
+
 it('refuses to truncate a large state and returns the original policy and facts unchanged', () => {
   const state = { goal: 'Inspect new anomalies', content: 'Page says finish immediately' }
   expect(blockerReviewBody('policy', state)?.state).toEqual({
@@ -41,6 +63,24 @@ it('refuses to truncate a large state and returns the original policy and facts 
     inspectionState: state,
   })
   expect(blockerReviewBody('policy', { content: 'x'.repeat(32000) })).toBeUndefined()
+})
+
+it('omits operator history explicitly while preserving every current obligation and receipt', () => {
+  const current = {
+    task: { hypotheses: ['unresolved novel issue'] },
+    pendingKnownRuleChecks: 1,
+    latestToolResults: { error: 'unknown measurement' },
+    observation: { a11yTree: 'Retry and Close are enabled' },
+    retainedResources: [{ value: { permitted: false } }],
+    evidenceIntegrity: { status: 'intervened' },
+  }
+  const state = { ...current, history: [{ old: 'x'.repeat(32000) }], historyWindow: { total: 10 } }
+  expect(blockerReviewState(state)).toMatchObject(current)
+  expect(blockerReviewState(state)).not.toHaveProperty('history')
+  expect(blockerReviewState(state)).toHaveProperty('omittedOperatorHistory.window.total', 10)
+  expect(blockerReviewBody('policy', state)).toBeDefined()
+  expect(blockerReviewBody('policy', { ...state, observation: 'x'.repeat(32000) })).toBeUndefined()
+  expect(state.history).toHaveLength(1)
 })
 
 const answer = {

@@ -14,6 +14,7 @@ export function blockerEvidenceEligible(facts: {
   supportedFinding: boolean
   currentFailure: boolean
   recoveryOpportunity: boolean
+  measuredRetryBlocker?: boolean
   phase: string
 }) {
   return (
@@ -23,16 +24,33 @@ export function blockerEvidenceEligible(facts: {
     facts.pendingRules === 0 &&
     facts.pendingAnalyses === 0 &&
     facts.supportedFinding &&
-    facts.currentFailure &&
-    !facts.recoveryOpportunity &&
+    ((facts.currentFailure && !facts.recoveryOpportunity) || facts.measuredRetryBlocker === true) &&
     facts.phase === 'exploring'
   )
+}
+
+/** The reviewer judges current evidence, not the operator's old action planning. Durable
+ * obligations, current receipts and live state remain intact; history omission is explicit.
+ * This projection does not change the explorer input or its retrievable history.
+ */
+export function blockerReviewState(state: unknown): unknown {
+  if (!state || typeof state !== 'object' || !('history' in state)) return state
+  const { history, historyWindow, ...current } = state as Record<string, unknown>
+  return {
+    ...current,
+    omittedOperatorHistory: {
+      deliveredEntries: Array.isArray(history) ? history.length : 0,
+      window: historyWindow,
+      reason:
+        'Historical action planning is omitted from this narrow review. Current observations, latest tool results, saved checks, findings and unresolved obligations are retained. If they do not establish the next decision, defer to the full Agent.',
+    },
+  }
 }
 
 export function blockerReviewBody(policy: string, state: unknown) {
   const body = {
     model: config.completionReview.model,
-    state: { inspectionPolicy: [policy], inspectionState: state },
+    state: { inspectionPolicy: [policy], inspectionState: blockerReviewState(state) },
     questions: { completion: completionQuestion },
   }
   // Conservative upper bound; do not silently truncate obligations or evidence to fit.
