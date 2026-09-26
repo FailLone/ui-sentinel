@@ -1,6 +1,6 @@
 # 下一步开发任务书：业务契约与第二个完整业务
 
-状态：待开发；本任务书及[完整验收计划](business-contracts-acceptance.md)共同构成完成标准。[交接模板](business-contracts-handoff.md)用于逐项记录实际进展。面向接手的开发 Agent，不要求重新设计架构。
+状态：实现已开发并由主Agent review、更正；最终同构建完整验收待完成，未accepted。实际结果见[交接记录](business-contracts-handoff.md)。本任务书及[完整验收计划](business-contracts-acceptance.md)共同构成完成标准。[交接模板](business-contracts-handoff.md)用于逐项记录实际进展。面向接手的开发 Agent，不要求重新设计架构。
 
 代码基线：a53c751（main，整理后的版本）。实际开工以包含本任务书的 main 最新提交为基线，记录准确 SHA。基线已有 387 项测试及本地集成验证；真实模型历史成绩见 ../docs/validation-baseline.md，不能当作新实现的验收结果。
 
