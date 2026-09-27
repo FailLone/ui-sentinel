@@ -4,7 +4,7 @@
 
 ## 交付与架构
 
-原 main 766615b，收到 fail 22 bundle 的 dev head e915105，审查分支 review/business-contracts-export。当前代码候选 30e02e4（含原生选择状态复核、条件化恢复指引及公开下载修复）；完整构建身份以实际批次 manifest 为准。
+原 main 766615b，收到 fail 22 bundle 的 dev head e915105，审查分支 review/business-contracts-export。当前候选已包含条件指引、原子调查收尾与完整事件历史校验修复（见文末最新批次；历史 30e02e4 不是当前验收版本）；完整构建身份以实际批次 manifest 为准。
 
 沿用 Mastra/Playwright/Midscene-Qwen/Hono/libSQL/React。新增业务契约和导出业务，不引入新 Agent 框架或通用业务 DSL。Agent 负责探索、语义选择与证据判断；确定性执行器负责动作边界、事实归属、测量和可靠结束。
 
@@ -190,3 +190,30 @@ Wafer诊断known=$0.024231205、未知预留$0.017928330（7请求）；Firework
 上游多次明确返回`429 server_overloaded`；同型Fireworks入口支持本执行器使用的工具调用参数，来源为[OpenRouter端点清单](https://openrouter.ai/api/v1/models/deepseek/deepseek-v4.1-flash/endpoints)。`3656a5d`将新验收基线固定为Fireworks/Alibaba，DeepSeek/Qwen型号不变、禁止静默fallback；它不代表换提供方已解决问题。旧Wafer批次仍按原身份保存，新构建必须重新通过诊断和完整45轮。
 
 最新免费回归为73文件/646测试全通过，类型、格式和构建通过。测试包含自主调查与已有规则的对等复核、短窗口拒绝、原节点身份变化、审查期间控件/原生选项变化、continue/unknown回退，以及限流等待/取消/时限边界。正式45轮仍待通过，当前仍未accepted、不合并main。
+
+
+## 2026-09-28后续批次、主机休眠与持久化完整性
+
+以下均为独立批次，失败未删除，不能跨批拼接。模型保持 DeepSeek/Qwen；提供方曾因上游持续限流由 Wafer 改 Fireworks，随后由 8dcd820 显式固定为 Alibaba/Alibaba。每次修改基线后重新诊断，禁用静默 fallback。
+
+| 类型 / 目录末段 | 位置 | 结果 | accounted USD |
+| --- | --- | --- | --- |
+| 正式 2026-09-27T16-46-05-733Z | 主仓库 data/business-formal | 22/45 | 0.306678012 |
+| 诊断 2026-09-27T17-41-29-942Z | /private/tmp/ui-sentinel-rule-completion/data/business-validation | smoke 429，未进入五例 | 0.001210135 |
+| 诊断 2026-09-27T17-43-28-469Z | 同上 | 5/6 | 0.042953915 |
+| 诊断 2026-09-27T17-51-47-797Z | 同上 | 6/6 | 0.036374178 |
+| 正式 2026-09-27T17-58-05-892Z | /private/tmp/ui-sentinel-rule-completion/data/business-formal | 11/45，后半持续上游429 | 0.252942682 |
+| 诊断 2026-09-27T18-05-04-692Z | /private/tmp/ui-sentinel-provider-recovery/data/business-validation | 6/6 | 0.030882090 |
+| 正式 2026-09-27T18-42-38-499Z | /private/tmp/ui-sentinel-provider-recovery/data/business-formal | 3通过、2失败、40未运行，隔离停止 | 0.022752065 |
+
+加上上一节两个诊断，本轮新增 accounted $0.792855133，累计 **$3.466589907**。这是已知费用加未知费用保守预留，不等同最终账单；诊断引用到正式 campaign 时不重复计费。用户继续验收授权保持有效。
+
+`e0b91de` 消除原子调查与旧三步调查指引同时存在的矛盾；开启原子工具时只给该工具流程，旧流程仅在关闭时提供。适用检查及证据完成后优先结束，健康且允许的恢复直接执行。两个6/6批次的E2均实际完成完整测量并由有限审查接受提交，不再仅凭任务结果推断审查被使用。
+
+最后一个Alibaba正式批次的停止是 `run-did-not-settle`。检查主机电源日志发现 Mac 多次 Maintenance Sleep / DarkWake：有的300秒任务实际 elapsed312917ms，30秒测试也因主机睡眠花近298秒。验收期间临时运行有期限的 `caffeinate -is`，不修改永久电源设置；结束后移除本次进程的唤醒断言。休眠批次保留，不将其声称为纯模型或产品性能。
+
+另一个独立问题出现在旧正式 B/E1/1：实际创建与重试成功，但数据库/报告只剩后段事件且seq重新连续，创建和规则检查缺失。评分器正确拒绝；仅校验连续seq和末尾事件不足以证明完整持久化。当前修复在内存保留本执行期每次已确认写入的完整event ID顺序，结束时通过独立连接逐项比对；丢失或重排必须隔离，不能报成功。libSQL本地客户端限制单连接以减少连接视图切换。新增反例重现“丢尾后复用连续seq”，并发报告读取压力测试检查全部已确认事件保留。尚未证明历史丢失的底层根因；该库连接池版本已与npm原包核对，且涉事DB使用delete journal，不归因于网上WAL缺陷或主机休眠。
+
+当前仍未accepted。当前代码需完整免费检查后重新冻结，通过新诊断及同构建45轮、四组停服审计和全部产物哈希，才能合并main。
+
+当前完整事件校验修复的免费门槛已通过：73文件/648测试、格式、类型、构建；持久化6轮全部durable（data/persistence-preflight/2026-09-27T19-22-22-163Z），业务预检32项全过（data/business-preflight/2026-09-27T19-23-10-658Z），均零付费调用。接下来冻结并运行Alibaba基线的新诊断及45轮。

@@ -36,6 +36,7 @@ export async function verifyCompletionCommit(expected: {
   businessResult: Run['businessResult']
   stopReason: Run['stopReason']
   lastEvent: Pick<RunEvent, 'id' | 'seq'>
+  eventIds: readonly string[]
 }) {
   const memory = config.databaseUrl.includes(':memory:')
   const reader = memory ? undefined : createClient({ url: config.databaseUrl, concurrency: 1 })
@@ -43,6 +44,11 @@ export async function verifyCompletionCommit(expected: {
     const snapshot = await getRunSnapshot(expected.runId, reader)
     if (!snapshot) throw Error('completion-commit-run-missing')
     const issues = completionIssues(snapshot.run, snapshot.events)
+    if (
+      snapshot.events.length !== expected.eventIds.length ||
+      snapshot.events.some((event, index) => event.id !== expected.eventIds[index])
+    )
+      issues.push('committed-history-mismatch')
     if (
       snapshot.run.status !== expected.status ||
       snapshot.run.businessResult !== expected.businessResult ||

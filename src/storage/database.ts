@@ -11,7 +11,8 @@ export function getDbClient(): Client {
       const filename = decodeURIComponent(config.databaseUrl.slice(5).split('?')[0])
       mkdirSync(dirname(resolve(filename)), { recursive: true })
     }
-    client = createClient({ url: config.databaseUrl })
+    // One local writer/reader connection avoids switching between pooled database views.
+    client = createClient({ url: config.databaseUrl, concurrency: 1 })
   }
   return client
 }

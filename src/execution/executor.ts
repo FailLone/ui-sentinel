@@ -3068,7 +3068,14 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       })),
     })
     try {
-      await verifyCompletionCommit({ runId, status, businessResult, stopReason, lastEvent })
+      await verifyCompletionCommit({
+        runId,
+        status,
+        businessResult,
+        stopReason,
+        lastEvent,
+        eventIds: [...active.eventIds],
+      })
     } catch (error) {
       queue.requireReconciliation()
       // No model retry or business replay follows an uncertain commit.

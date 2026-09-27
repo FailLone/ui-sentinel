@@ -12,7 +12,14 @@ vi.mock('../shared/config.ts', () => ({
   },
 }))
 import { getDbClient, initDatabase } from '../storage/database.ts'
-import { createRun, appendEvent, updateRunStatus, getRunSnapshot } from './run-manager.ts'
+import {
+  createRun,
+  appendEvent,
+  updateRunStatus,
+  getRunSnapshot,
+  registerActiveRun,
+  removeActiveRun,
+} from './run-manager.ts'
 import { completionIssues, verifyCompletionCommit } from './completion-integrity.ts'
 let directory = ''
 beforeAll(async () => {
@@ -30,6 +37,7 @@ async function completed() {
     environmentId: 'test',
     entryUrl: 'http://localhost:4173',
   })
+  const active = registerActiveRun(run.id)
   await appendEvent(run.id, 'finish:accepted', { businessResult: 'success', blocked: false })
   await updateRunStatus(run.id, 'completed', {
     businessResult: 'success',
@@ -47,6 +55,7 @@ async function completed() {
     businessResult: 'success' as const,
     stopReason: 'goal-reached' as const,
     lastEvent,
+    eventIds: [...active.eventIds],
   }
 }
 it('reads a committed terminal row and its exact tail through a fresh file connection', async () => {
@@ -82,4 +91,44 @@ it('detects missing middle events and conflicting terminal data', async () => {
     ]),
   )
   await expect(verifyCompletionCommit(expected)).rejects.toThrow('expected-terminal-mismatch')
+})
+
+it('detects erased history even when later writes reuse a contiguous sequence and valid tail', async () => {
+  const expected = await completed()
+  const active = registerActiveRun(expected.runId)
+  active.eventIds.push(...expected.eventIds)
+  // Reproduce a database view losing writes, followed by new writes filling the sequence again.
+  await appendEvent(expected.runId, 'business:observation', { operationId: 'owned-operation' })
+  await getDbClient().execute({
+    sql: 'DELETE FROM run_events WHERE run_id=? AND seq>=3',
+    args: [expected.runId],
+  })
+  const lastEvent = await appendEvent(expected.runId, 'run:statistics', {})
+  const snapshot = (await getRunSnapshot(expected.runId))!
+  expect(completionIssues(snapshot.run, snapshot.events)).toEqual([])
+  expect(snapshot.events.at(-1)?.id).toBe(lastEvent.id)
+  await expect(
+    verifyCompletionCommit({ ...expected, lastEvent, eventIds: [...active.eventIds] }),
+  ).rejects.toThrow('committed-history-mismatch')
+  removeActiveRun(expected.runId)
+})
+
+it('retains every acknowledged event while live report snapshots are repeatedly polled', async () => {
+  const expected = await completed()
+  const active = registerActiveRun(expected.runId)
+  active.eventIds.push(...expected.eventIds)
+  await Promise.all([
+    (async () => {
+      for (let i = 0; i < 150; i++)
+        await appendEvent(expected.runId, 'test:acknowledged', { index: i })
+    })(),
+    ...Array.from({ length: 4 }, async () => {
+      for (let i = 0; i < 60; i++) await getRunSnapshot(expected.runId)
+    }),
+  ])
+  const lastEvent = await appendEvent(expected.runId, 'run:statistics', {})
+  await expect(
+    verifyCompletionCommit({ ...expected, lastEvent, eventIds: [...active.eventIds] }),
+  ).resolves.toBeUndefined()
+  removeActiveRun(expected.runId)
 })

@@ -21,7 +21,7 @@ interface ActiveRun {
   run: Run
   abortController: AbortController
   listeners: Set<RunEventListener>
-  seq: number
+  eventIds: string[]
   startedAt: number
 }
 
@@ -214,6 +214,8 @@ async function appendEventInternal(
   })
 
   if (active) {
+    // Retained independently of later database reads, including a rolled-back/reused sequence.
+    active.eventIds.push(event.id)
     for (const listener of active.listeners) {
       try {
         listener(event)
@@ -386,7 +388,7 @@ export function registerActiveRun(runId: string): ActiveRun {
     run: null as unknown as Run,
     abortController,
     listeners: new Set(),
-    seq: 0,
+    eventIds: [],
     startedAt: Date.now(),
   }
   activeRuns.set(runId, active)
