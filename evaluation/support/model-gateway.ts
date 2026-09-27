@@ -54,7 +54,11 @@ export async function startGateway(
       // Fixed validation policy; preserve SDK-specific tool and message schemas.
       body.max_tokens = 4096
       delete body.max_completion_tokens
-      body.reasoning = body.model === AGENT_MODEL ? { effort: 'low' } : { enabled: false }
+      body.reasoning =
+        body.model === AGENT_MODEL && body.reasoning_effort !== 'none'
+          ? { effort: 'low' }
+          : { enabled: false }
+      delete body.reasoning_effort
       const provider =
         body.model === AGENT_MODEL
           ? process.env.VALIDATION_AGENT_PROVIDER

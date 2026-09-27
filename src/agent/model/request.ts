@@ -50,6 +50,8 @@ export interface ModelRequestOptions {
   readonly transport?: 'generate' | 'stream'
   readonly activeTools?: string[]
   readonly requireTool?: boolean
+  /** Explicit capability opt-in for OpenAI-compatible models with optional thinking. */
+  readonly lengthRecoveryWithoutReasoning?: boolean
 }
 export interface ModelRequestResult {
   readonly text: string
@@ -61,6 +63,7 @@ export interface ModelRequestResult {
 export interface AttemptRecord {
   readonly attemptId: string
   readonly retryOf?: string
+  readonly reasoningRecovery?: 'disabled'
   readonly startedAt: number
   readonly deadlineAt: number
   readonly durationMs: number
@@ -73,7 +76,10 @@ export interface AttemptRecord {
 }
 export interface ModelRequestHooks {
   onStart?: (
-    record: Pick<AttemptRecord, 'attemptId' | 'retryOf' | 'startedAt' | 'deadlineAt'>,
+    record: Pick<
+      AttemptRecord,
+      'attemptId' | 'retryOf' | 'startedAt' | 'deadlineAt' | 'reasoningRecovery'
+    >,
   ) => Promise<void> | void
   onFinish?: (record: AttemptRecord) => Promise<void> | void
 }
@@ -142,6 +148,7 @@ export async function executeModelRequest(
   if (maxAttempts < 1) throw new Error('budget-exhausted')
   let retryOf: string | undefined
   let requestInput = input
+  let reasoningRecovery: 'disabled' | undefined
   for (let index = 0; index < maxAttempts; index++) {
     options.runSignal.throwIfAborted()
     const startedAt = Date.now(),
@@ -150,7 +157,13 @@ export async function executeModelRequest(
     const attemptId = randomUUID()
     const requestDeadline = startedAt + Math.min(remaining, config.budget.modelRequestTimeoutMs)
     // The caller reserves actual request budget before generation, including retries.
-    await hooks.onStart?.({ attemptId, retryOf, startedAt, deadlineAt: requestDeadline })
+    await hooks.onStart?.({
+      attemptId,
+      retryOf,
+      startedAt,
+      deadlineAt: requestDeadline,
+      reasoningRecovery,
+    })
     const controller = new AbortController()
     const signal = AbortSignal.any([options.runSignal, controller.signal])
     const transport = options.transport ?? (config.features?.modelStreaming ? 'stream' : 'generate')
@@ -215,6 +228,9 @@ export async function executeModelRequest(
               signal,
               agent.generate(requestInput, {
                 maxSteps: 1,
+                providerOptions: reasoningRecovery
+                  ? { openai: { reasoningEffort: 'none' } }
+                  : undefined,
                 abortSignal: signal,
                 activeTools: options.activeTools,
                 toolChoice: options.requireTool ? 'required' : 'auto',
@@ -226,6 +242,9 @@ export async function executeModelRequest(
             signal,
             agent.stream(requestInput, {
               maxSteps: 1,
+              providerOptions: reasoningRecovery
+                ? { openai: { reasoningEffort: 'none' } }
+                : undefined,
               activeTools: options.activeTools,
               toolChoice: options.requireTool ? 'required' : 'auto',
               abortSignal: signal,
@@ -264,6 +283,7 @@ export async function executeModelRequest(
     await hooks.onFinish?.({
       attemptId,
       retryOf,
+      reasoningRecovery,
       startedAt,
       deadlineAt: requestDeadline,
       durationMs: now - startedAt,
@@ -303,6 +323,7 @@ export async function executeModelRequest(
     )
       throw failure
     if (error === 'model-stream-incomplete:length') {
+      if (options.lengthRecoveryWithoutReasoning) reasoningRecovery = 'disabled'
       const notice =
         'The preceding request reached its output limit before executing any tool. No tool from that request ran. Use the unchanged evidence to choose one justified available tool. Keep arguments concise; do not repeat completed work. If inspection is complete or an evidenced blocker prevents progress, request run_finish with the appropriate reason; do not compose a report or re-derive saved check results. If evidence is missing or a safe recovery remains, choose that next investigation or action. Tool availability and all execution guards are unchanged.'
       if (typeof input === 'string') {

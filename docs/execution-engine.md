@@ -81,3 +81,10 @@ EXECUTION_BLOCKER_REVIEW 默认关闭。开启时使用 OpenRouter Decisions API
 
 
 公开产物下载由业务适配器的 `downloadOperation(request)` 声明，执行器只放行同源 GET、属于本轮创建且最新事实为 succeeded 的实体。它是页面点击下载时的窄导航例外，不放开任意 API、源文件、其他实体或私有控制路由；每次重定向仍重新检查边界。购物适配器未声明下载入口，原导航约束不变。
+
+
+### 输出耗尽后的有界恢复
+
+当流式模型返回length且尚未执行任何工具时，执行器保留失败用量，并使用原有至多一次安全重试，不延长请求或任务时限。可通过AGENT_LENGTH_RECOVERY_WITHOUT_REASONING=1为支持可选推理的OpenAI兼容模型显式启用恢复模式：仅此重试传reasoningEffort=none，正常请求配置不变。默认关闭，不向其他提供方推断此能力。开始/结束事件记录reasoningRecovery=disabled和retryOf；模型仍选择下一工具，全部写入、结束与证据检查保持生效，不能用空响应当成功。
+
+此设置解决的是推理耗尽全部输出、没有产生工具调用的特定失败，不是增加调用预算，也不保证模型总能正确决策。[OpenRouter关于reasoning与max_tokens的说明](https://openrouter.ai/docs/guides/best-practices/reasoning-tokens)说明推理和可见输出共享上限，隐藏推理内容并不能减少其消耗。

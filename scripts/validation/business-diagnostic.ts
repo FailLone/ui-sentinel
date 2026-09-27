@@ -154,6 +154,7 @@ const env: NodeJS.ProcessEnv = {
   RUN_TOTAL_TIMEOUT_MS: '300000',
   MODEL_REQUEST_TIMEOUT_MS: '60000',
   MODEL_REQUEST_MAX_RETRIES: '1',
+  AGENT_LENGTH_RECOVERY_WITHOUT_REASONING: '1',
   TOOL_TIMEOUT_MS: '15000',
   OTEL_SDK_DISABLED: 'true',
 }
@@ -264,6 +265,7 @@ try {
     providerSource: providers.source,
     atomicInvestigation: true,
     blockerReview: true,
+    lengthRecoveryWithoutReasoning: true,
     limitUsd: maxCostUsd,
     plan: ['smoke', ...(['E0', 'E1', 'E2', 'E3', 'E4'] as const)],
   })

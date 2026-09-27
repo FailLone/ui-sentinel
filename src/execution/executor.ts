@@ -2871,6 +2871,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         {
           activeTools,
           requireTool: true,
+          lengthRecoveryWithoutReasoning: config.lengthRecoveryWithoutReasoning,
           runSignal: signal,
           timeRemainingMs: budget.totalTimeoutMs - (Date.now() - startedAt),
           attemptBudget: Math.min(

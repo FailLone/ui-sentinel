@@ -351,76 +351,88 @@ it('retries the SDK empty-stream termination once within the existing budget, on
   expect(afterToolCalls).toBe(1)
 })
 
-it('recovers once from output exhaustion without increasing budgets or repeating any executed tool', async () => {
-  vi.useFakeTimers()
-  const records: any[] = [],
-    inputs: any[] = []
-  let tools = 0
-  const work = executeModelRequest(
-    {
-      stream: async (input: string) => {
-        inputs.push(JSON.parse(input))
-        return {
-          getFullOutput: async () => {
-            if (inputs.length === 1)
+it.each([false, true])(
+  'recovers output exhaustion once with optional reasoning recovery %s',
+  async (lengthRecoveryWithoutReasoning) => {
+    vi.useFakeTimers()
+    const records: any[] = [],
+      inputs: any[] = [],
+      requestOptions: any[] = []
+    let tools = 0
+    const work = executeModelRequest(
+      {
+        stream: async (input: string, request: any) => {
+          requestOptions.push(request)
+          inputs.push(JSON.parse(input))
+          return {
+            getFullOutput: async () => {
+              if (inputs.length === 1)
+                return {
+                  finishReason: 'length',
+                  text: '',
+                  toolResults: [],
+                  usage: { inputTokens: 10, outputTokens: 4096 },
+                }
+              beginAttemptTool()
+              tools++
               return {
-                finishReason: 'length',
+                finishReason: 'tool-calls',
                 text: '',
                 toolResults: [],
-                usage: { inputTokens: 10, outputTokens: 4096 },
+                usage: { inputTokens: 20, outputTokens: 50 },
               }
-            beginAttemptTool()
-            tools++
-            return {
-              finishReason: 'tool-calls',
-              text: '',
-              toolResults: [],
-              usage: { inputTokens: 20, outputTokens: 50 },
-            }
-          },
-        }
-      },
-    } as any,
-    JSON.stringify({ evidenceRefs: ['saved'], task: 'resolve observed issue' }),
-    opts({ transport: 'stream' }),
-    {
-      onFinish: (r) => {
-        records.push(r)
-      },
-    },
-  )
-  await vi.runAllTimersAsync()
-  await work
-  expect(inputs).toHaveLength(2)
-  expect(inputs[1]).toMatchObject({
-    evidenceRefs: ['saved'],
-    task: 'resolve observed issue',
-    requestRecovery: expect.stringContaining('No tool from that request ran'),
-  })
-  expect(tools).toBe(1)
-  expect(records[0]).toMatchObject({
-    status: 'error',
-    usage: { inputTokens: 10, outputTokens: 4096 },
-  })
-  expect(records[1].retryOf).toBe(records[0].attemptId)
-  let requests = 0
-  await expect(
-    executeModelRequest(
-      {
-        stream: async () => {
-          requests++
-          beginAttemptTool()
-          return {
-            getFullOutput: async () => ({ finishReason: 'length', text: '', toolResults: [] }),
+            },
           }
         },
       } as any,
-      '{}',
-      opts({ transport: 'stream' }),
-    ),
-  ).rejects.toThrow('model-stream-incomplete:length')
-  expect(requests).toBe(1)
-})
+      JSON.stringify({ evidenceRefs: ['saved'], task: 'resolve observed issue' }),
+      opts({ transport: 'stream', lengthRecoveryWithoutReasoning }),
+      {
+        onFinish: (r) => {
+          records.push(r)
+        },
+      },
+    )
+    await vi.runAllTimersAsync()
+    await work
+    expect(inputs).toHaveLength(2)
+    expect(inputs[1]).toMatchObject({
+      evidenceRefs: ['saved'],
+      task: 'resolve observed issue',
+      requestRecovery: expect.stringContaining('No tool from that request ran'),
+    })
+    expect(requestOptions[0].providerOptions).toBeUndefined()
+    expect(requestOptions[1].providerOptions).toEqual(
+      lengthRecoveryWithoutReasoning ? { openai: { reasoningEffort: 'none' } } : undefined,
+    )
+    expect(records[1].reasoningRecovery).toBe(
+      lengthRecoveryWithoutReasoning ? 'disabled' : undefined,
+    )
+    expect(tools).toBe(1)
+    expect(records[0]).toMatchObject({
+      status: 'error',
+      usage: { inputTokens: 10, outputTokens: 4096 },
+    })
+    expect(records[1].retryOf).toBe(records[0].attemptId)
+    let requests = 0
+    await expect(
+      executeModelRequest(
+        {
+          stream: async () => {
+            requests++
+            beginAttemptTool()
+            return {
+              getFullOutput: async () => ({ finishReason: 'length', text: '', toolResults: [] }),
+            }
+          },
+        } as any,
+        '{}',
+        opts({ transport: 'stream', lengthRecoveryWithoutReasoning }),
+      ),
+    ).rejects.toThrow('model-stream-incomplete:length')
+    expect(requests).toBe(1)
+  },
+)
 
 it.each([
   { role: 'user' as const, content: 'Inspect saved evidence.' },

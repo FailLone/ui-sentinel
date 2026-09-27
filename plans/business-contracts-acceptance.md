@@ -219,7 +219,9 @@ prepared.json 描述生成时的候选，状态可能仍是 validating；**不�
 
 ### 8.4 冻结参数、费用与停止条件
 
-沿用现有网关的 DeepSeek/Qwen 模型，记录实际 model/provider/快照，不自动选更快型号或 fallback。2026-09-28 因 Wafer 连续返回上游 429 和请求超时，新验收基线显式固定 Fireworks/Alibaba，DeepSeek/Qwen 型号不变；旧 Wafer 批次及失败原样保留。更换提供方后必须重跑新构建诊断与完整45轮，不混用旧成绩，不放宽超时、调用额度或评分。原子调查=1，有限 Jev 审查=1，固定已验证快照。本地 preflight 还需覆盖有限审查关闭，不修改产品默认关闭策略。
+沿用现有网关的 DeepSeek/Qwen 模型，记录实际 model/provider/快照，不自动选更快型号或 fallback。2026-09-28 因 Wafer 连续返回上游 429 和请求超时，曾将新验收基线显式固定 Fireworks/Alibaba；Fireworks 同样持续429后，8dcd820将当前基线明确设为 Alibaba/Alibaba。DeepSeek/Qwen 型号不变，旧批次及失败原样保留。更换提供方后必须重跑新构建诊断与完整45轮，不混用旧成绩，不放宽超时、调用额度或评分。原子调查=1，有限 Jev 审查=1，固定已验证快照。本地 preflight 还需覆盖有限审查关闭，不修改产品默认关闭策略。
+
+当前新基线显式开启 AGENT_LENGTH_RECOVERY_WITHOUT_REASONING=1，仅当请求输出耗尽且未执行任何工具时，在原有一次安全重试中关闭可选推理；平时仍为low。请求数、60秒请求超时、4096输出上限和运行预算不增加；工具已执行、额度不足、取消或不可重试错误均不得切换/重试。该能力产品默认关闭，只适用于支持关闭推理的OpenAI兼容模型，验收manifest和逐次事件须标记；不能与旧基线拼分。
 
 每轮：totalTimeoutMs=300000、maxActions=40、maxModelCalls=30；工具和单请求超时、至多一次安全请求重试沿用当前配置。模型、视觉和有限审查共享调用/费用预算。不要因为失败提高上限或更换提供方再混为同一批。
 

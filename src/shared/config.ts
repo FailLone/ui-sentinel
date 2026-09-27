@@ -24,6 +24,8 @@ export const config = Object.freeze({
 
   agentModel: process.env.AGENT_MODEL ?? '',
   visionModel: process.env.VISION_MODEL ?? '',
+  // Opt in only for an OpenAI-compatible model whose thinking mode can be disabled.
+  lengthRecoveryWithoutReasoning: process.env.AGENT_LENGTH_RECOVERY_WITHOUT_REASONING === '1',
 
   features: {
     atomicInvestigation: process.env.EXECUTION_ATOMIC_INVESTIGATION !== '0',
@@ -65,6 +67,8 @@ export function checkModelConfig(): { ready: boolean; missing: string[] } {
   if (!process.env.VISION_MODEL_FAMILY && !process.env.MIDSCENE_MODEL_FAMILY)
     missing.push('VISION_MODEL_FAMILY')
   const provider = config.agentModel.split('/')[0]
+  if (config.lengthRecoveryWithoutReasoning && provider !== 'openai')
+    missing.push('openai-compatible AGENT_MODEL for length recovery without reasoning')
   const keyMap: Record<string, string> = {
     anthropic: 'ANTHROPIC_API_KEY',
     openai: 'OPENAI_API_KEY',

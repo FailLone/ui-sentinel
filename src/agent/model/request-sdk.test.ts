@@ -144,3 +144,108 @@ it.each(['stream', 'generate'] as const)(
     })
   },
 )
+
+it('delivers an explicitly enabled length recovery mode through the real Mastra/OpenAI SDK', async () => {
+  const bodies: any[] = []
+  let executed = 0
+  const model = createOpenAI({
+    apiKey: 'local-fixture-only',
+    baseURL: 'http://local-fixture.invalid/v1',
+    fetch: async (_url, init) => {
+      const body = JSON.parse(String(init?.body))
+      bodies.push(body)
+      const limited = bodies.length === 1
+      const base = {
+        id: 'length-recovery',
+        created: 1,
+        model: body.model,
+        object: 'chat.completion.chunk',
+      }
+      const chunks = [
+        {
+          ...base,
+          choices: [
+            {
+              index: 0,
+              delta: limited
+                ? { role: 'assistant', content: '' }
+                : {
+                    role: 'assistant',
+                    tool_calls: [
+                      {
+                        index: 0,
+                        id: 'call-once',
+                        type: 'function',
+                        function: { name: 'page_observe', arguments: '{}' },
+                      },
+                    ],
+                  },
+              finish_reason: null,
+            },
+          ],
+        },
+        {
+          ...base,
+          choices: [{ index: 0, delta: {}, finish_reason: limited ? 'length' : 'tool_calls' }],
+          usage: {
+            prompt_tokens: 20,
+            completion_tokens: limited ? 4096 : 20,
+            total_tokens: limited ? 4116 : 40,
+          },
+        },
+      ]
+      return new Response(
+        chunks.map((c) => `data: ${JSON.stringify(c)}\n\n`).join('') + 'data: [DONE]\n\n',
+        { headers: { 'content-type': 'text/event-stream' } },
+      )
+    },
+  }).chat('deepseek/deepseek-v4.1-flash') as unknown as MastraModelConfig
+  const agent = new Agent({
+    id: 'length-recovery',
+    name: 'Length recovery fixture',
+    instructions: 'Local fixture only.',
+    model,
+    tools: {
+      page_observe: createTool({
+        id: 'page.observe',
+        description: 'Observe',
+        inputSchema: z.object({}),
+        execute: async () => {
+          beginAttemptTool()
+          executed++
+          return { observed: true }
+        },
+      }),
+    },
+  })
+  const records: any[] = []
+  const result = await executeModelRequest(
+    agent,
+    '{}',
+    {
+      transport: 'stream',
+      runSignal: new AbortController().signal,
+      timeRemainingMs: 15000,
+      attemptBudget: 2,
+      requireTool: true,
+      lengthRecoveryWithoutReasoning: true,
+    },
+    {
+      onFinish: (record) => {
+        records.push(record)
+      },
+    },
+  )
+  expect(bodies).toHaveLength(2)
+  expect(bodies[0].reasoning_effort).toBeUndefined()
+  expect(bodies[1].reasoning_effort).toBe('none')
+  expect(bodies.every((b) => b.tool_choice === 'required')).toBe(true)
+  expect(executed).toBe(1)
+  expect(result.attempts).toBe(2)
+  expect(records[0].usage.outputTokens).toBe(4096)
+  expect(records[1]).toMatchObject({
+    reasoningRecovery: 'disabled',
+    retryOf: records[0].attemptId,
+    status: 'success',
+  })
+})

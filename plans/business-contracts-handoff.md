@@ -217,3 +217,12 @@ Wafer诊断known=$0.024231205、未知预留$0.017928330（7请求）；Firework
 当前仍未accepted。当前代码需完整免费检查后重新冻结，通过新诊断及同构建45轮、四组停服审计和全部产物哈希，才能合并main。
 
 当前完整事件校验修复的免费门槛已通过：73文件/648测试、格式、类型、构建；持久化6轮全部durable（data/persistence-preflight/2026-09-27T19-22-22-163Z），业务预检32项全过（data/business-preflight/2026-09-27T19-23-10-658Z），均零付费调用。接下来冻结并运行Alibaba基线的新诊断及45轮。
+
+
+## 4fa10a1后的输出耗尽恢复修复
+
+保持主机唤醒后，4fa10a1诊断 data/business-validation/2026-09-27T19-24-51-707Z 6/6，accounted $0.030710592，未知费用0。完整批次 data/business-formal/2026-09-27T19-30-43-148Z 正在保留全部45行；已观察A/E2/1失败：两次请求均4096输出全部用于推理、未调用调查工具。其余A14项通过，不将此故障归因于休眠或持久化。整批最终结果另行补充。
+
+在独立工作树实现输出耗尽恢复，避免改动在跑批次：新增显式能力开关AGENT_LENGTH_RECOVERY_WITHOUT_REASONING，产品默认关闭，当前DeepSeek新验收基线开启。仅在length且任何工具尚未执行、仍有原定安全重试额度时，重试请求关闭可选推理；第一次请求仍low，不增加4096输出上限、60秒请求时限或一次重试限制。所有事实、可用工具和执行保护保留，Agent仍自己判断下一步；事件和manifest标记该模式。不能把“隐藏推理内容”误当成关闭推理。兼容性依据为OpenRouter模型元数据mandatory=false及其reasoning说明，最终有效性仍由实际请求/用量和新完整批次验证。
+
+免费回归73文件/652测试、类型、格式和构建全过；32项业务预检通过（/private/tmp/ui-sentinel-length-recovery/data/business-preflight/2026-09-27T19-46-11-331Z）。真实Mastra/OpenAI SDK本地测试确认第二次请求携带none、第一次不变、工具只执行一次、耗尽用量保留；网关测试确认映射enabled=false且固定输出上限与禁用fallback不变。未执行任何付费新基线验证前不得声称修复完成。

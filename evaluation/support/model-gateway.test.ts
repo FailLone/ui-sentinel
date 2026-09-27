@@ -429,3 +429,41 @@ it('accounts typed Decisions and explorer calls under the same gateway request a
     await rm(dir, { recursive: true, force: true })
   }
 })
+
+it('preserves explicit non-thinking recovery without raising fixed output or retry budgets', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'gateway-reasoning-recovery-'))
+  const bodies: any[] = []
+  const gateway = await startGateway('test-secret', dir, (async (_url: any, init: any) => {
+    bodies.push(JSON.parse(init.body))
+    return Response.json({
+      id: 'fixture',
+      choices: [{ message: { content: 'ok' }, finish_reason: 'stop' }],
+      usage: { prompt_tokens: 1, completion_tokens: 1, cost: 0.001 },
+    })
+  }) as typeof fetch)
+  try {
+    gateway.begin('recovery', 2, 5000)
+    for (const reasoning_effort of [undefined, 'none']) {
+      const response = await fetch(gateway.url + '/chat/completions', {
+        method: 'POST',
+        headers: { authorization: `Bearer ${gateway.token}`, 'content-type': 'application/json' },
+        body: JSON.stringify({ model: AGENT_MODEL, reasoning_effort, max_tokens: 99999 }),
+      })
+      expect(response.ok).toBe(true)
+      await response.text()
+    }
+    await gateway.end()
+    expect(bodies.map((b) => b.reasoning)).toEqual([{ effort: 'low' }, { enabled: false }])
+    expect(
+      bodies.every(
+        (b) =>
+          b.max_tokens === 4096 &&
+          b.reasoning_effort === undefined &&
+          b.provider.allow_fallbacks === false,
+      ),
+    ).toBe(true)
+  } finally {
+    await gateway.close()
+    await rm(dir, { recursive: true, force: true })
+  }
+})

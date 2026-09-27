@@ -3,6 +3,7 @@ vi.mock('dotenv/config', () => ({}))
 beforeEach(() => {
   vi.resetModules()
   vi.stubEnv('EXECUTION_ATOMIC_INVESTIGATION', undefined)
+  vi.stubEnv('AGENT_LENGTH_RECOVERY_WITHOUT_REASONING', undefined)
   vi.stubEnv('EXECUTION_BLOCKER_REVIEW', undefined)
   vi.stubEnv('COMPLETION_REVIEW_API_KEY', '')
   vi.stubEnv('OPENROUTER_API_KEY', '')
@@ -12,6 +13,7 @@ describe('validated feature defaults and explicit review access', () => {
   it('enables bounded investigation without adding a review model dependency', async () => {
     const { config, checkModelConfig } = await import('./config.ts')
     expect(config.features.atomicInvestigation).toBe(true)
+    expect(config.lengthRecoveryWithoutReasoning).toBe(false)
     expect(config.features.blockerReview).toBe(false)
     expect(checkModelConfig().missing).not.toContain(
       'COMPLETION_REVIEW_API_KEY or OPENROUTER_API_KEY',
@@ -27,4 +29,14 @@ describe('validated feature defaults and explicit review access', () => {
     expect(config.features.blockerReview).toBe(true)
     expect(checkModelConfig().missing).toContain('COMPLETION_REVIEW_API_KEY or OPENROUTER_API_KEY')
   })
+})
+
+it('requires an OpenAI-compatible model for explicitly enabled reasoning recovery', async () => {
+  vi.stubEnv('AGENT_LENGTH_RECOVERY_WITHOUT_REASONING', '1')
+  vi.stubEnv('AGENT_MODEL', 'anthropic/example')
+  const { config, checkModelConfig } = await import('./config.ts')
+  expect(config.lengthRecoveryWithoutReasoning).toBe(true)
+  expect(checkModelConfig().missing).toContain(
+    'openai-compatible AGENT_MODEL for length recovery without reasoning',
+  )
 })
