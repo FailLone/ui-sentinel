@@ -31,6 +31,7 @@ it.each([
   { currentFailure: false },
   { recoveryOpportunity: true },
   { phase: 'finalizing' },
+  { phase: 'verifying' },
 ])('preserves exploration when necessary evidence/coverage conditions fail: %j', (change) => {
   expect(blockerEvidenceEligible({ ...facts, ...change })).toBe(false)
 })
@@ -43,6 +44,9 @@ it('admits a measured retry blocker for semantic review even with unrelated oper
       recoveryOpportunity: true,
       measuredRetryBlocker: true,
     }),
+  ).toBe(true)
+  expect(
+    blockerEvidenceEligible({ ...facts, phase: 'verifying', measuredRetryBlocker: true }),
   ).toBe(true)
   for (const change of [
     { businessResult: 'success' },

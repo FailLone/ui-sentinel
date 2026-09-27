@@ -286,6 +286,13 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
   }[] = []
   let temporalInvestigator: ReturnType<typeof createTemporalInvestigator> | undefined
   const completedInvestigations: InvestigationResult[] = []
+  const investigationTriggers = new Map<string, NonNullable<ReturnType<typeof retryTrigger>>>()
+  const investigationBlockers: {
+    handle: import('playwright').ElementHandle<SVGElement | HTMLElement>
+    fingerprint: string
+    triggerRef: string
+    result: InvestigationResult & { operationId: string }
+  }[] = []
   let observeCount = 0
   let observationVersion: ObservationVersion | undefined
   let completionObservationVersion: ObservationVersion | undefined
@@ -1185,6 +1192,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
             return {
               handle,
               selector: detail.element.selector,
+              identity,
               version: version.reusable ? version.key : undefined,
             }
           } catch (error) {
@@ -1193,10 +1201,11 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           }
         },
         record: async (input) => {
-          if (
-            input.trigger === 'retryable-failure' &&
-            !retryTrigger(await getEvents(runId), latest!.snapshot.text)
-          )
+          const investigationTrigger =
+            input.trigger === 'retryable-failure'
+              ? retryTrigger(await getEvents(runId), latest!.snapshot.text)
+              : undefined
+          if (input.trigger === 'retryable-failure' && !investigationTrigger)
             throw Error('investigation-trigger-not-observed')
           if (
             input.trigger !== 'always' &&
@@ -1227,6 +1236,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
             evidenceRefs: [...new Set([...latest!.evidenceRefs, ...(input.evidenceRefs ?? [])])],
           })
           knownHypothesisIds.add(h.id)
+          if (investigationTrigger) investigationTriggers.set(h.id, investigationTrigger)
           taskState.recordHypothesis(h.id, h.phenomenon, input.trigger)
           const transition = phaseTracker.enterVerifying('bounded investigation declared')
           if (transition.changed)
@@ -1256,7 +1266,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
             undefined,
             () => sampleBoundElementCondition(bound.handle, input.condition),
           ),
-        complete: async (input, result, actual) => {
+        complete: async (input, result, actual, bound) => {
           let findingId: string | undefined
           if (result.verdict === 'fail') {
             const finding = await submitFinding({
@@ -1292,6 +1302,34 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           taskState.resolveHypothesis(result.hypothesisId, result.validationStatus)
           const saved = { ...result, findingId }
           completedInvestigations.push(saved)
+          const trigger = investigationTriggers.get(result.hypothesisId)
+          investigationTriggers.delete(result.hypothesisId)
+          if (
+            trigger &&
+            findingId &&
+            result.verdict === 'fail' &&
+            result.validationStatus === 'supported' &&
+            input.condition === 'element-actionable' &&
+            bound.identity &&
+            result.window.durationMs >= businessContract.retryAvailabilityMs &&
+            result.window.observedUntilMs - result.window.startedAtMs >=
+              businessContract.retryAvailabilityMs
+          ) {
+            // Retain the measured DOM node, never resolve its selector to a replacement node.
+            // This handle belongs to completion review, not the ordinary observation cache.
+            try {
+              const fingerprint = JSON.stringify(bound.identity)
+              const handle = await bound.handle.evaluateHandle((el) => el)
+              investigationBlockers.push({
+                handle,
+                fingerprint,
+                triggerRef: trigger.eventRef,
+                result: { ...saved, operationId: trigger.operationId },
+              })
+            } catch {
+              // Evidence remains saved; an unmeasurable current node cannot authorize review.
+            }
+          }
           await appendEvent(runId, 'investigation:completed', saved, {
             stepId,
             evidenceRefs: [...result.evidenceRefs],
@@ -1339,23 +1377,26 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           ),
       ).length
     }
-    // A completed learned retry check is as real as an automatic failure. Preserve its exact
-    // trigger and element identity; an old failed attempt or a now-operable control cannot
-    // authorize the narrow reviewer. Other controls remain visible to its semantic judgment.
+    // Both approved rules and autonomous investigations can measure the same current blocker.
+    // Require the original trigger, operation and DOM node; the reviewer still judges alternatives.
     const measuredRetryBlocker = async () => {
       const trigger = retryTrigger(await getEvents(runId), latest?.snapshot.text ?? '')
       if (!trigger) return undefined
-      for (const cached of boundCache) {
+      const learned = boundCache.filter((cached) => {
+        const rule = getEnabledRules().find((r) => r.id === cached.result.ruleId)
+        return (
+          cached.lastValue === false &&
+          rule?.declaration?.trigger.eventType === 'retryable-failure' &&
+          rule.declaration.expectation.condition === 'element-actionable'
+        )
+      })
+      for (const cached of [...learned, ...investigationBlockers]) {
         const result = cached.result
-        const rule = getEnabledRules().find((r) => r.id === result.ruleId)
         if (
           cached.triggerRef !== trigger.eventRef ||
           result.operationId !== trigger.operationId ||
           result.verdict !== 'fail' ||
-          !result.findingId ||
-          cached.lastValue !== false ||
-          rule?.declaration?.trigger.eventType !== 'retryable-failure' ||
-          rule.declaration.expectation.condition !== 'element-actionable'
+          !result.findingId
         )
           continue
         try {
@@ -2961,6 +3002,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     if (!signal.aborted) active.abortController.abort(new Error('run-ended'))
     await closeResponses()
     await temporalInvestigator?.close()
+    await Promise.allSettled(investigationBlockers.map((cached) => cached.handle.dispose()))
     if (worker) await worker.close().catch(() => {})
     if (stopReason === 'reconciliation-required') queue.requireReconciliation()
     const finalReason = stopReason as StopReason

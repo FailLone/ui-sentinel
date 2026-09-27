@@ -27,6 +27,8 @@ export type TemporalInvestigationInput = z.infer<typeof temporalInvestigationInp
 type BoundTarget = {
   handle: ElementHandle<HTMLElement | SVGElement>
   selector: string
+  /** Identity captured before measuring, for optional current-node completion review. */
+  identity?: { tag: string; text: string }
   /** Only reusable versions are eligible for historical-result reuse. */
   version?: string
 }
@@ -63,6 +65,7 @@ export function createTemporalInvestigator(deps: {
     input: TemporalInvestigationInput,
     result: InvestigationResult,
     actual: string,
+    bound: BoundTarget,
   ) => Promise<string | undefined>
   reused: (result: InvestigationResult) => Promise<void>
   retryBudgetRemaining?: () => number | undefined
@@ -141,7 +144,7 @@ export function createTemporalInvestigator(deps: {
             'Only the declared DOM condition on the bound node during this recorded window. Does not prove pixel covering, click-handler behavior, permanent failure, or what happened before measurement began. The Agent owns requirement applicability and semantic target selection.',
         }
         const actual = `${input.target}: ${input.condition} ${verdict === 'fail' ? 'was false throughout the covered window' : verdict === 'pass' ? 'was true at a sampled point within the window' : 'could not be conclusively evaluated'}; ${measurement.samples.length} samples, declared interval ${measurement.startedAtMs}–${measurement.startedAtMs + input.durationMs}, declared duration ${input.durationMs}ms. This is a bounded observation, not a claim about an earlier deadline or permanent state.`
-        result.findingId = await deps.complete(input, result, actual)
+        result.findingId = await deps.complete(input, result, actual, bound)
         deps.guard()
         const version = await deps.version()
         if (verdict !== 'unknown' && version) {

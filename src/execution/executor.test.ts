@@ -231,7 +231,7 @@ const server = createServer((req, res) => {
     res.setHeader('content-type', 'text/html')
     paymentOutcome = 'failed'
     res.end(
-      `<h1>Checkout</h1>${req.url.includes('choices') ? '<label>Dataset<input id="choice" type="radio" name="dataset"></label>' : ''}<button onclick="fetch('/api/checkout',{method:'POST'}).then(r=>r.json()).then(d=>document.querySelector('h1').textContent=d.message+' '+d.orderId)">Pay</button><button id="retry" ${req.url.includes('disabled') ? 'disabled' : ''}>Try Again</button><button>Retry upload</button>${req.url.includes('changing') ? `<script>const timer=setInterval(async()=>{if(await fetch('/review-close-flag').then(r=>r.json())) {clearInterval(timer);${req.url.includes('choices') ? "document.getElementById('choice').checked=true;" : "document.getElementById('retry').disabled=false;"}}},20)</script>` : ''}`,
+      `<h1>Checkout</h1>${req.url.includes('choices') ? '<label>Dataset<input id="choice" type="radio" name="dataset"></label>' : ''}<button onclick="fetch('/api/checkout',{method:'POST'}).then(r=>r.json()).then(d=>document.querySelector('h1').textContent=d.message+' '+d.orderId)">Pay</button><button id="retry" ${req.url.includes('disabled') ? 'disabled' : ''}>Try Again</button><button>Retry upload</button>${req.url.includes('changing') ? `<script>const timer=setInterval(async()=>{if(await fetch('/review-close-flag').then(r=>r.json())) {clearInterval(timer);${req.url.includes('choices') ? "document.getElementById('choice').checked=true;" : req.url.includes('renamed') ? "document.getElementById('retry').textContent='Cancel';" : "document.getElementById('retry').disabled=false;"}}},20)</script>` : ''}`,
     )
     return
   }
@@ -1910,24 +1910,39 @@ function enableBlockerReview() {
   registerRule(overlayBlockingRule)
 }
 
-it.each(['blocked', 'healthy', 'continue', 'unknown', 'changed', 'choices', 'choices-changed'])(
-  'reviews the current learned retry failure without hiding other controls: %s',
-  async (mode) => {
+it.each(
+  ['learned', 'autonomous'].flatMap((source) =>
+    [
+      'blocked',
+      'healthy',
+      'continue',
+      'unknown',
+      'changed',
+      'choices',
+      'choices-changed',
+      ...(source === 'autonomous' ? ['short-window', 'renamed'] : []),
+    ].map((mode) => ({ source, mode })),
+  ),
+)(
+  'reviews the current $source retry failure without hiding other controls: $mode',
+  async ({ source, mode }) => {
     enableBlockerReview()
-    registerRule(
-      compileTransitionRule('learned-retry', {
-        type: 'transition',
-        name: 'Retry availability',
-        description: 'Eligible retry becomes operable',
-        trigger: { eventType: 'retryable-failure' },
-        expectation: { condition: 'element-actionable', target: 'Retry button', timeoutMs: 500 },
-        severity: 'error',
-      }),
-    )
+    config.features.atomicInvestigation = source === 'autonomous'
+    if (source === 'learned')
+      registerRule(
+        compileTransitionRule('learned-retry', {
+          type: 'transition',
+          name: 'Retry availability',
+          description: 'Eligible retry becomes operable',
+          trigger: { eventType: 'retryable-failure' },
+          expectation: { condition: 'element-actionable', target: 'Retry button', timeoutMs: 500 },
+          severity: 'error',
+        }),
+      )
     harness.review = async (body: any) => {
       const state = body.state.inspectionState
       expect(state.measuredRetryBlocker).toMatchObject({
-        ruleId: 'learned-retry',
+        ...(source === 'learned' ? { ruleId: 'learned-retry' } : { validationStatus: 'supported' }),
         verdict: 'fail',
         operationId: 'order-failed',
       })
@@ -1949,16 +1964,35 @@ it.each(['blocked', 'healthy', 'continue', 'unknown', 'changed', 'choices', 'cho
           },
         ]
       if (harness.models === 2) {
-        const result = await call(tools, 'rule_check', {
-          ruleId: 'learned-retry',
-          hypothesisIds: [],
-          elementRef: packet.observation.elements.find((e: any) => e.text === 'Try Again').ref,
-          triggerEvidenceRefs: [packet.observedRuleTriggers[0].eventRef],
-          bindingReason: 'This control recovers the failed operation; Retry upload is unrelated',
-        })
+        const elementRef = packet.observation.elements.find((e: any) => e.text === 'Try Again').ref
+        const toolName = source === 'learned' ? 'rule_check' : 'investigation_check'
+        const result =
+          source === 'learned'
+            ? await call(tools, toolName, {
+                ruleId: 'learned-retry',
+                hypothesisIds: [],
+                elementRef,
+                triggerEvidenceRefs: [packet.observedRuleTriggers[0].eventRef],
+                bindingReason:
+                  'This control recovers the failed operation; Retry upload is unrelated',
+              })
+            : await call(tools, toolName, {
+                phenomenon: 'The current permitted retry remains inoperable',
+                basis: 'The public failed operation permits recovery',
+                trigger: 'retryable-failure',
+                elementRef,
+                target: 'Retry button',
+                condition: 'element-actionable',
+                durationMs: mode === 'short-window' ? 500 : 5000,
+                severity: 'error',
+              })
         expect(result.verdict).toBe(mode === 'healthy' ? 'pass' : 'fail')
         if (mode === 'healthy') expect(result.nextStep).toContain('ZERO remaining retry allowance')
-        return [{ toolName: 'rule_check', result }]
+        if (mode === 'renamed') {
+          reviewCloseVisible = true
+          await new Promise((resolve) => setTimeout(resolve, 250))
+        }
+        return [{ toolName, result }]
       }
       expect(['blocked', 'choices']).not.toContain(mode)
       if (mode === 'healthy')
@@ -1979,12 +2013,13 @@ it.each(['blocked', 'healthy', 'continue', 'unknown', 'changed', 'choices', 'cho
         url +
         '/bound-page' +
         (mode === 'healthy' ? '' : '?disabled') +
-        (mode.includes('changed') ? '&changing' : '') +
+        (mode.includes('changed') || mode === 'renamed' ? '&changing' : '') +
+        (mode === 'renamed' ? '&renamed' : '') +
         (mode.includes('choices') ? '&choices' : ''),
     })
     ids.push(run.id)
     await startRunExecution(run.id)
-    expect(harness.reviews).toBe(mode === 'healthy' ? 0 : 1)
+    expect(harness.reviews).toBe(['healthy', 'short-window', 'renamed'].includes(mode) ? 0 : 1)
     expect(harness.models).toBe(['blocked', 'choices'].includes(mode) ? 2 : 3)
     const events = await getEvents(run.id)
     expect(events.filter((e) => e.type === 'finish:accepted')).toHaveLength(1)

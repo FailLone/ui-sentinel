@@ -25,7 +25,8 @@ export function blockerEvidenceEligible(facts: {
     facts.pendingAnalyses === 0 &&
     facts.supportedFinding &&
     ((facts.currentFailure && !facts.recoveryOpportunity) || facts.measuredRetryBlocker === true) &&
-    facts.phase === 'exploring'
+    (facts.phase === 'exploring' ||
+      (facts.phase === 'verifying' && facts.measuredRetryBlocker === true))
   )
 }
 
