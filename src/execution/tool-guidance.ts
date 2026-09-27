@@ -42,11 +42,10 @@ export function pageActDescription(
       `${contract.effects.maxRetriesPerOperation === 1 ? 'y' : 'ies'} per operation, and the ` +
       `executor refuses writes beyond that.`
     : ''
-  // Recovery controls are reached after whatever this business calls a completed operation, so the
-  // string names the generic event rather than one business's result.
+  // Recovery is conditional on current public facts, not on every completed write.
   return (
     'Perform exactly one non-forced interaction. type=probe checks click actionability without ' +
-    'dispatching a click; use for recovery controls after a completed business operation.' +
+    'dispatching a click; use for an observed recovery control when recovery is applicable.' +
     `${limits}` +
     ' Prefer role+name from the a11y tree (e.g. role="button", name from that tree).' +
     ' Use selector as fallback from element_details. Use visualDescription only if neither works.' +
