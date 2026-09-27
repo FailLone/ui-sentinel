@@ -1,22 +1,11 @@
 /**
- * The providers a real-model run must be pinned to.
- *
- * The acceptance plan's 8.4 fixes the current reproducible baseline to Wafer (agent) and Alibaba
- * (vision). The validation gateway applies those names as OpenRouter's `provider.only`; when the
- * environment variable is missing or empty it omits the constraint entirely, and OpenRouter is then
- * free to route to any endpoint of the model.
- *
- * Leaving it unset is not neutral. Measured on this machine's first paid diagnostic, the run's own
- * ledger records the endpoints that served the calls as DeepInfra (33) and Sail Research (24), with
- * Wafer at zero, at 20-54s per call against the baseline's 4-11s. The runs then hit the plan's fixed
- * 300s ceiling partway through the inspection and failed on latency rather than on behaviour.
- *
- * Applying the pin here rather than requiring an operator to export two variables is what makes the
- * accepted baseline reproducible by running the documented command: the same model served by a
- * different endpoint is a different measurement, and a batch that silently mixed them would be filed
- * under a baseline it never ran on.
+ * Freeze one provider pair for the complete diagnostic and formal campaign. Wafer was the original
+ * baseline; repeated upstream 429s and request timeouts during the 2026-09-28 acceptance run led
+ * to a separately identified Fireworks baseline, using the same DeepSeek model. Its diagnostic
+ * must be rerun and cannot borrow the old provider's results. See acceptance plan section 8.4.
+ * Never silently fall back or mix providers inside a campaign.
  */
-export const REQUIRED_PROVIDERS = Object.freeze({ agent: 'Wafer', vision: 'Alibaba' })
+export const REQUIRED_PROVIDERS = Object.freeze({ agent: 'Fireworks', vision: 'Alibaba' })
 
 export type ProviderSource = 'environment' | 'baseline-default'
 
