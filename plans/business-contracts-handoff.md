@@ -166,3 +166,27 @@ VALIDATION_MAX_COST_USD=1.052265094 pnpm validate:business -- --formal \
 ```
 
 完整45轮和四组停服审计全过后才标accepted、按用户授权合并main并push。质量失败保留完整记录并定位；修改影响行为后重新冻结、诊断并完整复验。累计费用持续记录。
+
+
+## 2026-09-28继续验收：条件指引、限流与自主调查收尾
+
+用户已授权继续修复和验收到通过，不受此前累计费用上限约束。原单轮300秒、请求60秒、最多一次安全重试和全部评分保持不变。
+
+本轮发现并修复：
+
+- `e3963b2`：删除“任意业务写入后都要检查恢复”的矛盾指引，要求先验证实际结果，只在观察到恢复条件时检查恢复；适用检查和假设解决后显式结束。
+- `6b9875b`：在已有一次安全重试内遵守429/503的Retry-After，包括OpenRouter错误元数据；等待可取消，剩余时间不足则失败，不提前重试、不延長总时限。
+- `3d63a6d`：自主调查的完整失败测量也可交给现有有限收尾复核。必须满足当前重试事件、同一实体、测满契约窗口、原DOM节点及其测量前身份仍匹配、当前仍不可操作；不依赖重新查询selector得到相似的新节点。自主调查完成后处于verifying阶段，仅在这些证据及原有零未决事项等条件均满足时准入；finalizing仍不准入。审核中状态变化、健康/不确定结果、短窗口、按钮改名都会退回完整Agent。导出公开要求明确恢复检查的触发条件，正常成功和合理拒绝不必人为触发恢复。
+
+两个独立诊断原样保留，不能相互补分：
+
+| 构建/提供方 | 本地诊断目录 | 实际五例结果（另有smoke） | accounted USD |
+| --- | --- | --- | --- |
+| 6b9875b / Wafer+Alibaba | /private/tmp/ui-sentinel-rule-completion/data/business-validation/2026-09-27T17-13-37-363Z | E0/E1/E2通过；E3/E4失败 | 0.042159535 |
+| 1b956e0 / Fireworks+Alibaba | /private/tmp/ui-sentinel-provider-recovery/data/business-validation/2026-09-27T17-19-24-798Z | E0/E1/E3/E4通过；E2失败 | 0.056902521 |
+
+Wafer诊断known=$0.024231205、未知预留$0.017928330（7请求）；Fireworks诊断known=$0.052101096、未知预留$0.004801425（2请求）。Fireworks的E2完成测量后绕去History，暴露了上述自主调查回执和verifying准入缺口。两组都未通过诊断门槛，不能据此启动正式验收。
+
+上游多次明确返回`429 server_overloaded`；同型Fireworks入口支持本执行器使用的工具调用参数，来源为[OpenRouter端点清单](https://openrouter.ai/api/v1/models/deepseek/deepseek-v4.1-flash/endpoints)。`3656a5d`将新验收基线固定为Fireworks/Alibaba，DeepSeek/Qwen型号不变、禁止静默fallback；它不代表换提供方已解决问题。旧Wafer批次仍按原身份保存，新构建必须重新通过诊断和完整45轮。
+
+最新免费回归为73文件/646测试全通过，类型、格式和构建通过。测试包含自主调查与已有规则的对等复核、短窗口拒绝、原节点身份变化、审查期间控件/原生选项变化、continue/unknown回退，以及限流等待/取消/时限边界。正式45轮仍待通过，当前仍未accepted、不合并main。
