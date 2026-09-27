@@ -1,10 +1,10 @@
 # 业务契约开发交接与主 Agent review
 
-状态：**G0–G4已通过，主Agent已review并更正；G5同构建完整45轮仍待验，未accepted，未合并main**。以[任务书](next-development-plan.md)和[验收计划](business-contracts-acceptance.md)为依据。开发交付原文保留在 Git 提交 e915105；以下是主 Agent 接手后的结论，不把历史或 dev 自检成绩当作当前版本验收。
+状态：**本轮已accepted：主Agent已review并更正，G0–G5全部通过，最终同构建45/45及独立审计通过。G6交接已补齐，按既有授权合并main并push。** 以[任务书](next-development-plan.md)和[验收计划](business-contracts-acceptance.md)为依据。开发交付原文保留在 Git 提交 e915105；以下是主 Agent 接手后的结论，不把历史或 dev 自检成绩当作当前版本验收。
 
 ## 交付与架构
 
-原 main 766615b，收到 fail 22 bundle 的 dev head e915105，审查分支 review/business-contracts-export。当前候选已包含条件指引、原子调查收尾与完整事件历史校验修复（见文末最新批次；历史 30e02e4 不是当前验收版本）；完整构建身份以实际批次 manifest 为准。
+原 main 766615b，收到 fail 22 bundle 的 dev head e915105，审查分支 review/business-contracts-export。最终验收代码 e2c953c，含条件指引、原子调查收尾、完整事件历史校验和输出耗尽的有界恢复（文末为最终批次，历史失败不能代替它）；完整构建身份以实际批次 manifest 为准。
 
 沿用 Mastra/Playwright/Midscene-Qwen/Hono/libSQL/React。新增业务契约和导出业务，不引入新 Agent 框架或通用业务 DSL。Agent 负责探索、语义选择与证据判断；确定性执行器负责动作边界、事实归属、测量和可靠结束。
 
@@ -30,7 +30,7 @@
 
 ## 免费门槛
 
-最终候选实测：format:check、typecheck、build 全通过；73 文件 / 632 测试通过；购物六例与导出五例 fixture 全通过；持久化六轮、原子调查、有限审查通过；扩展业务预检 32 断言通过、付费调用为零。浏览器工作台检查和真实截图包含在预检。
+最终候选实测：format:check、typecheck、build 全通过；73 文件 / 652 测试通过；购物六例与导出五例 fixture 全通过；持久化六轮、原子调查、有限审查通过；扩展业务预检 32 断言通过、付费调用为零。浏览器工作台检查和真实截图包含在预检。
 
 当前收尾修复预检：/private/tmp/ui-sentinel-rule-completion/data/business-preflight/2026-09-26T14-51-42-724Z（30断言、零付费）。此前下载修复主工作区预检：data/business-preflight/2026-09-25T17-02-16-311Z（30断言）；隔离工作树验证位于 /private/tmp/ui-sentinel-download-review/data/business-preflight/2026-09-25T16-53-02-346Z。测试日志仅本机 /tmp，核心可复现命令在 README 与验收计划；数据目录不提交 Git。
 
@@ -226,3 +226,32 @@ Wafer诊断known=$0.024231205、未知预留$0.017928330（7请求）；Firework
 在独立工作树实现输出耗尽恢复，避免改动在跑批次：新增显式能力开关AGENT_LENGTH_RECOVERY_WITHOUT_REASONING，产品默认关闭，当前DeepSeek新验收基线开启。仅在length且任何工具尚未执行、仍有原定安全重试额度时，重试请求关闭可选推理；第一次请求仍low，不增加4096输出上限、60秒请求时限或一次重试限制。所有事实、可用工具和执行保护保留，Agent仍自己判断下一步；事件和manifest标记该模式。不能把“隐藏推理内容”误当成关闭推理。兼容性依据为OpenRouter模型元数据mandatory=false及其reasoning说明，最终有效性仍由实际请求/用量和新完整批次验证。
 
 免费回归73文件/652测试、类型、格式和构建全过；32项业务预检通过（/private/tmp/ui-sentinel-length-recovery/data/business-preflight/2026-09-27T19-46-11-331Z）。真实Mastra/OpenAI SDK本地测试确认第二次请求携带none、第一次不变、工具只执行一次、耗尽用量保留；网关测试确认映射enabled=false且固定输出上限与禁用fallback不变。未执行任何付费新基线验证前不得声称修复完成。
+
+
+## 最终验收：e2c953c，45/45，accepted
+
+先保留4fa10a1整批结论：data/business-formal/2026-09-27T19-30-43-148Z 为44/45（A14/15、B6/6、C18/18、D6/6），唯一失败A/E2/1为两次输出耗尽。四组停服审计通过、1183份产物，正式费用$0.223792974、诊断$0.030710592，未知费用0。没有用其成功行补后续批次。
+
+最终代码 SHA `e2c953c6540a8702a1e9da5fa7033c2eccddd291`；后续仅更新交接文档。DeepSeek/Qwen、Alibaba/Alibaba、Jev有限审查保持固定；关闭推理仅用于符合条件的原有一次length重试，manifest显式记录。
+
+| 检查 | 最终结果 / 依据 |
+| --- | --- |
+| 免费质量门槛 | 73文件、652测试；格式、类型、构建通过 |
+| 免费业务预检 | 32项通过，data/business-preflight/2026-09-27T19-46-11-331Z |
+| 完整事件校验及持久化 | 6轮durable，data/persistence-preflight/2026-09-27T19-22-22-163Z；丢失历史/复用连续seq反例保留 |
+| 真实诊断 | smoke+E0–E4，6/6；data/business-validation/2026-09-27T20-08-14-102Z |
+| 正式单一构建 | **45/45**；data/business-formal/2026-09-27T20-14-06-790Z |
+| 分组 | A自主导出15/15、B批准规则导出6/6、C原购物18/18、D批准规则购物6/6 |
+| 停服审计 | A15、B6、C18、D6共45记录，四组均通过；API/落盘事件、发现、产物一致 |
+| 独立证据复核 | 1198份产物逐个读取，字节数及SHA-256全部匹配；45个唯一矩阵行和记录文件齐全 |
+| 批准来源 | 原proposal-fc30e9bb-46bc-40ec-b88b-ff52f0565607、原声明hash完整，未新增人工批准 |
+
+Server SHA-256 `fc00ae8580bd8e54a3a64eb20dc1cca9080e86343a7cf60839a7d0a127d89e32`；完整构建 hash `9bc482003c4ea5f92190e15027078fcf8690872fa79cf5f708a930d346203e3e`。45行均属此构建。正式墙钟2515.476秒（约41.9分钟）；逐轮elapsed最小8.762秒、中位47.106秒、最大166.166秒。这些是本次实测，不是长期延迟保证或性能最优证明。
+
+真实流量中有7次length恢复，分布在A/E2/2三次、A/E2/3、A/E4/1、B/E2/2、B/E2/3。逐次核对prior attempt均length且未执行工具、每个prior仅一次retry，恢复全部成功且推理token为0。恢复请求耗时2.054–7.535秒，工具调用仍由模型选择。A/E2/2三次首请求分别耗满4096推理token，恢复后最终完整证据和正确blocked/unknown均通过；因此不是靠本批未遇到旧失败而偶然通过。每个新决策仍使用正常推理配置，不把整轮默默切成无推理模式。
+
+最终诊断accounted $0.031373496，正式$0.247996056，合计$0.279369552，未知费用0。累计此前所有已记录批次（含历史未知费用保守预留和dev报告）**$4.000463025**，没有重复计算diagnostic引用。该累计口径不等同最终账单。
+
+原始运行位于/private/tmp/ui-sentinel-length-recovery；最终诊断、正式批次及业务预检已逐文件校验并镜像到主项目data目录，原数据保留。原始JSON中的绝对路径未改写，以保持证据不变；校验镜像时将该原工作树前缀映射为主项目根目录即可。运行数据库、全量模型记录、截图不提交Git，代码、复现命令、构建身份和结论提交Git。
+
+本轮业务契约及第二业务需求已完成。任意网站探索召回、部署和长期模型可用性不在本轮完成声明中。历史数据库丢失的底层根因仍未被证明；现在的完整事件校验与隔离保护、此次同构建持久化审计均通过，不能因此声称底层问题已经得到根因级证明。
