@@ -448,3 +448,60 @@ it.each([
   expect(received[1][0]).toEqual(Array.isArray(input) ? input[0] : input)
   expect(received[1].at(-1).content).toContain('No tool from that request ran')
 })
+
+it.each(['header', 'metadata'] as const)(
+  'honors a provider Retry-After from %s within the existing single retry',
+  async (source) => {
+    vi.useFakeTimers()
+    const starts: number[] = []
+    const error = Object.assign(new Error('rate limited'), {
+      statusCode: 429,
+      ...(source === 'header'
+        ? { responseHeaders: { 'retry-after': '2' } }
+        : { responseBody: JSON.stringify({ error: { metadata: { retry_after_seconds: 2 } } }) }),
+    })
+    const work = executeModelRequest(
+      agent(async () => {
+        starts.push(Date.now())
+        if (starts.length === 1) throw error
+        return { text: 'ready', toolResults: [] }
+      }),
+      '{}',
+      opts(),
+    )
+    await vi.advanceTimersByTimeAsync(1999)
+    expect(starts).toHaveLength(1)
+    await vi.advanceTimersByTimeAsync(1)
+    expect((await work).attempts).toBe(2)
+    expect(starts[1]! - starts[0]!).toBe(2000)
+  },
+)
+
+it('does not retry before Retry-After when the run has insufficient time', async () => {
+  const generate = vi.fn(async () => {
+    throw Object.assign(new Error('rate limited'), {
+      statusCode: 429,
+      responseHeaders: { 'retry-after': '60' },
+    })
+  })
+  await expect(executeModelRequest(agent(generate), '{}', opts())).rejects.toThrow('rate limited')
+  expect(generate).toHaveBeenCalledTimes(1)
+})
+
+it('cancels a provider-directed backoff without starting another request', async () => {
+  vi.useFakeTimers()
+  const controller = new AbortController()
+  const generate = vi.fn(async () => {
+    throw Object.assign(new Error('rate limited'), {
+      statusCode: 503,
+      responseHeaders: { 'retry-after': '2' },
+    })
+  })
+  const work = executeModelRequest(agent(generate), '{}', opts({ runSignal: controller.signal }))
+  const assertion = expect(work).rejects.toThrow('cancelled')
+  await vi.advanceTimersByTimeAsync(1000)
+  controller.abort(new Error('cancelled'))
+  await assertion
+  await vi.runAllTimersAsync()
+  expect(generate).toHaveBeenCalledTimes(1)
+})

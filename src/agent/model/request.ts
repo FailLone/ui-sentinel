@@ -93,6 +93,30 @@ function retryable(error: unknown): boolean {
   )
 }
 
+/** Honor provider throttling without adding attempts or extending the run deadline. */
+function retryDelay(error: unknown): number {
+  const e = error as {
+    statusCode?: number
+    responseHeaders?: Record<string, string>
+    responseBody?: string
+  } | null
+  if (e?.statusCode !== 429 && e?.statusCode !== 503) return 1000
+  let hint = e.responseHeaders?.['retry-after']
+  // OpenRouter may carry the upstream header inside its error metadata.
+  if (!hint && e.responseBody && e.responseBody.length <= 16384) {
+    try {
+      const metadata = JSON.parse(e.responseBody)?.error?.metadata
+      hint = metadata?.headers?.['Retry-After'] ?? metadata?.retry_after_seconds
+    } catch {
+      // A malformed response supplies no trusted timing hint.
+    }
+  }
+  if (typeof hint !== 'string' && typeof hint !== 'number') return 1000
+  const seconds = Number(hint)
+  const ms = Number.isFinite(seconds) ? seconds * 1000 : Date.parse(hint) - Date.now()
+  return Number.isFinite(ms) && ms > 0 ? Math.max(1000, ms) : 1000
+}
+
 async function backoff(signal: AbortSignal, ms: number) {
   let timer: ReturnType<typeof setTimeout> | undefined
   try {
@@ -268,13 +292,14 @@ export async function executeModelRequest(
         attemptId,
         attempts: index + 1,
       }
+    const retryWaitMs = retryDelay(failure)
     if (
       options.runSignal.aborted ||
       context.toolsStarted ||
       !retryable(failure) ||
       options.canRetry?.() === false ||
       index + 1 >= maxAttempts ||
-      deadlineAt - Date.now() <= 1000
+      deadlineAt - Date.now() <= retryWaitMs
     )
       throw failure
     if (error === 'model-stream-incomplete:length') {
@@ -297,7 +322,7 @@ export async function executeModelRequest(
         ]
     }
     retryOf = attemptId
-    await backoff(options.runSignal, 1000)
+    await backoff(options.runSignal, retryWaitMs)
   }
   throw new Error('budget-exhausted')
 }
