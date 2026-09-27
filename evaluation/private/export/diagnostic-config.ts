@@ -1,11 +1,12 @@
 /**
  * Freeze one provider pair for the complete diagnostic and formal campaign. Wafer was the original
  * baseline; repeated upstream 429s and request timeouts during the 2026-09-28 acceptance run led
- * to a separately identified Fireworks baseline, using the same DeepSeek model. Its diagnostic
+ * to separately identified provider baselines. Fireworks also returned sustained 429s; the current
+ * candidate pins Alibaba for the same DeepSeek model. Its diagnostic
  * must be rerun and cannot borrow the old provider's results. See acceptance plan section 8.4.
  * Never silently fall back or mix providers inside a campaign.
  */
-export const REQUIRED_PROVIDERS = Object.freeze({ agent: 'Fireworks', vision: 'Alibaba' })
+export const REQUIRED_PROVIDERS = Object.freeze({ agent: 'Alibaba', vision: 'Alibaba' })
 
 export type ProviderSource = 'environment' | 'baseline-default'
 

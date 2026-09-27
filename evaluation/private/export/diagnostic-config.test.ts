@@ -4,14 +4,14 @@ import { REQUIRED_PROVIDERS, resolveProviders } from './diagnostic-config.ts'
 // Pin the explicitly declared current baseline; old-provider diagnostics are not interchangeable.
 describe('diagnostic provider pinning', () => {
   it('states the providers the accepted baseline was recorded with', () => {
-    expect(REQUIRED_PROVIDERS).toEqual({ agent: 'Fireworks', vision: 'Alibaba' })
+    expect(REQUIRED_PROVIDERS).toEqual({ agent: 'Alibaba', vision: 'Alibaba' })
   })
 
   it('applies the baseline pin when the environment says nothing', () => {
     // Reproducibility: unset is not "no constraint", it resolves to the baseline's own providers.
     const resolution = resolveProviders({})
     expect(resolution.ok).toBe(true)
-    expect(resolution.agent).toBe('Fireworks')
+    expect(resolution.agent).toBe('Alibaba')
     expect(resolution.vision).toBe('Alibaba')
     expect(resolution.source).toBe('baseline-default')
     expect(resolution.reasonCodes).toEqual([])
@@ -25,17 +25,17 @@ describe('diagnostic provider pinning', () => {
       VALIDATION_VISION_PROVIDER: '',
     })
     expect(resolution.ok).toBe(true)
-    expect(resolution.agent).toBe('Fireworks')
+    expect(resolution.agent).toBe('Alibaba')
     expect(resolution.source).toBe('baseline-default')
   })
 
   it('accepts an explicit restatement of the baseline and records it as operator-set', () => {
     const resolution = resolveProviders({
-      VALIDATION_AGENT_PROVIDER: 'Fireworks',
+      VALIDATION_AGENT_PROVIDER: 'Alibaba',
       VALIDATION_VISION_PROVIDER: 'Alibaba',
     })
     expect(resolution.ok).toBe(true)
-    expect(resolution.agent).toBe('Fireworks')
+    expect(resolution.agent).toBe('Alibaba')
     expect(resolution.vision).toBe('Alibaba')
     expect(resolution.source).toBe('environment')
     expect(resolution.reasonCodes).toEqual([])
@@ -66,7 +66,7 @@ describe('diagnostic provider pinning', () => {
   })
 
   it('refuses a half-swapped pair rather than pinning one and defaulting the other silently', () => {
-    const resolution = resolveProviders({ VALIDATION_AGENT_PROVIDER: 'Fireworks' })
+    const resolution = resolveProviders({ VALIDATION_AGENT_PROVIDER: 'Alibaba' })
     expect(resolution.ok).toBe(true)
     // The vision side falls back to the baseline, and the source says the pair was completed by the
     // runner rather than by the operator - so the manifest never claims an operator pinned both.
