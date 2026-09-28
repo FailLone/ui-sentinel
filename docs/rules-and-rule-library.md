@@ -65,4 +65,4 @@ pnpm validate:learning -- --recheck <已关闭且已批准学习目录>
 
 跨业务迁移既有批准规则时（导出靶场 E1/E4 就是这件事），声明的语义 target、timeoutMs 与适用性**不得修改**；复查要求原批准与声明未变。规则迁移组的健康样本必须存在实际 pass 测量，并有一个 `source=rule` 的 fail 发现，不能只有探索性 finding。
 
-未来可增加规则包元数据、Hook 和 SDK 模板，但应沿用上述四态结果、版本、证据和副作用边界。[下一步计划](../plans/next-development-plan.md)先解决业务适配，避免先建设通用插件平台。
+未来可增加规则包元数据、Hook 和 SDK 模板，但应沿用上述四态结果、版本、证据和副作用边界。[业务适配计划](../plans/archive/business-contracts/development-plan.md)已经完成；[下一轮计划](../plans/next-development-plan.md)验证主动视觉发现与聚焦行为，暂不扩展通用插件平台或自动批准规则。

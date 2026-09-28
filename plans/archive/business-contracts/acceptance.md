@@ -1,6 +1,7 @@
 # 业务契约与导出业务：完整验收计划
 
-与[开发任务书](next-development-plan.md)配套执行。本文表格是强制检查项，不是参考建议。下文“需实现”记录任务下达时的要求；当前实现与实测结果见[交接记录](business-contracts-handoff.md)，不得把计划描述当成运行结果。
+> 历史归档：本轮已完成；文中的阶段性“待验”和旧命令路径属于当时记录。最新结论见交接末节，当前开发入口为 [下一轮计划](../../next-development-plan.md)。
+与[开发任务书](development-plan.md)配套执行。本文表格是强制检查项，不是参考建议。下文“需实现”记录任务下达时的要求；当前实现与实测结果见[交接记录](handoff.md)，不得把计划描述当成运行结果。
 
 ## 1. 验收层次和完成状态
 
@@ -202,7 +203,7 @@ C/D 复用原正式验收和 learning runner 的校验，允许抽取共享编�
 
 ### 8.3 原批准来源
 
-Git 已附带[可移交的原批准资料](../evaluation/fixtures/approved-retry/README.md)，无需原作者的本机目录。开发 Agent 拉取后先运行：
+Git 已附带[可移交的原批准资料](../../../evaluation/fixtures/approved-retry/README.md)，无需原作者的本机目录。开发 Agent 拉取后先运行：
 
 ```sh
 pnpm fixture:approved-retry -- --verify

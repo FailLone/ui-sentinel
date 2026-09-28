@@ -96,6 +96,6 @@ pnpm validate:business -- --preflight
 
 产品成熟后靶场继续服务规则回归、模型/提示升级、误报漏报复盘和跨业务迁移。开发集、回归集与保留集分开；已用于调优的场景不再是未见泛化证据。新增业务只补充它引入的适用性、状态或预期差异。
 
-学习候选的异常/健康/unknown 验证和既有规则复查见[规则流程](rules-and-rule-library.md)。当前真实成绩与限制见[验收基线](validation-baseline.md)；业务契约阶段的进展、未决项与失败记录见[交接记录](../plans/business-contracts-handoff.md)。
+学习候选的异常/健康/unknown 验证和既有规则复查见[规则流程](rules-and-rule-library.md)。当前真实成绩与限制见[验收基线](validation-baseline.md)；业务契约阶段的进展、未决项与失败记录见[交接记录](../plans/archive/business-contracts/handoff.md)。
 
 `evaluation/private/export/scorer.ts` 先证明能拒绝假阳性（E01–E10 反例：缺显式结束、业务不一致、只 probe 未真正恢复、第二次 create 冒充恢复、测量无窗口/全 null/错误目标/有干预、重复或误报、规则未执行、审批来源无效、答案泄漏、API 与数据库不一致、批次不全或混合构建）。它读正式 API 报告、独立事件/下载证据与私有业务真值组合评分，不读生产适配器给出的「正确答案」，也不接受模型自报成功。

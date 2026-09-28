@@ -1,6 +1,7 @@
 # 业务契约开发交接与主 Agent review
 
-状态：**本轮已accepted：主Agent已review并更正，G0–G5全部通过，最终同构建45/45及独立审计通过。G6交接已补齐，按既有授权合并main并push。** 以[任务书](next-development-plan.md)和[验收计划](business-contracts-acceptance.md)为依据。开发交付原文保留在 Git 提交 e915105；以下是主 Agent 接手后的结论，不把历史或 dev 自检成绩当作当前版本验收。
+> 历史归档：本轮已完成；文中的阶段性“待验”和旧命令路径属于当时记录。最新结论见交接末节，当前开发入口为 [下一轮计划](../../next-development-plan.md)。
+状态：**本轮已accepted：主Agent已review并更正，G0–G5全部通过，最终同构建45/45及独立审计通过。G6交接已补齐，按既有授权合并main并push。** 以[任务书](development-plan.md)和[验收计划](acceptance.md)为依据。开发交付原文保留在 Git 提交 e915105；以下是主 Agent 接手后的结论，不把历史或 dev 自检成绩当作当前版本验收。
 
 ## 交付与架构
 

@@ -1,6 +1,6 @@
 # 开发约定
 
-当前采用 Mastra Core + Playwright + Midscene/Qwen + Hono/libSQL/React。下一轮优先验证业务适配，不再扩大模型或框架对比。
+当前采用 Mastra Core + Playwright + Midscene/Qwen + Hono/libSQL/React。业务契约与第二业务已经验收。下一轮按[开发任务书](../plans/next-development-plan.md)推进主动视觉发现与聚焦验证，先审查一个最小闭环，不扩大模型或框架对比。
 
 ## 代码放在哪里
 

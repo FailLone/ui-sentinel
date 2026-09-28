@@ -48,7 +48,7 @@ plans/              下一阶段开发计划与交接记录
 data/               本地运行与验收证据，不提交 Git
 ```
 
-[开发约定](docs/development.md)说明模块边界与检查方式；[业务契约交接记录](plans/business-contracts-handoff.md)记录本阶段的实际进展、耦合归属与未决项。
+[开发约定](docs/development.md)说明模块边界与检查方式；[业务契约交接记录](plans/archive/business-contracts/handoff.md)记录本阶段的实际进展、耦合归属与未决项。
 
 ## 两个业务与契约
 
@@ -129,13 +129,15 @@ pnpm validate:learning -- --recheck <已关闭且已批准的学习目录>
 
 已采用架构的真实基线为独立布局 12/12、正式 minimum 18/18、获准规则复查 6/6，包含停服数据库与证据审计。它不是任意业务、视觉发现召回或全局最优证明。原存储异常根因仍未知，当前有拒绝假完成和阻止重复执行的保护。该历史成绩**不属于**业务契约阶段，也不构成其验收结果。
 
-业务契约阶段已完成，依据见[交接记录](plans/business-contracts-handoff.md)：652测试、32免费业务预检通过；e2c953c同构建真实诊断6/6、完整矩阵45/45（自主导出15、规则导出6、购物回归18、规则购物6），四组停服审计与1198份证据哈希全部通过。7次真实输出耗尽在原有一次安全重试内成功恢复，没有增加调用或时间上限。原批准来源由 Git fixture 携带，失败批次全部保留，不跨构建拼分。产品默认关闭可选的无推理恢复，确认模型支持后可显式设置 AGENT_LENGTH_RECOVERY_WITHOUT_REASONING=1；本验收基线已开启。
+业务契约阶段已完成，依据见[交接记录](plans/archive/business-contracts/handoff.md)：652测试、32免费业务预检通过；e2c953c同构建真实诊断6/6、完整矩阵45/45（自主导出15、规则导出6、购物回归18、规则购物6），四组停服审计与1198份证据哈希全部通过。7次真实输出耗尽在原有一次安全重试内成功恢复，没有增加调用或时间上限。原批准来源由 Git fixture 携带，失败批次全部保留，不跨构建拼分。产品默认关闭可选的无推理恢复，确认模型支持后可显式设置 AGENT_LENGTH_RECOVERY_WITHOUT_REASONING=1；本验收基线已开启。
+
+下一轮计划：[主动视觉发现与聚焦验证](plans/next-development-plan.md)，配套[验收计划](plans/visual-focus-acceptance.md)。尚未开始实现。
 
 - [架构与 Agent 职责](docs/architecture.md)
 - [执行层](docs/execution-engine.md)
 - [规则与规则库](docs/rules-and-rule-library.md)
 - [知识、上下文与探索方向](docs/knowledge-and-context.md)
 - [验收基线与历史证据](docs/validation-baseline.md)
-- [业务契约交接记录](plans/business-contracts-handoff.md)
+- [业务契约交接记录](plans/archive/business-contracts/handoff.md)
 
 格式使用 Biome，类型检查使用 TypeScript 7。当前不启用严格 lint；运行 pnpm format 整理格式。密钥、数据库及原始证据留在本机。

@@ -46,7 +46,7 @@ minimum 中 C2 三次约 5s、每次三请求；C5 三次为 24.649/58.878/32.10
 - [学习候选与人工批准过程](https://github.com/FailLone/ui-sentinel/blob/48419bc/plans/learning-validation-results-2026-09-23.md)
 - [视觉分析阴性结果](https://github.com/FailLone/ui-sentinel/blob/48419bc/plans/critical-path-results-2026-09-23.md)
 
-其余已完成计划同样保留在该版本的 plans 目录。当前实现入口见[架构](architecture.md)，后续任务只保留[下一步计划](../plans/next-development-plan.md)。
+其余已完成计划同样保留在该版本的 plans 目录。当前实现入口见[架构](architecture.md)，当前开发入口为[下一步计划](../plans/next-development-plan.md)，已完成计划另行归档。
 
 ## 整理版本的验证口径
 
@@ -58,10 +58,12 @@ minimum 中 C2 三次约 5s、每次三请求；C5 三次为 24.649/58.878/32.10
 
 ## 业务契约阶段（第二个业务）
 
-本阶段的成绩**不与上表混算**，它是另一个构建、另一个业务范围。完整记录见[业务契约交接记录](../plans/business-contracts-handoff.md)。
+本阶段的成绩**不与上表混算**，它是另一个构建、另一个业务范围。完整记录见[业务契约交接记录](../plans/archive/business-contracts/handoff.md)。
 
 开发交付时G4的E2证据引用未通过，G5未执行。主Agent已review并修正业务边界、事实时序、证据、正式编排、收尾与持久化完整性，以及模型输出耗尽恢复。历史失败逐批保留在交接记录，不能与最终批次拼分。
 
 最终代码e2c953c：73文件/652测试、格式、类型、构建、32免费业务预检通过。真实诊断6/6，正式同构建45/45（A15/15、B6/6、C18/18、D6/6），四组停服审计与1198份证据字节/哈希独立核验通过，原批准来源完整。正式批次data/business-formal/2026-09-27T20-14-06-790Z；本阶段已accepted。7次真实length恢复均未重放工具、未扩大原预算，恢复成功后仍通过独立评分。
 
 正式45轮墙钟约41.9分钟，逐轮中位47.106秒、最大166.166秒；该批费用$0.247996056、诊断$0.031373496，未知费用0。费用累计和用户继续验收授权见交接记录。当前基线使用DeepSeek/Qwen、Alibaba/Alibaba，显式开启可选的length无推理重试；产品默认关闭此能力，模型须支持关闭推理。这不是任意网站召回率或长期提供方稳定性保证。
+
+历史临时工作树已于2026-09-28清理。其证据按原目录完整归档到本机 `data/maintenance/2026-09-28T14-51-04Z/worktrees/`，`manifest.json`记录原根目录与新根目录映射；原绝对路径保留兼容符号链接。该归档及含所有旧分支的 `before-cleanup.bundle` 不提交Git，最终通过批次另有主项目data镜像。旧计划和交接已移到[历史计划目录](../plans/archive/business-contracts/handoff.md)，不会与当前开发任务混用。
