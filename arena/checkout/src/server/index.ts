@@ -14,6 +14,9 @@ import {
   resetState,
   getArenaState,
   getVariant,
+  getVisualPresent,
+  setVisualPresent,
+  isVisualPresent,
   type VariantId,
 } from './state.ts'
 
@@ -67,18 +70,21 @@ app.get('/api/orders', (c) => c.json(getOrders()))
 
 app.get('/api/variant-config', (c) => {
   const variant = getVariant()
+  const visualPresent = getVisualPresent()
   return c.json({
     overlay: variant === 'C1' || variant === 'C2',
     overlayClosable: variant === 'C1',
     buttonRenamed: variant === 'C3',
     buttonMoved: variant === 'C3',
+    // Presentation only. A browser can learn how the search area is drawn, never which case it is.
+    search: visualPresent === null ? null : { present: visualPresent },
   })
 })
 
 control.post('/__control/reset', async (c) => {
   const body = await c.req
-    .json<{ variant?: string; learningRetryAvailable?: boolean }>()
-    .catch(() => ({}) as { variant?: string; learningRetryAvailable?: boolean })
+    .json<{ variant?: string; learningRetryAvailable?: boolean; visual?: string }>()
+    .catch(() => ({}) as { variant?: string; learningRetryAvailable?: boolean; visual?: string })
   const variant = (body.variant ?? 'C0') as VariantId
   if (!VALID_VARIANTS.has(variant)) {
     return c.json({ error: `Invalid variant: ${variant}` }, 400)
@@ -88,8 +94,12 @@ control.post('/__control/reset', async (c) => {
     (typeof body.learningRetryAvailable !== 'boolean' || variant !== 'C5')
   )
     return c.json({ error: 'Invalid learning recovery override' }, 400)
+  if (body.visual !== undefined && !isVisualPresent(body.visual))
+    return c.json({ error: 'Invalid visual presence' }, 400)
   resetState(variant, body.learningRetryAvailable)
-  return c.json({ ok: true, variant })
+  // Absent means "no search region": a plain variant run must not inherit a previous case's search UI.
+  if (body.visual !== undefined) setVisualPresent(body.visual)
+  return c.json({ ok: true, variant, visual: body.visual ?? null })
 })
 
 control.get('/__control/state', (c) => c.json({ ...getArenaState(), orders: getOrders() }))

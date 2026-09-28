@@ -101,7 +101,8 @@ export function bindInputToRegion(input: BindInput): BindResult {
   // unsafe to click in, regardless of which input might be bound.
   const liveDangerous = dangerous.filter(
     (control) =>
-      intersection(control.bounds, region) !== null && !excluded.some((r) => inside(r, centre(control.bounds))),
+      intersection(control.bounds, region) !== null &&
+      !excluded.some((r) => inside(r, centre(control.bounds))),
   )
   if (liveDangerous.length > MAX_UNRELATED_CONTROLS) return { ok: false, reason: 'mixed-region' }
   if (liveDangerous.length > 0) return { ok: false, reason: 'dangerous-control-in-region' }

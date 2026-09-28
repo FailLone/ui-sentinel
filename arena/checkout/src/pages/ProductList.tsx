@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { fetchProducts, addToCart, type Product, type CartResponse } from '../api.ts'
+import { ProductSearch } from './ProductSearch.tsx'
 
 interface Props {
   onCartUpdate: (cart: CartResponse) => void
@@ -15,6 +16,7 @@ const PRODUCT_ICONS: Record<string, string> = {
 export function ProductList({ onCartUpdate, onGoToCart }: Props) {
   const [products, setProducts] = useState<Product[]>([])
   const [adding, setAdding] = useState<string | null>(null)
+  const [query, setQuery] = useState('')
 
   useEffect(() => {
     fetchProducts().then(setProducts)
@@ -34,11 +36,20 @@ export function ProductList({ onCartUpdate, onGoToCart }: Props) {
     return <div className="loading">Loading products...</div>
   }
 
+  // Local filter only. An empty query shows everything, so the purchase flow never depends on search.
+  const normalized = query.trim().toLowerCase()
+  const visible = normalized
+    ? products.filter((product) => product.name.toLowerCase().includes(normalized))
+    : products
+
   return (
     <div>
       <h2>Our Products</h2>
-      <div className="product-grid">
-        {products.map((product) => (
+      <div style={{ maxWidth: 420, margin: '0 auto 20px' }}>
+        <ProductSearch onQueryChange={setQuery} />
+      </div>
+      <div className="product-grid" data-product-count={visible.length}>
+        {visible.map((product) => (
           <div key={product.id} className="product-card">
             <div className="product-image">{PRODUCT_ICONS[product.id] ?? '📦'}</div>
             <h3>{product.name}</h3>

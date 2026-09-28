@@ -143,12 +143,12 @@ describe('focus receipt structural validation', () => {
 
     expect(isFocusReceipt(receipt)).toBe(true)
     // Structural validity is not enough: the promotion gate also has to see it name the right candidate.
-    expect(focusReceiptSupports(receipt, { candidateId: 'candidate-2', screenshotRef: 'shot-1' })).toBe(
-      false,
-    )
-    expect(focusReceiptSupports(receipt, { candidateId: 'candidate-1', screenshotRef: 'shot-1' })).toBe(
-      true,
-    )
+    expect(
+      focusReceiptSupports(receipt, { candidateId: 'candidate-2', screenshotRef: 'shot-1' }),
+    ).toBe(false)
+    expect(
+      focusReceiptSupports(receipt, { candidateId: 'candidate-1', screenshotRef: 'shot-1' }),
+    ).toBe(true)
   })
 
   it('refuses to treat a candidate as promoted when the receipt points at another screenshot', () => {
@@ -161,8 +161,8 @@ describe('focus receipt structural validation', () => {
       integrity: clean,
     })
 
-    expect(focusReceiptSupports(receipt, { candidateId: 'candidate-1', screenshotRef: 'shot-9' })).toBe(
-      false,
-    )
+    expect(
+      focusReceiptSupports(receipt, { candidateId: 'candidate-1', screenshotRef: 'shot-9' }),
+    ).toBe(false)
   })
 })

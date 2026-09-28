@@ -273,6 +273,28 @@ interface FocusProbeReceipt {
   8 次点击计量、**已聚焦假阳性**、容器代理健康对照、取消。
 - 逐项标注验收计划的 G0–G3 子集，**不把部分 G 项当全部通过**。
 
+## 5b. P1 进度（接口冻结已完成，工具接线待做）
+
+计划 §6 的 P1 明确要求"先确定候选schema、探针回执、坐标约定、预算和假设提升校验，
+不能先写一大套界面"。下列五块已按 TDD 冻结（每个循环都先看到 RED 再看到 GREEN）：
+
+| 提交 | 模块 | 测试 | 冻结了什么 |
+| --- | --- | --- | --- |
+| `e576d8e` | `src/execution/action-budget.ts` | 6 | 可预留/可每次点击消费的计量原语（补 P0 §2.1 缺口） |
+| `f428edf` | `src/execution/focus-geometry.ts` | 11 | 矩形严格校验（越界拒绝不裁剪）+ 4px 内缩 / 12%·88% 采样点派生 |
+| `3492ba4` | `src/execution/focus-receipt.ts` | 8 | typed receipt + `focusReceiptSupports(candidate,screenshot)` 提升判定 |
+| `c7ea86f` | `src/execution/visual-candidate.ts` | 10 | 模型侧/服务端候选分离；strict schema；上限由 schema 强制 |
+| `e107dc9` | `src/execution/focus-binding.ts` | 11 | rect→唯一原生 input 绑定，不确定即拒绝并给出原因 |
+
+TDD 过程中由 RED 捕获的真实缺陷（记录在案）：
+`PositiveControl` 是 `Omit<FocusSample,'side'>`，最初用采样点校验器校验它，会错误地要求 `side` 字段。
+已拆分为 `validMeasurement`（共有字段）+ `validSamplePoint`（附加 side 约束）。
+
+**尚未 P1 完成**：D0/H0 fixture 与私有 reset、`focus_probe` 工具接入 executor、
+动作预算接线、按类别提升门禁（假设类别标记 + `findings_submit` 拒绝）、最小报告、
+固定本地视觉响应的免费预检，以及"8 次点击计量 / 已聚焦假阳性 / 容器代理健康 / 取消"四项证明。
+完成后**停下交主 Agent review**（计划 §6 的硬节点）。
+
 ### P1 之后
 
 P2 接入真实 Qwen 截图理解 + 完整六例（D0/H0/H1 诊断；D1/D2/H2 holdout 在冻结提示/schema/算法后才付费）。

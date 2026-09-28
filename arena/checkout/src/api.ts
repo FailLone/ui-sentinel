@@ -27,11 +27,15 @@ interface PaymentResult {
   readonly retryAvailable?: boolean
 }
 
+type SearchPresent = 'search-padded-narrow-input' | 'search-proxied-wide-region'
+
 interface VariantConfig {
   readonly overlay: boolean
   readonly overlayClosable: boolean
   readonly buttonRenamed: boolean
   readonly buttonMoved: boolean
+  /** Presentation of the optional local search area, or null when there is none. */
+  readonly search?: { readonly present: SearchPresent } | null
 }
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
@@ -72,4 +76,4 @@ export function fetchVariantConfig(): Promise<VariantConfig> {
   return request('/api/variant-config')
 }
 
-export type { Product, CartItem, CartResponse, PaymentResult, VariantConfig }
+export type { Product, CartItem, CartResponse, PaymentResult, VariantConfig, SearchPresent }

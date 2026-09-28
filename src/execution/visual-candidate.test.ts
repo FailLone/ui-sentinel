@@ -39,7 +39,10 @@ describe('parseVisualScanOutput (strict; illegal output is rejected whole)', () 
 
   it('rejects output carrying more than the capped number of candidates', () => {
     const one = output().candidates[0]
-    const parsed = parseVisualScanOutput({ candidates: Array(CANDIDATE_MAX + 1).fill(one) }, viewport)
+    const parsed = parseVisualScanOutput(
+      { candidates: Array(CANDIDATE_MAX + 1).fill(one) },
+      viewport,
+    )
     expect(parsed.ok).toBe(false)
   })
 
@@ -48,7 +51,10 @@ describe('parseVisualScanOutput (strict; illegal output is rejected whole)', () 
     const parsed = parseVisualScanOutput(
       {
         candidates: [
-          { ...base, excludedRegions: Array(EXCLUDED_MAX + 1).fill({ x: 1, y: 1, width: 2, height: 2 }) },
+          {
+            ...base,
+            excludedRegions: Array(EXCLUDED_MAX + 1).fill({ x: 1, y: 1, width: 2, height: 2 }),
+          },
         ],
       },
       viewport,

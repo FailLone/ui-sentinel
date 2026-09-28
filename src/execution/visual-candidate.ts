@@ -37,7 +37,9 @@ const modelCandidateSchema = z
   })
   .strict()
 
-const modelScanSchema = z.object({ candidates: z.array(modelCandidateSchema).max(CANDIDATE_MAX) }).strict()
+const modelScanSchema = z
+  .object({ candidates: z.array(modelCandidateSchema).max(CANDIDATE_MAX) })
+  .strict()
 
 export interface VisualCandidate {
   readonly id: string

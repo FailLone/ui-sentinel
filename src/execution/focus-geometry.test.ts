@@ -53,7 +53,12 @@ describe('probe point derivation', () => {
   })
 
   it('skips a point that falls inside an excluded region and says so', () => {
-    const coveringRight = { x: wide.x + 0.88 * wide.width - 5, y: wide.y, width: 40, height: wide.height }
+    const coveringRight = {
+      x: wide.x + 0.88 * wide.width - 5,
+      y: wide.y,
+      width: 40,
+      height: wide.height,
+    }
     const { points, skipped } = deriveProbePoints({
       region: wide,
       excluded: [coveringRight],

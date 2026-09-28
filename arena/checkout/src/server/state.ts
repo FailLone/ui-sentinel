@@ -1,5 +1,26 @@
 export type VariantId = 'C0' | 'C1' | 'C2' | 'C3' | 'C4' | 'C5'
 
+/**
+ * Optional local product-search presentation on the product list.
+ *
+ * Deliberately presentation-only: it says how the search area is drawn, never which focus case is
+ * under test, where the target input sits, or what the expected behaviour is. The private truth for
+ * each case lives in evaluation/ and is never reachable from the browser. Adding a presence must not
+ * change any C0-C5 behaviour, so the default is null and the reset clears it.
+ */
+export type VisualPresent = 'search-padded-narrow-input' | 'search-proxied-wide-region'
+
+export const VISUAL_PRESENTS: readonly VisualPresent[] = [
+  'search-padded-narrow-input',
+  'search-proxied-wide-region',
+]
+
+const visualPresents = new Set<string>(VISUAL_PRESENTS)
+
+export function isVisualPresent(value: string): value is VisualPresent {
+  return visualPresents.has(value)
+}
+
 export interface Product {
   readonly id: string
   readonly name: string
@@ -52,6 +73,7 @@ interface ArenaState {
   orders: Order[]
   paymentRetryCount: number
   learningRetryAvailable?: boolean
+  visualPresent?: VisualPresent
 }
 
 let state: ArenaState = createFreshState('C0')
@@ -214,5 +236,16 @@ export function getArenaState() {
     orderCount: state.orders.length,
     paymentRetryCount: state.paymentRetryCount,
     learningRetryAvailable: state.learningRetryAvailable,
+    visualPresent: state.visualPresent ?? null,
   }
+}
+
+/** The search presentation the product list should render, or null for none. */
+export function getVisualPresent(): VisualPresent | null {
+  return state.visualPresent ?? null
+}
+
+/** Private control surface only. Not reachable from the browser. */
+export function setVisualPresent(present: VisualPresent): void {
+  state = { ...state, visualPresent: present }
 }

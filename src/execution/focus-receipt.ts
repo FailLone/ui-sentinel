@@ -61,7 +61,11 @@ export interface FocusReceiptInput {
   readonly url: string
   readonly scroll: { readonly x: number; readonly y: number }
   readonly viewport: { readonly width: number; readonly height: number }
-  readonly binding: { readonly elementRef: string; readonly nodeIdentity: string; readonly reason: string }
+  readonly binding: {
+    readonly elementRef: string
+    readonly nodeIdentity: string
+    readonly reason: string
+  }
   readonly positiveControl: PositiveControl
   readonly samples: readonly FocusSample[]
   readonly resets: readonly NeutralReset[]
@@ -122,7 +126,10 @@ function validMeasurement(m: unknown, epoch: string): boolean {
 
 function validSamplePoint(sample: unknown, epoch: string): boolean {
   if (!sample || typeof sample !== 'object') return false
-  return ['left', 'right', 'retest'].includes((sample as FocusSample).side) && validMeasurement(sample, epoch)
+  return (
+    ['left', 'right', 'retest'].includes((sample as FocusSample).side) &&
+    validMeasurement(sample, epoch)
+  )
 }
 
 export function isFocusReceipt(value: unknown): value is FocusReceipt {
@@ -134,7 +141,8 @@ export function isFocusReceipt(value: unknown): value is FocusReceipt {
   if (typeof r.screenshotSha !== 'string' || !r.screenshotSha) return false
   if (typeof r.documentEpoch !== 'string' || !r.documentEpoch) return false
   if (typeof r.algorithmVersion !== 'string' || !r.algorithmVersion) return false
-  if (!r.binding || typeof r.binding.nodeIdentity !== 'string' || !r.binding.nodeIdentity) return false
+  if (!r.binding || typeof r.binding.nodeIdentity !== 'string' || !r.binding.nodeIdentity)
+    return false
   // The probe is only as good as its positive control: a control that failed means the setup, not the
   // page, is in question, so the receipt cannot carry a conclusion.
   if (!r.positiveControl || r.positiveControl.ok !== true) return false
@@ -153,7 +161,8 @@ export function isFocusReceipt(value: unknown): value is FocusReceipt {
     )
   )
     return false
-  if (!Number.isSafeInteger(r.actionCost) || r.actionCost < 1 || r.actionCost > MAX_PROBE_CLICKS) return false
+  if (!Number.isSafeInteger(r.actionCost) || r.actionCost < 1 || r.actionCost > MAX_PROBE_CLICKS)
+    return false
   if (!finite(r.windowMs) || r.windowMs !== FOCUS_WINDOW_MS) return false
   if (!cleanEvidenceIntegrity(r.integrity)) return false
   return true
@@ -170,5 +179,7 @@ export function focusReceiptSupports(
   target: { readonly candidateId: string; readonly screenshotRef: string },
 ): boolean {
   if (!isFocusReceipt(receipt)) return false
-  return receipt.candidateId === target.candidateId && receipt.screenshotRef === target.screenshotRef
+  return (
+    receipt.candidateId === target.candidateId && receipt.screenshotRef === target.screenshotRef
+  )
 }
