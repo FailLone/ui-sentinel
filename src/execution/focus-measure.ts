@@ -119,20 +119,20 @@ export function createFocusMeasurer(page: Page) {
     y: number
   }): Promise<ResetMeasurement> {
     const before = await page.evaluate(
-      ({ sel }) => ({
+      (selector) => ({
         url: location.href,
-        value: (document.querySelector(sel) as HTMLInputElement | null)?.value ?? null,
+        value: (document.querySelector(selector) as HTMLInputElement | null)?.value ?? null,
       }),
-      input,
+      input.selector,
     )
     await page.mouse.click(input.x, input.y)
     await page.waitForTimeout(20)
     const after = await page.evaluate(
-      ({ sel }) => ({
+      (selector) => ({
         url: location.href,
-        value: (document.querySelector(sel) as HTMLInputElement | null)?.value ?? null,
+        value: (document.querySelector(selector) as HTMLInputElement | null)?.value ?? null,
       }),
-      input,
+      input.selector,
     )
     return {
       x: input.x,
