@@ -57,6 +57,7 @@ import {
   submitFinding,
   recordHypothesis,
   updateHypothesis,
+  assertPromotableHypothesis,
 } from './run-manager.ts'
 import {
   launchBrowser,
@@ -2466,6 +2467,10 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
                 ))
             )
               throw new Error('supported requires screenshot and observation/measurement')
+            // A refusal must leave no trace, so every cheap gate runs before the insert. The receipt
+            // gate lives in updateHypothesis, which runs after submitFinding - refused there, the
+            // claim would still land in the findings table as a row the run never verified.
+            await assertPromotableHypothesis(runId, input.hypothesisId)
             const f = await submitFinding({
               ...input,
               runId,

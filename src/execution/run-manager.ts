@@ -429,9 +429,14 @@ async function loadFocusReceipts(runId: string): Promise<PromotionReceiptRef[]> 
  * Refuse promotion of a visual-focus hypothesis that carries no valid receipt.
  *
  * Enforced here as well as in the tool surface, so the ordinary findings path cannot promote this
- * class by re-titling an old hypothesis (plan 4.6).
+ * class by re-titling an old hypothesis (plan 4.6). Exported because the tool has to run it BEFORE it
+ * inserts the finding: a refusal that fires afterwards still leaves the row behind, which is the
+ * fabricated finding the gate exists to prevent.
  */
-async function assertFocusReceipt(runId: string, hypothesisId: string): Promise<void> {
+export async function assertPromotableHypothesis(
+  runId: string,
+  hypothesisId: string,
+): Promise<void> {
   const recorded = await hypothesisClass(runId, hypothesisId)
   if (recorded.kind !== 'visual-focus') return
   const blocked = focusPromotionBlocked({
@@ -455,7 +460,7 @@ export async function updateHypothesis(
     if (rows.rows.length) {
       const runId = String(rows.rows[0].run_id)
       await assertUnmodifiedEvidence(runId, evidenceRefs ?? [], id)
-      await assertFocusReceipt(runId, id)
+      await assertPromotableHypothesis(runId, id)
     }
   }
   const args: any[] = [status]

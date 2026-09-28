@@ -73,7 +73,7 @@ vi.mock('./vision.ts', () => ({
     },
   }),
 }))
-import { createRun, getRun, getEvents, getFindings } from './run-manager.ts'
+import { createRun, getRun, getEvents, getFindings, recordHypothesis } from './run-manager.ts'
 import {
   startRunExecution,
   cancelRunExecution,
@@ -1892,6 +1892,44 @@ it('keeps unknown samples inconclusive instead of accepting them as negative pro
   const run = await makeRun()
   await startRunExecution(run.id)
   expect((await getFindings(run.id)).map((f) => f.validationStatus)).toEqual(['inconclusive'])
+})
+
+it('leaves no finding row behind when a visual-focus claim is refused for want of a receipt', async () => {
+  // The receipt gate lives inside updateHypothesis, which findings_submit calls only after inserting
+  // the finding. Left in that order, a refused claim still lands in the findings table, so the run
+  // reports a row it never verified - exactly the impersonation the gate exists to prevent.
+  const run = await makeRun()
+  harness.handler = async (tools: any) => {
+    const hyp = await recordHypothesis({
+      runId: run.id,
+      phenomenon: 'clicks inside the search region do not focus the input',
+      basis: 'the perceived region is wider than the native input',
+      verificationPlan: 'click the derived points and read document.activeElement',
+      status: 'open',
+      evidenceRefs: [],
+      kind: 'visual-focus',
+      visualCandidateId: 'candidate-1',
+    })
+    await expect(
+      call(tools, 'findings_submit', {
+        hypothesisId: hyp.id,
+        validationStatus: 'refuted',
+        severity: 'error',
+        title: 'search region does not focus the input',
+        expected: 'clicking the region focuses the input',
+        actual: 'the input never became the active element',
+        evidenceRefs: [],
+      }),
+    ).rejects.toThrow(/focus receipt/i)
+    await call(tools, 'run_finish', {
+      businessResult: 'unknown',
+      blocked: true,
+      summary: 'claim refused for want of a receipt',
+    })
+  }
+  await startRunExecution(run.id)
+
+  expect(await getFindings(run.id)).toEqual([])
 })
 
 function reviewFixture(choice = 'observed-blocker') {
