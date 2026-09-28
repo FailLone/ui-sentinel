@@ -36,6 +36,15 @@ import {
 } from './observation-version.ts'
 import { ExecutionProfile, profileOperation } from './profiling.ts'
 import { executionVersions } from './versions.ts'
+import { bindInputToRegion, type DangerousControl } from './focus-binding.ts'
+import type { Rect } from './focus-geometry.ts'
+import { createActionBudget } from './action-budget.ts'
+import { createFocusMeasurer, type ClickMeasurement } from './focus-measure.ts'
+import { createFocusProbe, focusProbeInput, type PointSample } from './focus-probe.ts'
+import { deriveNeutralPoint, type NeutralElement } from './focus-neutral.ts'
+import { createVisualScanner } from './visual-scan.ts'
+import type { VisualCandidate } from './visual-candidate.ts'
+import { FOCUS_WINDOW_MS, type FocusReceipt } from './focus-receipt.ts'
 import { Agent } from '@mastra/core/agent'
 import {
   blockerEvidenceEligible,
@@ -286,6 +295,24 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     result: (typeof ruleCheckResults)[number]
   }[] = []
   let temporalInvestigator: ReturnType<typeof createTemporalInvestigator> | undefined
+  /** Element refs of the latest observation, positionally aligned with snapshot.elements. */
+  let slimRefs: readonly string[] = []
+  /** True after the first observation, which is the point the bounded scan may run from. */
+  let visualScanEligible = false
+  const visualCandidateRefs = new Map<string, string>()
+  const receiptRefs = new Map<string, { artifactId: string; receipt: FocusReceipt }>()
+  const measurementRefs = new Map<string, string>()
+  const annotatedRefs = new Map<string, string>()
+  const visualFacts: string[] = []
+  /** Updated by the probe's bind, so the measurer can answer whether the target currently holds focus. */
+  let focusIsTarget = false
+  /** Plan 4.3: at most two candidate investigations per run. */
+  const MAX_FOCUS_CANDIDATES = 2
+  /** Only two candidates can ever be probed, so only their facts are ever worth carrying. */
+  const candidateFactLimit = () => MAX_FOCUS_CANDIDATES
+  const probedCandidates = new Set<string>()
+  /** Candidates bound to the observation they were perceived from, so a stale one is refused. */
+  const scannedCandidates = new Map<string, VisualCandidate>()
   const completedInvestigations: InvestigationResult[] = []
   const investigationTriggers = new Map<string, NonNullable<ReturnType<typeof retryTrigger>>>()
   const investigationBlockers: {
@@ -564,6 +591,10 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       latest.snapshot,
       latest.snapshot.screenshotPath,
     )
+    // The refs are positional with snapshot.elements, which is how the binding layer resolves a rect
+    // back to a real element ref without asking the model.
+    slimRefs = latestSlim.elements.map((element) => element.ref)
+    visualScanEligible = true
     await appendEvent(
       runId,
       'page:observed',
@@ -1079,6 +1110,295 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         })
       },
     })
+
+    /**
+     * The visual-focus subsystem: a bounded read-only scan, then one atomic probe per candidate.
+     *
+     * The two halves are deliberately unequal. The scan only reports what the picture suggested; the
+     * probe is the only thing that can turn a suggestion into a fact, and it does so with real mouse
+     * clicks against the live page. Neither may speak for the other (plan 4.2/4.6).
+     */
+    const focusMeasurer = createFocusMeasurer(page)
+    const focusBudget = createActionBudget({
+      // Reuses the run's own counter, so the probe's clicks are the same ones the 40-action budget
+      // already governs rather than a parallel allowance.
+      remaining: () => budget.maxActions - usage.actions,
+      count: () => {
+        usage.actions++
+      },
+    })
+
+    /** The current page as the region/binding layer sees it: server facts only, never model claims. */
+    function focusElements() {
+      if (!latest || !latestSlim) return null
+      const elements = latest.snapshot.elements.map((element, index) => ({
+        ref: slimRefs[index] ?? `e${index + 1}`,
+        tag: element.tag,
+        type: element.attributes.type,
+        id: element.attributes.id,
+        bounds: element.bounds,
+        visible: element.visible,
+        enabled: element.enabled !== false,
+        readOnly: element.attributes.readonly !== undefined,
+      }))
+      const dangerous: DangerousControl[] = latest.snapshot.elements
+        .map((element, index) => ({
+          element,
+          ref: slimRefs[index] ?? `e${index + 1}`,
+        }))
+        .filter(
+          ({ element }) => /^(button|a)$/.test(element.tag) || element.attributes.type === 'submit',
+        )
+        .map(({ element, ref }) => ({ ref, tag: element.tag, bounds: element.bounds }))
+      return { elements, dangerous }
+    }
+
+    /** The neutral reset is re-derived against the page as it is NOW, not from the candidate's list. */
+    function neutralElements(): NeutralElement[] {
+      if (!latestSlim) return []
+      return latestSlim.elements.map((element) => ({
+        ref: element.ref,
+        tag: element.tag,
+        bounds: element.bounds,
+        enabled: element.enabled,
+        blocked: element.hit.blocked > 0,
+      }))
+    }
+
+    /** A real click turned into the probe's sample shape, carrying the page's own baseline. */
+    function toPointSample(measured: ClickMeasurement): PointSample {
+      // The probe reads isFocused synchronously before each sample, so the flag is refreshed here from
+      // the click that just happened: focusing within the window means the target holds focus now.
+      focusIsTarget = measured.focusedWithinMs !== null
+      return {
+        hit: measured.hit,
+        valueChanged: measured.valueChanged,
+        integrity: integrity.snapshot(),
+        focusedWithinMs: measured.focusedWithinMs,
+        focusBefore: measured.focusBefore,
+      }
+    }
+
+    const focusScanner = createVisualScanner({
+      viewport: run.spec.viewport,
+      runId,
+      guard,
+      countModel,
+      // The scanner is driven from the run's own fixed prompt; a real vision round replaces this with
+      // the shared screenshot-understanding call in P2.
+      scan: () => Promise.resolve(undefined),
+      saveCandidate: async (candidate) => {
+        const ref = await saveEvidence(runId, 'visual-candidate', JSON.stringify(candidate), {
+          evidenceIntegrity: integrity.snapshot(),
+          candidateId: candidate.id,
+          observationId: candidate.observationId,
+        })
+        visualCandidateRefs.set(candidate.id, ref)
+      },
+      nextId: () => `candidate-${randomUUID()}`,
+      now: () => new Date().toISOString(),
+    })
+
+    function buildFocusProbe(candidate: VisualCandidate) {
+      const target = bindInputToRegion({
+        region: candidate.perceivedRegion,
+        excluded: candidate.excludedRegions,
+        ...focusElements()!,
+      })
+      if (!target.ok) throw Error(`visual-focus-binding-refused:${target.reason}`)
+      const detail = elementStore.getDetail(target.elementRef)
+      if (!detail.found || !detail.fresh)
+        throw Error('visual-focus-binding-refused:stale-element-ref')
+      const selector = detail.element.selector
+
+      return createFocusProbe({
+        guard,
+        budget: focusBudget,
+        bind: async () => {
+          // Seed the flag from the page before the first reset decision, so a target left focused by
+          // earlier work is cleared rather than silently assumed unfocused.
+          focusIsTarget = await focusMeasurer.isFocused(selector)
+          return {
+            elementRef: target.elementRef,
+            nodeIdentity: target.nodeIdentity,
+            documentEpoch: `epoch-${integrity.epoch()}`,
+            url: page.url(),
+            scroll: await page.evaluate(() => ({ x: window.scrollX, y: window.scrollY })),
+            viewport: latest!.snapshot.viewport,
+            screenshotRef: latest!.snapshot.screenshotPath!,
+            screenshotSha: createHash('sha256').update(selector).digest('hex'),
+            // The probe asks this before each sample; it must be the page's answer, not a cached one.
+            isFocused: () => focusIsTarget,
+          }
+        },
+        neutralReset: async () => {
+          const point = deriveNeutralPoint({
+            viewport: latest!.snapshot.viewport,
+            region: candidate.perceivedRegion,
+            elements: neutralElements(),
+          })
+          // No verified-inert area means no reset, which the probe reports as unknown rather than
+          // measuring from a baseline it could not establish (plan 4.4).
+          if (!point) throw Error('no-neutral-area')
+          const reset = await focusMeasurer.neutralReset({ selector, x: point.x, y: point.y })
+          // The reset is expected to have cleared focus; if it did not, the next sample's baseline is
+          // dirty and the probe must see that rather than assume the click worked.
+          focusIsTarget = await focusMeasurer.isFocused(selector)
+          return { ...reset, integrity: integrity.snapshot() }
+        },
+        samplePositiveControl: async () => {
+          const box = await page.locator(selector).boundingBox()
+          if (!box) throw Error('visual-focus-binding-refused:target-not-visible')
+          return toPointSample(
+            await focusMeasurer.clickAndMeasure({
+              selector,
+              x: box.x + box.width / 2,
+              y: box.y + box.height / 2,
+              windowMs: FOCUS_WINDOW_MS,
+            }),
+          )
+        },
+        samplePoint: async (point) =>
+          toPointSample(
+            await focusMeasurer.clickAndMeasure({
+              selector,
+              x: point.x,
+              y: point.y,
+              windowMs: FOCUS_WINDOW_MS,
+            }),
+          ),
+        recordHypothesis: async (input) => {
+          const hypothesis = await recordHypothesis({
+            runId,
+            phenomenon: `Clicks inside the perceived input region for candidate ${input.candidateId} do not focus ${input.nodeIdentity}.`,
+            basis: `${input.bindingReason}; the region was perceived from this run's screenshot.`,
+            verificationPlan: JSON.stringify({
+              contract: 'visual-focus-probe-1',
+              candidateId: input.candidateId,
+              elementRef: input.elementRef,
+              windowMs: FOCUS_WINDOW_MS,
+            }),
+            status: 'open',
+            evidenceRefs: latest!.evidenceRefs.filter((r): r is string => !!r),
+            // The class comes from the server path that produced the measurement, so the promotion
+            // gate never has to trust agent wording (plan 4.6).
+            kind: 'visual-focus',
+            visualCandidateId: input.candidateId,
+          })
+          knownHypothesisIds.add(hypothesis.id)
+          taskState.recordHypothesis(hypothesis.id, hypothesis.phenomenon, 'always')
+          return hypothesis.id
+        },
+        saveReceipt: async (receipt: FocusReceipt) => {
+          const ref = await saveEvidence(runId, 'focus-receipt', JSON.stringify(receipt), {
+            evidenceIntegrity: integrity.snapshot(),
+            candidateId: receipt.candidateId,
+          })
+          receiptRefs.set(receipt.candidateId, { artifactId: ref, receipt })
+          return ref
+        },
+        saveMeasurements: async (receiptRef, samples) => {
+          const ref = await saveEvidence(
+            runId,
+            'measurement',
+            JSON.stringify({ receiptRef, samples }),
+            { evidenceIntegrity: integrity.snapshot(), kind: 'focus-samples' },
+          )
+          measurementRefs.set(candidate.id, ref)
+          return ref
+        },
+        complete: async (completion) => {
+          const receipt = receiptRefs.get(completion.candidateId)?.receipt
+          // The annotated image is derived from the original screenshot, never from the live page.
+          let annotated: string | undefined
+          try {
+            annotated = await annotateEvidence(
+              worker!.browser,
+              runId,
+              latest!.snapshot.screenshotPath!,
+              [candidate.perceivedRegion, detail.element.bounds],
+              latest!.snapshot.viewport,
+            )
+            annotatedRefs.set(completion.candidateId, annotated)
+          } catch (error) {
+            await appendEvent(runId, 'evidence:annotation-unavailable', { error: String(error) })
+          }
+          const evidenceRefs = [
+            ...new Set(
+              [
+                ...latest!.evidenceRefs,
+                visualCandidateRefs.get(completion.candidateId),
+                receiptRefs.get(completion.candidateId)?.artifactId,
+                measurementRefs.get(completion.candidateId),
+                annotated,
+              ].filter((r): r is string => !!r),
+            ),
+          ]
+          let findingId: string | undefined
+          if (completion.validationStatus === 'supported' && receipt) {
+            const finding = await submitFinding({
+              runId,
+              source: 'agent',
+              ruleId: null,
+              ruleRevision: null,
+              hypothesisId: completion.hypothesisId,
+              validationStatus: 'supported',
+              // Plan 4.6 caps this class at warning: a bounded measurement, not a broken flow.
+              severity: 'warning',
+              title: 'Input region does not focus the bound input at the sampled points',
+              expected: `${receipt.binding.nodeIdentity} becomes the active element within ${FOCUS_WINDOW_MS}ms of a click at the sampled points inside the perceived region.`,
+              actual: `At the sampled points the input never became the active element within ${FOCUS_WINDOW_MS}ms, while the positive control focused it in ${receipt.positiveControl.focusedWithinMs}ms.`,
+              stepId,
+              evidenceRefs,
+            })
+            findingId = finding.id
+            findingFacts.add(JSON.stringify([finding.hypothesisId, finding.actual]))
+            await appendEvent(
+              runId,
+              'finding:submitted',
+              {
+                findingId,
+                hypothesisId: completion.hypothesisId,
+                contract: 'visual-focus-probe-1',
+              },
+              { stepId, evidenceRefs },
+            )
+          }
+          await updateHypothesis(completion.hypothesisId, completion.validationStatus, evidenceRefs)
+          taskState.resolveHypothesis(completion.hypothesisId, completion.validationStatus)
+          completedInvestigations.push({
+            hypothesisId: completion.hypothesisId,
+            verdict:
+              completion.validationStatus === 'supported'
+                ? 'fail'
+                : completion.validationStatus === 'refuted'
+                  ? 'pass'
+                  : 'unknown',
+            validationStatus: completion.validationStatus,
+            // A bounded point sample, not a timed window: the shape is shared with the temporal
+            // investigator's summary, but this finding claims nothing about a deadline.
+            condition: 'element-actionable',
+            window: { startedAtMs: Date.now(), observedUntilMs: Date.now(), durationMs: 0 },
+            sampleCount: 0,
+            evidenceRefs,
+            findingId,
+            reused: false,
+            scope: completion.scope,
+            nextStep: completion.reasons.length
+              ? `reasons: ${completion.reasons.join(', ')}`
+              : undefined,
+          } as InvestigationResult)
+          await appendEvent(
+            runId,
+            'visual-focus:completed',
+            { ...completion, findingId, evidenceRefs },
+            { stepId, evidenceRefs },
+          )
+          return findingId
+        },
+        evidenceRefs: () => latest?.evidenceRefs ?? [],
+      })
+    }
     async function measureTransition(
       input: {
         eventType: string
@@ -2495,6 +2815,55 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
             return f
           }),
       }),
+      focus_probe: createTool({
+        id: 'visual.focus_probe',
+        description:
+          'Measure whether a perceived input region actually focuses its input. Give a candidate id from the current visual scan, the element ref of the native input the region refers to, and why they are the same thing. It binds the node, clicks real points inside the region and the input itself, clears focus with plain clicks in between, and saves a typed receipt plus a bounded finding or refutation in one call. At most two candidate investigations per run. A refused binding, an unestablishable focus baseline, an intervened measurement or an exhausted action budget all report unknown rather than guessing. Do not re-probe a candidate that already has a result.',
+        inputSchema: focusProbeInput,
+        execute: (input) =>
+          serial('focus_probe', async () => {
+            if (probedCandidates.size >= MAX_FOCUS_CANDIDATES)
+              return {
+                error: `At most ${MAX_FOCUS_CANDIDATES} candidate investigations per run; inspect the existing results instead.`,
+              }
+            const candidate = scannedCandidates.get(input.candidateId)
+            if (!candidate)
+              return {
+                error:
+                  "unknown-candidate: the id must come from this run's visual scan of the current page.",
+              }
+            if (probedCandidates.has(input.candidateId))
+              return {
+                error: 'candidate already investigated; inspect its receipt instead of re-probing.',
+              }
+            if (candidate.observationId !== `s${observeCount}`)
+              return {
+                error:
+                  'stale-candidate: the page has been observed since this candidate was scanned.',
+              }
+            let result: Awaited<ReturnType<ReturnType<typeof buildFocusProbe>['run']>>
+            try {
+              result = await buildFocusProbe(candidate).run({
+                ...input,
+                region: candidate.perceivedRegion,
+                excluded: candidate.excludedRegions,
+                dangerous: [],
+              })
+            } catch (error) {
+              return { error: `visual-focus-refused: ${String(error)}` }
+            }
+            probedCandidates.add(input.candidateId)
+            visualFacts.push(
+              JSON.stringify([
+                input.candidateId,
+                result.verdict,
+                result.validationStatus,
+                [...result.reasons],
+              ]),
+            )
+            return result
+          }),
+      }),
       exploration_update: createTool({
         id: 'exploration.update',
         description:
@@ -2523,6 +2892,49 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     }
     // The inspected business's own requirements, from its frozen contract, so an export run is not
     // briefed with the shopping requirements and vice versa.
+    /**
+     * The bounded visual scan, run once after the first observation and before any agent decision.
+     *
+     * It is deliberately read-only and happens before the loop so the candidates are already part of
+     * the run's facts by the time the agent reasons about what to investigate, and so the model cost is
+     * bounded to one call per observation regardless of how the conversation develops (plan 4.2).
+     */
+    async function visualScan(observationId: string) {
+      const screenshotRef = latest?.snapshot.screenshotPath
+      if (!screenshotRef) return
+      try {
+        const result = await focusScanner.run({ observationId, screenshotRef })
+        if (result.status !== 'scanned' || result.candidates.length === 0) {
+          await appendEvent(runId, 'visual-scan:empty', {
+            observationId,
+            status: result.status,
+            ...(result.status === 'rejected' ? { reason: result.reason } : {}),
+          })
+          return
+        }
+        for (const candidate of result.candidates) scannedCandidates.set(candidate.id, candidate)
+        await appendEvent(
+          runId,
+          'visual-scan:completed',
+          {
+            observationId,
+            reused: result.reused,
+            candidates: result.candidates.map((c) => ({
+              id: c.id,
+              perceivedRegion: c.perceivedRegion,
+              targetDescription: c.targetDescription,
+              visualBasis: c.visualBasis,
+              confidence: c.confidence,
+            })),
+          },
+          { evidenceRefs: latest?.evidenceRefs },
+        )
+      } catch (error) {
+        // A scan that could not run leaves no candidates. It is not a statement about the page.
+        await appendEvent(runId, 'visual-scan:unavailable', { observationId, error: String(error) })
+      }
+    }
+
     const policy = inspectionPolicy(run.spec.goal, config.features, businessContract)
     const reviewedStates = new Set<string>()
     const refreshedReviewVersions = new Set<string>()
@@ -2534,6 +2946,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       tools,
       instructions: policy,
     })
+    if (visualScanEligible && config.features?.visualDiscovery) await visualScan(`s${observeCount}`)
     while (!finished) {
       const finCheck = phaseTracker.shouldFinalize({
         elapsedMs: Date.now() - startedAt,
@@ -2579,6 +2992,16 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         if (name === 'investigation_check') return phaseTracker.phase !== 'finalizing'
         if (name === 'transition_observe') return taskState.hasOpenHypotheses()
         if (name === 'findings_submit') return knownHypothesisIds.size > 0
+        // Offered only while there is an uninvestigated candidate from the CURRENT observation, and
+        // only outside finalization, where new exploration is not allowed (plan 4.3).
+        if (name === 'focus_probe')
+          return (
+            phaseTracker.phase !== 'finalizing' &&
+            probedCandidates.size < MAX_FOCUS_CANDIDATES &&
+            [...scannedCandidates.values()].some(
+              (c) => c.observationId === `s${observeCount}` && !probedCandidates.has(c.id),
+            )
+          )
         return true
       })
       const agentInput = {
@@ -2619,6 +3042,23 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         ...(retryBlocker ? { measuredRetryBlocker: retryBlocker } : {}),
         ...(config.features?.atomicInvestigation
           ? { completedInvestigations: completedInvestigations.slice(-12) }
+          : {}),
+        // Only the current observation's uninvestigated candidates, and only what the agent needs to
+        // choose one: the model's own prose and the raw image stay behind evidence ids (plan 4.6).
+        ...(config.features?.visualDiscovery
+          ? {
+              visualCandidates: [...scannedCandidates.values()]
+                .filter(
+                  (c) => c.observationId === `s${observeCount}` && !probedCandidates.has(c.id),
+                )
+                .map((c) => ({
+                  id: c.id,
+                  targetDescription: c.targetDescription,
+                  visualBasis: c.visualBasis,
+                  confidence: c.confidence,
+                })),
+              visualFindings: visualFacts.slice(-candidateFactLimit()),
+            }
           : {}),
         observation: {
           url: latest?.snapshot.url,

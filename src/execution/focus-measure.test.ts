@@ -112,6 +112,41 @@ describe('focus measurement against a real browser', () => {
     expect(result.focusedWithinMs).not.toBeNull()
   })
 
+  it('reports whether the target was already focused before the click', async () => {
+    // The plan's trap: an input that is already focused stays focused through a click on dead padding.
+    // The caller can only refuse to count that click if the measurement says what was focused first.
+    const measurer = createFocusMeasurer(page)
+    await page.locator('#narrow').click()
+    expect(await measurer.isFocused('#narrow')).toBe(true)
+    const box = (await page.locator('#narrow').boundingBox())!
+
+    const result = await measurer.clickAndMeasure({
+      selector: '#narrow',
+      x: box.x + box.width / 2,
+      y: box.y + box.height / 2,
+      windowMs: 200,
+    })
+
+    expect(result.targetFocusedBefore).toBe(true)
+    expect(result.focusBefore).toContain('narrow')
+  })
+
+  it('reports no focus anywhere before a click on an unfocused page', async () => {
+    const measurer = createFocusMeasurer(page)
+    await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur())
+    const box = (await page.locator('#narrow').boundingBox())!
+
+    const result = await measurer.clickAndMeasure({
+      selector: '#narrow',
+      x: box.x + box.width / 2,
+      y: box.y + box.height / 2,
+      windowMs: 200,
+    })
+
+    expect(result.targetFocusedBefore).toBe(false)
+    expect(result.focusBefore).toBeNull()
+  })
+
   it('clears focus with a real click on a neutral area, without script focus or blur', async () => {
     const measurer = createFocusMeasurer(page)
     await page.locator('#narrow').click()

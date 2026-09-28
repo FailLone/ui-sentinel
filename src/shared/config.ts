@@ -35,6 +35,11 @@ export const config = Object.freeze({
     journeys: process.env.EXECUTION_JOURNEYS !== '0',
     modelStreaming: process.env.EXECUTION_MODEL_STREAMING !== '0',
     shortFinish: process.env.EXECUTION_SHORT_FINISH !== '0',
+    /**
+     * Autonomous visual discovery. Off by default: the frozen visual-focus interfaces and their tests
+     * are inert until a run opts in, so ordinary C0-C5 behaviour is byte-for-byte unchanged.
+     */
+    visualDiscovery: process.env.EXECUTION_VISUAL_DISCOVERY === '1',
   },
 
   completionReview: {

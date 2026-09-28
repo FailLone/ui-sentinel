@@ -21,6 +21,16 @@ export interface ClickMeasurement {
     readonly relation: HitRelation
   }
   readonly valueChanged: boolean
+  /**
+   * A short description of what held focus when the click landed, or null if nothing did.
+   *
+   * This is the sample's baseline, read from the page. Plan 4.4 turns on an already-focused input
+   * surviving a click on dead padding, so a caller that assumes an unfocused baseline can manufacture
+   * a defect out of nothing.
+   */
+  readonly focusBefore: string | null
+  /** True when the click target itself already held focus. */
+  readonly targetFocusedBefore: boolean
 }
 
 export type HitRelation = 'self' | 'descendant' | 'ancestor' | 'unrelated' | 'none'
@@ -56,7 +66,20 @@ export function createFocusMeasurer(page: Page) {
     const windowMs = input.windowMs ?? FOCUS_WINDOW_MS
     const before = await page.evaluate((sel) => {
       const el = document.querySelector(sel) as HTMLInputElement | null
-      return { value: el?.value ?? null, focused: document.activeElement === el }
+      const active = document.activeElement as HTMLElement | null
+      // Describe the active element by identity, so the caller can tell "the target" from "something
+      // else" without trusting a boolean alone.
+      const describe = (node: HTMLElement | null): string | null => {
+        if (!node || node === document.body || node === document.documentElement) return null
+        const tag = node.tagName.toLowerCase()
+        const id = node.id ? `#${node.id}` : ''
+        return `${tag}${id}`
+      }
+      return {
+        value: el?.value ?? null,
+        focused: active === el,
+        focusBefore: describe(active),
+      }
     }, input.selector)
 
     // Record what the pointer actually landed on, before the click changes anything.
@@ -104,6 +127,8 @@ export function createFocusMeasurer(page: Page) {
       focusedWithinMs,
       hit: { ref: null, tag: hit.tag, relation: hit.relation },
       valueChanged: before.value !== after.value,
+      focusBefore: before.focusBefore,
+      targetFocusedBefore: before.focused,
     }
   }
 
