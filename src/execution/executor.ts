@@ -1320,6 +1320,13 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
               latest!.snapshot.viewport,
             )
             annotatedRefs.set(completion.candidateId, annotated)
+            // Recorded explicitly: the derived image carries no candidate id of its own, so without
+            // this the report could not tie an annotation back to the measurement it belongs to.
+            await appendEvent(runId, 'visual-focus:annotated', {
+              candidateId: completion.candidateId,
+              annotatedRef: annotated,
+              sourceRef: latest!.snapshot.screenshotPath,
+            })
           } catch (error) {
             await appendEvent(runId, 'evidence:annotation-unavailable', { error: String(error) })
           }
