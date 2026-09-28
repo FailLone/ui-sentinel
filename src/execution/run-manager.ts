@@ -1,8 +1,10 @@
 import { randomUUID } from 'node:crypto'
+import { readFile } from 'node:fs/promises'
 import type { Client } from '@libsql/client'
 import { getDbClient, initDatabase } from '../storage/database.ts'
 import { config } from '../shared/config.ts'
 import { cleanEvidenceIntegrity, interventionLimitation } from '../shared/evidence-integrity.ts'
+import { focusPromotionBlocked, type PromotionReceiptRef } from './focus-promotion.ts'
 import type {
   Run,
   RunSpec,
@@ -326,7 +328,16 @@ export async function getFindings(runId: string): Promise<readonly Finding[]> {
 }
 
 export async function recordHypothesis(
-  h: Omit<Hypothesis, 'id' | 'createdAt'>,
+  h: Omit<Hypothesis, 'id' | 'createdAt'> & {
+    /**
+     * The hypothesis's recorded class. Set only by a server-side path that produced its own
+     * measurement - never from agent-supplied wording. Persisted on the created event, which is
+     * append-only, so a later status change cannot rewrite the class it was registered under.
+     */
+    kind?: 'visual-focus'
+    /** The candidate a visual-focus hypothesis is bound to, for the promotion gate. */
+    visualCandidateId?: string
+  },
 ): Promise<Hypothesis> {
   const db = getDbClient()
   const id = `hyp-${randomUUID()}`
@@ -352,10 +363,85 @@ export async function recordHypothesis(
   await appendEvent(
     h.runId,
     'hypothesis:created',
-    { hypothesisId: id },
+    {
+      hypothesisId: id,
+      ...(h.kind ? { kind: h.kind } : {}),
+      ...(h.visualCandidateId ? { visualCandidateId: h.visualCandidateId } : {}),
+    },
     { evidenceRefs: [...h.evidenceRefs] },
   )
   return full
+}
+
+/**
+ * Read a hypothesis's recorded class and bound candidate from its created event.
+ *
+ * The created event is the authority rather than a column, because it is append-only and written by
+ * the server while resolving a hypothesis. A hypothesis with no recorded class is an ordinary one.
+ */
+export async function hypothesisClass(
+  runId: string,
+  hypothesisId: string,
+): Promise<{ kind: 'visual-focus' | null; visualCandidateId: string | null }> {
+  const db = getDbClient()
+  const rows = await db.execute({
+    sql: `SELECT payload FROM run_events WHERE run_id = ? AND type = 'hypothesis:created'`,
+    args: [runId],
+  })
+  for (const row of rows.rows) {
+    const payload = JSON.parse(String(row.payload)) as {
+      hypothesisId?: string
+      kind?: string
+      visualCandidateId?: string
+    }
+    if (payload.hypothesisId !== hypothesisId) continue
+    return {
+      kind: payload.kind === 'visual-focus' ? 'visual-focus' : null,
+      visualCandidateId: typeof payload.visualCandidateId === 'string' ? payload.visualCandidateId : null,
+    }
+  }
+  return { kind: null, visualCandidateId: null }
+}
+
+/**
+ * Load the typed focus receipts recorded for a run, so the promotion gate can require a real
+ * measurement rather than a generic screenshot plus any snapshot.
+ */
+async function loadFocusReceipts(runId: string): Promise<PromotionReceiptRef[]> {
+  const db = getDbClient()
+  const rows = await db.execute({
+    sql: `SELECT id, file_path FROM artifacts WHERE run_id = ? AND type = 'focus-receipt'`,
+    args: [runId],
+  })
+  const receipts: PromotionReceiptRef[] = []
+  for (const row of rows.rows) {
+    try {
+      const receipt = JSON.parse(await readFile(String(row.file_path), 'utf8'))
+      receipts.push({ artifactId: String(row.id), receipt })
+    } catch {
+      // A receipt that cannot be read is not a receipt; the gate treats it as absent.
+    }
+  }
+  return receipts
+}
+
+/**
+ * Refuse promotion of a visual-focus hypothesis that carries no valid receipt.
+ *
+ * Enforced here as well as in the tool surface, so the ordinary findings path cannot promote this
+ * class by re-titling an old hypothesis (plan 4.6).
+ */
+async function assertFocusReceipt(runId: string, hypothesisId: string): Promise<void> {
+  const recorded = await hypothesisClass(runId, hypothesisId)
+  if (recorded.kind !== 'visual-focus') return
+  const blocked = focusPromotionBlocked({
+    hypothesis: recorded,
+    receipts: await loadFocusReceipts(runId),
+  })
+  if (blocked.blocked)
+    throw new Error(
+      `visual-focus promotion requires a valid focus receipt bound to its candidate (${blocked.reason})`,
+    )
 }
 
 export async function updateHypothesis(
@@ -366,8 +452,11 @@ export async function updateHypothesis(
   const db = getDbClient()
   if (['supported', 'refuted'].includes(status)) {
     const rows = await db.execute({ sql: 'SELECT run_id FROM hypotheses WHERE id=?', args: [id] })
-    if (rows.rows.length)
-      await assertUnmodifiedEvidence(String(rows.rows[0].run_id), evidenceRefs ?? [], id)
+    if (rows.rows.length) {
+      const runId = String(rows.rows[0].run_id)
+      await assertUnmodifiedEvidence(runId, evidenceRefs ?? [], id)
+      await assertFocusReceipt(runId, id)
+    }
   }
   const args: any[] = [status]
 
