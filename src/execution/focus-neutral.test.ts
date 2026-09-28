@@ -97,6 +97,26 @@ describe('neutral reset point derivation', () => {
     ).toBeNull()
   })
 
+  it('refuses an element whose centre is covered by an interactive control', () => {
+    // A container's own tag says nothing about what the click would land on: a nav wrapper is inert
+    // while the link at its centre is not. This is how a reset ends up changing the page.
+    const nav = el('nav', { x: 0, y: 0, width: 1280, height: 60 })
+    const link = el('a', { x: 600, y: 20, width: 80, height: 24 })
+
+    expect(
+      deriveNeutralPoint({ viewport: VIEWPORT, region: REGION, elements: [nav, link] }),
+    ).toBeNull()
+  })
+
+  it('still accepts a container whose centre is clear of every interactive control', () => {
+    const nav = el('nav', { x: 0, y: 0, width: 1280, height: 60 })
+    const link = el('a', { x: 20, y: 20, width: 80, height: 24 })
+
+    expect(
+      deriveNeutralPoint({ viewport: VIEWPORT, region: REGION, elements: [nav, link] }),
+    ).not.toBeNull()
+  })
+
   it('returns null rather than guessing when nothing qualifies', () => {
     expect(deriveNeutralPoint({ viewport: VIEWPORT, region: REGION, elements: [] })).toBeNull()
   })

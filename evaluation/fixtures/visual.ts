@@ -44,7 +44,15 @@ export interface VisualCaseTruth {
 }
 
 const TARGET = '.visual-search-region input'
-const REGION = { x: 430, y: 196, width: 420, height: 52 }
+/**
+ * The true geometry of the search region, in CSS pixels at the 1280x768 run viewport.
+ *
+ * Measured from the live arena page rather than chosen by hand: the padded field is 420x48 and the
+ * native input sits centred inside it. The preflight pins this against the real page, because a stale
+ * rectangle here silently stops overlapping any candidate the agent could perceive, which turns the
+ * scorer into a machine for failing correct work.
+ */
+const REGION = { x: 430, y: 133, width: 420, height: 48 }
 const OVERLAP_MIN = 0.6
 
 /**

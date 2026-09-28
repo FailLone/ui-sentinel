@@ -1162,6 +1162,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         bounds: element.bounds,
         enabled: element.enabled,
         blocked: element.hit.blocked > 0,
+        visible: element.visible,
       }))
     }
 

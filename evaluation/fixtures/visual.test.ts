@@ -39,7 +39,9 @@ describe('private visual truth', () => {
 const candidate = {
   id: 'candidate-1',
   kind: 'input-focus-region' as const,
-  perceivedRegion: { x: 400, y: 200, width: 480, height: 48 },
+  // Deliberately close to the truth region but not identical, so the overlap rule is exercised
+  // rather than trivially satisfied by the same numbers.
+  perceivedRegion: { x: 440, y: 140, width: 400, height: 44 },
   excludedRegions: [],
   confidence: 'medium' as const,
   screenshotRef: 'shot-1',

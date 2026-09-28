@@ -18,6 +18,8 @@ export interface NeutralElement {
   readonly enabled: boolean
   /** True when the hit sample showed something else covering this element. */
   readonly blocked: boolean
+  /** Absent is treated as visible; a known-invisible element is never usable for a reset. */
+  readonly visible?: boolean
 }
 
 /** Tags that can themselves take focus or act on a click. */
@@ -53,6 +55,7 @@ export function deriveNeutralPoint(input: {
 
   const eligible = input.elements.filter((element) => {
     if (!element.enabled || element.blocked) return false
+    if (element.visible === false) return false
     if (INTERACTIVE_TAGS.has(element.tag)) return false
     // Containment and overlap are both refused: either could hand focus to the target.
     if (overlaps(element.bounds, region)) return false
@@ -66,7 +69,23 @@ export function deriveNeutralPoint(input: {
       element.bounds.y + element.bounds.height > viewport.height
     )
       return false
-    return true
+    // The element's own tag says nothing about what the click lands on. A nav wrapper is inert while
+    // the link at its centre is not, and clicking that link is how a "reset" changes the page.
+    const centre = {
+      x: element.bounds.x + element.bounds.width / 2,
+      y: element.bounds.y + element.bounds.height / 2,
+    }
+    const onTop = input.elements.find(
+      (other) =>
+        other !== element &&
+        INTERACTIVE_TAGS.has(other.tag) &&
+        other.visible !== false &&
+        centre.x >= other.bounds.x &&
+        centre.x <= other.bounds.x + other.bounds.width &&
+        centre.y >= other.bounds.y &&
+        centre.y <= other.bounds.y + other.bounds.height,
+    )
+    return onTop === undefined
   })
   if (eligible.length === 0) return null
 
