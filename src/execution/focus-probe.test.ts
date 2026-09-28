@@ -12,13 +12,19 @@ function harness(
     controlOk?: boolean
     maxActions?: number
     startFocused?: boolean
+    /** The target is still focused when the edge sample clicks: a reset that did not clear focus. */
+    residualFocus?: boolean
+    /** The retest of the first failing point focuses, contradicting the first result. */
+    retestFocuses?: boolean
   } = {},
 ) {
   const clicks: string[] = []
+  const completions: { validationStatus: string; reasons: readonly string[] }[] = []
   const counter = { used: 0 }
   // Real focus state: the control focuses, an edge point focuses only when the page is healthy, and a
   // neutral reset clears it. This is what makes the reset accounting meaningful.
   let focused = over.startFocused ?? false
+  let edgeSamples = 0
   const budget = createActionBudget({
     remaining: () => (over.maxActions ?? 40) - counter.used,
     count: (n) => {
@@ -54,25 +60,35 @@ function harness(
         hit: { ref: 'e1', tag: 'input' as const, relation: 'self' as const },
         valueChanged: false,
         integrity: clean,
+        focusBefore: null,
       }
     },
     samplePoint: async (point) => {
       clicks.push(`${point.side}`)
-      focused = over.focusOnEdge ?? false
+      const isRetest = ++edgeSamples > 2
+      // A sample reports what was actually focused when its click landed, which is the only honest
+      // source for the baseline. A residual focus means the reset failed to clear it.
+      const focusBefore = over.residualFocus ? 'input#q@e1' : null
+      const focuses = isRetest ? over.retestFocuses === true : (over.focusOnEdge ?? false)
+      focused = focuses
       return {
         hit: { ref: 'e9', tag: 'div', relation: 'ancestor' as const },
         valueChanged: false,
         integrity: clean,
-        focusedWithinMs: over.focusOnEdge ? 95 : null,
+        focusedWithinMs: focuses ? 95 : null,
+        focusBefore,
       }
     },
     recordHypothesis: async () => 'hyp-1',
     saveReceipt: async () => 'receipt-art-1',
     saveMeasurements: async () => 'measure-art-1',
-    complete: async () => 'finding-1',
+    complete: async (completion) => {
+      completions.push(completion)
+      return 'finding-1'
+    },
     evidenceRefs: () => ['shot-1'],
   }
-  return { deps, clicks, counter }
+  return { deps, clicks, counter, completions }
 }
 
 const input = {
@@ -111,6 +127,35 @@ describe('focus_probe orchestration', () => {
     expect(result.receiptRef).toBe('receipt-art-1')
   })
 
+  it('is inconclusive when a sample was taken while the target was still focused', async () => {
+    // The plan's decisive trap: an already-focused input stays focused through a click on dead
+    // padding, so that click proves nothing about the padding. Claiming a baseline that was never
+    // established is exactly how this probe would manufacture a supported finding out of nothing.
+    const h = harness({ focusOnEdge: false, residualFocus: true })
+    const probe = createFocusProbe(h.deps)
+
+    const result = await probe.run({ ...input, region, excluded: [], dangerous: [] })
+
+    expect(result.validationStatus).toBe('inconclusive')
+    expect(result.reasons).toContain('baseline-not-established')
+    // The hypothesis is still resolved - it was opened by this probe and must not be left dangling -
+    // but never as a supported claim about the region.
+    expect(h.completions).toHaveLength(1)
+    expect(h.completions[0].validationStatus).toBe('inconclusive')
+  })
+
+  it('is inconclusive when the retest focuses, contradicting the first failure', async () => {
+    // A retest exists only to firm up a failure. If it focuses, the first result is not reliable
+    // evidence and must not be reported as a supported finding.
+    const h = harness({ focusOnEdge: false, retestFocuses: true })
+    const probe = createFocusProbe(h.deps)
+
+    const result = await probe.run({ ...input, region, excluded: [], dangerous: [] })
+
+    expect(result.validationStatus).toBe('inconclusive')
+    expect(result.reasons).toContain('retest-focuses')
+  })
+
   it('refuses to start at all when the action budget cannot cover the whole bounded probe', async () => {
     // Plan 4.4: no half-finished checks. Insufficient budget means zero clicks, not a partial sample.
     const h = harness({ focusOnEdge: false, maxActions: 5 })
@@ -132,6 +177,24 @@ describe('focus_probe orchestration', () => {
 
     // Five real clicks: control, one reset, and three edge samples - so five actions, not one.
     expect(h.counter.used).toBe(5)
+  })
+
+  it('records on the receipt the actions the probe actually spent', async () => {
+    const h = harness({ focusOnEdge: false })
+    let receipt: any
+    const probe = createFocusProbe({
+      ...h.deps,
+      saveReceipt: async (r) => {
+        receipt = r
+        return 'receipt-art-1'
+      },
+    })
+
+    await probe.run({ ...input, region, excluded: [], dangerous: [] })
+
+    // The receipt is the auditable record of the probe, so a cost that drifts from the run counter
+    // would misreport what the measurement cost.
+    expect(receipt.actionCost).toBe(h.counter.used)
   })
 
   it('returns the original receipt without clicking when the same candidate is re-probed', async () => {

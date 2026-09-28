@@ -57,6 +57,14 @@ export interface PointSample {
   readonly valueChanged: boolean
   readonly integrity: EvidenceIntegrity
   readonly focusedWithinMs: number | null
+  /**
+   * The element that was focused when this click landed, read from the page.
+   *
+   * This is the only honest source for the sample's baseline: plan 4.4 turns on the fact that an
+   * already-focused input stays focused through a click on dead padding, so a sample that reports no
+   * focus is worthless unless the page itself showed nothing focused beforehand.
+   */
+  readonly focusBefore: string | null
 }
 
 export interface FocusProbeDeps {
@@ -196,7 +204,7 @@ export function createFocusProbe(deps: FocusProbeDeps) {
           x: 0,
           y: 0,
           hit: controlRaw.hit,
-          focusBefore: null,
+          focusBefore: controlRaw.focusBefore,
           focusAfter: controlRaw.focusedWithinMs === null ? null : bound.nodeIdentity,
           focusedWithinMs: controlRaw.focusedWithinMs,
           valueChanged: controlRaw.valueChanged,
@@ -207,6 +215,7 @@ export function createFocusProbe(deps: FocusProbeDeps) {
 
         // Edge samples inside the perceived region but away from the input.
         let firstFailure: { side: 'left' | 'right'; x: number; y: number } | undefined
+        let retestRecorded = false
         for (const point of points) {
           deps.guard()
           await resetIfFocused(bound, reservation, resets, deps)
@@ -217,7 +226,7 @@ export function createFocusProbe(deps: FocusProbeDeps) {
             x: point.x,
             y: point.y,
             hit: raw2.hit,
-            focusBefore: null,
+            focusBefore: raw2.focusBefore,
             focusAfter: raw2.focusedWithinMs === null ? null : bound.nodeIdentity,
             focusedWithinMs: raw2.focusedWithinMs,
             valueChanged: raw2.valueChanged,
@@ -233,12 +242,13 @@ export function createFocusProbe(deps: FocusProbeDeps) {
           await resetIfFocused(bound, reservation, resets, deps)
           reservation.consume()
           const raw3 = await deps.samplePoint(firstFailure)
+          retestRecorded = true
           samples.push({
             side: firstFailure.side,
             x: firstFailure.x,
             y: firstFailure.y,
             hit: raw3.hit,
-            focusBefore: null,
+            focusBefore: raw3.focusBefore,
             focusAfter: raw3.focusedWithinMs === null ? null : bound.nodeIdentity,
             focusedWithinMs: raw3.focusedWithinMs,
             valueChanged: raw3.valueChanged,
@@ -247,14 +257,18 @@ export function createFocusProbe(deps: FocusProbeDeps) {
           })
         }
 
+        // A point that focuses is skipped in every round, so the last sample written at a coordinate is
+        // the retest of its first failure. Derive the retroactive retest marker from position rather
+        // than from the stored side, which is necessarily the same as the original sample's.
         const verdict = evaluateFocusVerdict({
           control,
-          attempts: samples.map((s) => ({
+          attempts: samples.map((s, index) => ({
             side: s.side === 'retest' ? 'left' : s.side,
-            baselineUnfocused: true,
+            // The baseline is what the page reported before the click, not an assumption.
+            baselineUnfocused: s.focusBefore === null,
             focusedWithinMs: s.focusedWithinMs,
             integrity: s.integrity,
-            retest: false,
+            retest: retestRecorded && index === samples.length - 1,
           })),
           resets,
           usableEdgePoints: points.length,
