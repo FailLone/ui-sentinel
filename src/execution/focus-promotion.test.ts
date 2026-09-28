@@ -48,7 +48,12 @@ function receipt(candidateId: string, over: Partial<FocusReceipt> = {}): FocusRe
   })
 }
 
-const visualHypothesis = { kind: 'visual-focus', visualCandidateId: 'candidate-1' }
+const visualHypothesis = { kind: 'visual-focus' as const, visualCandidateId: 'candidate-1' }
+
+/** Narrows the union so the block reason can be asserted without a cast. */
+function blockedReason(result: ReturnType<typeof focusPromotionBlocked>): string | null {
+  return result.blocked ? result.reason : null
+}
 
 describe('focus promotion gate', () => {
   it('leaves an ordinary hypothesis alone', () => {
@@ -63,7 +68,7 @@ describe('focus promotion gate', () => {
     // This is the bypass plan 4.6 forbids: a screenshot plus an arbitrary snapshot is not a probe.
     const result = focusPromotionBlocked({ hypothesis: visualHypothesis, receipts: [] })
     expect(result.blocked).toBe(true)
-    expect(result.reason).toBe('missing-focus-receipt')
+    expect(blockedReason(result)).toBe('missing-focus-receipt')
   })
 
   it('allows promotion when a valid receipt names the bound candidate', () => {
@@ -80,7 +85,7 @@ describe('focus promotion gate', () => {
       receipts: [{ artifactId: 'art-1', receipt: receipt('candidate-2') }],
     })
     expect(result.blocked).toBe(true)
-    expect(result.reason).toBe('focus-receipt-candidate-mismatch')
+    expect(blockedReason(result)).toBe('focus-receipt-candidate-mismatch')
   })
 
   it('blocks a structurally invalid receipt, such as one with no positive control', () => {
@@ -97,7 +102,7 @@ describe('focus promotion gate', () => {
       receipts: [{ artifactId: 'art-1', receipt: broken }],
     })
     expect(result.blocked).toBe(true)
-    expect(result.reason).toBe('missing-focus-receipt')
+    expect(blockedReason(result)).toBe('missing-focus-receipt')
   })
 
   it('blocks a receipt object that is merely receipt-shaped', () => {
@@ -114,7 +119,7 @@ describe('focus promotion gate', () => {
       receipts: [{ artifactId: 'art-1', receipt: receipt('candidate-1') }],
     })
     expect(result.blocked).toBe(true)
-    expect(result.reason).toBe('missing-bound-candidate')
+    expect(blockedReason(result)).toBe('missing-bound-candidate')
   })
 
   it('accepts the matching receipt when several are present', () => {

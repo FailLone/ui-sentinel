@@ -285,14 +285,25 @@ interface FocusProbeReceipt {
 | `3492ba4` | `src/execution/focus-receipt.ts` | 8 | typed receipt + `focusReceiptSupports(candidate,screenshot)` 提升判定 |
 | `c7ea86f` | `src/execution/visual-candidate.ts` | 10 | 模型侧/服务端候选分离；strict schema；上限由 schema 强制 |
 | `e107dc9` | `src/execution/focus-binding.ts` | 11 | rect→唯一原生 input 绑定，不确定即拒绝并给出原因 |
+| `d6703ea` | `arena/checkout/src/server/visual.test.ts` + `pages/ProductSearch.tsx` | 7 | 靶场搜索区（独立呈现轴，默认关闭，不改 C0–C5） |
+| `65db60c` | `src/execution/focus-promotion.ts` | 8 | 按类别提升门禁：只认结构有效的 receipt + 绑定的 candidate |
 
 TDD 过程中由 RED 捕获的真实缺陷（记录在案）：
-`PositiveControl` 是 `Omit<FocusSample,'side'>`，最初用采样点校验器校验它，会错误地要求 `side` 字段。
-已拆分为 `validMeasurement`（共有字段）+ `validSamplePoint`（附加 side 约束）。
 
-**尚未 P1 完成**：D0/H0 fixture 与私有 reset、`focus_probe` 工具接入 executor、
-动作预算接线、按类别提升门禁（假设类别标记 + `findings_submit` 拒绝）、最小报告、
-固定本地视觉响应的免费预检，以及"8 次点击计量 / 已聚焦假阳性 / 容器代理健康 / 取消"四项证明。
+1. `PositiveControl` 是 `Omit<FocusSample,'side'>`，最初用采样点校验器校验它，会错误地要求 `side` 字段。
+   已拆分为 `validMeasurement`（共有字段）+ `validSamplePoint`（附加 side 约束）。
+2. 提升门禁的原因分类错误：结构无效但带 `candidateId` 字符串的 receipt 被误报为"候选不匹配"。
+   改为以**结构是否有效**（`isFocusReceipt`）分类，而非单个字段是否存在。
+
+**靶场接入裁定**：计划 §5 要求"在现有购物产品列表增加本地搜索组件"，同时"原 public variant 协议不改变"。
+解法是**独立呈现轴**而非扩展 C 变体：`state.ts` 增 `VisualPresent`（默认关闭→C0–C5 完全不变）、
+私有 reset 增可选 `visual` 字段（缺省即清除）、公开 `variant-config` 只给呈现描述
+（`search: {present}`，不含 case 名/真值/bbox）、搜索组件置于网格上方且本地过滤、空查询显示全部商品。
+
+**尚未 P1 完成**：私有真值模块（`evaluation/fixtures/visual.ts`：每例感知区/排除区/真实目标身份/期望聚焦行为
++ 仿 `holdout.ts:10` 的真浏览器 `verify()`）、`focus_probe` 工具接入 executor、动作预算接线、
+`findings_submit` 侧拒绝接线、最小报告、固定本地视觉响应的免费预检，以及
+"8 次点击计量 / 已聚焦假阳性 / 容器代理健康 / 取消"四项证明。
 完成后**停下交主 Agent review**（计划 §6 的硬节点）。
 
 ### P1 之后
