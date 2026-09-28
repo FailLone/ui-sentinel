@@ -1,4 +1,4 @@
-import { focusReceiptSupports, isFocusReceipt } from './focus-receipt.ts'
+import { isFocusReceipt } from './focus-receipt.ts'
 
 /**
  * The class-scoped promotion gate.
@@ -30,11 +30,21 @@ export interface FocusPromotionInput {
     readonly visualCandidateId: string | null
   }
   readonly receipts: readonly PromotionReceiptRef[]
+  /**
+   * Evidence ids of the screenshots this run actually owns.
+   *
+   * Plan 4.6 requires a receipt to name the candidate AND the screenshot being promoted. Without this
+   * list the screenshot half of that rule is unenforceable: the only screenshot a receipt could be
+   * compared against would be its own, which compares equal to itself and admits a measurement taken
+   * against a screenshot from some other observation.
+   */
+  readonly screenshotRefs?: readonly string[]
 }
 
 export type FocusPromotionBlock =
   | 'missing-focus-receipt'
   | 'focus-receipt-candidate-mismatch'
+  | 'focus-receipt-screenshot-mismatch'
   | 'missing-bound-candidate'
 
 export type FocusPromotionResult =
@@ -54,33 +64,33 @@ export function focusPromotionBlocked(input: FocusPromotionInput): FocusPromotio
     return { blocked: true, reason: 'missing-bound-candidate' }
 
   const candidateId = input.hypothesis.visualCandidateId
-  for (const ref of input.receipts) {
-    // Structural validation plus the candidate identity: a valid receipt for another candidate is not
-    // this finding's evidence, and a receipt-shaped object is not a receipt.
-    if (
-      focusReceiptSupports(ref.receipt, {
-        candidateId,
-        screenshotRef: screenshotRefOf(ref.receipt),
-      })
-    )
-      return { blocked: false }
-  }
-  // Distinguish "no usable receipt at all" from "a real measurement exists but names another candidate".
-  // The split keys on structural validity, not on a lone candidateId string, or a malformed receipt
-  // would be misreported as a candidate mismatch.
-  const structurallyValid = input.receipts.some((ref) => isFocusReceipt(ref.receipt))
-  return {
-    blocked: true,
-    reason: structurallyValid ? 'focus-receipt-candidate-mismatch' : 'missing-focus-receipt',
-  }
-}
+  const ownedScreenshots = input.screenshotRefs
 
-/**
- * The screenshot a receipt claims. `focusReceiptSupports` also compares this, so the gate passes the
- * receipt's own value through: a receipt that names the right candidate but a different screenshot is
- * still a different measurement.
- */
-function screenshotRefOf(receipt: unknown): string {
-  const value = (receipt as { screenshotRef?: unknown } | null)?.screenshotRef
-  return typeof value === 'string' ? value : ''
+  let candidateMismatch = false
+  let screenshotMismatch = false
+  for (const ref of input.receipts) {
+    const receipt = ref.receipt
+    // Structural validation first: a receipt-shaped object is not a receipt, and a malformed one must
+    // not be mistaken for evidence that merely names someone else.
+    if (!isFocusReceipt(receipt)) continue
+    if (receipt.candidateId !== candidateId) {
+      candidateMismatch = true
+      continue
+    }
+    // A receipt must name a screenshot THIS RUN owns. Compared against the receipt's own value the
+    // rule would be a tautology, admitting a measurement taken against another observation's image.
+    if (ownedScreenshots && !ownedScreenshots.includes(receipt.screenshotRef)) {
+      screenshotMismatch = true
+      continue
+    }
+    return { blocked: false }
+  }
+
+  // Distinguish the ways a measurement can fail to be this finding's evidence, so the refusal says
+  // which one it was rather than collapsing them all into "missing".
+  if (!input.receipts.some((ref) => isFocusReceipt(ref.receipt)))
+    return { blocked: true, reason: 'missing-focus-receipt' }
+  if (screenshotMismatch && !candidateMismatch)
+    return { blocked: true, reason: 'focus-receipt-screenshot-mismatch' }
+  return { blocked: true, reason: 'focus-receipt-candidate-mismatch' }
 }

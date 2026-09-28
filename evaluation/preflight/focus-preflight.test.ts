@@ -102,6 +102,17 @@ async function boxOf(selector: string) {
 }
 
 beforeAll(async () => {
+  // The arena's built bundle is gitignored, so a fresh checkout has no page to test. Fail with the
+  // command that fixes it rather than letting every case time out waiting for a selector that will
+  // never appear - which is how this looks when someone meets it for the first time.
+  try {
+    await readFile(join(DIST, 'index.html'))
+  } catch {
+    throw new Error(
+      `${DIST} is missing. Build the arena first: cd arena/checkout && npx vite build --config vite.config.ts`,
+    )
+  }
+
   server = arenaServer()
   await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', () => resolve()))
   const address = server.address()
@@ -123,10 +134,13 @@ describe('free preflight: the real arena, real clicks, no model', () => {
     const config = await (await fetch(`${origin}/api/variant-config`)).json()
 
     expect(config.search).toEqual({ present: PRESENTATION.D0 })
-    // The case id, the truth region and the expected outcome must not be readable from the page.
+    // The case id, the truth region and the expected outcome must not be readable from the page. Every
+    // coordinate is checked: leaking the region would hand the agent the answer to the overlap rule.
     const readable = JSON.stringify(config) + (await page.content())
     expect(readable).not.toMatch(/\bD0\b|\bH0\b/)
-    expect(readable).not.toContain(String(VISUAL_TRUTH.D0!.region.x))
+    expect(readable).not.toMatch(/not-focused|edgeFocus|expectSupported|ground.?truth/i)
+    for (const value of Object.values(VISUAL_TRUTH.D0!.region))
+      expect(readable).not.toContain(`"${value}`)
   })
 
   it('measures the broken case: the control focuses and the region padding does not', async () => {

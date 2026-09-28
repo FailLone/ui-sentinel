@@ -8,12 +8,7 @@ vi.mock('../shared/config.ts', () => ({
   checkModelConfig: () => ({ ready: true, missing: [] }),
 }))
 import { initDatabase } from '../storage/database.ts'
-import {
-  createRun,
-  getRunSnapshot,
-  recordHypothesis,
-  updateHypothesis,
-} from './run-manager.ts'
+import { createRun, getRunSnapshot, recordHypothesis, updateHypothesis } from './run-manager.ts'
 
 beforeAll(initDatabase)
 
@@ -111,7 +106,9 @@ describe('hypothesis class persistence', () => {
       kind: 'visual-focus',
       visualCandidateId: 'candidate-7',
     })
-    await writeFocusReceipt(runId, 'candidate-7')
+    await writeFocusReceipt(runId, 'candidate-7', {
+      screenshotRef: await writeArtifact(runId, 'screenshot', 'x'),
+    })
 
     await updateHypothesis(created.id, 'supported')
     const snapshot = await getRunSnapshot(runId)
@@ -131,6 +128,38 @@ describe('hypothesis class persistence', () => {
     await expect(updateHypothesis(created.id, 'supported')).rejects.toThrow(/candidate-mismatch/i)
   })
 
+  it('refuses promotion when the receipt names the right candidate but another screenshot', async () => {
+    // The receipt has to name BOTH the candidate and the screenshot being promoted. Comparing the
+    // receipt's screenshot against itself would make that half of the rule a tautology, so a receipt
+    // measured against a different observation would sail through.
+    const runId = await newRun()
+    const created = await recordHypothesis({
+      ...base,
+      runId,
+      kind: 'visual-focus',
+      visualCandidateId: 'candidate-7',
+    })
+    await writeFocusReceipt(runId, 'candidate-7', { screenshotRef: 'shot-other' })
+
+    await expect(updateHypothesis(created.id, 'supported')).rejects.toThrow(/screenshot/i)
+  })
+
+  it('allows promotion when the receipt names the right candidate and a real screenshot of the run', async () => {
+    const runId = await newRun()
+    const shot = await writeArtifact(runId, 'screenshot', 'x')
+    const created = await recordHypothesis({
+      ...base,
+      runId,
+      kind: 'visual-focus',
+      visualCandidateId: 'candidate-7',
+    })
+    await writeFocusReceipt(runId, 'candidate-7', { screenshotRef: shot })
+
+    await updateHypothesis(created.id, 'supported')
+    const snapshot = await getRunSnapshot(runId)
+    expect(snapshot!.hypothesisRows.rows[0].status).toBe('supported')
+  })
+
   it('resolves an ordinary hypothesis to a status without any receipt', async () => {
     const runId = await newRun()
     const created = await recordHypothesis({ ...base, runId })
@@ -142,7 +171,23 @@ describe('hypothesis class persistence', () => {
 })
 
 /** Write a structurally valid focus receipt artifact owned by this run. */
-async function writeFocusReceipt(runId: string, candidateId: string) {
+/** Write a screenshot artifact owned by this run, as the scan/probe would. */
+async function writeArtifact(runId: string, type: string, body: string) {
+  const { getDbClient } = await import('../storage/database.ts')
+  const id = `${type}-${Math.random().toString(36).slice(2)}`
+  await getDbClient().execute({
+    sql: `INSERT INTO artifacts (id, run_id, type, file_path, metadata) VALUES (?, ?, ?, ?, '{}')`,
+    args: [id, runId, type, `/tmp/${id}`],
+  })
+  void body
+  return id
+}
+
+async function writeFocusReceipt(
+  runId: string,
+  candidateId: string,
+  over: { screenshotRef?: string } = {},
+) {
   const { mkdtemp, writeFile } = await import('node:fs/promises')
   const { tmpdir } = await import('node:os')
   const { join } = await import('node:path')
@@ -150,18 +195,23 @@ async function writeFocusReceipt(runId: string, candidateId: string) {
   const { getDbClient } = await import('../storage/database.ts')
 
   const clean = { version: 1 as const, status: 'clean' as const, interventionIds: [] }
-  const id = `receipt-${candidateId}`
+  // Unique per call: the suite shares one in-memory database, so a fixed id collides across tests.
+  const id = `receipt-${candidateId}-${Math.random().toString(36).slice(2)}`
   const dir = await mkdtemp(join(tmpdir(), 'uis-receipt-'))
   const path = join(dir, `${id}.json`)
   const receipt = createFocusReceipt({
     candidateId,
-    screenshotRef: 'shot-1',
+    screenshotRef: over.screenshotRef ?? 'shot-1',
     screenshotSha: 'a'.repeat(64),
     documentEpoch: 'epoch-1',
     url: 'http://localhost:4173/',
     scroll: { x: 0, y: 0 },
     viewport: { width: 1280, height: 768 },
-    binding: { elementRef: 'e1', nodeIdentity: 'input#q@e1', reason: 'the only input in the region' },
+    binding: {
+      elementRef: 'e1',
+      nodeIdentity: 'input#q@e1',
+      reason: 'the only input in the region',
+    },
     positiveControl: {
       x: 300,
       y: 220,

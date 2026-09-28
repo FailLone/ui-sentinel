@@ -397,7 +397,8 @@ export async function hypothesisClass(
     if (payload.hypothesisId !== hypothesisId) continue
     return {
       kind: payload.kind === 'visual-focus' ? 'visual-focus' : null,
-      visualCandidateId: typeof payload.visualCandidateId === 'string' ? payload.visualCandidateId : null,
+      visualCandidateId:
+        typeof payload.visualCandidateId === 'string' ? payload.visualCandidateId : null,
     }
   }
   return { kind: null, visualCandidateId: null }
@@ -439,9 +440,17 @@ export async function assertPromotableHypothesis(
 ): Promise<void> {
   const recorded = await hypothesisClass(runId, hypothesisId)
   if (recorded.kind !== 'visual-focus') return
+  const db = getDbClient()
+  // The screenshots THIS run owns, so a receipt's screenshot claim can be checked against evidence
+  // rather than against itself.
+  const screenshots = await db.execute({
+    sql: `SELECT id FROM artifacts WHERE run_id = ? AND type = 'screenshot'`,
+    args: [runId],
+  })
   const blocked = focusPromotionBlocked({
     hypothesis: recorded,
     receipts: await loadFocusReceipts(runId),
+    screenshotRefs: screenshots.rows.map((row) => String(row.id)),
   })
   if (blocked.blocked)
     throw new Error(

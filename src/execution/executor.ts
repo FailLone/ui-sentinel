@@ -55,6 +55,7 @@ import {
 import { createTool } from '@mastra/core/tools'
 import { z } from 'zod'
 import { randomUUID, createHash } from 'node:crypto'
+import { readFile } from 'node:fs/promises'
 import {
   getRun,
   updateRunStatus,
@@ -1166,6 +1167,22 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       }))
     }
 
+    /** SHA-256 of a saved artifact's bytes, or '' when it cannot be read. */
+    async function artifactSha(artifactId: string): Promise<string> {
+      const row = await getDbClient().execute({
+        sql: 'SELECT file_path FROM artifacts WHERE id=? AND run_id=?',
+        args: [artifactId, runId],
+      })
+      if (!row.rows.length) return ''
+      try {
+        return createHash('sha256')
+          .update(await readFile(String(row.rows[0].file_path)))
+          .digest('hex')
+      } catch {
+        return ''
+      }
+    }
+
     /** A real click turned into the probe's sample shape, carrying the page's own baseline. */
     function toPointSample(measured: ClickMeasurement): PointSample {
       // The probe reads isFocused synchronously before each sample, so the flag is refreshed here from
@@ -1219,6 +1236,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           // Seed the flag from the page before the first reset decision, so a target left focused by
           // earlier work is cleared rather than silently assumed unfocused.
           focusIsTarget = await focusMeasurer.isFocused(selector)
+          const screenshotRef = latest!.snapshot.screenshotPath!
           return {
             elementRef: target.elementRef,
             nodeIdentity: target.nodeIdentity,
@@ -1226,8 +1244,10 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
             url: page.url(),
             scroll: await page.evaluate(() => ({ x: window.scrollX, y: window.scrollY })),
             viewport: latest!.snapshot.viewport,
-            screenshotRef: latest!.snapshot.screenshotPath!,
-            screenshotSha: createHash('sha256').update(selector).digest('hex'),
+            screenshotRef,
+            // Hash of the actual image bytes. Hashing anything else - the selector, say - would make
+            // this field a value that looks like provenance and verifies against nothing.
+            screenshotSha: await artifactSha(screenshotRef),
             // The probe asks this before each sample; it must be the page's answer, not a cached one.
             isFocused: () => focusIsTarget,
           }
@@ -2850,6 +2870,10 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
                   'stale-candidate: the page has been observed since this candidate was scanned.',
               }
             let result: Awaited<ReturnType<ReturnType<typeof buildFocusProbe>['run']>>
+            // Plan 4.5: the probe runs under the same read-only barrier as other measurements. A click
+            // inside a perceived region is still a click - it can submit a form or fire a fetch - so
+            // without the barrier a probe could write to the business during its own measurement.
+            sideEffectPolicy.setReadOnly(true)
             try {
               result = await buildFocusProbe(candidate).run({
                 ...input,
@@ -2859,6 +2883,10 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
               })
             } catch (error) {
               return { error: `visual-focus-refused: ${String(error)}` }
+            } finally {
+              // Left in place, like every other read-only segment: the barrier holds until an explicit
+              // page_act lifts it, so a delayed request from a probe click cannot slip through.
+              sideEffectPolicy.setReadOnly(true)
             }
             probedCandidates.add(input.candidateId)
             visualFacts.push(
