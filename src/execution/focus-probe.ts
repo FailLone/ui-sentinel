@@ -29,11 +29,13 @@ import { evaluateFocusVerdict } from './focus-verdict.ts'
  */
 
 /** The only inputs the tool accepts. No arbitrary coordinates, selectors, URLs or expected results. */
-export const focusProbeInput = z.object({
-  candidateId: z.string().min(1),
-  elementRef: z.string().min(1),
-  bindingReason: z.string().min(1).max(800),
-})
+export const focusProbeInput = z
+  .object({
+    candidateId: z.string().min(1),
+    elementRef: z.string().min(1),
+    bindingReason: z.string().min(1).max(800),
+  })
+  .strict()
 export type FocusProbeInput = z.infer<typeof focusProbeInput>
 
 export interface BoundTarget {
@@ -45,10 +47,14 @@ export interface BoundTarget {
   readonly viewport: { readonly width: number; readonly height: number }
   readonly screenshotRef: string
   readonly screenshotSha: string
-  readonly isFocused: () => boolean
+  readonly isFocused: () => boolean | Promise<boolean>
 }
 
 export interface PointSample {
+  readonly x: number
+  readonly y: number
+  readonly focusAfter: string | null
+  readonly stable: boolean
   readonly hit: {
     readonly ref: string | null
     readonly tag: string
@@ -72,20 +78,23 @@ export interface FocusProbeDeps {
   readonly budget: ActionBudget
   readonly bind: (elementRef: string) => Promise<BoundTarget>
   /** A click on a known-safe neutral area, used to clear focus; counted as an action. */
-  readonly neutralReset: () => Promise<{
+  readonly neutralReset: (beforeClick: () => void) => Promise<{
     x: number
     y: number
     introducedChange: boolean
     integrity: EvidenceIntegrity
   }>
   /** A click inside the native input, expecting it to focus within the window. */
-  readonly samplePositiveControl: () => Promise<PointSample>
+  readonly samplePositiveControl: (beforeClick: () => void) => Promise<PointSample>
   /** A click at a derived point inside the perceived region. */
-  readonly samplePoint: (point: {
-    side: 'left' | 'right'
-    x: number
-    y: number
-  }) => Promise<PointSample>
+  readonly samplePoint: (
+    point: {
+      side: 'left' | 'right'
+      x: number
+      y: number
+    },
+    beforeClick: () => void,
+  ) => Promise<PointSample>
   readonly recordHypothesis: (input: {
     candidateId: string
     elementRef: string
@@ -107,6 +116,7 @@ export interface FocusProbeDeps {
   }) => Promise<string | undefined>
   readonly evidenceRefs: () => readonly string[]
   readonly algorithmVersion?: string
+  readonly timeRemainingMs?: () => number
 }
 
 export interface FocusProbeResult {
@@ -132,7 +142,10 @@ function budgetFor(samples: number): number {
 }
 
 export function createFocusProbe(deps: FocusProbeDeps) {
-  const cache = new Map<string, { receiptRef: string; result: FocusProbeResult; epoch: string }>()
+  const cache = new Map<
+    string,
+    { receiptRef: string; result: FocusProbeResult; epoch: string; node: string }
+  >()
 
   return {
     async run(
@@ -159,7 +172,7 @@ export function createFocusProbe(deps: FocusProbeDeps) {
       deps.guard()
 
       const cached = cache.get(input.candidateId)
-      if (cached && cached.epoch === bound.documentEpoch)
+      if (cached && cached.epoch === bound.documentEpoch && cached.node === bound.nodeIdentity)
         return {
           ...cached.result,
           reused: true,
@@ -177,8 +190,10 @@ export function createFocusProbe(deps: FocusProbeDeps) {
           detail: skipped.map((s) => `skipped:${s.side}:${s.reason}`),
         })
 
-      const plannedSamples = Math.min(points.length + 1, MAX_SAMPLES)
+      const plannedSamples = MAX_SAMPLES
       const need = budgetFor(plannedSamples)
+      if (deps.timeRemainingMs && deps.timeRemainingMs() < 5000)
+        return inconclusive(input.candidateId, ['insufficient-time-budget'], deps)
       const reservation = deps.budget.reserve(need)
       if (!reservation)
         return inconclusive(input.candidateId, ['insufficient-action-budget'], deps, { need })
@@ -198,14 +213,19 @@ export function createFocusProbe(deps: FocusProbeDeps) {
         // Positive control: clear focus if needed, then click inside the real input and require it to
         // focus within the window. Both the reset and the control click cost an action.
         await resetIfFocused(bound, reservation, resets, deps)
-        reservation.consume()
-        const controlRaw = await deps.samplePositiveControl()
+        deps.guard()
+        const beforeClick = () => {
+          deps.guard()
+          reservation.consume()
+        }
+        const controlRaw = await deps.samplePositiveControl(beforeClick)
         const control = {
-          x: 0,
-          y: 0,
+          x: controlRaw.x,
+          y: controlRaw.y,
           hit: controlRaw.hit,
           focusBefore: controlRaw.focusBefore,
-          focusAfter: controlRaw.focusedWithinMs === null ? null : bound.nodeIdentity,
+          focusAfter: controlRaw.focusAfter,
+          stable: controlRaw.stable,
           focusedWithinMs: controlRaw.focusedWithinMs,
           valueChanged: controlRaw.valueChanged,
           documentEpoch: bound.documentEpoch,
@@ -219,15 +239,16 @@ export function createFocusProbe(deps: FocusProbeDeps) {
         for (const point of points) {
           deps.guard()
           await resetIfFocused(bound, reservation, resets, deps)
-          reservation.consume()
-          const raw2 = await deps.samplePoint(point)
+          deps.guard()
+          const raw2 = await deps.samplePoint(point, beforeClick)
           samples.push({
             side: point.side,
             x: point.x,
             y: point.y,
             hit: raw2.hit,
             focusBefore: raw2.focusBefore,
-            focusAfter: raw2.focusedWithinMs === null ? null : bound.nodeIdentity,
+            focusAfter: raw2.focusAfter,
+            stable: raw2.stable,
             focusedWithinMs: raw2.focusedWithinMs,
             valueChanged: raw2.valueChanged,
             documentEpoch: bound.documentEpoch,
@@ -239,17 +260,19 @@ export function createFocusProbe(deps: FocusProbeDeps) {
         // One permitted retest of the first failing point, only if the budget still allows it.
         if (firstFailure && reservation.remaining() >= 2) {
           deps.guard()
-          await resetIfFocused(bound, reservation, resets, deps)
-          reservation.consume()
-          const raw3 = await deps.samplePoint(firstFailure)
+          await resetIfFocused(bound, reservation, resets, deps, true)
+          deps.guard()
+          const raw3 = await deps.samplePoint(firstFailure, beforeClick)
           retestRecorded = true
           samples.push({
-            side: firstFailure.side,
+            side: 'retest',
+            retestOf: firstFailure.side,
             x: firstFailure.x,
             y: firstFailure.y,
             hit: raw3.hit,
             focusBefore: raw3.focusBefore,
-            focusAfter: raw3.focusedWithinMs === null ? null : bound.nodeIdentity,
+            focusAfter: raw3.focusAfter,
+            stable: raw3.stable,
             focusedWithinMs: raw3.focusedWithinMs,
             valueChanged: raw3.valueChanged,
             documentEpoch: bound.documentEpoch,
@@ -257,15 +280,15 @@ export function createFocusProbe(deps: FocusProbeDeps) {
           })
         }
 
-        // A point that focuses is skipped in every round, so the last sample written at a coordinate is
-        // the retest of its first failure. Derive the retroactive retest marker from position rather
-        // than from the stored side, which is necessarily the same as the original sample's.
+        // Retest identity is persisted explicitly; never infer reproducibility from one failure.
         const verdict = evaluateFocusVerdict({
-          control,
+          control: { ...control, baselineUnfocused: control.focusBefore !== bound.nodeIdentity },
           attempts: samples.map((s, index) => ({
-            side: s.side === 'retest' ? 'left' : s.side,
+            side: s.side === 'retest' ? s.retestOf! : s.side,
             // The baseline is what the page reported before the click, not an assumption.
-            baselineUnfocused: s.focusBefore === null,
+            baselineUnfocused: s.focusBefore !== bound.nodeIdentity,
+            valueChanged: s.valueChanged,
+            stable: s.stable,
             focusedWithinMs: s.focusedWithinMs,
             integrity: s.integrity,
             retest: retestRecorded && index === samples.length - 1,
@@ -296,7 +319,9 @@ export function createFocusProbe(deps: FocusProbeDeps) {
           integrity: samples.at(-1)?.integrity ?? control.integrity,
           algorithmVersion: deps.algorithmVersion ?? DEFAULT_ALGORITHM_VERSION,
         })
+        deps.guard()
         const receiptRef = await deps.saveReceipt(receipt)
+        deps.guard()
         await deps.saveMeasurements(receiptRef, samples)
         deps.guard()
 
@@ -322,7 +347,12 @@ export function createFocusProbe(deps: FocusProbeDeps) {
           nextStep: nextStepFor(verdict.validationStatus),
         }
         // Reuse is only safe while the document is unchanged; a new epoch must re-measure.
-        cache.set(input.candidateId, { receiptRef, result, epoch: bound.documentEpoch })
+        cache.set(input.candidateId, {
+          receiptRef,
+          result,
+          epoch: bound.documentEpoch,
+          node: bound.nodeIdentity,
+        })
         return result
       } finally {
         reservation.release()
@@ -336,13 +366,22 @@ async function resetIfFocused(
   reservation: ActionReservation,
   resets: NeutralReset[],
   deps: FocusProbeDeps,
+  force = false,
 ): Promise<void> {
   // Every sample starts from a verified unfocused baseline. If the target is already focused, focus is
   // cleared only by a real click on a known-safe neutral area - never by script focus/blur. The reset
   // is itself a real click, so it costs an action; the caller charges the sample click separately.
-  if (bound.isFocused()) {
-    reservation.consume()
-    resets.push(await deps.neutralReset())
+  deps.guard()
+  const focused = await bound.isFocused()
+  deps.guard()
+  if (focused || force) {
+    resets.push(
+      await deps.neutralReset(() => {
+        deps.guard()
+        reservation.consume()
+      }),
+    )
+    deps.guard()
   }
 }
 

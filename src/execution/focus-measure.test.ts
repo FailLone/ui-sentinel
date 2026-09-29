@@ -193,3 +193,63 @@ describe('focus measurement against a real browser', () => {
     expect(result.valueChanged).toBe(false)
   })
 })
+
+it('refuses focus on a replacement with the same selector', async () => {
+  const p = await browser.newPage()
+  try {
+    await p.setContent(
+      `<input id="q" onmousedown="event.preventDefault();const n=this.cloneNode();this.replaceWith(n);n.focus()">`,
+    )
+    const node = await p.$('#q'),
+      box = (await node!.boundingBox())!
+    const r = await createFocusMeasurer(p).clickAndMeasure({
+      selector: '#q',
+      x: box.x + 5,
+      y: box.y + 5,
+    })
+    expect(await node!.evaluate((el) => el.isConnected)).toBe(false)
+    expect(r.stable).toBe(false)
+    expect(r.focusedWithinMs).toBeNull()
+  } finally {
+    await p.close()
+  }
+})
+it('records a value change during the measurement as an unstable surface', async () => {
+  const p = await browser.newPage()
+  try {
+    await p.setContent(`<input id="q" onclick="this.value='changed'">`)
+    const box = (await p.locator('#q').boundingBox())!
+    const r = await createFocusMeasurer(p).clickAndMeasure({
+      selector: '#q',
+      x: box.x + 5,
+      y: box.y + 5,
+    })
+    expect(r.valueChanged).toBe(true)
+    expect(r.stable).toBe(false)
+  } finally {
+    await p.close()
+  }
+})
+it('checks cancellation after asynchronous verification and before pointer dispatch', async () => {
+  const p = await browser.newPage(),
+    controller = new AbortController()
+  try {
+    await p.setContent('<input id="q">')
+    const box = (await p.locator('#q').boundingBox())!
+    let clicks = 0
+    await expect(
+      createFocusMeasurer(p, () => controller.signal.throwIfAborted()).clickAndMeasure({
+        selector: '#q',
+        x: box.x + 5,
+        y: box.y + 5,
+        verify: async () => {
+          controller.abort(Error('cancelled'))
+        },
+        beforeClick: () => clicks++,
+      }),
+    ).rejects.toThrow('cancelled')
+    expect(clicks).toBe(0)
+  } finally {
+    await p.close()
+  }
+})

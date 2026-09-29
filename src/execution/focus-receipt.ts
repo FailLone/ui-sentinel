@@ -1,3 +1,6 @@
+import { FOCUS_WINDOW_MS, MAX_PROBE_CLICKS } from './focus-constants.ts'
+export { FOCUS_WINDOW_MS, MAX_PROBE_CLICKS } from './focus-constants.ts'
+import { evaluateFocusVerdict } from './focus-verdict.ts'
 import { cleanEvidenceIntegrity, type EvidenceIntegrity } from '../shared/evidence-integrity.ts'
 
 /**
@@ -9,15 +12,6 @@ import { cleanEvidenceIntegrity, type EvidenceIntegrity } from '../shared/eviden
  * `focusReceiptSupports` enforces, so re-titling an old hypothesis cannot borrow someone else's probe.
  */
 
-/** The bounded click ceiling: 1 positive control + up to 2 edge points + up to 1 retest, plus resets. */
-export const MAX_PROBE_CLICKS = 8
-
-/**
- * The measurement window for "focused promptly". 500ms is this round's window; it is not a claim
- * that every application must honour it permanently, and reports must say so.
- */
-export const FOCUS_WINDOW_MS = 500
-
 export interface FocusHit {
   readonly ref: string | null
   readonly tag: string
@@ -26,6 +20,8 @@ export interface FocusHit {
 
 export interface FocusSample {
   readonly side: 'left' | 'right' | 'retest'
+  readonly retestOf?: 'left' | 'right'
+  readonly stable?: boolean
   readonly x: number
   readonly y: number
   readonly hit: FocusHit
@@ -182,4 +178,39 @@ export function focusReceiptSupports(
   return (
     receipt.candidateId === target.candidateId && receipt.screenshotRef === target.screenshotRef
   )
+}
+
+/** Recompute the only conclusion this persisted measurement can justify. */
+export function focusReceiptVerdict(receipt: unknown) {
+  if (!isFocusReceipt(receipt)) return 'inconclusive'
+  const r = receipt
+  if (!r.positiveControl.stable || r.samples.some((s) => !s.stable)) return 'inconclusive'
+  const consistent = (s: Omit<FocusSample, 'side'>) =>
+    s.focusedWithinMs === null
+      ? s.focusAfter !== r.binding.nodeIdentity
+      : s.focusAfter === r.binding.nodeIdentity
+  if (!consistent(r.positiveControl) || !r.samples.every(consistent)) return 'inconclusive'
+  if (
+    r.samples.length > 3 ||
+    r.resets.length > 4 ||
+    r.actionCost !== 1 + r.samples.length + r.resets.length
+  )
+    return 'inconclusive'
+  const retry = r.samples.find((s) => s.side === 'retest')
+  const first = retry && r.samples.find((s) => s.side === retry.retestOf)
+  if (retry && (!first || retry.x !== first.x || retry.y !== first.y)) return 'inconclusive'
+  return evaluateFocusVerdict({
+    control: {
+      ...r.positiveControl,
+      baselineUnfocused: r.positiveControl.focusBefore !== r.binding.nodeIdentity,
+    },
+    attempts: r.samples.map((s) => ({
+      ...s,
+      side: s.side === 'retest' ? s.retestOf! : s.side,
+      baselineUnfocused: s.focusBefore !== r.binding.nodeIdentity,
+      retest: s.side === 'retest',
+    })),
+    resets: r.resets,
+    usableEdgePoints: 2,
+  }).validationStatus
 }

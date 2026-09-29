@@ -1,19 +1,12 @@
 import type { Page } from 'playwright'
+import type { FocusNode } from './focus-surface.ts'
+import { readFocusSurface } from './focus-surface.ts'
 import { FOCUS_WINDOW_MS } from './focus-receipt.ts'
 
-/**
- * The real-browser measurement primitives for the focus probe.
- *
- * Everything here is a genuine Playwright mouse click at a CSS coordinate, with `document.activeElement`
- * read from the page before and after. There is deliberately no `element.focus()`, no `.blur()`, no
- * `dispatchEvent` and no style mutation anywhere: plan 4.4 forbids constructing a passing result, and
- * a scripted focus would do exactly that. Clearing focus is likewise a real click on a neutral area.
- *
- * The hit element is recorded even when it is not the target, because a label or container delegate
- * that hands focus to the input is healthy behaviour and must pass.
- */
-
+export type HitRelation = 'self' | 'descendant' | 'ancestor' | 'unrelated' | 'none'
 export interface ClickMeasurement {
+  readonly x: number
+  readonly y: number
   readonly focusedWithinMs: number | null
   readonly hit: {
     readonly ref: string | null
@@ -21,20 +14,11 @@ export interface ClickMeasurement {
     readonly relation: HitRelation
   }
   readonly valueChanged: boolean
-  /**
-   * A short description of what held focus when the click landed, or null if nothing did.
-   *
-   * This is the sample's baseline, read from the page. Plan 4.4 turns on an already-focused input
-   * surviving a click on dead padding, so a caller that assumes an unfocused baseline can manufacture
-   * a defect out of nothing.
-   */
   readonly focusBefore: string | null
-  /** True when the click target itself already held focus. */
+  readonly focusAfter: string | null
   readonly targetFocusedBefore: boolean
+  readonly stable: boolean
 }
-
-export type HitRelation = 'self' | 'descendant' | 'ancestor' | 'unrelated' | 'none'
-
 export interface ResetMeasurement {
   readonly x: number
   readonly y: number
@@ -42,130 +26,129 @@ export interface ResetMeasurement {
   readonly url: string
 }
 
-export function createFocusMeasurer(page: Page) {
-  /** Read focus from the page itself. Never cache it: a stale answer is the whole failure mode. */
-  async function isFocused(selector: string): Promise<boolean> {
-    return page.evaluate((sel) => {
+/** No focus/blur, forced clicks or synthetic events. Guard immediately before every pointer action. */
+export function createFocusMeasurer(page: Page, guard: () => void = () => {}) {
+  const isFocused = (selector: string) =>
+    page.evaluate((sel) => {
       const el = document.querySelector(sel)
       return !!el && document.activeElement === el
     }, selector)
-  }
 
-  /**
-   * Click at a CSS coordinate and report how long the target took to become the active element.
-   *
-   * The click is a real `page.mouse.click`. The target is watched across the window so a click that
-   * focuses the input through a container delegate passes just as one that hits the input directly.
-   */
   async function clickAndMeasure(input: {
     selector: string
     x: number
     y: number
     windowMs?: number
+    handle?: FocusNode
+    nodeIdentity?: string
+    verify?: () => Promise<void>
+    beforeClick?: () => void
   }): Promise<ClickMeasurement> {
-    const windowMs = input.windowMs ?? FOCUS_WINDOW_MS
-    const before = await page.evaluate((sel) => {
-      const el = document.querySelector(sel) as HTMLInputElement | null
-      const active = document.activeElement as HTMLElement | null
-      // Describe the active element by identity, so the caller can tell "the target" from "something
-      // else" without trusting a boolean alone.
-      const describe = (node: HTMLElement | null): string | null => {
-        if (!node || node === document.body || node === document.documentElement) return null
-        const tag = node.tagName.toLowerCase()
-        const id = node.id ? `#${node.id}` : ''
-        return `${tag}${id}`
-      }
+    guard()
+    const handle = input.handle ?? (await page.$(input.selector))
+    if (!handle) throw Error('focus-target-missing')
+    try {
+      const surface = await readFocusSurface(page)
+      const identity =
+        input.nodeIdentity ??
+        (await handle.evaluate((el) => `${el.tagName.toLowerCase()}#${el.id}`))
+      const read = () =>
+        handle.evaluate(
+          (el, args) => {
+            const a = document.activeElement
+            const active =
+              !a || a === document.body || a === document.documentElement
+                ? null
+                : a === el
+                  ? args.identity
+                  : `other:${a.tagName.toLowerCase()}#${a.id}`
+            return {
+              active,
+              focused: a === el,
+              connected: el.isConnected && document.querySelector(args.selector) === el,
+              value: (el as HTMLInputElement).value ?? null,
+            }
+          },
+          { identity, selector: input.selector },
+        )
+      await input.verify?.()
+      const before = await read()
+      if (!before.connected) throw Error('focus-state-changed')
+      const hit = await handle.evaluate(
+        (target, p) => {
+          const el = document.elementFromPoint(p.x, p.y)
+          return {
+            ref: el ? `${el.tagName.toLowerCase()}#${el.id}` : null,
+            tag: el?.tagName.toLowerCase() ?? 'none',
+            relation: !el
+              ? 'none'
+              : el === target
+                ? 'self'
+                : target.contains(el)
+                  ? 'descendant'
+                  : el.contains(target)
+                    ? 'ancestor'
+                    : 'unrelated',
+          }
+        },
+        { x: input.x, y: input.y },
+      )
+      guard()
+      const startedAt = Date.now()
+      input.beforeClick?.()
+      await page.mouse.click(input.x, input.y)
+      let focusedWithinMs: number | null = null
+      let stable = true
+      const windowMs = input.windowMs ?? FOCUS_WINDOW_MS
+      // Observe the full bounded window: later value/layout changes still invalidate a fast focus.
+      do {
+        guard()
+        const current = await read()
+        stable &&= current.connected
+        const elapsed = Date.now() - startedAt
+        if (current.focused && current.connected && elapsed <= windowMs) focusedWithinMs ??= elapsed
+        await input.verify?.()
+        if (elapsed >= windowMs) break
+        await page.waitForTimeout(Math.min(20, windowMs - elapsed))
+      } while (true)
+      const after = await read()
+      stable &&= after.connected && surface === (await readFocusSurface(page))
+      guard()
       return {
-        value: el?.value ?? null,
-        focused: active === el,
-        focusBefore: describe(active),
+        x: input.x,
+        y: input.y,
+        focusedWithinMs: stable ? focusedWithinMs : null,
+        hit: hit as ClickMeasurement['hit'],
+        valueChanged: before.value !== after.value,
+        focusBefore: before.active,
+        focusAfter: after.active,
+        targetFocusedBefore: before.focused,
+        stable,
       }
-    }, input.selector)
-
-    // Record what the pointer actually landed on, before the click changes anything.
-    const hit = await page.evaluate(
-      ({ x, y, sel }) => {
-        const el = document.elementFromPoint(x, y)
-        const target = document.querySelector(sel)
-        if (!el) return { tag: 'none', relation: 'none' as HitRelation }
-        const relation: HitRelation =
-          el === target
-            ? 'self'
-            : target?.contains(el)
-              ? 'descendant'
-              : el.contains(target as Node)
-                ? 'ancestor'
-                : 'unrelated'
-        return { tag: el.tagName.toLowerCase(), relation }
-      },
-      { x: input.x, y: input.y, sel: input.selector },
-    )
-
-    const startedAt = Date.now()
-    await page.mouse.click(input.x, input.y)
-
-    let focusedWithinMs: number | null = null
-    // Poll rather than wait a fixed 500ms, so a fast focus is reported as fast.
-    while (Date.now() - startedAt <= windowMs) {
-      const focused = await page.evaluate((sel) => {
-        const el = document.querySelector(sel)
-        return !!el && document.activeElement === el
-      }, input.selector)
-      if (focused) {
-        focusedWithinMs = Date.now() - startedAt
-        break
-      }
-      await page.waitForTimeout(10)
-    }
-
-    const after = await page.evaluate((sel) => {
-      const el = document.querySelector(sel) as HTMLInputElement | null
-      return { value: el?.value ?? null }
-    }, input.selector)
-
-    return {
-      focusedWithinMs,
-      hit: { ref: null, tag: hit.tag, relation: hit.relation },
-      valueChanged: before.value !== after.value,
-      focusBefore: before.focusBefore,
-      targetFocusedBefore: before.focused,
+    } finally {
+      if (!input.handle) await handle.dispose()
     }
   }
 
-  /**
-   * Clear focus by clicking a known-neutral area, and report whether that click changed anything.
-   *
-   * A reset must not navigate, write, change a form value or change the URL; if it does, the caller
-   * treats the probe as inconclusive rather than measuring from a dirty baseline.
-   */
   async function neutralReset(input: {
     selector: string
     x: number
     y: number
+    beforeClick?: () => void
   }): Promise<ResetMeasurement> {
-    const before = await page.evaluate(
-      (selector) => ({
-        url: location.href,
-        value: (document.querySelector(selector) as HTMLInputElement | null)?.value ?? null,
-      }),
-      input.selector,
-    )
+    guard()
+    const surface = await readFocusSurface(page)
+    guard()
+    input.beforeClick?.()
     await page.mouse.click(input.x, input.y)
     await page.waitForTimeout(20)
-    const after = await page.evaluate(
-      (selector) => ({
-        url: location.href,
-        value: (document.querySelector(selector) as HTMLInputElement | null)?.value ?? null,
-      }),
-      input.selector,
-    )
+    guard()
     return {
       x: input.x,
       y: input.y,
-      url: after.url,
-      introducedChange: before.url !== after.url || before.value !== after.value,
+      url: page.url(),
+      introducedChange: surface !== (await readFocusSurface(page)),
     }
   }
-
   return { isFocused, clickAndMeasure, neutralReset }
 }

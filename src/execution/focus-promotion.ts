@@ -1,4 +1,4 @@
-import { isFocusReceipt } from './focus-receipt.ts'
+import { isFocusReceipt, focusReceiptVerdict } from './focus-receipt.ts'
 
 /**
  * The class-scoped promotion gate.
@@ -25,6 +25,8 @@ export interface PromotionReceiptRef {
 }
 
 export interface FocusPromotionInput {
+  readonly status?: 'supported' | 'refuted'
+  readonly confidence?: 'low' | 'medium' | 'high'
   readonly hypothesis: {
     readonly kind: HypothesisKind
     readonly visualCandidateId: string | null
@@ -46,6 +48,7 @@ export type FocusPromotionBlock =
   | 'focus-receipt-candidate-mismatch'
   | 'focus-receipt-screenshot-mismatch'
   | 'missing-bound-candidate'
+  | 'focus-receipt-verdict-mismatch'
 
 export type FocusPromotionResult =
   | { readonly blocked: false }
@@ -83,6 +86,11 @@ export function focusPromotionBlocked(input: FocusPromotionInput): FocusPromotio
       screenshotMismatch = true
       continue
     }
+    if (
+      focusReceiptVerdict(receipt) !== (input.status ?? 'supported') ||
+      (input.status !== 'refuted' && input.confidence === 'low')
+    )
+      return { blocked: true, reason: 'focus-receipt-verdict-mismatch' }
     return { blocked: false }
   }
 

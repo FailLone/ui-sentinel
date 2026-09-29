@@ -9,6 +9,7 @@ const region = { x: 400, y: 200, width: 480, height: 48 }
 function harness(
   over: {
     focusOnEdge?: boolean
+    focusLeftOnly?: boolean
     controlOk?: boolean
     maxActions?: number
     startFocused?: boolean
@@ -46,16 +47,22 @@ function harness(
       screenshotSha: 'a'.repeat(64),
       isFocused: () => focused,
     }),
-    neutralReset: async () => {
+    neutralReset: async (beforeClick) => {
+      beforeClick()
       clicks.push('reset')
       focused = false
       return { x: 10, y: 10, introducedChange: false, integrity: clean }
     },
-    samplePositiveControl: async () => {
+    samplePositiveControl: async (beforeClick) => {
+      beforeClick()
       clicks.push('control')
       const ok = over.controlOk !== false
       focused = ok
       return {
+        x: 640,
+        y: 224,
+        stable: true,
+        focusAfter: ok ? 'input#q@e1' : null,
         focusedWithinMs: ok ? 88 : null,
         hit: { ref: 'e1', tag: 'input' as const, relation: 'self' as const },
         valueChanged: false,
@@ -63,15 +70,24 @@ function harness(
         focusBefore: null,
       }
     },
-    samplePoint: async (point) => {
+    samplePoint: async (point, beforeClick) => {
+      beforeClick()
       clicks.push(`${point.side}`)
       const isRetest = ++edgeSamples > 2
       // A sample reports what was actually focused when its click landed, which is the only honest
       // source for the baseline. A residual focus means the reset failed to clear it.
       const focusBefore = over.residualFocus ? 'input#q@e1' : null
-      const focuses = isRetest ? over.retestFocuses === true : (over.focusOnEdge ?? false)
+      const focuses = isRetest
+        ? over.retestFocuses === true
+        : over.focusLeftOnly
+          ? point.side === 'left'
+          : (over.focusOnEdge ?? false)
       focused = focuses
       return {
+        x: point.x,
+        y: point.y,
+        stable: true,
+        focusAfter: focuses ? 'input#q@e1' : null,
         hit: { ref: 'e9', tag: 'div', relation: 'ancestor' as const },
         valueChanged: false,
         integrity: clean,
@@ -108,9 +124,8 @@ describe('focus_probe orchestration', () => {
     expect(result.candidateId).toBe('candidate-1')
     expect(result.receiptRef).toBe('receipt-art-1')
     expect(result.findingId).toBe('finding-1')
-    // Control, then one reset (the control left the input focused), then left, right, and the retest
-    // of the first failure. Only the one transition into a focused state needs a reset.
-    expect(h.clicks).toEqual(['control', 'reset', 'left', 'right', 'left'])
+    // Control, neutral baseline, both edge points, then an independent neutral reset and retest.
+    expect(h.clicks).toEqual(['control', 'reset', 'left', 'right', 'reset', 'left'])
   })
 
   it('refutes the candidate on the healthy page and still saves the measurement', async () => {
@@ -175,8 +190,8 @@ describe('focus_probe orchestration', () => {
 
     await probe.run({ ...input, region, excluded: [], dangerous: [] })
 
-    // Five real clicks: control, one reset, and three edge samples - so five actions, not one.
-    expect(h.counter.used).toBe(5)
+    // Six real clicks, including the independent neutral reset before the retest.
+    expect(h.counter.used).toBe(6)
   })
 
   it('records on the receipt the actions the probe actually spent', async () => {
@@ -257,4 +272,62 @@ describe('focus_probe orchestration', () => {
 
     expect(complete).toHaveBeenCalledTimes(1)
   })
+})
+
+it('reserves all eight actions before starting, including the possible retest', async () => {
+  for (const maxActions of [6, 7]) {
+    const h = harness({ maxActions, startFocused: true })
+    expect(
+      (await createFocusProbe(h.deps).run({ ...input, region, excluded: [], dangerous: [] }))
+        .validationStatus,
+    ).toBe('inconclusive')
+    expect(h.clicks).toEqual([])
+  }
+  const h = harness({ maxActions: 8, startFocused: true })
+  expect(
+    (await createFocusProbe(h.deps).run({ ...input, region, excluded: [], dangerous: [] }))
+      .validationStatus,
+  ).toBe('supported')
+  expect(h.clicks).toEqual(['reset', 'control', 'reset', 'left', 'right', 'reset', 'left'])
+})
+it('does not issue another click after cancellation during a neutral reset', async () => {
+  const h = harness({ startFocused: true }),
+    controller = new AbortController()
+  const reset = h.deps.neutralReset
+  const probe = createFocusProbe({
+    ...h.deps,
+    guard: () => controller.signal.throwIfAborted(),
+    neutralReset: async (click) => {
+      const r = await reset(click)
+      controller.abort(Error('cancelled'))
+      return r
+    },
+  })
+  await expect(probe.run({ ...input, region, excluded: [], dangerous: [] })).rejects.toThrow(
+    'cancelled',
+  )
+  expect(h.clicks).toEqual(['reset'])
+  expect(h.counter.used).toBe(1)
+})
+
+it('counts all eight real clicks in the maximum initial-focus and mixed-edge case', async () => {
+  const h = harness({ maxActions: 8, startFocused: true, focusLeftOnly: true })
+  const result = await createFocusProbe(h.deps).run({
+    ...input,
+    region,
+    excluded: [],
+    dangerous: [],
+  })
+  expect(result.validationStatus).toBe('supported')
+  expect(h.clicks).toEqual([
+    'reset',
+    'control',
+    'reset',
+    'left',
+    'reset',
+    'right',
+    'reset',
+    'right',
+  ])
+  expect(h.counter.used).toBe(8)
 })

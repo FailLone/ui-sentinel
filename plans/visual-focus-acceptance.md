@@ -1,6 +1,6 @@
 # 主动视觉发现：完整验收计划
 
-与 [开发任务书](next-development-plan.md)共同执行。状态：尚未实现/运行。下列命令是dev必须新增的接口，不代表现在已存在。本轮验收独立于归档业务契约阶段，旧45/45不能替代新结果。
+与 [开发任务书](next-development-plan.md)共同执行。状态：P1 最小子集已通过，见 [P1 交接](visual-focus-handoff.md)。`validate:visual-focus -- --preflight` 已实现；新视觉 diagnostic/formal 仍待 P3 实现，不能视为当前可用接口。本轮验收独立于归档业务契约阶段，旧45/45不能替代新结果。
 
 ## 1. 验收命令契约
 

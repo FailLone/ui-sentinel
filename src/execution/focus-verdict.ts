@@ -1,5 +1,5 @@
 import { cleanEvidenceIntegrity, type EvidenceIntegrity } from '../shared/evidence-integrity.ts'
-import { FOCUS_WINDOW_MS } from './focus-receipt.ts'
+import { FOCUS_WINDOW_MS } from './focus-constants.ts'
 
 /**
  * The verdict for a focus probe, from the recorded attempts.
@@ -22,6 +22,8 @@ export interface FocusAttempt {
   readonly integrity: EvidenceIntegrity
   /** Set on the one permitted retest of the first failing point. */
   readonly retest?: boolean
+  readonly valueChanged?: boolean
+  readonly stable?: boolean
 }
 
 export interface FocusReset {
@@ -34,6 +36,9 @@ export interface FocusVerdictInput {
     readonly ok: boolean
     readonly focusedWithinMs: number | null
     readonly integrity: EvidenceIntegrity
+    readonly baselineUnfocused?: boolean
+    readonly valueChanged?: boolean
+    readonly stable?: boolean
   }
   readonly attempts: readonly FocusAttempt[]
   readonly resets: readonly FocusReset[]
@@ -74,7 +79,13 @@ export function evaluateFocusVerdict(input: FocusVerdictInput): FocusVerdictResu
   })
 
   // The control proves the harness can see a focus when one happens. Without it, nothing else counts.
-  if (!input.control.ok || input.control.focusedWithinMs === null) {
+  if (
+    !input.control.ok ||
+    input.control.focusedWithinMs === null ||
+    input.control.focusedWithinMs < 0 ||
+    input.control.focusedWithinMs > FOCUS_WINDOW_MS ||
+    input.control.baselineUnfocused === false
+  ) {
     reasons.push('positive-control-failed')
     return unknown()
   }
@@ -91,6 +102,21 @@ export function evaluateFocusVerdict(input: FocusVerdictInput): FocusVerdictResu
     return unknown()
   }
 
+  if (
+    input.control.valueChanged ||
+    input.control.stable === false ||
+    input.attempts.some(
+      (a) =>
+        a.valueChanged ||
+        a.stable === false ||
+        (a.focusedWithinMs !== null &&
+          (a.focusedWithinMs < 0 || a.focusedWithinMs > FOCUS_WINDOW_MS)),
+    )
+  ) {
+    reasons.push('state-changed-or-invalid-window')
+    return unknown()
+  }
+
   // A sample on an unverified baseline is the false-positive trap: cannot confirm, cannot deny.
   const untrustworthy = input.attempts.filter((a) => !trustworthy(a))
   if (untrustworthy.some((a) => !a.baselineUnfocused)) reasons.push('baseline-not-established')
@@ -99,7 +125,7 @@ export function evaluateFocusVerdict(input: FocusVerdictInput): FocusVerdictResu
   if (untrustworthy.length > 0) return unknown()
 
   const firstPass = input.attempts.filter((a) => !a.retest)
-  if (firstPass.length === 0) {
+  if (firstPass.length !== 2 || new Set(firstPass.map((a) => a.side)).size !== 2) {
     reasons.push('no-usable-samples')
     return unknown()
   }
@@ -111,6 +137,10 @@ export function evaluateFocusVerdict(input: FocusVerdictInput): FocusVerdictResu
 
   // A retest exists only to firm up a first failure; if it focuses, the first result is not reliable.
   const retests = input.attempts.filter((a) => a.retest)
+  if (retests.length !== 1 || retests[0].side !== failures[0].side) {
+    reasons.push('missing-independent-retest')
+    return unknown()
+  }
   if (retests.some((a) => a.focusedWithinMs !== null)) {
     reasons.push('retest-focuses')
     return unknown()

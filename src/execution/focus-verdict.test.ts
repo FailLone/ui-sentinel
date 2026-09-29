@@ -33,7 +33,11 @@ describe('focus verdict: the already-focused false positive', () => {
   it('supports the finding only when a verified-unfocused baseline sample fails to focus', () => {
     const verdict = evaluateFocusVerdict({
       control: controlOk,
-      attempts: [attempt({ side: 'left', focusedWithinMs: null })],
+      attempts: [
+        attempt({ side: 'left' }),
+        attempt({ side: 'right', focusedWithinMs: 20 }),
+        attempt({ side: 'left', retest: true }),
+      ],
       resets: [],
     })
     expect(verdict.verdict).toBe('fail')
@@ -116,6 +120,7 @@ describe('focus verdict: the already-focused false positive', () => {
       attempts: [
         attempt({ side: 'left', focusedWithinMs: null }),
         attempt({ side: 'right', focusedWithinMs: 68 }),
+        attempt({ side: 'left', retest: true }),
       ],
       resets: [],
     })
@@ -127,6 +132,7 @@ describe('focus verdict: the already-focused false positive', () => {
       control: controlOk,
       attempts: [
         attempt({ side: 'left', focusedWithinMs: null }),
+        attempt({ side: 'right', focusedWithinMs: 60 }),
         attempt({ side: 'left', focusedWithinMs: null, retest: true }),
       ],
       resets: [],
@@ -138,6 +144,7 @@ describe('focus verdict: the already-focused false positive', () => {
       control: controlOk,
       attempts: [
         attempt({ side: 'left', focusedWithinMs: null }),
+        attempt({ side: 'right', focusedWithinMs: 60 }),
         attempt({ side: 'left', focusedWithinMs: 120, retest: true }),
       ],
       resets: [],
@@ -146,4 +153,23 @@ describe('focus verdict: the already-focused false positive', () => {
     expect(recovered.validationStatus).toBe('inconclusive')
     expect(recovered.reasons).toContain('retest-focuses')
   })
+})
+
+it('requires a same-point retest before supporting a failure', () => {
+  expect(
+    evaluateFocusVerdict({
+      control: controlOk,
+      attempts: [attempt(), attempt({ side: 'right' })],
+      resets: [],
+    }).validationStatus,
+  ).toBe('inconclusive')
+})
+it('requires both sides before refuting a candidate', () => {
+  expect(
+    evaluateFocusVerdict({
+      control: controlOk,
+      attempts: [attempt({ focusedWithinMs: 20 })],
+      resets: [],
+    }).validationStatus,
+  ).toBe('inconclusive')
 })

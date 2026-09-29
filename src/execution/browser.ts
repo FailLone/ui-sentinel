@@ -82,10 +82,15 @@ export async function saveEvidence(
   type: string,
   data: Buffer | string,
   metadata: Record<string, unknown> = {},
+  guard: () => void = () => {},
 ): Promise<string> {
-  return profileOperation('persistence', () => persistEvidence(runId, type, data, metadata), {
-    type,
-  })
+  return profileOperation(
+    'persistence',
+    () => persistEvidence(runId, type, data, metadata, guard),
+    {
+      type,
+    },
+  )
 }
 
 async function persistEvidence(
@@ -93,6 +98,7 @@ async function persistEvidence(
   type: string,
   data: Buffer | string,
   metadata: Record<string, unknown>,
+  guard: () => void,
 ) {
   const { randomUUID } = await import('node:crypto')
   const { getDbClient } = await import('../storage/database.ts')
@@ -100,7 +106,14 @@ async function persistEvidence(
   const dir = path.join(ARTIFACTS_DIR, runId)
   await fs.mkdir(dir, { recursive: true })
   const file = path.join(dir, id)
+  guard()
   await fs.writeFile(file, data)
+  try {
+    guard()
+  } catch (error) {
+    await fs.rm(file, { force: true })
+    throw error
+  }
   await getDbClient().execute({
     sql: 'INSERT INTO artifacts (id,run_id,type,file_path,metadata) VALUES (?,?,?,?,?)',
     args: [id, runId, type, file, JSON.stringify(metadata)],
@@ -134,7 +147,7 @@ export async function observePage(
   const screenshotPath = await saveEvidence(
     runId,
     'screenshot',
-    await profileOperation('screenshot', () => page.screenshot({ fullPage: false })),
+    await profileOperation('screenshot', () => page.screenshot({ fullPage: false, scale: 'css' })),
     {
       url: page.url(),
       viewport: page.viewportSize(),
@@ -209,9 +222,16 @@ export async function observePage(
             attributes: Object.fromEntries(
               Array.from(el.attributes)
                 .filter((a) =>
-                  ['role', 'type', 'aria-label', 'aria-disabled', 'disabled', 'href'].includes(
-                    a.name,
-                  ),
+                  [
+                    'role',
+                    'type',
+                    'aria-label',
+                    'aria-disabled',
+                    'disabled',
+                    'href',
+                    'readonly',
+                    'id',
+                  ].includes(a.name),
                 )
                 .map((a) => [a.name, a.value]),
             ),

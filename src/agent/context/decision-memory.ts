@@ -15,6 +15,9 @@ function projection(item: Record<string, unknown>, receiptRef: string) {
   // A read cursor belongs to the original payload, not the newer receipt containing it.
   return {
     ...summary,
+    ...(summary.tool === 'focus_probe' && summary.receiptRef
+      ? { focusReceiptRef: summary.receiptRef }
+      : {}),
     resultRef: summary.tool === 'tool_result_read' ? (summary.resultRef ?? receiptRef) : receiptRef,
     receiptRef,
   }

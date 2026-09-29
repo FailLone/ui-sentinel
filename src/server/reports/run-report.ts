@@ -106,6 +106,7 @@ async function focusMeasurements(
     let samplesAvailable = true
     try {
       body = JSON.parse(await readFile(String(row.file_path), 'utf8'))
+      if (!Array.isArray(body.samples) || !body.receiptRef) samplesAvailable = false
     } catch {
       samplesAvailable = false
     }
@@ -261,6 +262,24 @@ export async function buildReport(runId: string) {
         .map((e) => [String(e.payload.id), e.payload as unknown as AnalysisTask]),
     ).values(),
   ]
+  const visualUnverified = [
+    ...events
+      .filter((e) => e.type === 'visual-scan:unavailable')
+      .map((e) => `visual-scan:${String(e.payload.reason)}`),
+    ...artifactRows.rows
+      .filter((r) => r.type === 'visual-candidate')
+      .map((r) => JSON.parse(String(r.metadata)).candidateId as string)
+      .filter(
+        (id) =>
+          !events.some(
+            (e) =>
+              e.type === 'visual-focus:completed' &&
+              e.payload.candidateId === id &&
+              ['supported', 'refuted'].includes(String(e.payload.validationStatus)),
+          ),
+      )
+      .map((id) => `visual-candidate:${id}:unverified`),
+  ]
   return {
     runId,
     status: invalid
@@ -301,6 +320,11 @@ export async function buildReport(runId: string) {
         .map((a) => a.id),
     },
     findings,
+    visualDiscovery: events.find((e) => e.type === 'visual-discovery:configured')?.payload ?? {
+      enabled: false,
+      algorithmVersion: null,
+      source: 'legacy-unversioned',
+    },
     // Bounded visual-focus measurements, point by point, with the images they were taken from.
     focusMeasurements: await focusMeasurements(
       artifactRows,
@@ -330,13 +354,15 @@ export async function buildReport(runId: string) {
     unknownCount:
       evaluations.filter((e) => e.verdict === 'unknown').length +
       findings.filter((f) => f.validationStatus === 'inconclusive').length +
-      unverifiedInterventionScope.length,
+      unverifiedInterventionScope.length +
+      visualUnverified.length,
     coverage: {
       exploredStates,
       unexploredBranches,
       checks: evaluations.length ? 'checked' : 'not-checked',
       executionErrors,
       unverifiedInterventionScope,
+      visualUnverified,
       unverifiedAnalysisTasks: unresolvedAnalyses(analysisTasks).map((t) => t.id),
       persistenceIssues: issues,
       stopReason: invalid ? 'reconciliation-required' : run.stopReason,

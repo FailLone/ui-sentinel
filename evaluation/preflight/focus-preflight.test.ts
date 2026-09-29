@@ -12,20 +12,8 @@ import { evaluateFocusVerdict } from '@/execution/focus-verdict.ts'
 import { FOCUS_WINDOW_MS } from '@/execution/focus-receipt.ts'
 import { VISUAL_TRUTH, visualTruthFor } from '@evaluation/fixtures/visual.ts'
 
-/**
- * The free preflight: the whole measurement path against the real arena in a real browser, with no
- * model call anywhere in the file.
- *
- * Plan 6 makes this the gate P1 must clear before review, so it deliberately exercises the claims a
- * unit test cannot: that a real click on the region padding genuinely fails to focus the input while
- * the positive control succeeds, that the container-proxy delegate passes as healthy even though the
- * click lands on a wrapper, that the derived reset point really clears focus, that the already-focused
- * case resolves to unknown instead of manufacturing a defect, and that a refused binding stays refused.
- *
- * The vision response is authored here and labelled as fixed. There is no model in this file, so
- * nothing here can pass by accident - which is what makes it free, and what makes it a gate.
- */
-
+/** Real arena geometry and behavior tests. The separate validate:visual-focus command proves
+ * the SDK/API/Agent/tool/persistence boundary; these tests do not claim that coverage. */
 const CONTROL_TOKEN = 'preflight-control-token'
 const PRESENTATION = { D0: 'search-padded-narrow-input', H0: 'search-proxied-wide-region' } as const
 const DIST = 'arena/checkout/dist'
@@ -102,16 +90,12 @@ async function boxOf(selector: string) {
 }
 
 beforeAll(async () => {
-  // The arena's built bundle is gitignored, so a fresh checkout has no page to test. Fail with the
-  // command that fixes it rather than letting every case time out waiting for a selector that will
-  // never appear - which is how this looks when someone meets it for the first time.
-  try {
-    await readFile(join(DIST, 'index.html'))
-  } catch {
-    throw new Error(
-      `${DIST} is missing. Build the arena first: cd arena/checkout && npx vite build --config vite.config.ts`,
-    )
-  }
+  const { build } = await import('vite')
+  await build({
+    configFile: 'arena/checkout/vite.config.ts',
+    root: 'arena/checkout',
+    logLevel: 'silent',
+  })
 
   server = arenaServer()
   await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', () => resolve()))
@@ -125,7 +109,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await browser?.close()
-  await new Promise<void>((resolve) => server.close(() => resolve()))
+  if (server) await new Promise<void>((resolve) => server.close(() => resolve()))
 })
 
 describe('free preflight: the real arena, real clicks, no model', () => {
@@ -133,7 +117,10 @@ describe('free preflight: the real arena, real clicks, no model', () => {
     await openCase('D0')
     const config = await (await fetch(`${origin}/api/variant-config`)).json()
 
-    expect(config.search).toEqual({ present: PRESENTATION.D0 })
+    expect(config.search).toEqual({ present: 'one' })
+    expect(JSON.stringify(config) + (await page.content())).not.toMatch(
+      /search-padded-narrow-input|search-proxied-wide-region/,
+    )
     // The case id, the truth region and the expected outcome must not be readable from the page. Every
     // coordinate is checked: leaking the region would hand the agent the answer to the overlap rule.
     const readable = JSON.stringify(config) + (await page.content())
@@ -150,7 +137,7 @@ describe('free preflight: the real arena, real clicks, no model', () => {
     const box = await boxOf(truth.targetSelector)
     const measurer = createFocusMeasurer(page)
 
-    await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur())
+    await page.getByRole('heading', { name: 'Our Products', exact: true }).click()
     const control = await measurer.clickAndMeasure({
       selector: truth.targetSelector,
       x: box.x + box.width / 2,
@@ -164,9 +151,9 @@ describe('free preflight: the real arena, real clicks, no model', () => {
     expect(points.length).toBeGreaterThanOrEqual(2)
 
     const samples = []
-    for (const point of points) {
+    for (const point of [...points, points[0]]) {
       // Each sample starts from a verified unfocused baseline, established by a real click.
-      await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur())
+      await page.getByRole('heading', { name: 'Our Products', exact: true }).click()
       const sample = await measurer.clickAndMeasure({
         selector: truth.targetSelector,
         x: point.x,
@@ -184,7 +171,8 @@ describe('free preflight: the real arena, real clicks, no model', () => {
     const verdict = evaluateFocusVerdict({
       control: { ok: true, focusedWithinMs: control.focusedWithinMs, integrity: clean() },
       attempts: samples.map((s, i) => ({
-        side: points[i].side,
+        side: points[i % points.length].side,
+        retest: i === points.length,
         baselineUnfocused: s.focusBefore === null,
         focusedWithinMs: s.focusedWithinMs,
         integrity: clean(),
@@ -206,7 +194,7 @@ describe('free preflight: the real arena, real clicks, no model', () => {
 
     const samples = []
     for (const point of points) {
-      await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur())
+      await page.getByRole('heading', { name: 'Our Products', exact: true }).click()
       samples.push(
         await measurer.clickAndMeasure({
           selector: truth.targetSelector,
@@ -224,7 +212,8 @@ describe('free preflight: the real arena, real clicks, no model', () => {
     const verdict = evaluateFocusVerdict({
       control: { ok: true, focusedWithinMs: 40, integrity: clean() },
       attempts: samples.map((s, i) => ({
-        side: points[i].side,
+        side: points[i % points.length].side,
+        retest: i === points.length,
         baselineUnfocused: true,
         focusedWithinMs: s.focusedWithinMs,
         integrity: clean(),
@@ -266,7 +255,8 @@ describe('free preflight: the real arena, real clicks, no model', () => {
     const verdict = evaluateFocusVerdict({
       control: { ok: true, focusedWithinMs: 40, integrity: clean() },
       attempts: samples.map((s, i) => ({
-        side: points[i].side,
+        side: points[i % points.length].side,
+        retest: i === points.length,
         baselineUnfocused: !s.targetFocusedBefore,
         focusedWithinMs: s.focusedWithinMs,
         integrity: clean(),
@@ -421,22 +411,5 @@ describe('free preflight: the real arena, real clicks, no model', () => {
     expect(result.ok).toBe(false)
     if (result.ok) return
     expect(result.reason).toBe('dangerous-control-in-region')
-  })
-
-  it('stops before clicking once cancellation is signalled', async () => {
-    // Plan 4.5: cancellation stops in-flight measurement rather than merely being recorded.
-    const controller = new AbortController()
-    const guard = () => controller.signal.throwIfAborted()
-    let clicks = 0
-    const runOneSample = async () => {
-      guard()
-      clicks++
-      controller.abort(new Error('run-cancelled'))
-      guard()
-      clicks++
-    }
-
-    await expect(runOneSample()).rejects.toThrow(/run-cancelled/)
-    expect(clicks).toBe(1)
   })
 })

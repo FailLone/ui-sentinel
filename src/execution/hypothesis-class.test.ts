@@ -1,4 +1,6 @@
-import { beforeAll, describe, expect, it, vi } from 'vitest'
+import { beforeAll, afterAll, describe, expect, it, vi } from 'vitest'
+import { createHash } from 'node:crypto'
+import { rm } from 'node:fs/promises'
 vi.mock('../shared/config.ts', () => ({
   config: {
     databaseUrl: 'file::memory:',
@@ -8,244 +10,138 @@ vi.mock('../shared/config.ts', () => ({
   checkModelConfig: () => ({ ready: true, missing: [] }),
 }))
 import { initDatabase } from '../storage/database.ts'
-import { createRun, getRunSnapshot, recordHypothesis, updateHypothesis } from './run-manager.ts'
-
+import {
+  createRun,
+  getRunSnapshot,
+  recordHypothesis,
+  updateHypothesis,
+  submitFinding,
+  getFindings,
+} from './run-manager.ts'
+import { saveEvidence } from './browser.ts'
+import { focusTestReceipt } from './focus-test-fixture.ts'
 beforeAll(initDatabase)
-
-let counter = 0
-async function newRun() {
-  const run = await createRun({
-    goal: `inspect the shopping flow ${++counter}`,
-    entryUrl: 'http://localhost:4173/',
-    environmentId: 'arena',
-  })
-  return run.id
-}
-
+const ids: string[] = []
+afterAll(async () => {
+  for (const id of ids) await rm(`data/artifacts/${id}`, { recursive: true, force: true })
+})
 const base = {
-  phenomenon: 'clicks inside the search area do not focus the input',
-  basis: 'the perceived region is wider than the native input',
-  verificationPlan: 'click the derived points and watch document.activeElement',
+  phenomenon: 'perceived input region may not focus',
+  basis: 'visual candidate',
+  verificationPlan: 'normal clicks',
   status: 'open' as const,
   evidenceRefs: [],
 }
-
-describe('hypothesis class persistence', () => {
-  it('records the visual-focus class and bound candidate on the created event', async () => {
-    // The created event is the authoritative record: it is append-only and written by the server, so a
-    // later status change cannot rewrite which class the hypothesis was registered under.
-    const runId = await newRun()
-    await recordHypothesis({
-      ...base,
+async function setup(kind: 'visual-focus' | undefined = 'visual-focus') {
+  const run = await createRun({
+    goal: 'Inspect shopping',
+    entryUrl: 'http://localhost:4173/',
+    environmentId: 'arena',
+  })
+  ids.push(run.id)
+  const hypothesis = await recordHypothesis({
+    ...base,
+    runId: run.id,
+    ...(kind ? { kind, visualCandidateId: 'candidate-1' } : {}),
+  })
+  return { runId: run.id, id: hypothesis.id }
+}
+async function evidence(runId: string, mutation?: string) {
+  const shot = await saveEvidence(runId, 'screenshot', Buffer.from('original-image'))
+  const sha = createHash('sha256').update('original-image').digest('hex')
+  const candidate = await saveEvidence(
+    runId,
+    'visual-candidate',
+    JSON.stringify({
+      id: 'candidate-1',
       runId,
+      screenshotRef: shot,
+      screenshotSha: sha,
+      perceivedRegion: { x: 100, y: 200, width: 400, height: 40 },
+      excludedRegions: [],
+      confidence: 'high',
+    }),
+    { candidateId: 'candidate-1' },
+  )
+  const receipt = structuredClone(
+    focusTestReceipt('candidate-1', { screenshotRef: shot, screenshotSha: sha }),
+  ) as any
+  if (mutation === 'candidate') receipt.candidateId = 'foreign'
+  if (mutation === 'screenshot') receipt.screenshotRef = 'foreign'
+  if (mutation === 'baseline') receipt.samples[0].focusBefore = receipt.binding.nodeIdentity
+  if (mutation === 'retest') {
+    receipt.samples.pop()
+    receipt.actionCost--
+  }
+  const ref = await saveEvidence(runId, 'focus-receipt', JSON.stringify(receipt))
+  const measurement = await saveEvidence(
+    runId,
+    'measurement',
+    JSON.stringify({ receiptRef: ref, samples: receipt.samples }),
+    { kind: 'focus-samples' },
+  )
+  const annotation = await saveEvidence(runId, 'screenshot', Buffer.from('annotation'), {
+    annotation: true,
+    kind: 'focus-annotation',
+    sourceRef: shot,
+  })
+  return [shot, candidate, ref, measurement, annotation]
+}
+describe('visual class persistence and promotion', () => {
+  it('persists class on the server-created hypothesis event', async () => {
+    const h = await setup()
+    const s = await getRunSnapshot(h.runId)
+    expect(s!.events.find((e) => e.type === 'hypothesis:created')?.payload).toMatchObject({
       kind: 'visual-focus',
-      visualCandidateId: 'candidate-7',
+      visualCandidateId: 'candidate-1',
     })
-
-    const snapshot = await getRunSnapshot(runId)
-    const event = snapshot!.events.find((e) => e.type === 'hypothesis:created')
-    expect(event?.payload.kind).toBe('visual-focus')
-    expect(event?.payload.visualCandidateId).toBe('candidate-7')
   })
-
-  it('records no class for an ordinary hypothesis', async () => {
-    const runId = await newRun()
-    await recordHypothesis({ ...base, runId })
-
-    const snapshot = await getRunSnapshot(runId)
-    const event = snapshot!.events.find((e) => e.type === 'hypothesis:created')
-    expect(event?.payload.kind ?? null).toBeNull()
+  it('allows a complete matching supported receipt and its owned evidence', async () => {
+    const h = await setup(),
+      refs = await evidence(h.runId)
+    await updateHypothesis(h.id, 'supported', refs)
+    expect((await getRunSnapshot(h.runId))!.hypothesisRows.rows[0].status).toBe('supported')
   })
-
-  it('refuses to resolve a visual-focus hypothesis to supported without a receipt', async () => {
-    // The gate has to hold on the persistence path too, not only in the tool that calls it.
-    const runId = await newRun()
-    const created = await recordHypothesis({
-      ...base,
-      runId,
-      kind: 'visual-focus',
-      visualCandidateId: 'candidate-7',
+  for (const mutation of ['candidate', 'screenshot', 'baseline', 'retest'])
+    it(`rejects ${mutation} at persistence, leaving no finding row`, async () => {
+      const h = await setup(),
+        refs = await evidence(h.runId, mutation)
+      await expect(updateHypothesis(h.id, 'supported', refs)).rejects.toThrow(/focus/)
+      await expect(
+        submitFinding({
+          runId: h.runId,
+          hypothesisId: h.id,
+          source: 'agent',
+          ruleId: null,
+          ruleRevision: null,
+          validationStatus: 'supported',
+          severity: 'warning',
+          title: 'retitled',
+          expected: 'focus',
+          actual: 'no focus',
+          stepId: null,
+          evidenceRefs: refs,
+        }),
+      ).rejects.toThrow(/focus/)
+      expect(await getFindings(h.runId)).toEqual([])
     })
-
-    await expect(updateHypothesis(created.id, 'supported')).rejects.toThrow(/focus receipt/i)
+  it('does not borrow a stored receipt omitted from the evidence refs or contradict it', async () => {
+    const h = await setup(),
+      refs = await evidence(h.runId)
+    await expect(
+      updateHypothesis(
+        h.id,
+        'supported',
+        refs.filter((_, i) => i !== 2),
+      ),
+    ).rejects.toThrow(/receipt/)
+    await expect(updateHypothesis(h.id, 'refuted', refs)).rejects.toThrow(/verdict/)
   })
-
-  it('refuses to resolve it to refuted without a receipt', async () => {
-    const runId = await newRun()
-    const created = await recordHypothesis({
-      ...base,
-      runId,
-      kind: 'visual-focus',
-      visualCandidateId: 'candidate-7',
-    })
-
-    await expect(updateHypothesis(created.id, 'refuted')).rejects.toThrow(/focus receipt/i)
-  })
-
-  it('allows a visual-focus hypothesis to be resolved to inconclusive', async () => {
-    const runId = await newRun()
-    const created = await recordHypothesis({
-      ...base,
-      runId,
-      kind: 'visual-focus',
-      visualCandidateId: 'candidate-7',
-    })
-
-    await updateHypothesis(created.id, 'inconclusive')
-    const snapshot = await getRunSnapshot(runId)
-    expect(snapshot!.hypothesisRows.rows[0].status).toBe('inconclusive')
-  })
-
-  it('allows promotion when a valid receipt bound to the candidate exists', async () => {
-    // The positive direction matters as much as the refusal: a gate that always blocks would pass the
-    // refusal tests above while making the feature impossible.
-    const runId = await newRun()
-    const created = await recordHypothesis({
-      ...base,
-      runId,
-      kind: 'visual-focus',
-      visualCandidateId: 'candidate-7',
-    })
-    await writeFocusReceipt(runId, 'candidate-7', {
-      screenshotRef: await writeArtifact(runId, 'screenshot', 'x'),
-    })
-
-    await updateHypothesis(created.id, 'supported')
-    const snapshot = await getRunSnapshot(runId)
-    expect(snapshot!.hypothesisRows.rows[0].status).toBe('supported')
-  })
-
-  it('refuses promotion when the only receipt is bound to another candidate', async () => {
-    const runId = await newRun()
-    const created = await recordHypothesis({
-      ...base,
-      runId,
-      kind: 'visual-focus',
-      visualCandidateId: 'candidate-7',
-    })
-    await writeFocusReceipt(runId, 'candidate-other')
-
-    await expect(updateHypothesis(created.id, 'supported')).rejects.toThrow(/candidate-mismatch/i)
-  })
-
-  it('refuses promotion when the receipt names the right candidate but another screenshot', async () => {
-    // The receipt has to name BOTH the candidate and the screenshot being promoted. Comparing the
-    // receipt's screenshot against itself would make that half of the rule a tautology, so a receipt
-    // measured against a different observation would sail through.
-    const runId = await newRun()
-    const created = await recordHypothesis({
-      ...base,
-      runId,
-      kind: 'visual-focus',
-      visualCandidateId: 'candidate-7',
-    })
-    await writeFocusReceipt(runId, 'candidate-7', { screenshotRef: 'shot-other' })
-
-    await expect(updateHypothesis(created.id, 'supported')).rejects.toThrow(/screenshot/i)
-  })
-
-  it('allows promotion when the receipt names the right candidate and a real screenshot of the run', async () => {
-    const runId = await newRun()
-    const shot = await writeArtifact(runId, 'screenshot', 'x')
-    const created = await recordHypothesis({
-      ...base,
-      runId,
-      kind: 'visual-focus',
-      visualCandidateId: 'candidate-7',
-    })
-    await writeFocusReceipt(runId, 'candidate-7', { screenshotRef: shot })
-
-    await updateHypothesis(created.id, 'supported')
-    const snapshot = await getRunSnapshot(runId)
-    expect(snapshot!.hypothesisRows.rows[0].status).toBe('supported')
-  })
-
-  it('resolves an ordinary hypothesis to a status without any receipt', async () => {
-    const runId = await newRun()
-    const created = await recordHypothesis({ ...base, runId })
-
-    await updateHypothesis(created.id, 'inconclusive')
-    const snapshot = await getRunSnapshot(runId)
-    expect(snapshot!.hypothesisRows.rows[0].status).toBe('inconclusive')
+  it('requires evidence for supported/refuted but permits honest unknown', async () => {
+    const h = await setup()
+    for (const status of ['supported', 'refuted'] as const)
+      await expect(updateHypothesis(h.id, status)).rejects.toThrow(/receipt/)
+    await updateHypothesis(h.id, 'inconclusive')
+    expect((await getRunSnapshot(h.runId))!.hypothesisRows.rows[0].status).toBe('inconclusive')
   })
 })
-
-/** Write a structurally valid focus receipt artifact owned by this run. */
-/** Write a screenshot artifact owned by this run, as the scan/probe would. */
-async function writeArtifact(runId: string, type: string, body: string) {
-  const { getDbClient } = await import('../storage/database.ts')
-  const id = `${type}-${Math.random().toString(36).slice(2)}`
-  await getDbClient().execute({
-    sql: `INSERT INTO artifacts (id, run_id, type, file_path, metadata) VALUES (?, ?, ?, ?, '{}')`,
-    args: [id, runId, type, `/tmp/${id}`],
-  })
-  void body
-  return id
-}
-
-async function writeFocusReceipt(
-  runId: string,
-  candidateId: string,
-  over: { screenshotRef?: string } = {},
-) {
-  const { mkdtemp, writeFile } = await import('node:fs/promises')
-  const { tmpdir } = await import('node:os')
-  const { join } = await import('node:path')
-  const { createFocusReceipt } = await import('./focus-receipt.ts')
-  const { getDbClient } = await import('../storage/database.ts')
-
-  const clean = { version: 1 as const, status: 'clean' as const, interventionIds: [] }
-  // Unique per call: the suite shares one in-memory database, so a fixed id collides across tests.
-  const id = `receipt-${candidateId}-${Math.random().toString(36).slice(2)}`
-  const dir = await mkdtemp(join(tmpdir(), 'uis-receipt-'))
-  const path = join(dir, `${id}.json`)
-  const receipt = createFocusReceipt({
-    candidateId,
-    screenshotRef: over.screenshotRef ?? 'shot-1',
-    screenshotSha: 'a'.repeat(64),
-    documentEpoch: 'epoch-1',
-    url: 'http://localhost:4173/',
-    scroll: { x: 0, y: 0 },
-    viewport: { width: 1280, height: 768 },
-    binding: {
-      elementRef: 'e1',
-      nodeIdentity: 'input#q@e1',
-      reason: 'the only input in the region',
-    },
-    positiveControl: {
-      x: 300,
-      y: 220,
-      hit: { ref: 'e1', tag: 'input', relation: 'self' },
-      focusBefore: null,
-      focusAfter: 'input#q@e1',
-      focusedWithinMs: 88,
-      valueChanged: false,
-      documentEpoch: 'epoch-1',
-      integrity: clean,
-      ok: true,
-    },
-    samples: [
-      {
-        side: 'left',
-        x: 148,
-        y: 220,
-        hit: { ref: 'e9', tag: 'div', relation: 'ancestor' },
-        focusBefore: null,
-        focusAfter: null,
-        focusedWithinMs: null,
-        valueChanged: false,
-        documentEpoch: 'epoch-1',
-        integrity: clean,
-      },
-    ],
-    resets: [{ x: 10, y: 10, introducedChange: false, integrity: clean }],
-    actionCost: 3,
-    integrity: clean,
-    algorithmVersion: 'visual-focus-1',
-  })
-  await writeFile(path, JSON.stringify(receipt), 'utf8')
-  await getDbClient().execute({
-    sql: `INSERT INTO artifacts (id, run_id, type, file_path, metadata) VALUES (?, ?, 'focus-receipt', ?, '{}')`,
-    args: [id, runId, path],
-  })
-}

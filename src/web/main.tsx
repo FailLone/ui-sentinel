@@ -1,3 +1,4 @@
+import type { FocusMeasurement } from '../server/reports/run-report.ts'
 import React, { useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import type { Finding, RuleProposal, RunEvent, RunReport } from '../shared/types.ts'
@@ -24,6 +25,7 @@ async function api<T>(path: string, body?: unknown): Promise<T> {
   return value as T
 }
 type Report = RunReport & {
+  focusMeasurements?: FocusMeasurement[]
   artifacts?: {
     id: string
     kind?: string
@@ -150,7 +152,7 @@ function Evidence({
         {image ? <img src={url} alt={`现场证据 ${id}`} loading="lazy" /> : id}
       </a>
       <figcaption>
-        {metadata?.annotation ? '红框标注副本 · ' : image ? '现场截图 · ' : ''}
+        {metadata?.annotation ? '测量标注副本 · ' : image ? '现场截图 · ' : ''}
         {id}
         {metadata?.sourceRef && <span> · 原图 {metadata.sourceRef}</span>}
       </figcaption>
@@ -510,6 +512,65 @@ function App() {
               <p>尚无发现；这不表示页面已经通过全部检查。</p>
             )}
           </section>
+          {!!report.focusMeasurements?.length && (
+            <section>
+              <h2>输入区域聚焦测量</h2>
+              <p>仅覆盖已采样点；500ms 是本次测量窗口，不代表整个区域或页面通过。</p>
+              {report.focusMeasurements.map((m) => (
+                <article key={m.samplesRef}>
+                  <h3>{m.candidateId}</h3>
+                  <p>
+                    目标：{m.nodeIdentity} · {m.bindingReason}
+                  </p>
+                  <p>
+                    正向控制：
+                    {m.positiveControlOk
+                      ? `${m.positiveControlFocusedWithinMs}ms 内聚焦`
+                      : '未验证'}
+                  </p>
+                  {!m.samplesAvailable ? (
+                    <p role="alert">测量证据缺失，无法核实。</p>
+                  ) : (
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>测点</th>
+                          <th>坐标</th>
+                          <th>点击前焦点</th>
+                          <th>点击后焦点</th>
+                          <th>聚焦耗时</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {m.points?.map((p, i) => (
+                          <tr key={i}>
+                            <td>{p.side}</td>
+                            <td>
+                              {p.x}, {p.y}
+                            </td>
+                            <td>{p.focusBefore ?? '无'}</td>
+                            <td>{p.focusAfter ?? '无'}</td>
+                            <td>
+                              {p.focusedWithinMs === null
+                                ? '窗口内未聚焦'
+                                : `${p.focusedWithinMs}ms`}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                  <div className="evidence">
+                    {[m.originalRef, m.annotatedRef]
+                      .filter((id): id is string => !!id)
+                      .map((id) => (
+                        <Evidence key={id} id={id} runId={runId} />
+                      ))}
+                  </div>
+                </article>
+              ))}
+            </section>
+          )}
           <section>
             <h2>现场证据</h2>
             <div className="evidence">

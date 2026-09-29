@@ -1,3 +1,5 @@
+import { createHash } from 'node:crypto'
+import { deriveProbePoints } from './focus-geometry.ts'
 import { randomUUID } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
 import type { Client } from '@libsql/client'
@@ -285,15 +287,27 @@ export async function assertUnmodifiedEvidence(
   }
 }
 
-export async function submitFinding(finding: Omit<Finding, 'id' | 'createdAt'>): Promise<Finding> {
+export async function submitFinding(
+  finding: Omit<Finding, 'id' | 'createdAt'>,
+  guard: () => void = () => {},
+): Promise<Finding> {
   const db = getDbClient()
-  if (['supported', 'refuted'].includes(finding.validationStatus))
+  if (['supported', 'refuted'].includes(finding.validationStatus)) {
     await assertUnmodifiedEvidence(finding.runId, finding.evidenceRefs, finding.hypothesisId)
+    if (finding.hypothesisId)
+      await assertPromotableHypothesis(
+        finding.runId,
+        finding.hypothesisId,
+        finding.validationStatus as 'supported' | 'refuted',
+        finding.evidenceRefs,
+      )
+  }
   const id = `finding-${randomUUID()}`
   const now = new Date().toISOString()
 
   const full: Finding = { ...finding, id, createdAt: now }
 
+  guard()
   await db.execute({
     sql: `INSERT INTO findings (id, run_id, source, rule_id, rule_revision, hypothesis_id, validation_status, severity, title, expected, actual, step_id, evidence_refs, created_at)
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -437,20 +451,90 @@ async function loadFocusReceipts(runId: string): Promise<PromotionReceiptRef[]> 
 export async function assertPromotableHypothesis(
   runId: string,
   hypothesisId: string,
+  status: 'supported' | 'refuted' = 'supported',
+  evidenceRefs: readonly string[] = [],
 ): Promise<void> {
   const recorded = await hypothesisClass(runId, hypothesisId)
   if (recorded.kind !== 'visual-focus') return
   const db = getDbClient()
   // The screenshots THIS run owns, so a receipt's screenshot claim can be checked against evidence
   // rather than against itself.
-  const screenshots = await db.execute({
-    sql: `SELECT id FROM artifacts WHERE run_id = ? AND type = 'screenshot'`,
+  const rows = await db.execute({
+    sql: 'SELECT id,type,file_path,metadata FROM artifacts WHERE run_id=?',
     args: [runId],
   })
+  const owned = rows.rows.filter((r) => evidenceRefs.includes(String(r.id)))
+  const candidateRow = owned.find(
+    (r) =>
+      r.type === 'visual-candidate' &&
+      JSON.parse(String(r.metadata)).candidateId === recorded.visualCandidateId,
+  )
+  if (!candidateRow)
+    throw Error('visual-focus promotion requires a valid focus receipt and its candidate evidence')
+  const candidate = JSON.parse(await readFile(String(candidateRow.file_path), 'utf8'))
+  const shot = owned.find((r) => r.id === candidate.screenshotRef && r.type === 'screenshot')
+  if (!shot || candidate.runId !== runId) throw Error('visual-focus candidate screenshot mismatch')
+  const sha = createHash('sha256')
+    .update(await readFile(String(shot.file_path)))
+    .digest('hex')
+  const receipts = (await loadFocusReceipts(runId)).filter((r) =>
+    evidenceRefs.includes(r.artifactId),
+  )
+  const qualified = []
+  for (const ref of receipts) {
+    const r = ref.receipt as import('./focus-receipt.ts').FocusReceipt
+    if (
+      r?.candidateId !== candidate.id ||
+      r.screenshotRef !== candidate.screenshotRef ||
+      r.screenshotSha !== sha ||
+      candidate.screenshotSha !== sha
+    )
+      continue
+    const points = deriveProbePoints({
+      region: candidate.perceivedRegion,
+      excluded: candidate.excludedRegions,
+      dangerous: [],
+    }).points
+    if (
+      !r.samples ||
+      !r.samples.every((s) =>
+        points.some(
+          (p) =>
+            p.side === (s.side === 'retest' ? s.retestOf : s.side) && p.x === s.x && p.y === s.y,
+        ),
+      )
+    )
+      continue
+    const measurementRows = owned.filter(
+      (row) =>
+        row.type === 'measurement' && JSON.parse(String(row.metadata)).kind === 'focus-samples',
+    )
+    let measured = false
+    for (const row of measurementRows) {
+      const body = JSON.parse(await readFile(String(row.file_path), 'utf8'))
+      if (
+        body.receiptRef === ref.artifactId &&
+        JSON.stringify(body.samples) === JSON.stringify(r.samples)
+      )
+        measured = true
+    }
+    const annotated = owned.some((row) => {
+      const m = JSON.parse(String(row.metadata))
+      return (
+        row.type === 'screenshot' &&
+        m.annotation === true &&
+        m.sourceRef === candidate.screenshotRef &&
+        m.kind === 'focus-annotation'
+      )
+    })
+    if (measured && annotated) qualified.push(ref)
+  }
   const blocked = focusPromotionBlocked({
     hypothesis: recorded,
-    receipts: await loadFocusReceipts(runId),
-    screenshotRefs: screenshots.rows.map((row) => String(row.id)),
+    receipts: qualified,
+    screenshotRefs: [candidate.screenshotRef],
+    status,
+    confidence: candidate.confidence,
   })
   if (blocked.blocked)
     throw new Error(
@@ -462,6 +546,7 @@ export async function updateHypothesis(
   id: string,
   status: Hypothesis['status'],
   evidenceRefs?: string[],
+  guard: () => void = () => {},
 ): Promise<void> {
   const db = getDbClient()
   if (['supported', 'refuted'].includes(status)) {
@@ -469,7 +554,7 @@ export async function updateHypothesis(
     if (rows.rows.length) {
       const runId = String(rows.rows[0].run_id)
       await assertUnmodifiedEvidence(runId, evidenceRefs ?? [], id)
-      await assertPromotableHypothesis(runId, id)
+      await assertPromotableHypothesis(runId, id, status as 'supported' | 'refuted', evidenceRefs)
     }
   }
   const args: any[] = [status]
@@ -482,6 +567,7 @@ export async function updateHypothesis(
   sql += ' WHERE id = ?'
   args.push(id)
 
+  guard()
   await db.execute({ sql, args })
 }
 

@@ -31,7 +31,8 @@
     "arena:export:start": "EXPORT_ARENA_STATIC=1 node dist/arena-export/index.js",
     "test:fixtures:export": "tsx scripts/verify-export-fixtures.ts",
     "validate:business": "tsx scripts/validation/business.ts",
-    "fixture:approved-retry": "tsx scripts/validation/approved-retry.ts"
+    "fixture:approved-retry": "tsx scripts/validation/approved-retry.ts",
+    "validate:visual-focus": "tsx scripts/validation/visual-focus.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "^4.0.72",

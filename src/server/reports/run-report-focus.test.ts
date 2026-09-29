@@ -1,4 +1,6 @@
-import { beforeAll, describe, expect, it, vi } from 'vitest'
+import { createHash } from 'node:crypto'
+import { focusTestReceipt } from '../../execution/focus-test-fixture.ts'
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { mkdtemp, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -43,8 +45,14 @@ beforeAll(initDatabase)
 const clean = { version: 1 as const, status: 'clean' as const, interventionIds: [] }
 
 let dir = ''
+const dirs = new Set<string>()
+afterAll(async () => {
+  const { rm } = await import('node:fs/promises')
+  for (const d of dirs) await rm(d, { recursive: true, force: true })
+})
 async function artifact(runId: string, type: string, body: unknown, metadata = {}) {
   const id = `${type}-${Math.random().toString(36).slice(2)}.json`
+  dirs.add(dir)
   const file = join(dir, id)
   await writeFile(file, JSON.stringify(body), 'utf8')
   await getDbClient().execute({
@@ -66,70 +74,39 @@ async function runWithMeasurement(over: { withScreenshot?: boolean } = {}) {
       ? undefined
       : await artifact(run.id, 'screenshot', 'x', { evidenceIntegrity: clean })
 
-  const receipt = {
-    version: 1,
-    candidateId,
-    screenshotRef: screenshotRef ?? 'missing',
-    documentEpoch: 'epoch-0',
-    url: 'http://localhost:4173/',
-    scroll: { x: 0, y: 0 },
-    viewport: { width: 1280, height: 768 },
-    binding: { elementRef: 'e1', nodeIdentity: 'input#q@e1', reason: 'only input in region' },
-    positiveControl: {
-      x: 300,
-      y: 220,
-      hit: { ref: 'e1', tag: 'input', relation: 'self' },
-      focusBefore: null,
-      focusAfter: 'input#q@e1',
-      focusedWithinMs: 88,
-      valueChanged: false,
-      documentEpoch: 'epoch-0',
-      integrity: clean,
-      ok: true,
+  const sha = createHash('sha256').update(JSON.stringify('x')).digest('hex')
+  const candidateRef = await artifact(
+    run.id,
+    'visual-candidate',
+    {
+      id: candidateId,
+      runId: run.id,
+      screenshotRef,
+      screenshotSha: sha,
+      perceivedRegion: { x: 100, y: 200, width: 400, height: 40 },
+      excludedRegions: [],
+      confidence: 'high',
     },
-    samples: [],
-    resets: [],
-    actionCost: 3,
-    integrity: clean,
-    algorithmVersion: 'visual-focus-1',
-  }
+    { candidateId },
+  )
+  const receipt = structuredClone(
+    focusTestReceipt(candidateId, {
+      screenshotRef: screenshotRef ?? 'missing',
+      screenshotSha: sha,
+    }),
+  ) as any
+  receipt.samples[1].focusAfter = 'node-1'
+  receipt.samples[1].focusedWithinMs = 92
   const receiptRef = await artifact(run.id, 'focus-receipt', receipt, { candidateId })
   const samplesRef = await artifact(
     run.id,
     'measurement',
-    {
-      receiptRef,
-      samples: [
-        {
-          side: 'left',
-          x: 148,
-          y: 220,
-          hit: { ref: 'e9', tag: 'div', relation: 'ancestor' },
-          focusBefore: null,
-          focusAfter: null,
-          focusedWithinMs: null,
-          valueChanged: false,
-          documentEpoch: 'epoch-0',
-          integrity: clean,
-        },
-        {
-          side: 'right',
-          x: 700,
-          y: 220,
-          hit: { ref: 'e9', tag: 'div', relation: 'ancestor' },
-          focusBefore: null,
-          focusAfter: 'input#q@e1',
-          focusedWithinMs: 92,
-          valueChanged: false,
-          documentEpoch: 'epoch-0',
-          integrity: clean,
-        },
-      ],
-    },
+    { receiptRef, samples: receipt.samples },
     { candidateId, kind: 'focus-samples' },
   )
   const annotatedRef = await artifact(run.id, 'screenshot', 'y', {
     annotation: true,
+    kind: 'focus-annotation',
     sourceRef: screenshotRef,
   })
   // The derived image carries no candidate id of its own, so the run records the link explicitly.
@@ -138,7 +115,7 @@ async function runWithMeasurement(over: { withScreenshot?: boolean } = {}) {
     annotatedRef,
     sourceRef: screenshotRef,
   })
-  return { run, candidateId, receiptRef, samplesRef, annotatedRef, screenshotRef }
+  return { run, candidateId, candidateRef, receiptRef, samplesRef, annotatedRef, screenshotRef }
 }
 
 describe('focus measurement in the report', () => {
@@ -151,10 +128,10 @@ describe('focus measurement in the report', () => {
     const measurement = report!.focusMeasurements[0]
     expect(measurement.samplesRef).toBe(samplesRef)
     const points = measurement.points!
-    expect(points).toHaveLength(2)
+    expect(points).toHaveLength(3)
     expect(points[0]).toMatchObject({ side: 'left', x: 148, y: 220 })
     // A point that focused and a point that did not are distinguishable at a glance.
-    expect(points.map((p) => p.focusedWithinMs)).toEqual([null, 92])
+    expect(points.map((p) => p.focusedWithinMs)).toEqual([null, 92, null])
   })
 
   it('surfaces the original and annotated images as viewable refs', async () => {
@@ -175,9 +152,9 @@ describe('focus measurement in the report', () => {
     const report = await buildReport(run.id)
     const measurement = report!.focusMeasurements[0]
 
-    expect(measurement.nodeIdentity).toBe('input#q@e1')
-    expect(measurement.positiveControlFocusedWithinMs).toBe(88)
-    expect(measurement.algorithmVersion).toBe('visual-focus-1')
+    expect(measurement.nodeIdentity).toBe('node-1')
+    expect(measurement.positiveControlFocusedWithinMs).toBe(20)
+    expect(measurement.algorithmVersion).toBe('visual-focus-2')
   })
 
   it('reads the rows back from the persisted artifact, so a restart shows the same thing', async () => {
@@ -221,7 +198,8 @@ describe('focus measurement in the report', () => {
 
   it('includes the visual-focus finding with its bounded scope', async () => {
     dir = await mkdtemp(join(tmpdir(), 'uis-report-'))
-    const { run, receiptRef, samplesRef, screenshotRef } = await runWithMeasurement()
+    const { run, candidateRef, annotatedRef, receiptRef, samplesRef, screenshotRef } =
+      await runWithMeasurement()
     const hypothesis = await recordHypothesis({
       runId: run.id,
       phenomenon: 'clicks in the region do not focus the input',
@@ -244,7 +222,7 @@ describe('focus measurement in the report', () => {
       expected: 'the input focuses',
       actual: 'it never became the active element',
       stepId: 's0',
-      evidenceRefs: [screenshotRef!, receiptRef, samplesRef],
+      evidenceRefs: [screenshotRef!, candidateRef, receiptRef, samplesRef, annotatedRef],
     })
 
     const report = await buildReport(run.id)

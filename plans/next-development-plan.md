@@ -1,6 +1,6 @@
 # 下一轮开发任务书：主动视觉发现与输入区域聚焦验证
 
-状态：计划已就绪，尚未开发。代码基线为 `c789a20`；开工从包含本计划的最新 `main` 创建 `dev/visual-focus-discovery`。沿用 [开发约定](../docs/development.md)。本文件与 [验收计划](visual-focus-acceptance.md)共同定义完成条件。
+状态：P0/P1 已完成并经主 Agent 修复验收，P1 ready；P2–P4 待开发。当前实现与复验入口见 [P1 交接](visual-focus-handoff.md)。代码基线为 `c789a20`；开工从包含本计划的最新 `main` 创建 `dev/visual-focus-discovery`。沿用 [开发约定](../docs/development.md)。本文件与 [验收计划](visual-focus-acceptance.md)共同定义完成条件。
 
 上一轮业务契约已完成，结果见 [归档交接](archive/business-contracts/handoff.md)。652测试及45/45是上一轮基线，不能算作本轮验收。先核对实际HEAD、干净工作区和模型配置，再开发。
 

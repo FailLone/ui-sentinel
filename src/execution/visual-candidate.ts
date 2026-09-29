@@ -16,12 +16,14 @@ export const TARGET_DESCRIPTION_MAX = 300
 export const VISUAL_BASIS_MAX = 800
 
 const finiteNumber = z.number().finite()
-export const rectSchema = z.object({
-  x: finiteNumber,
-  y: finiteNumber,
-  width: finiteNumber.positive(),
-  height: finiteNumber.positive(),
-})
+export const rectSchema = z
+  .object({
+    x: finiteNumber,
+    y: finiteNumber,
+    width: finiteNumber.positive(),
+    height: finiteNumber.positive(),
+  })
+  .strict()
 
 /**
  * Strict: unknown keys are an error. The model does not get to name its own identity or conclusion,

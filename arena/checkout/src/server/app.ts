@@ -77,7 +77,10 @@ export function createCheckoutApp(options: { controlToken: string }) {
       buttonRenamed: variant === 'C3',
       buttonMoved: variant === 'C3',
       // Presentation only. A browser can learn how the search area is drawn, never which case it is.
-      search: visualPresent === null ? null : { present: visualPresent },
+      search:
+        visualPresent === null
+          ? null
+          : { present: visualPresent === 'search-padded-narrow-input' ? 'one' : 'two' },
     })
   })
 

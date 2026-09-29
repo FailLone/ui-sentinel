@@ -16,14 +16,14 @@ import { fetchVariantConfig, type SearchPresent } from '../api.ts'
 
 const REGION_STYLE: Record<SearchPresent, React.CSSProperties> = {
   // A continuous light field with no inner border. The real input is visibly narrower than the field.
-  'search-padded-narrow-input': {
+  one: {
     background: '#f4f6f8',
     border: 'none',
     padding: '10px 64px',
     borderRadius: 6,
   },
   // The same field, drawn the same way; the difference is behavioural, not visual.
-  'search-proxied-wide-region': {
+  two: {
     background: '#f4f6f8',
     border: 'none',
     padding: '10px 64px',
@@ -58,12 +58,11 @@ export function ProductSearch({ onQueryChange }: { onQueryChange: (query: string
 
   // The proxied presentation hands focus to the input from anywhere in the region, the way a label
   // or a container event delegate would. The padded one has no such delegate.
-  const proxied = present === 'search-proxied-wide-region'
+  const proxied = present === 'two'
 
   return (
     <div
       className="visual-search-region"
-      data-visual-search={present}
       style={REGION_STYLE[present]}
       onClick={(event) => {
         if (proxied && event.target === event.currentTarget) {

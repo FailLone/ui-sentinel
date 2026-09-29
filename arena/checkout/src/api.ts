@@ -27,7 +27,7 @@ interface PaymentResult {
   readonly retryAvailable?: boolean
 }
 
-type SearchPresent = 'search-padded-narrow-input' | 'search-proxied-wide-region'
+type SearchPresent = 'one' | 'two'
 
 interface VariantConfig {
   readonly overlay: boolean

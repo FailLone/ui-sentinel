@@ -1,52 +1,11 @@
+import { focusTestReceipt } from './focus-test-fixture.ts'
 import { describe, expect, it } from 'vitest'
 import { createFocusReceipt, type FocusReceipt } from './focus-receipt.ts'
 import { focusPromotionBlocked } from './focus-promotion.ts'
 
 const clean = { version: 1 as const, status: 'clean' as const, interventionIds: [] }
 
-function receipt(candidateId: string, over: Partial<FocusReceipt> = {}): FocusReceipt {
-  return createFocusReceipt({
-    candidateId,
-    screenshotRef: 'shot-1',
-    screenshotSha: 'a'.repeat(64),
-    documentEpoch: 'epoch-1',
-    url: 'http://localhost:4173/',
-    scroll: { x: 0, y: 0 },
-    viewport: { width: 1280, height: 768 },
-    binding: { elementRef: 'e1', nodeIdentity: 'node-1', reason: 'unique text input in region' },
-    positiveControl: {
-      x: 300,
-      y: 220,
-      hit: { ref: 'e1', tag: 'input', relation: 'self' },
-      focusBefore: null,
-      focusAfter: 'node-1',
-      focusedWithinMs: 90,
-      valueChanged: false,
-      documentEpoch: 'epoch-1',
-      integrity: clean,
-      ok: true,
-    },
-    samples: [
-      {
-        side: 'left',
-        x: 148,
-        y: 220,
-        hit: { ref: 'e9', tag: 'div', relation: 'ancestor' },
-        focusBefore: null,
-        focusAfter: null,
-        focusedWithinMs: null,
-        valueChanged: false,
-        documentEpoch: 'epoch-1',
-        integrity: clean,
-      },
-    ],
-    resets: [],
-    actionCost: 3,
-    integrity: clean,
-    algorithmVersion: 'visual-focus-1',
-    ...over,
-  })
-}
+const receipt = focusTestReceipt
 
 const visualHypothesis = { kind: 'visual-focus' as const, visualCandidateId: 'candidate-1' }
 
@@ -132,4 +91,50 @@ describe('focus promotion gate', () => {
     })
     expect(result.blocked).toBe(false)
   })
+})
+
+for (const mutation of [
+  'no-retest',
+  'focused-baseline',
+  'changed-value',
+  'changed-reset',
+  'unknown-state',
+  'wrong-retest-point',
+]) {
+  it(`rejects ${mutation} even when the artifact is receipt-shaped`, () => {
+    const r = structuredClone(receipt('candidate-1')) as any
+    if (mutation === 'no-retest') {
+      r.samples.pop()
+      r.actionCost--
+    }
+    if (mutation === 'focused-baseline') r.samples[0].focusBefore = r.binding.nodeIdentity
+    if (mutation === 'changed-value') r.samples[0].valueChanged = true
+    if (mutation === 'changed-reset') r.resets[0].introducedChange = true
+    if (mutation === 'unknown-state') r.samples[0].stable = false
+    if (mutation === 'wrong-retest-point') r.samples[2].x++
+    expect(
+      focusPromotionBlocked({
+        hypothesis: visualHypothesis,
+        receipts: [{ artifactId: 'art', receipt: r }],
+      }).blocked,
+    ).toBe(true)
+  })
+}
+it('does not turn a valid defect receipt into a refutation', () => {
+  expect(
+    focusPromotionBlocked({
+      hypothesis: visualHypothesis,
+      status: 'refuted',
+      receipts: [{ artifactId: 'art', receipt: receipt('candidate-1') }],
+    }).blocked,
+  ).toBe(true)
+})
+it('does not promote a low-confidence candidate', () => {
+  expect(
+    focusPromotionBlocked({
+      hypothesis: visualHypothesis,
+      confidence: 'low',
+      receipts: [{ artifactId: 'art', receipt: receipt('candidate-1') }],
+    }).blocked,
+  ).toBe(true)
 })
