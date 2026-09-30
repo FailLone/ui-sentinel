@@ -29,21 +29,6 @@ export const VISUAL_PRESENTS: readonly VisualPresent[] = [
   'search-labelled-proxy-field',
 ]
 
-/**
- * The token the page receives for a presentation.
- *
- * Deliberately opaque and indices-based: the page has to know how to draw its own search area, but it
- * must not be able to read a case name, a target box or an expectation out of the public API (plan
- * 5). A name like "search-proxied-wide-region" would also hand the agent the answer, since "proxied"
- * says the healthy behaviour. An unknown presentation throws rather than falling back, so a future
- * presentation cannot silently inherit another case's drawing.
- */
-export function publicVisualToken(present: VisualPresent): string {
-  const index = VISUAL_PRESENTS.indexOf(present)
-  if (index < 0) throw new Error(`Unknown visual presentation: ${present}`)
-  return `v${index + 1}`
-}
-
 const visualPresents = new Set<string>(VISUAL_PRESENTS)
 
 export function isVisualPresent(value: string): value is VisualPresent {

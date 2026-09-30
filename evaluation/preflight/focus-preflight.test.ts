@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { createServer, type Server } from 'node:http'
-import { readFile } from 'node:fs/promises'
+import { readFile, readdir, mkdir } from 'node:fs/promises'
 import { join, extname } from 'node:path'
 import { chromium, type Browser, type Page } from 'playwright'
 import { createCheckoutApp } from '@arena/checkout/src/server/app.ts'
@@ -139,6 +139,71 @@ afterAll(async () => {
 })
 
 describe('free preflight: the real arena, real clicks, no model', () => {
+  it('keeps the scenario table out of the actual public build', async () => {
+    const assets = await readdir(join(DIST, 'assets'))
+    const scripts = await Promise.all(
+      assets.filter((a) => a.endsWith('.js')).map((a) => readFile(join(DIST, 'assets', a), 'utf8')),
+    )
+    expect(scripts.length).toBeGreaterThan(0)
+    const code = scripts.join('\n')
+    for (const name of VISUAL_PRESENTS) expect(code).not.toContain(name)
+    expect(code).not.toMatch(/proxy:"(?:none|field|label)"|delegate:!|v1:\{/)
+    await openCase('D0')
+    const response = await fetch(
+      `${origin}/api/variant-config?present=v2&visual=search-proxied-wide-region`,
+    )
+    expect((await response.json()).search.html).toContain('<div class="visual-search-region"')
+  })
+
+  it('checks all six real behaviours, including the adjacent button and changed wording', async () => {
+    await mkdir('data/visual-fixtures', { recursive: true })
+    for (const id of Object.keys(VISUAL_TRUTH) as VisualCaseId[]) {
+      await openCase(id)
+      const truth = visualTruthFor(id)
+      const measurer = createFocusMeasurer(page)
+      const { points } = deriveProbePoints({
+        region: truth.region,
+        excluded: truth.excludedRegions,
+        dangerous: [],
+      })
+      if (id === 'D1')
+        await expect
+          .poll(() => page.locator(truth.targetSelector).getAttribute('placeholder'))
+          .toBe('Find accessories')
+      if (id === 'H2') {
+        const button = page.getByRole('button', { name: 'Clear search', exact: true })
+        expect(await button.isVisible()).toBe(true)
+        const box = await button.boundingBox()
+        expect(box!.x).toBeGreaterThan(truth.region.x + truth.region.width)
+        expect(box!.x + box!.width).toBeLessThan(VISUAL_VIEWPORTS[id].width)
+        await page.evaluate(() => {
+          ;(window as any).adjacentClicks = 0
+          document
+            .querySelector('.visual-search-clear')!
+            .addEventListener('click', () => (window as any).adjacentClicks++)
+        })
+      }
+      for (const point of [...points, points[0]]) {
+        await page.getByRole('heading', { name: 'Our Products', exact: true }).click()
+        const sample = await measurer.clickAndMeasure({ selector: truth.targetSelector, ...point })
+        expect(sample.targetFocusedBefore).toBe(false)
+        expect(sample.stable).toBe(true)
+        expect(sample.focusedWithinMs === null, `${id}: ${point.side}`).toBe(
+          truth.edgeFocus === 'not-focused',
+        )
+      }
+      await page.screenshot({ path: `data/visual-fixtures/${id}.png`, scale: 'css' })
+      if (id === 'H2') {
+        expect(await page.evaluate(() => (window as any).adjacentClicks)).toBe(0)
+        await page.locator(truth.targetSelector).fill('no such product')
+        expect(await page.locator('.product-card').count()).toBe(0)
+        await page.getByRole('button', { name: 'Clear search', exact: true }).click()
+        await expect.poll(() => page.locator('.product-card').count()).toBe(3)
+        expect(await page.locator(truth.targetSelector).inputValue()).toBe('')
+      }
+    }
+  })
+
   it('checks for every real presentation name, including the ones a hand-list missed', () => {
     // The regression guard for the leak pattern. `search-warm-offset-field`,
     // `search-label-icon-field` and `search-labelled-proxy-field` were all absent from the version
@@ -151,7 +216,8 @@ describe('free preflight: the real arena, real clicks, no model', () => {
     await openCase('D0')
     const config = await (await fetch(`${origin}/api/variant-config`)).json()
 
-    expect(config.search).toEqual({ present: 'v1' })
+    expect(Object.keys(config.search)).toEqual(['html'])
+    expect(config.search.html).toContain('<input')
     // Derived from the real presentation list, not hand-written. The hand-written version had drifted
     // two names out of date: it checked for names that no longer existed while three that did were
     // absent from it, so those three could have been exposed without this test noticing.

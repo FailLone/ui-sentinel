@@ -1,3 +1,5 @@
+import { downloadRunEvidence } from '../../evaluation/support/campaign-evidence.ts'
+import { visualSmokeProblems } from '../../evaluation/preflight/visual-smoke-score.ts'
 import { chromium } from 'playwright'
 import { spawn, spawnSync, type ChildProcess } from 'node:child_process'
 import { createServer } from 'node:http'
@@ -7,9 +9,17 @@ import { resolve } from 'node:path'
 import assert from 'node:assert/strict'
 
 const args = process.argv.slice(2).filter((a) => a !== '--')
+if (args[0] === '--p2-smoke') {
+  const result = spawnSync(
+    process.execPath,
+    ['--import', 'tsx', 'scripts/validation/visual-focus-p2.ts', ...args.slice(1)],
+    { stdio: 'inherit', env: process.env },
+  )
+  process.exit(result.status ?? 1)
+}
 if (args.length !== 1 || args[0] !== '--preflight')
   throw Error(
-    'P1 supports only: pnpm validate:visual-focus -- --preflight. Paid P2/P4 acceptance is not implemented.',
+    'Expected --preflight or --p2-smoke [--cases D0,H0,H1]. Formal diagnostic/acceptance remains P3/P4.',
   )
 const build = spawnSync('pnpm', ['build'], { stdio: 'inherit' })
 if (build.status !== 0) process.exit(build.status ?? 1)
@@ -308,6 +318,18 @@ try {
         sha: createHash('sha256').update(bytes).digest('hex'),
       })
     }
+    const downloaded = await downloadRunEvidence(base, report, `${directory}/${row.id}-artifacts`)
+    assert.deepEqual(
+      visualSmokeProblems(
+        row.id as 'D0' | 'H0',
+        report,
+        downloaded.artifacts,
+        requests
+          .filter((r) => r.scenario === row.id && r.kind === 'vision')
+          .map((r) => String(r.imageSha)),
+      ),
+      [],
+    )
     records.push({
       id: row.id,
       runId: run.runId,

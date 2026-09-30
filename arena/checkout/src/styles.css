@@ -257,6 +257,15 @@ header nav a:hover {
 
 .visual-search-wrap {
   display: block;
+  position: relative;
+}
+
+.visual-search-clear {
+  position: absolute;
+  left: calc(100% + 12px);
+  bottom: 8px;
+  white-space: nowrap;
+  padding: 8px;
 }
 
 .visual-search-label {

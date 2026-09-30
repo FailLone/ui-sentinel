@@ -150,7 +150,7 @@ export function bindInputToRegion(input: BindInput): BindResult {
   const coverage = Math.round(covered(target, region) * 100)
   const contained = Math.round(containment(target, region) * 100)
   const how =
-    coverage >= MIN_COVERAGE
+    covered(target, region) >= MIN_COVERAGE
       ? `whose bounds lie ${coverage}% inside the perceived region`
       : `that contains ${contained}% of the perceived region`
   return {

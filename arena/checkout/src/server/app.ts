@@ -13,9 +13,10 @@ import {
   getVisualPresent,
   setVisualPresent,
   isVisualPresent,
-  publicVisualToken,
   type VariantId,
 } from './state.ts'
+
+import { renderSearch } from './search-view.tsx'
 
 const VALID_VARIANTS = new Set<VariantId>(['C0', 'C1', 'C2', 'C3', 'C4', 'C5'])
 
@@ -77,11 +78,8 @@ export function createCheckoutApp(options: { controlToken: string }) {
       overlayClosable: variant === 'C1',
       buttonRenamed: variant === 'C3',
       buttonMoved: variant === 'C3',
-      // Presentation only, as an opaque token: a browser can learn how the search area is drawn,
-      // never which case it is or what is expected of it. The viewport is deliberately NOT disclosed
-      // here - the component lays out to whatever width the page has, so publishing a case's
-      // viewport would be handing over case metadata for nothing.
-      search: visualPresent === null ? null : { present: publicVisualToken(visualPresent) },
+      // Only the current DOM is public; the cross-scenario behaviour table stays server-side.
+      search: visualPresent === null ? null : { html: renderSearch(visualPresent) },
     })
   })
 

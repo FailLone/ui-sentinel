@@ -27,19 +27,13 @@ interface PaymentResult {
   readonly retryAvailable?: boolean
 }
 
-/**
- * An opaque token naming how the search area is drawn. The values are deliberately meaningless to
- * anything reading them: they must not say which case is running or which behaviour is expected.
- */
-type SearchPresent = string
-
 interface VariantConfig {
   readonly overlay: boolean
   readonly overlayClosable: boolean
   readonly buttonRenamed: boolean
   readonly buttonMoved: boolean
   /** Presentation of the optional local search area, or null when there is none. */
-  readonly search?: { readonly present: SearchPresent } | null
+  readonly search?: { readonly html: string } | null
 }
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
@@ -80,4 +74,4 @@ export function fetchVariantConfig(): Promise<VariantConfig> {
   return request('/api/variant-config')
 }
 
-export type { Product, CartItem, CartResponse, PaymentResult, VariantConfig, SearchPresent }
+export type { Product, CartItem, CartResponse, PaymentResult, VariantConfig }

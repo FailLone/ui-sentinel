@@ -75,7 +75,10 @@ describe('binding a perceived region to a unique native input', () => {
     })
 
     expect(result.ok).toBe(true)
-    if (result.ok) expect(result.elementRef).toBe('e1')
+    if (result.ok) {
+      expect(result.elementRef).toBe('e1')
+      expect(result.reason).toContain('contains 100% of the perceived region')
+    }
   })
 
   it('still refuses a region that merely clips the input it overlaps', () => {
