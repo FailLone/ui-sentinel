@@ -1,6 +1,6 @@
 # 下一轮开发任务书：主动视觉发现与输入区域聚焦验证
 
-状态：P0/P1 ready，P2 已经主 Agent 修复并通过真实模型开发 smoke，P2 ready；P3/P4 待开发。P1 见 [P1 交接](visual-focus-handoff.md)，本轮进展见 [P2 交接](visual-focus-p2-handoff.md)。本阶段从 P1 修复 `1df75dd` 继续，当前 review 分支为 `review/visual-focus-p2`；后续开发从主 Agent 确认的修复 HEAD 新建分支。沿用 [开发约定](../docs/development.md)。本文件与 [验收计划](visual-focus-acceptance.md)共同定义完成条件。
+状态：P0/P1 ready，P2 已经主 Agent 修复并通过真实模型开发 smoke，P2 ready；P3/P4 待开发。P1 见 [P1 交接](visual-focus-handoff.md)，本轮进展见 [P2 交接](visual-focus-p2-handoff.md)。P2 已确认 HEAD 为 `c5aa03a`，当前 review 分支为 `review/visual-focus-p2`；下一步从该分支最新材料提交新建 `dev/visual-focus-p3`。P3 入口为 [P3 任务书](visual-focus-p3-plan.md)、[逐项验收](visual-focus-p3-acceptance.md)与[转交指令](visual-focus-p3-dev-prompt.md)。沿用 [开发约定](../docs/development.md)。本文件与 [验收计划](visual-focus-acceptance.md)共同定义完成条件。
 
 上一轮业务契约已完成，结果见 [归档交接](archive/business-contracts/handoff.md)。652测试及45/45是上一轮基线，不能算作本轮验收。先核对实际HEAD、干净工作区和模型配置，再开发。
 
@@ -159,7 +159,7 @@ P1完成后提交这一小段，交主Agent review。**这是刻意设置的实�
 
 ### P3：验收工具与报告
 
-实现配套计划中的命令、独立评分器反例、模型记录、全部样本及停服审计。报告含范围限制、证据完整性、每次点击和视觉费用；摘要上下文只放候选和结论，原图/模型原文由证据ID按需读取。
+按 [P3 任务书](visual-focus-p3-plan.md)实现命令、独立评分器、共享持久费用台账、全部样本及停服审计，补齐报告与免费 G0–G3。报告含范围限制、证据完整性、每次点击和视觉费用；摘要上下文只放候选和结论，原图/模型原文由证据ID按需读取。P3 仅执行免费验证，正式运行器用本地固定模型测试；真实 G4/G5 留到 P4，不以历史 P2 smoke 替代。
 
 ### P4：冻结并真实验收
 
@@ -169,6 +169,6 @@ P1完成后提交这一小段，交主Agent review。**这是刻意设置的实�
 
 ## 7. dev交付要求
 
-使用 `dev/visual-focus-discovery`，阶段性commit并push该分支，不自行合并main。主Agent最终负责review和合并。新代码必须有对应的有意义边界测试；避免实现镜像测试和大规模无关重构。
+P0–P2 原开发分支为 `dev/visual-focus-discovery`；P3 改用 `dev/visual-focus-p3`，从 `origin/review/visual-focus-p2` 最新材料提交新建。阶段性commit并push开发分支，不自行合并main。主Agent最终负责review和合并。新代码必须有对应的有意义边界测试；避免实现镜像测试和大规模无关重构。
 
 交接至少写：base/head、P0–P4状态、命令与退出码、完整/局部验收区别、构建hash、模型/提供方/flags、成本及未知预留、全部失败目录、发现与漏检、证据路径、未完成项、review反馈和处理结果。P1提交和最终提交都应能独立构建、复验；不能交付只在本机隐藏文件里存在的必要输入。

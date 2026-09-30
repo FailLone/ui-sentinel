@@ -1,18 +1,20 @@
 # 主动视觉发现：完整验收计划
 
-与 [开发任务书](next-development-plan.md)共同执行。状态：P1 最小子集及 P2 开发 smoke 已通过，见 [P1 交接](visual-focus-handoff.md)和 [P2 交接](visual-focus-p2-handoff.md)；以下完整 G0–G6 未全部验收。`validate:visual-focus -- --preflight` 已实现；新视觉 diagnostic/formal 仍待 P3 实现，不能视为当前可用接口。本轮验收独立于归档业务契约阶段，旧45/45不能替代新结果。
+与 [开发任务书](next-development-plan.md)共同执行。状态：P1 最小子集及 P2 开发 smoke 已通过，见 [P1 交接](visual-focus-handoff.md)和 [P2 交接](visual-focus-p2-handoff.md)；以下完整 G0–G6 未全部验收。P3 的开发接口、免费验证和转交边界见 [P3 任务书](visual-focus-p3-plan.md)与[逐项验收](visual-focus-p3-acceptance.md)。`validate:visual-focus -- --preflight` 已实现；新视觉 diagnostic/formal 仍待 P3 实现，不能视为当前可用接口。本轮验收独立于归档业务契约阶段，旧45/45不能替代新结果。
 
-P2 新增显式 `--p2-smoke [--cases D0,H0,H1] [--spending-source <dir>]` 开发复验入口；它不是下表的 G4 diagnostic。当前 D1/D2/H2 已用于调试，全部视为已知回归案例；P3/P4 必须在提示/schema/算法冻结后由主 Agent 准备未参与调试的新 fixture revision，才能继续 holdout 验收。重新冻结并重跑旧 D2 不会恢复盲测身份。详见 [P2 交接](visual-focus-p2-handoff.md)。
+P2 新增显式 `--p2-smoke [--cases D0,H0,H1] [--spending-source <dir>]` 开发复验入口；它不是下表的 G4 diagnostic。当前 D1/D2/H2 已用于调试，全部视为已知回归案例；P3 实现 revision/冻结/来源门槛；P4 在提示/schema/算法冻结后由主 Agent 准备未参与调试的新 fixture revision，才能继续 holdout 验收。这项 P4 工作不阻塞 P3 免费工具交付。重新冻结并重跑旧 D2 不会恢复盲测身份。详见 [P2 交接](visual-focus-p2-handoff.md)。
 
 ## 1. 验收命令契约
 
 | 命令 | 要证明的内容 |
 | --- | --- |
 | pnpm validate:visual-focus -- --preflight | 零付费；编译服务、真实React页面、Chromium、正式API及固定本地模型；确定性、安全、持久化检查 |
-| pnpm validate:visual-focus -- --diagnostic | 真实smoke（含视觉结构化响应）及D0/H0/H1各一次；缺凭据明确失败 |
-| pnpm validate:visual-focus -- --formal --diagnostic-source <dir> | 同构建D0/H0/H1/D1/D2/H2各三次，共18轮；保存全部计划行 |
-| pnpm validate:business -- --diagnostic | 同一最终构建的旧业务真实诊断，显式关闭新视觉能力 |
-| pnpm validate:business -- --formal --diagnostic-source <dir> --approved-source <dir> | 原A/B/C/D 45轮回归，原批准来源与原评分器保持不变 |
+| pnpm validate:visual-focus -- --diagnostic --campaign <campaign-dir> | 真实smoke（含视觉结构化响应）及D0/H0/H1各一次；缺凭据明确失败 |
+| pnpm validate:visual-focus -- --formal --campaign <campaign-dir> --diagnostic-source <dir> | 同构建D0/H0/H1/D1/D2/H2各三次，共18轮；保存全部计划行 |
+| pnpm validate:business -- --diagnostic --campaign <campaign-dir> | 同一最终构建的旧业务真实诊断，显式关闭新视觉能力 |
+| pnpm validate:business -- --formal --campaign <campaign-dir> --diagnostic-source <dir> --approved-source <dir> | 原A/B/C/D 45轮回归，原批准来源与原评分器保持不变 |
+
+`--campaign` 是 P3 待实现的共享持久台账参数，本轮新旧付费入口必须使用同一目录；既有独立 business 入口不因此自动具备联合验收资格。P3 不执行表内付费命令。
 
 继续使用既有fixture、model gateway、build identity、artifact hash、durability audit支持模块；新runner不得复制另一套费用/完成/批准逻辑。CLI拒绝未知参数，主程序只分派到免费或付费入口，免费入口清空真实凭据。不要增加一个默认误触发付费的命令。
 
@@ -27,11 +29,11 @@ P2 新增显式 `--p2-smoke [--cases D0,H0,H1] [--spending-source <dir>]` 开发
 | D0 | 连续浅底/无内边框的宽搜索区域，实际原生input居中且明显较窄；正常input内可聚焦，视觉内部左右留白不转交焦点 | 至少一个符合完整探针证据的supported聚焦不一致，且购买成功 |
 | H0 | 与D0视觉尽量相同；label/容器代理使整个合理输入区点击都聚焦原input | 不得产生该类supported；实际候选若被调查，应refuted；购买成功 |
 | H1 | input有明确可见边界，旁边属于卡片的装饰留白和独立图标，不构成同一个输入区 | 不得把卡片留白认作缺陷；允许不提出候选或拒绝不合理绑定；购买成功 |
-| D1 | holdout：改变文案、位置、宽度和配色，采用不同CSS结构制造同类视觉/可点击区不一致 | 自主发现且完整验证；不依赖固定文案/selector/坐标 |
-| D2 | holdout：另一视口及布局，输入区包含真实label/装饰图标，明确排除图标后仍有可复现无效输入留白 | 自主发现与正确区域绑定；不得把图标区域失败当成主要证据 |
-| H2 | holdout：与D1/D2相近外观，正确label代理或清楚的实际输入边界，含相邻正常按钮 | 无该类supported；不得点击相邻按钮或伪造健康结论 |
+| D1 | P4 新 revision 的 holdout：改变文案、位置、宽度和配色，采用不同CSS结构制造同类视觉/可点击区不一致 | 自主发现且完整验证；不依赖固定文案/selector/坐标 |
+| D2 | P4 新 revision 的 holdout：另一视口及布局，输入区包含真实label/装饰图标，明确排除图标后仍有可复现无效输入留白 | 自主发现与正确区域绑定；不得把图标区域失败当成主要证据 |
+| H2 | P4 新 revision 的 holdout：与D1/D2相近外观，正确label代理或清楚的实际输入边界，含相邻正常按钮 | 无该类supported；不得点击相邻按钮或伪造健康结论 |
 
-D0/H0/H1用于诊断调试；D1/D2/H2在冻结提示/schema/算法后才做付费验证。开发静态代码可看到fixture定义，**被测Agent绝不能看到**；不宣称这是训练隔离或统计意义上的完全盲测。主Agent review确认holdout不只是改一个case ID。
+D0/H0/H1用于诊断调试；当前 D1/D2/H2 已用于开发 smoke，只能算已知回归。上表 holdout 要求对应 P4 的新 revision，在冻结提示/schema/算法后才做其付费验证。开发静态代码可看到fixture定义，**被测Agent绝不能看到**；不宣称这是训练隔离或统计意义上的完全盲测。主Agent review确认holdout不只是改一个case ID。
 
 每例使用固定viewport/fixture revision并记录。D2采用窄视口，但候选和目标仍必须完整处于当前视口；本轮不测试跨屏坐标。字体、动画和加载稳定性由fixture显式控制，不以任意sleep代替ready协议。
 
@@ -77,7 +79,7 @@ P1只要求其中与最小闭环相关的明确子集，逐项标记，不把部
 
 ## 4. 真实模型诊断（G4）
 
-沿用固定DeepSeek agent、Qwen vision、Alibaba提供方和现有有限Jev配置。视觉定位与主动扫描都纳入Qwen用量，原始截图确实作为图像发送；smoke须验证模型可返回schema有效的视觉候选，不能只测文字问答或定位。
+沿用固定DeepSeek agent、Qwen vision、Alibaba提供方和现有有限Jev配置。具体型号及 profile 见 P3 任务书：新能力显式 visual/atomic/blocker=1/1/1，旧业务=0/1/1；P2 smoke 的 blocker=0 不能替代正式诊断。视觉定位与主动扫描都纳入Qwen用量，原始截图确实作为图像发送；smoke须验证模型可返回schema有效的视觉候选，不能只测文字问答或定位。
 
 统一目标示例：“检查本次购物流程的界面与交互体验，完成一次正常购买；记录有证据的问题和未验证范围。”新能力开启，但不能在目标里点名搜索框、留白、聚焦或故障答案。可以向Agent说明通用focus_probe工具何时适用，这是能力说明而非case提示。
 
