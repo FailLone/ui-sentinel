@@ -4,6 +4,7 @@ import { readFile } from 'node:fs/promises'
 import { join, extname } from 'node:path'
 import { chromium, type Browser, type Page } from 'playwright'
 import { createCheckoutApp } from '@arena/checkout/src/server/app.ts'
+import { VISUAL_PRESENTS } from '@arena/checkout/src/server/state.ts'
 import { deriveProbePoints, type Rect } from '@/execution/focus-geometry.ts'
 import { bindInputToRegion } from '@/execution/focus-binding.ts'
 import { createFocusMeasurer } from '@/execution/focus-measure.ts'
@@ -37,6 +38,17 @@ let page: Page
 let origin = ''
 
 const clean = () => ({ version: 1 as const, status: 'clean' as const, interventionIds: [] })
+
+/**
+ * Matches any presentation's own name, built from the list the server actually uses.
+ *
+ * A hand-written alternation silently goes stale the moment a presentation is added or renamed, and
+ * a stale pattern fails open - it reports "no leak" because it is looking for names nothing uses.
+ */
+function presentationNamePattern(): RegExp {
+  expect(VISUAL_PRESENTS.length).toBeGreaterThan(0)
+  return new RegExp(VISUAL_PRESENTS.join('|'))
+}
 
 /** Serve the real arena: the API/control app plus the built SPA the page bundle was compiled from. */
 function arenaServer() {
@@ -127,14 +139,23 @@ afterAll(async () => {
 })
 
 describe('free preflight: the real arena, real clicks, no model', () => {
+  it('checks for every real presentation name, including the ones a hand-list missed', () => {
+    // The regression guard for the leak pattern. `search-warm-offset-field`,
+    // `search-label-icon-field` and `search-labelled-proxy-field` were all absent from the version
+    // a human wrote, so the leak assertions were passing while looking for names that did not exist.
+    const pattern = presentationNamePattern()
+    for (const name of VISUAL_PRESENTS) expect(pattern.test(name), `unmatched "${name}"`).toBe(true)
+  })
+
   it('serves the broken presentation without leaking the case identity', async () => {
     await openCase('D0')
     const config = await (await fetch(`${origin}/api/variant-config`)).json()
 
     expect(config.search).toEqual({ present: 'v1' })
-    expect(JSON.stringify(config) + (await page.content())).not.toMatch(
-      /search-padded-narrow-input|search-proxied-wide-region|search-bounded-line-card|search-label-icon-offset|search-narrow-labelled/,
-    )
+    // Derived from the real presentation list, not hand-written. The hand-written version had drifted
+    // two names out of date: it checked for names that no longer existed while three that did were
+    // absent from it, so those three could have been exposed without this test noticing.
+    expect(JSON.stringify(config) + (await page.content())).not.toMatch(presentationNamePattern())
     // The case id, the truth region and the expected outcome must not be readable from the page. Every
     // coordinate is checked: leaking the region would hand the agent the answer to the overlap rule.
     const readable = JSON.stringify(config) + (await page.content())

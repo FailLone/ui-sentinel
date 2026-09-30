@@ -118,6 +118,34 @@ describe("visual case scoring (independent of the agent's own verdict)", () => {
     expect(verdict.passed).toBe(true)
   })
 
+  it('passes H1 when no candidate is proposed at all', () => {
+    // The acceptance plan gives H1 and H2 a different rule from H0: "H1/H2 allow no reasonable
+    // candidate, record the limited observation scope, do not claim to be exhaustive". H1's control
+    // IS its input, so a model that looks at it and sees nothing wider to report is right. Requiring
+    // a probe here would fail the run for being correct, and H0 is the only healthy case the plan
+    // insists must be probed.
+    const verdict = scoreVisualCase('H1', { findings: [], candidates: [], receipts: [] })
+
+    expect(verdict.reasons).not.toContain('healthy-case-not-probed')
+    expect(verdict.passed).toBe(true)
+  })
+
+  it('passes H2 on the same terms', () => {
+    const verdict = scoreVisualCase('H2', { findings: [], candidates: [], receipts: [] })
+
+    expect(verdict.reasons).not.toContain('healthy-case-not-probed')
+    expect(verdict.passed).toBe(true)
+  })
+
+  it('still requires H0 to have been probed rather than merely skipped', () => {
+    // The rule the plan does insist on: H0 must not pass by never looking. Its three runs have to be
+    // "triggered by a real visual candidate and refuted", so a bare H0 run with nothing is a failure.
+    const verdict = scoreVisualCase('H0', { findings: [], candidates: [], receipts: [] })
+
+    expect(verdict.reasons).toContain('healthy-case-not-probed')
+    expect(verdict.passed).toBe(false)
+  })
+
   it('requires the ground-truth region to actually overlap the candidate', () => {
     const truth = visualTruthFor('D0')
     expect(truth.regionOverlapMin).toBeGreaterThan(0)

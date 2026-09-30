@@ -57,6 +57,15 @@ export interface VisualCaseTruth {
   readonly edgeFocus: 'focused' | 'not-focused'
   /** Whether this case is expected to yield a supported finding. */
   readonly expectSupported: boolean
+  /**
+   * Whether the case must show a real probe was performed before it may pass as healthy.
+   *
+   * The acceptance plan draws this line between the healthy cases: H0 "must be refuted by a complete
+   * probe triggered by a real visual candidate - it cannot pass by never looking", while "H1/H2 are
+   * allowed to propose no reasonable candidate and record a limited observation scope". H1's control
+   * is its own input, so a model seeing nothing wider to report is correct, not idle.
+   */
+  readonly requireProbe: boolean
   /** Minimum fraction of the candidate that must fall inside the true region to count as correct. */
   readonly regionOverlapMin: number
 }
@@ -117,6 +126,7 @@ export const VISUAL_TRUTH: Record<VisualCaseId, VisualCaseTruth> = {
     excludedRegions: [],
     edgeFocus: 'not-focused',
     expectSupported: true,
+    requireProbe: true,
     regionOverlapMin: OVERLAP_MIN,
   },
   H0: {
@@ -128,6 +138,7 @@ export const VISUAL_TRUTH: Record<VisualCaseId, VisualCaseTruth> = {
     excludedRegions: [],
     edgeFocus: 'focused',
     expectSupported: false,
+    requireProbe: true,
     regionOverlapMin: OVERLAP_MIN,
   },
   H1: {
@@ -141,6 +152,7 @@ export const VISUAL_TRUTH: Record<VisualCaseId, VisualCaseTruth> = {
     excludedRegions: [],
     edgeFocus: 'focused',
     expectSupported: false,
+    requireProbe: false,
     regionOverlapMin: OVERLAP_MIN,
   },
   D1: {
@@ -152,6 +164,7 @@ export const VISUAL_TRUTH: Record<VisualCaseId, VisualCaseTruth> = {
     excludedRegions: [],
     edgeFocus: 'not-focused',
     expectSupported: true,
+    requireProbe: true,
     regionOverlapMin: OVERLAP_MIN,
   },
   D2: {
@@ -163,6 +176,7 @@ export const VISUAL_TRUTH: Record<VisualCaseId, VisualCaseTruth> = {
     excludedRegions: [D2_ICON],
     edgeFocus: 'not-focused',
     expectSupported: true,
+    requireProbe: true,
     regionOverlapMin: OVERLAP_MIN,
   },
   H2: {
@@ -174,6 +188,7 @@ export const VISUAL_TRUTH: Record<VisualCaseId, VisualCaseTruth> = {
     excludedRegions: [D2_ICON],
     edgeFocus: 'focused',
     expectSupported: false,
+    requireProbe: false,
     regionOverlapMin: OVERLAP_MIN,
   },
 }
@@ -298,11 +313,16 @@ export function scoreVisualCase(id: VisualCaseId, evidence: VisualCaseEvidence):
     }
   } else {
     if (supported.length > 0) reasons.push('false-positive-on-healthy-page')
-    // A healthy case still has to have actually been looked at: an unprobed page proves nothing.
-    const probed = refuted.some((f) =>
-      evidence.receipts.some((r) => r.candidateId === f.candidateId),
-    )
-    if (!probed) reasons.push('healthy-case-not-probed')
+    // Some healthy cases have to prove they were looked at, and some are allowed to see nothing
+    // worth proposing. Which is which comes from the truth, because the plan sets it per case: an
+    // unprobed H0 proves nothing, while an H1 with no candidate is a correct answer. Requiring a
+    // probe from both would fail H1 for being right.
+    if (truth.requireProbe) {
+      const probed = refuted.some((f) =>
+        evidence.receipts.some((r) => r.candidateId === f.candidateId),
+      )
+      if (!probed) reasons.push('healthy-case-not-probed')
+    }
   }
 
   return { case: id, passed: reasons.length === 0, reasons }

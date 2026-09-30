@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { inspectionPolicy } from './policy.ts'
+import { inspectionPolicy, VISUAL_POLICY_MARKER, VISUAL_POLICY_END } from './policy.ts'
 import { checkoutProfile, exportProfile } from '../business/profiles/index.ts'
 import { buildContractSnapshot } from '../business/registry.ts'
 
@@ -61,12 +61,16 @@ describe('inspection policy states how the visual candidates are investigated', 
     // The leak test. Anything case-shaped here would let the agent read the answer out of its own
     // brief: which region is broken, how wide it is, or which outcome to report.
     const policy = inspectionPolicy('Inspect the checkout', visual, checkout)
-    // Only the visual guidance is judged. The rest of the prompt is older prose with its own
-    // vocabulary ("not evidence of a defect"), and holding it to this test would fail on wording
-    // that predates the feature and says nothing about a case.
-    const sentences = policy.split(/(?<=\.)\s+/).filter((s) => /focus_probe/.test(s))
-    expect(sentences.length).toBeGreaterThan(0)
-    const guidance = sentences.join(' ')
+    // Everything from the marker onward is judged, not only the sentences that happen to mention
+    // the tool. An earlier version filtered to sentences containing "focus_probe" - which meant a
+    // leak added to any *other* sentence of the visual paragraph would have sailed through, since
+    // the filter would have excluded the very sentence carrying it.
+    const at = policy.indexOf(VISUAL_POLICY_MARKER)
+    const end = policy.indexOf(VISUAL_POLICY_END)
+    // Both ends are asserted: a missing marker would make this slice the empty string, and an empty
+    // string passes every "must not contain" assertion below.
+    expect(`${at >= 0} ${end > at}`).toBe('true true')
+    const guidance = policy.slice(at, end + VISUAL_POLICY_END.length)
 
     expect(guidance).not.toMatch(/\bD[0-9]\b|\bH[0-9]\b/)
     expect(guidance).not.toMatch(/padding|proxy|delegat|narrow|healthy|expectSupported/i)

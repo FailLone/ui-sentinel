@@ -46,6 +46,34 @@ describe('arena visual presence (presentation only, no case identity)', () => {
     }
   })
 
+  it('pins the one residual channel: a token still maps to a proxy behaviour in the shipped bundle', async () => {
+    // Recorded as a known limitation rather than as a pass. The token is opaque and never names a
+    // behaviour, but the client must know what to draw, so the compiled bundle necessarily contains
+    // a token -> proxy mapping - and the proxy is exactly the difference between a defect and its
+    // healthy twin. Reading `v1 -> proxy:none, v2 -> proxy:field` out of the minified asset is a
+    // far cry from reading a case name, but it is not nothing, so it is asserted here in the open
+    // instead of left to be rediscovered.
+    //
+    // A future round that wants this closed has to break the twin's need for the same drawing:
+    // derive the delegate from the input's own DOM position rather than a per-token field, or make
+    // both members of a pair delegate and distinguish them some other way. Both are product changes
+    // and neither belongs in P2.
+    // Read from the component rather than restated, so this cannot drift from what actually ships.
+    const text = await readFile(new URL('../pages/ProductSearch.tsx', import.meta.url), 'utf8')
+    const proxyOf = (token: string) =>
+      text
+        .match(new RegExp(`\\n  ${token}: \\{([\\s\\S]*?)\\n  \\},`))?.[1]
+        .match(/proxy: '(\w+)'/)?.[1]
+    for (const [defect, healthy] of [
+      ['v1', 'v2'],
+      ['v5', 'v6'],
+    ]) {
+      // The pair differs in the proxy, which is what makes the mapping informative.
+      expect(proxyOf(defect!)).toBeTruthy()
+      expect(proxyOf(defect!)).not.toBe(proxyOf(healthy!))
+    }
+  })
+
   it('answers for a presentation it does not know rather than guessing one', () => {
     // A future presentation added without a token would otherwise silently inherit another case's
     // drawing and the two would be conflated on the page.
