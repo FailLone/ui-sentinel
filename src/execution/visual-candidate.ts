@@ -88,6 +88,36 @@ export function parseVisualScanOutput(raw: unknown, viewport: Viewport): ParseRe
   return { ok: true, candidates: parsed.data.candidates }
 }
 
+/** The model transport uses an explicit 0..1000 grid; persisted candidates always use CSS pixels. */
+export function parseNormalizedVisualScanOutput(raw: unknown, viewport: Viewport): ParseResult {
+  const parsed = modelScanSchema
+    .extend({ coordinateSpace: z.literal('normalized-1000') })
+    .strict()
+    .safeParse(raw)
+  if (!parsed.success) return { ok: false, reason: 'invalid-visual-coordinate-contract' }
+  const checked = parseVisualScanOutput(
+    { candidates: parsed.data.candidates },
+    { width: 1000, height: 1000 },
+  )
+  if (!checked.ok) return checked
+  const rect = (r: Rect): Rect => ({
+    x: (r.x * viewport.width) / 1000,
+    y: (r.y * viewport.height) / 1000,
+    width: (r.width * viewport.width) / 1000,
+    height: (r.height * viewport.height) / 1000,
+  })
+  return parseVisualScanOutput(
+    {
+      candidates: checked.candidates.map((c) => ({
+        ...c,
+        perceivedRegion: rect(c.perceivedRegion),
+        excludedRegions: c.excludedRegions.map(rect),
+      })),
+    },
+    viewport,
+  )
+}
+
 /** Attach the server-owned identity and provenance to a validated model candidate. */
 export function bindServerCandidate(
   model: ModelVisualCandidate,

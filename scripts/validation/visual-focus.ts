@@ -64,9 +64,15 @@ const model = createServer(async (req, res) => {
       // Qwen, seeing a field that was 3/255 from the page background with no border, correctly
       // reported the inner input instead and the defect was never measured.
       const content = JSON.stringify({
+        coordinateSpace: 'normalized-1000',
         candidates: [
           {
-            perceivedRegion: { x: 430, y: 133, width: 420, height: 50 },
+            perceivedRegion: {
+              x: (430 / 1280) * 1000,
+              y: (133 / 768) * 1000,
+              width: (420 / 1280) * 1000,
+              height: (50 / 768) * 1000,
+            },
             targetDescription: 'Search products input region',
             visualBasis: 'Continuous light background around the visible search field.',
             excludedRegions: [],

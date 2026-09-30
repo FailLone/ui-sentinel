@@ -4,6 +4,7 @@ import {
   CANDIDATE_MAX,
   EXCLUDED_MAX,
   parseVisualScanOutput,
+  parseNormalizedVisualScanOutput,
   type VisualCandidate,
 } from './visual-candidate.ts'
 
@@ -140,4 +141,29 @@ describe('bindServerCandidate', () => {
 
     expect(candidate.confidence).toBe('low')
   })
+})
+
+// Transport coordinates are declared, never guessed from whether a box happens to fit the DOM.
+it('converts the declared model grid to CSS pixels using only the viewport', () => {
+  const raw = { ...output(), coordinateSpace: 'normalized-1000' }
+  raw.candidates[0].perceivedRegion = { x: 334, y: 173, width: 332, height: 54 }
+  const result = parseNormalizedVisualScanOutput(raw, { width: 1280, height: 768 })
+  expect(result.ok).toBe(true)
+  if (!result.ok) return
+  expect(result.candidates[0].perceivedRegion.x).toBeCloseTo(427.52)
+  expect(result.candidates[0].perceivedRegion.y).toBeCloseTo(132.864)
+  const narrow = parseNormalizedVisualScanOutput(raw, { width: 960, height: 720 })
+  expect(narrow.ok).toBe(true)
+  if (narrow.ok) expect(narrow.candidates[0].perceivedRegion.x).toBeCloseTo(320.64)
+})
+it('rejects an omitted or different coordinate system instead of silently inferring units', () => {
+  expect(parseNormalizedVisualScanOutput(output(), viewport).ok).toBe(false)
+  expect(
+    parseNormalizedVisualScanOutput({ ...output(), coordinateSpace: 'css-pixels' }, viewport).ok,
+  ).toBe(false)
+})
+it('rejects normalized boxes outside the image before scaling them', () => {
+  const raw = { ...output(), coordinateSpace: 'normalized-1000' }
+  raw.candidates[0].perceivedRegion = { x: 980, y: 20, width: 30, height: 20 }
+  expect(parseNormalizedVisualScanOutput(raw, viewport).ok).toBe(false)
 })

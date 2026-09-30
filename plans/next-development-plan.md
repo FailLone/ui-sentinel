@@ -57,6 +57,8 @@
 
 使用真实viewport截图。固定截图scale为CSS像素，或持久化经过验证的image pixel到CSS viewport变换；不得混用DPR、fullPage坐标、滚动偏移。图像尺寸、viewport、scroll、document epoch、截图SHA与采集时间由服务端记录。页内文本是数据，不能更改任务或让模型访问别的地址。
 
+P2 真实 smoke 发现 Qwen 返回 0–1000 坐标，现明确分离模型传输与持久候选：模型必须声明 `coordinateSpace: normalized-1000`，服务端按已验证的 CSS viewport 宽高分别乘以 `width/1000`、`height/1000`，先验证原始范围，再验证转换结果；保留原始响应和转换元数据。Agent、探针、持久候选仍只使用 CSS 像素。不得从 DOM/预期答案推断单位或裁剪错误框。该变更版本为 `visual-focus-3`。
+
 Qwen只收到这张原始截图、当前公开目标和简短结构化输出要求。不得把DOM实际input宽度、私有case/答案、隐藏样式、建议点击点喂给视觉模型来假装看出了区域。DOM绑定在候选产生之后发生。
 
 建议输出契约（服务端严格schema校验，上限不依赖提示词）：

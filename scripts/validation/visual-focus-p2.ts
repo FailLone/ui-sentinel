@@ -295,10 +295,15 @@ try {
     console.log(
       `${id}: ${record.status}; ${record.elapsedMs}ms; ${JSON.stringify(record.problems ?? record.error)}`,
     )
-    const signature = JSON.stringify(record.problems ?? record.error)
+    const signature =
+      record.problems?.includes('required-probe-missing') &&
+      record.problems?.includes('visual-scope-unverified')
+        ? 'visual-probe-unavailable'
+        : JSON.stringify(record.problems ?? record.error)
     if (!record.passed) repeated.set(signature, (repeated.get(signature) ?? 0) + 1)
     if (
       record.error ||
+      record.report?.status === 'cancelled' ||
       record.requests.some((r: any) => r.status !== 'success') ||
       (repeated.get(signature) ?? 0) >= 2 ||
       record.report?.inspectionIntegrity?.status === 'intervened'

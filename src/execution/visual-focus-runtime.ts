@@ -14,7 +14,7 @@ import { bindFocusSurface, readFocusSurface } from './focus-surface.ts'
 import { deriveNeutralPoint } from './focus-neutral.ts'
 import { annotateFocus } from './focus-annotation.ts'
 import {
-  parseVisualScanOutput,
+  parseNormalizedVisualScanOutput,
   bindServerCandidate,
   type VisualCandidate,
 } from './visual-candidate.ts'
@@ -23,7 +23,7 @@ import { config } from '../shared/config.ts'
 import { type FocusReceipt, focusReceiptVerdict } from './focus-receipt.ts'
 import type { RequestTracker } from '../agent/model/request-tracker.ts'
 
-export const VISUAL_FOCUS_VERSION = 'visual-focus-2'
+export const VISUAL_FOCUS_VERSION = 'visual-focus-3'
 interface Observation {
   snapshot: Awaited<ReturnType<typeof observePage>>['snapshot']
   evidenceRefs: readonly string[]
@@ -163,6 +163,13 @@ export function createVisualFocusRuntime(deps: {
           text: raw,
           screenshotRef,
           screenshotSha: sha,
+          coordinateTransform: {
+            source: 'normalized-1000',
+            destination: 'css-pixels',
+            scaleX: viewport.width / 1000,
+            scaleY: viewport.height / 1000,
+            viewport,
+          },
           finishReason: response.finishReason,
         })
         const stable =
@@ -178,7 +185,7 @@ export function createVisualFocusRuntime(deps: {
           continue
         }
         if (response.finishReason.unified !== 'stop') throw Error('visual-response-incomplete')
-        const parsed = parseVisualScanOutput(JSON.parse(raw), viewport)
+        const parsed = parseNormalizedVisualScanOutput(JSON.parse(raw), viewport)
         if (!parsed.ok) throw Error(parsed.reason)
         const epoch = randomUUID()
         for (const model of parsed.candidates) {
