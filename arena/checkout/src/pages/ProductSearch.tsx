@@ -14,29 +14,45 @@ import { fetchVariantConfig, type SearchPresent } from '../api.ts'
  * Nothing here names a case or states what is expected.
  */
 
-const REGION_STYLE: Record<SearchPresent, React.CSSProperties> = {
-  // A continuous light field with no inner border. The real input is visibly narrower than the field.
-  one: {
-    background: '#f4f6f8',
-    border: 'none',
-    padding: '10px 64px',
-    borderRadius: 6,
-  },
-  // The same field, drawn the same way; the difference is behavioural, not visual.
-  two: {
-    background: '#f4f6f8',
-    border: 'none',
-    padding: '10px 64px',
-    borderRadius: 6,
-  },
+/**
+ * One field, drawn once and shared by both presentations.
+ *
+ * The two presentations differ only in whether a click on the field hands focus to the input, so
+ * they must render identically or the comparison would be between two different pictures. Sharing
+ * the object makes that structural: there is no second style to drift.
+ *
+ * The fill, border and radius are what make the field readable as a single input at all. An earlier
+ * version drew it as `#f4f6f8` on a `#f5f5f5` page with no border - three levels out of 255 - which
+ * is below the point where the shape is visible. The fixture then asked a vision model to report a
+ * region that the screenshot did not contain.
+ */
+const FIELD_STYLE: React.CSSProperties = {
+  background: '#ffffff',
+  border: '1px solid #b9c2cf',
+  padding: '10px 64px',
+  borderRadius: 8,
 }
 
+const REGION_STYLE: Record<SearchPresent, React.CSSProperties> = {
+  one: FIELD_STYLE,
+  two: FIELD_STYLE,
+}
+
+/**
+ * The real input inside the field: no fill and no border of its own.
+ *
+ * Plan 1's case only exists when the field reads as one input whose text-entry part is narrower than
+ * the shape. A white input on a tinted field draws two nested controls, and the real vision model
+ * duly reported the inner box - so the region the fixture is about was never the one measured. With
+ * the input transparent the bordered field is the single visible control, which is both how ordinary
+ * search bars are built and what makes the case meaningful.
+ */
 const INPUT_STYLE: React.CSSProperties = {
   width: 240,
   height: 28,
   border: 'none',
   outline: 'none',
-  background: '#ffffff',
+  background: 'transparent',
   font: 'inherit',
   padding: '0 8px',
 }

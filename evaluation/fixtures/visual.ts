@@ -21,6 +21,19 @@ export interface VisualCaseTruth {
   readonly presentation: VisualPresentation
   /** The native input the region is really about. Private: never sent to the browser. */
   readonly targetSelector: string
+  /**
+   * The native input's own box, in the same CSS pixels as `region`.
+   *
+   * Recorded because it is the thing the case is about: a candidate that covers the field is only a
+   * defect if the fixed probe points fall outside this box. Without it, a "correct" candidate could
+   * silently be the input itself and the case would score as a defect it never demonstrated.
+   */
+  readonly inputBox: {
+    readonly x: number
+    readonly y: number
+    readonly width: number
+    readonly height: number
+  }
   /** The region the vision model is expected to perceive, in CSS pixels at the fixed viewport. */
   readonly region: {
     readonly x: number
@@ -45,14 +58,21 @@ export interface VisualCaseTruth {
 
 const TARGET = '.visual-search-region input'
 /**
- * The true geometry of the search region, in CSS pixels at the 1280x768 run viewport.
+ * The true geometry of the search field, in CSS pixels at the 1280x768 run viewport.
  *
- * Measured from the live arena page rather than chosen by hand: the padded field is 420x48 and the
- * native input sits centred inside it. The preflight pins this against the real page, because a stale
- * rectangle here silently stops overlapping any candidate the agent could perceive, which turns the
- * scorer into a machine for failing correct work.
+ * Measured from the live arena page rather than chosen by hand: the field is 420x50 and the native
+ * input is a 240x28 box centred inside it. The preflight pins both against the real page, because a
+ * stale rectangle here silently stops overlapping any candidate the agent could perceive, which turns
+ * the scorer into a machine for failing correct work.
+ *
+ * These numbers moved with the fixture's styling fix: the field was previously drawn at 3/255 from
+ * the page background with no border, so it was invisible, and real Qwen correctly reported the inner
+ * input instead. With the border the box is two pixels taller, and the input starts one pixel further
+ * left. See the perceivability check in the preflight.
  */
-const REGION = { x: 430, y: 133, width: 420, height: 48 }
+const REGION = { x: 430, y: 133, width: 420, height: 50 }
+/** The narrower native input those probe points must fall outside of. */
+const INPUT = { x: 495, y: 144, width: 240, height: 28 }
 const OVERLAP_MIN = 0.6
 
 /**
@@ -62,6 +82,7 @@ const OVERLAP_MIN = 0.6
 export const VISUAL_TRUTH: Partial<Record<VisualCaseId, VisualCaseTruth>> = {
   D0: {
     id: 'D0',
+    inputBox: INPUT,
     presentation: 'search-padded-narrow-input',
     targetSelector: TARGET,
     region: REGION,
@@ -72,6 +93,7 @@ export const VISUAL_TRUTH: Partial<Record<VisualCaseId, VisualCaseTruth>> = {
   },
   H0: {
     id: 'H0',
+    inputBox: INPUT,
     presentation: 'search-proxied-wide-region',
     targetSelector: TARGET,
     region: REGION,

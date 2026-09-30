@@ -48,10 +48,15 @@ const model = createServer(async (req, res) => {
           .update(Buffer.from(image.split(',')[1], 'base64'))
           .digest('hex'),
       })
+      // The fixed model answers for the D0/H0 field. It echoes the field's real box as the private
+      // fixture records it - but that echo is the reason this preflight cannot stand in for a real
+      // model: it is handed the answer, so it cannot reveal that the page was undetectable. Real
+      // Qwen, seeing a field that was 3/255 from the page background with no border, correctly
+      // reported the inner input instead and the defect was never measured.
       const content = JSON.stringify({
         candidates: [
           {
-            perceivedRegion: { x: 430, y: 133, width: 420, height: 48 },
+            perceivedRegion: { x: 430, y: 133, width: 420, height: 50 },
             targetDescription: 'Search products input region',
             visualBasis: 'Continuous light background around the visible search field.',
             excludedRegions: [],

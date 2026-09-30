@@ -11,6 +11,7 @@ import { deriveNeutralPoint, type NeutralElement } from '@/execution/focus-neutr
 import { evaluateFocusVerdict } from '@/execution/focus-verdict.ts'
 import { FOCUS_WINDOW_MS } from '@/execution/focus-receipt.ts'
 import { VISUAL_TRUTH, visualTruthFor } from '@evaluation/fixtures/visual.ts'
+import { readPng, channelDistance } from '@evaluation/support/png.ts'
 
 /** Real arena geometry and behavior tests. The separate validate:visual-focus command proves
  * the SDK/API/Agent/tool/persistence boundary; these tests do not claim that coverage. */
@@ -309,6 +310,31 @@ describe('free preflight: the real arena, real clicks, no model', () => {
     expect(await measurer.isFocused(truth.targetSelector)).toBe(false)
   })
 
+  it('draws a search field that is actually visible against the page background', async () => {
+    // A case whose whole premise is "a wide field LOOKS like one input, but only a narrow part of it
+    // focuses" is meaningless if the field cannot be seen: no vision model, and no person, could
+    // report a region that differs from the page by a couple of levels out of 255. The P1 fixture
+    // drew exactly that - rgb(244,246,248) on rgb(245,245,245), no border, no shadow - and the
+    // fixed response in the preflight named the region anyway, so nothing noticed. This checks the
+    // rendered pixels, which is the only place the claim can actually be true or false.
+    await openCase('D0')
+    const region = VISUAL_TRUTH.D0!.region
+    const image = await page.screenshot({ scale: 'css' })
+    const png = readPng(image)
+    const midY = Math.round(region.y + region.height / 2)
+
+    // Straight across the field's vertical centre: inside the left padding, then well outside.
+    const pageColour = png.at(Math.round(region.x - 40), midY)
+
+    // Scan a line across the field's left edge. The boundary is what makes the shape visible: a
+    // hairline border achieves it just as well as a tinted fill, so the check is the strongest
+    // difference found anywhere across the edge rather than the difference at one chosen pixel.
+    let strongest = 0
+    for (let x = Math.round(region.x - 6); x <= Math.round(region.x + 12); x++)
+      strongest = Math.max(strongest, channelDistance(png.at(x, midY), pageColour))
+    expect(strongest).toBeGreaterThan(20)
+  })
+
   it('pins the ground-truth region to the region the real page actually draws', async () => {
     // The scorer's rectangle is a claim about the page. If the layout moves, the claim goes stale and
     // every correct candidate starts failing the overlap check, so the claim is checked against the
@@ -328,6 +354,15 @@ describe('free preflight: the real arena, real clicks, no model', () => {
     expect(Math.round(measured.region.width)).toBe(truth.width)
     expect(Math.round(measured.region.y)).toBe(truth.y)
     expect(Math.round(measured.region.height)).toBe(truth.height)
+
+    // The input box is pinned too. The real-model probe showed why: Qwen's answer was the INPUT, so
+    // both derived points landed inside it and the probe refuted - the defect was never measured.
+    const input = VISUAL_TRUTH.D0!.inputBox
+    expect(Math.round(measured.input.x)).toBe(input.x)
+    expect(Math.round(measured.input.width)).toBe(input.width)
+    expect(Math.round(measured.input.y)).toBe(input.y)
+    expect(Math.round(measured.input.height)).toBe(input.height)
+
     // The point of the case is that the derived probe points land OUTSIDE the native input, on the
     // padding that looks like part of the field. If they fell inside it, D0 would not be a defect at
     // all and every assertion below would be measuring the wrong thing.
@@ -336,6 +371,7 @@ describe('free preflight: the real arena, real clicks, no model', () => {
       excluded: [],
       dangerous: [],
     })
+    expect(points.length).toBeGreaterThanOrEqual(2)
     for (const point of points) {
       const outsideInput =
         point.x < measured.input.x || point.x > measured.input.x + measured.input.width
