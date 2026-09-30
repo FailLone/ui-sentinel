@@ -62,6 +62,35 @@ describe('binding a perceived region to a unique native input', () => {
     if (!result.ok) expect(result.reason).toBe('no-target')
   })
 
+  it('binds a region the model drew just inside the input borders', () => {
+    // What the real model actually does. Vision models trace the visible edge, and at H1 the visible
+    // edge is a 1px border, so the reported box came back five pixels inside the control: the region
+    // covered only 79% of the input and the binding was refused. But a 250x30 box lying 93% within a
+    // 260x34 input unambiguously refers to that input - refusing it rejects the model for being
+    // slightly conservative about a border, which is the model being right.
+    const result = bindInputToRegion({
+      ...base,
+      region: { x: 245, y: 204, width: 250, height: 30 },
+      elements: [input({ bounds: { x: 240, y: 200, width: 260, height: 34 } })],
+    })
+
+    expect(result.ok).toBe(true)
+    if (result.ok) expect(result.elementRef).toBe('e1')
+  })
+
+  it('still refuses a region that merely clips the input it overlaps', () => {
+    // The containment path must not become a loophole: a large region that grazes an input is not a
+    // region about that input, however much of the ORIGINAL region it happens to share.
+    const result = bindInputToRegion({
+      ...base,
+      region: { x: 100, y: 200, width: 40, height: 40 },
+      elements: [input({ bounds: { x: 128, y: 200, width: 120, height: 40 } })],
+    })
+
+    expect(result.ok).toBe(false)
+    if (!result.ok) expect(result.reason).toBe('no-target')
+  })
+
   it('refuses a disabled or read-only input instead of treating it as the target', () => {
     expect(bindInputToRegion({ ...base, elements: [input({ enabled: false })] })).toMatchObject({
       ok: false,

@@ -56,6 +56,21 @@ const SUPPORTED_TYPES = new Set(['text', 'search'])
 /** Fraction of the element's area that must fall inside the region for it to count as the target. */
 const MIN_COVERAGE = 0.9
 
+/**
+ * The other way a region can refer to an input: the input contains the region.
+ *
+ * Real vision models trace the visible edge, and a control's visible edge is its border, so the box
+ * they report often lands a few pixels inside the control - H1's region covered 79% of its input and
+ * the binding was refused, even though a 250x30 box lying entirely within a 260x34 input plainly
+ * refers to that input. Refusing it rejects the model for being slightly conservative.
+ *
+ * The fraction is of the REGION, not of the input: a small box inside a large input is that input's
+ * inner text area, while a large box that merely grazes an input contains almost none of itself in
+ * it and is refused. Both thresholds are high because the ordinary containment path is the one that
+ * has to stay strict - this is explicitly the not-clipping case.
+ */
+const MIN_CONTAINMENT = 0.9
+
 /** More than this many unrelated interactive controls makes the region a container, not an input area. */
 const MAX_UNRELATED_CONTROLS = 2
 
@@ -88,6 +103,14 @@ function covered(element: BindableElement, region: Rect): number {
   return elementArea === 0 ? 0 : area(overlap) / elementArea
 }
 
+/** How much of the REGION lies inside the element, for the region-inside-input case. */
+function containment(element: BindableElement, region: Rect): number {
+  const overlap = intersection(element.bounds, region)
+  if (!overlap) return 0
+  const regionArea = area(region)
+  return regionArea === 0 ? 0 : area(overlap) / regionArea
+}
+
 /**
  * Resolve the region to exactly one native input, or refuse with the reason.
  *
@@ -107,7 +130,10 @@ export function bindInputToRegion(input: BindInput): BindResult {
   if (liveDangerous.length > MAX_UNRELATED_CONTROLS) return { ok: false, reason: 'mixed-region' }
   if (liveDangerous.length > 0) return { ok: false, reason: 'dangerous-control-in-region' }
 
-  const candidates = elements.filter((element) => covered(element, region) >= MIN_COVERAGE)
+  const candidates = elements.filter(
+    (element) =>
+      covered(element, region) >= MIN_COVERAGE || containment(element, region) >= MIN_CONTAINMENT,
+  )
   if (candidates.length === 0) return { ok: false, reason: 'no-target' }
   if (candidates.length > 1) return { ok: false, reason: 'ambiguous-targets' }
 
@@ -118,12 +144,20 @@ export function bindInputToRegion(input: BindInput): BindResult {
   if (target.tag.toLowerCase() !== 'input' || !SUPPORTED_TYPES.has(type))
     return { ok: false, reason: 'unsupported-target-type' }
 
+  // The reason names the rule that actually admitted the binding. Reporting a coverage figure for a
+  // region admitted by containment would put a number under the threshold into the receipt, which
+  // reads as a passed check that did not pass.
   const coverage = Math.round(covered(target, region) * 100)
+  const contained = Math.round(containment(target, region) * 100)
+  const how =
+    coverage >= MIN_COVERAGE
+      ? `whose bounds lie ${coverage}% inside the perceived region`
+      : `that contains ${contained}% of the perceived region`
   return {
     ok: true,
     elementRef: target.ref,
     nodeIdentity: `input#${target.id ?? 'anonymous'}@${target.ref}`,
-    reason: `the only native ${type} input whose bounds lie ${coverage}% inside the perceived region`,
+    reason: `the only native ${type} input ${how}`,
   }
 }
 

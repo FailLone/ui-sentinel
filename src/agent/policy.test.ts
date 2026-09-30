@@ -22,6 +22,61 @@ const features = { shortFinish: false, atomicInvestigation: false }
 const checkout = buildContractSnapshot(checkoutProfile, 'arena')
 const datasetExport = buildContractSnapshot(exportProfile, 'export-arena')
 
+describe('inspection policy states how the visual candidates are investigated', () => {
+  /**
+   * The D2 diagnostic is why this exists. A real candidate was proposed and was correct, and the
+   * agent walked past it nine observations in a row, spent its tail rereading history and stopped
+   * with no-progress. The candidates were in its input; nothing in its instructions ever said what
+   * they were for or which tool consumes them, so a capability that was present and correct went
+   * unused. That is a gap in the instructions, not in the agent.
+   *
+   * The wording is capability-level on purpose. It may say a tool exists, when it applies and which
+   * field names it takes - all of which the input contract already shows - but naming a case, a
+   * location, a size or an expected outcome would hand the agent the answer it is being tested for
+   * (plan 4.1).
+   */
+  const visual = { shortFinish: false, atomicInvestigation: true, visualDiscovery: true }
+  const withoutVisual = { shortFinish: false, atomicInvestigation: true }
+
+  it('names focus_probe, the candidateId field and the elementRef binding when discovery is on', () => {
+    const policy = inspectionPolicy('Inspect the checkout', visual, checkout)
+
+    expect(policy).toContain('focus_probe')
+    expect(policy).toContain('candidateId')
+    expect(policy).toContain('elementRef')
+    // The agent has to know the investigation is expected, not merely that the tool exists.
+    expect(policy).toMatch(/visualCandidates/)
+  })
+
+  it('says nothing about visual candidates when discovery is off', () => {
+    // A run without the feature has no candidates and no tool. Instructions about a capability the
+    // run cannot use are instructions to fail.
+    const policy = inspectionPolicy('Inspect the checkout', withoutVisual, checkout)
+
+    expect(policy).not.toContain('focus_probe')
+    expect(policy).not.toContain('visualCandidates')
+  })
+
+  it('describes the capability without naming the case, its answer or where to look', () => {
+    // The leak test. Anything case-shaped here would let the agent read the answer out of its own
+    // brief: which region is broken, how wide it is, or which outcome to report.
+    const policy = inspectionPolicy('Inspect the checkout', visual, checkout)
+    // Only the visual guidance is judged. The rest of the prompt is older prose with its own
+    // vocabulary ("not evidence of a defect"), and holding it to this test would fail on wording
+    // that predates the feature and says nothing about a case.
+    const sentences = policy.split(/(?<=\.)\s+/).filter((s) => /focus_probe/.test(s))
+    expect(sentences.length).toBeGreaterThan(0)
+    const guidance = sentences.join(' ')
+
+    expect(guidance).not.toMatch(/\bD[0-9]\b|\bH[0-9]\b/)
+    expect(guidance).not.toMatch(/padding|proxy|delegat|narrow|healthy|expectSupported/i)
+    expect(guidance).not.toMatch(/search (field|box|input|region|area)/i)
+    // No coordinates, and no claim about which outcome is correct.
+    expect(guidance).not.toMatch(/\d+\s*(px|pixels)/i)
+    expect(guidance).not.toMatch(/supported|refuted/i)
+  })
+})
+
 describe('inspection policy states the inspected business, not one business', () => {
   it('carries the checkout requirements for a checkout run', () => {
     const policy = inspectionPolicy('Inspect the checkout', features, checkout)
