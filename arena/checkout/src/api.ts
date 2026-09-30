@@ -27,7 +27,11 @@ interface PaymentResult {
   readonly retryAvailable?: boolean
 }
 
-type SearchPresent = 'one' | 'two'
+/**
+ * An opaque token naming how the search area is drawn. The values are deliberately meaningless to
+ * anything reading them: they must not say which case is running or which behaviour is expected.
+ */
+type SearchPresent = string
 
 interface VariantConfig {
   readonly overlay: boolean

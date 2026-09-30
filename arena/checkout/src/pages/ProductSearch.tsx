@@ -9,53 +9,142 @@ import { fetchVariantConfig, type SearchPresent } from '../api.ts'
  * C0-C5 are unaffected, and it never filters on load - the evaluator clicks the first exact
  * "Add to Cart", so all products must stay visible until someone types.
  *
- * The two presentations differ only in how the same wide light area is drawn: one shows a narrow
- * native input centred in the padding, the other lets the whole reasonable area focus that input.
- * Nothing here names a case or states what is expected.
+ * Each presentation draws one search area. None of them names a case or states what is expected, and
+ * nothing in the rendered markup reports which behaviour the area has: a marker such as
+ * `data-proxy="label"` would tell the agent which page is the healthy one.
  */
 
 /**
- * One field, drawn once and shared by both presentations.
+ * Show how one presentation draws its search area.
  *
- * The two presentations differ only in whether a click on the field hands focus to the input, so
- * they must render identically or the comparison would be between two different pictures. Sharing
- * the object makes that structural: there is no second style to drift.
- *
- * The fill, border and radius are what make the field readable as a single input at all. An earlier
- * version drew it as `#f4f6f8` on a `#f5f5f5` page with no border - three levels out of 255 - which
- * is below the point where the shape is visible. The fixture then asked a vision model to report a
- * region that the screenshot did not contain.
+ * Tokens arrive as opaque `vN` strings. An unrecognised token falls back to the plain field rather
+ * than rendering nothing, so a mismatch is a visible search area the tests can catch instead of a
+ * silent absence that every assertion would pass over.
  */
-const FIELD_STYLE: React.CSSProperties = {
-  background: '#ffffff',
-  border: '1px solid #b9c2cf',
-  padding: '10px 64px',
-  borderRadius: 8,
+interface Layout {
+  /** The wide shape a user would click. */
+  readonly field: React.CSSProperties
+  /** The real input's own box; no fill of its own, so it never reads as a second control. */
+  readonly input: React.CSSProperties
+  /** How the wide shape hands focus to the input, if at all. */
+  readonly proxy: 'field' | 'label' | 'none'
+  /** Visible label text, associated with the input by `for`/`id`. */
+  readonly label: string | null
+  /** A decorative glyph. Not part of the input, whether it sits inside the field or beside it. */
+  readonly icon: string | null
+  readonly iconInsideField: boolean
+  /** Padding belonging to the surrounding card rather than to the input. */
+  readonly cardPaddingPx: number
+  /** Where the area sits in the column. Lets a case be genuinely elsewhere, not just redrawn. */
+  readonly wrap?: React.CSSProperties
 }
 
-const REGION_STYLE: Record<SearchPresent, React.CSSProperties> = {
-  one: FIELD_STYLE,
-  two: FIELD_STYLE,
-}
+const FIELD = {
+  plain: {
+    background: '#ffffff',
+    border: '1px solid #b9c2cf',
+    padding: '10px 64px',
+    borderRadius: 8,
+  },
+  // A different place, width, corner radius and palette for the same class of defect.
+  warm: {
+    background: '#f3f0ea',
+    border: '1px solid #cdbfa6',
+    padding: '12px 56px',
+    borderRadius: 4,
+  },
+  pill: {
+    background: '#ffffff',
+    border: '2px solid #b9c2cf',
+    padding: '12px 52px',
+    borderRadius: 999,
+  },
+  // No shape of its own: the input's own border is the whole control.
+  none: { background: 'transparent', border: 'none', padding: 0, borderRadius: 0 },
+} satisfies Record<string, React.CSSProperties>
+
+const INPUT = {
+  bare: { height: 28, border: 'none', outline: 'none', background: 'transparent', font: 'inherit' },
+  bordered: {
+    height: 34,
+    background: '#ffffff',
+    border: '1px solid #9aa4b2',
+    borderRadius: 6,
+    padding: '0 10px',
+    outline: 'none',
+    font: 'inherit',
+  },
+} satisfies Record<string, React.CSSProperties>
 
 /**
- * The real input inside the field: no fill and no border of its own.
+ * v1/v2 are the wide-field pair; v3 is the bordered-input-in-a-card case; v4 is the warm offset
+ * field; v5/v6 are the labelled pair, defect and healthy twin.
  *
- * Plan 1's case only exists when the field reads as one input whose text-entry part is narrower than
- * the shape. A white input on a tinted field draws two nested controls, and the real vision model
- * duly reported the inner box - so the region the fixture is about was never the one measured. With
- * the input transparent the bordered field is the single visible control, which is both how ordinary
- * search bars are built and what makes the case meaningful.
+ * v5 and v6 share their drawing but differ in `proxy`, which is the one thing a screenshot cannot
+ * show and only real interaction can decide - exactly the split the round is about.
  */
-const INPUT_STYLE: React.CSSProperties = {
-  width: 240,
-  height: 28,
-  border: 'none',
-  outline: 'none',
-  background: 'transparent',
-  font: 'inherit',
-  padding: '0 8px',
+const LAYOUTS: Record<string, Layout> = {
+  v1: {
+    field: FIELD.plain,
+    input: { ...INPUT.bare, width: 240 },
+    proxy: 'none',
+    label: null,
+    icon: null,
+    iconInsideField: false,
+    cardPaddingPx: 0,
+  },
+  v2: {
+    field: FIELD.plain,
+    input: { ...INPUT.bare, width: 240 },
+    proxy: 'field',
+    label: null,
+    icon: null,
+    iconInsideField: false,
+    cardPaddingPx: 0,
+  },
+  v3: {
+    field: FIELD.none,
+    input: { ...INPUT.bordered, width: 260 },
+    proxy: 'none',
+    label: null,
+    icon: '🔎',
+    iconInsideField: false,
+    cardPaddingPx: 28,
+  },
+  v4: {
+    field: FIELD.warm,
+    input: { ...INPUT.bare, width: 180 },
+    proxy: 'none',
+    label: null,
+    icon: null,
+    iconInsideField: false,
+    cardPaddingPx: 0,
+    // Right-aligned and narrower than the column, so this case is in a different place at a
+    // different size rather than the same rectangle in different colours.
+    wrap: { display: 'flex', justifyContent: 'flex-end', paddingRight: 24 },
+  },
+  v5: {
+    field: FIELD.pill,
+    input: { ...INPUT.bare, width: 200 },
+    proxy: 'none',
+    label: 'Search products',
+    icon: '⌕',
+    iconInsideField: true,
+    cardPaddingPx: 0,
+  },
+  v6: {
+    field: FIELD.pill,
+    input: { ...INPUT.bare, width: 200 },
+    proxy: 'label',
+    label: 'Search products',
+    icon: '⌕',
+    iconInsideField: true,
+    cardPaddingPx: 0,
+  },
 }
+
+const DEFAULT_LAYOUT = LAYOUTS.v1!
+const INPUT_ID = 'product-search-input'
 
 export function ProductSearch({ onQueryChange }: { onQueryChange: (query: string) => void }) {
   const [present, setPresent] = useState<SearchPresent | null>(null)
@@ -67,33 +156,68 @@ export function ProductSearch({ onQueryChange }: { onQueryChange: (query: string
 
   if (present === null) return null
 
-  const update = (value: string) => {
-    setQuery(value)
-    onQueryChange(value)
-  }
+  const layout = LAYOUTS[present] ?? DEFAULT_LAYOUT
+  const icon =
+    layout.icon === null ? null : (
+      <span className="visual-search-icon" aria-hidden="true">
+        {layout.icon}
+      </span>
+    )
 
-  // The proxied presentation hands focus to the input from anywhere in the region, the way a label
-  // or a container event delegate would. The padded one has no such delegate.
-  const proxied = present === 'two'
-
-  return (
+  const field = (
     <div
       className="visual-search-region"
-      style={REGION_STYLE[present]}
+      style={layout.field}
       onClick={(event) => {
-        if (proxied && event.target === event.currentTarget) {
+        // Only a click on the field itself: a click on the input must not be re-handled here.
+        if (layout.proxy === 'field' && event.target === event.currentTarget)
           event.currentTarget.querySelector('input')?.focus()
-        }
       }}
     >
+      {layout.iconInsideField ? icon : null}
       <input
+        id={INPUT_ID}
         type="search"
         aria-label="Search products"
         placeholder="Search products"
-        style={INPUT_STYLE}
+        style={layout.input}
         value={query}
-        onChange={(event) => update(event.target.value)}
+        onChange={(event) => {
+          setQuery(event.target.value)
+          onQueryChange(event.target.value)
+        }}
       />
     </div>
   )
+
+  const labelled = (
+    <div className="visual-search-wrap" style={layout.wrap}>
+      {layout.label === null ? null : (
+        <label htmlFor={INPUT_ID} className="visual-search-label">
+          {layout.label}
+        </label>
+      )}
+      {layout.proxy === 'label' ? (
+        // A label delegate: focus follows a click anywhere in the labelled group, the way a real
+        // label-for-control behaves.
+        <div onClick={() => document.getElementById(INPUT_ID)?.focus()}>{field}</div>
+      ) : (
+        field
+      )}
+    </div>
+  )
+
+  // Card presentations carry the glyph and padding outside the control, so the control is only ever
+  // the input itself.
+  if (layout.cardPaddingPx > 0)
+    return (
+      <div className="visual-search-card" style={{ padding: layout.cardPaddingPx }}>
+        <div className="visual-search-row">
+          {icon}
+          {field}
+        </div>
+      </div>
+    )
+
+  return labelled
 }

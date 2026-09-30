@@ -13,8 +13,13 @@ export function isVisualCaseId(value: string): value is VisualCaseId {
   return caseIds.has(value)
 }
 
-/** The presentation the arena is asked to draw. Deliberately says nothing about the case. */
-export type VisualPresentation = 'search-padded-narrow-input' | 'search-proxied-wide-region'
+/**
+ * The presentation the arena is asked to draw. Deliberately says nothing about the case.
+ *
+ * Kept as a string rather than a union: this module is evaluation-side and must not depend on the
+ * arena's vocabulary, and the preflight checks that every value here is one the arena accepts.
+ */
+export type VisualPresentation = string
 
 export interface VisualCaseTruth {
   readonly id: VisualCaseId
@@ -57,8 +62,10 @@ export interface VisualCaseTruth {
 }
 
 const TARGET = '.visual-search-region input'
+const OVERLAP_MIN = 0.6
+
 /**
- * The true geometry of the search field, in CSS pixels at the 1280x768 run viewport.
+ * The true geometry of the D0/H0 field, in CSS pixels at the 1280x768 run viewport.
  *
  * Measured from the live arena page rather than chosen by hand: the field is 420x50 and the native
  * input is a 240x28 box centred inside it. The preflight pins both against the real page, because a
@@ -73,13 +80,34 @@ const TARGET = '.visual-search-region input'
 const REGION = { x: 430, y: 133, width: 420, height: 50 }
 /** The narrower native input those probe points must fall outside of. */
 const INPUT = { x: 495, y: 144, width: 240, height: 28 }
-const OVERLAP_MIN = 0.6
 
 /**
- * Only D0 and H0 exist at P1. The remaining holdout cases are added once the prompt, schema and
- * algorithm are frozen (plan 6 P2); they are named in the union so a typo cannot invent a new case.
+ * D1 at the run viewport: the same class of defect drawn differently - another place, width, palette
+ * and corner. Deliberately shares nothing with D0 but the shape of the problem.
  */
-export const VISUAL_TRUTH: Partial<Record<VisualCaseId, VisualCaseTruth>> = {
+const D1_REGION = { x: 532, y: 133, width: 294, height: 54 }
+const D1_INPUT = { x: 589, y: 146, width: 180, height: 28 }
+
+/**
+ * D2/H2 at the 960x720 narrow viewport: a labelled field with a decorative glyph inside its padding.
+ *
+ * The icon sits in the field's leading padding and is NOT part of the input, so the scorer must
+ * report it as an excluded area rather than let a failure on the icon stand as the evidence.
+ */
+const NARROW_VIEWPORT = { width: 960, height: 720 }
+const D2_REGION = { x: 270, y: 162, width: 420, height: 56 }
+const D2_INPUT = { x: 342, y: 176, width: 200, height: 28 }
+const D2_ICON = { x: 324, y: 182, width: 10, height: 16 }
+
+/**
+ * All six cases. D0/H0/H1 are the diagnostic set; D1/D2/H2 are the holdouts (plan 2).
+ *
+ * `region` and `inputBox` are measured from the live page by
+ * `data/p2-probe/measure-all.ts`, and `edgeFocus` by `data/p2-probe/behaviour.ts`, which drives the
+ * real probe procedure over each page. None of it is chosen by hand - a truth table that disagreed
+ * with the page would grade correct work as wrong.
+ */
+export const VISUAL_TRUTH: Record<VisualCaseId, VisualCaseTruth> = {
   D0: {
     id: 'D0',
     inputBox: INPUT,
@@ -102,6 +130,65 @@ export const VISUAL_TRUTH: Partial<Record<VisualCaseId, VisualCaseTruth>> = {
     expectSupported: false,
     regionOverlapMin: OVERLAP_MIN,
   },
+  H1: {
+    id: 'H1',
+    // A plain bordered input: the whole control is the input, so a click anywhere in it focuses.
+    // The card padding and the glyph beside it belong to the card and are not a "wider field".
+    inputBox: { x: 490, y: 161, width: 260, height: 34 },
+    presentation: 'search-bounded-line-card',
+    targetSelector: TARGET,
+    region: { x: 490, y: 161, width: 260, height: 34 },
+    excludedRegions: [],
+    edgeFocus: 'focused',
+    expectSupported: false,
+    regionOverlapMin: OVERLAP_MIN,
+  },
+  D1: {
+    id: 'D1',
+    inputBox: D1_INPUT,
+    presentation: 'search-warm-offset-field',
+    targetSelector: TARGET,
+    region: D1_REGION,
+    excludedRegions: [],
+    edgeFocus: 'not-focused',
+    expectSupported: true,
+    regionOverlapMin: OVERLAP_MIN,
+  },
+  D2: {
+    id: 'D2',
+    inputBox: D2_INPUT,
+    presentation: 'search-label-icon-field',
+    targetSelector: TARGET,
+    region: D2_REGION,
+    excludedRegions: [D2_ICON],
+    edgeFocus: 'not-focused',
+    expectSupported: true,
+    regionOverlapMin: OVERLAP_MIN,
+  },
+  H2: {
+    id: 'H2',
+    inputBox: D2_INPUT,
+    presentation: 'search-labelled-proxy-field',
+    targetSelector: TARGET,
+    region: D2_REGION,
+    excludedRegions: [D2_ICON],
+    edgeFocus: 'focused',
+    expectSupported: false,
+    regionOverlapMin: OVERLAP_MIN,
+  },
+}
+
+/** The viewport each case must be run at: the narrow holdouts are not the diagnostic viewport. */
+export const VISUAL_VIEWPORTS: Record<
+  VisualCaseId,
+  { readonly width: number; readonly height: number }
+> = {
+  D0: { width: 1280, height: 768 },
+  H0: { width: 1280, height: 768 },
+  H1: { width: 1280, height: 768 },
+  D1: { width: 1280, height: 768 },
+  D2: NARROW_VIEWPORT,
+  H2: NARROW_VIEWPORT,
 }
 
 export function visualTruthFor(id: VisualCaseId): VisualCaseTruth {

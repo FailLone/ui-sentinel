@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   VISUAL_TRUTH,
+  VISUAL_VIEWPORTS,
   visualTruthFor,
   isVisualCaseId,
   scoreVisualCase,
@@ -124,7 +125,96 @@ describe("visual case scoring (independent of the agent's own verdict)", () => {
   })
 
   it('is a closed union of the implemented cases', () => {
-    const ids: readonly VisualCaseId[] = ['D0', 'H0']
+    const ids: readonly VisualCaseId[] = ['D0', 'H0', 'H1', 'D1', 'D2', 'H2']
     expect(ids.every(isVisualCaseId)).toBe(true)
+  })
+})
+
+describe('the full six-case matrix', () => {
+  const ids: readonly VisualCaseId[] = ['D0', 'H0', 'H1', 'D1', 'D2', 'H2']
+
+  it('defines every case, with three defects and three healthy twins', () => {
+    expect(Object.keys(VISUAL_TRUTH).sort()).toEqual([...ids].sort())
+    const defective = ids.filter((id) => visualTruthFor(id).expectSupported)
+    expect(defective).toEqual(['D0', 'D1', 'D2'])
+    // A healthy case is worth nothing without a defective counterpart to compare against.
+    for (const id of ['D0', 'D1', 'D2'] as const)
+      expect(visualTruthFor(id).expectSupported).toBe(true)
+    for (const id of ['H0', 'H1', 'H2'] as const)
+      expect(visualTruthFor(id).expectSupported).toBe(false)
+  })
+
+  it('gives every case its own presentation', () => {
+    // Two cases sharing one presentation would render the same page twice and quietly delete the
+    // comparison the pair exists to make.
+    const presentations = ids.map((id) => visualTruthFor(id).presentation)
+    expect(new Set(presentations).size).toBe(ids.length)
+  })
+
+  it('never lets a presentation name a case', () => {
+    for (const id of ids) {
+      expect(visualTruthFor(id).presentation).not.toMatch(/\bD[0-9]\b|\bH[0-9]\b|truth|expect/i)
+    }
+  })
+
+  it('keeps the two holdout defects structurally unlike D0', () => {
+    // The holdouts exist to show the capability is not fitted to one layout. If D1/D2 reused D0's
+    // geometry or styling vocabulary they would test nothing the diagnostic set had not.
+    const d0 = visualTruthFor('D0')
+    for (const id of ['D1', 'D2'] as const) {
+      const truth = visualTruthFor(id)
+      // Counted rather than checked field by field: a holdout that happened to share one number with
+      // D0 would still be a different page, and demanding every field differ would force the fixture
+      // into unnatural shapes for no evidential gain.
+      const differences = [
+        truth.presentation !== d0.presentation,
+        truth.region.x !== d0.region.x,
+        truth.region.width !== d0.region.width,
+        truth.region.height !== d0.region.height,
+        truth.inputBox.width !== d0.inputBox.width,
+        VISUAL_VIEWPORTS[id].width !== VISUAL_VIEWPORTS.D0.width,
+      ].filter(Boolean).length
+      expect(differences).toBeGreaterThanOrEqual(4)
+    }
+    // D2's whole point is a different viewport, so it must not be run at the diagnostic size.
+    expect(VISUAL_VIEWPORTS.D1).toEqual(VISUAL_VIEWPORTS.D0)
+    expect(VISUAL_VIEWPORTS.D2).not.toEqual(VISUAL_VIEWPORTS.D0)
+  })
+
+  it('records the narrow viewport for the narrow holdouts and nothing else', () => {
+    expect(VISUAL_VIEWPORTS.D2.width).toBeLessThan(VISUAL_VIEWPORTS.D0.width)
+    expect(VISUAL_VIEWPORTS.H2).toEqual(VISUAL_VIEWPORTS.D2)
+    expect(VISUAL_VIEWPORTS.D0).toEqual({ width: 1280, height: 768 })
+  })
+
+  it('excludes the decorative icon in D2 and H2, so an icon failure cannot stand as the evidence', () => {
+    for (const id of ['D2', 'H2'] as const) {
+      const truth = visualTruthFor(id)
+      expect(truth.excludedRegions.length).toBeGreaterThan(0)
+      for (const icon of truth.excludedRegions) {
+        // The icon must be inside the region and outside the input: that is what makes it a
+        // genuinely excluded area rather than a second control.
+        expect(icon.x).toBeGreaterThanOrEqual(truth.region.x)
+        expect(icon.x + icon.width).toBeLessThanOrEqual(truth.region.x + truth.region.width)
+        expect(icon.x + icon.width).toBeLessThanOrEqual(truth.inputBox.x)
+      }
+    }
+  })
+
+  it('makes every probe point land outside the input for a defect, and inside it for H1', () => {
+    // The point of the whole matrix: for a defect the fixed procedure must sample padding, and for
+    // H1 - whose control IS its input - it must not.
+    for (const id of ids) {
+      const truth = visualTruthFor(id)
+      const points = [
+        truth.region.x + 0.12 * truth.region.width,
+        truth.region.x + 0.88 * truth.region.width,
+      ]
+      const inside = points.map(
+        (x) => x >= truth.inputBox.x && x <= truth.inputBox.x + truth.inputBox.width,
+      )
+      if (id === 'H1') expect(inside).toEqual([true, true])
+      else expect(inside).toEqual([false, false])
+    }
   })
 })

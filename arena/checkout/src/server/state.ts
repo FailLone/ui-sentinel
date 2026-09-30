@@ -8,12 +8,41 @@ export type VariantId = 'C0' | 'C1' | 'C2' | 'C3' | 'C4' | 'C5'
  * each case lives in evaluation/ and is never reachable from the browser. Adding a presence must not
  * change any C0-C5 behaviour, so the default is null and the reset clears it.
  */
-export type VisualPresent = 'search-padded-narrow-input' | 'search-proxied-wide-region'
+export type VisualPresent =
+  | 'search-padded-narrow-input'
+  | 'search-proxied-wide-region'
+  /** A bordered native input, with card padding and a decorative icon beside it that are not part of it. */
+  | 'search-bounded-line-card'
+  /** The same defect drawn differently: another width, palette, corner and placement. */
+  | 'search-warm-offset-field'
+  /** A labelled field with a decorative glyph inside its padding, which does not hand focus on. */
+  | 'search-label-icon-field'
+  /** The same drawing with a correct label delegate, and a normal button as a neighbour. */
+  | 'search-labelled-proxy-field'
 
 export const VISUAL_PRESENTS: readonly VisualPresent[] = [
   'search-padded-narrow-input',
   'search-proxied-wide-region',
+  'search-bounded-line-card',
+  'search-warm-offset-field',
+  'search-label-icon-field',
+  'search-labelled-proxy-field',
 ]
+
+/**
+ * The token the page receives for a presentation.
+ *
+ * Deliberately opaque and indices-based: the page has to know how to draw its own search area, but it
+ * must not be able to read a case name, a target box or an expectation out of the public API (plan
+ * 5). A name like "search-proxied-wide-region" would also hand the agent the answer, since "proxied"
+ * says the healthy behaviour. An unknown presentation throws rather than falling back, so a future
+ * presentation cannot silently inherit another case's drawing.
+ */
+export function publicVisualToken(present: VisualPresent): string {
+  const index = VISUAL_PRESENTS.indexOf(present)
+  if (index < 0) throw new Error(`Unknown visual presentation: ${present}`)
+  return `v${index + 1}`
+}
 
 const visualPresents = new Set<string>(VISUAL_PRESENTS)
 

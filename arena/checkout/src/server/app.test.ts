@@ -60,9 +60,12 @@ describe('checkout arena public API and private controller', () => {
     await reset({ variant: 'C0', visual: 'search-padded-narrow-input' })
 
     const config = await (await call(arena.app, '/api/variant-config')).json()
-    expect(config.search).toEqual({ present: 'one' })
-    // The public surface describes how the area is drawn, never which case it is or what is expected.
-    expect(JSON.stringify(config)).not.toMatch(/\bD[0-9]\b|\bH[0-9]\b|groundTruth|targetBox/)
+    // An opaque index token: it has to name the drawing, and must not name the case, the behaviour
+    // or the geometry. A word such as "proxied" would itself be the answer.
+    expect(config.search).toEqual({ present: 'v1' })
+    expect(JSON.stringify(config)).not.toMatch(
+      /\bD[0-9]\b|\bH[0-9]\b|groundTruth|targetBox|proxied|delegat|focus|narrow|padded/i,
+    )
   })
 
   it('rejects an unknown visual presentation', async () => {

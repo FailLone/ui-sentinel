@@ -10,13 +10,18 @@ import { createFocusMeasurer } from '@/execution/focus-measure.ts'
 import { deriveNeutralPoint, type NeutralElement } from '@/execution/focus-neutral.ts'
 import { evaluateFocusVerdict } from '@/execution/focus-verdict.ts'
 import { FOCUS_WINDOW_MS } from '@/execution/focus-receipt.ts'
-import { VISUAL_TRUTH, visualTruthFor } from '@evaluation/fixtures/visual.ts'
+import {
+  VISUAL_TRUTH,
+  VISUAL_VIEWPORTS,
+  visualTruthFor,
+  isVisualCaseId,
+  type VisualCaseId,
+} from '@evaluation/fixtures/visual.ts'
 import { readPng, channelDistance } from '@evaluation/support/png.ts'
 
 /** Real arena geometry and behavior tests. The separate validate:visual-focus command proves
  * the SDK/API/Agent/tool/persistence boundary; these tests do not claim that coverage. */
 const CONTROL_TOKEN = 'preflight-control-token'
-const PRESENTATION = { D0: 'search-padded-narrow-input', H0: 'search-proxied-wide-region' } as const
 const DIST = 'arena/checkout/dist'
 const MIME: Record<string, string> = {
   '.html': 'text/html',
@@ -69,12 +74,20 @@ function arenaServer() {
   })
 }
 
-/** Reset the arena to a case and load its real page. C0 keeps the ordinary purchase flow intact. */
-async function openCase(id: 'D0' | 'H0') {
+/**
+ * Reset the arena to a case and load its real page. C0 keeps the ordinary purchase flow intact.
+ *
+ * The viewport comes from the private truth, because the narrow holdouts are deliberately run at a
+ * different size; running them at the diagnostic viewport would silently test a different layout
+ * from the one their truth describes.
+ */
+async function openCase(id: VisualCaseId) {
+  const viewport = VISUAL_VIEWPORTS[id]
+  await page.setViewportSize(viewport)
   const response = await fetch(`${origin}/__control/reset`, {
     method: 'POST',
     headers: { 'content-type': 'application/json', authorization: `Bearer ${CONTROL_TOKEN}` },
-    body: JSON.stringify({ variant: 'C0', visual: PRESENTATION[id] }),
+    body: JSON.stringify({ variant: 'C0', visual: visualTruthFor(id).presentation }),
   })
   expect(response.status).toBe(200)
   await page.goto(`${origin}/`, { waitUntil: 'domcontentloaded' })
@@ -118,9 +131,9 @@ describe('free preflight: the real arena, real clicks, no model', () => {
     await openCase('D0')
     const config = await (await fetch(`${origin}/api/variant-config`)).json()
 
-    expect(config.search).toEqual({ present: 'one' })
+    expect(config.search).toEqual({ present: 'v1' })
     expect(JSON.stringify(config) + (await page.content())).not.toMatch(
-      /search-padded-narrow-input|search-proxied-wide-region/,
+      /search-padded-narrow-input|search-proxied-wide-region|search-bounded-line-card|search-label-icon-offset|search-narrow-labelled/,
     )
     // The case id, the truth region and the expected outcome must not be readable from the page. Every
     // coordinate is checked: leaking the region would hand the agent the answer to the overlap rule.
@@ -376,6 +389,63 @@ describe('free preflight: the real arena, real clicks, no model', () => {
       const outsideInput =
         point.x < measured.input.x || point.x > measured.input.x + measured.input.width
       expect(outsideInput).toBe(true)
+    }
+  })
+
+  it('pins every case: the truth matches the page, and defects sample the padding', async () => {
+    // The whole matrix checked against the real pages, at each case's own viewport. A truth table
+    // that drifted from the page would grade correct work as wrong, and a defect whose probe points
+    // landed inside its input could never be detected at all.
+    for (const id of ['D0', 'H0', 'H1', 'D1', 'D2', 'H2'] as VisualCaseId[]) {
+      if (!isVisualCaseId(id)) continue
+      await openCase(id)
+      const truth = visualTruthFor(id)
+      const viewport = VISUAL_VIEWPORTS[id]
+      const measured = await page.evaluate((selector) => {
+        const r = document.querySelector('.visual-search-region')!.getBoundingClientRect()
+        const i = document.querySelector(selector)!.getBoundingClientRect()
+        return {
+          region: { x: r.x, y: r.y, width: r.width, height: r.height },
+          input: { x: i.x, y: i.y, width: i.width, height: i.height },
+        }
+      }, truth.targetSelector)
+      // Collected rather than asserted one by one, so a failure names the case and the field that
+      // drifted instead of stopping at the first mismatch with a bare pair of numbers.
+      const near = (a: number, b: number) => Math.abs(a - b) <= 1
+      const drift = [
+        ['region.x', measured.region.x, truth.region.x],
+        ['region.y', measured.region.y, truth.region.y],
+        ['region.width', measured.region.width, truth.region.width],
+        ['region.height', measured.region.height, truth.region.height],
+        ['input.x', measured.input.x, truth.inputBox.x],
+        ['input.y', measured.input.y, truth.inputBox.y],
+        ['input.width', measured.input.width, truth.inputBox.width],
+        ['input.height', measured.input.height, truth.inputBox.height],
+      ]
+        .filter(([, actual, expected]) => !near(actual as number, expected as number))
+        .map(([field, actual, expected]) => `${id}.${field}: page ${actual}, truth ${expected}`)
+      expect(drift).toEqual([])
+
+      // The region and the input must be fully inside the current viewport, since this round makes
+      // no claim about cross-screen coordinates.
+      expect(measured.region.x).toBeGreaterThanOrEqual(0)
+      expect(measured.region.y).toBeGreaterThanOrEqual(0)
+      expect(measured.region.x + measured.region.width).toBeLessThanOrEqual(viewport.width)
+      expect(measured.region.y + measured.region.height).toBeLessThanOrEqual(viewport.height)
+
+      // The derived points decide what the probe actually samples, so the case's claim about its own
+      // edge behaviour only holds if they land on the right side of the input.
+      const { points } = deriveProbePoints({ region: truth.region, excluded: [], dangerous: [] })
+      expect(points.length).toBeGreaterThanOrEqual(2)
+      const placement = points.map((point) =>
+        point.x >= measured.input.x && point.x <= measured.input.x + measured.input.width
+          ? 'inside'
+          : 'outside',
+      )
+      // H1's control IS its input, so its points must land inside; every other case samples padding.
+      expect(`${id}: ${placement.join(',')}`).toBe(
+        id === 'H1' ? 'H1: inside,inside' : `${id}: outside,outside`,
+      )
     }
   })
 

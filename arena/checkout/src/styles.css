@@ -254,3 +254,40 @@ header nav a:hover {
   padding: 40px;
   color: #999;
 }
+
+.visual-search-wrap {
+  display: block;
+}
+
+.visual-search-label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #444;
+  margin-bottom: 6px;
+}
+
+.visual-search-region {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.visual-search-icon {
+  font-size: 1rem;
+  color: #6b7480;
+  line-height: 1;
+  user-select: none;
+}
+
+.visual-search-card {
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.visual-search-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}

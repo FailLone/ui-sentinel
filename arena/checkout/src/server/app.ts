@@ -13,6 +13,7 @@ import {
   getVisualPresent,
   setVisualPresent,
   isVisualPresent,
+  publicVisualToken,
   type VariantId,
 } from './state.ts'
 
@@ -76,11 +77,11 @@ export function createCheckoutApp(options: { controlToken: string }) {
       overlayClosable: variant === 'C1',
       buttonRenamed: variant === 'C3',
       buttonMoved: variant === 'C3',
-      // Presentation only. A browser can learn how the search area is drawn, never which case it is.
-      search:
-        visualPresent === null
-          ? null
-          : { present: visualPresent === 'search-padded-narrow-input' ? 'one' : 'two' },
+      // Presentation only, as an opaque token: a browser can learn how the search area is drawn,
+      // never which case it is or what is expected of it. The viewport is deliberately NOT disclosed
+      // here - the component lays out to whatever width the page has, so publishing a case's
+      // viewport would be handing over case metadata for nothing.
+      search: visualPresent === null ? null : { present: publicVisualToken(visualPresent) },
     })
   })
 
