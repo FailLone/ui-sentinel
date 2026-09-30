@@ -6,7 +6,7 @@
 18 轮正式评分，也不是 holdout 盲测（见下"holdout 污染"）。本文件不写 accepted。
 
 代码来源：从 `review/visual-focus-p1` 的 `1df75dd` 新建 `dev/visual-focus-p2`。
-本分支三个提交：`5365cf2`、`f8a10e6`、`c0a4c95`。
+本分支五个提交：`5365cf2`、`f8a10e6`、`c0a4c95`、`b3bbf29`、`d3a4f6d`。
 bundle：`ui-sentinel-visual-focus-p2.bundle`（`git bundle verify` 通过，需要 `1df75dd` 作为前置）。
 未合并 main。
 
@@ -30,8 +30,8 @@ pnpm validate:visual-focus -- --preflight
 | --- | --- |
 | TypeScript | 退出码 0 |
 | Biome format | 253 文件，干净 |
-| 完整单元/浏览器回归 | **89 文件，836 测试全部通过**（P1 为 816） |
-| 免费预检 `--preflight` | 退出码 0，`data/visual-focus-preflight/2026-09-30T18-26-13-178Z/` |
+| 完整单元/浏览器回归 | **89 文件，841 测试全部通过**（P1 为 816；review 修复后为 841） |
+| 免费预检 `--preflight` | 退出码 0，`data/visual-focus-preflight/2026-09-30T19-05-42-142Z/` |
 | 真实 Qwen + 真实 DeepSeek 六例 | 各 1 轮，全部 `goal-reached`，判定与真值一致（见下表） |
 | 新 18 轮正式评分 | **未运行**，不计为通过 |
 | 旧 45 轮业务回归 | **未运行**，不计为通过 |
@@ -118,6 +118,8 @@ refuted，两个点都命中 `input` 并在 2ms 聚焦。指引确实进了被�
   而非删除。正式 campaign 需要重试/配额策略，并把提供方故障记成它自己的结局，而不是 case 失败。
 - **全部候选都是 `high` 置信度。** `low` 路径（计划 4.2：low 候选可解释但不能产生 supported
   finding）已实现，但本轮没有任何真实模型触发过它。
+- **编译产物中的 token→proxy 映射**（见下"整分支 review 结果"第 4 项）。这是已知的、被测试固定
+  的残留通道，未在 P2 关闭。
 - **`--diagnostic` / `--formal`、独立评分器、campaign 成本台账未实现**（P3）。
 - **未运行**：18 轮正式评分、旧 45 轮业务回归、以及重负载下的取消/超时矩阵。
 
@@ -126,5 +128,33 @@ refuted，两个点都命中 `input` 并在 2ms 聚焦。指引确实进了被�
 - P3 验收工具与报告（含"两阶段运行"式成本台账与独立评分器反例）。
 - P4 冻结与真实验收。
 - P1 reviewer 遗留的次要点：探针 `complete` 跳过 pre-insert gate；硬编码 `dangerous: []`。
-- 本文件写就时，整分支 fresh-context review 正在进行；其结论将在 review 返回后追加到本文件。
-  在追加之前，本分支**未经整分支 review**。
+## 整分支 review 结果
+
+已由 fresh context、最强模型对 `1df75dd..c0a4c95` 做过一次整分支 review（对照本计划、验收计划和
+本目录 ledger）。结论与处理如下，全部记录在 ledger：
+
+**已修（3 项 Important），每项都先有失败测试或变异验证：**
+
+1. 预检的泄漏正则手写了一份 presentation 名单，写了两个**已不存在**的名字，却漏掉本轮新增的
+   **全部三个**名字——它在检查没人再渲染的字符串。现改为由 `VISUAL_PRESENTS` 生成，并加测试
+   断言它能匹配每一个条目。
+2. `policy.test.ts` 的泄漏检查先按"含 `focus_probe`"筛句，导致视觉段落中另外三句（不含该工具名）
+   从不被检查。现由 marker 对界定，且断言两端都存在（空切片会通过所有否定断言）。
+   **变异验证**：把泄漏注入第一句，新测试失败，旧过滤器放行。
+3. 评分器要求**所有**健康 case 都留下探针记录，但验收计划明确允许 H1/H2 不提出候选、只要求 H0
+   必须被探针。H1 的控件就是它的 input，模型报不出更宽的区域是正确的——原实现会因为"正确"而判失败。
+   现由真值上的 `requireProbe` 决定（H0 true，H1/H2 false）。
+
+**刻意未修（1 项 Important），以测试固定而非默默保留：**
+
+4. 公开的编译产物里存在 `vN -> proxy` 映射，而 proxy 正是孪生缺陷与健康例的唯一差别。修复它需要
+   让客户端不再依赖 per-token 字段（或让孪生两侧都代理），这会改变 case 本身在测什么，属于产品
+   决策而非 P2 修补。该通道被 `pins the one residual channel` 测试固定，并列入下方已知限制。
+   **代价若判断有误**：若正式评分无法排除 Agent 读取该 bundle，这就是真实的答案泄漏，必须在正式
+   campaign 开始前关闭。
+
+**review 未发现问题的部分**：`MIN_CONTAINMENT` 改动被独立复核，未发现可被大区域利用的不对称漏洞。
+
+**Deferred minors（未修，仅记录）**：H1 的图标位置未被固定；可感知像素检查只跑 D0 未跑 D1/D2；
+`visual.test.ts` 以文本匹配源码结构来验证孪生共享绘制（实现断言而非行为断言，评审同意这是必要
+取舍）。
