@@ -28,6 +28,7 @@ import {
 import { readFormalSource } from '../../evaluation/support/formal-source.ts'
 import { buildArtifactIndex, buildManifest } from '../../evaluation/support/evidence-protocol.ts'
 import { buildBatchTiming } from '../../evaluation/support/batch-timing.ts'
+import { installInterruptGuard } from '../../evaluation/support/interrupt-guard.ts'
 import { scoreVisualEvidence } from '../../evaluation/private/visual-focus/scorer.ts'
 import {
   VISUAL_VIEWPORTS,
@@ -418,6 +419,43 @@ async function executeRow(row: PlanRow): Promise<RowOutcome> {
   }
 }
 
+/**
+ * Wrap up on Ctrl-C: stop the services, mark the stage incomplete and release the lease. The batch
+ * loop is not resumed and no row is retried, so a half-finished stage stays half-finished and cannot
+ * be re-read as a pass. The lease release matters most - a killed process leaving it held would block
+ * every later run against a campaign whose owner is long gone.
+ */
+let interrupted = false
+const guard = installInterruptGuard({
+  signals: process,
+  exit: (code) => {
+    interrupted = true
+    process.exit(code)
+  },
+  wrapUp: async () => {
+    for (const p of children) await stop(p)
+    await write('manifest.json', {
+      ...buildManifest({
+        stage,
+        mode: 'real',
+        identity: { campaignId, buildHash: build.hash, commit },
+      }),
+      interrupted: true,
+      // Not a pass: the batch never finished, and the acceptance says an interrupted stage is
+      // incomplete rather than silently resumable.
+      passed: false,
+      rows:
+        report?.rows ??
+        plan.map((row) => ({ ...row, runId: null, outcome: 'not-run', reasons: [] })),
+      stopReason: 'interrupted',
+    }).catch(() => {})
+    await gateway.close().catch(() => {})
+    await ledger.releaseLease(holder).catch(() => {})
+    ledger.close()
+  },
+})
+
+let report: Awaited<ReturnType<typeof runBatch>> | null = null
 try {
   launch('dist/server/index.js')
   launch('dist/arena/index.js')
@@ -437,7 +475,7 @@ try {
   assert(ready, 'services-not-ready')
 
   const batchStartedAt = Date.now()
-  const report = await runBatch({
+  report = await runBatch({
     plan,
     stopOnSameMechanismTwice: mode === 'diagnostic',
     execute: executeRow,
@@ -491,8 +529,13 @@ try {
   console.log(`${passed ? 'PASS' : 'FAIL'}: ${directory}`)
   process.exitCode = report.verdict.exitCode
 } finally {
-  for (const p of children) await stop(p)
-  await gateway.close()
-  await ledger.releaseLease(holder)
-  ledger.close()
+  // A normal finish stops listening, so a late signal cannot drag a completed run into the interrupt
+  // path and rewrite its manifest as interrupted.
+  guard.dispose()
+  if (!interrupted) {
+    for (const p of children) await stop(p)
+    await gateway.close()
+    await ledger.releaseLease(holder)
+    ledger.close()
+  }
 }
