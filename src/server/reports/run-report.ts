@@ -59,6 +59,8 @@ export interface FocusPointRow {
   readonly focusBefore: string | null
   readonly focusAfter: string | null
   readonly focusedWithinMs: number | null
+  /** Wall-clock time actually spent observing focus after this click (P3). */
+  readonly observedWindowMs: number | null
   readonly valueChanged: boolean
 }
 
@@ -78,6 +80,23 @@ export interface FocusMeasurement {
   readonly resets: readonly unknown[]
   readonly algorithmVersion: string | null
   readonly documentEpoch: string | null
+  /**
+   * The frame the model perceived, in page coordinates. Shown beside the bound element's own bounds
+   * so a reader can see the region and the input are not the same box (W01).
+   */
+  readonly perceivedRegion: {
+    readonly x: number
+    readonly y: number
+    readonly width: number
+    readonly height: number
+  } | null
+  /** The bound element's bounds, from the saved witness. `null` when no witness was recorded. */
+  readonly boundBounds: {
+    readonly x: number
+    readonly y: number
+    readonly width: number
+    readonly height: number
+  } | null
 }
 
 /**
@@ -87,6 +106,48 @@ export interface FocusMeasurement {
  * than a re-derivation, and it survives a server restart. A measurement whose file cannot be read is
  * reported as unavailable - never as an empty result, which would read as "nothing failed".
  */
+/**
+ * The candidate an artifact belongs to, read from its metadata then its own body.
+ *
+ * Both sources are checked because a row saved without metadata would otherwise be treated as no
+ * artifact at all - and "no witness recorded" reads very differently from "the witness is unreadable".
+ * A malformed row yields null rather than throwing the whole report.
+ */
+async function candidateBodyOf(
+  row: Record<string, unknown> | undefined,
+): Promise<{ candidateId: string | null; body: Record<string, any> | null }> {
+  if (!row) return { candidateId: null, body: null }
+  let body: Record<string, any> | null = null
+  try {
+    body = JSON.parse(await readFile(String(row.file_path), 'utf8'))
+  } catch {
+    /* the caller reports the field as absent */
+  }
+  let metadataId: string | null = null
+  try {
+    const metadata = JSON.parse(String(row.metadata))
+    metadataId = metadata.candidateId == null ? null : String(metadata.candidateId)
+  } catch {
+    /* metadata is optional enrichment, not the identity */
+  }
+  const id = metadataId ?? body?.candidateId ?? body?.id ?? null
+  return { candidateId: id == null ? null : String(id), body }
+}
+
+/** The first row of `type` that belongs to this candidate, with its parsed body. */
+async function findCandidateArtifact(
+  rows: readonly Record<string, unknown>[],
+  type: string,
+  candidateId: string,
+): Promise<{ candidateId: string | null; body: Record<string, any> | null }> {
+  for (const row of rows) {
+    if (String(row.type) !== type) continue
+    const found = await candidateBodyOf(row)
+    if (found.candidateId === candidateId) return found
+  }
+  return { candidateId: null, body: null }
+}
+
 async function focusMeasurements(
   artifactRows: { rows: readonly Record<string, unknown>[] },
   annotations: readonly { candidateId: string; annotatedRef: string }[],
@@ -120,6 +181,23 @@ async function focusMeasurements(
     }
 
     const candidateId = String(metadata.candidateId ?? receipt.candidateId ?? 'unknown')
+    // Both boxes come from saved artifacts, not from a re-derivation: the perceived frame the model
+    // proposed and the bounds of the element the probe actually bound to. A reader comparing the two
+    // is the point of the section - the region and the input are not the same box.
+    const candidateBody = await findCandidateArtifact(
+      artifactRows.rows,
+      'visual-candidate',
+      candidateId,
+    )
+    const perceivedRegion: FocusMeasurement['perceivedRegion'] =
+      candidateBody.body?.perceivedRegion ?? null
+    const witnessBody = await findCandidateArtifact(
+      artifactRows.rows,
+      'binding-witness',
+      candidateId,
+    )
+    // Absent witness bounds are reported as null, never as a box at 0,0.
+    const boundBounds: FocusMeasurement['boundBounds'] = witnessBody.body?.bounds ?? null
     // The annotated copy is named by the run when it was derived; a derived image carries no candidate
     // id of its own, so scanning artifacts for one would silently find nothing.
     const annotatedRef = annotations.find((a) => a.candidateId === candidateId)?.annotatedRef
@@ -138,6 +216,9 @@ async function focusMeasurements(
               focusBefore: sample.focusBefore,
               focusAfter: sample.focusAfter,
               focusedWithinMs: sample.focusedWithinMs,
+              // Absent on a pre-P3 receipt; reported as null ("not recorded") rather than 0.
+              observedWindowMs:
+                typeof sample.observedWindowMs === 'number' ? sample.observedWindowMs : null,
               valueChanged: sample.valueChanged,
             })),
           }
@@ -152,6 +233,8 @@ async function focusMeasurements(
       resets: receipt.resets ?? [],
       algorithmVersion: receipt.algorithmVersion ?? null,
       documentEpoch: receipt.documentEpoch ?? null,
+      perceivedRegion,
+      boundBounds,
     })
   }
 
@@ -337,6 +420,18 @@ export async function buildReport(runId: string) {
     ),
     usage: run.usage,
     budget: run.spec.budget,
+    // Visual request accounting. The product persists token usage, not dollars, so a cost the run
+    // never recorded is reported as `not-recorded` - the report must never show 0, which would read
+    // as "free" rather than "unknown".
+    visual: {
+      visionRequests: events.filter(
+        (e) => e.type === 'model:request-finished' && e.payload?.purpose === 'visual-discovery',
+      ).length,
+      inputTokens: run.usage.modelInputTokens ?? null,
+      outputTokens: run.usage.modelOutputTokens ?? null,
+      costUsd: null,
+      costStatus: 'not-recorded' as const,
+    },
     // Business contract provenance. A run created before contracts existed reports
     // legacy-unversioned: its requirements are never back-filled from today's defaults.
     business: businessSummary(run.spec),

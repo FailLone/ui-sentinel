@@ -26,6 +26,13 @@ async function api<T>(path: string, body?: unknown): Promise<T> {
 }
 type Report = RunReport & {
   focusMeasurements?: FocusMeasurement[]
+  visual?: {
+    visionRequests: number
+    inputTokens: number | null
+    outputTokens: number | null
+    costUsd: number | null
+    costStatus: 'recorded' | 'not-recorded'
+  }
   artifacts?: {
     id: string
     kind?: string
@@ -468,6 +475,15 @@ function App() {
               {report.usage.modelInputTokens ?? 'unavailable'} /{' '}
               {report.usage.modelOutputTokens ?? 'unavailable'}
             </p>
+            {report.visual && (
+              <p>
+                视觉请求 {report.visual.visionRequests} 次 · 费用{' '}
+                {/* An unknown cost is shown as unknown. `0` would read as "this run was free". */}
+                {report.visual.costStatus === 'recorded' && report.visual.costUsd !== null
+                  ? `$${report.visual.costUsd.toFixed(4)}`
+                  : '未记录'}
+              </p>
+            )}
             <p>
               规则执行 {report.evaluatedRuleCount} 次 · unknown {report.unknownCount}；未检查和
               unknown 不代表通过。
@@ -522,6 +538,19 @@ function App() {
                   <p>
                     目标：{m.nodeIdentity} · {m.bindingReason}
                   </p>
+                  {/* The perceived frame and the element it bound to are different boxes; showing both
+                      is what lets a reader see the region is not the input. */}
+                  <p>
+                    模型感知框：
+                    {m.perceivedRegion
+                      ? `x${Math.round(m.perceivedRegion.x)} y${Math.round(m.perceivedRegion.y)} ${Math.round(m.perceivedRegion.width)}×${Math.round(m.perceivedRegion.height)}`
+                      : '未记录'}
+                    {' · '}
+                    实际 input 包围盒：
+                    {m.boundBounds
+                      ? `x${Math.round(m.boundBounds.x)} y${Math.round(m.boundBounds.y)} ${Math.round(m.boundBounds.width)}×${Math.round(m.boundBounds.height)}`
+                      : '未记录'}
+                  </p>
                   <p>
                     正向控制：
                     {m.positiveControlOk
@@ -539,6 +568,7 @@ function App() {
                           <th>点击前焦点</th>
                           <th>点击后焦点</th>
                           <th>聚焦耗时</th>
+                          <th>实际观察窗口</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -554,6 +584,11 @@ function App() {
                               {p.focusedWithinMs === null
                                 ? '窗口内未聚焦'
                                 : `${p.focusedWithinMs}ms`}
+                            </td>
+                            {/* The declared 500ms limit only means something beside the time actually
+                                spent observing; an unrecorded window must not read as 0ms. */}
+                            <td>
+                              {p.observedWindowMs === null ? '未记录' : `${p.observedWindowMs}ms`}
                             </td>
                           </tr>
                         ))}

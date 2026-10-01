@@ -161,6 +161,16 @@ export interface VisualScore {
     readonly inconclusive: number
     readonly invalidEvidence: number
     readonly skippedNotRun: number
+    /** A real defect the evidence supports - the result this case exists to produce. */
+    readonly discoveries: number
+    /** A supported finding on a page with no defect. */
+    readonly falsePositives: number
+    /** A defect case whose grade came out short of `supported`. */
+    readonly missed: number
+    /** The business path did not complete, counted apart from the visual result. */
+    readonly businessFailures: number
+    /** Visual scope the run left unverified, which is not the same as "nothing found". */
+    readonly unverifiedScope: number
   }
   readonly details: Readonly<Record<string, unknown>>
 }
@@ -633,6 +643,18 @@ export function scoreVisualEvidence(input: VisualScorerInput): VisualScore {
         (c) => c.startsWith('provenance.') || c.startsWith('binding.'),
       ).length,
       skippedNotRun: 0,
+      // Counted independently of the pass/fail aggregate, so a batch can report what kind of failure
+      // it had rather than only that it had one. A discovery is a defect the run both reported and
+      // the measurement backs; anything else on a defect case is a miss. A miss therefore covers a
+      // defect the agent never raised as well as one it raised without support.
+      discoveries:
+        truth.expectSupported && supported.length > 0 && gradedVerdict === 'supported' ? 1 : 0,
+      falsePositives: truth.expectSupported ? 0 : supported.length,
+      missed:
+        truth.expectSupported && !(supported.length > 0 && gradedVerdict === 'supported') ? 1 : 0,
+      businessFailures:
+        input.run.businessResult === 'success' && input.run.status === 'completed' ? 0 : 1,
+      unverifiedScope: input.run.coverage.visualUnverified.length,
     },
     details: {
       recomputedVerdict: gradedVerdict,

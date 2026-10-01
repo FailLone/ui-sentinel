@@ -134,6 +134,84 @@ describe('focus measurement in the report', () => {
     expect(points.map((p) => p.focusedWithinMs)).toEqual([null, 92, null])
   })
 
+  it('shows the window each point was actually observed for (P3/P3.4)', async () => {
+    dir = await mkdtemp(join(tmpdir(), 'uis-report-'))
+    const { run } = await runWithMeasurement()
+
+    const report = await buildReport(run.id)
+
+    // The 500ms limit is only meaningful next to the time actually spent observing, so the report
+    // carries it per point rather than stating the limit alone.
+    expect(report!.focusMeasurements[0].points!.map((p) => p.observedWindowMs)).toEqual([
+      520, 520, 520,
+    ])
+  })
+
+  it('reports an unrecorded window as null, never as 0', async () => {
+    dir = await mkdtemp(join(tmpdir(), 'uis-report-'))
+    const { run, samplesRef } = await runWithMeasurement()
+    const { readFile: read, writeFile: write } = await import('node:fs/promises')
+    const file = join(dir, samplesRef)
+    const body = JSON.parse(await read(file, 'utf8'))
+    // A pre-P3 receipt has no window at all. 0 would read as "observed for no time", which is a
+    // different and much worse claim than "this run never recorded it".
+    for (const sample of body.samples) delete sample.observedWindowMs
+    await write(file, JSON.stringify(body), 'utf8')
+
+    const report = await buildReport(run.id)
+
+    expect(report!.focusMeasurements[0].points!.map((p) => p.observedWindowMs)).toEqual([
+      null,
+      null,
+      null,
+    ])
+  })
+
+  it('reports visual spend as unknown rather than zero when the run recorded none', async () => {
+    dir = await mkdtemp(join(tmpdir(), 'uis-report-'))
+    const { run } = await runWithMeasurement()
+
+    const report = await buildReport(run.id)
+
+    // The product persists tokens, not dollars. A `0` here would read as "this run was free"; the
+    // report must say the cost was not recorded so a reader cannot mistake unknown for zero.
+    expect(report!.visual.costUsd).toBeNull()
+    expect(report!.visual.costStatus).toBe('not-recorded')
+    expect(report!.visual.visionRequests).toBe(0)
+  })
+
+  it('shows the perceived frame and the input it was bound to, so the two can be compared (W01)', async () => {
+    dir = await mkdtemp(join(tmpdir(), 'uis-report-'))
+    const { run, candidateId } = await runWithMeasurement()
+    // The witness is what the product observed about the bound element; the candidate box is what the
+    // model perceived. The report must show both, or a reader cannot tell the frame from the input.
+    await artifact(run.id, 'binding-witness', {
+      candidateId,
+      selector: '.visual-search-region input',
+      tag: 'input',
+      attributes: { id: 'product-search-input', type: 'search' },
+      bounds: { x: 500, y: 142, width: 380, height: 38 },
+    })
+
+    const report = await buildReport(run.id)
+
+    const measurement = report!.focusMeasurements[0]
+    expect(measurement.perceivedRegion).toMatchObject({ x: 100, y: 200, width: 400, height: 40 })
+    expect(measurement.boundBounds).toMatchObject({ x: 500, y: 142, width: 380, height: 38 })
+  })
+
+  it('reports an unrecorded region or witness as null rather than an empty box', async () => {
+    dir = await mkdtemp(join(tmpdir(), 'uis-report-'))
+    const { run } = await runWithMeasurement()
+
+    const report = await buildReport(run.id)
+
+    const measurement = report!.focusMeasurements[0]
+    expect(measurement.perceivedRegion).toMatchObject({ x: 100, y: 200, width: 400, height: 40 })
+    // No witness was saved for this run; a zeroed box would read as "the input is at 0,0".
+    expect(measurement.boundBounds).toBeNull()
+  })
+
   it('surfaces the original and annotated images as viewable refs', async () => {
     dir = await mkdtemp(join(tmpdir(), 'uis-report-'))
     const { run, annotatedRef, screenshotRef } = await runWithMeasurement()

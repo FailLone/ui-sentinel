@@ -621,6 +621,50 @@ describe('independent visual scorer', () => {
     expect(result.details.recomputedVerdict).toBe('refuted')
     expect(result.passed).toBe(true)
   })
+
+  // --- R03: independent counts, one per failure kind ---------------------------------
+  it('counts a real detection as a discovery and not as a miss or a false positive', () => {
+    // D0 is a defect: the measured support is the discovery this case exists to make.
+    const result = scoreVisualEvidence(passing('D0'))
+    expect(result.counts.discoveries).toBe(1)
+    expect(result.counts.falsePositives).toBe(0)
+    expect(result.counts.missed).toBe(0)
+    expect(result.counts.businessFailures).toBe(0)
+    expect(result.counts.unverifiedScope).toBe(0)
+  })
+
+  it('counts a supported finding on a healthy page as a false positive, not a discovery', () => {
+    const input = healthy('H0')
+    input.run.findings = [{ ...input.run.findings[0]!, validationStatus: 'supported' }]
+    const result = scoreVisualEvidence(input)
+    expect(result.counts.falsePositives).toBe(1)
+    expect(result.counts.discoveries).toBe(0)
+  })
+
+  it('counts a defect the evidence failed to support as a miss on its own', () => {
+    // S15 already fails the run for the wrong finding; the count says *why* independently.
+    const input = clone(passing('D0'))
+    input.run.findings = []
+    const result = scoreVisualEvidence(input)
+    expect(result.counts.missed).toBe(1)
+    expect(result.counts.discoveries).toBe(0)
+  })
+
+  it('counts a business-path failure separately from the visual result', () => {
+    const input = clone(passing('D0'))
+    input.run.businessResult = 'unknown'
+    const result = scoreVisualEvidence(input)
+    expect(result.counts.businessFailures).toBe(1)
+    // The discovery still happened; a failed purchase does not erase it.
+    expect(result.counts.discoveries).toBe(1)
+  })
+
+  it('counts an unresolved visual coverage gap as unverified scope', () => {
+    const input = healthy('H0')
+    input.run.coverage.visualUnverified = ['visual-candidate:c1:unverified']
+    const result = scoreVisualEvidence(input)
+    expect(result.counts.unverifiedScope).toBe(1)
+  })
 })
 
 /** A minimal passing healthy case: a probe was made and refuted, business completed. */

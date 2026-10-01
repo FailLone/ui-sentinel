@@ -13,6 +13,7 @@ export function focusTestReceipt(
     focusBefore: null,
     focusAfter: null,
     focusedWithinMs: null,
+    observedWindowMs: 520,
     valueChanged: false,
     stable: true,
     documentEpoch: 'epoch-1',
