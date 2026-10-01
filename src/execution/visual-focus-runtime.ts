@@ -21,6 +21,7 @@ import {
 import { requestVisualCandidates } from './visual-request.ts'
 import { config } from '../shared/config.ts'
 import { type FocusReceipt, focusReceiptVerdict } from './focus-receipt.ts'
+import { witnessFromElement } from './binding-witness.ts'
 import type { RequestTracker } from '../agent/model/request-tracker.ts'
 
 export const VISUAL_FOCUS_VERSION = 'visual-focus-3'
@@ -308,6 +309,10 @@ export function createVisualFocusRuntime(deps: {
         tag: el.tag,
         type: el.attributes.type,
         id: el.attributes.id,
+        // The public selector path and attributes travel with the element so the binding witness can
+        // record the node's real identity from the observation, not from a second guess.
+        selector: el.selector,
+        attributes: el.attributes,
         bounds: el.bounds,
         visible: el.visible,
         enabled: el.enabled !== false,
@@ -332,6 +337,29 @@ export function createVisualFocusRuntime(deps: {
       state.elementRef = input.elementRef
       const bound = state.target
       const nodeIdentity = `node-${randomUUID()}`
+      // Capture the bound node's public identity from the snapshot the run already took, so an
+      // independent scorer can verify the probe bound the intended input rather than trusting the
+      // bind-time uuid. Public DOM facts only - the witness never carries the private selector.
+      const observed = elements.find((e) => e.ref === input.elementRef)
+      const witnessRef =
+        observed && observation.snapshot.elements
+          ? await save(
+              'binding-witness',
+              witnessFromElement({
+                candidateId: candidate.id,
+                elementRef: input.elementRef,
+                snapshotRef: candidate.screenshotRef,
+                documentEpoch: candidate.documentEpoch,
+                nodeIdentity,
+                selector: observed.selector ?? selector,
+                tag: observed.tag,
+                attributes: observed.attributes ?? {},
+                bounds: observed.bounds,
+                capturedAt: new Date().toISOString(),
+              }),
+              { candidateId: candidate.id, kind: 'binding-witness' },
+            )
+          : undefined
       const measure = async (point: { x: number; y: number }, beforeClick: () => void) => ({
         ...(await measurer.clickAndMeasure({
           selector,
@@ -362,6 +390,7 @@ export function createVisualFocusRuntime(deps: {
         bind: async () => ({
           elementRef: input.elementRef,
           nodeIdentity,
+          ...(witnessRef ? { witnessRef } : {}),
           documentEpoch: candidate.documentEpoch,
           url: deps.page.url(),
           scroll: await deps.page.evaluate(() => ({ x: scrollX, y: scrollY })),
@@ -459,6 +488,7 @@ export function createVisualFocusRuntime(deps: {
             receiptRef,
             measurementRef,
             annotated,
+            ...(witnessRef ? [witnessRef] : []),
           ]
           await event(
             'visual-focus:annotated',

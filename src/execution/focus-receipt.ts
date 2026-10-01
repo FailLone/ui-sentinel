@@ -61,6 +61,14 @@ export interface FocusReceiptInput {
     readonly elementRef: string
     readonly nodeIdentity: string
     readonly reason: string
+    /**
+     * Evidence ref of the binding witness captured for this node at bind time (P3).
+     *
+     * `nodeIdentity` is a bind-time uuid that only this run ever produced, so it cannot be checked
+     * against the intended target from outside. The witness records the node's public identity for an
+     * independent scorer. Optional so receipts from before P3 stay structurally valid.
+     */
+    readonly witnessRef?: string
   }
   readonly positiveControl: PositiveControl
   readonly samples: readonly FocusSample[]

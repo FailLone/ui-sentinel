@@ -41,6 +41,8 @@ export type FocusProbeInput = z.infer<typeof focusProbeInput>
 export interface BoundTarget {
   readonly elementRef: string
   readonly nodeIdentity: string
+  /** Evidence ref of the binding witness for this node, captured by the caller at bind time. */
+  readonly witnessRef?: string
   readonly documentEpoch: string
   readonly url: string
   readonly scroll: { readonly x: number; readonly y: number }
@@ -311,6 +313,7 @@ export function createFocusProbe(deps: FocusProbeDeps) {
             elementRef: bound.elementRef,
             nodeIdentity: bound.nodeIdentity,
             reason: input.bindingReason,
+            ...(bound.witnessRef ? { witnessRef: bound.witnessRef } : {}),
           },
           positiveControl: control,
           samples,
