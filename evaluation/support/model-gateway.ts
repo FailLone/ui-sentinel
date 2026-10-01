@@ -5,11 +5,39 @@ import { appendFile } from 'node:fs/promises'
 export const REVIEW_MODEL = 'typesafe/jev-1.13'
 export const AGENT_MODEL = 'deepseek/deepseek-v4.1-flash'
 export const VISION_MODEL = 'qwen/qwen3.7-plus'
+/**
+ * A cross-process cost ledger seam.
+ *
+ * When provided, every request reserves against the shared campaign ledger before it is sent and
+ * settles afterwards, so two processes cannot both spend the last of the balance and a reopened
+ * campaign keeps counting. Without it, the gateway falls back to its own in-process accounting, which
+ * is what the free preflights use.
+ */
+export interface GatewayLedger {
+  reserve(input: {
+    requestId: string
+    runId: string
+    phase: string
+    model: string
+    provider: string
+    reservedUsd: number
+    priceSource: string
+  }): Promise<{ ok: boolean; reason?: string }>
+  settle(requestId: string, actualUsd: number): Promise<void>
+  markUnknown(requestId: string, reason: string): Promise<void>
+  release(requestId: string, reason: string): Promise<void>
+}
+
 export async function startGateway(
   key: string,
   directory: string,
   upstreamFetch: typeof fetch = fetch,
-  spending?: { limitUsd: number; estimateCost: (body: Record<string, unknown>) => number },
+  spending?: {
+    limitUsd: number
+    estimateCost: (body: Record<string, unknown>) => number
+    ledger?: GatewayLedger
+    phase?: string
+  },
 ) {
   const token = randomBytes(24).toString('hex')
   let active: {
@@ -74,13 +102,26 @@ export async function startGateway(
         return reply(400, 'Expected one non-streaming decision question')
     }
     const reservation = spending?.estimateCost(body) ?? 0
-    if (
-      spending &&
-      (!Number.isFinite(reservation) ||
-        reservation < 0 ||
-        accountedUsd + reservedUsd + reservation > spending.limitUsd)
-    )
+    if (spending && (!Number.isFinite(reservation) || reservation < 0))
       return reply(429, 'validation-spending-limit')
+    const requestId = randomBytes(12).toString('hex')
+    if (spending && !spending.ledger) {
+      // In-process fallback for the free preflights.
+      if (accountedUsd + reservedUsd + reservation > spending.limitUsd)
+        return reply(429, 'validation-spending-limit')
+    }
+    if (spending?.ledger) {
+      const reserved = await spending.ledger.reserve({
+        requestId,
+        runId: run.id,
+        phase: spending.phase ?? 'diagnostic',
+        model: body.model,
+        provider: (body.provider?.only?.[0] as string | undefined) ?? 'unknown',
+        reservedUsd: reservation,
+        priceSource: 'gateway-estimate',
+      })
+      if (!reserved.ok) return reply(429, `validation-${reserved.reason ?? 'spending-limit'}`)
+    }
     reservedUsd += reservation
     const record: any = {
       run: run.id,
@@ -211,13 +252,20 @@ export async function startGateway(
       record.durationMs = Date.now() - start
       reservedUsd -= reservation
       const cost = record.usage?.cost
-      if (typeof cost === 'number' && Number.isFinite(cost) && cost >= 0) {
-        accountedUsd += cost
-        knownCostUsd += cost
+      const known = typeof cost === 'number' && Number.isFinite(cost) && cost >= 0
+      if (known) {
+        accountedUsd += cost!
+        knownCostUsd += cost!
       } else {
         accountedUsd += reservation
         unknownReservedUsd += reservation
         unknownCosts++
+      }
+      if (spending?.ledger) {
+        // Settle at the real cost, or keep the reservation as unknown - a provider call really
+        // happened, so it is never settled at zero.
+        if (known) await spending.ledger.settle(requestId, cost!)
+        else await spending.ledger.markUnknown(requestId, 'usage-unavailable')
       }
       try {
         // Keep received events even when cancellation/error prevents a final usage chunk.

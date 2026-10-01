@@ -88,7 +88,14 @@ export function recordRow(
  * read as one experiment, so the run stops and the remaining rows stay `not-run`.
  */
 export function mayContinue(outcome: OutcomeClass): boolean {
-  return outcome === 'passed' || outcome === 'quality-failure' || outcome === 'not-run'
+  // A quality failure and a provider error both stay in the denominator and let the batch move to the
+  // next sample; a diagnostic's two-same-mechanism rule, not a single provider error, is what stops it.
+  return (
+    outcome === 'passed' ||
+    outcome === 'quality-failure' ||
+    outcome === 'provider-error' ||
+    outcome === 'not-run'
+  )
 }
 
 export interface BatchVerdict {

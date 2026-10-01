@@ -1,3 +1,4 @@
+import { parseVisualCli } from './cli-args.ts'
 import { downloadRunEvidence } from '../../evaluation/support/campaign-evidence.ts'
 import { visualSmokeProblems } from '../../evaluation/preflight/visual-smoke-score.ts'
 import { chromium } from 'playwright'
@@ -8,19 +9,36 @@ import { mkdir, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import assert from 'node:assert/strict'
 
-const args = process.argv.slice(2).filter((a) => a !== '--')
-if (args[0] === '--p2-smoke') {
-  const result = spawnSync(
-    process.execPath,
-    ['--import', 'tsx', 'scripts/validation/visual-focus-p2.ts', ...args.slice(1)],
-    { stdio: 'inherit', env: process.env },
-  )
+const options = parseVisualCli(process.argv.slice(2))
+/**
+ * The modes are separate modules on purpose.
+ *
+ * The preflight blanks every real credential so it can never become a paid run; the smoke and the
+ * diagnostic/formal runners exist to make real-model runs, and each re-executes its own module so a
+ * single mis-set flag cannot turn a free check into a paid batch. Argument validity was already
+ * decided by the strict parser above, before any credential is read or any request is sent.
+ */
+if (options.mode !== 'preflight') {
+  const entry =
+    options.mode === 'p2-smoke'
+      ? 'scripts/validation/visual-focus-p2.ts'
+      : 'scripts/validation/visual-focus-runner.ts'
+  const passthrough =
+    options.mode === 'p2-smoke'
+      ? [...(options.cases ? ['--cases', options.cases.join(',')] : [])]
+      : [
+          '--mode',
+          options.mode,
+          '--campaign',
+          options.campaign!,
+          ...(options.diagnosticSource ? ['--diagnostic-source', options.diagnosticSource] : []),
+        ]
+  const result = spawnSync(process.execPath, ['--import', 'tsx', entry, ...passthrough], {
+    stdio: 'inherit',
+    env: process.env,
+  })
   process.exit(result.status ?? 1)
 }
-if (args.length !== 1 || args[0] !== '--preflight')
-  throw Error(
-    'Expected --preflight or --p2-smoke [--cases D0,H0,H1]. Formal diagnostic/acceptance remains P3/P4.',
-  )
 const build = spawnSync('pnpm', ['build'], { stdio: 'inherit' })
 if (build.status !== 0) process.exit(build.status ?? 1)
 const directory = resolve(

@@ -58,9 +58,12 @@ describe('execution plans (R03)', () => {
 })
 
 describe('outcome classification and continuation (R04-R06)', () => {
-  it('continues past a quality failure, keeping it in the denominator', () => {
+  it('continues past a quality failure or a provider error, keeping it in the denominator', () => {
     expect(mayContinue('quality-failure')).toBe(true)
     expect(mayContinue('passed')).toBe(true)
+    // A provider error is recoverable: the run moves on, and a diagnostic's two-same-mechanism rule
+    // is what stops the batch, so a single 429 does not abandon the remaining samples.
+    expect(mayContinue('provider-error')).toBe(true)
   })
 
   it('stops on isolation loss, unknown side effects, cancellation, budget and audit failure', () => {
@@ -71,7 +74,6 @@ describe('outcome classification and continuation (R04-R06)', () => {
       'budget-exhausted',
       'configuration-error',
       'evidence-invalid',
-      'provider-error',
     ] as const)
       expect(mayContinue(outcome)).toBe(false)
   })
