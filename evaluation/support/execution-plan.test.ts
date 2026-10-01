@@ -48,6 +48,43 @@ describe('execution plans (R03)', () => {
     expect(next.find((r) => r.case === 'H0')?.outcome).toBe('not-run')
   })
 
+  it('keeps a row that never ran measurable: zeroed timing, no invented counters', () => {
+    // The manifest totals rows, so a not-run row must carry zeros rather than be absent - an absent
+    // row would shrink the denominator and make a partial batch look like a full one.
+    const rows = initialiseRows(visualDiagnosticPlan())
+    expect(rows[0]).toMatchObject({
+      outcome: 'not-run',
+      elapsedMs: 0,
+      visionRequests: 0,
+      agentRequests: 0,
+      failedAttempts: 0,
+      unknownUsage: 0,
+    })
+  })
+
+  it('records the row timing and request counters alongside the outcome', () => {
+    const rows = initialiseRows(visualDiagnosticPlan())
+    const next = recordRow(
+      rows,
+      { group: 'diagnostic', case: 'D0', repeat: 1 },
+      {
+        runId: 'run-1',
+        outcome: 'passed',
+        timing: {
+          elapsedMs: 4200,
+          modelMs: 2600,
+          toolMs: 500,
+          visionRequests: 1,
+          agentRequests: 6,
+        },
+      },
+    )
+    const row = next.find((r) => r.case === 'D0')!
+    expect(row.elapsedMs).toBe(4200)
+    expect(row.agentRequests).toBe(6)
+    expect(row.failedAttempts).toBe(0)
+  })
+
   it('detects a plan that emitted the wrong rows', () => {
     const planned = visualFormalPlan()
     const missing = planned.slice(0, 17)

@@ -30,10 +30,44 @@ export interface PlanRow {
   readonly repeat: number
 }
 
+/** What one row cost in time and requests, for the batch manifest's totals (plan P3.4). */
+export interface RowTiming {
+  readonly elapsedMs: number
+  /** Per-kind durations: `null` when the run never recorded one, never a zero standing in for it. */
+  readonly modelMs: number | null
+  readonly toolMs: number | null
+  readonly visionRequests: number
+  readonly agentRequests: number
+  /** Attempts that failed and were recorded; they stay in the denominator. */
+  readonly failedAttempts?: number
+  /** Requests sent whose usage could not be established. */
+  readonly unknownUsage?: number
+}
+
+const ZERO_TIMING = {
+  elapsedMs: 0,
+  // A row that never ran recorded no duration; `null` says so, and the manifest keeps it null.
+  modelMs: null,
+  toolMs: null,
+  visionRequests: 0,
+  agentRequests: 0,
+  failedAttempts: 0,
+  unknownUsage: 0,
+}
+
 export interface ResultRow extends PlanRow {
   readonly runId: string | null
   readonly outcome: OutcomeClass
   readonly reasons: readonly string[]
+  // Zeroed for a row that never ran, so a partial batch is totalled over the whole plan rather than
+  // the rows that happened to finish.
+  readonly elapsedMs: number
+  readonly modelMs: number | null
+  readonly toolMs: number | null
+  readonly visionRequests: number
+  readonly agentRequests: number
+  readonly failedAttempts: number
+  readonly unknownUsage: number
 }
 
 /** The visual diagnostic is one smoke plus D0/H0/H1, per the frozen configuration. */
@@ -63,18 +97,45 @@ export function visualFormalPlan(): PlanRow[] {
 
 /** Every planned row starts as `not-run`: a row with no attempt is recorded, never dropped. */
 export function initialiseRows(plan: readonly PlanRow[]): ResultRow[] {
-  return plan.map((row) => ({ ...row, runId: null, outcome: 'not-run', reasons: [] }))
+  return plan.map((row) => ({
+    ...row,
+    runId: null,
+    outcome: 'not-run',
+    reasons: [],
+    ...ZERO_TIMING,
+  }))
 }
 
 /** Replace one planned row's outcome, matched on (group, case, repeat). Never adds or removes rows. */
 export function recordRow(
   rows: readonly ResultRow[],
   row: PlanRow,
-  result: { runId: string | null; outcome: OutcomeClass; reasons?: readonly string[] },
+  result: {
+    runId: string | null
+    outcome: OutcomeClass
+    reasons?: readonly string[]
+    timing?: RowTiming
+  },
 ): ResultRow[] {
   return rows.map((r) =>
     r.group === row.group && r.case === row.case && r.repeat === row.repeat
-      ? { ...r, runId: result.runId, outcome: result.outcome, reasons: result.reasons ?? [] }
+      ? {
+          ...r,
+          runId: result.runId,
+          outcome: result.outcome,
+          reasons: result.reasons ?? [],
+          ...(result.timing
+            ? {
+                elapsedMs: result.timing.elapsedMs,
+                modelMs: result.timing.modelMs,
+                toolMs: result.timing.toolMs,
+                visionRequests: result.timing.visionRequests,
+                agentRequests: result.timing.agentRequests,
+                failedAttempts: result.timing.failedAttempts ?? 0,
+                unknownUsage: result.timing.unknownUsage ?? 0,
+              }
+            : {}),
+        }
       : r,
   )
 }

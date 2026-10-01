@@ -8,6 +8,7 @@ import {
   type OutcomeClass,
   type PlanRow,
   type ResultRow,
+  type RowTiming,
 } from './execution-plan.ts'
 
 /**
@@ -23,7 +24,8 @@ export interface RowOutcome {
   readonly runId: string | null
   readonly outcome: OutcomeClass
   readonly reasons?: readonly string[]
-  /** True when the failure mechanism is the same as the previous failure for the stop condition. */
+  /** What the row cost in time and requests, so the manifest can total it (plan P3.4). */
+  readonly timing?: RowTiming
 }
 
 export interface RowRunnerReport {
