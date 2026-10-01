@@ -11,7 +11,12 @@ export default defineConfig({
       MIDSCENE_MODEL_API_KEY: '',
     },
     environment: 'node',
-    include: ['src/**/*.test.ts', 'arena/**/*.test.ts', 'evaluation/**/*.test.ts'],
+    include: [
+      'src/**/*.test.ts',
+      'arena/**/*.test.ts',
+      'evaluation/**/*.test.ts',
+      'scripts/**/*.test.ts',
+    ],
     testTimeout: 30_000,
   },
   resolve: {
