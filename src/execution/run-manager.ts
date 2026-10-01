@@ -232,15 +232,30 @@ async function appendEventInternal(
   return event
 }
 
-export async function getEvents(runId: string, afterSeq?: number): Promise<readonly RunEvent[]> {
+/**
+ * Read run events, oldest first.
+ *
+ * `limit` narrows a page for a paging reader; it does not define the history. A caller that wants the
+ * whole log pages by `after` until a page comes back short, which is what `collectFullEventHistory`
+ * does - reading with a limit and treating the last page as the end would silently drop events.
+ */
+export async function getEvents(
+  runId: string,
+  afterSeq?: number,
+  limit?: number,
+): Promise<readonly RunEvent[]> {
   const db = getDbClient()
 
-  const sql =
-    afterSeq != null
-      ? 'SELECT * FROM run_events WHERE run_id = ? AND seq > ? ORDER BY seq'
-      : 'SELECT * FROM run_events WHERE run_id = ? ORDER BY seq'
-
-  const args = afterSeq != null ? [runId, afterSeq] : [runId]
+  const conditions = ['run_id = ?']
+  const args: (string | number)[] = [runId]
+  if (afterSeq != null) {
+    conditions.push('seq > ?')
+    args.push(afterSeq)
+  }
+  const sql = `SELECT * FROM run_events WHERE ${conditions.join(' AND ')} ORDER BY seq${
+    limit != null ? ' LIMIT ?' : ''
+  }`
+  if (limit != null) args.push(limit)
 
   const result = await db.execute({ sql, args })
   return result.rows.map(rowToEvent)

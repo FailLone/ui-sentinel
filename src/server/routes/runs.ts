@@ -178,8 +178,14 @@ runRoutes.get('/api/runs/:id/events', async (c) => {
   const raw = c.req.query('after') ?? c.req.header('Last-Event-ID')
   const after = raw == null ? -1 : Number(raw)
   if (!Number.isSafeInteger(after) || after < -1) return c.json({ error: 'invalid cursor' }, 400)
+  // An audit reads the whole history by paging, so the page size is caller-controlled. Omitting it
+  // returns everything, which is what the report and the SSE replay want.
+  const rawLimit = c.req.query('limit')
+  const limit = rawLimit == null ? undefined : Number(rawLimit)
+  if (limit != null && (!Number.isSafeInteger(limit) || limit <= 0))
+    return c.json({ error: 'invalid limit' }, 400)
   if (!c.req.header('accept')?.includes('text/event-stream'))
-    return c.json(await getEvents(runId, after))
+    return c.json(await getEvents(runId, after, limit))
   // Read from the durable log, so no subscribe/replay race can lose events.
   return streamSSE(c, async (stream) => {
     let cursor = after
