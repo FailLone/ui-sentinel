@@ -1,0 +1,631 @@
+import { readFileSync } from 'node:fs'
+import { describe, expect, it } from 'vitest'
+import {
+  scoreVisualEvidence,
+  type VisualScorerInput,
+  type ScoredReceipt,
+  type ScoredSample,
+} from './scorer.ts'
+import { visualTruthFor, type VisualCaseId } from '../../fixtures/visual.ts'
+import { witnessFromElement, type PrivateVisualTarget } from './witness.ts'
+
+/**
+ * The contracts are readonly; a mutation test needs a copy whose properties can be reassigned so it
+ * can corrupt exactly one fact. Arrays are left as declared - the tests always reassign a whole array,
+ * never push into one.
+ */
+type DeepMutable<T> = T extends readonly unknown[]
+  ? T
+  : T extends object
+    ? { -readonly [K in keyof T]: DeepMutable<T[K]> }
+    : T
+
+const TARGET: PrivateVisualTarget = {
+  tag: 'input',
+  type: 'search',
+  id: 'product-search-input',
+  selector: '.visual-search-region input',
+}
+const EPOCH = 'epoch-1'
+const NODE = 'node-abc'
+
+function sample(over: Partial<ScoredSample> = {}): DeepMutable<ScoredSample> {
+  return {
+    side: 'left',
+    x: 480,
+    y: 158,
+    hit: { ref: 'e9', tag: 'div', relation: 'ancestor' },
+    focusBefore: null,
+    focusAfter: null,
+    focusedWithinMs: null,
+    observedWindowMs: 520,
+    valueChanged: false,
+    documentEpoch: EPOCH,
+    integrity: { version: 1, status: 'clean', interventionIds: [] },
+    stable: true,
+    ...over,
+  }
+}
+
+/** A D0 receipt that is complete and supported: padding clicks fail, input control succeeds. */
+function supportedReceipt(over: Partial<ScoredReceipt> = {}): DeepMutable<ScoredReceipt> {
+  return {
+    version: 1,
+    windowMs: 500,
+    candidateId: 'candidate-1',
+    screenshotRef: 'shot-1',
+    screenshotSha: 'a'.repeat(64),
+    documentEpoch: EPOCH,
+    binding: {
+      elementRef: 'e1',
+      nodeIdentity: NODE,
+      reason: 'the only native search input whose bounds lie inside the perceived region',
+      witnessRef: 'witness-1',
+    },
+    positiveControl: {
+      x: 615,
+      y: 158,
+      hit: { ref: 'e1', tag: 'input', relation: 'self' },
+      focusBefore: null,
+      focusAfter: NODE,
+      focusedWithinMs: 88,
+      observedWindowMs: 520,
+      valueChanged: false,
+      documentEpoch: EPOCH,
+      integrity: { version: 1, status: 'clean', interventionIds: [] },
+      stable: true,
+      ok: true,
+    },
+    samples: [
+      sample({ side: 'left', x: 480, focusedWithinMs: null }),
+      sample({ side: 'right', x: 800, focusedWithinMs: null }),
+      sample({
+        side: 'retest',
+        retestOf: 'left',
+        x: 480,
+        focusedWithinMs: null,
+        observedWindowMs: 520,
+      }),
+    ],
+    resets: [
+      {
+        x: 100,
+        y: 600,
+        introducedChange: false,
+        integrity: { version: 1, status: 'clean', interventionIds: [] },
+      },
+      {
+        x: 100,
+        y: 600,
+        introducedChange: false,
+        integrity: { version: 1, status: 'clean', interventionIds: [] },
+      },
+    ],
+    actionCost: 6,
+    integrity: { version: 1, status: 'clean', interventionIds: [] },
+    algorithmVersion: 'visual-focus-3',
+    ...over,
+  }
+}
+
+const witness = witnessFromElement({
+  candidateId: 'candidate-1',
+  elementRef: 'e1',
+  snapshotRef: 'snap-1',
+  documentEpoch: EPOCH,
+  nodeIdentity: NODE,
+  selector: 'html > body:nth-of-type(1) > div:nth-of-type(2) > input:nth-of-type(1)',
+  tag: 'input',
+  attributes: { id: 'product-search-input', type: 'search' },
+  bounds: { x: 495, y: 144, width: 240, height: 28 },
+  capturedAt: '2026-10-01T00:00:00.000Z',
+})
+
+/**
+ * A complete, passing D0 evidence set. Every mutation below changes exactly one fact in a copy of it.
+ */
+function passing(caseId: VisualCaseId = 'D0'): DeepMutable<VisualScorerInput> {
+  const truth = visualTruthFor(caseId)
+  const candidate = {
+    id: 'candidate-1',
+    kind: 'input-focus-region' as const,
+    perceivedRegion: truth.region,
+    excludedRegions: truth.excludedRegions,
+    confidence: 'high' as const,
+    screenshotRef: 'shot-1',
+    runId: 'run-1',
+    documentEpoch: EPOCH,
+  }
+  return {
+    case: caseId,
+    fixtureRevision: 'visual-holdout-1',
+    fixtureHash: 'f'.repeat(64),
+    target: TARGET,
+    run: {
+      runId: 'run-1',
+      status: 'completed',
+      businessResult: 'success',
+      stopReason: 'goal-reached',
+      usage: { actions: 12, modelCalls: 7 },
+      budget: { maxActions: 40, maxModelCalls: 30 },
+      coverage: { visualUnverified: [] },
+      events: [
+        {
+          id: 'ev-1',
+          seq: 1,
+          type: 'finish:accepted',
+          payload: { verifiedOperations: [] },
+          evidenceRefs: [],
+        },
+        // Six committed clicks match the receipt's actionCost of 6.
+        ...Array.from({ length: 6 }, (_, i) => ({
+          id: `ev-click-${i}`,
+          seq: i + 2,
+          type: 'visual-focus:click-dispatched',
+          payload: { candidateId: 'candidate-1', kind: 'sample' },
+          evidenceRefs: [],
+        })),
+      ],
+      findings: [
+        {
+          id: 'f1',
+          validationStatus: 'supported',
+          candidateId: 'candidate-1',
+          evidenceRefs: [
+            'shot-1',
+            'candidate-art-1',
+            'receipt-art-1',
+            'measurement-art-1',
+            'annotated-1',
+            'witness-1',
+          ],
+          title: 'Sampled input-region clicks did not focus the input',
+        },
+      ],
+      hypotheses: [
+        {
+          id: 'h1',
+          status: 'supported',
+          evidenceRefs: ['receipt-art-1'],
+          visualCandidateId: 'candidate-1',
+        },
+      ],
+      focusMeasurements: [
+        {
+          candidateId: 'candidate-1',
+          receiptRef: 'receipt-art-1',
+          samplesRef: 'measurement-art-1',
+          annotatedRef: 'annotated-1',
+          originalRef: 'shot-1',
+          nodeIdentity: NODE,
+          algorithmVersion: 'visual-focus-3',
+          documentEpoch: EPOCH,
+        },
+      ],
+    },
+    artifacts: {
+      'shot-1': { type: 'screenshot', exists: true, sha256: 'a'.repeat(64), runId: 'run-1' },
+      'candidate-art-1': {
+        type: 'visual-candidate',
+        exists: true,
+        sha256: 'b'.repeat(64),
+        runId: 'run-1',
+        data: candidate,
+      },
+      'receipt-art-1': {
+        type: 'focus-receipt',
+        exists: true,
+        sha256: 'c'.repeat(64),
+        runId: 'run-1',
+        data: supportedReceipt(),
+      },
+      'measurement-art-1': {
+        type: 'measurement',
+        exists: true,
+        sha256: 'd'.repeat(64),
+        runId: 'run-1',
+      },
+      'annotated-1': { type: 'screenshot', exists: true, sha256: 'e'.repeat(64), runId: 'run-1' },
+      'witness-1': {
+        type: 'binding-witness',
+        exists: true,
+        sha256: 'g'.repeat(64),
+        runId: 'run-1',
+        data: witness,
+      },
+    },
+    sentVision: [{ sha256: 'a'.repeat(64), raw: normalizedRaw() }],
+    gatewayCalls: [
+      {
+        model: 'deepseek/deepseek-v4.1-flash',
+        tool: 'focus_probe',
+        runId: 'run-1',
+        body: { elementRef: 'e1' },
+      },
+    ],
+    declaredVerdict: 'supported',
+  }
+}
+
+function normalizedRaw() {
+  return {
+    coordinateSpace: 'normalized-1000',
+    candidates: [
+      {
+        perceivedRegion: { x: 335, y: 173, width: 328, height: 65 },
+        targetDescription: 'Search products input region',
+        visualBasis: 'continuous light background around the field',
+        excludedRegions: [],
+        confidence: 'high',
+      },
+    ],
+  }
+}
+
+function clone(input: VisualScorerInput): DeepMutable<VisualScorerInput> {
+  return structuredClone(input) as DeepMutable<VisualScorerInput>
+}
+
+function failCodes(input: DeepMutable<VisualScorerInput>): readonly string[] {
+  return scoreVisualEvidence(input).failedAssertions
+}
+
+describe('independent visual scorer', () => {
+  it('passes a complete, consistent D0 evidence set', () => {
+    const result = scoreVisualEvidence(passing('D0'))
+    expect(result.failedAssertions).toEqual([])
+    expect(result.passed).toBe(true)
+    expect(result.classification).toBe('pass')
+  })
+
+  it('does not import the product verdict or the P2 smoke scorer', () => {
+    // The scorer must recompute the conclusion from raw evidence; sharing the product's verdict
+    // function would make the two agree by construction.
+    const source = readFileSync(new URL('./scorer.ts', import.meta.url), 'utf8')
+    for (const forbidden of [
+      'focusReceiptVerdict',
+      'evaluateFocusVerdict',
+      'focusReceiptSupports',
+      'visualSmokeProblems',
+      'isFocusReceipt',
+    ])
+      expect(source).not.toMatch(new RegExp(`\\b${forbidden}\\b`))
+  })
+
+  // --- S01 : supported with no vision request / image --------------------------------
+  it('rejects a supported finding with no vision request (S01)', () => {
+    const input = clone(passing('D0'))
+    input.sentVision = []
+    expect(failCodes(input)).toContain('provenance.vision-request-missing')
+  })
+
+  // --- S02 : swapped image bytes / wrong owner ---------------------------------------
+  it('rejects a screenshot whose bytes do not match what was sent (S02)', () => {
+    const input = clone(passing('D0'))
+    input.sentVision = [{ sha256: 'z'.repeat(64), raw: normalizedRaw() }]
+    expect(failCodes(input)).toContain('provenance.image-sha-mismatch')
+  })
+
+  it('rejects evidence owned by another run (S02)', () => {
+    const input = clone(passing('D0'))
+    input.artifacts['receipt-art-1'] = { ...input.artifacts['receipt-art-1']!, runId: 'other-run' }
+    expect(failCodes(input)).toContain('provenance.same-run')
+  })
+
+  // --- S03 : wrong normalization but box still in viewport ---------------------------
+  it('rejects a raw response that does not declare the normalized contract (S03)', () => {
+    const input = clone(passing('D0'))
+    input.sentVision = [{ sha256: 'a'.repeat(64), raw: { candidates: [] } }]
+    expect(failCodes(input)).toContain('provenance.normalized-contract')
+  })
+
+  // --- S04 : bound a different same-sized node ---------------------------------------
+  it('rejects a probe bound to a same-sized neighbour (S04)', () => {
+    const input = clone(passing('D0'))
+    const wrong = witnessFromElement({
+      ...{
+        candidateId: 'candidate-1',
+        elementRef: 'e1',
+        snapshotRef: 'snap-1',
+        documentEpoch: EPOCH,
+        nodeIdentity: NODE,
+        selector: 'html > body:nth-of-type(1) > input:nth-of-type(2)',
+        tag: 'input',
+        bounds: witness.bounds,
+        capturedAt: 'now',
+      },
+      attributes: { id: 'other-search', type: 'search' },
+    })
+    input.artifacts['witness-1'] = { ...input.artifacts['witness-1']!, data: wrong }
+    expect(failCodes(input)).toContain('binding.witness-mismatch')
+  })
+
+  it('rejects a supported finding whose receipt carries no witness (S04)', () => {
+    const input = clone(passing('D0'))
+    const receipt = { ...supportedReceipt() }
+    receipt.binding = { elementRef: 'e1', nodeIdentity: NODE, reason: 'r' }
+    input.artifacts['receipt-art-1'] = { ...input.artifacts['receipt-art-1']!, data: receipt }
+    expect(failCodes(input)).toContain('binding.witness-missing')
+  })
+
+  // --- S05 : candidate is the whole card / failure point on the icon ------------------
+  it('rejects a candidate that does not overlap the private region (S05)', () => {
+    const input = clone(passing('D0'))
+    const candidate = input.artifacts['candidate-art-1']!.data as { perceivedRegion: unknown }
+    input.artifacts['candidate-art-1'] = {
+      ...input.artifacts['candidate-art-1']!,
+      data: { ...candidate, perceivedRegion: { x: 10, y: 10, width: 40, height: 20 } },
+    }
+    expect(failCodes(input)).toContain('geometry.candidate-overlap')
+  })
+
+  it('rejects a failing sample that lands inside the real input (S05)', () => {
+    const input = clone(passing('D0'))
+    const receipt = supportedReceipt()
+    receipt.samples = [
+      sample({ side: 'left', x: 600, y: 158, focusedWithinMs: null }),
+      sample({ side: 'right', x: 800 }),
+      sample({ side: 'retest', retestOf: 'left', x: 600, y: 158 }),
+    ]
+    input.artifacts['receipt-art-1'] = { ...input.artifacts['receipt-art-1']!, data: receipt }
+    expect(failCodes(input)).toContain('geometry.defect-inside-input')
+  })
+
+  // --- S06 : control missing / failed / already focused ------------------------------
+  it('rejects a receipt whose positive control failed (S06)', () => {
+    const input = clone(passing('D0'))
+    const receipt = supportedReceipt()
+    receipt.positiveControl = { ...receipt.positiveControl, ok: false, focusedWithinMs: null }
+    input.artifacts['receipt-art-1'] = { ...input.artifacts['receipt-art-1']!, data: receipt }
+    expect(failCodes(input)).toContain('measurement.control-failed')
+  })
+
+  // --- S07 : baseline not established ------------------------------------------------
+  it('rejects a sample taken while the input was already focused (S07)', () => {
+    const input = clone(passing('D0'))
+    const receipt = supportedReceipt()
+    receipt.samples = [
+      sample({ side: 'left', focusBefore: NODE }),
+      sample({ side: 'right', x: 800 }),
+      sample({ side: 'retest', retestOf: 'left', x: 480 }),
+    ]
+    input.artifacts['receipt-art-1'] = { ...input.artifacts['receipt-art-1']!, data: receipt }
+    expect(failCodes(input)).toContain('measurement.baseline-not-established')
+  })
+
+  // --- S08 : claims 500ms but observed 100ms -----------------------------------------
+  it('rejects a declared window the observation did not cover (S08)', () => {
+    const input = clone(passing('D0'))
+    const receipt = supportedReceipt()
+    receipt.samples = receipt.samples.map((s) => ({ ...s, observedWindowMs: 100 }))
+    input.artifacts['receipt-art-1'] = { ...input.artifacts['receipt-art-1']!, data: receipt }
+    expect(failCodes(input)).toContain('measurement.observed-window')
+  })
+
+  // --- S09 : single failure with no independent retest -------------------------------
+  it('rejects a supported finding with no independent retest (S09)', () => {
+    const input = clone(passing('D0'))
+    const receipt = supportedReceipt()
+    receipt.samples = [sample({ side: 'left' }), sample({ side: 'right', x: 800 })]
+    input.artifacts['receipt-art-1'] = { ...input.artifacts['receipt-art-1']!, data: receipt }
+    expect(failCodes(input)).toContain('measurement.missing-retest')
+  })
+
+  it('rejects a retest at a different coordinate (S09)', () => {
+    const input = clone(passing('D0'))
+    const receipt = supportedReceipt()
+    receipt.samples = [
+      sample({ side: 'left' }),
+      sample({ side: 'right', x: 800 }),
+      sample({ side: 'retest', retestOf: 'left', x: 481 }),
+    ]
+    input.artifacts['receipt-art-1'] = { ...input.artifacts['receipt-art-1']!, data: receipt }
+    expect(failCodes(input)).toContain('measurement.retest-not-same-point')
+  })
+
+  // --- S10 : missing a side / duplicate side -----------------------------------------
+  it('rejects a sample set missing one side (S10)', () => {
+    const input = clone(passing('D0'))
+    const receipt = supportedReceipt()
+    receipt.samples = [
+      sample({ side: 'left' }),
+      sample({ side: 'retest', retestOf: 'left', x: 480 }),
+    ]
+    input.artifacts['receipt-art-1'] = { ...input.artifacts['receipt-art-1']!, data: receipt }
+    expect(failCodes(input)).toContain('measurement.sampling-invalid')
+  })
+
+  // --- S11 : instability / intervention ----------------------------------------------
+  it('rejects a sample that was not stable (S11)', () => {
+    const input = clone(passing('D0'))
+    const receipt = supportedReceipt()
+    receipt.samples = [
+      sample({ side: 'left', stable: false }),
+      sample({ side: 'right', x: 800 }),
+      sample({ side: 'retest', retestOf: 'left', x: 480 }),
+    ]
+    input.artifacts['receipt-art-1'] = { ...input.artifacts['receipt-art-1']!, data: receipt }
+    expect(failCodes(input)).toContain('measurement.unstable')
+  })
+
+  it('rejects a receipt whose integrity was intervened (S11)', () => {
+    const input = clone(passing('D0'))
+    const receipt = supportedReceipt()
+    receipt.integrity = { version: 1, status: 'intervened', interventionIds: ['x'] }
+    input.artifacts['receipt-art-1'] = { ...input.artifacts['receipt-art-1']!, data: receipt }
+    expect(failCodes(input)).toContain('measurement.integrity-intervened')
+  })
+
+  // --- S12 : click count does not match actionCost -----------------------------------
+  it('rejects a receipt whose actionCost disagrees with the dispatched clicks (S12)', () => {
+    const input = clone(passing('D0'))
+    const receipt = supportedReceipt()
+    receipt.actionCost = 5
+    input.artifacts['receipt-art-1'] = { ...input.artifacts['receipt-art-1']!, data: receipt }
+    expect(failCodes(input)).toContain('metering.click-count-mismatch')
+  })
+
+  // --- S13 : low-confidence candidate cannot support ---------------------------------
+  it('rejects a supported finding from a low-confidence candidate (S13)', () => {
+    const input = clone(passing('D0'))
+    const candidate = input.artifacts['candidate-art-1']!.data as { confidence: string }
+    input.artifacts['candidate-art-1'] = {
+      ...input.artifacts['candidate-art-1']!,
+      data: { ...candidate, confidence: 'low' },
+    }
+    expect(failCodes(input)).toContain('outcome.low-confidence-supported')
+  })
+
+  it('rejects a supported finding with no semantic binding call (S13)', () => {
+    const input = clone(passing('D0'))
+    input.gatewayCalls = []
+    expect(failCodes(input)).toContain('binding.semantic-call-missing')
+  })
+
+  // --- S14 : healthy case not investigated / claimed healthy while unknown -----------
+  it('rejects an H0 that was never probed (S14)', () => {
+    const input = healthy('H0')
+    input.run.findings = []
+    input.run.hypotheses = []
+    input.run.focusMeasurements = []
+    expect(failCodes(input)).toContain('healthy.probe-missing')
+  })
+
+  it('rejects H1/H2 that claim a supported finding (S14)', () => {
+    const input = healthy('H1')
+    input.run.findings = [
+      {
+        id: 'f1',
+        validationStatus: 'supported',
+        candidateId: 'candidate-1',
+        evidenceRefs: ['receipt-art-1'],
+        title: 'x',
+      },
+    ]
+    expect(failCodes(input)).toContain('outcome.false-positive')
+  })
+
+  it('rejects a healthy case with an unresolved visual coverage gap (S14)', () => {
+    const input = healthy('H1')
+    input.run.coverage = { visualUnverified: ['visual-scan-unverified'] }
+    expect(failCodes(input)).toContain('healthy.coverage-gap')
+  })
+
+  // --- S15 : business failure behind a correct finding -------------------------------
+  it('rejects a run that did not purchase even with a correct finding (S15)', () => {
+    const input = clone(passing('D0'))
+    input.run.businessResult = 'unknown'
+    expect(failCodes(input)).toContain('business.purchase')
+  })
+
+  it('rejects a run with no explicit finish (S15)', () => {
+    const input = clone(passing('D0'))
+    input.run.events = input.run.events.filter((e) => e.type !== 'finish:accepted')
+    expect(failCodes(input)).toContain('business.explicit-finish')
+  })
+
+  it('rejects an extra unsupported finding (S15)', () => {
+    const input = clone(passing('D0'))
+    input.run.findings = [
+      ...input.run.findings,
+      {
+        id: 'f2',
+        validationStatus: 'supported',
+        candidateId: null,
+        evidenceRefs: [],
+        title: 'unfounded',
+      },
+    ]
+    expect(failCodes(input)).toContain('business.extra-findings')
+  })
+
+  // --- S16 : forged verdict string, measurements unchanged ---------------------------
+  it('does not follow a forged verdict string and flags the conflict (S16)', () => {
+    const input = clone(passing('D0'))
+    input.declaredVerdict = 'refuted'
+    const result = scoreVisualEvidence(input)
+    // The recomputed verdict comes from the measurement, not the string.
+    expect(result.details.recomputedVerdict).toBe('supported')
+    expect(result.failedAssertions).toContain('outcome.declared-verdict-conflict')
+  })
+
+  it('recomputes refuted from a healthy-but-probed H0 receipt', () => {
+    const input = healthy('H0')
+    const result = scoreVisualEvidence(input)
+    expect(result.details.recomputedVerdict).toBe('refuted')
+    expect(result.passed).toBe(true)
+  })
+})
+
+/** A minimal passing healthy case: a probe was made and refuted, business completed. */
+function healthy(caseId: 'H0' | 'H1' | 'H2'): DeepMutable<VisualScorerInput> {
+  const truth = visualTruthFor(caseId)
+  const base = passing('D0')
+  const receipt = supportedReceipt()
+  // A healthy page focuses at the sampled edge points, so the result is a measured refutation.
+  receipt.samples = [
+    sample({ side: 'left', x: 480, focusedWithinMs: 90 }),
+    sample({ side: 'right', x: 800, focusedWithinMs: 95 }),
+  ]
+  receipt.actionCost = 5
+  return {
+    ...base,
+    case: caseId,
+    sentVision: [{ sha256: 'a'.repeat(64), raw: normalizedRaw() }],
+    artifacts: {
+      ...base.artifacts,
+      'candidate-art-1': {
+        ...base.artifacts['candidate-art-1']!,
+        data: {
+          id: 'candidate-1',
+          kind: 'input-focus-region',
+          perceivedRegion: truth.region,
+          excludedRegions: truth.excludedRegions,
+          confidence: 'high',
+          screenshotRef: 'shot-1',
+          runId: 'run-1',
+          documentEpoch: EPOCH,
+        },
+      },
+      'receipt-art-1': { ...base.artifacts['receipt-art-1']!, data: receipt },
+    },
+    run: {
+      ...base.run,
+      events: [
+        {
+          id: 'ev-1',
+          seq: 1,
+          type: 'finish:accepted',
+          payload: { verifiedOperations: [] },
+          evidenceRefs: [],
+        },
+        // Five committed clicks match this receipt's actionCost of 5.
+        ...Array.from({ length: 5 }, (_, i) => ({
+          id: `ev-click-${i}`,
+          seq: i + 2,
+          type: 'visual-focus:click-dispatched',
+          payload: { candidateId: 'candidate-1', kind: 'sample' },
+          evidenceRefs: [],
+        })),
+      ],
+      findings: [
+        {
+          id: 'f1',
+          validationStatus: 'refuted',
+          candidateId: 'candidate-1',
+          evidenceRefs: ['receipt-art-1'],
+          title: 'Sampled input-region clicks focused the input',
+        },
+      ],
+      hypotheses: [
+        {
+          id: 'h1',
+          status: 'refuted',
+          evidenceRefs: ['receipt-art-1'],
+          visualCandidateId: 'candidate-1',
+        },
+      ],
+    },
+    declaredVerdict: 'refuted',
+  }
+}
