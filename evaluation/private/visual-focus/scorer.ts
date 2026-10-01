@@ -49,6 +49,8 @@ export interface ScoredReceipt {
   readonly screenshotRef: string
   readonly screenshotSha: string
   readonly documentEpoch: string
+  /** The CSS viewport the run recorded, the basis for the normalized->CSS conversion. */
+  readonly viewport?: { readonly width: number; readonly height: number }
   readonly binding: {
     readonly elementRef: string
     readonly nodeIdentity: string
@@ -307,6 +309,9 @@ export function scoreVisualEvidence(input: VisualScorerInput): VisualScore {
     .filter((r): r is ScoredReceipt => !!r)
   const measured = measurements.length > 0
   const graded = supported.length + refuted.length > 0
+  const candidateArt = input.artifacts['candidate-art-1']?.data as
+    | { perceivedRegion: Rect; excludedRegions: readonly Rect[]; confidence: string }
+    | undefined
 
   // --- Business layer: a correct visual finding never excuses a failed purchase ----------------
   add(
@@ -368,15 +373,46 @@ export function scoreVisualEvidence(input: VisualScorerInput): VisualScore {
     'all cited evidence belongs to this run',
     'run ' + input.run.runId,
   )
+  // The persisted candidate must be the deterministic conversion of the raw normalized response, using
+  // the saved CSS viewport - never a plausible-looking box that came from somewhere else. A wrong
+  // transform that happens to stay inside the viewport passes a naive check, so compare the numbers.
+  const rawRegion = (input.sentVision[0]?.raw as { candidates?: { perceivedRegion?: Rect }[] })
+    ?.candidates?.[0]?.perceivedRegion
+  const viewport = receipts[0]?.viewport
+  const expectedRegion =
+    rawRegion && viewport
+      ? {
+          x: (rawRegion.x * viewport.width) / 1000,
+          y: (rawRegion.y * viewport.height) / 1000,
+          width: (rawRegion.width * viewport.width) / 1000,
+          height: (rawRegion.height * viewport.height) / 1000,
+        }
+      : undefined
+  const closeTo = (a: number, b: number) => Math.abs(a - b) <= 1
+  add(
+    'provenance.normalized-transform',
+    !!candidateArt &&
+      !!expectedRegion &&
+      !(
+        closeTo(candidateArt.perceivedRegion.x, expectedRegion.x) &&
+        closeTo(candidateArt.perceivedRegion.y, expectedRegion.y) &&
+        closeTo(candidateArt.perceivedRegion.width, expectedRegion.width) &&
+        closeTo(candidateArt.perceivedRegion.height, expectedRegion.height)
+      ),
+    'the persisted region is the normalized response converted by the saved viewport',
+    !candidateArt
+      ? 'no candidate to convert'
+      : expectedRegion
+        ? `${candidateArt.perceivedRegion.width.toFixed(1)} vs ${expectedRegion.width.toFixed(1)}`
+        : 'raw or viewport absent',
+  )
 
   // --- Geometry: candidate overlap, point placement, exclusions -------------------------------
-  const candidateArt = input.artifacts['candidate-art-1']?.data as
-    | { perceivedRegion: Rect; excludedRegions: readonly Rect[]; confidence: string }
-    | undefined
+  // A measurement without a candidate is a contradiction; a healthy case with neither is legal.
   add(
     'geometry.candidate-present',
-    !candidateArt || measurements.length === 0,
-    'a persisted candidate with a measurement',
+    measurements.length > 0 && !candidateArt,
+    'a persisted candidate for any measurement',
     candidateArt ? 'present' : 'missing',
   )
   add(

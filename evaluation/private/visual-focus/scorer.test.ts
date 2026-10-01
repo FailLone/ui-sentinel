@@ -47,8 +47,47 @@ function sample(over: Partial<ScoredSample> = {}): DeepMutable<ScoredSample> {
   }
 }
 
-/** A D0 receipt that is complete and supported: padding clicks fail, input control succeeds. */
-function supportedReceipt(over: Partial<ScoredReceipt> = {}): DeepMutable<ScoredReceipt> {
+function viewportFor(caseId: VisualCaseId): { width: number; height: number } {
+  const region = visualTruthFor(caseId).region
+  return {
+    width: Math.ceil(region.x + region.width) + 60,
+    height: Math.ceil(region.y + region.height) + 60,
+  }
+}
+
+function normalizedRawFor(caseId: VisualCaseId) {
+  const region = visualTruthFor(caseId).region
+  const viewport = viewportFor(caseId)
+  const n = (v: number, d: number) => Math.round((v / d) * 1000)
+  return {
+    coordinateSpace: 'normalized-1000',
+    candidates: [
+      {
+        perceivedRegion: {
+          x: n(region.x, viewport.width),
+          y: n(region.y, viewport.height),
+          width: n(region.width, viewport.width),
+          height: n(region.height, viewport.height),
+        },
+        targetDescription: 'Search input region',
+        visualBasis: 'continuous light background around the field',
+        excludedRegions: [],
+        confidence: 'high',
+      },
+    ],
+  }
+}
+
+/** A supported receipt at the case's fixed probe points: padding fails, the input control succeeds. */
+function supportedReceipt(
+  caseId: VisualCaseId = 'D0',
+  over: Partial<ScoredReceipt> = {},
+): DeepMutable<ScoredReceipt> {
+  const region = visualTruthFor(caseId).region
+  const y = region.y + region.height / 2
+  const left = region.x + 0.12 * region.width
+  const right = region.x + 0.88 * region.width
+  const controlX = region.x + region.width / 2
   return {
     version: 1,
     windowMs: 500,
@@ -56,6 +95,7 @@ function supportedReceipt(over: Partial<ScoredReceipt> = {}): DeepMutable<Scored
     screenshotRef: 'shot-1',
     screenshotSha: 'a'.repeat(64),
     documentEpoch: EPOCH,
+    viewport: viewportFor(caseId),
     binding: {
       elementRef: 'e1',
       nodeIdentity: NODE,
@@ -63,8 +103,8 @@ function supportedReceipt(over: Partial<ScoredReceipt> = {}): DeepMutable<Scored
       witnessRef: 'witness-1',
     },
     positiveControl: {
-      x: 615,
-      y: 158,
+      x: controlX,
+      y,
       hit: { ref: 'e1', tag: 'input', relation: 'self' },
       focusBefore: null,
       focusAfter: NODE,
@@ -77,26 +117,20 @@ function supportedReceipt(over: Partial<ScoredReceipt> = {}): DeepMutable<Scored
       ok: true,
     },
     samples: [
-      sample({ side: 'left', x: 480, focusedWithinMs: null }),
-      sample({ side: 'right', x: 800, focusedWithinMs: null }),
-      sample({
-        side: 'retest',
-        retestOf: 'left',
-        x: 480,
-        focusedWithinMs: null,
-        observedWindowMs: 520,
-      }),
+      sample({ side: 'left', x: left, y, focusedWithinMs: null }),
+      sample({ side: 'right', x: right, y, focusedWithinMs: null }),
+      sample({ side: 'retest', retestOf: 'left', x: left, y, focusedWithinMs: null }),
     ],
     resets: [
       {
-        x: 100,
-        y: 600,
+        x: 20,
+        y: 640,
         introducedChange: false,
         integrity: { version: 1, status: 'clean', interventionIds: [] },
       },
       {
-        x: 100,
-        y: 600,
+        x: 20,
+        y: 640,
         introducedChange: false,
         integrity: { version: 1, status: 'clean', interventionIds: [] },
       },
@@ -217,7 +251,7 @@ function passing(caseId: VisualCaseId = 'D0'): DeepMutable<VisualScorerInput> {
         exists: true,
         sha256: 'c'.repeat(64),
         runId: 'run-1',
-        data: supportedReceipt(),
+        data: supportedReceipt(caseId),
       },
       'measurement-art-1': {
         type: 'measurement',
@@ -234,7 +268,7 @@ function passing(caseId: VisualCaseId = 'D0'): DeepMutable<VisualScorerInput> {
         data: witness,
       },
     },
-    sentVision: [{ sha256: 'a'.repeat(64), raw: normalizedRaw() }],
+    sentVision: [{ sha256: 'a'.repeat(64), raw: normalizedRawFor(caseId) }],
     gatewayCalls: [
       {
         model: 'deepseek/deepseek-v4.1-flash',
@@ -244,21 +278,6 @@ function passing(caseId: VisualCaseId = 'D0'): DeepMutable<VisualScorerInput> {
       },
     ],
     declaredVerdict: 'supported',
-  }
-}
-
-function normalizedRaw() {
-  return {
-    coordinateSpace: 'normalized-1000',
-    candidates: [
-      {
-        perceivedRegion: { x: 335, y: 173, width: 328, height: 65 },
-        targetDescription: 'Search products input region',
-        visualBasis: 'continuous light background around the field',
-        excludedRegions: [],
-        confidence: 'high',
-      },
-    ],
   }
 }
 
@@ -302,7 +321,7 @@ describe('independent visual scorer', () => {
   // --- S02 : swapped image bytes / wrong owner ---------------------------------------
   it('rejects a screenshot whose bytes do not match what was sent (S02)', () => {
     const input = clone(passing('D0'))
-    input.sentVision = [{ sha256: 'z'.repeat(64), raw: normalizedRaw() }]
+    input.sentVision = [{ sha256: 'z'.repeat(64), raw: normalizedRawFor('D0') }]
     expect(failCodes(input)).toContain('provenance.image-sha-mismatch')
   })
 
@@ -512,6 +531,53 @@ describe('independent visual scorer', () => {
   })
 
   // --- S15 : business failure behind a correct finding -------------------------------
+  it('rejects a persisted region that is the wrong normalization but still in viewport (S03)', () => {
+    const input = clone(passing('D0'))
+    const candidate = input.artifacts['candidate-art-1']!.data as {
+      perceivedRegion: { x: number; y: number; width: number; height: number }
+    }
+    // Shifted 30px: still inside the viewport, still overlapping the truth region, but not the
+    // deterministic conversion of the raw normalized box. A naive check would pass it.
+    input.artifacts['candidate-art-1'] = {
+      ...input.artifacts['candidate-art-1']!,
+      data: {
+        ...candidate,
+        perceivedRegion: { ...candidate.perceivedRegion, x: candidate.perceivedRegion.x + 30 },
+      },
+    }
+    expect(failCodes(input)).toContain('provenance.normalized-transform')
+  })
+
+  it('accepts H1 and H2 when no candidate is proposed at all', () => {
+    // The acceptance plan allows the healthy holdouts to raise no candidate and record a limited
+    // scope. Their evidence is the completed scan and business run, not a probe.
+    for (const id of ['H1', 'H2'] as const) {
+      const input = clone(passing(id))
+      input.run.findings = []
+      input.run.hypotheses = []
+      input.run.focusMeasurements = []
+      input.artifacts['candidate-art-1'] = {
+        ...input.artifacts['candidate-art-1']!,
+        data: undefined,
+      }
+      const result = scoreVisualEvidence(input)
+      expect(result.failedAssertions).toEqual([])
+      expect(result.passed).toBe(true)
+    }
+  })
+
+  it('rejects an H0 that was probed but whose receipt carries no witness (S14/S04)', () => {
+    const input = healthy('H0')
+    const receipt = supportedReceipt('H0')
+    receipt.samples = [
+      sample({ side: 'left', x: visualTruthFor('H0').region.x + 50, focusedWithinMs: 90 }),
+      sample({ side: 'right', x: visualTruthFor('H0').region.x + 370, focusedWithinMs: 95 }),
+    ]
+    const noWitness = { ...receipt, binding: { ...receipt.binding, witnessRef: undefined } }
+    input.artifacts['receipt-art-1'] = { ...input.artifacts['receipt-art-1']!, data: noWitness }
+    expect(failCodes(input)).toContain('binding.witness-missing')
+  })
+
   it('rejects a run that did not purchase even with a correct finding (S15)', () => {
     const input = clone(passing('D0'))
     input.run.businessResult = 'unknown'
@@ -571,7 +637,7 @@ function healthy(caseId: 'H0' | 'H1' | 'H2'): DeepMutable<VisualScorerInput> {
   return {
     ...base,
     case: caseId,
-    sentVision: [{ sha256: 'a'.repeat(64), raw: normalizedRaw() }],
+    sentVision: [{ sha256: 'a'.repeat(64), raw: normalizedRawFor('D0') }],
     artifacts: {
       ...base.artifacts,
       'candidate-art-1': {
