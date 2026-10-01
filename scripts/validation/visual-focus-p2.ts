@@ -19,6 +19,7 @@ import {
   type VisualCaseId,
 } from '../../evaluation/fixtures/visual.ts'
 import { visualSmokeProblems } from '../../evaluation/preflight/visual-smoke-score.ts'
+import { buildArtifactIndex, buildManifest } from '../../evaluation/support/evidence-protocol.ts'
 
 // Explicit paid development smoke. It cannot certify G4/G5, and it never retries a case silently.
 const options = process.argv.slice(2).filter((a) => a !== '--')
@@ -189,11 +190,15 @@ const goal =
   'Inspect the shopping experience, complete one normal purchase, and report evidenced issues and unverified scope.'
 const records: any[] = cases.map((id) => ({ case: id, status: 'not-run', passed: false }))
 let audit: unknown, failure: string | undefined
+const commit = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim()
 await write('manifest.json', {
-  kind: 'visual-focus-p2-smoke',
+  // The protocol stamps mode/stage/schemaVersion so this can never be read as a paid diagnostic.
+  ...buildManifest({
+    stage: 'p2-smoke',
+    mode: 'fixed',
+    identity: { campaignId: `p2-smoke-${commit.slice(0, 12)}`, buildHash: build.hash, commit },
+  }),
   scope: 'Development smoke on known fixtures, not G4/formal/holdout acceptance',
-  commit: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
-  buildHash: build.hash,
   models: { agent: AGENT_MODEL, vision: VISION_MODEL },
   providers,
   cases,
@@ -281,7 +286,10 @@ try {
       record.status = record.passed ? 'passed' : 'failed'
       await write(`${id}/report.json`, record.report)
       await write(`${id}/truth.json`, record.truth)
-      await write(`${id}/artifact-index.json`, downloaded.index)
+      await write(
+        `${id}/artifact-index.json`,
+        buildArtifactIndex(downloaded.index, { base: directory }),
+      )
       await write(`${id}/sent-image-hashes.json`, sentImages)
     } catch (error) {
       record.status = 'failed'
@@ -325,6 +333,14 @@ try {
   }
   await write('persistence-audit.json', audit ?? null)
   const passed = !failure && records.every((r) => r.passed) && (audit as any)?.passed === true
+  // Top-level index over every downloaded artifact, so the whole evidence set is covered by one file.
+  await write(
+    'artifact-index.json',
+    buildArtifactIndex(
+      records.flatMap((r) => r.artifactIndex ?? []),
+      { base: directory },
+    ),
+  )
   await write('summary.json', {
     kind: 'visual-focus-p2-smoke',
     passed,

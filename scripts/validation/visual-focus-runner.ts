@@ -10,6 +10,7 @@ import { buildIdentity } from '../../evaluation/support/build-identity.ts'
 import {
   downloadRunEvidence,
   auditStoppedGroup,
+  collectFullEventHistory,
 } from '../../evaluation/support/campaign-evidence.ts'
 import { resolveProviders } from '../../evaluation/private/export/diagnostic-config.ts'
 import {
@@ -25,6 +26,8 @@ import {
   type PlanRow,
 } from '../../evaluation/support/execution-plan.ts'
 import { readFormalSource } from '../../evaluation/support/formal-source.ts'
+import { buildArtifactIndex, buildManifest } from '../../evaluation/support/evidence-protocol.ts'
+import { buildBatchTiming } from '../../evaluation/support/batch-timing.ts'
 import { scoreVisualEvidence } from '../../evaluation/private/visual-focus/scorer.ts'
 import {
   VISUAL_VIEWPORTS,
@@ -224,10 +227,40 @@ const control = (path: string, body?: unknown) =>
 const goal =
   'Inspect the shopping experience, complete one normal purchase, and report evidenced issues and unverified scope.'
 
-const diagnostics: { row: PlanRow; runId: string | null; passed: boolean }[] = [
-  // A real structured smoke runs first and must pass before the diagnostic cases count.
-  { row: { group: 'smoke', case: 'smoke', repeat: 1 }, runId: null, passed: false },
-]
+/** Every downloaded artifact across every row, indexed once at the top level (plan P3.4). */
+const indexedEvidence: (ReturnType<typeof buildArtifactIndex>[number] & {
+  case: string
+  repeat: number
+})[] = []
+
+/** What each completed row reported, kept so the post-shutdown audit compares rather than trusts. */
+const auditRecords: {
+  runId: string
+  report: any
+  artifactIndex: any[]
+  dir: string
+}[] = []
+
+/** A recorded duration, or `null` when the run never recorded one. Never a zero standing in for it. */
+function durationOrNull(value: unknown): number | null {
+  return typeof value === 'number' && Number.isFinite(value) ? value : null
+}
+
+/** Requests the gateway sent for one row, split by model, plus the ones with no usable usage. */
+function requestCounts(
+  lines: readonly any[],
+  caseId: string,
+): { visionRequests: number; agentRequests: number; unknownUsage: number; failedAttempts: number } {
+  const mine = lines.filter((r) => String(r.run).startsWith(caseId))
+  const finished = mine.filter((r) => r.status !== 'pending')
+  return {
+    visionRequests: mine.filter((r) => r.model === VISION_MODEL).length,
+    agentRequests: mine.filter((r) => r.model === AGENT_MODEL).length,
+    // A request that finished with no usage was still sent: it is counted, not dropped.
+    unknownUsage: finished.filter((r) => !r.usage).length,
+    failedAttempts: finished.filter((r) => r.status === 'error' || r.httpStatus >= 400).length,
+  }
+}
 
 async function executeRow(row: PlanRow): Promise<RowOutcome> {
   const id = row.case as VisualCaseId
@@ -258,7 +291,31 @@ async function executeRow(row: PlanRow): Promise<RowOutcome> {
     const report = await json(`${base}/api/runs/${run.runId}/report`)
     const downloaded = await downloadRunEvidence(base, report, resolve(dir, 'artifacts'))
     await write(`${row.case}/${row.repeat}/report.json`, report)
-    await write(`${row.case}/${row.repeat}/artifact-index.json`, downloaded.index)
+    // Paths are stored relative to this directory so the index still resolves after a move.
+    await write(
+      `${row.case}/${row.repeat}/artifact-index.json`,
+      buildArtifactIndex(downloaded.index, { base: dir }),
+    )
+    indexedEvidence.push(
+      ...buildArtifactIndex(downloaded.index, { base: directory }).map((e) => ({
+        ...e,
+        case: row.case,
+        repeat: row.repeat,
+      })),
+    )
+    // Read the whole history through the paged endpoint and require it to equal what the report
+    // returned: a paginated API reader that silently stopped at a page bound is exactly the lost-tail
+    // shape E01 names, and the report is not evidence that the API agrees with itself.
+    const paged = await collectFullEventHistory(base, run.runId)
+    if (paged.length !== report.events.length)
+      return {
+        runId: run.runId,
+        outcome: 'evidence-invalid',
+        reasons: ['api-history-incomplete'],
+      }
+    // Kept for the post-shutdown audit, which compares what the API reported against a fresh read of
+    // the stopped database.
+    auditRecords.push({ runId: run.runId, report, artifactIndex: downloaded.index, dir })
     if (report.inspectionIntegrity?.status === 'intervened')
       return { runId: run.runId, outcome: 'side-effect-unknown', reasons: ['intervention'] }
     // The independent scorer recomputes the conclusion from raw evidence and the private truth.
@@ -324,9 +381,37 @@ async function executeRow(row: PlanRow): Promise<RowOutcome> {
     })
     await write(`${row.case}/${row.repeat}/score.json`, score)
     const outcome: OutcomeClass = score.passed ? 'passed' : 'quality-failure'
-    return { runId: run.runId, outcome, reasons: score.failedAssertions }
+    const counts = requestCounts(lines, row.case)
+    return {
+      runId: run.runId,
+      outcome,
+      reasons: score.failedAssertions,
+      timing: {
+        elapsedMs: Date.now() - started,
+        // The product persists token usage, not per-kind durations, so these stay unknown unless a
+        // run really recorded them - a 0 here would claim the model took no measurable time.
+        modelMs: durationOrNull(report.usage?.modelMs),
+        toolMs: durationOrNull(report.usage?.toolMs),
+        ...counts,
+      },
+    }
   } catch (error) {
-    return { runId: null, outcome: 'evidence-invalid', reasons: [gateway.redact(String(error))] }
+    const counts = requestCounts(
+      (await readFile(resolve(directory, 'requests.jsonl'), 'utf8').catch(() => ''))
+        .trim()
+        .split('\n')
+        .filter(Boolean)
+        .map((l) => JSON.parse(l)),
+      row.case,
+    )
+    return {
+      runId: null,
+      outcome: 'evidence-invalid',
+      reasons: [gateway.redact(String(error))],
+      // A row that failed mid-flight still spent time and requests; dropping them would understate
+      // the batch and shrink the denominator E04 requires to be complete.
+      timing: { elapsedMs: Date.now() - started, modelMs: null, toolMs: null, ...counts },
+    }
   } finally {
     await gateway.end()
     await write('spending.json', gateway.spending())
@@ -351,6 +436,7 @@ try {
   }
   assert(ready, 'services-not-ready')
 
+  const batchStartedAt = Date.now()
   const report = await runBatch({
     plan,
     stopOnSameMechanismTwice: mode === 'diagnostic',
@@ -363,28 +449,35 @@ try {
     },
   })
 
+  // Stop the service first: the audit opens its own connection and must not race a live writer.
   for (const p of children) await stop(p)
-  const audit = await auditStoppedGroup(
-    env.DATABASE_URL!,
-    report.rows.filter((r) => r.runId).map((r) => ({ report: { runId: r.runId } })),
-    undefined,
-  ).catch(() => null)
+  const audit = await auditStoppedGroup(env.DATABASE_URL!, auditRecords, undefined).catch(
+    (error) => ({ passed: false, error: gateway.redact(String(error)), runs: [] }),
+  )
   await write('persistence-audit.json', audit)
+  // One index over every sample's evidence, written even when a row produced none - an empty index
+  // over a batch that recorded artifacts is a failure, not a pass, so the count is stated too.
+  await write('artifact-index.json', indexedEvidence)
 
   const passed = report.verdict.passed && (audit as any)?.passed === true
   await write('manifest.json', {
-    kind: `visual-focus-${stage}`,
-    mode: 'real',
-    stage,
-    schemaVersion: 1,
-    campaignId,
-    buildHash: build.hash,
-    commit,
+    ...buildManifest({
+      stage,
+      mode: 'real',
+      identity: { campaignId, buildHash: build.hash, commit },
+    }),
     plan,
     rows: report.rows,
     stoppedEarly: report.stoppedEarly,
     stopReason: report.stopReason,
     passed,
+    // The batch's own count of what it sent, so a reader need not recompute it from requests.jsonl.
+    paidRequests: report.rows.filter((r) => r.runId).length,
+    timing: buildBatchTiming({
+      startedAtMs: batchStartedAt,
+      endedAtMs: Date.now(),
+      rows: report.rows,
+    }),
     fixtureRevision: {
       revision: 'visual-regression-1',
       hash: 'f'.repeat(64),

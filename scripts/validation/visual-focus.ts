@@ -1,8 +1,10 @@
 import { parseVisualCli } from './cli-args.ts'
 import { downloadRunEvidence } from '../../evaluation/support/campaign-evidence.ts'
 import { visualSmokeProblems } from '../../evaluation/preflight/visual-smoke-score.ts'
+import { buildManifest } from '../../evaluation/support/evidence-protocol.ts'
+import { buildIdentity } from '../../evaluation/support/build-identity.ts'
 import { chromium } from 'playwright'
-import { spawn, spawnSync, type ChildProcess } from 'node:child_process'
+import { spawn, spawnSync, execFileSync, type ChildProcess } from 'node:child_process'
 import { createServer } from 'node:http'
 import { randomUUID, randomBytes, createHash } from 'node:crypto'
 import { mkdir, writeFile } from 'node:fs/promises'
@@ -46,6 +48,26 @@ const directory = resolve(
   new Date().toISOString().replace(/[:.]/g, '-'),
 )
 await mkdir(directory, { recursive: true })
+// The preflight writes the same manifest shape as every other stage, stamped `fixed`: it blanks every
+// real credential, so it must never be readable as a run that authorised spending.
+const identity = await buildIdentity()
+const commit = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim()
+await writeFile(
+  resolve(directory, 'manifest.json'),
+  JSON.stringify(
+    buildManifest({
+      stage: 'preflight',
+      mode: 'fixed',
+      identity: {
+        campaignId: `preflight-${commit.slice(0, 12)}`,
+        buildHash: identity.hash,
+        commit,
+      },
+    }),
+    null,
+    2,
+  ) + '\n',
+)
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 const port = async () => {
   const s = createServer()
