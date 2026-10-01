@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { parseBusinessCli, parseVisualCli } from './cli-args.ts'
+import { CliUsageError, parseBusinessCli, parseVisualCli } from './cli-args.ts'
 
 describe('visual CLI parsing (R01)', () => {
   it('defaults to the free preflight with no arguments', () => {
@@ -107,5 +107,29 @@ describe('business CLI parsing (R01)', () => {
         'd',
       ]),
     ).toThrow(/repeated option/)
+  })
+})
+
+describe('CLI refusal is a typed usage error (R01)', () => {
+  it('marks every invalid shape as a usage error the dispatcher maps to exit 2', () => {
+    // The acceptance separates an invalid CLI/config (exit 2) from a quality or gate failure (exit 1).
+    // A bare Error would exit 1 and be indistinguishable from a failed run.
+    const invalid: (() => unknown)[] = [
+      () => parseVisualCli(['--bogus']),
+      () => parseVisualCli(['--preflight', '--formal']),
+      () => parseVisualCli(['--diagnostic', '--campaign', 'a', '--campaign', 'b']),
+      () => parseVisualCli(['--diagnostic', '--campaign']),
+      () => parseVisualCli(['--diagnostic', '--campaign', 'c', 'extra']),
+      () => parseBusinessCli(['--nope']),
+      () => parseBusinessCli(['--formal', '--campaign', 'c']),
+    ]
+    for (const run of invalid) {
+      expect(run).toThrow(CliUsageError)
+      try {
+        run()
+      } catch (error) {
+        expect((error as CliUsageError).exitCode).toBe(2)
+      }
+    }
   })
 })

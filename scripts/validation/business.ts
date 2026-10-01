@@ -24,8 +24,19 @@ import {
  * makes no paid request and no claim that an agent discovered anything: the model is a fixed local
  * script, so a passing run here says the machinery works, not that the system found a defect.
  */
-const { parseBusinessCli } = await import('./cli-args.ts')
-const options = parseBusinessCli(process.argv.slice(2))
+const { CliUsageError, parseBusinessCli } = await import('./cli-args.ts')
+// An invalid command line exits 2, matching the visual entry and the acceptance's exit-code split.
+const options = (() => {
+  try {
+    return parseBusinessCli(process.argv.slice(2))
+  } catch (error) {
+    if (error instanceof CliUsageError) {
+      console.error(`FAIL(${error.exitCode}): ${error.message}`)
+      process.exit(error.exitCode)
+    }
+    throw error
+  }
+})()
 
 /**
  * `--diagnostic` and `--formal` are different scripts on purpose.

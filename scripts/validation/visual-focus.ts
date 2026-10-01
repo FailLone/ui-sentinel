@@ -1,4 +1,4 @@
-import { parseVisualCli } from './cli-args.ts'
+import { CliUsageError, parseVisualCli } from './cli-args.ts'
 import { downloadRunEvidence } from '../../evaluation/support/campaign-evidence.ts'
 import { visualSmokeProblems } from '../../evaluation/preflight/visual-smoke-score.ts'
 import { buildManifest } from '../../evaluation/support/evidence-protocol.ts'
@@ -11,7 +11,18 @@ import { mkdir, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import assert from 'node:assert/strict'
 
-const options = parseVisualCli(process.argv.slice(2))
+// An invalid command line exits 2, not 1: "you asked for the wrong thing" is not "the product failed".
+const options = (() => {
+  try {
+    return parseVisualCli(process.argv.slice(2))
+  } catch (error) {
+    if (error instanceof CliUsageError) {
+      console.error(`FAIL(${error.exitCode}): ${error.message}`)
+      process.exit(error.exitCode)
+    }
+    throw error
+  }
+})()
 /**
  * The modes are separate modules on purpose.
  *

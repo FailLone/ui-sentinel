@@ -11,6 +11,18 @@ import { isVisualCaseId, type VisualCaseId } from '../../evaluation/fixtures/vis
  * No arguments is never a paid mode - the default is the free preflight, and a paid mode must be asked
  * for explicitly.
  */
+/**
+ * An invalid command line or configuration. It carries exit code 2 so the process can distinguish it
+ * from a quality/gate failure (1): "you asked for the wrong thing" is not "the product failed".
+ */
+export class CliUsageError extends Error {
+  readonly exitCode = 2
+  constructor(message: string) {
+    super(message)
+    this.name = 'CliUsageError'
+  }
+}
+
 export type VisualMode = 'preflight' | 'p2-smoke' | 'diagnostic' | 'formal'
 
 export interface VisualCliOptions {
@@ -32,7 +44,7 @@ export function parseVisualCli(argv: readonly string[]): VisualCliOptions {
       a.startsWith('--') && ['--preflight', '--p2-smoke', '--diagnostic', '--formal'].includes(a),
   )
   if (modes.length !== 1)
-    throw Error(
+    throw new CliUsageError(
       `cli: expected exactly one of --preflight, --p2-smoke, --diagnostic, --formal (got ${modes.length})`,
     )
   const mode = modes[0]!.slice(2) as VisualMode
@@ -43,33 +55,34 @@ export function parseVisualCli(argv: readonly string[]): VisualCliOptions {
   for (let i = 0; i < args.length; i++) {
     const arg = args[i]!
     if (arg === modes[0]) continue
-    if (!arg.startsWith('--')) throw Error(`cli: unexpected positional argument "${arg}"`)
+    if (!arg.startsWith('--'))
+      throw new CliUsageError(`cli: unexpected positional argument "${arg}"`)
     if (!(VALUE_FLAGS as readonly string[]).includes(arg))
-      throw Error(`cli: unknown option "${arg}"`)
-    if (seen.has(arg)) throw Error(`cli: repeated option "${arg}"`)
+      throw new CliUsageError(`cli: unknown option "${arg}"`)
+    if (seen.has(arg)) throw new CliUsageError(`cli: repeated option "${arg}"`)
     seen.add(arg)
     const value = args[i + 1]
     if (value === undefined || value.startsWith('--'))
-      throw Error(`cli: option "${arg}" requires a value`)
+      throw new CliUsageError(`cli: option "${arg}" requires a value`)
     i++
     if (arg === '--campaign') options.campaign = value
     else if (arg === '--diagnostic-source') options.diagnosticSource = value
     else {
       const ids = value.split(',')
       if (!ids.length || !ids.every(isVisualCaseId) || new Set(ids).size !== ids.length)
-        throw Error(`cli: invalid --cases list "${value}"`)
+        throw new CliUsageError(`cli: invalid --cases list "${value}"`)
       options.cases = ids as VisualCaseId[]
     }
   }
 
   if (mode === 'preflight' && (options.campaign || options.diagnosticSource || options.cases))
-    throw Error('cli: --preflight takes no options')
+    throw new CliUsageError('cli: --preflight takes no options')
   if (mode === 'diagnostic' && !options.campaign)
-    throw Error('cli: --diagnostic requires --campaign')
+    throw new CliUsageError('cli: --diagnostic requires --campaign')
   if (mode === 'formal' && (!options.campaign || !options.diagnosticSource))
-    throw Error('cli: --formal requires --campaign and --diagnostic-source')
+    throw new CliUsageError('cli: --formal requires --campaign and --diagnostic-source')
   if (mode === 'p2-smoke' && (options.campaign || options.diagnosticSource))
-    throw Error('cli: --p2-smoke takes only --cases')
+    throw new CliUsageError('cli: --p2-smoke takes only --cases')
 
   return { mode, ...options }
 }
@@ -89,7 +102,7 @@ export function parseBusinessCli(argv: readonly string[]): BusinessCliOptions {
   if (args.length === 0) return { mode: 'preflight' }
   const modes = args.filter((a) => ['--preflight', '--diagnostic', '--formal'].includes(a))
   if (modes.length !== 1)
-    throw Error(
+    throw new CliUsageError(
       `cli: expected exactly one of --preflight, --diagnostic, --formal (got ${modes.length})`,
     )
   const mode = modes[0]!.slice(2) as BusinessMode
@@ -104,13 +117,14 @@ export function parseBusinessCli(argv: readonly string[]): BusinessCliOptions {
   for (let i = 0; i < args.length; i++) {
     const arg = args[i]!
     if (arg === modes[0]) continue
-    if (!arg.startsWith('--')) throw Error(`cli: unexpected positional argument "${arg}"`)
-    if (!valueFlags.includes(arg)) throw Error(`cli: unknown option "${arg}"`)
-    if (seen.has(arg)) throw Error(`cli: repeated option "${arg}"`)
+    if (!arg.startsWith('--'))
+      throw new CliUsageError(`cli: unexpected positional argument "${arg}"`)
+    if (!valueFlags.includes(arg)) throw new CliUsageError(`cli: unknown option "${arg}"`)
+    if (seen.has(arg)) throw new CliUsageError(`cli: repeated option "${arg}"`)
     seen.add(arg)
     const value = args[i + 1]
     if (value === undefined || value.startsWith('--'))
-      throw Error(`cli: option "${arg}" requires a value`)
+      throw new CliUsageError(`cli: option "${arg}" requires a value`)
     i++
     if (arg === '--campaign') options.campaign = value
     else if (arg === '--diagnostic-source') options.diagnosticSource = value
@@ -118,8 +132,8 @@ export function parseBusinessCli(argv: readonly string[]): BusinessCliOptions {
     else options.groups = value.split(',').filter(Boolean)
   }
   if (mode === 'diagnostic' && !options.campaign)
-    throw Error('cli: --diagnostic requires --campaign')
+    throw new CliUsageError('cli: --diagnostic requires --campaign')
   if (mode === 'formal' && (!options.campaign || !options.diagnosticSource))
-    throw Error('cli: --formal requires --campaign and --diagnostic-source')
+    throw new CliUsageError('cli: --formal requires --campaign and --diagnostic-source')
   return { mode, ...options }
 }
