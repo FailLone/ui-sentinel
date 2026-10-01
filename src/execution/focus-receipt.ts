@@ -31,6 +31,13 @@ export interface FocusSample {
   readonly focusAfter: string | null
   /** Milliseconds until the bound node was focused, or null when it never was within the window. */
   readonly focusedWithinMs: number | null
+  /**
+   * The wall-clock time actually spent observing focus after this click.
+   *
+   * Optional so pre-P3 receipts stay valid; when present, an independent scorer may require it to cover
+   * the declared window, so a corrupted windowMs cannot stand on an observation that never happened.
+   */
+  readonly observedWindowMs?: number
   readonly valueChanged: boolean
   readonly documentEpoch: string
   readonly integrity: EvidenceIntegrity

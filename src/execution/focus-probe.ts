@@ -65,6 +65,8 @@ export interface PointSample {
   readonly valueChanged: boolean
   readonly integrity: EvidenceIntegrity
   readonly focusedWithinMs: number | null
+  /** Wall-clock time actually spent observing focus after the click, measured by the browser layer. */
+  readonly observedWindowMs: number
   /**
    * The element that was focused when this click landed, read from the page.
    *
@@ -229,6 +231,7 @@ export function createFocusProbe(deps: FocusProbeDeps) {
           focusAfter: controlRaw.focusAfter,
           stable: controlRaw.stable,
           focusedWithinMs: controlRaw.focusedWithinMs,
+          observedWindowMs: controlRaw.observedWindowMs,
           valueChanged: controlRaw.valueChanged,
           documentEpoch: bound.documentEpoch,
           integrity: controlRaw.integrity,
@@ -252,6 +255,7 @@ export function createFocusProbe(deps: FocusProbeDeps) {
             focusAfter: raw2.focusAfter,
             stable: raw2.stable,
             focusedWithinMs: raw2.focusedWithinMs,
+            observedWindowMs: raw2.observedWindowMs,
             valueChanged: raw2.valueChanged,
             documentEpoch: bound.documentEpoch,
             integrity: raw2.integrity,
@@ -276,6 +280,7 @@ export function createFocusProbe(deps: FocusProbeDeps) {
             focusAfter: raw3.focusAfter,
             stable: raw3.stable,
             focusedWithinMs: raw3.focusedWithinMs,
+            observedWindowMs: raw3.observedWindowMs,
             valueChanged: raw3.valueChanged,
             documentEpoch: bound.documentEpoch,
             integrity: raw3.integrity,

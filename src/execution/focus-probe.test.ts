@@ -67,6 +67,7 @@ function harness(
         hit: { ref: 'e1', tag: 'input' as const, relation: 'self' as const },
         valueChanged: false,
         integrity: clean,
+        observedWindowMs: 500,
         focusBefore: null,
       }
     },
@@ -92,6 +93,7 @@ function harness(
         valueChanged: false,
         integrity: clean,
         focusedWithinMs: focuses ? 95 : null,
+        observedWindowMs: 500,
         focusBefore,
       }
     },

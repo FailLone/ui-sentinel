@@ -18,6 +18,14 @@ export interface ClickMeasurement {
   readonly focusAfter: string | null
   readonly targetFocusedBefore: boolean
   readonly stable: boolean
+  /**
+   * The wall-clock time actually spent observing focus after the click.
+   *
+   * The declared window is a promise; this is the measurement. A corruption that rewrites the declared
+   * window cannot make the observation it never took, so an independent scorer trusts this and refuses
+   * a sample whose observation was too short to justify the window it claims.
+   */
+  readonly observedWindowMs: number
 }
 export interface ResetMeasurement {
   readonly x: number
@@ -99,6 +107,7 @@ export function createFocusMeasurer(page: Page, guard: () => void = () => {}) {
       await page.mouse.click(input.x, input.y)
       let focusedWithinMs: number | null = null
       let stable = true
+      let observedWindowMs = 0
       const windowMs = input.windowMs ?? FOCUS_WINDOW_MS
       // Observe the full bounded window: later value/layout changes still invalidate a fast focus.
       do {
@@ -108,6 +117,7 @@ export function createFocusMeasurer(page: Page, guard: () => void = () => {}) {
         const elapsed = Date.now() - startedAt
         if (current.focused && current.connected && elapsed <= windowMs) focusedWithinMs ??= elapsed
         await input.verify?.()
+        observedWindowMs = Math.max(observedWindowMs, elapsed)
         if (elapsed >= windowMs) break
         await page.waitForTimeout(Math.min(20, windowMs - elapsed))
       } while (true)
@@ -124,6 +134,7 @@ export function createFocusMeasurer(page: Page, guard: () => void = () => {}) {
         focusAfter: after.active,
         targetFocusedBefore: before.focused,
         stable,
+        observedWindowMs,
       }
     } finally {
       if (!input.handle) await handle.dispose()
