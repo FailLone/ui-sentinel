@@ -6,6 +6,14 @@ export const REVIEW_MODEL = 'typesafe/jev-1.13'
 export const AGENT_MODEL = 'deepseek/deepseek-v4.1-flash'
 export const VISION_MODEL = 'qwen/qwen3.7-plus'
 /**
+ * A conservative flat reservation for one bounded Jev review.
+ *
+ * OpenRouter's price list does not carry this model, so there is nothing to compute from. It is
+ * reserved at a fixed ceiling rather than at zero: a review that really happens must never be booked
+ * as free. One home for the number, so the paid entrypoints cannot drift apart on what a review costs.
+ */
+export const REVIEW_RESERVE_USD = 0.001344
+/**
  * A cross-process cost ledger seam.
  *
  * When provided, every request reserves against the shared campaign ledger before it is sent and

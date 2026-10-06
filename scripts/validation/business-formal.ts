@@ -14,10 +14,11 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { createClient } from '@libsql/client'
 import {
-  startGateway,
   AGENT_MODEL,
-  VISION_MODEL,
   REVIEW_MODEL,
+  REVIEW_RESERVE_USD,
+  VISION_MODEL,
+  startGateway,
 } from '../../evaluation/support/model-gateway.ts'
 import {
   assertTruth,
@@ -337,7 +338,7 @@ async function runCampaign() {
   const gateway = await startGateway(apiKey, dir, fetch, {
     limitUsd: budgetRemainingUsd,
     estimateCost: (body) => {
-      if (body.model === REVIEW_MODEL) return 0.001344
+      if (body.model === REVIEW_MODEL) return REVIEW_RESERVE_USD
       const model = pricing.data.find((m) => m.id === body.model)!
       return (
         Buffer.byteLength(JSON.stringify(body)) * Number(model.pricing.prompt) +

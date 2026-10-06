@@ -8,10 +8,11 @@ import { resolve } from 'node:path'
 import { createClient } from '@libsql/client'
 import { chromium } from 'playwright'
 import {
-  startGateway,
   AGENT_MODEL,
-  VISION_MODEL,
   REVIEW_MODEL,
+  REVIEW_RESERVE_USD,
+  VISION_MODEL,
+  startGateway,
 } from '../../evaluation/support/model-gateway.ts'
 
 const args = process.argv.slice(2).filter((a) => a !== '--')
@@ -196,7 +197,7 @@ const maxCostUsd = 1
 const gateway = await startGateway(key, dir, fetch, {
   limitUsd: maxCostUsd,
   estimateCost: (body) => {
-    if (body.model === REVIEW_MODEL) return 0.001344
+    if (body.model === REVIEW_MODEL) return REVIEW_RESERVE_USD
     const model = pricing.find((m) => m.id === body.model)
     return (
       Buffer.byteLength(JSON.stringify(body)) * Number(model?.pricing?.prompt) +
