@@ -25,6 +25,7 @@ import {
 } from '../../evaluation/support/campaign-ledger.ts'
 import { runBatch, type RowOutcome } from '../../evaluation/support/row-runner.ts'
 import {
+  executableCase,
   visualDiagnosticPlan,
   visualFormalPlan,
   type OutcomeClass,
@@ -41,7 +42,6 @@ import {
 import {
   VISUAL_VIEWPORTS,
   visualTruthFor,
-  isVisualCaseId,
   type VisualCaseId,
 } from '../../evaluation/fixtures/visual.ts'
 
@@ -307,8 +307,10 @@ function requestCounts(
 }
 
 async function executeRow(row: PlanRow): Promise<RowOutcome> {
-  const id = row.case as VisualCaseId
-  if (!isVisualCaseId(id)) return { runId: null, outcome: 'not-run', reasons: ['non-visual-row'] }
+  // The smoke row runs the first diagnostic case for real, so it reaches an outcome instead of staying
+  // `not-run` forever - see `executableCase`.
+  const id = executableCase(row)
+  if (!id) return { runId: null, outcome: 'not-run', reasons: ['non-visual-row'] }
   const dir = resolve(directory, row.case, String(row.repeat))
   await mkdir(dir, { recursive: true })
   await control('reset', { variant: 'C0', visual: visualTruthFor(id).presentation })

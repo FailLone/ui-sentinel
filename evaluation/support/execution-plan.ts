@@ -78,6 +78,24 @@ export const VISUAL_FORMAL_REPEATS = 3
 /** The legacy business formal matrix is 45 rows (groups A-D). */
 export const BUSINESS_FORMAL_ROWS = 45
 
+/**
+ * The arena presentation the structured smoke row runs, and the case it is graded as.
+ *
+ * The smoke exists to prove the harness works end to end before the diagnostic cases count, so it
+ * runs the first diagnostic case for real. Leaving it unsatisfiable would keep `not-run` in the
+ * denominator forever and fail every paid diagnostic regardless of the product.
+ */
+export const SMOKE_CASE: VisualCaseId = 'D0'
+
+/** The case a planned row actually executes. Only the smoke row differs from its own label. */
+export function executableCase(row: PlanRow): VisualCaseId | null {
+  if (row.group === 'smoke') return SMOKE_CASE
+  return VISUAL_FORMAL_CASES.includes(row.case as VisualCaseId) ||
+    VISUAL_DIAGNOSTIC_CASES.includes(row.case as VisualCaseId)
+    ? (row.case as VisualCaseId)
+    : null
+}
+
 export function visualDiagnosticPlan(): PlanRow[] {
   return [
     { group: 'smoke', case: 'smoke', repeat: 1 },

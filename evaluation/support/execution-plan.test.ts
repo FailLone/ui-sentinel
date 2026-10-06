@@ -6,6 +6,7 @@ import {
   planIsComplete,
   recordRow,
   sameMechanismTwice,
+  executableCase,
   visualDiagnosticPlan,
   visualFormalPlan,
   BUSINESS_FORMAL_ROWS,
@@ -164,5 +165,31 @@ describe('outcome classification and continuation (R04-R06)', () => {
       reasons: ['429'],
     })
     expect(sameMechanismTwice(one)).toBe(false)
+  })
+})
+
+describe('the diagnostic smoke row must be executable (R03)', () => {
+  it('gives the smoke row a real case to run, so it cannot stay not-run forever', () => {
+    // The plan includes a `smoke` row. If no executor can satisfy it, `not-run` is permanent and
+    // `batchVerdict` can never say complete - a paid diagnostic would fail on every run no matter
+    // how well the product did.
+    const plan = visualDiagnosticPlan()
+    const smoke = plan.find((r) => r.case === 'smoke')!
+    expect(smoke.group).toBe('smoke')
+    expect(executableCase(smoke)).toBe('D0')
+
+    let rows = initialiseRows(plan)
+    for (const row of rows) rows = recordRow(rows, row, { runId: 'r', outcome: 'passed' })
+    expect(batchVerdict(rows).complete).toBe(true)
+    expect(batchVerdict(rows).passed).toBe(true)
+  })
+
+  it('maps every planned row to a runnable case', () => {
+    for (const row of [...visualDiagnosticPlan(), ...visualFormalPlan()])
+      expect(executableCase(row), `${row.group}/${row.case}`).not.toBeNull()
+  })
+
+  it('refuses to map a row that is not a known case', () => {
+    expect(executableCase({ group: 'diagnostic', case: 'ZZ', repeat: 1 })).toBeNull()
   })
 })
