@@ -256,9 +256,13 @@ export async function auditStoppedGroup(
           approvalIntact,
       })
     }
+    const withReport = records.filter((r) => r.report)
     return {
+      // An empty audit is not a pass. A batch that produced no reports at all must not be read as
+      // "every run verified" - E03 names the empty collection explicitly.
       passed:
-        audits.length === records.filter((r) => r.report).length &&
+        withReport.length > 0 &&
+        audits.length === withReport.length &&
         audits.every((a) => a.passed) &&
         approvalIntact,
       approvalIntact,

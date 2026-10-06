@@ -186,3 +186,21 @@ it('fails the audit when a hypothesis was rewritten (E02)', async () => {
     await rm(dir, { recursive: true, force: true })
   }
 })
+
+it('does not pass an audit over an empty record set (E03)', async () => {
+  // "An empty collection must not pass vaguely." A batch where every row failed before producing a
+  // report hands the audit zero records; passing that would read as "all runs verified".
+  const dir = await mkdtemp(join(tmpdir(), 'sentinel-audit-'))
+  const url = `file:${dir}/runs.db`
+  const client = createClient({ url })
+  try {
+    await initializeDatabase(client)
+    client.close()
+    const audit = await auditStoppedGroup(url, [], undefined)
+    expect(audit.passed).toBe(false)
+    expect(audit.runs).toEqual([])
+  } finally {
+    client.close()
+    await rm(dir, { recursive: true, force: true })
+  }
+})

@@ -177,7 +177,29 @@ describe('focus measurement in the report', () => {
     // report must say the cost was not recorded so a reader cannot mistake unknown for zero.
     expect(report!.visual.costUsd).toBeNull()
     expect(report!.visual.costStatus).toBe('not-recorded')
-    expect(report!.visual.visionRequests).toBe(0)
+  })
+
+  it('counts the vision requests this run actually made', async () => {
+    dir = await mkdtemp(join(tmpdir(), 'uis-report-'))
+    const { run } = await runWithMeasurement()
+    // The runtime emits this event with `purpose: visual-discovery` for each vision call; the report
+    // must count them, so a zero here would be a real "none were made", not a field nobody populates.
+    await appendEvent(run.id, 'model:request-finished', {
+      attemptId: 'a1',
+      purpose: 'visual-discovery',
+      model: 'qwen',
+    })
+    await appendEvent(run.id, 'model:request-finished', {
+      attemptId: 'a2',
+      purpose: 'visual-discovery',
+      model: 'qwen',
+    })
+    // An agent request is not a vision request and must not be counted as one.
+    await appendEvent(run.id, 'model:request-finished', { attemptId: 'a3', source: 'agent' })
+
+    const report = await buildReport(run.id)
+
+    expect(report!.visual.visionRequests).toBe(2)
   })
 
   it('shows the perceived frame and the input it was bound to, so the two can be compared (W01)', async () => {
