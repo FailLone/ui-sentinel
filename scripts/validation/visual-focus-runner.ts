@@ -2,16 +2,18 @@ import 'dotenv/config'
 import assert from 'node:assert/strict'
 import { spawn, spawnSync, execFileSync, type ChildProcess } from 'node:child_process'
 import { createServer } from 'node:net'
-import { createHash, randomBytes, randomUUID } from 'node:crypto'
+import { randomBytes, randomUUID } from 'node:crypto'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
-import { startGateway, AGENT_MODEL, VISION_MODEL } from '../../evaluation/support/model-gateway.ts'
-import { buildIdentity } from '../../evaluation/support/build-identity.ts'
 import {
-  buildFreezeIdentity,
-  type FreezeProtocol,
-} from '../../evaluation/support/freeze-identity.ts'
-import { FOCUS_WINDOW_MS, MAX_PROBE_CLICKS } from '../../src/execution/focus-constants.ts'
+  startGateway,
+  AGENT_MODEL,
+  VISION_MODEL,
+  REVIEW_MODEL,
+  REVIEW_RESERVE_USD,
+} from '../../evaluation/support/model-gateway.ts'
+import { buildIdentity } from '../../evaluation/support/build-identity.ts'
+import { buildFreezeIdentity } from '../../evaluation/support/freeze-identity.ts'
 import {
   downloadRunEvidence,
   auditStoppedGroup,
@@ -34,6 +36,15 @@ import {
 import { readFormalSource } from '../../evaluation/support/formal-source.ts'
 import { buildArtifactIndex, buildManifest } from '../../evaluation/support/evidence-protocol.ts'
 import { buildBatchTiming } from '../../evaluation/support/batch-timing.ts'
+import {
+  VISUAL_RUNNER_PROFILE,
+  visualFreezeProtocol,
+} from '../../evaluation/support/runner-profile.ts'
+import {
+  assembleToolCalls,
+  extractVisionExchanges,
+  rowRunId,
+} from '../../evaluation/support/gateway-evidence.ts'
 import { installInterruptGuard } from '../../evaluation/support/interrupt-guard.ts'
 import {
   scoreVisualEvidence,
@@ -101,11 +112,15 @@ const freeze = buildFreezeIdentity({
   commit,
   buildHash: build.hash,
   buildFiles: build.files,
-  protocol: currentFreezeProtocol(),
+  protocol: visualFreezeProtocol({
+    agent: process.env.VALIDATION_AGENT_PROVIDER ?? 'unknown',
+    vision: process.env.VALIDATION_VISION_PROVIDER ?? 'unknown',
+  }),
   fixtureRevision: 'visual-regression-1',
   fixtureHash: 'f'.repeat(64),
   scorerVersion: SCORER_VERSION,
   target: { tag: 'input', type: 'search', id: 'product-search-input' },
+  featureProfile: VISUAL_RUNNER_PROFILE.featureProfile,
 })
 
 // Formal inherits its right to spend only from a passed real diagnostic of the same build/campaign.
@@ -160,7 +175,12 @@ const gateway = await startGateway(key!, directory, fetch, {
   limitUsd,
   phase: stage,
   estimateCost: (body) => {
+    // The review model is not in the pinned pair's price list, so it carries the same conservative
+    // flat estimate the business diagnostic reserves - an unpriced model must never be charged at
+    // zero, which is exactly what a `undefined` lookup would have produced.
+    if (body.model === REVIEW_MODEL) return REVIEW_RESERVE_USD
     const model = prices.find((m) => m.id === body.model)
+    if (!model) return REVIEW_RESERVE_USD
     return (
       Buffer.byteLength(JSON.stringify(body)) * Number(model.pricing.prompt) +
       4096 * Number(model.pricing.completion)
@@ -198,9 +218,13 @@ const env: NodeJS.ProcessEnv = {
   VISION_BASE_URL: gateway.url,
   VISION_MODEL_FAMILY: 'qwen3',
   OPENROUTER_API_KEY: '',
-  EXECUTION_VISUAL_DISCOVERY: '1',
-  EXECUTION_ATOMIC_INVESTIGATION: '1',
-  EXECUTION_BLOCKER_REVIEW: '0',
+  // The frozen condition, from the one place a free test can assert it. The bounded Jev review is on
+  // because the plan's configuration table pins it at an explicit 1 for diagnostic and formal, and
+  // says the P2 smoke's 0 must not stand in for it; the review is routed through this gateway like the
+  // business diagnostic's, so it is metered and counted rather than quietly skipped.
+  ...VISUAL_RUNNER_PROFILE.env,
+  COMPLETION_REVIEW_API_KEY: gateway.token,
+  COMPLETION_REVIEW_URL: `${gateway.url}/decisions`,
   RUN_TOTAL_TIMEOUT_MS: '300000',
   RUN_MAX_ACTIONS: '40',
   RUN_MAX_MODEL_CALLS: '30',
@@ -265,37 +289,35 @@ const auditRecords: {
   dir: string
 }[] = []
 
-/**
- * The protocol this runner executes under, in one place.
- *
- * Every value here is a knob that could change an answer, so all of them are pinned together and
- * written into the diagnostic's manifest; a formal run then refuses a source whose protocol moved.
- */
-function currentFreezeProtocol(): FreezeProtocol {
-  return {
-    algorithmVersion: 'visual-focus-3',
-    focusWindowMs: FOCUS_WINDOW_MS,
-    maxProbeClicks: MAX_PROBE_CLICKS,
-    models: { agent: AGENT_MODEL, vision: VISION_MODEL, review: 'typesafe/jev-1.13' },
-    providers: {
-      agent: process.env.VALIDATION_AGENT_PROVIDER ?? 'unknown',
-      vision: process.env.VALIDATION_VISION_PROVIDER ?? 'unknown',
-    },
-    budgets: { seconds: 300, actions: 40, modelCalls: 30 },
-  }
-}
-
 /** A recorded duration, or `null` when the run never recorded one. Never a zero standing in for it. */
 function durationOrNull(value: unknown): number | null {
   return typeof value === 'number' && Number.isFinite(value) ? value : null
 }
 
+/**
+ * Both sides of the gateway log, for one row's evidence.
+ *
+ * A request with no matching response is still a request that was sent; the reader keeps it and
+ * reports its response as unknown rather than dropping the pair.
+ */
+async function readGatewayLogs(directory: string) {
+  const read = async (name: string): Promise<any[]> =>
+    (await readFile(resolve(directory, name), 'utf8').catch(() => ''))
+      .trim()
+      .split('\n')
+      .filter(Boolean)
+      .map((l) => JSON.parse(l))
+  return { requests: await read('requests.jsonl'), responses: await read('responses.jsonl') }
+}
+
 /** Requests the gateway sent for one row, split by model, plus the ones with no usable usage. */
 function requestCounts(
   lines: readonly any[],
-  caseId: string,
+  rowRunId: string,
 ): { visionRequests: number; agentRequests: number; unknownUsage: number; failedAttempts: number } {
-  const mine = lines.filter((r) => String(r.run).startsWith(caseId))
+  // An exact run match: `<case>-<repeat>` is a prefix relationship, so `startsWith` would count a
+  // formal batch's repeats 2 and 3 inside repeat 1's totals.
+  const mine = lines.filter((r) => r.run === rowRunId)
   const finished = mine.filter((r) => r.status !== 'pending')
   return {
     visionRequests: mine.filter((r) => r.model === VISION_MODEL).length,
@@ -316,7 +338,8 @@ async function executeRow(row: PlanRow): Promise<RowOutcome> {
   await control('reset', { variant: 'C0', visual: visualTruthFor(id).presentation })
   const before = await control('state')
   assert.equal(before.visualPresent, visualTruthFor(id).presentation)
-  gateway.begin(`${row.case}-${row.repeat}`, 30, 300000)
+  // One place names a row's gateway run, so the reader can never disagree with the writer.
+  gateway.begin(rowRunId(row), 30, 300000)
   const started = Date.now()
   try {
     const run = await json(base + '/api/runs', {
@@ -364,36 +387,21 @@ async function executeRow(row: PlanRow): Promise<RowOutcome> {
     auditRecords.push({ runId: run.runId, report, artifactIndex: downloaded.index, dir })
     if (report.inspectionIntegrity?.status === 'intervened')
       return { runId: run.runId, outcome: 'side-effect-unknown', reasons: ['intervention'] }
-    // The independent scorer recomputes the conclusion from raw evidence and the private truth.
-    const lines = (await readFile(resolve(directory, 'requests.jsonl'), 'utf8').catch(() => ''))
-      .trim()
-      .split('\n')
-      .filter(Boolean)
-      .map((l) => JSON.parse(l))
-      .filter((r) => String(r.run).startsWith(row.case))
-    const sentVision = lines
-      .filter((r) => r.model === VISION_MODEL)
-      .flatMap((r) =>
-        r.body.messages
-          .flatMap((m: any) => (Array.isArray(m.content) ? m.content : []))
-          .filter((p: any) => p.type === 'image_url')
-          .map((p: any) => ({
-            sha256: createHash('sha256')
-              .update(Buffer.from(p.image_url.url.split(',')[1], 'base64'))
-              .digest('hex'),
-            raw: (() => {
-              try {
-                return JSON.parse(
-                  r.body.messages
-                    .flatMap((m: any) => (Array.isArray(m.content) ? m.content : []))
-                    .find((p: any) => p.type === 'text')?.text ?? '{}',
-                )
-              } catch {
-                return {}
-              }
-            })(),
-          })),
-      )
+    // The independent scorer recomputes the conclusion from raw evidence and the private truth. The
+    // gateway's own logs are read back here, because the two questions the scorer asks - did the agent
+    // really make a binding call, and did this image really go to the vision model - can only be
+    // answered by the record of what left this process, never by the product under test.
+    const wire = await readGatewayLogs(directory)
+    const sentVision = extractVisionExchanges({
+      ...wire,
+      runId: rowRunId(row),
+      visionModel: VISION_MODEL,
+    })
+    const gatewayCalls = assembleToolCalls({
+      ...wire,
+      rowRunId: rowRunId(row),
+      runId: report.runId,
+    })
     const verdict = report.findings.find((f: any) =>
       f.evidenceRefs?.some((ref: string) => downloaded.artifacts[ref]?.type === 'focus-receipt'),
     )
@@ -422,12 +430,12 @@ async function executeRow(row: PlanRow): Promise<RowOutcome> {
       },
       artifacts: downloaded.artifacts,
       sentVision,
-      gatewayCalls: [],
+      gatewayCalls,
       declaredVerdict: verdict?.validationStatus ?? 'inconclusive',
     })
     await write(`${row.case}/${row.repeat}/score.json`, score)
     const outcome: OutcomeClass = score.passed ? 'passed' : 'quality-failure'
-    const counts = requestCounts(lines, row.case)
+    const counts = requestCounts(wire.requests, rowRunId(row))
     return {
       runId: run.runId,
       outcome,
@@ -442,13 +450,21 @@ async function executeRow(row: PlanRow): Promise<RowOutcome> {
       },
     }
   } catch (error) {
+    // The gateway log may itself be the thing that is broken (a half-written line, a missing file),
+    // so this read is best-effort: a row that failed must still be recorded with what is known.
     const counts = requestCounts(
       (await readFile(resolve(directory, 'requests.jsonl'), 'utf8').catch(() => ''))
         .trim()
         .split('\n')
         .filter(Boolean)
-        .map((l) => JSON.parse(l)),
-      row.case,
+        .flatMap((l) => {
+          try {
+            return [JSON.parse(l)]
+          } catch {
+            return []
+          }
+        }),
+      rowRunId(row),
     )
     return {
       runId: null,
