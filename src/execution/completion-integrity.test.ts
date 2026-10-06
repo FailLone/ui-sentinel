@@ -21,6 +21,9 @@ import {
   removeActiveRun,
 } from './run-manager.ts'
 import { completionIssues, verifyCompletionCommit } from './completion-integrity.ts'
+import { buildUiContractSnapshot } from '../inspection/contract.ts'
+import { createInspectionScope } from '../inspection/scope.ts'
+import { decideInspectionCompletion } from '../inspection/completion.ts'
 let directory = ''
 beforeAll(async () => {
   directory = await mkdtemp(join(tmpdir(), 'completion-integrity-'))
@@ -131,4 +134,132 @@ it('retains every acknowledged event while live report snapshots are repeatedly 
     verifyCompletionCommit({ ...expected, lastEvent, eventIds: [...active.eventIds] }),
   ).resolves.toBeUndefined()
   removeActiveRun(expected.runId)
+})
+
+/**
+ * The UI completion validator (plan 6.3).
+ *
+ * A `ui-scan` run is held to a different definition of "completed" than a business run: its business
+ * result must be `not-applicable`, and its completion must be backed by an `inspection proof` that
+ * matches the scope events actually persisted. The point of checking it here, on a fresh read, is
+ * that a terminal row claiming `completed` is not by itself evidence - the plan says so explicitly,
+ * and a run whose proof was never written must not pass.
+ */
+/** The contract this fixture's run is created with, hashed the way the resolver hashes it. */
+const uiContract = buildUiContractSnapshot({
+  entryUrl: 'https://example.org/catalog',
+  origin: 'https://example.org',
+  goal: 'Inspect the catalog',
+  scope: { maxPages: 3, maxDepth: 1 },
+  access: { resourceOrigins: [], dataOrigins: [] },
+  budget: { totalTimeoutMs: 300000, maxActions: 20, maxModelCalls: 30 },
+})
+
+/** A proof the executor would actually have produced for this fixture's scope. */
+function realProof() {
+  const scope = createInspectionScope({
+    goal: 'Inspect the catalog',
+    entryUrl: uiContract.entryUrl,
+  })
+  const item = scope.createItem({
+    category: 'entry-observation',
+    pageId: 's1',
+    stateId: 's1',
+    url: uiContract.entryUrl,
+    observationVersion: 'v1',
+    basis: 'the entry document was navigated and observed',
+    targetSource: 'executor',
+  })
+  scope.resolveItem(item.itemId, {
+    status: 'verified',
+    evidenceRefs: ['shot.png'],
+    eventIds: [],
+    detail: 'observed',
+  })
+  return decideInspectionCompletion({
+    reason: 'scope-covered',
+    facts: {
+      kind: 'ui-scan',
+      featureEnabled: true,
+      contractValid: true,
+      contractHash: uiContract.hash,
+      entryObserved: true,
+      entryEvidenceRefs: ['shot.png'],
+      integrityEpoch: 0,
+      scope,
+      scopeEventIds: ['evt-1'],
+      pendingRules: 0,
+      openHypotheses: 0,
+      unsupportedRecorded: [],
+    },
+  }).proof
+}
+
+async function completedUi(overrides: { proof?: unknown; reasonCode?: string } = {}) {
+  const run = await createRun({
+    goal: 'Inspect the catalog',
+    environmentId: 'url-scan',
+    entryUrl: 'https://example.org/catalog',
+    kind: 'ui-scan',
+    // A real contract, built the way the API builds one: `resolveRunKind` re-verifies the hash, so a
+    // hand-written snapshot would be read as an invalid record rather than a UI run - which is the
+    // behaviour the test below for an invalid contract relies on.
+    uiContract,
+  })
+  const active = registerActiveRun(run.id)
+  await appendEvent(run.id, 'scope:item-created', {
+    itemId: 'item-1',
+    category: 'entry-observation',
+    status: 'verified',
+  })
+  await appendEvent(run.id, 'finish:accepted', {
+    kind: 'ui-scan',
+    reasonCode: overrides.reasonCode ?? 'scope-covered',
+    businessResult: 'not-applicable',
+    contractHash: uiContract.hash,
+    // A real proof, produced by the same decision function the executor calls: the verifier
+    // recomputes its hash, so a hand-written one would be read as an unverified claim.
+    inspectionProof: overrides.proof ?? realProof(),
+  })
+  await updateRunStatus(run.id, 'completed', {
+    businessResult: 'not-applicable',
+    stopReason: 'goal-reached',
+  })
+  await appendEvent(run.id, 'run:completed', {
+    status: 'completed',
+    businessResult: 'not-applicable',
+    stopReason: 'goal-reached',
+  })
+  return { runId: run.id }
+}
+
+it('accepts a ui-scan completion that carries an inspection proof', async () => {
+  const expected = await completedUi()
+  const snapshot = (await getRunSnapshot(expected.runId))!
+  expect(completionIssues(snapshot.run, snapshot.events)).toEqual([])
+})
+
+it('refuses a ui-scan terminal row whose completion has no proof', async () => {
+  const expected = await completedUi({ proof: undefined })
+  await getDbClient().execute({
+    sql: `UPDATE run_events SET payload = json_remove(payload, '$.inspectionProof')
+          WHERE run_id=? AND type='finish:accepted'`,
+    args: [expected.runId],
+  })
+  const snapshot = (await getRunSnapshot(expected.runId))!
+  // A completed UI run with no proof is inconsistent, exactly as a business completion with an
+  // unknown outcome is: the row claims something the persisted evidence does not establish.
+  expect(completionIssues(snapshot.run, snapshot.events)).toContain('inspection-proof-missing')
+})
+
+it('refuses a ui-scan completion whose business result is not not-applicable', async () => {
+  const expected = await completedUi()
+  await getDbClient().execute({
+    sql: "UPDATE runs SET business_result='success' WHERE id=?",
+    args: [expected.runId],
+  })
+  const snapshot = (await getRunSnapshot(expected.runId))!
+  expect(completionIssues(snapshot.run, snapshot.events)).toEqual(
+    expect.arrayContaining(['ui-business-result-invalid', 'terminal-event-mismatch']),
+  )
 })

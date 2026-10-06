@@ -2,6 +2,8 @@ import { createClient } from '@libsql/client'
 import { config } from '../shared/config.ts'
 import type { Run, RunEvent } from '../shared/types.ts'
 import { getRunSnapshot } from './run-manager.ts'
+import { resolveRunKind } from '../inspection/run-kind.ts'
+import { verifyInspectionProof, type InspectionProof } from '../inspection/completion.ts'
 
 /** A terminal row alone cannot prove that the execution evidence was committed. */
 export function completionIssues(run: Run, events: readonly RunEvent[]): string[] {
@@ -21,9 +23,40 @@ export function completionIssues(run: Run, events: readonly RunEvent[]): string[
     !events.some((e) => e.type === 'finish:accepted' && e.seq < (terminal?.seq ?? Infinity))
   )
     issues.push('accepted-finish-missing')
+  // The completion rule is chosen by the run's own kind, which is read from the persisted spec. A
+  // record with no kind keeps the legacy business rule, so no historical run is re-judged (plan 6.3).
+  const kind = resolveRunKind(run.spec)
+  if (kind.kind === 'ui-scan') {
+    /**
+     * A UI completion has its own two requirements.
+     *
+     * The business result must be `not-applicable` - the converse of the business rule, and the
+     * reason a UI run cannot be completed while claiming a business outcome it had no adapter to
+     * verify. And an accepted finish must carry an inspection proof whose hash verifies, because the
+     * proof is what ties the terminal row to the scope the run actually recorded. "The row says
+     * completed" is not evidence, which is exactly why the proof is re-verified from the read
+     * history rather than trusted as written.
+     */
+    if (run.status === 'completed' && run.businessResult !== 'not-applicable')
+      issues.push('ui-business-result-invalid')
+    const accepted = events.find((e) => e.type === 'finish:accepted')
+    if (run.status === 'completed') {
+      const proof = accepted?.payload.inspectionProof as InspectionProof | undefined
+      if (!proof) issues.push('inspection-proof-missing')
+      else if (!verifyInspectionProof(proof)) issues.push('inspection-proof-unverified')
+      else if (
+        ['goal-reached', 'blocked'].includes(run.stopReason ?? '') &&
+        proof.contractHash !== run.spec.uiContract?.hash
+      )
+        issues.push('inspection-proof-contract-mismatch')
+    }
+    return issues
+  }
   if (
     run.status === 'completed' &&
-    (run.stopReason !== 'goal-reached' || run.businessResult === 'unknown')
+    (run.stopReason !== 'goal-reached' ||
+      run.businessResult === 'unknown' ||
+      run.businessResult === 'not-applicable')
   )
     issues.push('completed-outcome-unverified')
   return issues

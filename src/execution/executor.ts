@@ -98,6 +98,31 @@ import {
   type BusinessRuntime,
 } from '../business/runtime.ts'
 import { legacyCompatibleContract } from '../business/registry.ts'
+import { resolveRunKind, businessResultAllowed } from '../inspection/run-kind.ts'
+import { createNetworkPolicy } from '../inspection/network-policy.ts'
+import { installUiNetworkSession } from './network/session.ts'
+import { installRunNetworkBoundary } from './network/boundary.ts'
+import { createInspectionHost } from './inspection-host.ts'
+import { decideInspectionCompletion } from '../inspection/completion.ts'
+import { verifyUiContractSnapshot } from '../inspection/contract.ts'
+import { decideUiNavigation, normalizePageUrl } from '../inspection/navigation-scope.ts'
+import { sameOrigin as sameOriginUrl } from '../inspection/url.ts'
+
+/**
+ * Whether a link's href would stay on this page's origin once the browser resolves it.
+ *
+ * A relative href has to be resolved against the document, not compared as text - `/detail` and
+ * `https://elsewhere.example/` are not the same kind of answer - and an href a page cannot express as
+ * a URL (a `javascript:` pseudo-protocol, a malformed value) is not an in-scope page.
+ */
+function sameOriginHref(pageUrl: string, href: string | undefined): boolean {
+  if (!href) return false
+  try {
+    return sameOriginUrl(new URL(href, pageUrl).href, pageUrl)
+  } catch {
+    return false
+  }
+}
 import type { BusinessFact } from '../business/adapters/types.ts'
 import type { PageSnapshot } from '../rules/types.ts'
 import type { RunUsage, BusinessResult, StopReason } from '../shared/types.ts'
@@ -168,17 +193,20 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     return
   }
   const legacyUnversioned = !run.spec.businessContract
-  let businessRuntime: BusinessRuntime
-  try {
-    const contract = run.spec.businessContract ?? legacyCompatibleContract(run.spec.entryUrl)
-    if (!verifyContractSnapshot(contract)) throw Error('business-contract-hash-mismatch')
-    if (contract.environment.publicOrigin !== new URL(run.spec.entryUrl).origin)
-      throw Error('business-contract-origin-mismatch')
-    businessRuntime = createBusinessRuntime(contract)
-  } catch (error) {
+  /**
+   * Which kind of run this is, and the contract it is governed by (plan 3.1).
+   *
+   * This is the executor's single branch point. A `ui-scan` run has no adapter, so it is not a
+   * business run with the profile filed off: it never resolves a legacy contract, never builds a
+   * BusinessRuntime and never runs the side-effect policy. Reading the kind from the persisted spec
+   * (rather than from a flag or the live registry) is what keeps a queued run's permissions frozen.
+   */
+  const runKind = resolveRunKind(run.spec)
+  if (runKind.kind === 'invalid') {
     await appendEvent(runId, 'execution:stopped', {
       reason: 'execution-error',
-      error: String(error),
+      error: `invalid-run-kind:${runKind.reasonCode}`,
+      message: runKind.message,
     })
     await updateRunStatus(runId, 'execution-error', { stopReason: 'execution-error' })
     await appendEvent(runId, 'run:completed', {
@@ -188,6 +216,28 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     })
     return
   }
+  const uiScan = runKind.kind === 'ui-scan' ? runKind.contract : null
+  let businessRuntime: BusinessRuntime | null = null
+  if (runKind.kind === 'business')
+    try {
+      const contract = runKind.contract ?? legacyCompatibleContract(run.spec.entryUrl)
+      if (!verifyContractSnapshot(contract)) throw Error('business-contract-hash-mismatch')
+      if (contract.environment.publicOrigin !== new URL(run.spec.entryUrl).origin)
+        throw Error('business-contract-origin-mismatch')
+      businessRuntime = createBusinessRuntime(contract)
+    } catch (error) {
+      await appendEvent(runId, 'execution:stopped', {
+        reason: 'execution-error',
+        error: String(error),
+      })
+      await updateRunStatus(runId, 'execution-error', { stopReason: 'execution-error' })
+      await appendEvent(runId, 'run:completed', {
+        status: 'execution-error',
+        businessResult: 'unknown',
+        stopReason: 'execution-error',
+      })
+      return
+    }
   const active = registerActiveRun(runId),
     signal = active.abortController.signal
   const startedAt = Date.now(),
@@ -203,9 +253,11 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
   }
   let modelUsageAvailable = true,
     reportedModelCalls = 0
-  let businessResult: BusinessResult = 'unknown',
+  let businessResult: BusinessResult = uiScan ? 'not-applicable' : 'unknown',
     stopReason: StopReason = 'budget-exhausted'
   let worker: Awaited<ReturnType<typeof launchBrowser>> | undefined
+  /** Installed before the first navigation; awaited by finish so no receipt lands after the claim. */
+  let networkBoundary: Awaited<ReturnType<typeof installRunNetworkBoundary>> | undefined
   let latest: Awaited<ReturnType<typeof observePage>> | undefined
   const inspectedResultRefs = new Set<string>()
   let attemptTools = 0
@@ -219,7 +271,26 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
   // requirements, thresholds or effects may be invented for it from today's registry. Its boundary
   // is the entry URL it was actually created with, which is why the network checks below are
   // anchored to the run's own recorded environment rather than to a freshly resolved one.
-  const businessContract = businessRuntime.contract
+  //
+  // A UI run has no business contract at all. `null` rather than an empty object is deliberate: every
+  // business-specific instruction reads it, so an invented contract would be a fabricated business.
+  const businessContract = businessRuntime ? businessRuntime.contract : null
+  /**
+   * The inspection ledger, created before anything can observe.
+   *
+   * It is constructed for a UI run only, so a business run's memory is byte-for-byte what it was.
+   */
+  const inspection: ReturnType<typeof createInspectionHost> | null = uiScan
+    ? createInspectionHost({
+        runId,
+        entryUrl: uiScan.entryUrl,
+        goal: uiScan.goal,
+        currentSnapshotId: () => latestSlim?.snapshotId,
+        currentUrl: () => latest?.snapshot.url ?? uiScan.entryUrl,
+        currentObservationVersion: () => observationVersion?.key,
+        appendEvent: (type, payload, extra) => appendEvent(runId, type, payload, extra),
+      })
+    : null
   /**
    * The network boundary this run actually operates on.
    *
@@ -299,6 +370,34 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
   let temporalInvestigator: ReturnType<typeof createTemporalInvestigator> | undefined
   /** Element refs of the latest observation, positionally aligned with snapshot.elements. */
   let slimRefs: readonly string[] = []
+  /** Typical pages already reached, so the contract's page budget is spent on new documents only. */
+  const visitedPages: string[] = []
+  /**
+   * The element refs each snapshot offered, kept so an action can be tied to the document it was
+   * resolved against. `slimRefs` is replaced on every observation, which is exactly the aliasing that
+   * would let a post-navigation ref point at an element of a different page.
+   */
+  const snapshotRefs = new Map<string, readonly string[]>()
+  /** The `framenavigated` listener an in-flight action installed, so it is always removed. */
+  let actionNavigationListener: ((frame: unknown) => void) | null = null
+  /**
+   * The action currently in flight, from dispatch until its ledger entry is written.
+   *
+   * It exists so the *observed* result of an action - the address it landed on, the evidence it left -
+   * is gathered from the browser and turned into scope without the caller having to thread a dozen
+   * locals through the failure paths. An unsettled action is always settled before the next one starts.
+   */
+  let activeAction: {
+    type: string
+    ref: string
+    target: string
+    beforeUrl: string
+    beforeRefs: readonly string[]
+    snapshotPage: string
+    navigated: boolean
+    landedUrls: readonly string[]
+    settled: boolean
+  } | null = null
   /** True after the first observation, which is the point the bounded scan may run from. */
   let visualScanEligible = false
   let visualFocus: ReturnType<typeof createVisualFocusRuntime> | undefined
@@ -432,8 +531,10 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       timestamp: latest.snapshot.observedAt,
       events,
       // The run's own declared feedback requirement, so the response-time rule judges against what
-      // this contract states rather than a remembered default.
-      feedbackWarningMs: businessContract.feedbackWarningMs,
+      // this contract states rather than a remembered default. A UI run declares none: the plan is
+      // explicit that a general site must not inherit a shopping threshold, so the rule reports its
+      // measurement as unknown rather than inventing an SLA (plan 7).
+      feedbackWarningMs: businessContract?.feedbackWarningMs,
       factVersion: observationVersion?.reusable ? observationVersion.key : undefined,
       observedTriggers: (function () {
         const t = retryTrigger(events, latest!.snapshot.text)
@@ -514,10 +615,89 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       }
     }
     latestChecks = result
+    // An automatic rule's verdict is a *completed measurement* of the observed state, so it becomes
+    // a ledger item in a UI run: a pass and a fail both finish the check, and only an unknown leaves
+    // an unfinished obligation with the rule's own reason (plan 5.2, 6.2.3).
+    if (inspection) {
+      for (const r of result.results) {
+        if (result.reused?.includes(r.ruleId)) continue
+        await inspection.recordAutomaticCheck({
+          ruleId: r.ruleId,
+          revision: r.ruleRevision,
+          verdict: r.verdict,
+          evidenceRefs: [...new Set([...latest!.evidenceRefs, ...r.evidenceRefs])],
+        })
+      }
+    }
     return result
   }
+  /**
+   * Turn the action just performed into ledger scope.
+   *
+   * The item an action resolves is the item the run *declared* it would check, so a successful
+   * interaction or navigation leaves no selected item outstanding - a healthy page then reaches
+   * `scope-covered` on real measurements instead of the model inventing an anomaly to explain.
+   * One item per check, too: a link whose own candidate is resolved is its navigation record, not an
+   * offer item beside a landing item.
+   *
+   * It runs as soon as the action is performed, and again from `observe()` under a flag, so a
+   * same-document move can be recorded before the observation that follows it - and so a deferred or
+   * failed path still settles rather than losing the fact that the action happened.
+   */
+  async function settleActionLedger(): Promise<void> {
+    const pending = activeAction
+    if (!inspection || !pending || pending.settled) return
+    pending.settled = true
+    activeAction = null
+    const observed = latest
+    // The address the browser reports, not the one the last snapshot happened to carry: this settles
+    // as soon as the document has moved, which is *before* the observation that follows it.
+    const landedAt = worker?.page.url() ?? pending.beforeUrl
+    const outcome = pending.type === 'probe' ? 'unverified' : 'verified'
+    const resolved = await inspection.resolveInteraction({
+      ref: pending.ref,
+      target: pending.target,
+      url: landedAt,
+      evidenceRefs: [...new Set([...(observed?.evidenceRefs ?? []), ...pending.beforeRefs])],
+      outcome,
+      ...(outcome === 'unverified'
+        ? { reasonCode: 'probe-only', detail: 'probe actions measure without acting' }
+        : {}),
+      category: pending.navigated ? 'navigation' : 'local-interaction',
+      ...(pending.snapshotPage ? { snapshotId: pending.snapshotPage } : {}),
+    })
+    // The document being left is finished, and this happens *after* the action's own item was
+    // resolved: a navigation fulfils the candidate it was aimed at, so closing that candidate as
+    // abandoned would turn the run's own successful move into an unfinished check. Its stale
+    // candidate refs stop being offered; the items it left unresolved stay as obligations.
+    if (normalizePageUrl(landedAt) !== normalizePageUrl(pending.beforeUrl)) {
+      await inspection.leavePage(pending.snapshotPage)
+      if (!visitedPages.some((v) => normalizePageUrl(v) === normalizePageUrl(pending.beforeUrl)))
+        visitedPages.push(pending.beforeUrl)
+    }
+    // Every address the action actually landed on, including a same-document fragment change that
+    // left the document untouched. An address the run was already at is not a move.
+    const landed = [...new Set([...pending.landedUrls, landedAt])].filter(
+      (url) => url !== pending.beforeUrl,
+    )
+    if (resolved?.category !== 'navigation')
+      for (const url of landed)
+        await inspection.recordNavigation({
+          url,
+          from: pending.beforeUrl,
+          evidenceRefs: [...(observed?.evidenceRefs ?? [])],
+          outcome: 'verified',
+          detail: `the run landed at ${url}`,
+        })
+  }
+
   const observe = (allowReuse = false) =>
-    profileOperation('observation', () => performObservation(allowReuse))
+    profileOperation('observation', async () => {
+      // An action that has not yet been turned into scope is settled here, so the observation that
+      // follows it can never run against a page whose ledger entry is still missing.
+      await settleActionLedger()
+      return performObservation(allowReuse)
+    })
   async function performObservation(allowReuse: boolean) {
     guard()
     await drainResponses()
@@ -583,6 +763,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     // The refs are positional with snapshot.elements, which is how the binding layer resolves a rect
     // back to a real element ref without asking the model.
     slimRefs = latestSlim.elements.map((element) => element.ref)
+    snapshotRefs.set(snapshotId, slimRefs)
     visualScanEligible = true
     await appendEvent(
       runId,
@@ -596,6 +777,11 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       },
       { stepId, evidenceRefs: latest.evidenceRefs },
     )
+    // The entry observation and the candidates this observation actually offered. The candidate
+    // list is what turns "nothing to interact with" into a fact rather than a claim: the agent
+    // selects from these items, and a page that offered an interaction keeps the sampling
+    // obligation until one is selected (plan 5.2).
+    if (inspection) await recordUiObservation()
     await checks()
     if (!cleanEvidenceIntegrity(latest.snapshot.evidenceIntegrity)) return latest
     const overlay = latest.snapshot.elements.some((e) =>
@@ -605,8 +791,9 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     // The newest fact per operation, correlated against the page the adapter owns. Another
     // operation's success, a lone success label or a response with no visible notice cannot
     // confirm this operation.
-    const operations = [...new Set(businessFacts.map((f) => f.operationId))]
+    const operations = businessRuntime ? [...new Set(businessFacts.map((f) => f.operationId))] : []
     for (const operationId of operations) {
+      if (!businessRuntime || !businessContract) break
       const fact = latestFactForOperation(businessFacts, operationId)
       if (!fact) continue
       const trigger = businessRuntime.compatibilityTriggers(fact)
@@ -645,7 +832,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       : concludedResults.length && concludedResults.every((r) => r === 'rejected')
         ? 'rejected'
         : 'unknown'
-    if (retained !== businessResult) {
+    if (retained !== businessResult && businessContract) {
       businessResult = retained
       await updateRunStatus(runId, 'running', { businessResult })
       await appendEvent(
@@ -663,6 +850,50 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       )
     }
     return latest
+  }
+  /**
+   * Record this observation in the UI ledger, and enumerate what it offered.
+   *
+   * The candidate list is deliberately mechanical: an element is offered when the page actually
+   * presents it as an operable control the run could legitimately act on - visible, enabled, and
+   * not an input the page's own markup marks as unsafe. That keeps the enumeration a fact about
+   * the DOM rather than a model's recollection of it, which is what lets a later "there was
+   * nothing to interact with" be checked instead of believed.
+   *
+   * A control an overlay covers is *still offered*: pointer interception is exactly the defect the
+   * overlay rule exists to find, so removing it here would delete the evidence for it.
+   */
+  async function recordUiObservation(): Promise<void> {
+    if (!inspection || !latest || !latestSlim) return
+    const interactionTags = ['button', 'a', 'input', 'select', 'textarea', 'summary']
+    const pageUrl = latest.snapshot.url
+    const offered = latestSlim.elements
+      .filter(
+        (element) =>
+          interactionTags.includes(element.tag) &&
+          element.visible &&
+          element.enabled &&
+          (element.tag !== 'a' || sameOriginHref(pageUrl, element.attributes.href)),
+      )
+      .map((element) => ({
+        ref: element.ref,
+        description: `${element.tag}${element.attributes.type ? `[${element.attributes.type}]` : ''} "${element.text.replace(/\s+/g, ' ').trim().slice(0, 60)}"`,
+        category: (element.tag === 'a' ? 'navigation' : 'local-interaction') as
+          | 'navigation'
+          | 'local-interaction',
+      }))
+    const categories = [...new Set(offered.map((o) => o.category))]
+    await inspection.recordObservation({
+      url: pageUrl,
+      // Both refs, so a covered claim cites a readable snapshot and a screenshot rather than the
+      // fact that a page happened to load (plan 6.2.1).
+      evidenceRefs: [...latest.evidenceRefs],
+      candidateDetail: offered.length
+        ? `${offered.length} operable control(s) offered by the observation`
+        : 'the observation offered no operable control within this run’s scope',
+      candidateCategories: categories,
+      candidateItems: offered,
+    })
   }
   try {
     await updateRunStatus(runId, 'running')
@@ -691,13 +922,22 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     let deniedWrites = 0
     let businessCreated = false
     let networkWrites = 0
-    const sideEffectPolicy = createSideEffectPolicy({
-      contract: businessContract,
-      adapter: businessRuntime.adapter,
-      publicOrigin: runOrigin,
-      currentFact: (id) => latestFactForOperation(businessFacts, id),
-      ownsOperation: (id) => ownedOperations.has(id),
-    })
+    /**
+     * The side-effect policy of a *business* run.
+     *
+     * A UI run has no adapter, so it has no write permission to spend and no policy to consult: the
+     * `null` is what makes that structural rather than a convention. Every reader below is on a
+     * business-only path, which is why the whole block is guarded by the run kind (plan 3.1).
+     */
+    const sideEffectPolicy = businessRuntime
+      ? createSideEffectPolicy({
+          contract: businessRuntime.contract,
+          adapter: businessRuntime.adapter,
+          publicOrigin: runOrigin,
+          currentFact: (id) => latestFactForOperation(businessFacts, id),
+          ownsOperation: (id) => ownedOperations.has(id),
+        })
+      : null
     // Side-effect budget, reserved before dispatch. A create or retry counts when the request
     // leaves, not when its response arrives, so two immediate requests cannot both pass.
     const detachedResponses = new Set<import('playwright').Request>()
@@ -766,6 +1006,9 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       dispatchedCreate?: boolean
     }) => {
       if (responsesClosed || signal.aborted || finished) return
+      // Fact decoding is the adapter's job, and a UI run has none: its responses are read by the
+      // network session and the rules, never turned into business facts (plan 3.1).
+      if (!businessRuntime || !businessContract) return
       const request = {
         url: exchange.url,
         method: exchange.method,
@@ -967,95 +1210,41 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       },
       { once: true },
     )
-    await worker.context.route('**/*', async (route) => {
-      const request = route.request()
-      const url = request.url()
-      let origin = ''
-      try {
-        origin = new URL(url).origin
-      } catch {
-        origin = ''
-      }
-      // Every write is judged by the run's side-effect policy: what the adapter says the request
-      // is, against the contract's budget. Button wording and action intent never grant a write.
-      const isWrite = !['GET', 'HEAD', 'OPTIONS'].includes(request.method())
-      if (isWrite) {
-        if (signal.aborted || finished || responsesClosed || mutationFailed) {
-          policyDenied.add(request)
-          pendingWrites.delete(request)
-          await route.abort('blockedbyclient')
-          return
-        }
-        const decision = sideEffectPolicy.authorize({
-          url,
-          method: request.method(),
-          origin,
-        })
-        if (decision.kind === 'deny') {
-          policyDenied.add(request)
-          pendingWrites.delete(request)
-          deniedWrites++
-          await recordIntervention({
-            kind: 'write-denied',
-            url,
-            method: request.method(),
-          })
-          await appendEvent(runId, 'write:denied', {
-            reason: decision.reason,
-            method: request.method(),
-            url,
-            intent: decision.intent.kind,
-          })
-          await route.abort('blockedbyclient')
-          return
-        }
+    networkBoundary = await installRunNetworkBoundary({
+      uiScan,
+      page,
+      context: worker.context,
+      entryUrl: run.spec.entryUrl,
+      isFinished: () => finished || responsesClosed || mutationFailed,
+      signal,
+      sideEffectPolicy,
+      businessRuntime,
+      ownedOperations,
+      businessFacts: () => businessFacts,
+      recordIntervention,
+      appendEvent: (type, payload, extra) => appendEvent(runId, type, payload, extra),
+      denyWrite: (request) => {
+        policyDenied.add(request)
+        pendingWrites.delete(request)
+      },
+      allowWrite: (request, decision) => {
         // Record which operation this write addresses, taken from the adapter's own intent rather
         // than from the URL shape: the response handler uses it to decide whether the fact it
         // produces belongs to the action that dispatched this request.
-        //
-        // Only a write this executor caused counts. `sideEffectPending` is true exactly between
-        // dispatching a click and that click's writes settling, so it separates "the action did
-        // this" from "the page did this on its own while the action was in flight" - a page-side
-        // background sync is a real business request, but it is not this action's response.
-        {
-          if (decision.intent.kind === 'retry') {
-            writeOperations.set(request, decision.intent.operationPath)
-            dispatchedOperations?.add(decision.intent.operationPath)
-          } else if (decision.intent.kind === 'create') {
-            // A create names no entity until its own response arrives, so the commit credits it.
-            writeCreates.add(request)
-          }
+        if (decision.intent.kind === 'retry') {
+          writeOperations.set(request, decision.intent.operationPath)
+          dispatchedOperations?.add(decision.intent.operationPath)
+        } else if (decision.intent.kind === 'create') {
+          // A create names no entity until its own response arrives, so the commit credits it.
+          writeCreates.add(request)
         }
-      }
-      if (
-        isAllowedPageUrl(url, run.spec.entryUrl) &&
-        (!request.isNavigationRequest() ||
-          isAllowedNavigationUrl(url, run.spec.entryUrl) ||
-          isAllowedBusinessDownload(
-            { url, method: request.method(), origin: new URL(url).origin },
-            businessRuntime,
-            (id) => ownedOperations.has(id),
-            (id) => latestFactForOperation(businessFacts, id),
-          ))
-      )
-        await route.continue()
-      else {
-        policyDenied.add(request)
-        pendingWrites.delete(request)
-        await recordIntervention({
-          kind: 'access-denied',
-          url,
-          method: request.method(),
-        })
-        await appendEvent(runId, 'access:denied', { reason: 'outside-environment' })
-        await route.abort()
-      }
-    })
-    worker.context.on('page', (p) => {
-      if (p !== page)
-        void recordIntervention({ kind: 'popup-denied', url: p.url() })
-          .then(() => p.close())
-          .catch(() => {})
+      },
+      countDeniedWrite: () => {
+        deniedWrites++
+      },
+      inspection,
+      recordUnsupported: (dimension, reasonCode) =>
+        inspection?.recordUnsupported(dimension, reasonCode),
     })
     await page.goto(run.spec.entryUrl, { waitUntil: 'domcontentloaded' })
     await observe()
@@ -1216,7 +1405,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         guard,
         retryBudgetRemaining: () => {
           const fact = businessFacts.at(-1)
-          return fact ? sideEffectPolicy.retryBudgetRemaining(fact.operationId) : undefined
+          return fact ? sideEffectPolicy?.retryBudgetRemaining(fact.operationId) : undefined
         },
         epoch: () =>
           JSON.stringify([usage.actions, businessFacts.length, page.url(), integrity.epoch()]),
@@ -1367,6 +1556,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
             result.validationStatus === 'supported' &&
             input.condition === 'element-actionable' &&
             bound.identity &&
+            !!businessContract &&
             result.window.durationMs >= businessContract.retryAvailabilityMs &&
             result.window.observedUntilMs - result.window.startedAtMs >=
               businessContract.retryAvailabilityMs
@@ -1412,7 +1602,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         pageTitle: latest!.snapshot.title,
         timestamp: latest!.snapshot.observedAt,
         events,
-        feedbackWarningMs: businessContract.feedbackWarningMs,
+        feedbackWarningMs: businessContract?.feedbackWarningMs,
         observedTriggers: (function () {
           const t = retryTrigger(events, latest!.snapshot.text)
           return t ? [t.eventType] : []
@@ -1506,6 +1696,21 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       await observe(true)
       let resolvedLocator: import('playwright').Locator | undefined
       let targetDesc = ''
+      /**
+       * The ref the action acts at, and the snapshot it was resolved against.
+       *
+       * A model that names an element ref is naming a target of one particular observation; keeping
+       * that pair is what lets the ledger resolve the item it actually offered, instead of whatever
+       * item happens to answer to that ref after the browser has moved.
+       */
+      let actingRef = input.ref ?? ''
+      /** The snapshot that offered this ref, so the ledger entry names the observation it came from. */
+      let actionSnapshotPage = latestSlim?.snapshotId ?? ''
+      const beforeUrl = page.url()
+      if (input.ref) {
+        const owning = [...snapshotRefs.entries()].find(([, refs]) => refs.includes(input.ref!))
+        if (owning) actionSnapshotPage = owning[0]
+      }
       if (input.role && input.name) {
         resolvedLocator = page.getByRole(input.role as Parameters<typeof page.getByRole>[0], {
           name: input.name,
@@ -1564,6 +1769,41 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       const actionId = randomUUID()
       let dispatchTime = Date.now()
       const beforeText = await page.locator('body').innerText()
+      // What the page looked like before this action, so the ledger entry can cite the change rather
+      // than only the state afterwards.
+      const beforeRefs = [...(latest?.evidenceRefs ?? [])]
+      let ourNavigation = false
+      if (input.type === 'navigate' && input.url) {
+        const decision = uiScan
+          ? decideUiNavigation({
+              entryUrl: uiScan.entryUrl,
+              maxPages: uiScan.scope.maxPages,
+              maxDepth: uiScan.scope.maxDepth,
+              visited: visitedPages,
+              url: input.url,
+            })
+          : { allow: true as const, normalized: input.url }
+        await appendEvent(runId, 'navigation:requested', {
+          url: input.url,
+          from: beforeUrl,
+          policyRevision: 'url-scan-navigation-1',
+          normalized: decision.allow ? decision.normalized : null,
+        })
+        if (!decision.allow) {
+          await appendEvent(runId, 'navigation:denied', {
+            url: input.url,
+            reasonCode: decision.reasonCode,
+            policyRevision: 'url-scan-navigation-1',
+          })
+          await inspection?.recordNavigationDenied({
+            url: input.url,
+            reasonCode: decision.reasonCode,
+          })
+          throw new Error(`navigation denied: ${decision.reasonCode}`)
+        }
+        ourNavigation = true
+        targetDesc = `navigate:${decision.normalized}`
+      }
       mutationFailed = false
       const deniedBefore = deniedWrites
       const writesBefore = networkWrites
@@ -1585,6 +1825,35 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         { type: input.type, target: targetDesc, dispatchTime },
         { stepId, actionId, evidenceRefs: latest!.evidenceRefs },
       )
+      // The action is now on the record and in flight; everything the browser reports from here is
+      // gathered into it and turned into scope by `settleActionLedger`.
+      activeAction = {
+        type: input.type,
+        ref: actingRef,
+        target: targetDesc,
+        beforeUrl,
+        beforeRefs,
+        snapshotPage: actionSnapshotPage,
+        navigated: ourNavigation,
+        landedUrls: [],
+        settled: false,
+      }
+      if (inspection) {
+        // The address an in-page move lands on. A same-document hash change is part of the action
+        // itself, and it is the one way a page can move without a request; capturing it keeps an
+        // inspected panel from being attributed to the document's original state.
+        const onFrameNavigated = (frame: import('playwright').Frame) => {
+          if (frame !== page.mainFrame() || !activeAction) return
+          const url = frame.url()
+          if (!activeAction.landedUrls.includes(url))
+            activeAction.landedUrls = [...activeAction.landedUrls, url]
+          // The action has reached its destination, so its ledger entry may be written now - before
+          // the post-action observation, which must probe the page the action actually produced.
+          if (!activeAction.settled && url !== activeAction.beforeUrl) void settleActionLedger()
+        }
+        page.on('framenavigated', onFrameNavigated)
+        actionNavigationListener = onFrameNavigated as (frame: unknown) => void
+      }
       try {
         guard()
         if (input.type === 'click' || input.type === 'probe') {
@@ -1604,7 +1873,12 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           if (!resolvedLocator) throw new Error('target required')
           await resolvedLocator.fill(input.value ?? '')
         } else if (input.type === 'navigate') {
-          if (!input.url || !isAllowedNavigationUrl(input.url, run!.spec.entryUrl))
+          if (!input.url) throw new Error('navigation denied: a destination is required')
+          // A UI run's destination was already judged by its own navigation scope before this point,
+          // against the entry origin, the page budget and the depth limit. The legacy business rule
+          // ("only the entry path") is not applied here: it would refuse every in-scope sub-page the
+          // contract was created to allow.
+          if (!uiScan && !isAllowedNavigationUrl(input.url, run!.spec.entryUrl))
             throw new Error('navigation denied')
           await page.goto(input.url, { waitUntil: 'domcontentloaded' })
         } else await page.mouse.wheel(0, input.scrollY ?? 500)
@@ -1704,7 +1978,51 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           { type: input.type, target: targetDesc, networkWrites: networkWrites - writesBefore },
           { stepId, actionId },
         )
+        // A navigation this action performed is committed with the URL the run actually landed on. The
+        // address is re-judged rather than assumed: a same-origin redirect may legitimately end
+        // somewhere other than the requested path, and what must be true is that wherever the run *is*
+        // lies inside its contract - the entry origin, the page budget and the depth limit. A
+        // cross-origin redirect never gets this far; the network boundary refuses the hop and the
+        // browser reports the navigation failed.
+        if (ourNavigation && input.url) {
+          const landed = page.url()
+          const approved = uiScan
+            ? decideUiNavigation({
+                entryUrl: uiScan.entryUrl,
+                maxPages: uiScan.scope.maxPages,
+                maxDepth: uiScan.scope.maxDepth,
+                visited: visitedPages,
+                url: landed,
+              })
+            : { allow: true as const, normalized: landed }
+          if (!approved.allow) {
+            await appendEvent(runId, 'navigation:denied', {
+              url: landed,
+              reasonCode: approved.reasonCode,
+              requested: input.url,
+              policyRevision: 'url-scan-navigation-1',
+            })
+            throw new Error(`navigation denied: ${approved.reasonCode}`)
+          }
+          if (!visitedPages.some((v) => normalizePageUrl(v) === normalizePageUrl(landed)))
+            visitedPages.push(landed)
+          await appendEvent(runId, 'navigation:committed', {
+            url: landed,
+            normalized: approved.normalized,
+            requested: input.url,
+            from: beforeUrl,
+            visited: visitedPages.length,
+            policyRevision: 'url-scan-navigation-1',
+          })
+        }
       } catch (error) {
+        // A failed action is still an action: the attempt is on the record, so it is settled before
+        // the error is returned rather than being lost with the exception.
+        await settleActionLedger()
+        if (actionNavigationListener) {
+          page.off('framenavigated', actionNavigationListener as never)
+          actionNavigationListener = null
+        }
         await appendEvent(
           runId,
           'action:failed',
@@ -1732,6 +2050,11 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         }
       }
       staleDetector.recordAction()
+      await settleActionLedger()
+      if (actionNavigationListener) {
+        page.off('framenavigated', actionNavigationListener as never)
+        actionNavigationListener = null
+      }
       await persistUsage()
       await observe()
       return {
@@ -1747,19 +2070,20 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     }
     // Reuse is scoped to this run's own contract identity, so a segment evidenced under a
     // different profile, revision, adapter or origin is never replayed here.
-    const journeys = config.features?.journeys
-      ? await loadJourneys(run.spec.environmentId, runId, {
-          profileId: businessContract.profileId,
-          contractHash: businessContract.hash,
-          adapterId: businessContract.adapter.id,
-          adapterRevision: businessContract.adapter.revision,
-          // The identity origin is the contract's persisted origin, on both sides of the comparison:
-          // a source run's stored contract and this run's own contract must agree. A run with no
-          // persisted contract is legacy and never contributes, so this is not a way to reuse
-          // evidence across businesses.
-          origin: businessContract.environment.publicOrigin,
-        })
-      : []
+    const journeys =
+      config.features?.journeys && businessContract
+        ? await loadJourneys(run.spec.environmentId, runId, {
+            profileId: businessContract.profileId,
+            contractHash: businessContract.hash,
+            adapterId: businessContract.adapter.id,
+            adapterRevision: businessContract.adapter.revision,
+            // The identity origin is the contract's persisted origin, on both sides of the comparison:
+            // a source run's stored contract and this run's own contract must agree. A run with no
+            // persisted contract is legacy and never contributes, so this is not a way to reuse
+            // evidence across businesses.
+            origin: businessContract.environment.publicOrigin,
+          })
+        : []
     const availableJourneys = () =>
       journeys.filter(
         (j) =>
@@ -1780,12 +2104,19 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       serial(
         'run_finish',
         async () => {
-          // Explicitly validate even for callers outside the SDK tool dispatcher.
-          const parsed = config.features?.shortFinish
-            ? shortFinishInput.parse(request)
-            : legacyFinishInput.parse(request)
+          // A UI run always uses the short protocol, even when the legacy business switch is off:
+          // its finish is a claim about the inspection, and it has no business outcome to name. That
+          // is also what makes a UI run structurally unable to pass `businessResult=success`.
+          const parsed =
+            uiScan || config.features?.shortFinish
+              ? shortFinishInput.parse(request)
+              : legacyFinishInput.parse(request)
           await appendEvent(runId, 'finish:requested', parsed)
           await observe()
+          // Every network receipt is written before the claim that reads them, so a refusal cannot
+          // land after the decision it should have changed.
+          await networkBoundary?.settle()
+          if (uiScan && inspection) return finishUiScan(parsed as { reason: string })
           const pendingRules = await pendingKnownRules()
           const gaps = [
             ...completionGaps(),
@@ -1911,6 +2242,114 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         },
         review?.attemptId,
       )
+    /**
+     * The finish decision of a `ui-scan` run (plan 6.2).
+     *
+     * The agent names a reason; the facts decide whether it is true. Every fact here comes from the
+     * ledger, the run's own integrity epoch and the pending-rule count rather than from the request,
+     * so a run cannot assemble a favourable case for its own completion. A refusal keeps its usable
+     * partial suggestion: a run that may not claim coverage is not left with no way to end.
+     */
+    async function finishUiScan(parsed: { reason: string }) {
+      const facts = inspection!.completionFacts()
+      const decision = decideInspectionCompletion({
+        reason: parsed.reason as Parameters<typeof decideInspectionCompletion>[0]['reason'],
+        facts: {
+          kind: 'ui-scan',
+          featureEnabled: !!config.features?.urlScan,
+          contractValid: !!uiScan && verifyUiContractSnapshot(uiScan),
+          contractHash: uiScan!.hash,
+          entryObserved: facts.entryObserved,
+          entryEvidenceRefs: facts.entryEvidenceRefs,
+          integrityEpoch: integrity.epoch(),
+          scope: inspection!.scope,
+          scopeEventIds: facts.scopeEventIds,
+          pendingRules: await pendingKnownRules(),
+          openHypotheses: taskState.hasOpenHypotheses() ? 1 : 0,
+          unsupportedRecorded: facts.unsupportedRecorded,
+          blockerEvidence: await uiBlockerEvidence(),
+        },
+      })
+      if (!decision.accepted) {
+        const reply = {
+          accepted: false,
+          error: decision.reasonCode,
+          missingFacts: decision.missingFacts ?? [],
+          missingItems: decision.missingItems ?? [],
+          partialAdvice: decision.partialAdvice ?? null,
+          inspection: inspection!.snapshot(),
+        }
+        await appendEvent(runId, 'finish:rejected', reply)
+        return reply
+      }
+      // An `unverified-scope` ending keeps every unfinished item in the ledger as unverified rather
+      // than removing it: a partial run reports a partial run, and the gaps it reported stay legible.
+      if (decision.reasonCode === 'unverified-scope')
+        for (const gap of inspection!.completionGaps())
+          if (!gap.itemId.startsWith('obligation:'))
+            inspection!.scope.resolveItem(gap.itemId, {
+              status: 'unverified',
+              reasonCode: gap.reasonCode ?? 'unverified-scope',
+              evidenceRefs: [],
+              eventIds: [],
+              detail: 'left unverified at finish; the run reported partial scope',
+            })
+      const transition = phaseTracker.enterFinalizing('agent-ready')
+      if (transition.changed)
+        await appendEvent(runId, 'run:phase-changed', {
+          from: transition.previous,
+          to: transition.current,
+          reason: transition.reason,
+        })
+      guard()
+      finished = true
+      stopReason = decision.outcome === 'goal-reached' ? 'goal-reached' : 'blocked'
+      await appendEvent(runId, 'finish:accepted', {
+        reasonCode: decision.reasonCode,
+        kind: 'ui-scan',
+        businessResult: 'not-applicable',
+        contractHash: uiScan!.hash,
+        inspectionProof: decision.proof,
+        scopeDigest: decision.proof?.scopeDigest,
+        task: taskState.snapshot(),
+      })
+      await appendEvent(runId, 'inspection:summary', {
+        kind: 'ui-scan',
+        coverage:
+          decision.outcome === 'goal-reached'
+            ? 'covered'
+            : inspection!.snapshot().counts.total > 0
+              ? 'partial'
+              : 'not-started',
+        counts: inspection!.snapshot().counts,
+        unsupported: facts.unsupportedRecorded,
+      })
+      await appendEvent(
+        runId,
+        'agent:done',
+        { reasonCode: decision.reasonCode, businessResult: 'not-applicable' },
+        { stepId, evidenceRefs: [...facts.entryEvidenceRefs] },
+      )
+      return { accepted: true, reasonCode: decision.reasonCode, proof: decision.proof }
+    }
+    /**
+     * Measured facts that can substantiate a blocker.
+     *
+     * A blocker is a failure that actually prevented progress - an unreachable page, a tool error, a
+     * refused navigation that left the run with nothing to inspect. An ordinary quality finding is
+     * not one, which is why the ledger's own refusals are collected here rather than the findings.
+     */
+    async function uiBlockerEvidence(): Promise<readonly string[]> {
+      const events = await getEvents(runId)
+      return events
+        .filter(
+          (event) =>
+            event.type === 'network:decision' ||
+            event.type === 'network:channel-denied' ||
+            event.type === 'execution:intervention',
+        )
+        .map((event) => event.id)
+    }
     const tools = {
       page_inspect: createTool({
         id: 'page.inspect',
@@ -1960,11 +2399,11 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
                 ),
               act: async (action) => {
                 guard()
-                sideEffectPolicy.setReadOnly(false)
+                sideEffectPolicy?.setReadOnly(false)
                 try {
                   return await performAction(action)
                 } finally {
-                  sideEffectPolicy.setReadOnly(true)
+                  sideEffectPolicy?.setReadOnly(true)
                 }
               },
               registered: (id, phenomenon) => {
@@ -2016,7 +2455,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
               sourceRunId: journey.sourceRunId,
               contract: journey,
             })
-            sideEffectPolicy.setReadOnly(true)
+            sideEffectPolicy?.setReadOnly(true)
             try {
               const result = await runJourney(journey, {
                 guard,
@@ -2049,7 +2488,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
               }
             } finally {
               // Keep the barrier for delayed requests until a new explicit page_act.
-              sideEffectPolicy.setReadOnly(true)
+              sideEffectPolicy?.setReadOnly(true)
             }
           }),
       }),
@@ -2225,12 +2664,14 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       }),
       page_act: createTool({
         id: 'page.act',
-        description: pageActDescription(businessContract, config.features),
+        description: pageActDescription(businessContract ?? undefined, config.features),
         inputSchema: actionInput,
         execute: (input) =>
           serial('page_act', () => {
             guard()
-            sideEffectPolicy.setReadOnly(false)
+            // A UI run has no write permission to arm, so there is no read-only barrier to lift:
+            // every write is refused by its network policy rather than by this policy's budget.
+            sideEffectPolicy?.setReadOnly(false)
             return performAction(input)
           }),
       }),
@@ -2444,7 +2885,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
                 verdict,
                 nextStep: completedCheckNextStep(
                   verdict,
-                  sideEffectPolicy.retryBudgetRemaining(binding.operationId),
+                  sideEffectPolicy?.retryBudgetRemaining(binding.operationId),
                 ),
                 findingId,
                 evidenceRefs: measurement.evidenceRefs,
@@ -2635,24 +3076,54 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           serial('focus_probe', async () => {
             if (!config.features?.visualDiscovery || !visualFocus)
               throw Error('visual-discovery-disabled')
-            sideEffectPolicy.setReadOnly(true)
+            sideEffectPolicy?.setReadOnly(true)
             try {
               return await visualFocus.probe(input)
             } finally {
-              sideEffectPolicy.setReadOnly(true)
+              sideEffectPolicy?.setReadOnly(true)
             }
           }),
       }),
       exploration_update: createTool({
         id: 'exploration.update',
-        description:
-          'Record reached states and unfinished branches. Give every branch its actual trigger; use always only for an unconditional obligation. The server derives whether a condition triggered. Untriggered branches are reported separately and do not block completion. Send an empty list to clear previously recorded branches after checking them.',
+        description: uiScan
+          ? 'Record the state you have reached and select the targets this run will check. selectItems chooses among the candidate items returned with the current observation, each with your basis; recordGap states a genuinely unfinished item and why. Only the executor concludes that a check is verified, so an item reaches a verified status through a saved measurement rather than through this call. Selections are additive: an item already reported as a gap stays reported.'
+          : 'Record reached states and unfinished branches. Give every branch its actual trigger; use always only for an unconditional obligation. The server derives whether a condition triggered. Untriggered branches are reported separately and do not block completion. Send an empty list to clear previously recorded branches after checking them.',
         inputSchema: explorationInput,
         execute: (input) =>
           serial('exploration_update', async () => {
             notes.push(input)
             taskState.setBranches(input.unexploredBranches)
             await appendEvent(runId, 'exploration:state-reached', { state: input.state })
+            if (uiScan && inspection) {
+              // Selection and gaps are the agent's whole ledger surface. An empty update is inert:
+              // the sampling obligation the observation created is not the model's to clear, which
+              // is why a run that never selects anything still has to answer for it at finish.
+              const ledger = inspection
+              if (input.selectItems?.length)
+                await ledger.selectItems(
+                  input.selectItems.map((entry) => ({
+                    itemId: entry.itemId,
+                    basis: entry.basis,
+                  })),
+                )
+              if (input.recordGap) await ledger.recordGap(input.recordGap)
+              const candidates = ledger.candidateItems()
+              await appendEvent(runId, 'exploration:coverage-updated', {
+                task: taskState.snapshot(),
+                inspection: ledger.snapshot(),
+              })
+              return {
+                state: input.state,
+                task: taskState.snapshot(),
+                selected: ledger.snapshot().counts.selected,
+                candidateItems: candidates,
+                missingFacts: [
+                  ...completionGaps(),
+                  ...ledger.completionGaps().map((g) => g.reason),
+                ],
+              }
+            }
             await appendEvent(runId, 'exploration:coverage-updated', { task: taskState.snapshot() })
             return {
               state: input.state,
@@ -2663,9 +3134,15 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       }),
       run_finish: createTool({
         id: 'run.finish',
-        description:
-          'Stop with an observed business outcome or blocked path. Completion never removes earlier findings. Unknown outcomes cannot count as successful completion.',
-        inputSchema: config.features?.shortFinish ? shortFinishInput : legacyFinishInput,
+        description: uiScan
+          ? 'End this UI inspection with its reason code: scope-covered when the selected checks are done, observed-blocker when a measured failure prevents progress, unverified-scope when applicable work remains and is recorded. The server decides whether the claim is supported and builds the report; a refusal lists exactly what is missing.'
+          : 'Stop with an observed business outcome or blocked path. Completion never removes earlier findings. Unknown outcomes cannot count as successful completion.',
+        // A UI run always uses the short protocol, even when the legacy business switch is off: its
+        // finish is a claim about the inspection, and it has no business outcome to name. The schema
+        // is also what stops a UI run from ever *passing* `businessResult`, which is the plan's
+        // "do not change business unknown into success" requirement held structurally rather than by
+        // validating it away afterwards.
+        inputSchema: uiScan || config.features?.shortFinish ? shortFinishInput : legacyFinishInput,
         execute: (request) => finishInspection(request),
       }),
     }
@@ -2679,7 +3156,12 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
      * bounded to one call per observation regardless of how the conversation develops (plan 4.2).
      */
 
-    const policy = inspectionPolicy(run.spec.goal, config.features, businessContract)
+    const policy = inspectionPolicy(
+      run.spec.goal,
+      config.features,
+      businessContract ?? undefined,
+      uiScan,
+    )
     const reviewedStates = new Set<string>()
     const refreshedReviewVersions = new Set<string>()
     const agent = new Agent({
@@ -2735,8 +3217,13 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         ? ruleCatalog(getEnabledRules(), await currentRuleContext())
         : undefined
       const pendingRules = await pendingKnownRules()
-      const retryBlocker = config.features?.blockerReview ? await measuredRetryBlocker() : undefined
+      const retryBlocker =
+        config.features?.blockerReview && !uiScan ? await measuredRetryBlocker() : undefined
       const activeTools = Object.keys(tools).filter((name) => {
+        // A UI run never reads or publishes a cross-run Journey: the plan closes that capability for
+        // this kind, because a segment evidenced under another site's contract could otherwise be
+        // replayed against a URL it was never about (plan 1.3, 7).
+        if (uiScan && name === 'journey_run') return false
         if (
           name === 'investigation_run' ||
           name === 'page_inspect' ||
@@ -2835,6 +3322,24 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         },
         notes: notes.slice(-10),
         task: taskState.snapshot(),
+        // The UI ledger's own view: what is selected, what is outstanding, and the bounded candidate
+        // list this observation actually offered. It is part of the input packet rather than only a
+        // tool result so the agent can choose a target without a call that would spend an attempt.
+        ...(uiScan && inspection
+          ? {
+              inspectionScope: {
+                candidates: inspection.candidateItems(),
+                counts: inspection.snapshot().counts,
+                outstanding: inspection.completionGaps().map((gap) => ({
+                  itemId: gap.itemId,
+                  category: gap.category,
+                  reason: gap.reason,
+                })),
+                unsupported: inspection.snapshot().unsupported.map((u) => u.dimension),
+                note: 'Select the targets this run will check with exploration_update.selectItems, using their itemId. Only you decide relevance; the executor decides whether a check is verified.',
+              },
+            }
+          : {}),
         evidenceIntegrity: integrity.snapshot(),
         finishReadiness: {
           businessResult,
@@ -2851,20 +3356,23 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
             businessResult: v.result,
           })),
           response: businessFacts.at(-1) ?? null,
-          writePolicy: {
-            maxCreates: businessContract.effects.maxCreates,
-            maxRetriesPerOperation: businessContract.effects.maxRetriesPerOperation,
-            createsSpent: sideEffectPolicy.snapshot().createsReserved,
-            retriesSpent: sideEffectPolicy.snapshot().retriesReserved,
-            retriesRemainingForCurrentOperation: businessFacts.at(-1)
-              ? sideEffectPolicy.retryBudgetRemaining(businessFacts.at(-1)!.operationId)
-              : null,
-            createsRemaining: Math.max(
-              0,
-              businessContract.effects.maxCreates - sideEffectPolicy.snapshot().createsReserved,
-            ),
-            recoveryPolicy: recoveryPolicyDescription(businessFacts.at(-1)),
-          },
+          writePolicy: businessContract
+            ? {
+                maxCreates: businessContract.effects.maxCreates,
+                maxRetriesPerOperation: businessContract.effects.maxRetriesPerOperation,
+                createsSpent: sideEffectPolicy!.snapshot().createsReserved,
+                retriesSpent: sideEffectPolicy!.snapshot().retriesReserved,
+                retriesRemainingForCurrentOperation: businessFacts.at(-1)
+                  ? sideEffectPolicy!.retryBudgetRemaining(businessFacts.at(-1)!.operationId)
+                  : null,
+                createsRemaining: Math.max(
+                  0,
+                  businessContract.effects.maxCreates -
+                    sideEffectPolicy!.snapshot().createsReserved,
+                ),
+                recoveryPolicy: recoveryPolicyDescription(businessFacts.at(-1)),
+              }
+            : null,
           hint: 'Business outcome is not inspection completion. Resolve in-scope investigations without repeating the business write.',
         },
         // Public business documents this run retained as evidence. A claim about one of these - a
@@ -2899,6 +3407,10 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           : {}),
       }
       if (
+        // The limited blocker review is a business capability: it reasons from a business outcome
+        // and a retry opportunity, neither of which a UI run has. It is closed for this kind rather
+        // than being fed nulls (plan 7).
+        !uiScan &&
         config.features?.blockerReview &&
         config.features?.shortFinish &&
         !deferCompletionReview &&

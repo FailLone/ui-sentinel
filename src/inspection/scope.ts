@@ -114,6 +114,14 @@ export interface ResolveItemInput {
   readonly evidenceRefs: readonly string[]
   readonly eventIds: readonly string[]
   readonly detail: string
+  /**
+   * The address the item was executed against, when that is only known at resolution time.
+   *
+   * A navigation is the case this exists for: the item is created when the run is *offered* a link,
+   * and the address it actually landed on comes back from the browser afterwards. Recording it here
+   * keeps one item per move rather than an offer item beside a landing item.
+   */
+  readonly url?: string
 }
 
 export interface RecordGapInput extends CreateItemInput {
@@ -220,6 +228,7 @@ export function createInspectionScope(options: InspectionScopeOptions = {}) {
       )
     const resolved: InspectionItem = {
       ...current,
+      ...(input.url ? { url: input.url } : {}),
       status: input.status,
       reasonCode: input.reasonCode ?? null,
       detail: input.detail,
@@ -237,6 +246,7 @@ export function createInspectionScope(options: InspectionScopeOptions = {}) {
         detail: resolved.detail,
         evidenceRefs: resolved.evidenceRefs,
         eventIds: resolved.eventIds,
+        ...(input.url ? { url: input.url } : {}),
         // Carried in the payload so a projection rebuilds the same item rather than guessing a time
         // from the delivery timestamp.
         resolvedAt: resolved.resolvedAt,
@@ -435,6 +445,7 @@ export function projectInspectionScope(events: readonly RunEvent[]): InspectionS
     if (!current) continue
     items.set(itemId, {
       ...current,
+      ...(payload.url === undefined ? {} : { url: String(payload.url) }),
       ...(payload.selected === undefined
         ? {}
         : { selected: true, selectionBasis: String(payload.selectionBasis ?? '') }),

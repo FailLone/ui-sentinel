@@ -3,6 +3,13 @@ import { hypothesisTriggers } from './task-state.ts'
 
 export const actionInput = z.object({
   type: z.enum(['click', 'probe', 'fill', 'navigate', 'scroll']),
+  ref: z
+    .string()
+    .max(40)
+    .optional()
+    .describe(
+      'The element ref this action targets, as the last observation listed it. Naming it ties the action to the exact control that observation offered.',
+    ),
   role: z.string().optional(),
   name: z.string().optional(),
   nth: z
@@ -82,4 +89,24 @@ export const explorationInput = z.object({
   unexploredBranches: z.array(
     z.object({ description: z.string(), trigger: z.enum(hypothesisTriggers) }),
   ),
+  /**
+   * The UI ledger's agent-side inputs (plan 5.2).
+   *
+   * `selectItems` chooses among targets the *current observation actually offered*, and `recordGap`
+   * states an unfinished item with its own reason. Deliberately absent, and absent by design rather
+   * than by omission: any field that would let the caller submit `verified`, set a status, or drop an
+   * item. Those conclusions belong to the executor, which resolves an item from the receipt of a real
+   * measurement - otherwise "checked" would mean "said so".
+   */
+  selectItems: z
+    .array(z.object({ itemId: z.string(), basis: z.string() }))
+    .max(12)
+    .optional(),
+  recordGap: z
+    .object({
+      url: z.string().optional(),
+      reasonCode: z.string().min(1),
+      detail: z.string().min(1),
+    })
+    .optional(),
 })

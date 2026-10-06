@@ -64,9 +64,17 @@ export async function createRun(
       maxModelCalls: spec.budget?.maxModelCalls ?? config.budget.maxModelCalls,
     },
     viewport: spec.viewport ?? { width: 1280, height: 768 },
-    // Persisted before the run is queued; execution reads this, never the live registry.
+    // The discriminant and its contract are persisted before the run is queued; execution reads
+    // these, never the live registry. The two contracts are mutually exclusive, so a caller that
+    // supplies both is refused here rather than one silently winning in the executor.
+    ...(spec.kind ? { kind: spec.kind } : {}),
     ...(spec.businessContract ? { businessContract: spec.businessContract } : {}),
+    ...(spec.uiContract ? { uiContract: spec.uiContract } : {}),
   }
+  if (fullSpec.kind === 'ui-scan' && fullSpec.businessContract)
+    throw new Error('A ui-scan run cannot carry a business contract.')
+  if (fullSpec.kind !== 'ui-scan' && fullSpec.uiContract)
+    throw new Error('A UI contract requires an explicit ui-scan kind.')
 
   const run: Run = {
     id,
