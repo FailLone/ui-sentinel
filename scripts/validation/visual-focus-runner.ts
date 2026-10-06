@@ -8,6 +8,11 @@ import { resolve } from 'node:path'
 import { startGateway, AGENT_MODEL, VISION_MODEL } from '../../evaluation/support/model-gateway.ts'
 import { buildIdentity } from '../../evaluation/support/build-identity.ts'
 import {
+  buildFreezeIdentity,
+  type FreezeProtocol,
+} from '../../evaluation/support/freeze-identity.ts'
+import { FOCUS_WINDOW_MS, MAX_PROBE_CLICKS } from '../../src/execution/focus-constants.ts'
+import {
   downloadRunEvidence,
   auditStoppedGroup,
   collectFullEventHistory,
@@ -29,7 +34,10 @@ import { readFormalSource } from '../../evaluation/support/formal-source.ts'
 import { buildArtifactIndex, buildManifest } from '../../evaluation/support/evidence-protocol.ts'
 import { buildBatchTiming } from '../../evaluation/support/batch-timing.ts'
 import { installInterruptGuard } from '../../evaluation/support/interrupt-guard.ts'
-import { scoreVisualEvidence } from '../../evaluation/private/visual-focus/scorer.ts'
+import {
+  scoreVisualEvidence,
+  SCORER_VERSION,
+} from '../../evaluation/private/visual-focus/scorer.ts'
 import {
   VISUAL_VIEWPORTS,
   visualTruthFor,
@@ -86,13 +94,28 @@ const campaignId =
   JSON.parse(await readFile(resolve(campaignDir, 'campaign-id.json'), 'utf8').catch(() => 'null'))
     ?.campaignId ?? resolve(campaignDir).split('/').slice(-1)[0]!
 
+// The identity this process is about to run under. It is checked against the diagnostic's own freeze
+// identity, so a moved window/model/provider/budget/scorer/target is refused even when the build hash
+// is unchanged - the whole point of pinning the protocol rather than just the bundle.
+const freeze = buildFreezeIdentity({
+  commit,
+  buildHash: build.hash,
+  buildFiles: build.files,
+  protocol: currentFreezeProtocol(),
+  fixtureRevision: 'visual-regression-1',
+  fixtureHash: 'f'.repeat(64),
+  scorerVersion: SCORER_VERSION,
+  target: { tag: 'input', type: 'search', id: 'product-search-input' },
+})
+
 // Formal inherits its right to spend only from a passed real diagnostic of the same build/campaign.
 if (mode === 'formal') {
   if (!diagnosticSource) exit(2, 'formal requires --diagnostic-source')
-  const source = await readFormalSource(resolve(diagnosticSource!), {
-    buildHash: build.hash,
-    campaignId,
-  })
+  const source = await readFormalSource(
+    resolve(diagnosticSource!),
+    { buildHash: build.hash, campaignId },
+    freeze,
+  )
   if (!source.ok) exit(2, `formal-source-refused: ${source.reason}`)
 }
 
@@ -241,6 +264,26 @@ const auditRecords: {
   artifactIndex: any[]
   dir: string
 }[] = []
+
+/**
+ * The protocol this runner executes under, in one place.
+ *
+ * Every value here is a knob that could change an answer, so all of them are pinned together and
+ * written into the diagnostic's manifest; a formal run then refuses a source whose protocol moved.
+ */
+function currentFreezeProtocol(): FreezeProtocol {
+  return {
+    algorithmVersion: 'visual-focus-3',
+    focusWindowMs: FOCUS_WINDOW_MS,
+    maxProbeClicks: MAX_PROBE_CLICKS,
+    models: { agent: AGENT_MODEL, vision: VISION_MODEL, review: 'typesafe/jev-1.13' },
+    providers: {
+      agent: process.env.VALIDATION_AGENT_PROVIDER ?? 'unknown',
+      vision: process.env.VALIDATION_VISION_PROVIDER ?? 'unknown',
+    },
+    budgets: { seconds: 300, actions: 40, modelCalls: 30 },
+  }
+}
 
 /** A recorded duration, or `null` when the run never recorded one. Never a zero standing in for it. */
 function durationOrNull(value: unknown): number | null {
@@ -523,6 +566,8 @@ try {
       reviewedBy: null,
       reviewedAt: null,
     },
+    // Carried so a later formal run can refuse this diagnostic if any pinned knob moved.
+    freezeIdentity: freeze,
     spending: await ledger.spending(),
   })
   await writeFile(resolve(directory, 'server.log'), logs)

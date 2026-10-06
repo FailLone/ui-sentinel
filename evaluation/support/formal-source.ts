@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { formalRevisionAllowed, type FixtureRevision } from './fixture-revision.ts'
+import { validateFreeze, type FreezeIdentity } from './freeze-identity.ts'
 
 /**
  * Whether a directory may authorise a paid formal run (plan P3.2, acceptance R02).
@@ -22,6 +23,8 @@ export interface FormalSourceManifest {
   readonly campaignId?: string
   readonly commit?: string
   readonly fixtureRevision?: FixtureRevision
+  /** The frozen identity the diagnostic executed under. Compared when the caller supplies one. */
+  readonly freezeIdentity?: FreezeIdentity
 }
 
 export interface FormalSourceDecision {
@@ -32,6 +35,13 @@ export interface FormalSourceDecision {
 export function validateFormalSource(input: {
   manifest: FormalSourceManifest | null
   expected: { buildHash: string; campaignId: string }
+  /**
+   * The identity the paid phase is about to run under. When supplied, a source must carry the *same*
+   * frozen identity - a moved window, model, provider, budget, scorer or target is a different
+   * experiment that the build hash alone cannot see. Supplying it is what makes the freeze enforce
+   * rather than merely exist.
+   */
+  expectedFreeze?: FreezeIdentity
 }): FormalSourceDecision {
   const manifest = input.manifest
   if (!manifest) return { ok: false, reason: 'diagnostic-source-missing' }
@@ -48,6 +58,17 @@ export function validateFormalSource(input: {
     const revision = formalRevisionAllowed(manifest.fixtureRevision)
     if (!revision.ok) return { ok: false, reason: revision.reason! }
   }
+  if (input.expectedFreeze) {
+    // A source with no identity cannot be checked against the current one, so it is refused rather
+    // than waved through on its buildHash - that would silently downgrade the gate.
+    if (!manifest.freezeIdentity) return { ok: false, reason: 'diagnostic-source-freeze-missing' }
+    const freeze = validateFreeze(manifest.freezeIdentity, input.expectedFreeze)
+    if (!freeze.ok)
+      return {
+        ok: false,
+        reason: `diagnostic-source-freeze-mismatch:${freeze.mismatches.join(',')}`,
+      }
+  }
   return { ok: true, reason: null }
 }
 
@@ -55,6 +76,7 @@ export function validateFormalSource(input: {
 export async function readFormalSource(
   directory: string,
   expected: { buildHash: string; campaignId: string },
+  expectedFreeze?: FreezeIdentity,
 ): Promise<FormalSourceDecision & { manifest: FormalSourceManifest | null }> {
   let manifest: FormalSourceManifest | null = null
   try {
@@ -62,5 +84,5 @@ export async function readFormalSource(
   } catch {
     return { ok: false, reason: 'diagnostic-source-unreadable', manifest: null }
   }
-  return { ...validateFormalSource({ manifest, expected }), manifest }
+  return { ...validateFormalSource({ manifest, expected, expectedFreeze }), manifest }
 }
