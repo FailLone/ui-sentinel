@@ -1,6 +1,6 @@
 # 开发约定
 
-当前采用 Mastra Core + Playwright + Midscene/Qwen + Hono/libSQL/React。业务契约与第二业务已经验收。主动视觉发现与聚焦验证 P1–P4 已完成；当前按[通用调查计划](../plans/composable-investigations.md)验证 Agent 自主组合检查程序，不扩大模型或框架对比。
+当前采用 Mastra Core + Playwright + Midscene/Qwen + Hono/libSQL/React。当前能力包括业务契约、视觉聚焦验证与[可组合调查程序](composable-investigations.md)。模块边界和验证方法以本页及对应能力文档为准，不再依赖已完成的任务书。
 
 ## 代码放在哪里
 
@@ -26,25 +26,6 @@
 
 通用执行器**不得**按 checkout/export、页面标题或 case ID 特判；业务差异只能来自版本化配置与注册的适配器（`src/business/`）。环境是显式白名单，契约不能放宽网络边界。新增可复用行为的检查入口是 `pnpm typecheck && pnpm test`，加一次针对性的免费预检；不要每阶段跑付费矩阵。
 
-## 本轮整理的迁移
-
-- 采用过的原子调查与有限阻断审查保留在正式模块；后者仍需显式开启。
-- acceptance、learning、persistence 和 investigation 从 experiments 提升为维护中的验证入口。
-- 删除一次性对照、原生 Stagehand/Browser Use 接入和未达质量门槛的后台视觉分析。
-- 删除未使用的 Mastra CLI、Mastra libSQL 集成、Stagehand 和根目录重复 concurrently 依赖；保留实际使用的 Core、libSQL 与靶场并发启动工具。
-- 工具契约升级为 25；旧后台分析记录只读兼容，不重写历史数据库。
-- config.optimizations 更名为 config.features；保留已采用能力的 EXECUTION_* 环境开关。
-
-| 旧入口 | 当前入口 |
-| --- | --- |
-| experiment:acceptance | validate:acceptance |
-| experiment:learning | validate:learning |
-| scripts/experiments/persistence-preflight.ts | pnpm validate:persistence |
-| scripts/experiments/atomic-fixture-check.ts | pnpm validate:investigation / validate:blocker-review |
-| EXPERIMENT_AGENT_PROVIDER / VISION_PROVIDER / MAX_COST_USD | VALIDATION_AGENT_PROVIDER / VALIDATION_VISION_PROVIDER / VALIDATION_MAX_COST_USD |
-
-后台分析试验环境开关不再生效；视觉定位配置不受影响。原始 data、数据库、密钥与历史证据保留。已结束的计划从当前目录移除，可在 Git 历史查看，汇总证据见[验收基线](validation-baseline.md)。
-
 ## 验证顺序
 
 ```sh
@@ -59,9 +40,11 @@ pnpm validate:persistence
 pnpm validate:investigation
 pnpm validate:blocker-review
 pnpm validate:business -- --preflight
+pnpm validate:visual-focus -- --preflight
+pnpm validate:programs -- --preflight
 ```
 
-上述测试不调用付费模型。集成预检使用固定模型服务，但运行真实 SDK、编译后的 Server 和浏览器，不应冒充真实模型验收。`--preflight` 主动清空真实网关凭据，所以它不可能意外变成付费运行；付费入口是 `--diagnostic` 与 `--formal`，两者缺 key 明确非零退出。
+上述测试不调用付费模型。集成预检使用固定模型服务，但运行真实 SDK、编译后的 Server 和浏览器，不应冒充真实模型验收。免费预检与真实模型入口分开；付费入口为对应命令的 `--diagnostic` / `--formal`，可组合调查使用 `--real`，缺 key 明确失败。
 
 变更探索政策、业务语义或规则判定后，再按计划运行相关真实场景；正式 minimum 固定 C0–C5 各三轮，共 18 轮。日常用户任务只运行其自身一次检查，18 轮属于开发验收协议。正式批次只在最终候选构建上完整跑一次；源码、提示、规则或私有判定变更后必须重新冻结，旧结果保留，不能拼接新旧构建凑数。
 
@@ -69,4 +52,4 @@ pnpm validate:business -- --preflight
 
 ## 文档维护
 
-docs 描述当前能力、约束和明确标注的方向；plans 只保留下一步可执行计划。完成计划时将长期有效的结论并入 docs，短期过程留 Git 和本地运行记录。引用某批耗时与通过率时写明版本、模型配置、样本范围，不能用旧模型验收替代新语义的验证。
+docs 描述当前能力、约束和明确标注的方向；plans 只保留下一步可执行计划。完成计划时将长期有效的接口、命令、约束及未实现边界并入 docs，再删除已完成计划和阶段成绩汇总；过程留 Git 和本地运行记录，不复制到另一层 archive。没有待执行计划时无需保留空的 plans 目录。引用某批耗时与通过率时写明版本、模型配置、样本范围，不能用旧模型验收替代新语义的验证。

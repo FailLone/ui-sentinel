@@ -43,12 +43,11 @@ arena/export/       React 导出靶场与独立私有控制器
 evaluation/         私有评分器、独立业务靶场、验证模型网关
 scripts/cli/        重置、评估、模型 smoke、报告导出
 scripts/validation/ 可重复验收和本地集成验证
-docs/               当前设计、开发约定、验收基线
-plans/              下一阶段开发计划与交接记录
+docs/               当前能力、架构、开发与验证说明
 data/               本地运行与验收证据，不提交 Git
 ```
 
-[开发约定](docs/development.md)说明模块边界与检查方式；[业务契约交接记录](plans/archive/business-contracts/handoff.md)记录本阶段的实际进展、耦合归属与未决项。
+[开发约定](docs/development.md)说明模块边界与检查方式。已完成计划和阶段验收记录从工作树移除，需要追溯时查 Git 历史；后续有明确开发任务时再创建 plans。
 
 ## 两个业务与契约
 
@@ -63,7 +62,11 @@ data/               本地运行与验收证据，不提交 Git
 
 ## 当前执行方式
 
-完整 Agent 负责探索、语义目标和未知问题。规则与有类型原子调查负责测量与证据保存；原子调查默认开启，EXECUTION_ATOMIC_INVESTIGATION=0 可回退。规则未知不是通过，业务成功也不等于质量检查完成。
+完整 Agent 负责探索、语义目标和未知问题。已有规则、时序调查、视觉聚焦探针和可组合调查程序共用执行边界与证据存储。规则未知不是通过，业务成功也不等于质量检查完成。
+
+- 时序调查默认开启，EXECUTION_ATOMIC_INVESTIGATION=0 可回退。
+- [视觉发现与聚焦验证](docs/visual-focus.md)通过 Qwen 截图候选和真实点击验证输入区域；EXECUTION_VISUAL_DISCOVERY=1 显式启用，默认关闭。
+- [可组合调查](docs/composable-investigations.md)允许 Agent 用 page_inspect 和 investigation_run 生成有界 JSON 程序，组合测量、动作及断言，调查规则未覆盖的问题。程序保存不等于批准全局规则。
 
 可选 EXECUTION_BLOCKER_REVIEW=1 开启 Jev 有限阻断收尾。设置 COMPLETION_REVIEW_API_KEY，或省略它以使用 OPENROUTER_API_KEY（显式空字符串不回退）。使用 OpenRouter Decisions API，固定已验证快照；仅证据充分的 observed-blocker 建议可进入执行器复核。复杂/变化页面、恢复入口、未解决工作和审查失败继续交给完整 Agent。默认关闭，不隐式增加模型依赖。
 
@@ -84,9 +87,11 @@ pnpm validate:persistence
 pnpm validate:investigation
 pnpm validate:blocker-review
 pnpm validate:business -- --preflight
+pnpm validate:visual-focus -- --preflight
+pnpm validate:programs -- --preflight
 ```
 
-以上不会调用付费模型。后五个命令运行编译后的真实服务、Mastra SDK 和 Chromium，模型响应明确使用本地固定测试服务，验证持久化、原子调查、有限结束判断与业务契约的集成。`--preflight` 会**清空**真实网关凭据，因此不可能意外变成付费运行；它覆盖 E0–E4 五变体、一次注入的未知写入、一次注入的非法 finish，以及工作台 U01–U05（含真实 UI 截图）。
+以上不会调用付费模型。validate 系列预检使用真实服务、SDK 和 Chromium，但模型响应来自明确的本地固定测试服务，仅验证集成，不证明自主发现。具体场景、付费入口和冻结要求见[靶场与评估](docs/arena-and-evaluation.md)。
 
 以下会调用真实模型：
 
@@ -103,7 +108,7 @@ pnpm validate:business -- --formal --diagnostic-source <通过诊断的目录> \
   [--approved-source <已关闭学习目录，默认 data/fixtures/approved-retry>] [--groups A,C]
 ```
 
-validate:acceptance 无参数只跑六例诊断；--minimum 为诊断通过后再跑 18 轮。真实验收要求干净提交，记录模型、提供方、编译哈希和全部失败。费用通过网关估算预留，未知费用不当成零；可配置 VALIDATION_MAX_COST_USD、VALIDATION_AGENT_PROVIDER、VALIDATION_VISION_PROVIDER。复现当前基线时指定 Wafer/Alibaba 并显式启用有限审查。参见[靶场与验收](docs/arena-and-evaluation.md)。
+validate:acceptance 无参数只跑六例诊断；--minimum 为诊断通过后再跑 18 轮。真实验收要求干净提交，记录模型、提供方、编译哈希和全部失败。费用通过网关估算预留，未知费用不当成零；可配置 VALIDATION_MAX_COST_USD、VALIDATION_AGENT_PROVIDER、VALIDATION_VISION_PROVIDER。对照实验需固定并记录提供方与功能开关。参见[靶场与验收](docs/arena-and-evaluation.md)。
 
 validate:business 的三个入口刻意是三个模块：一个误设的标志不能把免费检查变成付费批次，也不能让诊断结果被读成正式批次。`--diagnostic` 需要 OPENROUTER_API_KEY（缺 key 明确非零退出，不 mock）。`--formal` 要求 `--diagnostic-source` 指向来自**当前冻结构建**的通过诊断（逐字节校验构建 hash），严格拒绝未知或冲突选项，并在任何模型调用之前完成计划判定——判定不通过时写满 45 行 blocked 后立即非零退出，不产出半个矩阵。`--approved-source` 默认取 `data/fixtures/approved-retry`（由 `pnpm fixture:approved-retry` 从 Git 资料生成）；来源不可用或无法核验时 B/D 记 blocked，仍完成可安全进行的 A/C，最终非零退出，绝不伪造批准。诊断与正式批次**共享**同一个 `VALIDATION_MAX_COST_USD` 上限（默认 $2），新建输出目录不重置额度。组 C/D 复用原 minimum 和获准规则评分器，在本批次的独立服务、数据库与共享模型网关上执行。
 
@@ -125,19 +130,16 @@ pnpm validate:learning -- --recheck <已关闭且已批准的学习目录>
 
 服务重启将未完成任务标为 interrupted。操作者核对业务副作用后，以私有 token 调用 POST /api/evaluation/reconcile，提交 {"verified":true,"reason":"核对过程与结果"}。此操作只解除阻塞，不重放任务、不自动回滚订单。
 
-## 当前依据与边界
+## 当前能力与边界
 
-已采用架构的真实基线为独立布局 12/12、正式 minimum 18/18、获准规则复查 6/6，包含停服数据库与证据审计。它不是任意业务、视觉发现召回或全局最优证明。原存储异常根因仍未知，当前有拒绝假完成和阻止重复执行的保护。该历史成绩**不属于**业务契约阶段，也不构成其验收结果。
-
-业务契约阶段已完成，依据见[交接记录](plans/archive/business-contracts/handoff.md)：652测试、32免费业务预检通过；e2c953c同构建真实诊断6/6、完整矩阵45/45（自主导出15、规则导出6、购物回归18、规则购物6），四组停服审计与1198份证据哈希全部通过。7次真实输出耗尽在原有一次安全重试内成功恢复，没有增加调用或时间上限。原批准来源由 Git fixture 携带，失败批次全部保留，不跨构建拼分。产品默认关闭可选的无推理恢复，确认模型支持后可显式设置 AGENT_LENGTH_RECOVERY_WITHOUT_REASONING=1；本验收基线已开启。
-
-下一轮计划：[主动视觉发现与聚焦验证](plans/next-development-plan.md)，配套[验收计划](plans/visual-focus-acceptance.md)。尚未开始实现。
+购物、导出业务、输入区域聚焦验证与可组合调查均已实现。当前仍为受信单机服务，未实现任意网站全覆盖、PRD/Figma 自动接入、多机调度或通用规则自动发布。纯 UI 调查仍沿用业务完成契约，调查结束并不意味着整体报告会显示业务成功；未知与未验证范围必须保留。
 
 - [架构与 Agent 职责](docs/architecture.md)
 - [执行层](docs/execution-engine.md)
+- [可组合调查程序](docs/composable-investigations.md)
+- [视觉发现与聚焦验证](docs/visual-focus.md)
 - [规则与规则库](docs/rules-and-rule-library.md)
-- [知识、上下文与探索方向](docs/knowledge-and-context.md)
-- [验收基线与历史证据](docs/validation-baseline.md)
-- [业务契约交接记录](plans/archive/business-contracts/handoff.md)
+- [知识与上下文](docs/knowledge-and-context.md)
+- [靶场与评估](docs/arena-and-evaluation.md)
 
 格式使用 Biome，类型检查使用 TypeScript 7。当前不启用严格 lint；运行 pnpm format 整理格式。密钥、数据库及原始证据留在本机。

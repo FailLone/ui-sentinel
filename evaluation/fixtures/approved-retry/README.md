@@ -14,13 +14,13 @@ pnpm fixture:approved-retry
 
 默认输出 data/fixtures/approved-retry/，包含 runs.db、source.json、prepared.json、approval.json 和证据。为兼容现有下载 API，同时将五个原始证据恢复到本机 data/artifacts/<原runId>/；已有同名文件必须字节一致，否则拒绝覆盖。可指定 --out <新目录>；已有目录会拒绝覆盖，需保留旧结果并选择新目录。导入无需原作者的 data 目录、绝对路径或模型密钥。
 
-交给开发计划中的正式命令：
+正式业务复查：
 
 ```sh
 pnpm validate:business -- --formal --diagnostic-source <通过诊断的目录> --approved-source data/fixtures/approved-retry
 ```
 
-validate:business 属于下一阶段需要实现的命令，当前不可用。现有真实学习复查可使用：
+validate:business 已实现；也可以单独运行真实学习复查：
 
 ```sh
 pnpm build

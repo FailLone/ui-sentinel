@@ -63,7 +63,7 @@ validate:business 的三个入口是三个独立模块：一个误设的标志�
 
 B/D 需要的已批准声明来自 `data/fixtures/approved-retry`（默认来源），由 `pnpm fixture:approved-retry` 从 Git 资料离线校验并导入：保持原候选 ID、人工审阅者、声明 target/timeoutMs 与批准时间，不调用 approve/enable API。它是既有批准的迁移，不能用于批准新候选；`portable-source.json` 区分历史数据库与新摘录数据库的哈希，两者不同是正常现象。批次安装前可离线核对：导入的声明会被编译进批次库，其来源行状态为 `interrupted`，不会被任何批次或健康查询当作结果计数。
 
-OpenRouter 验证网关的模型固定在 evaluation/support/model-gateway.ts；提供方和费用上限通过 VALIDATION_AGENT_PROVIDER、VALIDATION_VISION_PROVIDER、VALIDATION_MAX_COST_USD 设置。复现已采纳基线时固定 Agent 为 Wafer、视觉为 Alibaba，并显式 EXECUTION_BLOCKER_REVIEW=1；仅改默认开关的运行不能标成相同条件对照。
+OpenRouter 验证网关的模型固定在 evaluation/support/model-gateway.ts；提供方和费用上限通过 VALIDATION_AGENT_PROVIDER、VALIDATION_VISION_PROVIDER、VALIDATION_MAX_COST_USD 设置。对照时固定并记录模型、提供方及功能开关；仅改默认开关的运行不能标成相同条件对照。
 
 arena:reset 由私有 token 保护；排队、活动或待核对任务存在时拒绝重置。真值和变体名称不放入被测 Agent 可见目标。evaluate 通过正式 API 发起、读取和检查任务，不能直接调用执行器内部函数来绕过持久层。
 
@@ -96,6 +96,6 @@ pnpm validate:business -- --preflight
 
 产品成熟后靶场继续服务规则回归、模型/提示升级、误报漏报复盘和跨业务迁移。开发集、回归集与保留集分开；已用于调优的场景不再是未见泛化证据。新增业务只补充它引入的适用性、状态或预期差异。
 
-学习候选的异常/健康/unknown 验证和既有规则复查见[规则流程](rules-and-rule-library.md)。当前真实成绩与限制见[验收基线](validation-baseline.md)；业务契约阶段的进展、未决项与失败记录见[交接记录](../plans/archive/business-contracts/handoff.md)。
+学习候选的异常/健康/unknown 验证和既有规则复查见[规则流程](rules-and-rule-library.md)。视觉聚焦的命令及正反例要求见[视觉聚焦验证](visual-focus.md)；通用 DOM 调查的配对重放见[可组合调查](composable-investigations.md)。阶段成绩不作为当前构建的保证，历史结果查 Git 与本地运行资料。
 
 `evaluation/private/export/scorer.ts` 先证明能拒绝假阳性（E01–E10 反例：缺显式结束、业务不一致、只 probe 未真正恢复、第二次 create 冒充恢复、测量无窗口/全 null/错误目标/有干预、重复或误报、规则未执行、审批来源无效、答案泄漏、API 与数据库不一致、批次不全或混合构建）。它读正式 API 报告、独立事件/下载证据与私有业务真值组合评分，不读生产适配器给出的「正确答案」，也不接受模型自报成功。

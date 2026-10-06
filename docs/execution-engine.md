@@ -1,10 +1,10 @@
 # 执行层契约
 
-状态：当前实现。入口为 src/execution/executor.ts，工具契约版本 25。
+状态：当前实现。入口为 src/execution/executor.ts，工具契约版本见 src/execution/versions.ts。
 
 ## 分工与生命周期
 
-src/agent/policy.ts 提供探索政策；上下文和模型传输位于 src/agent/context 与 src/agent/model。执行器组装 Mastra 工具并推进运行；工具 schema 集中于 tool-inputs.ts。run-queue.ts 管理串行队列、取消和待核对锁；run-manager.ts 管理持久记录。HTTP 路由不再组装领域报告，报告位于 src/server/reports。
+src/agent/policy.ts 提供探索政策；上下文和模型传输位于 src/agent/context 与 src/agent/model。执行器组装 Mastra 工具并推进运行；工具 schema 位于 tool-inputs.ts 及对应调查模块。run-queue.ts 管理串行队列、取消和待核对锁；run-manager.ts 管理持久记录。HTTP 路由不再组装领域报告，报告位于 src/server/reports。
 
 运行先持久化 queued，再启动浏览器。执行状态、业务结果和检查结论分别保存。业务成功、预期拒绝、未知业务结果与检查阻断可以有不同组合；模型调用正常返回不意味着任务完成。
 
@@ -15,6 +15,8 @@ src/agent/policy.ts 提供探索政策；上下文和模型传输位于 src/agen
 | 能力 | 作用与限制 |
 | --- | --- |
 | page_observe / element_details | 获取当前页面与按需细节；观察版本变化使旧引用失效 |
+| page_inspect / investigation_run | 获取主文档几何事实，运行 Agent 生成的有界调查程序，保存截图与计算结果 |
+| focus_probe | 绑定视觉候选与当前原生输入节点，真实点击并验证聚焦 |
 | page_act | 执行动作，返回结果和后置观察；歧义目标不能随意选第一个 |
 | rules_search / rule_details / checks_run | 检索元数据、展开声明、运行适用规则 |
 | 路径工具 | 复用有前后置条件的导航片段；条件不成立交回 Agent |
@@ -73,9 +75,11 @@ EXECUTION_BLOCKER_REVIEW 默认关闭。开启时使用 OpenRouter Decisions API
 
 保存原图和红框副本，区域来自实际测量。命中测试只证明指针拦截；像素遮挡或“看起来可点击”需要独立视觉依据。Agent 的假设、调用、结果、版本与覆盖缺口用于复盘漏报，而非只输出最终结论。
 
-证据类型为 `screenshot` / `snapshot` / `measurement` / `resource`。`resource` 是执行器按适配器声明保留的公开业务资源，正文逐字保存，分类信息放在产物元数据（`resourceKind`、`operationId`）而不是包裹正文——这样评分器读到的就是业务自己发布的文档。超出预算时显式截断并标注，不静默丢弃。
+证据类型包括 `screenshot`、`snapshot`、`measurement`、`resource`、`investigation-program`，以及视觉候选和聚焦回执。`resource` 是执行器按适配器声明保留的公开业务资源，正文逐字保存，分类信息放在产物元数据（`resourceKind`、`operationId`）而不是包裹正文——这样评分器读到的就是业务自己发布的文档。超出预算时显式截断并标注，不静默丢弃。
 
-未达发布门槛的后台视觉分析运行代码及工具已移除。历史报告的 analysis 记录仍可读取，兼容逻辑仅位于 src/server/reports/legacy-analysis*；Midscene/Qwen 视觉定位仍保留。新运行不再创建后台分析任务。
+未达发布门槛的后台视觉分析运行代码及工具已移除；现有[视觉聚焦发现](visual-focus.md)是执行循环内的有界扫描。历史报告的 analysis 记录仍可读取，兼容逻辑仅位于 src/server/reports/legacy-analysis*；Midscene/Qwen 视觉定位仍保留。新运行不再创建后台分析任务。
+
+[可组合调查](composable-investigations.md)说明程序约束、事实含义与证据校验；程序回执不等于全局规则批准。
 
 验证命令与边界见[开发约定](development.md)和[靶场与评估](arena-and-evaluation.md)。
 
