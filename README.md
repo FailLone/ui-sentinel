@@ -134,6 +134,7 @@ pnpm validate:learning -- --recheck <已关闭且已批准的学习目录>
 
 购物、导出业务、输入区域聚焦验证与可组合调查均已实现。当前仍为受信单机服务，未实现任意网站全覆盖、PRD/Figma 自动接入、多机调度或通用规则自动发布。纯 UI 调查仍沿用业务完成契约，调查结束并不意味着整体报告会显示业务成功；未知与未验证范围必须保留。
 
+- [产品目标、现状差距与 Roadmap](docs/product-roadmap.md)
 - [架构与 Agent 职责](docs/architecture.md)
 - [执行层](docs/execution-engine.md)
 - [可组合调查程序](docs/composable-investigations.md)
