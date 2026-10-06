@@ -58,6 +58,25 @@ EXECUTION_BLOCKER_REVIEW 默认关闭。开启时使用 OpenRouter Decisions API
 
 收尾审查使用独立的观察版本：在截图/DOM/a11y采集前后以及提交前校验布局、样式、命中、节点身份和原生单选/复选框的实时value、checked、indeterminate。选择改变会使旧建议失效。通用观察缓存仍不复用表单页；文本输入、文件选择、select、画布、动画等未支持表面继续退回完整Agent。真实导出页的原生选择控件纳入免费预检，不能只在简化的无表单页面证明审查可执行。
 
+## 网址模式（ui-scan）的访问、结束与干预
+
+网址运行与业务运行共用同一个执行器、工具、预算和证据存储，差别全在契约能力与收尾方式。
+
+**访问边界**是逐跳、派发前的。`src/execution/network/boundary.ts` 在浏览器访问任何地址**之前**安装会话，用 Chromium 的逐请求暂停机制在每一跳派发前判定，而不是等落地后再看 URL。导航按 entry origin / `maxPages` / `maxDepth` 判定；资源按同源或契约声明的 `resourceOrigins`；fetch/XHR 按同源或 `dataOrigins` 且限 GET/HEAD。资源许可不授权 API，API 许可不授权导航或写入。方法、按钮文字和模型意图都不构成放行依据。
+
+**拒绝的两种含义是不同的**，不能混为一谈：
+
+- 派发前就被范围检查拒绝的动作或导航，页面从未改变，只登记为 skipped/denied（`navigation:denied` 及对应账本条目），**不**置位证据干预。
+- 请求已经派发、在飞行中被边界拦下（含 popup、WebSocket、重定向到未授权目标），登记 `execution:intervention` 并置位运行级证据完整性。此后浏览器状态不能用来证明原站点的 pass/fail，重新观察、刷新或导航都不能清洗该状态。
+
+无论哪种，受影响范围都保留为未验证条目，不删除、也不冒充为站点缺陷。
+
+**结束证明**由 `src/inspection/completion.ts` 纯函数产生，`scope-covered` 的全部前提见 `README` 的网址模式一节。`unverified-scope` 可接受结束，但由执行器把所有未决条目固定为 `unverified` 而不是删除它们；没有任何 gap 时的 partial 请求会被拒绝，不能凭空制造一个 blocker。`observed-blocker` 需要真实测量到的导航/页面/工具失败，普通质量发现不构成阻断。
+
+**证据完整性作用于记账，而不只是结论**：一次干预之后，受影响的已选条目不能被提升为 verified。
+
+**规则与网址模式**：规则按 capability 与 applicability 路由。没有业务适配器意味着 `business-outcome` 这类依赖 `business:fact` 的规则不适用，而不是全部 pass 或全部不可用。`response-time` 在网址模式下**没有可判定的阈值**——通用站点不声明 SLA，套用购物阈值就是凭空发明一个合同从未写过的数字。该规则仍返回 `unknown` 并保留测量，但带 `unchecked.reasonCode`，因此它被记为**本次契约的能力边界**而不是未完成的义务，不会让 `scope-covered` 永远不可达；其他原因的 `unknown`（环境被干预、规则自身报错）仍然阻塞完整完成。
+
 ## 安全执行与可靠持久化
 
 - 单页面和共享业务资源串行；取消中止模型/工具，迟到响应不能再派发动作。

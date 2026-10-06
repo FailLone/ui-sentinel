@@ -121,6 +121,7 @@ import { createRun, getRun, getEvents } from './run-manager.ts'
 import { startRunExecution } from './executor.ts'
 import { initDatabase } from '../storage/database.ts'
 import { clearRules } from '../rules/engine.ts'
+import { registerBuiltinRules } from '../rules/builtin/index.ts'
 import { resolveUiScanContract } from '../inspection/contract.ts'
 import type { RunSpec } from '../shared/types.ts'
 
@@ -137,7 +138,12 @@ const server = createServer((request, response) => {
   response.end(
     `<html><head><title>Catalog</title></head><body><h1>Catalog</h1>` +
       `<button id="filter">Filter</button>` +
+      `<button id="sort">Sort</button>` +
       `<a href="/detail?id=1">Detail</a>` +
+      // A control whose click is observable: the run measures the response, which is what makes the
+      // response-time rule applicable at all (its event type is `response:observed`).
+      `<script>document.getElementById('sort').addEventListener('click',function(){` +
+      `document.querySelector('h1').textContent='Sorted'});</script>` +
       `</body></html>`,
   )
 })
@@ -404,6 +410,57 @@ describe('ui-scan executor assembly', () => {
     // before dispatch, and that move is on the record.
     const committed = events.find((e) => e.type === 'navigation:committed')
     expect(committed?.payload.url).toBe(`${origin}/detail?id=1`)
+  })
+
+  it('completes a covered run when a builtin rule reports a limit this contract cannot judge', async () => {
+    // The regression this guards: with the real builtin rules registered, `response-time` is
+    // applicable (a response was measured) but has no threshold to judge against, because a general
+    // site declares no SLA (plan 7). Turning that into an unfinished obligation made `scope-covered`
+    // permanently unreachable for every healthy UI run. The previous tests could not see it because
+    // they call `clearRules()`.
+    registerBuiltinRules()
+    let phase = 0
+    let covered: any
+    harness.handler = async (tools: any, prompt: string) => {
+      if (phase++ === 0) return []
+      if (phase === 2) {
+        const packet = JSON.parse(prompt)
+        const [button, link] = ['local-interaction', 'navigation'].map((category) =>
+          packet.inspectionScope.candidates.find((c: any) => c.category === category),
+        )
+        await call(tools, 'exploration_update', {
+          state: 'catalog',
+          unexploredBranches: [],
+          selectItems: [
+            { itemId: button.itemId, basis: 'the page’s own stated affordance' },
+            {
+              itemId: link.itemId,
+              basis: 'one same-origin detail page is within the declared depth',
+            },
+          ],
+        })
+        await call(tools, 'page_act', { type: 'click', selector: '#sort' })
+        await call(tools, 'page_act', { type: 'navigate', url: `${origin}/detail?id=1` })
+        covered = await call(tools, 'run_finish', { reason: 'scope-covered' })
+        if (!covered.accepted) await call(tools, 'run_finish', { reason: 'unverified-scope' })
+      }
+      return []
+    }
+    const run = await makeUiRun()
+    await startRunExecution(run.id)
+
+    expect(covered.accepted, JSON.stringify(covered)).toBe(true)
+    const stored = await getRun(run.id)
+    expect(stored?.status).toBe('completed')
+    const events = await getEvents(run.id)
+    const summary = events.find((e) => e.type === 'inspection:summary')
+    expect(summary?.payload.coverage).toBe('covered')
+    // The limit is still reported rather than silently dropped: the rule's own verdict and reason are
+    // in the ledger, so a reader can see the performance dimension was not judged.
+    const unchecked = events
+      .filter((e) => e.type === 'rule:evaluated')
+      .find((e) => e.payload.ruleId === 'response-time' && e.payload.verdict === 'unknown')
+    expect(unchecked).toBeDefined()
   })
 
   it('refuses an out-of-depth navigation before it is dispatched', async () => {

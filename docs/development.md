@@ -11,14 +11,15 @@
 | src/agent/model | 模型请求、尝试跟踪、超时、流与工具回执 |
 | src/agent/decisions | 完成选择与可选有限阻断审查 |
 | src/agent/policy.ts | 探索指令；不得混入私有评估答案 |
-| src/execution | 浏览器执行、工具 schema、队列、调查、路径与运行记录 |
+| src/execution | 浏览器执行、工具 schema、队列、调查、路径与运行记录；`network/` 逐跳访问边界、`inspection-host` 检查账本作者边界 |
+| src/inspection | 网址契约与 URL/地址分类、有界导航、检查账本、完成证明；纯函数，不驱动浏览器 |
 | src/rules | 规则接口、路由、内置规则、声明编译与校验 |
 | src/server/routes | HTTP 输入、鉴权、响应；不承载报告领域计算 |
 | src/server/reports | 持久报告组装及旧记录只读兼容 |
 | scripts/cli | 面向操作者的命令入口 |
 | scripts/validation | 可重复验收与集成预检入口 |
 | evaluation/fixtures | 独立业务场景及私有控制器 |
-| evaluation/private | 私有真值与评分器，不暴露给被测 Agent |
+| evaluation/private | 私有真值与评分器，不暴露给被测 Agent；`url-scan/` 存放网址样本的变体标签与预期缺陷 key |
 | evaluation/support | 隔离验证使用的模型网关、成本与请求记录 |
 | arena/export | React 导出靶场与独立私有控制器（loopback 独立端口 + token） |
 
@@ -42,6 +43,7 @@ pnpm validate:blocker-review
 pnpm validate:business -- --preflight
 pnpm validate:visual-focus -- --preflight
 pnpm validate:programs -- --preflight
+pnpm validate:url-scan -- --preflight
 ```
 
 上述测试不调用付费模型。集成预检使用固定模型服务，但运行真实 SDK、编译后的 Server 和浏览器，不应冒充真实模型验收。免费预检与真实模型入口分开；付费入口为对应命令的 `--diagnostic` / `--formal`，可组合调查使用 `--real`，缺 key 明确失败。

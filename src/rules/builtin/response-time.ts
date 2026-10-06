@@ -37,7 +37,10 @@ export const responseTimeRule: Rule = {
       }
     // A response was measured but the run declares no requirement to judge it against. Substituting
     // a remembered ten seconds would report a verdict for a number this contract never stated, so
-    // the requirement is unknown - and unknown is never a rule passing.
+    // the requirement is unknown - and unknown is never a rule passing. The verdict carries the
+    // reason it is unknown so a UI run records it as a limit of this contract rather than as an
+    // unfinished check: a general site declares no SLA, so this cannot hold a bounded completion
+    // open (plan 5.2, 7).
     if (!declared)
       return {
         ruleId: this.id,
@@ -50,6 +53,7 @@ export const responseTimeRule: Rule = {
         evidenceRefs: [],
         confidence: 0,
         details: { thresholdMs: null, measurements: [] },
+        unchecked: { reasonCode: 'requirement-not-declared' },
       }
     const measurements = observations
       .map((e) => e.payload)

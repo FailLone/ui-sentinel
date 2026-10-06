@@ -42,6 +42,19 @@ describe('response budget uses observed browser timings', () => {
     expect(result.details.thresholdMs).toBe(5000)
     expect(result.expected).toContain('5000')
   })
+  it('R07: marks a no-requirement unknown as an unchecked limit, not an unfinished obligation', async () => {
+    // Plan 5.2/7: a performance judgement with no declared threshold is *listed as unchecked* and
+    // must not hold a bounded-scope completion open. The verdict stays `unknown` (R07), but the rule
+    // says why so the ledger can record it as a capability limit rather than an obligation.
+    const undeclared = await responseTimeRule.evaluate(context(30000))
+    expect(undeclared.verdict).toBe('unknown')
+    expect(undeclared.unchecked?.reasonCode).toBe('requirement-not-declared')
+    // A run that *does* declare a requirement and was measured carries no such marker: its verdict is
+    // a completed measurement, not a capability limit.
+    expect((await responseTimeRule.evaluate(context(500, 1, 10000))).unchecked).toBeUndefined()
+    expect((await responseTimeRule.evaluate(context(12000, 1, 10000))).unchecked).toBeUndefined()
+  })
+
   it('R07: reports unknown rather than a remembered threshold when the run declares none', async () => {
     // A run whose contract states no requirement - or a legacy run with no contract at all - has no
     // number to be judged against. Falling back to ten seconds would invent one.

@@ -158,3 +158,42 @@ export function parseBusinessCli(argv: readonly string[]): BusinessCliOptions {
     throw new CliUsageError('cli: formal requires diagnostic-source')
   return { mode, ...options }
 }
+
+/**
+ * Parse argv for the URL-scan entry (`validate:url-scan`).
+ *
+ * This entry exists so a URL preflight is never a flag on a paid script: the free check is its own
+ * command, and the only option it takes is a sample selector. The paid URL modes are added in B5 with
+ * their own dry-run discipline, so a name they will use (`--formal`) is refused here rather than
+ * quietly running the free path under a paid-looking flag.
+ */
+export type UrlScanMode = 'preflight'
+export interface UrlScanCliOptions {
+  readonly mode: UrlScanMode
+  readonly sample?: string
+}
+
+export function parseUrlScanCli(argv: readonly string[]): UrlScanCliOptions {
+  const args = argv.filter((a) => a !== '--')
+  if (args.length === 0) return { mode: 'preflight' }
+  const modes = args.filter((a) => a === '--preflight')
+  if (modes.length !== 1)
+    throw new CliUsageError(`cli: expected exactly one of --preflight (got ${modes.length})`)
+  const options: { sample?: string } = {}
+  let seenSample = false
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i]!
+    if (arg === '--preflight') continue
+    if (!arg.startsWith('--'))
+      throw new CliUsageError(`cli: unexpected positional argument "${arg}"`)
+    if (arg !== '--sample') throw new CliUsageError(`cli: unknown option "${arg}"`)
+    if (seenSample) throw new CliUsageError('cli: repeated option "--sample"')
+    seenSample = true
+    const value = args[i + 1]
+    if (value === undefined || value.startsWith('--'))
+      throw new CliUsageError('cli: option "--sample" requires a value')
+    i++
+    options.sample = value
+  }
+  return { mode: 'preflight', ...options }
+}

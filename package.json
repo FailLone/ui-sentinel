@@ -33,7 +33,8 @@
     "test:fixtures:export": "tsx scripts/verify-export-fixtures.ts",
     "validate:business": "tsx scripts/validation/business.ts",
     "fixture:approved-retry": "tsx scripts/validation/approved-retry.ts",
-    "validate:visual-focus": "tsx scripts/validation/visual-focus.ts"
+    "validate:visual-focus": "tsx scripts/validation/visual-focus.ts",
+    "validate:url-scan": "tsx scripts/validation/url-scan.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "^4.0.72",

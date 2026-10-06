@@ -103,6 +103,27 @@ describe('executor-created items', () => {
     expect(h.completionFacts().gaps).toEqual([])
   })
 
+  it('records an unknown-with-no-declared-requirement as a limit, not an obligation', async () => {
+    const { host: h } = host()
+    // The rule ran and had nothing to judge against. That is a recorded measurement limit: the item
+    // keeps its reason, and it must not become a gap that makes `scope-covered` unreachable (plan
+    // 5.2, 7 - a general site declares no SLA, so response-time cannot block a bounded completion).
+    await h.recordAutomaticCheck({
+      ruleId: 'response-time',
+      revision: '3.0.0',
+      verdict: 'unknown',
+      evidenceRefs: ['measurement.json'],
+      unchecked: { reasonCode: 'requirement-not-declared' },
+    })
+    const item = h.snapshot().items[0]!
+    expect(item.status).toBe('unverified')
+    expect(item.reasonCode).toBe('requirement-not-declared')
+    expect(item.selected).toBe(false)
+    // The reason survives in the report, but the run is not held open by it.
+    expect(h.completionFacts().gaps).toEqual([])
+    expect(h.snapshot().unsupported.map((u) => u.dimension)).toContain('response-time')
+  })
+
   it('keeps an unknown automatic check as an unfinished obligation with its reason', async () => {
     const { host: h } = host()
     await h.recordAutomaticCheck({

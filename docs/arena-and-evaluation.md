@@ -78,11 +78,18 @@ pnpm validate:persistence
 pnpm validate:investigation
 pnpm validate:blocker-review
 pnpm validate:business -- --preflight
+pnpm validate:visual-focus -- --preflight
+pnpm validate:programs -- --preflight
+pnpm validate:url-scan -- --preflight
 ```
 
-后四项运行真实编译服务、Mastra SDK 和 Chromium，使用明确的本地固定模型响应。它们验证持久终结、取消、原子调查、有限审查集成与业务契约可执行性，不证明真实模型会正确决策，也不调用付费模型。
+后几项运行真实编译服务、Mastra SDK 和 Chromium，使用明确的本地固定模型响应。它们验证持久终结、取消、原子调查、有限审查集成、业务契约与网址契约的可执行性，不证明真实模型会正确决策，也不调用付费模型。
 
 `validate:business -- --preflight` 通过实际 HTTP 创建任务（不直接调用 executeRun），跑完 E0–E4 固定模型场景，再注入一次未知写入与一次非法 finish 验证系统阻止它们，最后用真实浏览器驱动工作台 U01–U05 并保存三张真实 UI 截图（创建表单、导出成功报告、缺陷证据）。它证明契约**可执行**，不写成「真实 Agent 自主发现通过」。
+
+`validate:url-scan -- --preflight` 有自己的入口而不是挂在业务或视觉脚本上的一个标志，因此一个误设的 flag 无法把网址预检变成付费运行。它主动清空所有真实凭据、把模型指向本地固定服务，通过正式 HTTP 创建 `kind: 'ui-scan'` 任务并跑完固定模型场景：健康样本必须真的到达 covered/completed（`observedEntry`、`usage.actions ≥ 1`、入口保真、无业务适配器、`businessResult: 'not-applicable'`、证明 hash 可校验），非法 finish 必须被拒绝且不产生 covered/completed，越界导航必须在**派发前**被拒且目标未到达。分数由 `evaluation/private/url-scan/scorer.ts` 给出，它读**独立**事实（服务器请求计数、写计数、持久记录、构建身份），从不复用生产 verdict 函数——复用一个正在被检验的函数，会与它的 bug 一致。证据写入 `data/r0-url-scan/<timestamp>/`。
+
+网址样本的私有真值在 `evaluation/private/url-scan/`：变体标签、预期缺陷 key 与复现步骤都在这里，公开页面、fixture HTML/JS/API、URL 与模型请求中都不出现。构建身份由冻结清单在评分时注入，不用字面量——否则每个分数都会声称是写下它时恰好 checkout 的那棵树。
 
 ## 结果与证据
 

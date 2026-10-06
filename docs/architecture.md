@@ -26,15 +26,44 @@ flowchart LR
 | 模块 | 当前责任 |
 | --- | --- |
 | src/business | 业务契约配置与校验、注册表与冻结、公开协议适配器、规范化事实、副作用策略输入 |
+| src/inspection | 网址模式契约、URL/地址分类、有界导航、逐跳网络策略、检查账本与完成证明 |
 | src/agent | 探索政策、有限上下文、模型请求与计时、结束判断、规则候选生成 |
-| src/execution | 队列与取消、页面控制、工具验证、预算、事实与证据、可靠终结 |
+| src/execution | 队列与取消、页面控制、工具验证、预算、事实与证据、可靠终结、检查宿主与网络边界 |
 | src/rules | 规则目录、按事实路由、共享检查、声明式时序规则 |
-| src/server | HTTP/SSE、控制接口、业务配置解析、持久报告组装 |
+| src/server | HTTP/SSE、控制接口、业务配置解析、持久报告组装（含 ui-scan 报告段） |
 | src/storage | 数据表与事务；模型 SDK 不拥有运行状态 |
-| src/web | 本地任务创建（含业务选择）、报告、日志、证据及反馈操作 |
-| arena / evaluation | 可重复业务靶场（购物、导出）、私有真值、评分与验收支撑 |
+| src/web | 本地任务创建（业务 / 网址两种模式）、报告、日志、证据及反馈操作 |
+| arena / evaluation | 可重复业务靶场（购物、导出）、私有真值、评分与验收支撑、`evaluation/private/url-scan` 私有样本真值 |
 
 Mastra Core 提供 Agent/Tools；Playwright 提供浏览器状态、动作和证据；Midscene/Qwen 提供必要的视觉定位。Hono、libSQL、React 分别负责服务、持久化、工作台。没有 Effect 依赖，也没有保留第二套 Stagehand/Browser Use 运行循环。
+
+## 判别任务契约：业务与网址
+
+执行器仍然只有一个，但任务契约现在是一个**判别联合**：`RunSpec.kind` 是 `'business'` 或 `'ui-scan'`。`resolveRunKind` 先读这个判别字段，再决定本次运行拥有哪些能力。
+
+- **business**：原样保留——注册表解析、环境白名单、adapter、要求与阈值、副作用策略、Journey。缺 `kind` 的历史记录按原语义解释，绝不被套用今天就有的默认配置。
+- **ui-scan**：`business` 能力为 `null`。不调用 `legacyCompatibleContract`，不装配 `BusinessRuntime`，不注入任何业务 profile（包括空适配器）。共享的是执行器的生命周期、工具串行化、预算、浏览器、证据存储、规则引擎和调查程序；**不**共享的是业务契约、业务事实、Journey 与阻断审查。
+
+```mermaid
+flowchart LR
+  API[POST /api/runs] --> K{rawBody.kind}
+  K -->|business| BReg[selectBusinessContract]
+  K -->|'ui-scan'| URes[resolveUiScanContract]
+  BReg --> Spec[RunSpec.businessContract]
+  URes --> UContract[UiContractSnapshot + hash]
+  UContract --> Spec2[RunSpec.uiContract]
+  Spec --> One[同一个执行器]
+  Spec2 --> One
+  One --> Net{kind?}
+  Net -->|business| OldNet[原业务网络/副作用策略]
+  Net -->|'ui-scan'| UiNet[execution/network 逐跳边界]
+  One --> Led{kind?}
+  Led -->|'ui-scan'| Scope[inspection 检查账本 + 完成证明]
+```
+
+一次网址运行的装配顺序是**先边界后导航**：网络会话必须在浏览器访问任何地址之前安装，否则入口文档和它加载的一切都已经派发出去，而那正是边界要防的状态。检查账本由执行器单方写入——模型只能在实际创建过的条目中选择，并记录自己确实存在的未知，不能标记已验证、不能删除义务、空更新不能清除执行器拥有的义务。
+
+完成时由 `inspection/completion.ts` 这一纯函数按当前事实判定，返回带 hash 的证明；`completion-integrity` 用同一契约摘要校验持久终态。报告不读执行器的自报摘要来推断覆盖度，而是由**校验通过**的证明投影——一条声称覆盖却没有可校验证明的记录会显示为未完成。
 
 ## 业务契约层
 
@@ -90,4 +119,4 @@ Agent 不拥有无限执行权限：动作预算、导航边界、重复写入�
 
 发现关联截图、动作、规则版本、实际测量和来源；红框是证据副本，不覆盖原图。DOM 命中拦截不自动证明视觉遮挡，执行器拦截造成的现象不能归因于被测产品。
 
-[视觉聚焦验证](visual-focus.md)目前只覆盖输入区域；可组合调查覆盖已有测量原语能表达的问题，不能证明任意视觉体验。PRD/Figma 导入、完整知识检索、程序的自动前置状态恢复与跨页面重绑定、通用规则发布仍是后续方向。纯 UI 任务沿用业务完成契约，可能以 blocked / business unknown 收尾，不得把调查完成改写为业务成功。新模型筛选、后台视觉分析、并发业务写、多机调度、插件平台与向量库明确不在范围内。
+[视觉聚焦验证](visual-focus.md)目前只覆盖输入区域；可组合调查覆盖已有测量原语能表达的问题，不能证明任意视觉体验。PRD/Figma 导入、完整知识检索、程序的自动前置状态恢复与跨页面重绑定、通用规则发布仍是后续方向。业务任务的调查沿用业务完成契约，可能以 blocked / business unknown 收尾，不得把调查完成改写为业务成功。网址任务（`kind: 'ui-scan'`）用自己的检查账本与完成证明收尾，`businessResult` 恒为 `not-applicable`，同样不得把「检查已完成」读成「网站合格」。新模型筛选、后台视觉分析、并发业务写、多机调度、插件平台与向量库明确不在范围内。

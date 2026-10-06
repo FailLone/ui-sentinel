@@ -215,6 +215,12 @@ export function createInspectionHost(options: InspectionHostOptions) {
    *
    * A `pass` and a `fail` are both *completed measurements*; only `unknown` leaves an unfinished
    * obligation, and it keeps the rule's own reason code so the report can say why.
+   *
+   * The one exception is an `unknown` the rule itself attributes to *this run's contract having
+   * nothing for it to judge* - a general site declares no performance requirement (plan 7). Plan 5.2
+   * lists that as a recorded unchecked dimension rather than an obligation, so it is recorded as an
+   * unsupported dimension and does not hold a bounded completion open. The reason is not lost: it is
+   * in the item's own reason code and in the run's unsupported list.
    */
   async function recordAutomaticCheck(input: {
     ruleId: string
@@ -222,13 +228,16 @@ export function createInspectionHost(options: InspectionHostOptions) {
     verdict: 'pass' | 'fail' | 'unknown' | 'not-applicable'
     evidenceRefs: readonly string[]
     detail?: string
+    unchecked?: { reasonCode: string }
   }) {
     const item = create({
       category: 'automatic-check',
       basis: `automatic rule ${input.ruleId} applies to the observed state`,
       targetSource: 'executor',
       ruleRevision: input.revision,
-      selected: true,
+      // A check that was reached but that this contract gives nothing to judge is recorded, not
+      // selected: it is a limit of this run rather than part of the scope it promised to cover.
+      selected: !input.unchecked,
     })
     const detail = input.detail ?? `${input.ruleId} verdict: ${input.verdict}`
     if (input.verdict === 'pass')
@@ -256,10 +265,15 @@ export function createInspectionHost(options: InspectionHostOptions) {
     else
       scope.resolveItem(item.itemId, {
         status: 'unverified',
-        reasonCode: 'rule-unknown',
+        reasonCode: input.unchecked?.reasonCode ?? 'rule-unknown',
         evidenceRefs: [...input.evidenceRefs],
         eventIds: [],
         detail,
+      })
+    if (input.unchecked)
+      scope.recordUnsupported({
+        dimension: input.ruleId,
+        reasonCode: input.unchecked.reasonCode,
       })
     await persist()
     return item

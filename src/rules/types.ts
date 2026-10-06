@@ -70,6 +70,16 @@ export interface RuleResult {
   readonly evidenceRefs: readonly string[]
   readonly confidence: number
   readonly details: Record<string, unknown>
+  /**
+   * Why an `unknown` verdict is a *limit of this run's contract* rather than an unfinished check.
+   *
+   * The distinction matters to a UI run's ledger. A rule that ran and was measured but had nothing to
+   * judge against - a general site declares no performance requirement (plan 7) - has reached the end
+   * of what it can say, and plan 5.2 lists "a performance judgement with no threshold" as recorded
+   * `unverified/unchecked` rather than as an obligation. A rule left `unknown` for any *other* reason
+   * (the environment was altered, the rule itself errored) omits this and still holds completion open.
+   */
+  readonly unchecked?: { readonly reasonCode: string }
 }
 
 export interface Rule {

@@ -626,6 +626,11 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           revision: r.ruleRevision,
           verdict: r.verdict,
           evidenceRefs: [...new Set([...latest!.evidenceRefs, ...r.evidenceRefs])],
+          // A rule that ran and found nothing to judge against this contract (a general site
+          // declares no performance requirement) is recorded as a limit, not an obligation: the
+          // executor does not turn it into a gap that would make `scope-covered` unreachable
+          // (plan 5.2, 7). Any other `unknown` keeps holding completion open.
+          ...(r.unchecked ? { unchecked: r.unchecked } : {}),
         })
       }
     }
