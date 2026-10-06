@@ -1,4 +1,3 @@
-import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import {
   scoreVisualEvidence,
@@ -7,6 +6,7 @@ import {
   type ScoredSample,
 } from './scorer.ts'
 import { visualTruthFor, type VisualCaseId } from '../../fixtures/visual.ts'
+import { findForbiddenReachability } from '../../support/module-graph.ts'
 import { witnessFromElement, type PrivateVisualTarget } from './witness.ts'
 
 /**
@@ -297,18 +297,20 @@ describe('independent visual scorer', () => {
     expect(result.classification).toBe('pass')
   })
 
-  it('does not import the product verdict or the P2 smoke scorer', () => {
+  it('does not import the product verdict or the P2 smoke scorer, however indirectly', () => {
     // The scorer must recompute the conclusion from raw evidence; sharing the product's verdict
-    // function would make the two agree by construction.
-    const source = readFileSync(new URL('./scorer.ts', import.meta.url), 'utf8')
-    for (const forbidden of [
+    // function would make the two agree by construction. This walks the whole import graph rather
+    // than grepping the scorer's own source, because "directly or indirectly" is the requirement and
+    // a re-export under another name is exactly how an indirect call would arrive - `witness.ts`, in
+    // this tree, is itself such a facade.
+    const found = findForbiddenReachability(new URL('./scorer.ts', import.meta.url).pathname, [
       'focusReceiptVerdict',
       'evaluateFocusVerdict',
       'focusReceiptSupports',
       'visualSmokeProblems',
       'isFocusReceipt',
     ])
-      expect(source).not.toMatch(new RegExp(`\\b${forbidden}\\b`))
+    expect(found).toEqual([])
   })
 
   // --- S01 : supported with no vision request / image --------------------------------
@@ -546,6 +548,22 @@ describe('independent visual scorer', () => {
       },
     }
     expect(failCodes(input)).toContain('provenance.normalized-transform')
+  })
+
+  it('rejects a candidate whose transform cannot be checked at all (S03)', () => {
+    // The check compares the persisted region against the raw response converted by the saved
+    // viewport. When either side is absent there is nothing to compare, and an assertion that passes
+    // on "nothing to compare" is a false pass: a receipt that dropped its viewport, or a response
+    // that never arrived, would sail through the exact check S03 exists to make.
+    for (const drop of ['raw', 'viewport'] as const) {
+      const input = clone(passing('D0'))
+      if (drop === 'raw') input.sentVision = [{ sha256: 'a'.repeat(64), raw: null }]
+      const receipt = input.artifacts['receipt-art-1']!.data as { viewport?: unknown }
+      if (drop === 'viewport') {
+        delete receipt.viewport
+      }
+      expect(failCodes(input), `missing ${drop}`).toContain('provenance.normalized-transform')
+    }
   })
 
   it('accepts H1 and H2 when no candidate is proposed at all', () => {

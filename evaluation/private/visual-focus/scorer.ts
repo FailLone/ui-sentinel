@@ -401,9 +401,13 @@ export function scoreVisualEvidence(input: VisualScorerInput): VisualScore {
   const closeTo = (a: number, b: number) => Math.abs(a - b) <= 1
   add(
     'provenance.normalized-transform',
+    // A persisted candidate must be checkable. When the raw response or the saved viewport is absent
+    // there is nothing to convert and nothing to compare, which is not a pass: the S03 case is
+    // "a plausible box that came from somewhere else", and an unverifiable box is exactly that. Only
+    // the genuine no-candidate case (H1/H2 raise none) passes without a comparison.
     !!candidateArt &&
-      !!expectedRegion &&
       !(
+        expectedRegion &&
         closeTo(candidateArt.perceivedRegion.x, expectedRegion.x) &&
         closeTo(candidateArt.perceivedRegion.y, expectedRegion.y) &&
         closeTo(candidateArt.perceivedRegion.width, expectedRegion.width) &&
