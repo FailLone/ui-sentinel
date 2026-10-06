@@ -1,6 +1,6 @@
 # 下一轮开发任务书：主动视觉发现与输入区域聚焦验证
 
-状态：P0–P2 ready；P3 已由主 Agent 复查修复并完成 G0–G3 免费验收，证据见 [P3 交接](visual-focus-p3-handoff.md)，分支 `review/visual-focus-p3`。P4 真实模型联合验收尚未执行。历史结果见 [P1 交接](visual-focus-handoff.md)、[P2 交接](visual-focus-p2-handoff.md)。P3 的规范仍为 [任务书](visual-focus-p3-plan.md)和[逐项验收](visual-focus-p3-acceptance.md)；沿用 [开发约定](../docs/development.md)。
+状态：P0–P2 ready；P3 已由主 Agent 复查修复并完成 G0–G3 免费验收，证据见 [P3 交接](visual-focus-p3-handoff.md)，分支 `review/visual-focus-p3`。P4 真实模型联合验收已通过：视觉正式 18/18、业务正式 45/45，诊断与审计均通过，见 [P4 交接](visual-focus-p4-handoff.md)。执行冻结提交为 `a4c0698`，后续仅更新交接文档。历史结果见 [P1 交接](visual-focus-handoff.md)、[P2 交接](visual-focus-p2-handoff.md)。P3 的规范仍为 [任务书](visual-focus-p3-plan.md)和[逐项验收](visual-focus-p3-acceptance.md)；沿用 [开发约定](../docs/development.md)。
 
 上一轮业务契约已完成，结果见 [归档交接](archive/business-contracts/handoff.md)。652测试及45/45是上一轮基线，不能算作本轮验收。先核对实际HEAD、干净工作区和模型配置，再开发。
 

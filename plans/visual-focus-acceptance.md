@@ -1,8 +1,8 @@
 # 主动视觉发现：完整验收计划
 
-与 [开发任务书](next-development-plan.md)共同执行。状态：P1 最小子集及 P2 开发 smoke 已通过，见 [P1 交接](visual-focus-handoff.md)和 [P2 交接](visual-focus-p2-handoff.md)；以下完整 G0–G6 未全部验收。P3 的开发接口、免费验证和转交边界见 [P3 任务书](visual-focus-p3-plan.md)与[逐项验收](visual-focus-p3-acceptance.md)。`validate:visual-focus -- --preflight` 已实现；新视觉 diagnostic/formal 已实现，P3 免费验证记录见 [P3 交接](visual-focus-p3-handoff.md)；其存在不代表 P4 真实模型验收已通过。本轮验收独立于归档业务契约阶段，旧45/45不能替代新结果。
+与 [开发任务书](next-development-plan.md)共同执行。状态：**G0–G6 已完成，P4 accepted**。本轮真实视觉正式 18/18、业务正式 45/45，诊断及审计全部通过，执行冻结提交 `a4c0698`；具体证据、费用、恢复过的错误与限制见 [P4 交接](visual-focus-p4-handoff.md)。P3 免费验证见 [P3 交接](visual-focus-p3-handoff.md)，规范见 [P3 任务书](visual-focus-p3-plan.md)与[逐项验收](visual-focus-p3-acceptance.md)。本轮使用新结果，未用历史 45/45 或 fixed 响应替代真实验收。
 
-P2 新增显式 `--p2-smoke [--cases D0,H0,H1] [--spending-source <dir>]` 开发复验入口；它不是下表的 G4 diagnostic。原 D1/D2/H2 已用于调试，保存在 `visual-regression-1.json` 作为已知回归；P3 实现 revision/冻结/来源门槛；P4 按 [执行清单](visual-focus-p4-plan.md)在提示/schema/算法冻结后准备 `visual-holdout-2` 新页面，真实验收尚未通过。这项 P4 工作不阻塞 P3 免费工具交付。重新冻结并重跑旧 D2 不会恢复盲测身份。详见 [P2 交接](visual-focus-p2-handoff.md)。
+P2 新增显式 `--p2-smoke [--cases D0,H0,H1] [--spending-source <dir>]` 开发复验入口；它不是下表的 G4 diagnostic。原 D1/D2/H2 已用于调试，保存在 `visual-regression-1.json` 作为已知回归；P3 实现 revision/冻结/来源门槛；P4 按 [执行清单](visual-focus-p4-plan.md)在提示/schema/算法冻结后准备 `visual-holdout-2` 新页面，并完成此次真实验收。这项 P4 工作不阻塞 P3 免费工具交付。重新冻结并重跑旧 D2 不会恢复盲测身份。详见 [P2 交接](visual-focus-p2-handoff.md)。
 
 ## 1. 验收命令契约
 
