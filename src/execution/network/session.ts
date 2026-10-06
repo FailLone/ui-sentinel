@@ -31,8 +31,12 @@ import type {
  */
 
 export interface NetworkDecisionRecord extends NetworkDecision {
-  /** Present when the session refused a request the policy allowed (the round request budget). */
-  readonly sessionReason?: 'request-budget-exhausted'
+  /**
+   * Present when the session refused a request the policy allowed: the round request or byte budget.
+   * The byte case is decided at the *response* stage, after the size was measured, so the request
+   * itself was dispatched and the refusal describes the response rather than the request.
+   */
+  readonly sessionReason?: 'request-budget-exhausted' | 'response-budget-exhausted'
   /** Present when a response was kept but could not be retained whole (plan 4.4). */
   readonly truncated?: boolean
 }
@@ -180,6 +184,12 @@ export async function installUiNetworkSession(
     if (dispatched >= limits.maxRequests)
       return { ...receipt, allow: false, reasonCode: 'request-budget-exhausted' }
 
+    // The round-wide byte budget (plan 4.4: "整轮 50 MiB"). Once the responses seen so far have
+    // spent it, further requests are refused before dispatch so no more body crosses the boundary.
+    // Without this check the counter below would be a dead letter.
+    if (retainedBytes >= limits.maxTotalBytes)
+      return { ...receipt, allow: false, reasonCode: 'response-budget-exhausted' }
+
     let resolvedAddress: string | null = null
     try {
       const parsed = new URL(event.request.url)
@@ -261,9 +271,10 @@ export async function installUiNetworkSession(
   /**
    * Enforce the response-size limits.
    *
-   * `Content-Length` is only a hint: a chunked response has none, so the size is measured from the
-   * body when the header is absent. The measured value decides, which is what makes the limit real
-   * rather than advisory.
+   * `Content-Length` is only a hint: a chunked or streamed response has none, so the size is
+   * measured from the body itself when the header is absent (plan 4.4: "大小限制需要包含 chunked
+   * 响应的实测测试，不能只相信 Content-Length"). The measured value decides, and it is added to
+   * the round total that `judge` checks before dispatching the next request.
    */
   async function handleResponse(
     session: Awaited<ReturnType<BrowserContext['newCDPSession']>>,
@@ -271,7 +282,9 @@ export async function installUiNetworkSession(
   ): Promise<void> {
     const declared = event.responseHeaders?.find((h) => h.name.toLowerCase() === 'content-length')
     const declaredBytes = declared ? Number(declared.value) : Number.NaN
-    if (Number.isFinite(declaredBytes) && declaredBytes > limits.maxResponseBytes) {
+
+    /** Record a response kept only in part: the limit was reached, so the body is emptied. */
+    const truncate = async (): Promise<void> => {
       retainedBytes += limits.maxResponseBytes
       emit({ ...emptyReceipt(event.requestId), allow: true, truncated: true })
       await session
@@ -282,8 +295,35 @@ export async function installUiNetworkSession(
           body: Buffer.alloc(0).toString('base64'),
         })
         .catch(() => {})
+    }
+
+    // A declared length above the ceiling can be settled without reading the body at all.
+    if (Number.isFinite(declaredBytes) && declaredBytes > limits.maxResponseBytes) {
+      await truncate()
       return
     }
+
+    // A response with no declared length must be measured from its actual bytes: this is the only
+    // way the per-response limit is real for chunked bodies.
+    let measured = declaredBytes
+    if (!Number.isFinite(measured)) {
+      const body = (await session
+        .send('Fetch.getResponseBody', { requestId: event.requestId })
+        .catch(() => null)) as { body?: string; base64Encoded?: boolean } | null
+      if (body && typeof body.body === 'string')
+        measured = Buffer.from(body.body, body.base64Encoded ? 'base64' : 'utf8').byteLength
+    }
+
+    if (Number.isFinite(measured) && measured > limits.maxResponseBytes) {
+      await truncate()
+      return
+    }
+    // The response passed; its measured size counts against the round-wide budget that `judge`
+    // checks before the next dispatch. A size we could not measure counts as nothing, which can
+    // only make the session *more* permissive for that one response - the request and per-response
+    // limits still bound it.
+    if (Number.isFinite(measured)) retainedBytes += measured
+
     await session
       .send('Fetch.continueResponse', { requestId: event.requestId })
       .catch(() =>

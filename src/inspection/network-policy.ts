@@ -24,6 +24,11 @@ export type NetworkReasonCode =
   | 'malformed-url'
   /** The run's round request budget is spent; exploration stops with a partial record (plan 4.4). */
   | 'request-budget-exhausted'
+  /**
+   * The run's round-wide byte budget is spent (plan 4.4: "整轮 50 MiB"). A page that pulls many
+   * responses each under the per-response limit must still be stopped once their sum exceeds it.
+   */
+  | 'response-budget-exhausted'
 
 export interface NetworkRequestInput {
   readonly requestId: string

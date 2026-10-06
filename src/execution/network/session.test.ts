@@ -279,6 +279,108 @@ describe('per-hop network enforcement', () => {
     expect(decisions.every((d) => d.policyRevision === policy.policyRevision)).toBe(true)
   })
 
+  it('measures a chunked response body rather than trusting a missing Content-Length', async () => {
+    // Plan 4.4: "大小限制需要包含 chunked 响应的实测测试，不能只相信 Content-Length". A response
+    // that declares no length - the normal case for a chunked or streamed body - must be measured
+    // from its actual bytes, or the per-response limit is a limit on nothing.
+    const entry = await serve((req, res) => {
+      if (req.url === '/big.css') {
+        // No content-length header: this is written as a chunked body.
+        res.writeHead(200, { 'content-type': 'text/css' })
+        for (let i = 0; i < 32; i++) res.write('x'.repeat(64 * 1024))
+        res.end()
+        return
+      }
+      res.writeHead(200, { 'content-type': 'text/html' })
+      res.end(html('<link rel="stylesheet" href="/big.css"><p>body</p>'))
+    })
+    const policy = createNetworkPolicy({
+      entryUrl: `${entry.origin}/`,
+      resourceOrigins: [],
+      dataOrigins: [],
+      reachableOrigins: [entry.origin],
+    })
+    const decisions: NetworkDecisionRecord[] = []
+    worker = await launchBrowser({ headless: true })
+    await installUiNetworkSession({
+      context: worker.context,
+      page: worker.page,
+      policy,
+      onDecision: (record) => decisions.push(record),
+      // 2 MiB chunked body against a 1 MiB per-response ceiling.
+      limits: { maxRequests: 500, maxResponseBytes: 1024 * 1024, maxTotalBytes: 50 * 1024 * 1024 },
+    })
+
+    await worker.page.goto(`${entry.origin}/`, { waitUntil: 'networkidle' }).catch(() => {})
+    await worker.page.waitForTimeout(300)
+
+    // The measured body exceeded the limit, so the response is recorded as truncated. Trusting the
+    // absent header would have continued ~2 MiB through unjudged.
+    const truncated = decisions.find((d) => d.truncated)
+    expect(truncated).toBeDefined()
+    expect(truncated?.url).toContain('/big.css')
+  })
+
+  it('stops passing responses through once the round byte budget is spent', async () => {
+    // Plan 4.4 sets a round-wide "整轮 50 MiB" ceiling, not just a per-response one. A page that
+    // fetches many responses each under the per-response limit must still be stopped when their
+    // cumulative size exceeds the round budget.
+    const entry = await serve((req, res) => {
+      if (req.url?.endsWith('.bin')) {
+        res.writeHead(200, {
+          'content-type': 'application/octet-stream',
+          'content-length': String(1024 * 1024),
+        })
+        res.end(Buffer.alloc(1024 * 1024))
+        return
+      }
+      res.writeHead(200, { 'content-type': 'text/html' })
+      res.end(html('<p>budget page</p>'))
+    })
+    const policy = createNetworkPolicy({
+      entryUrl: `${entry.origin}/`,
+      resourceOrigins: [],
+      dataOrigins: [],
+      reachableOrigins: [entry.origin],
+    })
+    const decisions: NetworkDecisionRecord[] = []
+    worker = await launchBrowser({ headless: true })
+    await installUiNetworkSession({
+      context: worker.context,
+      page: worker.page,
+      policy,
+      onDecision: (record) => decisions.push(record),
+      // Six 1 MiB reads against a 3 MiB round ceiling; the reads are sequential so the accounting
+      // is what decides, not browser scheduling.
+      limits: {
+        maxRequests: 500,
+        maxResponseBytes: 10 * 1024 * 1024,
+        maxTotalBytes: 3 * 1024 * 1024,
+      },
+    })
+    await worker.page.goto(`${entry.origin}/`, { waitUntil: 'domcontentloaded' })
+
+    const results = await worker.page.evaluate(async () => {
+      const out: number[] = []
+      for (let i = 0; i < 6; i++) {
+        try {
+          const response = await fetch(`/i${i}.bin`)
+          const body = await response.arrayBuffer()
+          out.push(body.byteLength)
+        } catch {
+          out.push(-1)
+        }
+      }
+      return out
+    })
+
+    // The first three reads fit in the budget; the rest are refused rather than passed through.
+    expect(results.filter((n) => n > 0).length).toBeLessThanOrEqual(3)
+    expect(decisions.some((d) => !d.allow && d.reasonCode === 'response-budget-exhausted')).toBe(
+      true,
+    )
+  })
+
   it('refuses a WebSocket channel rather than letting it run unobserved', async () => {
     // A live channel is not a request this layer can judge and the release does not support it, so it
     // must fail visibly instead of opening silently (plan 1.1, 4.2).
