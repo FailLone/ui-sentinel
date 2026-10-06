@@ -1,3 +1,4 @@
+import { assertProgramReceipt } from './investigation/promotion.ts'
 import { createHash } from 'node:crypto'
 import { deriveProbePoints } from './focus-geometry.ts'
 import { randomUUID } from 'node:crypto'
@@ -363,7 +364,7 @@ export async function recordHypothesis(
      * measurement - never from agent-supplied wording. Persisted on the created event, which is
      * append-only, so a later status change cannot rewrite the class it was registered under.
      */
-    kind?: 'visual-focus'
+    kind?: 'visual-focus' | 'program'
     /** The candidate a visual-focus hypothesis is bound to, for the promotion gate. */
     visualCandidateId?: string
   },
@@ -411,7 +412,7 @@ export async function recordHypothesis(
 export async function hypothesisClass(
   runId: string,
   hypothesisId: string,
-): Promise<{ kind: 'visual-focus' | null; visualCandidateId: string | null }> {
+): Promise<{ kind: 'visual-focus' | 'program' | null; visualCandidateId: string | null }> {
   const db = getDbClient()
   const rows = await db.execute({
     sql: `SELECT payload FROM run_events WHERE run_id = ? AND type = 'hypothesis:created'`,
@@ -425,7 +426,7 @@ export async function hypothesisClass(
     }
     if (payload.hypothesisId !== hypothesisId) continue
     return {
-      kind: payload.kind === 'visual-focus' ? 'visual-focus' : null,
+      kind: payload.kind === 'visual-focus' || payload.kind === 'program' ? payload.kind : null,
       visualCandidateId:
         typeof payload.visualCandidateId === 'string' ? payload.visualCandidateId : null,
     }
@@ -470,6 +471,8 @@ export async function assertPromotableHypothesis(
   evidenceRefs: readonly string[] = [],
 ): Promise<void> {
   const recorded = await hypothesisClass(runId, hypothesisId)
+  if (recorded.kind === 'program')
+    return assertProgramReceipt(getDbClient(), runId, hypothesisId, status, evidenceRefs)
   if (recorded.kind !== 'visual-focus') return
   const db = getDbClient()
   // The screenshots THIS run owns, so a receipt's screenshot claim can be checked against evidence
@@ -545,7 +548,7 @@ export async function assertPromotableHypothesis(
     if (measured && annotated) qualified.push(ref)
   }
   const blocked = focusPromotionBlocked({
-    hypothesis: recorded,
+    hypothesis: { ...recorded, kind: 'visual-focus' },
     receipts: qualified,
     screenshotRefs: [candidate.screenshotRef],
     status,

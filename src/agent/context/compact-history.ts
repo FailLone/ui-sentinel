@@ -90,6 +90,9 @@ const KEEP_KEYS = new Set([
   'sampleSummary',
   'resultRef',
   'receiptRef',
+  'programRef',
+  'assertions',
+  'scope',
   'omitted',
   'chunk',
   'offset',
@@ -134,6 +137,8 @@ export function extractToolSummary(item: Record<string, unknown>): ToolSummary {
   if (Array.isArray(result))
     summary.results = toolName === 'element_details' ? result.map(elementSummary) : result
   else {
+    if (toolName === 'page_inspect' && result && typeof result === 'object' && 'elements' in result)
+      summary.elements = result.elements
     copy((result as Record<string, unknown> | null)?.observation)
     copy(result)
     if (result && typeof result === 'object' && 'results' in result)

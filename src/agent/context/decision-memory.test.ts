@@ -157,3 +157,25 @@ it('bounds durable finding summaries and explicitly accounts for omitted finding
   expect(memory.items[0]!.id).toBe('finding-19')
   expect(memory.omitted + memory.items.length).toBe(20)
 })
+
+it('retains public investigation facts and computed comparisons in decision memory', () => {
+  const inspect = entry('page_inspect', {
+    elements: [{ selector: 'p', text: 'Notice', viewportFraction: 0 }],
+    nextOffset: null,
+    evidenceRefs: ['snapshot'],
+    scope: 'rectangular facts',
+  })
+  const read = JSON.stringify(decisionMemory([inspect]))
+  expect(read).toContain('viewportFraction')
+  expect(read).toContain('Notice')
+  const result = entry('investigation_run', {
+    verdict: 'fail',
+    assertions: [{ actualLeft: 0, operator: 'gte', actualRight: 1 }],
+    programRef: 'program-source',
+    evidenceRefs: ['receipt'],
+    scope: 'bounded',
+  })
+  const measured = JSON.stringify(decisionMemory([result]))
+  expect(measured).toContain('actualLeft')
+  expect(measured).toContain('program-source')
+})

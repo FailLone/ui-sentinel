@@ -1,3 +1,6 @@
+import { inspectInput, programInput } from './investigation/program.ts'
+import { inspectElements } from './investigation/measure.ts'
+import { investigateProgram } from './investigation/service.ts'
 import { createVisualFocusRuntime, VISUAL_FOCUS_VERSION } from './visual-focus-runtime.ts'
 import { isAllowedBusinessDownload } from './download-policy.ts'
 import { createRunQueue } from './run-queue.ts'
@@ -59,6 +62,7 @@ import {
   removeActiveRun,
   submitFinding,
   recordHypothesis,
+  hypothesisClass,
   updateHypothesis,
   assertPromotableHypothesis,
 } from './run-manager.ts'
@@ -1908,6 +1912,69 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         review?.attemptId,
       )
     const tools = {
+      page_inspect: createTool({
+        id: 'page.inspect',
+        description:
+          'Read up to 24 public DOM elements (including noninteractive feedback), text, CSS selectors, rectangular bounds, viewport/ancestor clipping fractions and sampled hit fraction. Read-only, no scrolling. selector is CSS; offset paginates. No issue classification. Missing geometry or unsupported surfaces remain unknown. Use these facts to compose investigation_run.',
+        inputSchema: inspectInput,
+        execute: (input) =>
+          serial('page_inspect', async () => {
+            const result = await inspectElements(page, input.selector, input.offset)
+            guard()
+            const ref = await saveEvidence(
+              runId,
+              'snapshot',
+              JSON.stringify(result),
+              evidenceMetadata(),
+              guard,
+            )
+            return { ...result, evidenceRefs: [ref] }
+          }),
+      }),
+      investigation_run: createTool({
+        id: 'investigation.run',
+        description:
+          'Execute an Agent-authored bounded version 1 investigation program. Declare CSS targets, measure/wait/act steps and comparisons of measured metrics. Acts use the normal business action policy and budget; do not repeat a write. Saves program, screenshots, measurements and a bounded comparison finding automatically. Unsupported/ambiguous/replaced targets or intervention yield unknown. No arbitrary JS, no automatic global rule approval. See schema for composition; expectation applicability remains Agent-declared.',
+        inputSchema: programInput,
+        execute: (input) =>
+          serial('investigation_run', async () => {
+            const result = await investigateProgram(input, {
+              page,
+              runId,
+              guard,
+              signal,
+              remainingActions: () => budget.maxActions - usage.actions,
+              clean: () => integrity.snapshot().status === 'clean',
+              metadata: evidenceMetadata,
+              screenshot: async () =>
+                saveEvidence(
+                  runId,
+                  'screenshot',
+                  await page.screenshot({ scale: 'css', timeout: 3000 }),
+                  evidenceMetadata(),
+                  guard,
+                ),
+              act: async (action) => {
+                guard()
+                sideEffectPolicy.setReadOnly(false)
+                try {
+                  return await performAction(action)
+                } finally {
+                  sideEffectPolicy.setReadOnly(true)
+                }
+              },
+              registered: (id, phenomenon) => {
+                knownHypothesisIds.add(id)
+                taskState.recordHypothesis(id, phenomenon, 'always')
+              },
+              resolved: (id, status) => {
+                taskState.resolveHypothesis(id, status)
+                measurementFacts.add(id)
+              },
+            })
+            return result
+          }),
+      }),
       ...(temporalInvestigator
         ? {
             investigation_check: createTool({
@@ -2464,6 +2531,10 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
                 args: [input.hypothesisId, runId],
               })
             if (!h.rows.length) throw new Error('hypothesis not owned by run')
+            if ((await hypothesisClass(runId, input.hypothesisId)).kind === 'program')
+              throw Error(
+                'program investigation already saves its computed result; do not resubmit or relabel its finding',
+              )
             const owned = await db.execute({
               sql: 'SELECT id,type FROM artifacts WHERE run_id=?',
               args: [runId],
@@ -2663,7 +2734,12 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       const pendingRules = await pendingKnownRules()
       const retryBlocker = config.features?.blockerReview ? await measuredRetryBlocker() : undefined
       const activeTools = Object.keys(tools).filter((name) => {
-        if (name === 'investigation_check') return phaseTracker.phase !== 'finalizing'
+        if (
+          name === 'investigation_run' ||
+          name === 'page_inspect' ||
+          name === 'investigation_check'
+        )
+          return phaseTracker.phase !== 'finalizing'
         if (name === 'transition_observe') return taskState.hasOpenHypotheses()
         if (name === 'findings_submit') return knownHypothesisIds.size > 0
         // Offered only while there is an uninvestigated candidate from the CURRENT observation, and

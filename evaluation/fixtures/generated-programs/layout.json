@@ -1,0 +1,75 @@
+{
+  "provenance": {
+    "mode": "real-model-generated",
+    "runId": "run-ecc6b597-1843-4946-82e9-6658fa9b2e79",
+    "sourceBuildHash": "a6faf0d46257e463dd58d939aefe3de264d186d20d1306bfd3f4c977ede4275b",
+    "agentModel": "deepseek/deepseek-v4.1-flash",
+    "provider": "Alibaba",
+    "sourceDirectory": "data/program-validation/2026-10-06T12-38-54-786Z",
+    "note": "Program copied verbatim from saved receipt; evaluator prepares public state for measurement-only recipes."
+  },
+  "program": {
+    "version": 1,
+    "phenomenon": "The page states \"Continue must remain in the current viewport while details load and after loading; no scrolling should be required.\" I will load the delivery details and measure whether the Continue button remains fully inside the viewport before and after loading.",
+    "basis": "Public on-page requirement (paragraph under the \"Delivery preferences\" heading) states Continue must remain in the current viewport during and after loading the details. The \"Load details\" button triggers the asynchronous load; the currently zero-height paragraph (p:nth-of-type(2)) is expected to expand with the loaded details, potentially shifting the Continue button. Evidence ref: 865ddb6d-e14a-4553-bc0f-bfa4c297c4c5.json (initial geometry: Continue at y=184, height 42, viewportFraction 1).",
+    "targets": [
+      {
+        "name": "continue_btn",
+        "selector": "html > body:nth-of-type(1) > button:nth-of-type(2)"
+      },
+      {
+        "name": "load_btn",
+        "selector": "html > body:nth-of-type(1) > button:nth-of-type(1)"
+      },
+      {
+        "name": "feedback",
+        "selector": "html > body:nth-of-type(1) > p:nth-of-type(2)"
+      }
+    ],
+    "steps": [
+      {
+        "op": "measure",
+        "name": "before"
+      },
+      {
+        "op": "act",
+        "type": "click",
+        "target": "load_btn"
+      },
+      {
+        "op": "wait",
+        "ms": 2000
+      },
+      {
+        "op": "measure",
+        "name": "after"
+      }
+    ],
+    "assertions": [
+      {
+        "expectation": "Continue button remains fully inside the viewport after details load (no scrolling required)",
+        "left": {
+          "sample": "after",
+          "target": "continue_btn",
+          "metric": "viewportFraction"
+        },
+        "operator": "gte",
+        "right": {
+          "value": 1
+        }
+      },
+      {
+        "expectation": "Loaded details feedback becomes visible after loading",
+        "left": {
+          "sample": "after",
+          "target": "feedback",
+          "metric": "displayed"
+        },
+        "operator": "eq",
+        "right": {
+          "value": true
+        }
+      }
+    ]
+  }
+}

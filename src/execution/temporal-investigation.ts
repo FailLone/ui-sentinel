@@ -47,7 +47,7 @@ export interface InvestigationResult {
   scope: string
 }
 export const temporalInvestigationInstructions =
-  'For a novel observed timing/visibility/operability anomaly with a current elementRef, prefer investigation_check. ' +
+  'Use investigation_check for a grounded time-window expectation on a current elementRef. For geometry or comparisons across states, use investigation_run; DOM visibility is not the same as being inside the viewport or unclipped. ' +
   'Cite consulted business resources in evidenceRefs to preserve the basis for applicability. Declare the grounded question, applicable trigger, condition and full required duration. It registers the hypothesis, measures continuously and saves the bounded result in one call; no separate hypotheses_record, transition_observe or findings_submit is needed for that same claim. ' +
   'Select element-actionable for operability; element-visible proves only visibility. Do not investigate an ineligible or untriggered expectation. ' +
   'The window begins when measurement starts; it does not reconstruct an earlier deadline. Reused results retain their original time window. Request a new window only with freshWindowReason describing the additional question. ' +

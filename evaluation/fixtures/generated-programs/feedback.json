@@ -1,0 +1,64 @@
+{
+  "provenance": {
+    "mode": "real-model-generated",
+    "runId": "run-57278902-f6aa-43e1-a1f0-4e7035079490",
+    "sourceBuildHash": "a6faf0d46257e463dd58d939aefe3de264d186d20d1306bfd3f4c977ede4275b",
+    "agentModel": "deepseek/deepseek-v4.1-flash",
+    "provider": "Alibaba",
+    "sourceDirectory": "data/program-validation/2026-10-06T12-38-54-786Z",
+    "note": "Program copied verbatim from saved receipt; evaluator prepares public state for measurement-only recipes."
+  },
+  "program": {
+    "version": 1,
+    "phenomenon": "After the incomplete-address check, the explanation paragraph \"Address incomplete: provide a street and house number.\" is rendered far down the page (y≈1116) with viewportFraction 0, i.e. entirely outside the current viewport, so it cannot be seen without scrolling.",
+    "basis": "The page's published requirement states: \"Check your delivery address. If it is incomplete, an explanation must appear in the current viewport without scrolling.\" Prior page_inspect facts after the Check address click show the alert paragraph at x=32, y=1116, height=18 with viewportFraction=0 and hitFraction=0, while the form (input/button) sits around y≈142. That geometry places the explanation below the fold, contradicting the in-viewport-without-scrolling requirement.",
+    "targets": [
+      {
+        "name": "explanation",
+        "selector": "html > body:nth-of-type(1) > p:nth-of-type(2)"
+      },
+      {
+        "name": "checkForm",
+        "selector": "html > body:nth-of-type(1) > button:nth-of-type(1)"
+      }
+    ],
+    "steps": [
+      {
+        "op": "measure",
+        "name": "explainGeom"
+      },
+      {
+        "op": "measure",
+        "name": "formGeom"
+      }
+    ],
+    "assertions": [
+      {
+        "expectation": "The incomplete-address explanation is fully inside the current viewport (no scrolling needed)",
+        "left": {
+          "sample": "explainGeom",
+          "target": "explanation",
+          "metric": "viewportFraction"
+        },
+        "operator": "gte",
+        "right": {
+          "value": 1
+        }
+      },
+      {
+        "expectation": "The explanation renders near the form, above the bottom fold (its top y is within the viewport)",
+        "left": {
+          "sample": "explainGeom",
+          "target": "explanation",
+          "metric": "y"
+        },
+        "operator": "lte",
+        "right": {
+          "sample": "formGeom",
+          "target": "checkForm",
+          "metric": "y"
+        }
+      }
+    ]
+  }
+}

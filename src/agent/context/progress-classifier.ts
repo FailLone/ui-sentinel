@@ -79,6 +79,8 @@ export function classifyResponse(result: {
         'rule_check',
         'investigation.check',
         'investigation_check',
+        'investigation.run',
+        'investigation_run',
       ].includes(t),
     )
   ) {
@@ -90,7 +92,11 @@ export function classifyResponse(result: {
     }
   }
 
-  if (toolsCalled.some((t) => ['visual.review', 'visual_review'].includes(t))) {
+  if (
+    toolsCalled.some((t) =>
+      ['visual.review', 'visual_review', 'page.inspect', 'page_inspect'].includes(t),
+    )
+  ) {
     return {
       category: 'observe-only',
       toolsCalled,
