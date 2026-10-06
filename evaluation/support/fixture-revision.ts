@@ -28,7 +28,7 @@ export interface RevisionDecision {
 /**
  * Whether a revision may be used for a formal, paid run.
  *
- * A regression revision is allowed - it is honest about being a known case. A holdout must have been
+ * Formal acceptance requires a reviewed holdout. Known regression fixtures remain available in free preflight and diagnostic. A holdout must have been
  * reviewed by someone, and never a test-only one whatever it claims.
  */
 export function formalRevisionAllowed(
@@ -39,7 +39,23 @@ export function formalRevisionAllowed(
     return options.free
       ? { ok: true, reason: null }
       : { ok: false, reason: 'test-only-revision-not-allowed-for-formal' }
+  if (revision.purpose !== 'holdout') return { ok: false, reason: 'regression-revision-not-formal' }
   if (revision.purpose === 'holdout' && (!revision.reviewedBy || !revision.reviewedAt))
     return { ok: false, reason: 'holdout-revision-not-reviewed' }
   return { ok: true, reason: null }
+}
+
+/** Read the tracked revision and hash the actual fixture and presentation source. */
+export async function currentVisualRevision(): Promise<FixtureRevision> {
+  const { readFile } = await import('node:fs/promises')
+  const { createHash } = await import('node:crypto')
+  const metadata = JSON.parse(await readFile('evaluation/fixtures/visual-revision.json', 'utf8'))
+  const hash = createHash('sha256')
+  for (const path of [
+    'evaluation/fixtures/visual-revision.json',
+    'evaluation/fixtures/visual.ts',
+    'arena/checkout/src/server/search-view.tsx',
+  ])
+    hash.update(path).update(await readFile(path))
+  return { ...metadata, hash: hash.digest('hex') }
 }

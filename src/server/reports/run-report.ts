@@ -180,6 +180,7 @@ async function focusMeasurements(
       /* the receipt is reported as absent below rather than guessed */
     }
 
+    if (!receiptRow || !receipt.binding) samplesAvailable = false
     const candidateId = String(metadata.candidateId ?? receipt.candidateId ?? 'unknown')
     // Both boxes come from saved artifacts, not from a re-derivation: the perceived frame the model
     // proposed and the bounds of the element the probe actually bound to. A reader comparing the two
@@ -247,6 +248,19 @@ export async function buildReport(runId: string) {
   const snapshot = await getRunSnapshot(runId)
   if (!snapshot) return null
   const { run, findings, events, hypothesisRows, artifactRows } = snapshot
+  const visionFinished = events.filter(
+    (e) => e.type === 'model:request-finished' && e.payload?.purpose === 'visual-discovery',
+  )
+  const visionStarted = events.filter(
+    (e) => e.type === 'model:request-started' && e.payload?.purpose === 'visual-discovery',
+  )
+  const visionCount = Math.max(visionStarted.length, visionFinished.length)
+  const visionTokens = (key: 'inputTokens' | 'outputTokens') =>
+    visionCount > 0 &&
+    visionFinished.length === visionCount &&
+    visionFinished.every((e) => typeof e.payload[key] === 'number')
+      ? visionFinished.reduce((sum, e) => sum + Number(e.payload[key]), 0)
+      : null
   const active = isRunActive(runId)
   const settled = !active && ['completed', 'blocked'].includes(run.status)
   const issues = settled ? completionIssues(run, events) : []
@@ -424,11 +438,9 @@ export async function buildReport(runId: string) {
     // never recorded is reported as `not-recorded` - the report must never show 0, which would read
     // as "free" rather than "unknown".
     visual: {
-      visionRequests: events.filter(
-        (e) => e.type === 'model:request-finished' && e.payload?.purpose === 'visual-discovery',
-      ).length,
-      inputTokens: run.usage.modelInputTokens ?? null,
-      outputTokens: run.usage.modelOutputTokens ?? null,
+      visionRequests: visionCount,
+      inputTokens: visionTokens('inputTokens'),
+      outputTokens: visionTokens('outputTokens'),
       costUsd: null,
       costStatus: 'not-recorded' as const,
     },

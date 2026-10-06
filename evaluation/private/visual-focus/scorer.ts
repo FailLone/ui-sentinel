@@ -2,6 +2,7 @@ import { FOCUS_WINDOW_MS, MAX_PROBE_CLICKS } from '../../../src/execution/focus-
 import type { EvidenceIntegrity } from '../../../src/shared/evidence-integrity.ts'
 import type { Rect } from '../../../src/execution/focus-geometry.ts'
 import { compareWitnessToTarget, type BindingWitness, type PrivateVisualTarget } from './witness.ts'
+import { evidenceProblems } from './evidence-checks.ts'
 import { visualTruthFor, type VisualCaseId } from '../../fixtures/visual.ts'
 
 /**
@@ -175,7 +176,7 @@ export interface VisualScore {
   readonly details: Readonly<Record<string, unknown>>
 }
 
-export const SCORER_VERSION = 'visual-scorer-1'
+export const SCORER_VERSION = 'visual-scorer-2'
 
 function overlapFraction(candidate: Rect, region: Rect): number {
   const x = Math.max(candidate.x, region.x)
@@ -231,6 +232,9 @@ export function recomputeVerdict(receipt: ScoredReceipt): {
   const control = receipt.positiveControl
   if (
     !control?.ok ||
+    control.stable !== true ||
+    control.valueChanged ||
+    control.focusAfter !== receipt.binding.nodeIdentity ||
     !finite(control.focusedWithinMs) ||
     control.focusedWithinMs < 0 ||
     control.focusedWithinMs > FOCUS_WINDOW_MS ||
@@ -245,7 +249,7 @@ export function recomputeVerdict(receipt: ScoredReceipt): {
     return { verdict: 'inconclusive', reasons }
   }
   const attempts = receipt.samples
-  if (attempts.some((s) => s.stable === false || s.valueChanged)) {
+  if (attempts.some((s) => s.stable !== true || s.valueChanged)) {
     reasons.push('sample-unstable')
     return { verdict: 'inconclusive', reasons }
   }
@@ -253,6 +257,12 @@ export function recomputeVerdict(receipt: ScoredReceipt): {
     attempts.some(
       (s) =>
         !clean(s.integrity) ||
+        (s.focusedWithinMs === null
+          ? s.focusAfter === receipt.binding.nodeIdentity
+          : !finite(s.focusedWithinMs) ||
+            s.focusedWithinMs < 0 ||
+            s.focusedWithinMs > FOCUS_WINDOW_MS ||
+            s.focusAfter !== receipt.binding.nodeIdentity) ||
         s.documentEpoch !== receipt.documentEpoch ||
         s.focusBefore === receipt.binding.nodeIdentity,
     )
@@ -261,12 +271,18 @@ export function recomputeVerdict(receipt: ScoredReceipt): {
     return { verdict: 'inconclusive', reasons }
   }
   const firstPass = attempts.filter((s) => s.side !== 'retest')
-  if (firstPass.length !== 2 || new Set(firstPass.map((s) => s.side)).size !== 2) {
+  if (
+    firstPass.length !== 2 ||
+    firstPass[0]?.side !== 'left' ||
+    firstPass[1]?.side !== 'right' ||
+    attempts.length > 3
+  ) {
     reasons.push('sampling-invalid')
     return { verdict: 'inconclusive', reasons }
   }
   const failures = firstPass.filter((s) => s.focusedWithinMs === null)
-  if (failures.length === 0) return { verdict: 'refuted', reasons: [] }
+  if (failures.length === 0)
+    return { verdict: attempts.length === 2 ? 'refuted' : 'inconclusive', reasons: [] }
   const retests = attempts.filter((s) => s.side === 'retest')
   const first = failures[0]
   if (
@@ -298,7 +314,7 @@ function pickVerdict(
  * Grade one case. `failed` is true when the evidence violates the requirement, so a failure code names
  * the reason it was refused.
  */
-export function scoreVisualEvidence(input: VisualScorerInput): VisualScore {
+function scoreChecked(input: VisualScorerInput): VisualScore {
   const truth = visualTruthFor(input.case)
   const assertions: ScorerAssertion[] = []
   const add = (
@@ -312,14 +328,16 @@ export function scoreVisualEvidence(input: VisualScorerInput): VisualScore {
   const findings = input.run.findings
   const measurements = input.run.focusMeasurements
   const supported = findings.filter((f) => f.validationStatus === 'supported')
-  const refuted = findings.filter((f) => f.validationStatus === 'refuted')
+  const refuted = input.run.hypotheses.filter((h) => h.status === 'refuted')
   const inconclusive = findings.filter((f) => f.validationStatus === 'inconclusive')
   const receipts = measurements
     .map((m) => receiptFor(input, m.receiptRef))
     .filter((r): r is ScoredReceipt => !!r)
   const measured = measurements.length > 0
-  const graded = supported.length + refuted.length > 0
-  const candidateArt = input.artifacts['candidate-art-1']?.data as
+  const graded = measurements.length > 0
+  const candidateArt = Object.values(input.artifacts).find(
+    (a) => a.type === 'visual-candidate' && (a.data as any)?.id === measurements[0]?.candidateId,
+  )?.data as
     | { perceivedRegion: Rect; excludedRegions: readonly Rect[]; confidence: string }
     | undefined
 
@@ -386,40 +404,8 @@ export function scoreVisualEvidence(input: VisualScorerInput): VisualScore {
   // The persisted candidate must be the deterministic conversion of the raw normalized response, using
   // the saved CSS viewport - never a plausible-looking box that came from somewhere else. A wrong
   // transform that happens to stay inside the viewport passes a naive check, so compare the numbers.
-  const rawRegion = (input.sentVision[0]?.raw as { candidates?: { perceivedRegion?: Rect }[] })
-    ?.candidates?.[0]?.perceivedRegion
-  const viewport = receipts[0]?.viewport
-  const expectedRegion =
-    rawRegion && viewport
-      ? {
-          x: (rawRegion.x * viewport.width) / 1000,
-          y: (rawRegion.y * viewport.height) / 1000,
-          width: (rawRegion.width * viewport.width) / 1000,
-          height: (rawRegion.height * viewport.height) / 1000,
-        }
-      : undefined
-  const closeTo = (a: number, b: number) => Math.abs(a - b) <= 1
-  add(
-    'provenance.normalized-transform',
-    // A persisted candidate must be checkable. When the raw response or the saved viewport is absent
-    // there is nothing to convert and nothing to compare, which is not a pass: the S03 case is
-    // "a plausible box that came from somewhere else", and an unverifiable box is exactly that. Only
-    // the genuine no-candidate case (H1/H2 raise none) passes without a comparison.
-    !!candidateArt &&
-      !(
-        expectedRegion &&
-        closeTo(candidateArt.perceivedRegion.x, expectedRegion.x) &&
-        closeTo(candidateArt.perceivedRegion.y, expectedRegion.y) &&
-        closeTo(candidateArt.perceivedRegion.width, expectedRegion.width) &&
-        closeTo(candidateArt.perceivedRegion.height, expectedRegion.height)
-      ),
-    'the persisted region is the normalized response converted by the saved viewport',
-    !candidateArt
-      ? 'no candidate to convert'
-      : expectedRegion
-        ? `${candidateArt.perceivedRegion.width.toFixed(1)} vs ${expectedRegion.width.toFixed(1)}`
-        : 'raw or viewport absent',
-  )
+  for (const problem of evidenceProblems(input))
+    add(problem, true, 'consistent owned evidence', problem)
 
   // --- Geometry: candidate overlap, point placement, exclusions -------------------------------
   // A measurement without a candidate is a contradiction; a healthy case with neither is legal.
@@ -532,7 +518,7 @@ export function scoreVisualEvidence(input: VisualScorerInput): VisualScore {
   )
   add(
     'measurement.unstable',
-    receipts.some((r) => r.samples.some((s) => s.stable === false || s.valueChanged)),
+    receipts.some((r) => r.samples.some((s) => s.stable !== true || s.valueChanged)),
     'stable samples',
     'checked',
   )
@@ -584,6 +570,18 @@ export function scoreVisualEvidence(input: VisualScorerInput): VisualScore {
   // --- Outcome: recomputed verdict vs expectation vs declaration ------------------------------
   const gradedVerdict = pickVerdict(receipts.map((r) => recomputeVerdict(r).verdict))
 
+  for (const m of measurements) {
+    const r = receiptFor(input, m.receiptRef)
+    if (r)
+      add(
+        'outcome.hypothesis-conflict',
+        !input.run.hypotheses.some(
+          (h) => h.evidenceRefs.includes(m.receiptRef!) && h.status === recomputeVerdict(r).verdict,
+        ),
+        'hypothesis matches measured verdict',
+        'checked',
+      )
+  }
   if (truth.expectSupported) {
     add(
       'outcome.defect-not-supported',
@@ -599,7 +597,8 @@ export function scoreVisualEvidence(input: VisualScorerInput): VisualScore {
     )
     add(
       'business.extra-findings',
-      supported.length !== (gradedVerdict === 'supported' ? 1 : 0),
+      supported.length !==
+        receipts.filter((r) => recomputeVerdict(r).verdict === 'supported').length,
       'exactly the measured supported findings',
       `${supported.length}`,
     )
@@ -611,7 +610,16 @@ export function scoreVisualEvidence(input: VisualScorerInput): VisualScore {
       `${supported.length}`,
     )
     if (truth.requireProbe) {
-      const probed = refuted.some((f) => measurements.some((m) => m.candidateId === f.candidateId))
+      const probed = measurements.some((m) => {
+        const r = receiptFor(input, m.receiptRef)
+        return (
+          r &&
+          recomputeVerdict(r).verdict === 'refuted' &&
+          input.run.hypotheses.some(
+            (h) => h.status === 'refuted' && h.evidenceRefs.includes(m.receiptRef!),
+          )
+        )
+      })
       add('healthy.probe-missing', !probed, 'a real probe refuted the candidate', String(probed))
     }
     add(
@@ -667,5 +675,42 @@ export function scoreVisualEvidence(input: VisualScorerInput): VisualScore {
       fixtureHash: input.fixtureHash,
       target: input.target.id ?? input.target.tag,
     },
+  }
+}
+
+export function scoreVisualEvidence(input: VisualScorerInput): VisualScore {
+  try {
+    return scoreChecked(input)
+  } catch {
+    return {
+      case: input.case,
+      fixtureRevision: input.fixtureRevision,
+      scorerVersion: SCORER_VERSION,
+      classification: 'invalid',
+      passed: false,
+      assertions: [
+        {
+          code: 'evidence.malformed',
+          passed: false,
+          expected: 'complete typed evidence',
+          actual: 'malformed',
+          evidenceRefs: [],
+        },
+      ],
+      failedAssertions: ['evidence.malformed'],
+      counts: {
+        supported: 0,
+        refuted: 0,
+        inconclusive: 0,
+        invalidEvidence: 1,
+        skippedNotRun: 0,
+        discoveries: 0,
+        falsePositives: 0,
+        missed: 1,
+        businessFailures: 0,
+        unverifiedScope: 1,
+      },
+      details: {},
+    }
   }
 }

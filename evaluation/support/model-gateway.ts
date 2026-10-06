@@ -44,6 +44,7 @@ export async function startGateway(
     limitUsd: number
     estimateCost: (body: Record<string, unknown>) => number
     ledger?: GatewayLedger
+    providers?: { agent: string; vision: string }
     phase?: string
   },
 ) {
@@ -97,8 +98,8 @@ export async function startGateway(
       delete body.reasoning_effort
       const provider =
         body.model === AGENT_MODEL
-          ? process.env.VALIDATION_AGENT_PROVIDER
-          : process.env.VALIDATION_VISION_PROVIDER
+          ? (spending?.providers?.agent ?? process.env.VALIDATION_AGENT_PROVIDER)
+          : (spending?.providers?.vision ?? process.env.VALIDATION_VISION_PROVIDER)
       body.provider = {
         allow_fallbacks: false,
         require_parameters: true,
@@ -109,7 +110,12 @@ export async function startGateway(
       if (body.stream || !body.state || !body.questions || Object.keys(body.questions).length !== 1)
         return reply(400, 'Expected one non-streaming decision question')
     }
-    const reservation = spending?.estimateCost(body) ?? 0
+    let reservation: number
+    try {
+      reservation = spending?.estimateCost(body) ?? 0
+    } catch {
+      return reply(429, 'validation-price-unavailable')
+    }
     if (spending && (!Number.isFinite(reservation) || reservation < 0))
       return reply(429, 'validation-spending-limit')
     const requestId = randomBytes(12).toString('hex')
@@ -119,19 +125,36 @@ export async function startGateway(
         return reply(429, 'validation-spending-limit')
     }
     if (spending?.ledger) {
-      const reserved = await spending.ledger.reserve({
-        requestId,
-        runId: run.id,
-        phase: spending.phase ?? 'diagnostic',
-        model: body.model,
-        provider: (body.provider?.only?.[0] as string | undefined) ?? 'unknown',
-        reservedUsd: reservation,
-        priceSource: 'gateway-estimate',
-      })
+      let reserved
+      try {
+        reserved = await spending.ledger.reserve({
+          requestId,
+          runId: run.id,
+          phase: spending.phase ?? 'diagnostic',
+          model: body.model,
+          provider: (body.provider?.only?.[0] as string | undefined) ?? 'unknown',
+          reservedUsd: reservation,
+          priceSource: 'gateway-estimate',
+        })
+      } catch {
+        return reply(503, 'validation-ledger-unavailable')
+      }
       if (!reserved.ok) return reply(429, `validation-${reserved.reason ?? 'spending-limit'}`)
+    }
+    if (
+      active !== run ||
+      run.requests.length >= run.limit ||
+      Date.now() >= run.deadline ||
+      res.destroyed
+    ) {
+      await spending?.ledger?.release(requestId, 'not-sent-window-closed')
+      return reply(429, 'validation-budget-exhausted')
     }
     reservedUsd += reservation
     const record: any = {
+      requestId,
+      phase: spending?.phase ?? null,
+      provider: body.provider?.only?.[0] ?? null,
       run: run.id,
       seq: run.requests.length + 1,
       model: body.model,
@@ -158,6 +181,7 @@ export async function startGateway(
       () => controller.abort(),
       Math.max(1, Math.min(60000, run.deadline - Date.now())),
     )
+    let sent = false
     const events: any[] = []
     const decoder = new TextDecoder()
     let pendingLine = ''
@@ -207,6 +231,7 @@ export async function startGateway(
         `${directory}/requests.jsonl`,
         redact(JSON.stringify({ event: 'request', ...record, body })) + '\n',
       )
+      sent = true
       const upstream = await upstreamFetch(
         decisions
           ? 'https://openrouter.ai/api/alpha/decisions'
@@ -260,20 +285,26 @@ export async function startGateway(
       record.durationMs = Date.now() - start
       reservedUsd -= reservation
       const cost = record.usage?.cost
-      const known = typeof cost === 'number' && Number.isFinite(cost) && cost >= 0
+      const known = !sent || (typeof cost === 'number' && Number.isFinite(cost) && cost >= 0)
       if (known) {
-        accountedUsd += cost!
-        knownCostUsd += cost!
+        accountedUsd += sent ? cost! : 0
+        knownCostUsd += sent ? cost! : 0
       } else {
         accountedUsd += reservation
         unknownReservedUsd += reservation
         unknownCosts++
       }
-      if (spending?.ledger) {
-        // Settle at the real cost, or keep the reservation as unknown - a provider call really
-        // happened, so it is never settled at zero.
-        if (known) await spending.ledger.settle(requestId, cost!)
-        else await spending.ledger.markUnknown(requestId, 'usage-unavailable')
+      try {
+        if (spending?.ledger) {
+          // Settle at the real cost, or keep the reservation as unknown - a provider call really
+          // happened, so it is never settled at zero.
+          if (!sent) await spending.ledger.release(requestId, 'not-sent-log-failed')
+          else if (known) await spending.ledger.settle(requestId, cost!)
+          else await spending.ledger.markUnknown(requestId, 'usage-unavailable')
+        }
+      } catch (error) {
+        record.accountingError = String(error)
+        await spending?.ledger?.markUnknown(requestId, 'settlement-error').catch(() => {})
       }
       try {
         // Keep received events even when cancellation/error prevents a final usage chunk.
@@ -281,6 +312,7 @@ export async function startGateway(
           `${directory}/responses.jsonl`,
           redact(
             JSON.stringify({
+              requestId,
               run: run.id,
               seq: record.seq,
               transportComplete: record.transportComplete,
@@ -318,6 +350,8 @@ export async function startGateway(
     async close() {
       active = null
       for (const c of controllers) c.abort()
+      const until = Date.now() + 5000
+      while (controllers.size && Date.now() < until) await new Promise((r) => setTimeout(r, 20))
       server.closeAllConnections()
       await new Promise<void>((r) => server.close(() => r()))
     },

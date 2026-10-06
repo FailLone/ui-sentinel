@@ -1,5 +1,7 @@
 # 可直接交给 dev Agent 的 P3 指令
 
+此文件保留 P3 原始开发指令；主 Agent 复查进展与交付分支见 [P3 交接](visual-focus-p3-handoff.md)。不要从旧 P2 基线重新开始已完成的 P3 工作。
+
 请开发 ui-sentinel 的 P3：可信验收工具与可复核报告，持续修复直到 P3 ready for review。
 
 1. 从远端 `review/visual-focus-p2` 最新提交新建 `dev/visual-focus-p3`；确认包含 `c5aa03a41fc90424127e2965c402510a3536c6bf` 和本套 P3 文档，不从 main 或原 bundle 开始。不覆盖已有未提交工作。

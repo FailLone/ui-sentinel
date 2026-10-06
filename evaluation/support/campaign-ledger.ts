@@ -117,10 +117,22 @@ export async function openCampaignLedger(input: {
   directory: string
   limitUsd: number
 }): Promise<CampaignLedger> {
+  resolveLimit(String(input.limitUsd))
   resolve(input.directory)
   mkdirSync(dirname(resolve(input.directory, 'campaign.db')), { recursive: true })
   const db: Client = createClient({ url: `file:${resolve(input.directory, 'campaign.db')}` })
   await db.executeMultiple(SCHEMA)
+  const beginWrite = async () => {
+    const deadline = Date.now() + 5000
+    for (;;) {
+      try {
+        return await db.transaction('write')
+      } catch (error) {
+        if ((error as any).code !== 'SQLITE_BUSY' || Date.now() >= deadline) throw error
+        await new Promise((r) => setTimeout(r, 10))
+      }
+    }
+  }
   const now = () => new Date().toISOString()
   // Captured because the `reserve` method's own parameter is also named `input`.
   const campaignId = input.campaignId
@@ -134,7 +146,10 @@ export async function openCampaignLedger(input: {
   if (existing) {
     // The campaign keeps the limit it was created with; a later process's env cannot reset it.
     const limit = Number(existing.limit_usd)
-    if (Math.abs(limit - input.limitUsd) > 1e-9) throw new LedgerError('campaign-limit-immutable')
+    if (Math.abs(limit - input.limitUsd) > 1e-9) {
+      db.close()
+      throw new LedgerError('campaign-limit-immutable')
+    }
   } else {
     await db.execute({
       sql: 'INSERT INTO campaigns (campaign_id, limit_usd, created_at) VALUES (?,?,?)',
@@ -188,7 +203,7 @@ export async function openCampaignLedger(input: {
     async reserve(input) {
       if (!Number.isFinite(input.reservedUsd) || input.reservedUsd < 0)
         return { ok: false, reason: 'invalid-reservation' }
-      const tx = await db.transaction('write')
+      const tx = await beginWrite()
       try {
         const existing = (
           await tx.execute({
@@ -284,7 +299,7 @@ export async function openCampaignLedger(input: {
       }))
     },
     async acquireLease(holder) {
-      const tx = await db.transaction('write')
+      const tx = await beginWrite()
       try {
         const row = (
           await tx.execute({

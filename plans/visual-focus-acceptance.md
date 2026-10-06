@@ -1,6 +1,6 @@
 # 主动视觉发现：完整验收计划
 
-与 [开发任务书](next-development-plan.md)共同执行。状态：P1 最小子集及 P2 开发 smoke 已通过，见 [P1 交接](visual-focus-handoff.md)和 [P2 交接](visual-focus-p2-handoff.md)；以下完整 G0–G6 未全部验收。P3 的开发接口、免费验证和转交边界见 [P3 任务书](visual-focus-p3-plan.md)与[逐项验收](visual-focus-p3-acceptance.md)。`validate:visual-focus -- --preflight` 已实现；新视觉 diagnostic/formal 仍待 P3 实现，不能视为当前可用接口。本轮验收独立于归档业务契约阶段，旧45/45不能替代新结果。
+与 [开发任务书](next-development-plan.md)共同执行。状态：P1 最小子集及 P2 开发 smoke 已通过，见 [P1 交接](visual-focus-handoff.md)和 [P2 交接](visual-focus-p2-handoff.md)；以下完整 G0–G6 未全部验收。P3 的开发接口、免费验证和转交边界见 [P3 任务书](visual-focus-p3-plan.md)与[逐项验收](visual-focus-p3-acceptance.md)。`validate:visual-focus -- --preflight` 已实现；新视觉 diagnostic/formal 已实现，P3 免费验证记录见 [P3 交接](visual-focus-p3-handoff.md)；其存在不代表 P4 真实模型验收已通过。本轮验收独立于归档业务契约阶段，旧45/45不能替代新结果。
 
 P2 新增显式 `--p2-smoke [--cases D0,H0,H1] [--spending-source <dir>]` 开发复验入口；它不是下表的 G4 diagnostic。当前 D1/D2/H2 已用于调试，全部视为已知回归案例；P3 实现 revision/冻结/来源门槛；P4 在提示/schema/算法冻结后由主 Agent 准备未参与调试的新 fixture revision，才能继续 holdout 验收。这项 P4 工作不阻塞 P3 免费工具交付。重新冻结并重跑旧 D2 不会恢复盲测身份。详见 [P2 交接](visual-focus-p2-handoff.md)。
 
@@ -14,7 +14,7 @@ P2 新增显式 `--p2-smoke [--cases D0,H0,H1] [--spending-source <dir>]` 开发
 | pnpm validate:business -- --diagnostic --campaign <campaign-dir> | 同一最终构建的旧业务真实诊断，显式关闭新视觉能力 |
 | pnpm validate:business -- --formal --campaign <campaign-dir> --diagnostic-source <dir> --approved-source <dir> | 原A/B/C/D 45轮回归，原批准来源与原评分器保持不变 |
 
-`--campaign` 是 P3 待实现的共享持久台账参数，本轮新旧付费入口必须使用同一目录；既有独立 business 入口不因此自动具备联合验收资格。P3 不执行表内付费命令。
+`--campaign` 是共享持久台账参数，本轮新旧付费入口必须使用同一目录；既有独立 business 入口不因此自动具备联合验收资格。P3 不执行表内付费命令。
 
 继续使用既有fixture、model gateway、build identity、artifact hash、durability audit支持模块；新runner不得复制另一套费用/完成/批准逻辑。CLI拒绝未知参数，主程序只分派到免费或付费入口，免费入口清空真实凭据。不要增加一个默认误触发付费的命令。
 

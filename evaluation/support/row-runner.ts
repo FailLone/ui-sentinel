@@ -37,6 +37,7 @@ export interface RowRunnerReport {
 }
 
 export interface RunBatchOptions {
+  readonly signal?: AbortSignal
   readonly plan: readonly PlanRow[]
   /** Execute one planned row. Must not throw for an ordinary failure - return an outcome instead. */
   execute: (row: PlanRow, index: number) => Promise<RowOutcome>
@@ -53,6 +54,11 @@ export async function runBatch(options: RunBatchOptions): Promise<RowRunnerRepor
   let stopReason: string | null = null
 
   for (let i = 0; i < options.plan.length; i++) {
+    if (options.signal?.aborted) {
+      stoppedEarly = true
+      stopReason = 'cancelled'
+      break
+    }
     const planned = options.plan[i]!
     let outcome: RowOutcome
     try {
@@ -62,6 +68,12 @@ export async function runBatch(options: RunBatchOptions): Promise<RowRunnerRepor
       // as evidence-invalid; the row still exists.
       outcome = { runId: null, outcome: 'evidence-invalid', reasons: [String(error)] }
     }
+    if (options.signal?.aborted)
+      outcome = {
+        ...outcome,
+        outcome: 'cancelled',
+        reasons: [...(outcome.reasons ?? []), 'cancelled'],
+      }
     rows = recordRow(rows, planned, outcome)
     await options.onRow?.(rows.find((r) => same(r, planned))!, rows)
 

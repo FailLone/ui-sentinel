@@ -1,6 +1,6 @@
 # P3 开发任务书：可信验收工具与可复核报告
 
-状态：待 dev Agent 开发。P2 已由主 Agent 修复并验收；本文件只安排 P3，不启动 P4。配套文件：[逐项验收](visual-focus-p3-acceptance.md)、[可直接转交的指令](visual-focus-p3-dev-prompt.md)。产品语义仍以[总任务书](next-development-plan.md)和[完整验收计划](visual-focus-acceptance.md)为准，本文件细化 P3 的交付接口与阶段边界。
+状态：P3 ready；主 Agent 已完成复查修复及全部 G0–G3 免费验收，记录见 [P3 交接](visual-focus-p3-handoff.md)。P2 已由主 Agent 修复并验收；本文件只安排 P3，不启动 P4。配套文件：[逐项验收](visual-focus-p3-acceptance.md)、[可直接转交的指令](visual-focus-p3-dev-prompt.md)。产品语义仍以[总任务书](next-development-plan.md)和[完整验收计划](visual-focus-acceptance.md)为准，本文件细化 P3 的交付接口与阶段边界。
 
 ## 1. 基线、开工与完成定义
 

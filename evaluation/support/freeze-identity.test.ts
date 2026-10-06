@@ -123,8 +123,8 @@ describe('fixture revision review gate', () => {
     testOnly: true,
   }
 
-  it('allows a regression revision for formal', () => {
-    expect(formalRevisionAllowed(regression).ok).toBe(true)
+  it('refuses a known regression revision for formal', () => {
+    expect(formalRevisionAllowed(regression).reason).toBe('regression-revision-not-formal')
   })
 
   it('refuses an unreviewed holdout for formal', () => {

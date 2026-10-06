@@ -36,7 +36,7 @@ function sample(over: Partial<ScoredSample> = {}): DeepMutable<ScoredSample> {
     y: 158,
     hit: { ref: 'e9', tag: 'div', relation: 'ancestor' },
     focusBefore: null,
-    focusAfter: null,
+    focusAfter: over.focusedWithinMs != null ? NODE : null,
     focusedWithinMs: null,
     observedWindowMs: 520,
     valueChanged: false,
@@ -170,7 +170,7 @@ function passing(caseId: VisualCaseId = 'D0'): DeepMutable<VisualScorerInput> {
     runId: 'run-1',
     documentEpoch: EPOCH,
   }
-  return {
+  return enrich({
     case: caseId,
     fixtureRevision: 'visual-holdout-1',
     fixtureHash: 'f'.repeat(64),
@@ -278,7 +278,7 @@ function passing(caseId: VisualCaseId = 'D0'): DeepMutable<VisualScorerInput> {
       },
     ],
     declaredVerdict: 'supported',
-  }
+  })
 }
 
 function clone(input: VisualScorerInput): DeepMutable<VisualScorerInput> {
@@ -574,9 +574,16 @@ describe('independent visual scorer', () => {
       input.run.findings = []
       input.run.hypotheses = []
       input.run.focusMeasurements = []
-      input.artifacts['candidate-art-1'] = {
-        ...input.artifacts['candidate-art-1']!,
-        data: undefined,
+      input.artifacts = { 'shot-1': input.artifacts['shot-1']!, 'raw-1': input.artifacts['raw-1']! }
+      input.sentVision = [
+        { sha256: 'a'.repeat(64), raw: { coordinateSpace: 'normalized-1000', candidates: [] } },
+      ]
+      input.artifacts['raw-1'] = {
+        ...input.artifacts['raw-1']!,
+        data: {
+          ...(input.artifacts['raw-1']!.data as any),
+          text: JSON.stringify(input.sentVision[0]!.raw),
+        },
       }
       const result = scoreVisualEvidence(input)
       expect(result.failedAssertions).toEqual([])
@@ -653,7 +660,7 @@ describe('independent visual scorer', () => {
 
   it('counts a supported finding on a healthy page as a false positive, not a discovery', () => {
     const input = healthy('H0')
-    input.run.findings = [{ ...input.run.findings[0]!, validationStatus: 'supported' }]
+    input.run.findings = [{ ...passing().run.findings[0]!, validationStatus: 'supported' }]
     const result = scoreVisualEvidence(input)
     expect(result.counts.falsePositives).toBe(1)
     expect(result.counts.discoveries).toBe(0)
@@ -696,7 +703,7 @@ function healthy(caseId: 'H0' | 'H1' | 'H2'): DeepMutable<VisualScorerInput> {
     sample({ side: 'right', x: 800, focusedWithinMs: 95 }),
   ]
   receipt.actionCost = 5
-  return {
+  return enrich({
     ...base,
     case: caseId,
     sentVision: [{ sha256: 'a'.repeat(64), raw: normalizedRawFor('D0') }],
@@ -736,15 +743,7 @@ function healthy(caseId: 'H0' | 'H1' | 'H2'): DeepMutable<VisualScorerInput> {
           evidenceRefs: [],
         })),
       ],
-      findings: [
-        {
-          id: 'f1',
-          validationStatus: 'refuted',
-          candidateId: 'candidate-1',
-          evidenceRefs: ['receipt-art-1'],
-          title: 'Sampled input-region clicks focused the input',
-        },
-      ],
+      findings: [],
       hypotheses: [
         {
           id: 'h1',
@@ -755,5 +754,161 @@ function healthy(caseId: 'H0' | 'H1' | 'H2'): DeepMutable<VisualScorerInput> {
       ],
     },
     declaredVerdict: 'refuted',
-  }
+  })
 }
+
+function enrich(input: DeepMutable<VisualScorerInput>): DeepMutable<VisualScorerInput> {
+  const v = structuredClone(input) as any,
+    c = v.artifacts['candidate-art-1'].data,
+    r = v.artifacts['receipt-art-1'].data
+  const viewport = r.viewport
+  Object.assign(c, {
+    screenshotSha: 'a'.repeat(64),
+    rawRef: 'raw-1',
+    viewport,
+    algorithmVersion: 'visual-focus-3',
+  })
+  v.artifacts['raw-1'] = {
+    type: 'visual-response',
+    exists: true,
+    runId: v.run.runId,
+    data: {
+      text: JSON.stringify(v.sentVision[0].raw),
+      screenshotRef: 'shot-1',
+      screenshotSha: 'a'.repeat(64),
+      coordinateTransform: {
+        source: 'normalized-1000',
+        destination: 'css-pixels',
+        scaleX: viewport.width / 1000,
+        scaleY: viewport.height / 1000,
+        viewport,
+      },
+    },
+  }
+  const w = v.artifacts['witness-1'].data
+  v.artifacts['snap-1'] = {
+    type: 'snapshot',
+    exists: true,
+    runId: v.run.runId,
+    data: {
+      elements: [
+        {
+          selector: w.domPath.join(' > '),
+          tag: w.native.tag,
+          attributes: { id: w.native.id, type: w.native.type },
+          bounds: w.bounds,
+        },
+      ],
+    },
+  }
+  v.artifacts['measurement-art-1'].data = { receiptRef: 'receipt-art-1', samples: r.samples }
+  const clicks: any[] = []
+  let n = 0,
+    resets = 0
+  const emit = (p: any, kind: string) =>
+    clicks.push({
+      id: 'click-' + n,
+      seq: ++n,
+      type: 'visual-focus:click-dispatched',
+      payload: { candidateId: c.id, kind, x: p.x, y: p.y },
+      evidenceRefs: [],
+    })
+  const points = [r.positiveControl, ...r.samples]
+  for (let i = 0; i < points.length; i++) {
+    if (i > 0 && (points[i - 1].focusAfter === NODE || points[i].side === 'retest'))
+      emit(r.resets[resets++], 'neutral-reset')
+    emit(points[i], 'sample')
+  }
+  v.run.events = [
+    ...clicks,
+    {
+      id: 'annotated',
+      seq: ++n,
+      type: 'visual-focus:annotated',
+      payload: { candidateId: c.id, annotatedRef: 'annotated-1', sourceRef: 'shot-1' },
+      evidenceRefs: [],
+    },
+    { id: 'finish', seq: ++n, type: 'finish:accepted', payload: {}, evidenceRefs: [] },
+  ]
+  r.actionCost = clicks.length
+  for (const h of v.run.hypotheses) h.evidenceRefs = ['receipt-art-1', 'candidate-art-1']
+  v.gatewayCalls[0].body = {
+    candidateId: c.id,
+    elementRef: r.binding.elementRef,
+    bindingReason: r.binding.reason,
+  }
+  return v
+}
+
+describe('review regressions: evidence identity and raw focus facts', () => {
+  it('accepts a generated artifact id rather than a fixture-only literal', () => {
+    const input = passing(),
+      old = 'candidate-art-1',
+      id = '3c41528f-1dfc-4a51-9e90-cf30cd65e87e.json'
+    const changed = JSON.parse(JSON.stringify(input).replaceAll(old, id))
+    expect(scoreVisualEvidence(changed).failedAssertions).toEqual([])
+  })
+  it.each([
+    [
+      'focusAfter contradicts focus time',
+      'measurement.focus-contradiction',
+      (v: any) => {
+        v.artifacts['receipt-art-1'].data.samples[0].focusAfter = NODE
+      },
+    ],
+    [
+      'missing explicit stable observation',
+      'measurement.unstable',
+      (v: any) => {
+        delete v.artifacts['receipt-art-1'].data.samples[0].stable
+      },
+    ],
+    [
+      'witness refers to another node',
+      'binding.witness-mismatch',
+      (v: any) => {
+        v.artifacts['witness-1'].data.nodeIdentity = 'another-node'
+      },
+    ],
+    [
+      'finding refers to another candidate',
+      'binding.finding-chain',
+      (v: any) => {
+        v.run.findings[0].candidateId = 'another-candidate'
+      },
+    ],
+    [
+      'measurement artifact removed',
+      'evidence.artifact-unavailable',
+      (v: any) => {
+        delete v.artifacts[v.run.focusMeasurements[0].samplesRef]
+      },
+    ],
+  ] as const)('%s', (name, code, mutate) => {
+    const input = passing()
+    mutate(input)
+    expect(scoreVisualEvidence(input).failedAssertions, name).toContain(code)
+  })
+  it('accepts the actual healthy API shape: a refuted hypothesis and no finding', () => {
+    const input = healthy('H0')
+    expect(input.run.findings).toHaveLength(0)
+    expect(scoreVisualEvidence(input).passed).toBe(true)
+  })
+})
+
+it('S13 refuses a renamed claim borrowing a valid focus receipt', () => {
+  const input = passing()
+  input.run.findings = [{ ...input.run.findings[0]!, title: 'Submit button is covered' }]
+  expect(failCodes(input)).toContain('binding.finding-scope')
+})
+it('S13 refuses a supported finding that dropped the receipt reference', () => {
+  const input = passing()
+  input.run.findings = [{ ...input.run.findings[0]!, evidenceRefs: ['shot-1'] }]
+  expect(failCodes(input)).toContain('binding.finding-chain')
+})
+
+it('S14 an empty-candidate response still requires its actual source image', () => {
+  const input = healthy('H1')
+  input.artifacts['shot-1'] = { ...input.artifacts['shot-1']!, sha256: 'b'.repeat(64) }
+  expect(failCodes(input)).toContain('provenance.image-sha-mismatch')
+})

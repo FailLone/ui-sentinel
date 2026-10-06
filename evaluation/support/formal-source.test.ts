@@ -4,6 +4,13 @@ import { buildFreezeIdentity } from './freeze-identity.ts'
 
 const expected = { buildHash: 'b'.repeat(64), campaignId: 'campaign-1' }
 const good: FormalSourceManifest = {
+  fixtureRevision: {
+    revision: 'reviewed-holdout',
+    hash: 'f'.repeat(64),
+    purpose: 'holdout',
+    reviewedBy: 'test-reviewer',
+    reviewedAt: '2026-10-06',
+  },
   kind: 'visual-focus-diagnostic',
   mode: 'real',
   stage: 'diagnostic',

@@ -55,15 +55,15 @@ if (options.mode !== 'preflight') {
   const extra =
     options.mode === 'formal'
       ? [
-          '--formal',
-          '--campaign',
-          options.campaign!,
+          ...(options.campaign ? ['--campaign', options.campaign] : []),
           '--diagnostic-source',
           options.diagnosticSource!,
           ...(options.approvedSource ? ['--approved-source', options.approvedSource] : []),
           ...(options.groups ? ['--groups', options.groups.join(',')] : []),
         ]
-      : ['--diagnostic', '--campaign', options.campaign!]
+      : options.campaign
+        ? ['--campaign', options.campaign]
+        : []
   const result = spawnSync(process.execPath, ['--import', 'tsx', entry, ...extra], {
     stdio: 'inherit',
     env: process.env,

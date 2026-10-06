@@ -30,9 +30,10 @@ export interface VisualCliOptions {
   readonly campaign?: string
   readonly diagnosticSource?: string
   readonly cases?: readonly VisualCaseId[]
+  readonly spendingSource?: string
 }
 
-const VALUE_FLAGS = ['--campaign', '--diagnostic-source', '--cases'] as const
+const VALUE_FLAGS = ['--campaign', '--diagnostic-source', '--cases', '--spending-source'] as const
 
 /** Parse argv for the visual-focus entry. Throws a `cli:`-prefixed error on any invalid shape. */
 export function parseVisualCli(argv: readonly string[]): VisualCliOptions {
@@ -49,8 +50,12 @@ export function parseVisualCli(argv: readonly string[]): VisualCliOptions {
     )
   const mode = modes[0]!.slice(2) as VisualMode
 
-  const options: { campaign?: string; diagnosticSource?: string; cases?: readonly VisualCaseId[] } =
-    {}
+  const options: {
+    campaign?: string
+    diagnosticSource?: string
+    cases?: readonly VisualCaseId[]
+    spendingSource?: string
+  } = {}
   const seen = new Set<string>()
   for (let i = 0; i < args.length; i++) {
     const arg = args[i]!
@@ -67,6 +72,7 @@ export function parseVisualCli(argv: readonly string[]): VisualCliOptions {
     i++
     if (arg === '--campaign') options.campaign = value
     else if (arg === '--diagnostic-source') options.diagnosticSource = value
+    else if (arg === '--spending-source') options.spendingSource = value
     else {
       const ids = value.split(',')
       if (!ids.length || !ids.every(isVisualCaseId) || new Set(ids).size !== ids.length)
@@ -84,6 +90,10 @@ export function parseVisualCli(argv: readonly string[]): VisualCliOptions {
   if (mode === 'p2-smoke' && (options.campaign || options.diagnosticSource))
     throw new CliUsageError('cli: --p2-smoke takes only --cases')
 
+  if (mode !== 'p2-smoke' && (options.cases || options.spendingSource))
+    throw new CliUsageError('cli: cases/spending-source require p2-smoke')
+  if (mode === 'diagnostic' && options.diagnosticSource)
+    throw new CliUsageError('cli: diagnostic cannot inherit a diagnostic-source')
   return { mode, ...options }
 }
 
@@ -129,11 +139,22 @@ export function parseBusinessCli(argv: readonly string[]): BusinessCliOptions {
     if (arg === '--campaign') options.campaign = value
     else if (arg === '--diagnostic-source') options.diagnosticSource = value
     else if (arg === '--approved-source') options.approvedSource = value
-    else options.groups = value.split(',').filter(Boolean)
+    else options.groups = value.split(',')
   }
-  if (mode === 'diagnostic' && !options.campaign)
-    throw new CliUsageError('cli: --diagnostic requires --campaign')
-  if (mode === 'formal' && (!options.campaign || !options.diagnosticSource))
-    throw new CliUsageError('cli: --formal requires --campaign and --diagnostic-source')
+  if (mode === 'preflight' && seen.size) throw new CliUsageError('cli: preflight takes no options')
+  if (
+    mode === 'diagnostic' &&
+    (options.diagnosticSource || options.approvedSource || options.groups)
+  )
+    throw new CliUsageError('cli: diagnostic takes only campaign')
+  if (
+    options.groups &&
+    (!options.groups.length ||
+      new Set(options.groups).size !== options.groups.length ||
+      options.groups.some((g) => !['A', 'B', 'C', 'D'].includes(g)))
+  )
+    throw new CliUsageError('cli: invalid groups')
+  if (mode === 'formal' && !options.diagnosticSource)
+    throw new CliUsageError('cli: formal requires diagnostic-source')
   return { mode, ...options }
 }

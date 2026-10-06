@@ -110,3 +110,18 @@ describe('batch timing (E04)', () => {
     })
   })
 })
+
+it('uses persisted per-kind durations without mixing agent and tool time or inventing missing values', async () => {
+  const { measuredDuration } = await import('./batch-timing.ts')
+  const events = [
+    { type: 'model:request-finished', payload: { durationMs: 10 } },
+    { type: 'model:request-finished', payload: { durationMs: 20 } },
+    { type: 'tool:finished', payload: { durationMs: 50 } },
+  ]
+  expect(measuredDuration(events, 'model:request-finished')).toBe(30)
+  expect(measuredDuration(events, 'tool:finished')).toBe(50)
+  expect(measuredDuration([], 'tool:finished')).toBeNull()
+  expect(
+    measuredDuration([...events, { type: 'tool:finished', payload: {} }], 'tool:finished'),
+  ).toBeNull()
+})

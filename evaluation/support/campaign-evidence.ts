@@ -46,7 +46,7 @@ export async function downloadRunEvidence(base: string, report: any, directory: 
   await mkdir(directory, { recursive: true })
   const artifacts: Record<
     string,
-    { type: string; exists: boolean; sha256: string; data?: unknown }
+    { type: string; exists: boolean; sha256: string; runId: string; data?: unknown }
   > = {}
   const index: {
     runId: string
@@ -77,6 +77,7 @@ export async function downloadRunEvidence(base: string, report: any, directory: 
       }
     }
     artifacts[artifact.id] = {
+      runId: report.runId,
       type: artifact.type,
       exists: checked.exists,
       sha256: checked.sha256,
@@ -129,7 +130,7 @@ export async function auditStoppedGroup(
       ).rows
       const findings = (
         await db.execute({
-          sql: 'SELECT id,evidence_refs,validation_status FROM findings WHERE run_id=?',
+          sql: 'SELECT * FROM findings WHERE run_id=?',
           args: [report.runId],
         })
       ).rows
@@ -201,38 +202,42 @@ export async function auditStoppedGroup(
           evidenceRefs: JSON.parse(String(e.evidence_refs ?? '[]')),
         })),
       )
+      const normalize = (record: Record<string, any>) =>
+        Object.fromEntries(
+          Object.entries(record).map(([key, value]) => [
+            key.replace(/_([a-z])/g, (_, c) => c.toUpperCase()),
+            key === 'evidence_refs' ? JSON.parse(String(value)) : value,
+          ]),
+        )
+      const project = (stored: Record<string, any>, api: Record<string, any>) =>
+        Object.fromEntries(Object.keys(api).map((key) => [key, stored[key] ?? null]))
       const findingRows = compareFindings(
-        report.findings.map((f: any) => ({
-          id: f.id,
-          validationStatus: f.validationStatus,
-          evidenceRefs: f.evidenceRefs ?? [],
-        })),
-        findings.map((f) => ({
-          id: String(f.id),
-          validationStatus: String(f.validation_status),
-          evidenceRefs: JSON.parse(String(f.evidence_refs)),
-        })),
+        report.findings,
+        findings.map((f) =>
+          project(normalize(f), report.findings.find((a: any) => a.id === f.id) ?? { id: f.id }),
+        ) as any,
       )
       // Hypotheses were never compared before; a rewritten hypothesis is part of E02.
       const hypotheses = (
         await db.execute({
-          sql: 'SELECT id,status,evidence_refs FROM hypotheses WHERE run_id=?',
+          sql: 'SELECT * FROM hypotheses WHERE run_id=?',
           args: [report.runId],
         })
       ).rows
       const hypothesisRows = compareHypotheses(
-        (report.hypotheses ?? []).map((h: any) => ({
-          id: h.id,
-          status: h.status,
-          evidenceRefs: h.evidenceRefs ?? [],
-        })),
-        hypotheses.map((h) => ({
-          id: String(h.id),
-          status: String(h.status),
-          evidenceRefs: JSON.parse(String(h.evidence_refs)),
-        })),
+        report.hypotheses ?? [],
+        hypotheses.map((h) =>
+          project(
+            normalize(h),
+            (report.hypotheses ?? []).find((a: any) => a.id === h.id) ?? { id: h.id },
+          ),
+        ) as any,
       )
+      const usageMatches =
+        !report.usage ||
+        JSON.stringify(report.usage) === JSON.stringify(JSON.parse(String(row?.usage)))
       const failureCodes = [
+        ...(!usageMatches ? ['run-usage-changed'] : []),
         ...eventHistory.failedAssertions,
         ...findingRows.failedAssertions,
         ...hypothesisRows.failedAssertions,
@@ -249,6 +254,7 @@ export async function auditStoppedGroup(
         failureCodes,
         passed:
           audit.passed &&
+          usageMatches &&
           eventHistory.passed &&
           findingRows.passed &&
           hypothesisRows.passed &&

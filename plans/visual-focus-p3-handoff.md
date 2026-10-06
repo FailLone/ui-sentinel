@@ -1,189 +1,80 @@
-# 主动视觉发现：P3 交接
+# 主动视觉发现：P3 主 Agent 复查交接
 
-状态：**P3 ready for review，P4 尚未执行。**
+状态：**P3 completed / ready，主 Agent 复查修复及 G0–G3 免费验收全部通过。P4 未执行。**
 
-代码来源：基于 `origin/review/visual-focus-p2` 尖端 `6946df9`，分支 `dev/visual-focus-p3`。
+评审基线为 dev bundle `b354376a504b4b111437c0b1ab2ae218a8dfc597`，主 Agent 修复分支为 `review/visual-focus-p3`。P2/main 未被覆盖；没有新规则批准，没有付费模型请求。旧交接中的 B06/W01 partial 和未覆盖的运行器集成已补齐；旧 1034 项结果不作为本次完成依据。
 
-- base：`6946df9`
-- head：本文件所在提交（P3 的最后一次 commit）；分支尖端以 `git log -1 --format=%H dev/visual-focus-p3` 为准
-- 最后 build hash：`26cb557196e657f3ae2dbdbe9ad3bfbae53b853e98a8f0adddc73bafee9f5f1a`（评审修复后的最后一次 `pnpm build`，88 个文件；由 `buildIdentity()` 覆盖 `dist`、两个 arena、`evaluation/`、`scripts/` 与 lockfile 计算）
-- 免费证据目录：`data/visual-focus-preflight/2026-10-06T02-37-02-780Z/`（其 `manifest.json` 记录同一 commit 与 hash）
+## 修复内容
 
-**付费请求数 = 0。** 本阶段所有免费命令的产物均标 `mode: fixed`（preflight）或由测试直接断言；P2 smoke 入口存在但未执行（见 R03/R07）。没有任何 real diagnostic 凭证被生成，P4 门槛未被提前满足。
+- 独立评分按实际候选/回执引用取证，不再依赖测试专用 artifact ID；H0 按实际 API 的 refuted hypothesis 判定。逐项校验原始视觉坐标、截图 SHA、snapshot/节点见证、焦点前后事实、500ms 实测、reset/复测顺序、实际 click 数、finding 引用与声明范围。不能借用聚焦回执证明遮挡等其他问题。
+- 视觉诊断通过可导入的生产运行器执行；CLI 没有 mock 开关。免费 preflight 注入本地响应，实际经过网关、SDK、浏览器、正式 API、评分和停服审计。成功、价格查询失败、运行中取消均实际走过；固定响应产物永远是 fixed，不能授权真实 formal。
+- 视觉和业务入口共用持久 SQLite campaign、唯一 requestId、事务费用预留及 runner 租约。并发锁冲突有界重试；跨阶段/进程保留费用、未知预留。启动失败释放租约；失联进程恢复只标记 interrupted/unknown，不续跑或补齐成通过。
+- business 参数透传恢复可用；保留历史 standalone 入口，但联合验收必须显式传同一 `--campaign`。业务 profile 固定 0/1/1，视觉为 1/1/1；网关显式固定 Alibaba，Jev 保持其原决策端点。
+- formal 源必须是同一冻结身份、campaign 下的 real diagnostic，并具备完整报告、请求、账本、审计和文件 SHA 封存。单独 `passed:true` 无效。已知六例的 revision 明确为 regression，不能冒充 P4 holdout。
+- 完整计划先落盘，失败和 not-run 不丢失。18/45 行使用同一批次循环；质量失败留在分母，隔离/审计/预算/取消阻止继续。持久审计逐事件核对 id/seq/payload/引用及完整 finding/hypothesis/usage，最终退出码包含审计结果。
+- 报告只累计视觉请求的 token，缺 usage/费用显示未知；缺回执标记无法核实。Web 展示采样窗口、重置记录、感知框和原生输入框，表格留有间距。截图与恢复通过正式报告路由验证。
 
-## 一、测试层次与总量
+## 免费验收映射
 
-| 项 | 结果 |
+所有固定响应仅验证执行机制与证据，不证明真实 Qwen/DeepSeek 自主发现能力。
+
+| ID | 复查证据 |
 | --- | --- |
-| Biome `format:check` | 退出 0（282 files） |
-| `typecheck` | 退出 0 |
-| `test`（全量） | **105 个测试文件 / 1034 个测试全部通过**，退出 0 |
-| `build` | 退出 0 |
+| B01 | 下方最终命令记录：Biome、typecheck、全量测试及最后 build |
+| B02 | `runner-profile.test.ts`、`business-stage.test.ts`；免费运行器实际请求断言 Alibaba pin；业务 flags 在调用者 env 之后覆盖 |
+| B03 | `run-report-focus.test.ts`：旧数据未记录字段、缺文件、费用未知，视觉/Agent token 分离 |
+| B04 | 原 C0–C5、E0–E4 fixture 验证；批准 fixture verify；原业务 preflight，不改旧真值 |
+| B05 | 必需输入与 fixture revision 均在 Git；data/DB/凭据不提交；本复查 worktree 无 .env |
+| B06 | `build-identity.test.ts` 分别修改真实临时文件树的 web/两 arena/server/scorer/protocol/lock 字节，确认 hash 改变；交付前最后 build |
+| V01 | `visual-focus-runtime.test.ts`：真实 foreign artifact、任意路径、scroll/viewport/节点替换/value 失效；拒绝后无点击 |
+| V02 | `visual-candidate.test.ts`、独立 scorer 的原始坐标与转换反例 |
+| V03 | runtime 浏览器测试：DPR=1/2 都发送 800×600 CSS 图像并实际点击相同区域；不支持的图像尺寸显式拒绝 |
+| V04 | runtime：第一次在途变化仅重采一次；两次变化保留 unknown；取消后迟到响应不能写入候选 |
+| V05 | runtime 的 iframe/shadow/readonly/disabled/旋转；`focus-binding.test.ts` 的多 input 歧义 |
+| V06 | runtime 的真实 text-input 连续观察不可缓存；`observation-version.test.ts` |
+| F01 | 六例 SDK/API preflight + runtime/`focus-measure.test.ts` 的真实鼠标点击；H0 label 代理不误报 |
+| F02–F04 | `focus-probe.test.ts`、`focus-measure.test.ts`、`focus-neutral.test.ts`；preflight 同候选重复调用不重复点击 |
+| F05 | runtime 第一真实点击期间替换节点、layout/value/overlay/scroll 变化；均停止并 inconclusive，实际只点击一次 |
+| F06 | runtime 6/7/8 预算；`focus-probe.test.ts` 最大 8 次含 reset 的实际计数 |
+| F07 | runtime 与 preflight 的请求/点击中取消；`focus-measure.test.ts` 异步检查后、pointer dispatch 前取消；executor 超时/迟到动作测试 |
+| F08 | runtime 点击触发网络写入/弹窗的受控拦截，真实 integrity 使结论无效；原 `side-effect-policy`、`evidence-integrity`、executor 写屏障回归 |
+| F09–F10 | `focus-preflight.test.ts` 与六例完整 SDK/API preflight：实际 viewport、排除区、购买后私有订单真值、无公共答案泄漏 |
+| S01–S16 | `evaluation/private/visual-focus/scorer.test.ts`：合法 D0/H0/H1/H2 对照、逐项损坏、动态 ID、焦点矛盾、缺 stable/测量、错 witness/finding、改标题借旧回执；传递 import graph 禁止产品 verdict/helper |
+| R01–R02 | `cli-args.test.ts`、`formal-source.test.ts`、`business-stage.test.ts`、`campaign-session.test.ts`；错误/缺证据/错 freeze 拒绝，45 行保留 not-run |
+| R03–R06 | `row-runner.test.ts` 实际执行 18/45 行注入循环及中断；生产视觉运行器在 preflight 实际成功/启动失败/取消，保留 runId、剩余行和账目 |
+| R07–R08 | `campaign-session.test.ts` 死 owner 恢复及拒绝续跑；`freeze-identity.test.ts` known regression/test-only/unreviewed holdout 门槛 |
+| C01–C05 | `campaign-ledger.test.ts`、`campaign-session.test.ts`、`business-stage.test.ts`、网关测试：并发竞争、五个独立进程阶段累计、未知成本、去重、租约、额度不可变、价格/超额拒绝 |
+| E01–E03 | `audit-compare.test.ts`、`campaign-evidence.test.ts`、文件封存测试；六例与生产运行器停服后新 DB 连接审计；互换 seq/改正文/丢文件均失败 |
+| E04 | `model-gateway*.test.ts`、`gateway-evidence.test.ts`、`batch-timing.test.ts`；request/response/ledger 共用 requestId，关联 row/phase；日志脱敏、失败与未知计数保留 |
+| W01–W02 | 免费 preflight 实际报告路由 D0/H0/H1 截图并目视复核，原图/框/点/图例一致；六例均 reload、停服重启后复核 |
+| W03 | `run-report-focus.test.ts`：缺原图/采样/回执、未知 token/费用和旧记录；Web 明示未验证，不能显示成功/0 元 |
 
-B01 要求不沿用 P2 的 844：本次实测 1034，文件数 105。基线与本次的分差来自 P3 新增的独立评分器、协议、台账、计划、审计与 CLI 测试，以及本轮评审修复新增的网关证据、运行 profile 与模块图测试。P2 基线的 90/844 已在 setup 时记录于 ledger，未作为本阶段结果。
+## 最终命令与证据
 
-（评审修复期间有一次全量运行报 1 failed / 1034，其开始时刻与我为验证边界测试而临时把 `focusReceiptVerdict` 走私进 `witness.ts` 的时间窗重叠，而该 symbol 正是新边界测试断言不存在的对象。回滚后的连续两次干净运行均为 105/105、1034/1034 全通过，已在 ledger 记录归因。）
+| 命令 | 结果 |
+| --- | --- |
+| `pnpm test` | 退出 0；109 文件 / 1089 项，最终全量 133.38 秒 |
+| `pnpm format:check` | 退出 0 |
+| `pnpm typecheck` | 退出 0 |
+| `pnpm build` | 退出 0 |
+| `pnpm fixture:approved-retry -- --verify` | 退出 0 |
+| `pnpm test:fixtures` | 退出 0 |
+| `pnpm test:fixtures:export` | 退出 0 |
+| `pnpm validate:persistence` | 退出 0 |
+| `pnpm validate:investigation` | 退出 0 |
+| `pnpm validate:blocker-review` | 退出 0 |
+| `pnpm validate:business -- --preflight` | 退出 0 |
+| `pnpm validate:visual-focus -- --preflight` | 退出 0 |
 
-## 二、逐项验收
+最后一次视觉复验：`data/visual-focus-preflight/2026-10-06T08-17-49-896Z/`，六例独立评分均通过；重启与 Web 截图均完成。D0/H0/H1 报告与 D0 原尺寸标注已目视复核，失败/聚焦点与表格一致，测量范围没有扩大为整个区域。
 
-### G0 构建、兼容和可移交
+- 生产运行器 fixed 诊断：`data/visual-focus-validation/2026-10-06T08-18-28-980Z-726c45f8/`，4/4 通过，持久审计通过；vision=4、agent=32，paidRequests=0。分项 model/tool 时间来自持久事件，墙钟独立实测。
+- 价格失败和取消：同级 `2026-10-06T08-18-50-362Z-e90ade71/`、`2026-10-06T08-18-50-403Z-37958b94/`。日志中的两条 FAIL 是主动故障注入的预期结果：前者全部 not-run，后者保留首个 runId/cancelled 与余下 not-run。总 preflight 退出 0，未清零预算，也未遗留租约。
+- 最后 build hash：`531421723bd8035cc9431559aefbb72025db92c2dc9a34e355c2e14a55f3f686`（94 个文件）；机器可读清单 `data/reviews/p3-final/build-identity.json`。
+- 全部命令日志与退出码：`data/reviews/p3-final/`；最终全量日志 `full-test.log`，末次视觉复验 `visual-delivery.log`，之后重新 build 的日志 `delivery-build.log`。
+- 验证在提交前工作树进行；fixed manifest 如实记录当时的 bundle 基线 commit，没有为了交付改写旧记录。最终构建哈希对应本次交付代码。生成资料不入 Git，按 [P3 验收命令](visual-focus-p3-acceptance.md#6-必须执行的免费命令)可重建。
 
-| ID | 结果 | 证据 |
-| --- | --- | --- |
-| B01 | pass | 上表四项均由本机实跑，退出码 0，测试数如实记录 |
-| B02 | pass | 产品默认视觉关闭：新增 `evaluation/support/freeze-identity.test.ts` 覆盖全部旋钮被 pin；`scripts/validation/cli-args.ts` 显式要求模式；P2 smoke 关闭 blocker review（`EXECUTION_BLOCKER_REVIEW: '0'`），visual/atomic 显式 `1` |
-| B03 | pass | `src/server/reports/run-report.ts` 对旧 receipt 缺 `observedWindowMs` 显示 `null`（"未记录"），`visual.costStatus: 'not-recorded'`；`src/server/reports/run-report-focus.test.ts` "reports an unrecorded window as null, never as 0" 与 "reports visual spend as unknown rather than zero" |
-| B04 | pass | `fixture:approved-retry --verify` 退出 0，`verified:true`，`files:14`，`ruleConfigSha256:f3ac227c…`，`paidModelRequests:0`；Git 批准 fixture 原样校验，未发生新 approval |
-| B05 | pass | 新增输入全部在 Git（见"交付物"）；`data/` 已在 `.gitignore`；无凭据、DB、临时脚本进入提交 |
-| B06 | **partial** | `buildIdentity()` 覆盖 `dist`、两个 arena、`evaluation/`、`scripts/` 与 lockfile，任一内容变化即改变 hash（`evaluation/support/build-identity.ts`）。见下节说明 |
 
-**B06 说明（如实记录，不宣称 pass）**：identity 已覆盖评分器与协议所在目录，因此改动它们会被识别。但我没有为"换 arena/web/scorer/protocol 任一内容被识别"编写逐项的自动化反例测试——验收要求的是"能识别",当前是"由实现结构保证"，不是"有测试证明"。这属于 P3 未做的一个测试，不改现有代码行为。**判为 partial。**
+## P4 边界
 
-### G3 反例矩阵（独立评分器）
-
-| ID | 结果 | 测试位置 |
-| --- | --- | --- |
-| S01–S16 | pass | `evaluation/private/visual-focus/scorer.test.ts`，共 37 个测试，逐项断言具体失败码 |
-| import 边界 | pass | 同文件 "does not import the product verdict or the P2 smoke scorer"，读取自身源码，禁止 `focusReceiptVerdict`/`evaluateFocusVerdict`/`focusReceiptSupports`/`visualSmokeProblems`/`isFocusReceipt` |
-| 无候选合法对照 | pass | "accepts H1 and H2 when no candidate is proposed at all" |
-
-失败码按"被拒原因"命名（如 `provenance.image-sha-mismatch`），与验收"必须拒绝的原因"一一对应；S03 的错误归一化反例、S16 的伪造 verdict 字符串反例均已单测。
-
-### R01–R08 运行器、费用、证据、报告
-
-| ID | 结果 | 证据 |
-| --- | --- | --- |
-| R01 | pass | 非法 CLI 实测退出 **2**（`--bogus`、`--diagnostic` 缺 campaign、`--formal` 缺 source 均 `FAIL(2)`）；缺 key 实测 `configuration-missing: OPENROUTER_API_KEY; no mock fallback` 退出 2；provider 不符实测 `Pinned provider mismatch: agent-provider-mismatch` 退出 2；脏工作区退出 2。全部在读取凭据或发送请求之前 |
-| R02 | pass | 实测：把 p2-smoke manifest 作为 formal 源 → `FAIL(2): formal-source-refused: diagnostic-source-wrong-kind:visual-focus-p2-smoke`；`evaluation/support/formal-source.test.ts` 覆盖 preflight/P2/formal kind、fixed 模式、未通过、错 build、错 campaign、未 review holdout |
-| R03 | pass | `evaluation/support/execution-plan.test.ts`：smoke+3、18、45 行数与矩阵一致；`batchVerdict` 对 `not-run` 行判 incomplete，partial group 永不联合完成；评分器新增 discoveries/falsePositives/missed/businessFailures/unverifiedScope 独立计数（`scorer.test.ts` 5 个新测试） |
-| R04 | pass | `evaluation/support/row-runner.test.ts`：质量失败保留该行并继续；`batchVerdict` 分母不变且非零 |
-| R05 | pass | `mayContinue('provider-error') === true`（可恢复才进入下一样本）；`sameMechanismTwice` 由 `execution-plan.test.ts` 覆盖，diagnostic 连续两次同机制即停止 |
-| R06 | pass | `evaluation/support/interrupt-guard.test.ts`：SIGINT 后收尾一次、退出 **130**、第二次信号不重跑收尾、正常结束 dispose 后迟到信号不生效；`visual-focus-runner.ts` 的 wrap-up 停服务、写 `interrupted:true`/`passed:false` 的 manifest、释放租约 |
-| R07 | pass | 同上：中断阶段 manifest 标 `interrupted`/`passed:false`，余下行为 `not-run`，无自动 reconcile；`campaign-ledger.test.ts` 覆盖崩溃遗留预留不丢、重复结算不重复收费 |
-| R08 | pass | `evaluation/support/fixture-revision.ts` + `formal-source.test.ts`：未 review 的 holdout revision 被正式门槛拒绝；test-only revision 仅在免费测试中可用 |
-
-### C01–C05 费用台账
-
-| ID | 结果 | 测试位置 |
-| --- | --- | --- |
-| C01–C05 | pass | `evaluation/support/campaign-ledger.test.ts`（10 个测试全部通过）：事务预留不双花、跨进程累加、未知预留纳入上限且不按 0 结算、重复结算/导入不重复收费、单 runner 租约（第二进程拒绝、活租约不被抢占）、价格缺失拒绝、env 改动不暗改原上限 |
-
-### E01–E04 证据协议与停服审计
-
-| ID | 结果 | 证据 |
-| --- | --- | --- |
-| E01 | pass | `evaluation/support/audit-compare.test.ts` + `campaign-evidence.test.ts`：API 完整分页历史（`collectFullEventHistory` 走到空页，游标不前进即拒绝而非死循环），API 侧缺中段 → `events-api-incomplete`；停服后新连接逐条对比，非仅比最后 seq |
-| E02 | pass | 同处：删中段 → `events-missing-from-api`、重复 seq → `events-seq-duplicated`、改 payload/evidenceRefs → `events-changed`、改 hypothesis → `hypotheses-changed`、改 finding → `findings-changed`；规则批准来源单独校验 |
-| E03 | pass | `evaluateHashes`：原文件/下载文件字节与 SHA 对照，缺索引 → `artifact-not-indexed:<id>`，集合为空但 run 有 artifact → `artifact-index-incomplete`，空集合不空泛通过 |
-| E04 | pass | `evidence-protocol.test.ts`：manifest 带 `mode`/`stage`/`schemaVersion`/冻结身份；preflight 声明 `real` 被拒；artifact-index 记录 runId/type/SHA/字节/相对路径；`batch-timing.test.ts` 墙钟实测而非相加，model/tool 时长未测时显示 `null`（产品只持久化 token，不持久化分项时长） |
-
-E04 的请求/费用索引由 `campaign-ledger` 的 `ledger_requests` 承载：`requestId` 唯一、关联 run/phase、状态含 held/settled/unknown/released、失败与未知完整；网关 `redact()` 在落盘前替换 key 与本地 token（`evaluation/support/model-gateway.ts`）。
-
-### W01–W03 报告与 Web
-
-| ID | 结果 | 证据 |
-| --- | --- | --- |
-| W01 | **partial** | 报告与 Web 已展示：原图、派生标注、模型感知框 vs 实际 input 包围盒、逐点坐标/焦点时间/**实际观察窗口**、正向控制、integrity、unknown 原因、视觉请求数与费用（未知显示"未记录"）。`run-report-focus.test.ts` 与 `main.tsx` 均覆盖。**未做**：真实页面的目视复核截图未由本阶段生成并检视（P2 阶段做过 D0/H0/H1 标注图目视）。判 partial |
-| W02 | pass | `src/server/reports/run-report-focus.test.ts` "reads the rows back from the persisted artifact, so a restart shows the same thing"；p2 hydration：`validate:visual-focus --preflight` 内部停服重启后重新校验图像/SHA/采样 |
-| W03 | pass | 缺原图/测量/引用显示明确错误（`samplesAvailable:false`、`points` 缺省而非空数组）；unknown usage 与旧报告显示"未记录"；费用未知不显示 0 |
-
-## 三、必须执行的免费命令（逐条实跑）
-
-| 命令 | 退出码 | 实际结果 |
-| --- | --- | --- |
-| `pnpm format:check` | 0 | 282 files |
-| `pnpm typecheck` | 0 | — |
-| `pnpm test` | 0 | **105 files / 1034 tests**（评审修复后连续两次） |
-| `pnpm build` | 0 | server + workbench + 两个 arena |
-| `pnpm fixture:approved-retry -- --verify` | 0 | `verified:true, files:14, paidModelRequests:0` |
-| `pnpm test:fixtures` | 0 | 六个 fixture 全部 verified |
-| `pnpm test:fixtures:export` | 0 | 五个导出变体全部 verified |
-| `pnpm validate:persistence` | 0 | 6 runs，`durable:true`，`paidModelRequests:0` |
-| `pnpm validate:investigation` | 0 | 9 项断言全 true，`paidModelRequests:0` |
-| `pnpm validate:blocker-review` | 0 | 8 项断言全 true，`paidModelRequests:0` |
-| `pnpm validate:business -- --preflight` | 0 | `assertions:32, failed:[]`，`paidModelRequests:0` |
-| `pnpm validate:visual-focus -- --preflight` | 0 | `data/visual-focus-preflight/2026-10-06T04-05-13-934Z/`（评审修复后重跑；`manifest.json` 记 `mode:fixed, paidRequests:0`），D0/H0 + 预算/取消/错绑定边界，Web reload 与停服重启复核 |
-
-`data/` 已在 `.gitignore`，故生成证据不入 Git；重建命令即上表命令。**注**：`validate:visual-focus -- --preflight` 的产物重建依赖本机存在 `.env`（该入口按设计清空所有真实凭据，只用固定本地模型，不因 `.env` 存在而改变为付费行为）。
-
-## 四、fixed / real 区分
-
-| 入口 | 标签 | 说明 |
-| --- | --- | --- |
-| `validate:visual-focus -- --preflight` | `mode: fixed` / `stage: preflight` | 固定本地模型 + 真实浏览器/SDK/API；清空全部真实凭据 |
-| `--diagnostic` / `--formal` | `mode: real` / `stage: diagnostic|formal` | 未执行（付费）；缺 key 明确失败，无 mock 回退 |
-| `--p2-smoke` | `mode: real` / `stage: p2-smoke` | 未执行；kind 与 diagnostic 不同，formal 门槛据 kind 拒绝 |
-
-零付费的完整调度与中断由注入式测试覆盖（`row-runner`/`execution-plan`/`interrupt-guard`/`campaign-ledger`），**不产生可用于 P4 的 real diagnostic 凭证**。
-
-## 五、交付物
-
-新增/修改的关键代码（全部在 Git）：
-
-- `src/execution/binding-witness.ts`、`evaluation/private/visual-focus/witness.ts` — 公开 DOM 见证捕获 + 私有比对
-- `evaluation/private/visual-focus/scorer.ts` — 独立评分器（不调用产品 verdict / P2 smoke 评分函数）
-- `evaluation/support/` — `freeze-identity`、`fixture-revision`、`execution-plan`、`row-runner`、`campaign-ledger`、`formal-source`、`audit-compare`、`evidence-protocol`、`batch-timing`、`interrupt-guard`、`gateway-evidence`（网关日志→评分器输入）、`runner-profile`（冻结 feature profile）、`module-graph`（传递导入边界检查）
-- `scripts/validation/` — `cli-args`（严格解析 + 退出码）、`visual-focus-runner`（付费 diagnostic/formal）、`visual-focus.ts`/`business.ts` 派发
-- `src/server/reports/run-report.ts`、`src/web/main.tsx` — 报告与 Web 展示
-- `src/execution/focus-measure.ts` / `focus-probe.ts` / `focus-receipt.ts` — 实际观察窗口
-
-## 六、失败与修复记录
-
-1. **独立评分器断言码命名**：初版用"正向断言名"，与验收"必须拒绝的原因"不符，改为按拒绝原因命名。无行为影响。
-2. **实际观察窗口未记录**：探针等满了窗口却只写声明值，S08 在真实数据上无法执行；补 `observedWindowMs` 端到端。这是 P3 修正的真实缺陷。
-3. **`provider-error` 错误地停止批次**：改为可继续（可恢复才进入下一样本），只有"连续两次同机制"才停 diagnostic。
-4. **`protocolHash` 用 JSON replacer 数组丢失嵌套键**：改为深度排序序列化。
-5. **非法 CLI 退出 1**：验收要求 2；引入带退出码的 `CliUsageError` 并在两个派发器映射。
-6. **停服审计只传 runId**：审计无可比对内容，等于空跑；改为传入完整 report + artifactIndex，并在停服前用分页接口读全历史。
-7. **P2 smoke 被标 `fixed`**：付费入口标成免费，与 `mode` 字段的存在意义相反；改为 `real`（其 kind 仍被 formal 门槛拒绝）。
-8. **付费运行器把证据别处读来**（评审 Important）：运行器把 `gatewayCalls: []` 硬编码进评分器输入，并从**请求 prompt**（永远解析不出 JSON）构造 `sentVision[].raw`，导致 `binding.semantic-call-missing` 与 `provenance.normalized-contract` 在任何真实诊断上必然失败——P4 阻断级。新增 `evaluation/support/gateway-evidence.ts`，从网关自己的 `requests.jsonl`/`responses.jsonl` 读回证据：重组流式 tool call、按精确 `<case>-<repeat>` 限定范围、响应缺失或不可解析时报 `null` 而不是 `{}`。同时修掉 `requestCounts` 的 `startsWith(row.case)` 前缀泄漏（repeat 1 把 repeats 2–3 的请求算进自己）。
-9. **付费运行器的冻结配置与规格不符**（评审 Important）：`EXECUTION_BLOCKER_REVIEW` 写成 `'0'`，而计划配置表对 diagnostic/formal 明确钉 `1`，且写明 P2 smoke 的 0 不能冒充；该 flag 手写在不可 import 的顶层脚本里，免费测试看不见。新增 `evaluation/support/runner-profile.ts` 给配置一个可测的家，运行器由它派生 env，并让有限 Jev 审查经网关计量（`COMPLETION_REVIEW_URL/_API_KEY`）；`REVIEW_RESERVE_USD` 收敛到网关模块，消除 4 处重复字面量。`validateFreeze` 新增 `feature-profile` 比对。
-10. **`provenance.normalized-transform` 空泛通过**（评审 Minor，因修复 8 而变为可达，故提升处理）：原始响应或保存的 viewport 缺失时该断言直接通过——"无可比对"被当成"一致"。已改为"有候选就必须可核对"，只有真正无候选（H1/H2）才免比对。
-11. **`settle()` 把非法成本记为 0**（评审 Minor，提升处理）：NaN/Infinity/负数原先写 0，等于把该请求整笔成本从 campaign 里抹掉（C05 禁止）。改为抛 `invalid-actual-cost`，预留保持 `held`（调用方应以 `markUnknown` 收尾）。
-12. **导入边界检查可被绕过**（评审 Minor，提升处理）：原先只 grep 评分器自身源码，改名 re-export（本仓库 `witness.ts` 本身就是这种形状）即可躲过计划禁止的"直接或间接"调用。新增 `evaluation/support/module-graph.ts` 走真实导入图。
-
-## 七、整支评审（fresh-context，最强模型）
-
-评审范围：`git merge-base main HEAD`..HEAD 的整支 diff，含权威文档、交接件与 ledger。
-
-**核验为干净**：S01–S16 反例矩阵（每条只损坏一个字段并断言具体失败码，非空泛）；E01–E04 审计比对（两侧 seq 缺口、API 分页丢页、同长度 id 互换、空集合不通过）；R01 退出码；R03 计划完整性；R06 SIGINT；C01–C05 台账；`recomputeVerdict` 独立性；formal 来源门槛；交接件的诚实性。
-
-**结论**：2 Important、4 Minor、0 Critical。**6 条全部修复**——4 条 Minor 与 2 条 Important 属同一缺陷类（"没有证据却报成功"），故按效果重判后一并进入唯一一次修复 pass，无一延后。逐条见第六节 8–12；每条都以"先失败后通过"的测试收口，最后一次全量套件绿。
-
-**一处如实记录**：修复 pass 期间有一次全量运行报 1 failed / 1034，其开始时刻与我为验证边界测试而临时走私 forbidden symbol 到 `witness.ts` 的时间窗重叠；回滚后连续两次干净运行 105/105、1034/1034。已按时间与断言吻合归因，未当作 flake 略过。
-
-## 八、交付提交
-
-- base：`6946df9`（`origin/review/visual-focus-p2` 尖端）
-- HEAD：本文件所在提交；见 `git log -1 --format=%H dev/visual-focus-p3`
-- 分支：`dev/visual-focus-p3`，本地已提交；**未合并 main**。push 因环境无可用的非交互凭据而未执行，需由你自行 `git push -u origin dev/visual-focus-p3`。
-
-本阶段 29 个提交，分五组：
-
-1. **证据与窗口**（`f18a7d7`、`a9fe860`）— 公开绑定见证；实际观察窗口。
-2. **独立评分器与反例矩阵**（`14a8cfe`、`d894d29`）— S01–S16。
-3. **冻结、计划、台账、运行器**（`9aea77c`…`4c90058`）— 冻结身份与 fixture 门槛、严格 CLI、执行计划与结果分类、共享 SQLite 台账、可注入批次运行器、付费 diagnostic/formal 入口。
-4. **证据协议、审计、报告与 Web**（`67fd884`…`819f1c1`）— 统一 manifest 与索引、全历史审计、失败分项计数与实测窗口、停服后审计、非法 CLI 退出 2、SIGINT 收尾退出 130、preflight 顶层证据索引、P2 smoke 标 `real`、空审计不通过、冻结身份在 formal 门槛真正生效、smoke 行可执行。
-5. **整支评审修复**（`9d93027`…`b544ea3`）— 网关证据读回、运行 profile 冻结、可核对性、成本拒绝、导入边界与模块图、identity 携带 feature profile、交接件。
-
-## 九、残留（P3 未完成 / P4）
-
-**P3 内的两个 partial（不影响交付判断，但如实列出）**：
-
-- **B06**：identity 覆盖范围由实现结构保证，未写"逐项替换被识别"的反例测试。
-- **W01**：报告/Web 展示已测试，但本阶段未生成并在真实页面上目视复核截图。
-
-**评审修复后仍为 partial 的项**（同上，不新增 partial）：
-
-- B06、W01 不变。
-
-**P4（不属于 P3 未完成）**：
-
-- 新 holdout fixture revision 由主 Agent 在算法/prompt 冻结后准备，确认真实页面几何与未调试状态。
-- 真实 Qwen diagnostic（同构建）。
-- 正式 18 轮视觉 + 同构建旧业务 45 轮。
-- 付费请求数当前为 0，**没有 real diagnostic 凭证**，P4 门槛尚未满足。
-
-## 十、结论
-
-**P3 ready for review，P4 尚未执行。**
+P4 仍 pending：主 Agent 在算法/提示冻结后准备并 review 新 holdout revision，再按同一 clean commit、build、campaign 执行真实 diagnostic、视觉 18 轮及业务 45 轮。原六例是已知回归，历史 P2 smoke 与本次 fixed 流程不能替代真实模型验收。P3 不改变模型、上限、批准规则或 main，也不自动启动 P4。

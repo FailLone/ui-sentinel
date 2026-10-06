@@ -11,7 +11,7 @@ describe('visual CLI parsing (R01)', () => {
     // --diagnostic without a campaign is refused rather than silently downgraded to free.
     expect(() => parseVisualCli(['--diagnostic'])).toThrow(/requires --campaign/)
     expect(() => parseVisualCli(['--formal', '--campaign', 'c'])).toThrow(
-      /requires --campaign and --diagnostic-source/,
+      /requires.*diagnostic-source/,
     )
   })
 
@@ -75,10 +75,10 @@ describe('business CLI parsing (R01)', () => {
   it('defaults to free preflight', () => {
     expect(parseBusinessCli([])).toEqual({ mode: 'preflight' })
   })
-  it('requires a campaign for diagnostic and a source for formal', () => {
-    expect(() => parseBusinessCli(['--diagnostic'])).toThrow(/requires --campaign/)
+  it('preserves standalone diagnostic and requires a source for formal', () => {
+    expect(parseBusinessCli(['--diagnostic']).mode).toBe('diagnostic')
     expect(() => parseBusinessCli(['--formal', '--campaign', 'c'])).toThrow(
-      /requires --campaign and --diagnostic-source/,
+      /requires.*diagnostic-source/,
     )
   })
   it('parses groups', () => {

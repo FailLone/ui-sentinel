@@ -557,6 +557,12 @@ function App() {
                       ? `${m.positiveControlFocusedWithinMs}ms 内聚焦`
                       : '未验证'}
                   </p>
+                  {!!m.resets.length && (
+                    <details>
+                      <summary>焦点重置记录（{m.resets.length} 次）</summary>
+                      <pre>{JSON.stringify(m.resets, null, 2)}</pre>
+                    </details>
+                  )}
                   {!m.samplesAvailable ? (
                     <p role="alert">测量证据缺失，无法核实。</p>
                   ) : (

@@ -40,6 +40,11 @@ function compareById<T extends { id: string }>(
   differ: (a: T, b: T) => boolean,
 ): ComparisonResult {
   const failed: string[] = []
+  if (
+    new Set(api.map((r) => r.id)).size !== api.length ||
+    new Set(stored.map((r) => r.id)).size !== stored.length
+  )
+    failed.push(`${label}-id-duplicated`)
   const storedById = new Map(stored.map((row) => [row.id, row]))
   if (api.length !== stored.length) failed.push(`${label}-count`)
   for (const row of api) {
@@ -59,7 +64,19 @@ function compareById<T extends { id: string }>(
   return { passed: failed.length === 0, failedAssertions: failed }
 }
 
-const sameJson = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b)
+const canonical = (x: any): string =>
+  JSON.stringify(
+    x && typeof x === 'object'
+      ? Array.isArray(x)
+        ? x.map((v) => JSON.parse(canonical(v)))
+        : Object.fromEntries(
+            Object.keys(x)
+              .sort()
+              .map((k) => [k, JSON.parse(canonical(x[k] ?? null))]),
+          )
+      : x,
+  )
+const sameJson = (a: unknown, b: unknown) => canonical(a) === canonical(b)
 
 /**
  * Compare the full event history. Order matters, ids matter, payloads and evidence lists matter, and
@@ -75,6 +92,7 @@ export function compareEventHistory(
     stored,
     'events',
     (a, b) =>
+      a.seq !== b.seq ||
       differ(a.type, b.type) ||
       differ(a.payload, b.payload) ||
       differ(a.evidenceRefs, b.evidenceRefs),
@@ -104,24 +122,14 @@ export function compareFindings(
   api: readonly AuditFinding[],
   stored: readonly AuditFinding[],
 ): ComparisonResult {
-  return compareById(
-    api,
-    stored,
-    'findings',
-    (a, b) => a.validationStatus !== b.validationStatus || differ(a.evidenceRefs, b.evidenceRefs),
-  )
+  return compareById(api, stored, 'findings', (a, b) => differ(a, b))
 }
 
 export function compareHypotheses(
   api: readonly AuditHypothesis[],
   stored: readonly AuditHypothesis[],
 ): ComparisonResult {
-  return compareById(
-    api,
-    stored,
-    'hypotheses',
-    (a, b) => a.status !== b.status || differ(a.evidenceRefs, b.evidenceRefs),
-  )
+  return compareById(api, stored, 'hypotheses', (a, b) => differ(a, b))
 }
 
 function differ(a: unknown, b: unknown): boolean {

@@ -332,3 +332,47 @@ describe('focus measurement in the report', () => {
     expect(report!.focusMeasurements[0].candidateId).toBe('candidate-1')
   })
 })
+
+it('separates visual token usage from agent tokens and retains unknown attempts', async () => {
+  dir = await mkdtemp(join(tmpdir(), 'uis-report-'))
+  const { run } = await runWithMeasurement()
+  await appendEvent(run.id, 'model:request-finished', {
+    purpose: 'visual-discovery',
+    inputTokens: 17,
+    outputTokens: 3,
+  })
+  await appendEvent(run.id, 'model:request-finished', {
+    source: 'agent',
+    inputTokens: 900,
+    outputTokens: 800,
+  })
+  expect((await buildReport(run.id))!.visual).toMatchObject({
+    visionRequests: 1,
+    inputTokens: 17,
+    outputTokens: 3,
+  })
+  await appendEvent(run.id, 'model:request-started', {
+    purpose: 'visual-discovery',
+    attemptId: 'one',
+  })
+  await appendEvent(run.id, 'model:request-started', {
+    purpose: 'visual-discovery',
+    attemptId: 'two',
+  })
+  expect((await buildReport(run.id))!.visual).toMatchObject({
+    visionRequests: 2,
+    inputTokens: null,
+    outputTokens: null,
+  })
+})
+
+it('marks samples unverifiable when their receipt is missing', async () => {
+  dir = await mkdtemp(join(tmpdir(), 'uis-report-'))
+  const { run, samplesRef } = await runWithMeasurement()
+  const { readFile, rm } = await import('node:fs/promises')
+  const sample = JSON.parse(await readFile(join(dir, samplesRef), 'utf8'))
+  await rm(join(dir, sample.receiptRef))
+  expect((await buildReport(run.id))!.focusMeasurements[0]).toMatchObject({
+    samplesAvailable: false,
+  })
+})

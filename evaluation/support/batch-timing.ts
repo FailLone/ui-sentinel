@@ -73,3 +73,20 @@ export function buildBatchTiming(input: {
     rows: input.rows.length,
   }
 }
+
+/** Sum the persisted durations for one kind; missing records remain unknown. */
+export function measuredDuration(
+  events: readonly { type: string; payload: any }[],
+  type: string,
+): number | null {
+  const records = events.filter((e) => e.type === type)
+  return records.length &&
+    records.every(
+      (e) =>
+        typeof e.payload.durationMs === 'number' &&
+        Number.isFinite(e.payload.durationMs) &&
+        e.payload.durationMs >= 0,
+    )
+    ? records.reduce((sum, e) => sum + e.payload.durationMs, 0)
+    : null
+}

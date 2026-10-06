@@ -1,6 +1,8 @@
 import { readFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { formalRevisionAllowed, type FixtureRevision } from './fixture-revision.ts'
+import { verifyStageSeal } from './stage-seal.ts'
+import { visualDiagnosticPlan } from './execution-plan.ts'
 import { validateFreeze, type FreezeIdentity } from './freeze-identity.ts'
 
 /**
@@ -54,6 +56,7 @@ export function validateFormalSource(input: {
     return { ok: false, reason: 'diagnostic-source-build-mismatch' }
   if (manifest.campaignId !== input.expected.campaignId)
     return { ok: false, reason: 'diagnostic-source-campaign-mismatch' }
+  if (!manifest.fixtureRevision) return { ok: false, reason: 'fixture-revision-missing' }
   if (manifest.fixtureRevision) {
     const revision = formalRevisionAllowed(manifest.fixtureRevision)
     if (!revision.ok) return { ok: false, reason: revision.reason! }
@@ -84,5 +87,71 @@ export async function readFormalSource(
   } catch {
     return { ok: false, reason: 'diagnostic-source-unreadable', manifest: null }
   }
-  return { ...validateFormalSource({ manifest, expected, expectedFreeze }), manifest }
+  const decision = validateFormalSource({ manifest, expected, expectedFreeze })
+  if (!decision.ok) return { ...decision, manifest }
+  const required = [
+    'manifest.json',
+    'protocol.json',
+    'runs.jsonl',
+    'requests.jsonl',
+    'ledger.jsonl',
+    'artifact-index.json',
+    'persistence-audit.json',
+    'scoreboard.json',
+  ]
+  if (!(await verifyStageSeal(directory, required)))
+    return { ok: false, reason: 'diagnostic-evidence-unsealed', manifest }
+  try {
+    const read = async (name: string) =>
+      JSON.parse(await readFile(resolve(directory, name), 'utf8'))
+    const rows = (await readFile(resolve(directory, 'runs.jsonl'), 'utf8'))
+      .trim()
+      .split('\n')
+      .map((l) => JSON.parse(l))
+    const plan = visualDiagnosticPlan()
+    if (
+      rows.length !== plan.length ||
+      !plan.every(
+        (p) =>
+          rows.filter(
+            (r) =>
+              r.group === p.group &&
+              r.case === p.case &&
+              r.repeat === p.repeat &&
+              r.outcome === 'passed' &&
+              r.runId,
+          ).length === 1,
+      )
+    )
+      throw Error('rows')
+    if (
+      (await read('persistence-audit.json')).passed !== true ||
+      (await read('scoreboard.json')).passed !== true
+    )
+      throw Error('audit')
+    const ledger = (await readFile(resolve(directory, 'ledger.jsonl'), 'utf8'))
+      .trim()
+      .split('\n')
+      .filter(Boolean)
+      .map((l) => JSON.parse(l))
+    if (
+      !ledger.length ||
+      ledger.some((r) => !r.requestId) ||
+      new Set(ledger.map((r) => r.requestId)).size !== ledger.length
+    )
+      throw Error('requests')
+    for (const row of rows) {
+      const record = await read(`${row.case}/${row.repeat}/report.json`)
+      const score = await read(`${row.case}/${row.repeat}/score.json`)
+      if (
+        record.runId !== row.runId ||
+        !score.passed ||
+        score.assertions?.some((a: any) => !a.passed)
+      )
+        throw Error('record')
+    }
+  } catch {
+    return { ok: false, reason: 'diagnostic-evidence-incomplete', manifest }
+  }
+  return { ...decision, manifest }
 }

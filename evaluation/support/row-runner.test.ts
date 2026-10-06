@@ -96,3 +96,35 @@ describe('batch runner (R03-R07)', () => {
     expect(flushed).toEqual([4, 4, 4, 4])
   })
 })
+
+it('R03/R04 runs all 45 business rows through the shared production loop and retains failures', async () => {
+  const { FORMAL_MATRIX } = await import('../private/export/campaign.ts')
+  const plan = FORMAL_MATRIX.flatMap((g) =>
+    g.cases.flatMap((c) =>
+      Array.from({ length: g.repeats }, (_, i) => ({ group: g.group, case: c, repeat: i + 1 })),
+    ),
+  )
+  const report = await runBatch({
+    plan,
+    execute: async (row, i) => ({
+      runId: `r${i}`,
+      outcome: i === 7 ? 'quality-failure' : 'passed',
+    }),
+  })
+  expect(report.rows).toHaveLength(45)
+  expect(report.rows.filter((r) => r.outcome === 'passed')).toHaveLength(44)
+  expect(report.verdict).toMatchObject({ complete: true, passed: false, exitCode: 1 })
+})
+it('R06 preserves the active run id and all future rows on cancellation', async () => {
+  const controller = new AbortController()
+  const report = await runBatch({
+    plan: visualFormalPlan(),
+    signal: controller.signal,
+    execute: async () => {
+      controller.abort()
+      return { runId: 'active', outcome: 'passed' }
+    },
+  })
+  expect(report.rows[0]).toMatchObject({ runId: 'active', outcome: 'cancelled' })
+  expect(report.rows.slice(1).every((r) => r.outcome === 'not-run')).toBe(true)
+})

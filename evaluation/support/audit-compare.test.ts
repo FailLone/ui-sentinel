@@ -157,3 +157,28 @@ describe('artifact hash evaluation (E03)', () => {
     )
   })
 })
+
+it('E02 rejects exchanging sequence numbers while keeping event ids and payloads', () => {
+  const api = [
+    { id: 'a', seq: 1, type: 'x', payload: {}, evidenceRefs: [] },
+    { id: 'b', seq: 2, type: 'y', payload: {}, evidenceRefs: [] },
+  ]
+  expect(
+    compareEventHistory(api, [
+      { ...api[1]!, seq: 1 },
+      { ...api[0]!, seq: 2 },
+    ]).failedAssertions,
+  ).toContain('events-changed')
+})
+it('E02 rejects rewritten finding titles and hypothesis reasoning with unchanged statuses', () => {
+  const finding = { id: 'f', validationStatus: 'supported', evidenceRefs: ['r'], title: 'original' }
+  expect(
+    compareFindings([finding], [{ ...finding, title: 'changed' }] as (typeof finding)[])
+      .failedAssertions,
+  ).toContain('findings-changed')
+  const hypothesis = { id: 'h', status: 'refuted', evidenceRefs: ['r'], basis: 'original' }
+  expect(
+    compareHypotheses([hypothesis], [{ ...hypothesis, basis: 'changed' }] as (typeof hypothesis)[])
+      .failedAssertions,
+  ).toContain('hypotheses-changed')
+})

@@ -341,6 +341,18 @@ export function createVisualFocusRuntime(deps: {
       // independent scorer can verify the probe bound the intended input rather than trusting the
       // bind-time uuid. Public DOM facts only - the witness never carries the private selector.
       const observed = elements.find((e) => e.ref === input.elementRef)
+      const snapshotRows = await getDbClient().execute({
+        sql: "SELECT id FROM artifacts WHERE run_id=? AND type='snapshot'",
+        args: [deps.runId],
+      })
+      const snapshotRef = snapshotRows.rows.find((r) =>
+        observation.evidenceRefs.includes(String(r.id)),
+      )?.id
+      if (!snapshotRef) throw Error('binding-snapshot-missing')
+      const native = await bound.handle.evaluate((el) => ({
+        tag: el.tagName.toLowerCase(),
+        attributes: Object.fromEntries(Array.from(el.attributes).map((a) => [a.name, a.value])),
+      }))
       const witnessRef =
         observed && observation.snapshot.elements
           ? await save(
@@ -348,12 +360,12 @@ export function createVisualFocusRuntime(deps: {
               witnessFromElement({
                 candidateId: candidate.id,
                 elementRef: input.elementRef,
-                snapshotRef: candidate.screenshotRef,
+                snapshotRef: String(snapshotRef),
                 documentEpoch: candidate.documentEpoch,
                 nodeIdentity,
                 selector: observed.selector ?? selector,
-                tag: observed.tag,
-                attributes: observed.attributes ?? {},
+                tag: native.tag,
+                attributes: native.attributes,
                 bounds: observed.bounds,
                 capturedAt: new Date().toISOString(),
               }),

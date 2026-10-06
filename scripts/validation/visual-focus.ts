@@ -1,6 +1,12 @@
+import { runVisualStage } from './visual-stage.ts'
+import { AGENT_MODEL, VISION_MODEL } from '../../evaluation/support/model-gateway.ts'
+import { executableCase } from '../../evaluation/support/execution-plan.ts'
+import { readFile } from 'node:fs/promises'
 import { CliUsageError, parseVisualCli } from './cli-args.ts'
 import { downloadRunEvidence } from '../../evaluation/support/campaign-evidence.ts'
-import { visualSmokeProblems } from '../../evaluation/preflight/visual-smoke-score.ts'
+import { scoreVisualEvidence } from '../../evaluation/private/visual-focus/scorer.ts'
+import { VISUAL_TRUTH, VISUAL_VIEWPORTS, isVisualCaseId } from '../../evaluation/fixtures/visual.ts'
+import { auditStoppedGroup } from '../../evaluation/support/campaign-evidence.ts'
 import { buildArtifactIndex, buildManifest } from '../../evaluation/support/evidence-protocol.ts'
 import { buildIdentity } from '../../evaluation/support/build-identity.ts'
 import { chromium } from 'playwright'
@@ -38,7 +44,10 @@ if (options.mode !== 'preflight') {
       : 'scripts/validation/visual-focus-runner.ts'
   const passthrough =
     options.mode === 'p2-smoke'
-      ? [...(options.cases ? ['--cases', options.cases.join(',')] : [])]
+      ? [
+          ...(options.cases ? ['--cases', options.cases.join(',')] : []),
+          ...(options.spendingSource ? ['--spending-source', options.spendingSource] : []),
+        ]
       : [
           '--mode',
           options.mode,
@@ -122,23 +131,32 @@ const model = createServer(async (req, res) => {
       // model: it is handed the answer, so it cannot reveal that the page was undetectable. Real
       // Qwen, seeing a field that was 3/255 from the page background with no border, correctly
       // reported the inner input instead and the defect was never measured.
+      const caseId = isVisualCaseId(scenario) ? scenario : 'D0'
+      const truth = VISUAL_TRUTH[caseId],
+        vp = VISUAL_VIEWPORTS[caseId]
       const content = JSON.stringify({
         coordinateSpace: 'normalized-1000',
         candidates: [
           {
             perceivedRegion: {
-              x: (430 / 1280) * 1000,
-              y: (133 / 768) * 1000,
-              width: (420 / 1280) * 1000,
-              height: (50 / 768) * 1000,
+              x: (truth.region.x / vp.width) * 1000,
+              y: (truth.region.y / vp.height) * 1000,
+              width: (truth.region.width / vp.width) * 1000,
+              height: (truth.region.height / vp.height) * 1000,
             },
             targetDescription: 'Search products input region',
             visualBasis: 'Continuous light background around the visible search field.',
-            excludedRegions: [],
+            excludedRegions: truth.excludedRegions.map((b) => ({
+              x: (b.x / vp.width) * 1000,
+              y: (b.y / vp.height) * 1000,
+              width: (b.width / vp.width) * 1000,
+              height: (b.height / vp.height) * 1000,
+            })),
             confidence: 'high',
           },
         ],
       })
+      requests.at(-1)!.raw = JSON.parse(content)
       res.setHeader('content-type', 'application/json')
       res.end(
         JSON.stringify({
@@ -329,12 +347,15 @@ async function settled(id: string) {
   throw Error('run did not settle')
 }
 const records: any[] = []
+const auditRecords: any[] = []
 try {
   await ready()
-  for (const row of [
-    { id: 'D0', presentation: 'search-padded-narrow-input', expected: 'supported' },
-    { id: 'H0', presentation: 'search-proxied-wide-region', expected: 'refuted' },
-  ]) {
+  for (const truth of Object.values(VISUAL_TRUTH)) {
+    const row = {
+      id: truth.id,
+      presentation: truth.presentation,
+      expected: truth.expectSupported ? 'supported' : 'refuted',
+    }
     scenario = row.id
     step = 0
     binding = undefined
@@ -342,7 +363,7 @@ try {
     const run = await api('/api/runs', {
       goal: 'Inspect the shopping experience, complete one normal purchase, and report evidenced issues and unverified scope.',
       environmentId: 'arena',
-      viewport: { width: 1280, height: 768 },
+      viewport: VISUAL_VIEWPORTS[truth.id],
       budget: { totalTimeoutMs: 60000, maxActions: 20, maxModelCalls: 15 },
     })
     await settled(run.runId)
@@ -383,18 +404,43 @@ try {
         sha: createHash('sha256').update(bytes).digest('hex'),
       })
     }
+    const truthState = (await (
+      await fetch(`http://127.0.0.1:${env.ARENA_CONTROL_PORT}/__control/state`, {
+        headers: { authorization: `Bearer ${env.ARENA_CONTROL_TOKEN}` },
+      })
+    ).json()) as any
+    assert.equal(truthState.orders.length, 1)
+    assert.equal(truthState.orders[0].status, 'paid')
     const downloaded = await downloadRunEvidence(base, report, `${directory}/${row.id}-artifacts`)
-    assert.deepEqual(
-      visualSmokeProblems(
-        row.id as 'D0' | 'H0',
-        report,
-        downloaded.artifacts,
-        requests
-          .filter((r) => r.scenario === row.id && r.kind === 'vision')
-          .map((r) => String(r.imageSha)),
-      ),
-      [],
-    )
+    const score = scoreVisualEvidence({
+      case: truth.id,
+      fixtureRevision: 'known-regression',
+      fixtureHash: identity.hash,
+      target: {
+        tag: 'input',
+        type: 'search',
+        id: 'product-search-input',
+        selector: truth.targetSelector,
+      },
+      run: report,
+      artifacts: downloaded.artifacts,
+      sentVision: requests
+        .filter((r) => r.scenario === row.id && r.kind === 'vision')
+        .map((r) => ({ sha256: String(r.imageSha), raw: r.raw })),
+      gatewayCalls: requests
+        .filter((r) => r.scenario === row.id && r.kind === 'agent')
+        .map((r: any) => ({
+          model: 'fixed-agent',
+          runId: report.runId,
+          tool: r.action.name,
+          body: r.action.args,
+        })),
+      declaredVerdict: row.expected,
+    })
+    await writeFile(`${directory}/${row.id}-score.json`, JSON.stringify(score, null, 2))
+    assert.deepEqual(score.failedAssertions, [], row.id + ' independent score')
+    auditRecords.push({ report, artifactIndex: downloaded.index })
+
     records.push({
       id: row.id,
       runId: run.runId,
@@ -480,6 +526,9 @@ try {
     })
   }
   await stop(service)
+  const audit = await auditStoppedGroup(env.DATABASE_URL, auditRecords, undefined)
+  await writeFile(`${directory}/persistence-audit.json`, JSON.stringify(audit, null, 2))
+  assert(audit.passed, 'stopped evidence audit')
   service = launch('dist/server/index.js')
   await ready()
   for (const record of records) {
@@ -514,7 +563,8 @@ try {
     JSON.stringify(
       {
         status: 'passed',
-        scope: 'P1 fixed-local-model SDK/API integration only; not real-model discovery',
+        scope:
+          'P3 six-case fixed-local-model SDK/API + independent scoring; not real-model discovery',
         records,
         boundaries,
       },
@@ -522,7 +572,85 @@ try {
       2,
     ),
   )
-  console.log(`P1 free integration passed: ${directory}`)
+  // Exercise the production orchestration through its import-only fixed transport. No external fetch
+  // is reachable: even the price list comes from this test. Fixed evidence cannot authorize P4.
+  for (const child of children) await stop(child)
+  const campaignDir = resolve(directory, 'runner-campaign')
+  const stageDirectories: string[] = []
+  const upstream: typeof fetch = async (url, init) => {
+    if (String(url).endsWith('/models'))
+      return Response.json({
+        data: [AGENT_MODEL, VISION_MODEL].map((id) => ({
+          id,
+          pricing: { prompt: '0.000001', completion: '0.000001' },
+        })),
+      })
+    assert(String(url).endsWith('/chat/completions'), 'no unexpected upstream endpoint')
+    const body = JSON.parse(String(init!.body))
+    assert.deepEqual(body.provider.only, ['Alibaba'])
+    body.model = body.model === VISION_MODEL ? 'fixed-vision' : 'fixed-agent'
+    return fetch(modelUrl + '/chat/completions', { ...init, body: JSON.stringify(body) })
+  }
+  const transport = {
+    mode: 'fixed' as const,
+    fetch: upstream,
+    skipBuild: true,
+    onDirectory: (d: string) => stageDirectories.push(d),
+    beforeRow: (row: any) => {
+      scenario = executableCase(row)!
+      step = 0
+      binding = undefined
+    },
+  }
+  assert.equal(
+    await runVisualStage({ mode: 'diagnostic', campaignDir }, transport),
+    0,
+    'real runner with fixed upstream',
+  )
+  const successful = JSON.parse(
+    await readFile(resolve(stageDirectories[0]!, 'manifest.json'), 'utf8'),
+  )
+  assert.equal(successful.mode, 'fixed')
+  assert.equal(successful.paidRequests, 0)
+  assert.equal(successful.rows.length, 4)
+  assert.equal(successful.passed, true)
+  const interrupted = new AbortController()
+  const failing: typeof fetch = async () => {
+    throw Error('injected-pricing-failure')
+  }
+  assert.equal(
+    await runVisualStage({ mode: 'diagnostic', campaignDir }, { ...transport, fetch: failing }),
+    1,
+  )
+  const failed = JSON.parse(await readFile(resolve(stageDirectories[1]!, 'manifest.json'), 'utf8'))
+  assert(failed.rows.every((r: any) => r.outcome === 'not-run'))
+  assert.equal(failed.spending.accountedUsd, successful.spending.accountedUsd)
+  // The lease was released after failed setup; the next stage can acquire it, then cancel cleanly.
+  assert.equal(
+    await runVisualStage(
+      { mode: 'diagnostic', campaignDir },
+      {
+        ...transport,
+        signal: interrupted.signal,
+        beforeRow: (row) => {
+          transport.beforeRow(row)
+          setTimeout(() => interrupted.abort(), 1200)
+        },
+      },
+    ),
+    130,
+  )
+  const cancelled = JSON.parse(
+    await readFile(resolve(stageDirectories[2]!, 'manifest.json'), 'utf8'),
+  )
+  assert.equal(cancelled.rows[0].outcome, 'cancelled')
+  assert(cancelled.rows[0].runId)
+  assert(cancelled.rows.slice(1).every((r: any) => r.outcome === 'not-run'))
+  await writeFile(
+    resolve(directory, 'runner-results.json'),
+    JSON.stringify({ mode: 'fixed', stageDirectories, passed: true }, null, 2),
+  )
+  console.log(`P3 free integration passed: ${directory}`)
 } finally {
   await writeFile(`${directory}/requests.json`, JSON.stringify(requests, null, 2))
   await writeFile(`${directory}/service.log`, logs.join('\n'))

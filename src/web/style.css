@@ -133,3 +133,13 @@ hr {
     padding: 12px;
   }
 }
+
+table {
+  border-collapse: collapse;
+}
+th,
+td {
+  padding: 0.4rem 0.6rem;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
