@@ -1,4 +1,5 @@
 import type { BusinessContractSnapshot } from '../business/types.ts'
+import type { UiContractSnapshot } from '../inspection/contract.ts'
 
 export type RunStatus =
   | 'queued'
@@ -10,7 +11,15 @@ export type RunStatus =
   | 'execution-error'
   | 'interrupted'
 
-export type BusinessResult = 'success' | 'rejected' | 'unknown'
+/**
+ * `not-applicable` is the fourth business result, and it belongs to exactly one kind of run.
+ *
+ * A `ui-scan` run has no business adapter, so "did the business succeed" has no meaning for it; the
+ * report says so explicitly rather than leaving it `unknown`, which would read as "not checked yet".
+ * The converse holds too: no business run ever becomes `not-applicable`, because a missing adapter
+ * is not evidence that the business is out of scope.
+ */
+export type BusinessResult = 'success' | 'rejected' | 'unknown' | 'not-applicable'
 
 export type StopReason =
   | 'goal-reached'
@@ -37,11 +46,21 @@ export interface RunSpec {
   readonly budget: RunBudget
   readonly viewport: { readonly width: number; readonly height: number }
   /**
+   * Which kind of run this is. Absent on records created before kinds existed; such a record is read
+   * as a legacy business run and is never re-interpreted as a UI scan.
+   */
+  readonly kind?: 'ui-scan' | 'business'
+  /**
    * The frozen business contract this run was created with. Older runs created before business
    * contracts existed have no field here; their reports stay readable as legacy-unversioned and
    * are never retro-fitted with today's requirements.
    */
   readonly businessContract?: BusinessContractSnapshot
+  /**
+   * The frozen UI contract of a `ui-scan` run. Mutually exclusive with `businessContract`; a spec
+   * carrying both is invalid, not one-or-the-other.
+   */
+  readonly uiContract?: UiContractSnapshot
 }
 
 export interface Run {

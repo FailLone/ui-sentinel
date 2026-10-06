@@ -14,6 +14,34 @@ function retries(): number {
   return value
 }
 
+/**
+ * Server-configured exact origins a `ui-scan` run may treat as local fixtures.
+ *
+ * This is deliberately *server* configuration and never request body content: a caller cannot widen
+ * the address boundary by asking for it (plan 4.1). Values must be exact origins, so a whole
+ * `127.0.0.0/8` range or a `*.local` suffix cannot be expressed even by a misconfiguration.
+ */
+function trustedOrigins(): readonly string[] {
+  const raw = process.env.URL_SCAN_TRUSTED_ORIGINS ?? ''
+  if (!raw.trim()) return []
+  return raw
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean)
+    .map((value) => {
+      try {
+        const url = new URL(value)
+        if (value.includes('*') || !/^https?:$/.test(url.protocol) || url.origin !== value)
+          throw new Error('not an exact origin')
+        return url.origin
+      } catch {
+        throw new Error(
+          `Invalid URL_SCAN_TRUSTED_ORIGINS entry: ${value} (expected an exact origin such as http://127.0.0.1:5055)`,
+        )
+      }
+    })
+}
+
 export const config = Object.freeze({
   port: bounded('PORT', 4111, 65535),
   arenaPort: bounded('ARENA_PORT', 4173, 65535),
@@ -40,6 +68,17 @@ export const config = Object.freeze({
      * are inert until a run opts in, so ordinary C0-C5 behaviour is byte-for-byte unchanged.
      */
     visualDiscovery: process.env.EXECUTION_VISUAL_DISCOVERY === '1',
+    /**
+     * Anonymous URL scanning (`ui-scan` runs). Off by default until the build's own evidence exists:
+     * the workbench does not offer the mode and the API refuses new UI admission while this is 0.
+     * Historical records are still readable either way (plan 11.4).
+     */
+    urlScan: process.env.EXECUTION_URL_SCAN === '1',
+  },
+
+  /** Address boundary for `ui-scan`. Server-owned so a request body can never widen it. */
+  urlScan: {
+    trustedOrigins: trustedOrigins(),
   },
 
   completionReview: {
