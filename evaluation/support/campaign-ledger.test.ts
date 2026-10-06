@@ -90,6 +90,24 @@ describe('reservation and settlement (C01, C03, C04)', () => {
     ledger.close()
   })
 
+  it('refuses to settle at a cost it cannot believe, rather than booking a zero', async () => {
+    // A provider that returns an unparseable cost must not become a free request. Settling it at 0
+    // would under-count the campaign by that request's whole cost, which C05 forbids; the caller keeps
+    // the request unknown (its reservation stands) instead. So the refusal is thrown, not absorbed.
+    const ledger = await openCampaignLedger(base())
+    await ledger.reserve(reserve({ requestId: 'a', reservedUsd: 0.2 }))
+    for (const bad of [Number.NaN, Number.POSITIVE_INFINITY, -0.01]) {
+      await expect(ledger.settle('a', bad), `${bad}`).rejects.toThrow(/invalid-actual-cost/)
+    }
+    // The request is untouched: still held, still counted as unknown, not silently settled at zero.
+    const spending = await ledger.spending()
+    expect(spending.knownCostUsd).toBeCloseTo(0)
+    expect(spending.heldReservedUsd).toBeCloseTo(0.2)
+    await ledger.settle('a', 0.15)
+    expect((await ledger.spending()).knownCostUsd).toBeCloseTo(0.15)
+    ledger.close()
+  })
+
   it('rejects a non-finite or negative reservation', async () => {
     const ledger = await openCampaignLedger(base())
     expect(await ledger.reserve(reserve({ reservedUsd: Number.NaN }))).toMatchObject({

@@ -239,10 +239,15 @@ export async function openCampaignLedger(input: {
       }
     },
     async settle(requestId, actualUsd) {
+      // A cost that cannot be believed is refused, never rounded to zero: the caller's recovery is
+      // `markUnknown`, which keeps the reservation standing. Booking it at 0 would under-count the
+      // campaign by the request's whole cost, which is the failure C05 names.
+      if (!Number.isFinite(actualUsd) || actualUsd < 0)
+        throw new LedgerError(`invalid-actual-cost: ${requestId}`)
       // Settling an already-settled or already-unknown request is a no-op: no double charge.
       await db.execute({
         sql: "UPDATE ledger_requests SET status='settled', actual_usd=?, settled_at=? WHERE request_id=? AND status='held'",
-        args: [Number.isFinite(actualUsd) && actualUsd >= 0 ? actualUsd : 0, now(), requestId],
+        args: [actualUsd, now(), requestId],
       })
     },
     async markUnknown(requestId, reason) {
