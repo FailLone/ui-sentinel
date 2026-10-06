@@ -163,37 +163,100 @@ export function parseBusinessCli(argv: readonly string[]): BusinessCliOptions {
  * Parse argv for the URL-scan entry (`validate:url-scan`).
  *
  * This entry exists so a URL preflight is never a flag on a paid script: the free check is its own
- * command, and the only option it takes is a sample selector. The paid URL modes are added in B5 with
- * their own dry-run discipline, so a name they will use (`--formal`) is refused here rather than
- * quietly running the free path under a paid-looking flag.
+ * command, and the only option it takes is a sample selector.
+ *
+ * The paid modes are reachable only with a **frozen manifest** and a **batch id**. That is the plan's
+ * discipline made structural: a batch is a named thing tied to a recorded build/configuration
+ * identity, so a bare `--formal` cannot start spending against a dirty tree or against nothing at
+ * all. `--dry-run` is a mode of its own rather than a flag on the paid ones, so an operator can check
+ * the plan and the ceiling before there is any authorisation to spend.
  */
-export type UrlScanMode = 'preflight'
+export type UrlScanMode = 'preflight' | 'freeze' | 'dry-run' | 'diagnostic' | 'formal'
 export interface UrlScanCliOptions {
   readonly mode: UrlScanMode
   readonly sample?: string
+  readonly manifest?: string
+  readonly batch?: string
+  readonly samples?: readonly string[]
+  readonly repetitions?: number
+  readonly costCeilingUsd?: number
 }
 
 export function parseUrlScanCli(argv: readonly string[]): UrlScanCliOptions {
   const args = argv.filter((a) => a !== '--')
   if (args.length === 0) return { mode: 'preflight' }
-  const modes = args.filter((a) => a === '--preflight')
+  const modes = args.filter((a) =>
+    ['--preflight', '--freeze', '--dry-run', '--diagnostic', '--formal'].includes(a),
+  )
   if (modes.length !== 1)
-    throw new CliUsageError(`cli: expected exactly one of --preflight (got ${modes.length})`)
-  const options: { sample?: string } = {}
-  let seenSample = false
+    throw new CliUsageError(
+      `cli: expected exactly one of --preflight, --freeze, --dry-run, --diagnostic, --formal (got ${modes.length})`,
+    )
+  const mode = modes[0]!.slice(2) as UrlScanMode
+  const options: {
+    sample?: string
+    manifest?: string
+    batch?: string
+    samples?: readonly string[]
+    repetitions?: number
+    costCeilingUsd?: number
+  } = {}
+  const seen = new Set<string>()
+  const valueFlags = [
+    '--sample',
+    '--manifest',
+    '--batch',
+    '--samples',
+    '--repetitions',
+    '--ceiling-usd',
+  ]
   for (let i = 0; i < args.length; i++) {
     const arg = args[i]!
-    if (arg === '--preflight') continue
+    if (arg === modes[0]) continue
     if (!arg.startsWith('--'))
       throw new CliUsageError(`cli: unexpected positional argument "${arg}"`)
-    if (arg !== '--sample') throw new CliUsageError(`cli: unknown option "${arg}"`)
-    if (seenSample) throw new CliUsageError('cli: repeated option "--sample"')
-    seenSample = true
+    if (!valueFlags.includes(arg)) throw new CliUsageError(`cli: unknown option "${arg}"`)
+    if (seen.has(arg)) throw new CliUsageError(`cli: repeated option "${arg}"`)
+    seen.add(arg)
     const value = args[i + 1]
     if (value === undefined || value.startsWith('--'))
-      throw new CliUsageError('cli: option "--sample" requires a value')
+      throw new CliUsageError(`cli: option "${arg}" requires a value`)
     i++
-    options.sample = value
+    if (arg === '--sample') options.sample = value
+    else if (arg === '--manifest') options.manifest = value
+    else if (arg === '--batch') options.batch = value
+    else if (arg === '--repetitions') {
+      const n = Number(value)
+      if (!Number.isInteger(n) || n < 1)
+        throw new CliUsageError(`cli: --repetitions must be a positive integer, got "${value}"`)
+      options.repetitions = n
+    } else if (arg === '--ceiling-usd') {
+      const n = Number(value)
+      if (!Number.isFinite(n) || n <= 0)
+        throw new CliUsageError(`cli: --ceiling-usd must be a positive number, got "${value}"`)
+      options.costCeilingUsd = n
+    } else {
+      const ids = value.split(',')
+      if (!ids.length || ids.some((id) => !id) || new Set(ids).size !== ids.length)
+        throw new CliUsageError(`cli: invalid --samples list "${value}"`)
+      options.samples = ids
+    }
   }
-  return { mode: 'preflight', ...options }
+  // The free preflight takes only a sample selector, and a paid batch takes no such thing: a
+  // per-sample run inside a batch would silently produce a batch that is not the planned matrix.
+  if (mode === 'preflight' && (options.manifest || options.batch || options.samples))
+    throw new CliUsageError('cli: --preflight takes only --sample')
+  if (mode === 'freeze') {
+    if (options.manifest || options.sample)
+      throw new CliUsageError('cli: --freeze takes --samples, not --manifest or --sample')
+    return { mode, ...options }
+  }
+  if (options.repetitions !== undefined || options.costCeilingUsd !== undefined)
+    throw new CliUsageError('cli: --repetitions/--ceiling-usd belong to --freeze')
+  const planned = mode === 'diagnostic' || mode === 'formal' || mode === 'dry-run'
+  if (planned && !options.manifest) throw new CliUsageError(`cli: --${mode} requires --manifest`)
+  if (planned && !options.batch) throw new CliUsageError(`cli: --${mode} requires --batch`)
+  if (planned && options.sample)
+    throw new CliUsageError('cli: use --samples for a planned batch, not --sample')
+  return { mode, ...options }
 }

@@ -95,6 +95,14 @@ pnpm validate:url-scan -- --preflight --sample healthy-catalog
 
 该预检主动清空所有真实凭据、把模型指向本地固定服务，驱动**编译后的**服务、真实 Chromium 和正式 HTTP/工作台接口，证据写入 `data/r0-url-scan/<timestamp>/`。它证明接线可执行，**不**证明模型能自主发现问题。
 
+真实模型验收（能力评估）**尚未执行**，当前开发授权不包含付费运行。付费模式只能配冻结清单和批次名运行，且会明确拒绝：
+
+```sh
+pnpm validate:url-scan -- --freeze                                    # 从当前树算 hash 生成清单，不花钱
+pnpm validate:url-scan -- --dry-run --manifest <清单> --batch <批次名>  # 打印计划矩阵与费用上限
+pnpm validate:url-scan -- --formal --manifest <清单> --batch <批次名>   # 需显式授权；当前拒绝并退出 2
+```
+
 ## 当前执行方式
 
 完整 Agent 负责探索、语义目标和未知问题。已有规则、时序调查、视觉聚焦探针和可组合调查程序共用执行边界与证据存储。规则未知不是通过，业务成功也不等于质量检查完成。

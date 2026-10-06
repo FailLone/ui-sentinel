@@ -1,7 +1,7 @@
 import { spawn, type ChildProcess } from 'node:child_process'
 import { createServer } from 'node:http'
 import { createServer as createNetServer } from 'node:net'
-import { mkdir, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { randomUUID } from 'node:crypto'
 import { resolve } from 'node:path'
 import { chromium } from 'playwright'
@@ -12,6 +12,7 @@ import {
   type UrlScanRunView,
 } from '../../evaluation/private/url-scan/scorer.ts'
 import { urlScanTruth, type UrlScanSampleTruth } from '../../evaluation/private/url-scan/truth.ts'
+import { verifyUrlScanManifest, type UrlScanManifest } from './url-scan-freeze.ts'
 
 /**
  * The free URL-scan preflight (plan 8 B4, 10.1).
@@ -38,6 +39,142 @@ const options = (() => {
     throw error
   }
 })()
+
+/**
+ * The planned and paid modes branch here, before any browser, port or fixture is created.
+ *
+ * `--dry-run` reads a frozen manifest and prints the matrix an operator is being asked to authorise.
+ * The paid modes themselves are not runnable yet: the URL campaign runner is not built, and this
+ * development authorisation explicitly excludes paid acceptance runs. They refuse by name rather than
+ * falling through to the free path, so a paid-looking command can never quietly become a free run and
+ * be read as a paid result.
+ */
+/** The default matrix of plan 10.2: the five samples, three times each. */
+const DEFAULT_MATRIX = {
+  samples: ['healthy-catalog', 'overlay-defect', 'dom-investigation-defect'] as const,
+  repetitions: 3,
+  // The first authorisation step's ceiling for the UI diagnostic; the formal batch raises it.
+  ceilingUsd: 2,
+}
+
+if (options.mode !== 'preflight' && options.mode !== 'freeze') {
+  const manifest = (await (async () => {
+    try {
+      return JSON.parse(await readFile(options.manifest!, 'utf8')) as UrlScanManifest
+    } catch (error) {
+      console.error(`FAIL(2): the manifest could not be read: ${String(error)}`)
+      process.exit(2)
+    }
+  })()) as UrlScanManifest
+  if (!verifyUrlScanManifest(manifest)) {
+    console.error(
+      `FAIL(2): the manifest at ${options.manifest} does not verify against its own hash; a batch ` +
+        `must run against an identity that was actually frozen.`,
+    )
+    process.exit(2)
+  }
+  if (options.mode === 'dry-run') {
+    const { describeUrlScanPlan } = await import('./url-scan-plan.ts')
+    const plan = describeUrlScanPlan(manifest)
+    console.log(
+      JSON.stringify(
+        {
+          mode: 'dry-run',
+          batch: options.batch,
+          paidRequests: 0,
+          ...plan,
+        },
+        null,
+        2,
+      ),
+    )
+    process.exit(0)
+  }
+  console.error(
+    `FAIL(2): --${options.mode} is a paid mode and this development authorisation does not include ` +
+      `paid acceptance runs. The batch ${options.batch} is planned against ${manifest.hash}; use ` +
+      `--dry-run to review the matrix, and obtain an explicit authorisation for the batch, run count ` +
+      `and cost ceiling before running it.`,
+  )
+  process.exit(2)
+}
+
+if (options.mode === 'freeze') {
+  // The freeze step: record the identity a paid batch would run against, computed from the tree
+  // rather than written down. It spends nothing and starts no service, so it is safe to run while
+  // paid acceptance is unauthorised - and it is what makes the authorisation request concrete.
+  const { execFileSync } = await import('node:child_process')
+  const { buildUrlScanManifest, dirtyPathsAffectingRuns, hashTree, redactConfiguration } =
+    await import('./url-scan-freeze.ts')
+  const commit = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim()
+  const dirty = dirtyPathsAffectingRuns(
+    execFileSync('git', ['status', '--porcelain'], { encoding: 'utf8' }),
+  )
+  if (dirty.length) {
+    console.error(
+      `FAIL(2): a batch must be cut from a clean build, and these changed paths can move a result. ` +
+        `Commit or stash them before freezing:\n${dirty.join('\n')}`,
+    )
+    process.exit(2)
+  }
+  const [build, scorer] = await Promise.all([
+    hashTree(resolve('dist')),
+    hashTree(resolve('evaluation/private/url-scan')),
+  ])
+  const { createHash } = await import('node:crypto')
+  // The fixtures are the harness that serves the scanned site plus the private truth that labels its
+  // variants: both are what a result's "healthy" or "defective" claim actually rests on, so both are
+  // in the identity. Hashing them here rather than listing names means a fixture edit moves the hash.
+  const fixtureFiles = [
+    resolve('scripts/validation/url-scan.ts'),
+    resolve('evaluation/private/url-scan/truth.ts'),
+  ]
+  const fixtureHash = createHash('sha256')
+    .update((await Promise.all(fixtureFiles.map((f) => readFile(f, 'utf8')))).join('\u0000'))
+    .digest('hex')
+  const manifest = buildUrlScanManifest({
+    commit,
+    buildHash: build.hash,
+    configuration: redactConfiguration({
+      model: process.env.AGENT_MODEL ?? '<unset>',
+      visionModel: process.env.VISION_MODEL ?? '<unset>',
+      urlScan: process.env.EXECUTION_URL_SCAN === '1',
+      trustedOrigins: process.env.URL_SCAN_TRUSTED_ORIGINS ?? '',
+      budget: {
+        totalTimeoutMs: process.env.RUN_TOTAL_TIMEOUT_MS ?? '<default>',
+        maxActions: process.env.RUN_MAX_ACTIONS ?? '<default>',
+        maxModelCalls: process.env.RUN_MAX_MODEL_CALLS ?? '<default>',
+      },
+    }),
+    fixtureHash,
+    scorerHash: scorer.hash,
+    policyRevision: 'url-scan-1',
+    promptRevision: 'ui-goal-policy-1',
+    samples: options.samples ?? [...DEFAULT_MATRIX.samples],
+    repetitions: options.repetitions ?? DEFAULT_MATRIX.repetitions,
+    costCeilingUsd: options.costCeilingUsd ?? DEFAULT_MATRIX.ceilingUsd,
+  })
+  const out =
+    options.manifest ?? resolve('data/r0-url-scan', `manifest-${commit.slice(0, 12)}.json`)
+  await mkdir(resolve(out, '..'), { recursive: true })
+  await writeFile(out, `${JSON.stringify(manifest, null, 2)}\n`)
+  console.log(
+    JSON.stringify(
+      {
+        mode: 'freeze',
+        manifest: out,
+        hash: manifest.hash,
+        commit,
+        plannedRuns: manifest.plan.totalRuns,
+        costCeilingUsd: manifest.costCeilingUsd,
+        paidRequests: 0,
+      },
+      null,
+      2,
+    ),
+  )
+  process.exit(0)
+}
 
 const dir = resolve('data/r0-url-scan', new Date().toISOString().replace(/[:.]/g, '-'))
 await mkdir(dir, { recursive: true })

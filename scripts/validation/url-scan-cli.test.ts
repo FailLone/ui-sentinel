@@ -31,19 +31,19 @@ describe('the url-scan CLI accepts the free preflight', () => {
   })
 })
 
-describe('the url-scan CLI refuses a malformed command line', () => {
-  const refuse = (argv: string[], match: RegExp) => {
-    let error: unknown
-    try {
-      parseUrlScanCli(argv)
-    } catch (thrown) {
-      error = thrown
-    }
-    expect(error).toBeInstanceOf(CliUsageError)
-    expect((error as CliUsageError).exitCode).toBe(2)
-    expect((error as Error).message).toMatch(match)
+const refuse = (argv: string[], match: RegExp) => {
+  let error: unknown
+  try {
+    parseUrlScanCli(argv)
+  } catch (thrown) {
+    error = thrown
   }
+  expect(error).toBeInstanceOf(CliUsageError)
+  expect((error as CliUsageError).exitCode).toBe(2)
+  expect((error as Error).message).toMatch(match)
+}
 
+describe('the url-scan CLI refuses a malformed command line', () => {
   it('refuses an unknown option before anything runs', () => {
     refuse(['--preflight', '--paid'], /unknown option/)
   })
@@ -64,9 +64,73 @@ describe('the url-scan CLI refuses a malformed command line', () => {
     refuse(['--preflight', '--diagnostic'], /exactly one|unknown option/)
   })
 
-  it('refuses a paid mode that this entry does not yet expose', () => {
-    // The paid entries are added in B5 with their own dry-run discipline; naming one now must not
-    // silently become a free run under a paid-looking name.
-    refuse(['--formal'], /unknown option|exactly one/)
+  it('refuses a paid mode without the manifest its batch must be frozen against', () => {
+    // The paid entries exist now, but they cannot run on a bare word: a batch that is not tied to a
+    // frozen manifest and a named batch id is exactly the "dirty tree acceptance" the plan forbids.
+    refuse(['--formal'], /requires --manifest/)
+    refuse(['--diagnostic'], /requires --manifest/)
+    refuse(['--formal', '--manifest', '/tmp/frozen/manifest.json'], /requires --batch/)
+  })
+})
+
+describe('the url-scan CLI exposes the paid modes for a frozen batch', () => {
+  it('accepts a formal batch named against a frozen manifest', () => {
+    expect(
+      parseUrlScanCli([
+        '--formal',
+        '--manifest',
+        '/tmp/frozen/manifest.json',
+        '--batch',
+        'ui-r0-c1',
+      ]),
+    ).toEqual({
+      mode: 'formal',
+      manifest: '/tmp/frozen/manifest.json',
+      batch: 'ui-r0-c1',
+    })
+  })
+
+  it('accepts a diagnostic batch and an explicit sample filter', () => {
+    expect(
+      parseUrlScanCli([
+        '--diagnostic',
+        '--manifest',
+        '/tmp/frozen/manifest.json',
+        '--batch',
+        'ui-r0-d1',
+        '--samples',
+        'healthy-catalog,overlay-defect',
+      ]),
+    ).toEqual({
+      mode: 'diagnostic',
+      manifest: '/tmp/frozen/manifest.json',
+      batch: 'ui-r0-d1',
+      samples: ['healthy-catalog', 'overlay-defect'],
+    })
+  })
+
+  it('plans without spending when asked, so a dry run is its own mode', () => {
+    // A dry run must be reachable without naming a paid mode at all: it is the way an operator checks
+    // the plan and the cost ceiling *before* asking for authorisation to spend.
+    expect(
+      parseUrlScanCli([
+        '--dry-run',
+        '--manifest',
+        '/tmp/frozen/manifest.json',
+        '--batch',
+        'ui-r0-d1',
+      ]),
+    ).toEqual({
+      mode: 'dry-run',
+      manifest: '/tmp/frozen/manifest.json',
+      batch: 'ui-r0-d1',
+    })
+  })
+
+  it('refuses a paid mode on a dirty tree, before any credential is read', () => {
+    refuse(
+      ['--formal', '--manifest', '/tmp/frozen/manifest.json', '--batch', 'b', '--dirty'],
+      /unknown option/,
+    )
   })
 })
