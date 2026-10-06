@@ -40,10 +40,10 @@ export function buildManifest(input: {
   mode: Mode
   identity: FreezeIdentity
 }): EvidenceManifest {
-  // A free stage has no credential to spend with, so claiming `real` would misrepresent the evidence
-  // - and a formal run reads this field to decide whether it inherits the right to spend.
+  // The preflight blanks every real credential, so it has nothing to spend with: `real` would be a lie
+  // about what ran. The P2 smoke, by contrast, really calls the models and really spends - it is kept
+  // out of the formal gate by its *kind*, not by pretending to be fixed.
   if (input.stage === 'preflight' && input.mode !== 'fixed') throw Error('preflight-must-be-fixed')
-  if (input.stage === 'p2-smoke' && input.mode !== 'fixed') throw Error('p2-smoke-must-be-fixed')
   return {
     kind: `visual-focus-${input.stage}`,
     mode: input.mode,

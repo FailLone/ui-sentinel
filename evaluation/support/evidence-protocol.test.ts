@@ -22,15 +22,18 @@ describe('manifest protocol (E04)', () => {
     }
   })
 
-  it('names a preflight a preflight and marks it fixed, never real', () => {
-    // The preflight blanks real credentials, so it must not be able to claim `real` - a formal run
-    // reads exactly this field to decide whether it may spend.
+  it('refuses a preflight that claims `real`', () => {
+    // The preflight blanks every real credential, so `real` would be a lie about what ran.
     expect(() => buildManifest({ stage: 'preflight', mode: 'real', identity })).toThrow(
       /preflight-must-be-fixed/,
     )
-    expect(() => buildManifest({ stage: 'p2-smoke', mode: 'real', identity })).toThrow(
-      /p2-smoke-must-be-fixed/,
-    )
+  })
+
+  it('marks the P2 smoke real, because it really spends', () => {
+    // The smoke reads OPENROUTER_API_KEY, requires a clean commit and calls the real models. It is
+    // not a diagnostic - the formal gate refuses its kind - but calling it `fixed` would
+    // misrepresent a paid run as a free one, which is the distinction this field exists to carry.
+    expect(buildManifest({ stage: 'p2-smoke', mode: 'real', identity }).mode).toBe('real')
   })
 
   it('carries the freeze identity so a manifest ties to one build and campaign', () => {

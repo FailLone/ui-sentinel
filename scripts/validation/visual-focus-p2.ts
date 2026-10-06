@@ -193,9 +193,10 @@ let audit: unknown, failure: string | undefined
 const commit = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim()
 await write('manifest.json', {
   // The protocol stamps mode/stage/schemaVersion so this can never be read as a paid diagnostic.
+  // It really calls the models, so it is `real`; what keeps it out of the formal gate is its kind.
   ...buildManifest({
     stage: 'p2-smoke',
-    mode: 'fixed',
+    mode: 'real',
     identity: { campaignId: `p2-smoke-${commit.slice(0, 12)}`, buildHash: build.hash, commit },
   }),
   scope: 'Development smoke on known fixtures, not G4/formal/holdout acceptance',
