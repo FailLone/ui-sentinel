@@ -28,3 +28,22 @@ for (const family of ['menu', 'feedback', 'layout'])
       true,
     )
   })
+
+for (const family of ['menu', 'feedback', 'layout'])
+  it(`distinguishes both ${family} controls using the unchanged model-generated program`, async () => {
+    const saved = JSON.parse(
+      await readFile(
+        `evaluation/fixtures/generated-programs/paired-controls/${family}.json`,
+        'utf8',
+      ),
+    )
+    expect(saved.provenance.mode).toBe('real-model-generated')
+    const results = await replayProgramPair(browser, saved.program, family, directory)
+    expect(results.map((r) => r.verdict)).toEqual(['fail', 'pass'])
+    expect(results.every((r) => JSON.stringify(r.program) === JSON.stringify(saved.program))).toBe(
+      true,
+    )
+    expect(results.map((r) => r.evaluatorSetup)).toEqual(
+      family === 'layout' ? [false, false] : [true, true],
+    )
+  })

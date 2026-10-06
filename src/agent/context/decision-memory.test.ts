@@ -179,3 +179,19 @@ it('retains public investigation facts and computed comparisons in decision memo
   expect(measured).toContain('actualLeft')
   expect(measured).toContain('program-source')
 })
+
+it('keeps ancestor and offscreen hit misses consistent with the observation summary', () => {
+  const data = entry('element_details', [
+    {
+      ref: 'e1',
+      selector: 'button',
+      hitSamples: [
+        { relation: 'ancestor', hitSelector: 'body' },
+        { relation: 'none', hitSelector: null },
+        { relation: 'self', hitSelector: 'button' },
+      ],
+    },
+  ])
+  const latest = decisionMemory([data]).latestToolResults as any
+  expect(latest.tools[0].results[0].hit).toMatchObject({ sampled: 3, self: 1, blocked: 2 })
+})

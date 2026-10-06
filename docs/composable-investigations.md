@@ -65,5 +65,9 @@ Agent 从公开需求、页面状态和交互提出假设，选择目标并声�
 - `pnpm test src/execution/investigation`：真实 Chromium 的执行/证据边界测试，不调用模型。
 - `pnpm build && pnpm validate:programs -- --preflight`：真实 Server/SDK/浏览器、固定模型，只验证接线，不算自主发现。
 - `pnpm validate:programs -- --real`：真实 DeepSeek、六个正常/异常页面、相同中性任务、独立私有评分与生成程序重放；缺密钥明确失败。保留每次运行、原始模型请求、成本及所有失败。
+- `pnpm validate:programs -- --real --cases layout-broken,layout-healthy`：定向复测，报告明确标记 targeted，不等价于完整矩阵。
+- `pnpm test evaluation/support/program-replay.test.ts`：免费重放已保存的真实生成程序，同时检查有效候选和应被拒绝的错误候选。详见 [样本来源与状态](../evaluation/fixtures/generated-programs/README.md)。
 
 实际验收记录见 [本轮计划](../plans/composable-investigations.md)。本轮不宣称验证了 Qwen 的通用视觉发现；这组 DOM 可观测问题的实验刻意不依赖 input 专用视觉候选。
+
+当前纯 UI 评估仍沿用业务完成契约，整体报告可能为 blocked / business unknown，即使页面调查及显式收尾已经完成。验证器分别检查调查覆盖、真实计算结果和 run_finish，不把它们改写成业务成功。

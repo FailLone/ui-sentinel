@@ -1,3 +1,4 @@
+import { summarizeHits } from '../../execution/observation-slim.ts'
 export interface HistoryEntry {
   readonly text: string
   readonly toolResults: string
@@ -186,12 +187,11 @@ function elementSummary(element: any) {
     error: element.error,
     snapshotId: element.snapshotId,
     hit: element.hit ?? {
-      sampled: element.hitSamples?.length ?? 0,
-      blocked: element.hitSamples?.filter((s: any) => s.relation === 'unrelated').length ?? 0,
+      ...summarizeHits(element.hitSamples ?? [], new Map()),
       blockers: [
         ...new Set(
           element.hitSamples
-            ?.filter((s: any) => s.relation === 'unrelated')
+            ?.filter((s: any) => s.relation === 'unrelated' || s.relation === 'ancestor')
             .map((s: any) => s.hitSelector) ?? [],
         ),
       ],

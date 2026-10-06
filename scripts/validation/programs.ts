@@ -82,6 +82,11 @@ const fixture = createServer(async (req, res) => {
     res.end(investigationHtml(caseId))
     return
   }
+  if (real) {
+    res.writeHead(503)
+    res.end('This DOM-only validation has no local model fallback')
+    return
+  }
   let raw = ''
   for await (const c of req) raw += c
   const body = JSON.parse(raw)

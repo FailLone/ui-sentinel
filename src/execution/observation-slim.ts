@@ -112,7 +112,7 @@ export function toSlimSnapshot(
   }
 }
 
-function summarizeHits(
+export function summarizeHits(
   samples: readonly FullHitSample[],
   selectorToRef: ReadonlyMap<string, string>,
 ): HitSummary {

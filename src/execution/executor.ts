@@ -1921,6 +1921,10 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           serial('page_inspect', async () => {
             const result = await inspectElements(page, input.selector, input.offset)
             guard()
+            for (const element of result.elements)
+              measurementFacts.add(
+                JSON.stringify({ source: 'dom-inspection', url: page.url(), ...element }),
+              )
             const ref = await saveEvidence(
               runId,
               'snapshot',
@@ -1969,7 +1973,6 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
               },
               resolved: (id, status) => {
                 taskState.resolveHypothesis(id, status)
-                measurementFacts.add(id)
               },
             })
             return result

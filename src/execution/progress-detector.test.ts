@@ -42,3 +42,22 @@ it('does not reset no-progress on page cycling or repeated measurements', () => 
   d.check({ ...facts, pageFingerprint: 'cart' })
   expect(d.check(facts).isProgress).toBe(false)
 })
+
+it('new geometric facts count once; rereading a subset or returning to old geometry does not', () => {
+  const d = createProgressDetector()
+  const before = JSON.stringify({
+    source: 'dom-inspection',
+    selector: 'button',
+    y: 40,
+    viewportFraction: 1,
+  })
+  const after = JSON.stringify({
+    source: 'dom-inspection',
+    selector: 'button',
+    y: 900,
+    viewportFraction: 0,
+  })
+  d.check({ ...facts, measurementFacts: [before] })
+  expect(d.check({ ...facts, measurementFacts: [before, after] }).isProgress).toBe(true)
+  expect(d.check({ ...facts, measurementFacts: [before, after, before] }).isProgress).toBe(false)
+})
