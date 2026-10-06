@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto'
 import { z } from 'zod'
 import { classifyHost, isPrivateAddress, parseEntryUrl, type EntryUrlReason } from './url.ts'
+import { UI_DEFAULT_GOAL } from '../shared/ui-goal.ts'
 
 /**
  * The frozen contract of a `ui-scan` run (plan 3.1, 5.1).
@@ -29,8 +30,7 @@ export const UI_MAX_ACTIONS = 40
 export const UI_MAX_MODEL_CALLS = 60
 export const UI_GOAL_MAX_LENGTH = 2000
 
-export const UI_DEFAULT_GOAL =
-  'Check this page and the UI interactions within the permitted scope, and report grounded problems and unverified scope.'
+export { UI_DEFAULT_GOAL } from '../shared/ui-goal.ts'
 
 /** A capability the UI contract declares it does not have; reported, never silently absent. */
 export const UI_UNSUPPORTED_CAPABILITIES = [

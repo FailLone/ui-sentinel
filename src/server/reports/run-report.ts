@@ -7,6 +7,8 @@ import type { AnalysisTask } from './legacy-analysis-types.ts'
 import { terminalRunStatuses as terminals } from '../../execution/run-status.ts'
 import type { RunSpec } from '../../shared/types.ts'
 import { verifyContractSnapshot } from '../../business/runtime.ts'
+import { resolveRunKind } from '../../inspection/run-kind.ts'
+import { uiScanSummary } from './ui-scan-report.ts'
 
 /**
  * Report-facing business provenance.
@@ -17,6 +19,21 @@ import { verifyContractSnapshot } from '../../business/runtime.ts'
  */
 function businessSummary(spec: RunSpec) {
   const contract = spec.businessContract
+  // A UI run has no business dimension, and that is a different fact from "a business run predating
+  // contracts". Reporting the first as the second would suggest an older business run whose
+  // requirements were simply not recorded, which is not what the record says.
+  if (resolveRunKind(spec).kind === 'ui-scan')
+    return {
+      status: 'ui-scan-not-applicable' as const,
+      profileId: null,
+      revision: null,
+      hash: null,
+      adapter: null,
+      requirements: [],
+      effects: null,
+      environment: null,
+      integrity: 'not-applicable' as const,
+    }
   if (!contract)
     return {
       status: 'legacy-unversioned' as const,
@@ -447,6 +464,9 @@ export async function buildReport(runId: string) {
     // Business contract provenance. A run created before contracts existed reports
     // legacy-unversioned: its requirements are never back-filled from today's defaults.
     business: businessSummary(run.spec),
+    // The `ui-scan` section, projected from this run's own persisted events. Absent entirely for a
+    // business or legacy record, so a reader can tell "no UI scan" from "a UI scan with no items".
+    uiScan: uiScanSummary(run, events),
     events,
     hypotheses,
     artifacts,

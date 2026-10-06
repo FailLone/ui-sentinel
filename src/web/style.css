@@ -143,3 +143,29 @@ td {
   text-align: left;
   overflow-wrap: anywhere;
 }
+/* The mode selector and the advanced options use radios, checkboxes and grouped fields, which the
+   generic full-width input rule above would otherwise stretch into unusable bars. */
+fieldset {
+  border: 1px solid #344052;
+  border-radius: 6px;
+  margin: 12px 0;
+  padding: 12px;
+}
+legend {
+  padding: 0 6px;
+  color: #9daec3;
+}
+input[type="radio"],
+input[type="checkbox"] {
+  display: inline-block;
+  width: auto;
+  max-width: none;
+  margin-right: 8px;
+}
+.ui-scan table {
+  width: 100%;
+}
+.ui-scan code {
+  overflow-wrap: anywhere;
+  color: #acd5ff;
+}

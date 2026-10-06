@@ -11,10 +11,31 @@ import { startRunExecution, cancelRunExecution } from '../../execution/executor.
 import { getDbClient } from '../../storage/database.ts'
 import { listPublicProfiles } from '../../business/registry.ts'
 import { selectBusinessContract, selectionError } from '../../business/selection.ts'
+import { resolveUiScanContract } from '../../inspection/contract.ts'
+import { classifyHost } from '../../inspection/url.ts'
+import type { Context } from 'hono'
 
 import { canCreateRun, withAdmission } from '../evaluation-access.ts'
+import { resolveHostAddress } from './ui-scan-address.ts'
 
 export const runRoutes = new Hono()
+const budgetSchema = z
+  .object({
+    totalTimeoutMs: z.number().int().positive().max(300000).optional(),
+    maxActions: z.number().int().positive().max(40).optional(),
+    maxModelCalls: z.number().int().positive().max(60).optional(),
+  })
+  .strict()
+const viewportSchema = z
+  .object({
+    width: z.number().int().min(320).max(2560),
+    height: z.number().int().min(240).max(2160),
+  })
+  .strict()
+/**
+ * The legacy business branch. `kind` absent means business, so this schema stays exactly as it was:
+ * an old client that sends no discriminant gets the same strict validation it always did.
+ */
 const inputSchema = z
   .object({
     goal: z.string().trim().min(1).max(10000),
@@ -24,21 +45,38 @@ const inputSchema = z
       .object({ id: z.string().min(1), revision: z.string().min(1) })
       .strict()
       .optional(),
-    budget: z
+    budget: budgetSchema.optional(),
+    viewport: viewportSchema.optional(),
+  })
+  .strict()
+/**
+ * The `ui-scan` branch. It accepts only what a UI run may have: an absolute URL, an optional short
+ * goal, and narrowing scope/access/budget. `businessProfile` and `environmentId` are *not* options
+ * here, so a body that names both modes is refused by strict validation rather than one of them
+ * silently winning. The URL itself is validated by the contract resolver, which reports a specific
+ * reasonCode for the field; this schema only says which fields are admissible.
+ */
+const uiScanBodySchema = z
+  .object({
+    kind: z.literal('ui-scan'),
+    entryUrl: z.string().min(1).max(4096),
+    goal: z.string().trim().max(2000).optional(),
+    scope: z
       .object({
-        totalTimeoutMs: z.number().int().positive().max(300000).optional(),
-        maxActions: z.number().int().positive().max(40).optional(),
-        maxModelCalls: z.number().int().positive().max(60).optional(),
+        maxPages: z.number().int().min(1).max(3).optional(),
+        maxDepth: z.number().int().min(0).max(1).optional(),
       })
       .strict()
       .optional(),
-    viewport: z
+    access: z
       .object({
-        width: z.number().int().min(320).max(2560),
-        height: z.number().int().min(240).max(2160),
+        resourceOrigins: z.array(z.string().min(1).max(255)).max(8).optional(),
+        dataOrigins: z.array(z.string().min(1).max(255)).max(4).optional(),
       })
       .strict()
       .optional(),
+    budget: budgetSchema.optional(),
+    viewport: viewportSchema.optional(),
   })
   .strict()
 
@@ -95,7 +133,12 @@ runRoutes.post('/api/runs', async (c) => {
     return c.json({ error: 'evaluation-in-progress' }, 409)
   const model = checkModelConfig()
   if (!model.ready) return c.json({ error: 'configuration-missing', missing: model.missing }, 503)
-  const parsed = inputSchema.safeParse(await c.req.json().catch(() => null))
+  const rawBody = await c.req.json().catch(() => null)
+  // The discriminant decides the branch before any other field is read, so a body that could be a
+  // business request is never reinterpreted as a UI one (or the reverse) by field order.
+  if (rawBody && typeof rawBody === 'object' && (rawBody as { kind?: unknown }).kind === 'ui-scan')
+    return createUiScanRun(c, rawBody)
+  const parsed = inputSchema.safeParse(rawBody)
   if (!parsed.success)
     return c.json({ error: 'invalid-request', details: parsed.error.issues }, 400)
   const body = parsed.data
@@ -155,6 +198,101 @@ runRoutes.post('/api/runs', async (c) => {
     )
   })
 })
+
+/**
+ * The host a creation-time lookup would ask about, or null when the address is not one to look up.
+ *
+ * A literal address is returned as-is only when it is not private: a private literal is refused by the
+ * contract resolver itself and never needs DNS, and looking it up would be a pointless round trip.
+ * A name is returned so the caller can resolve it; a malformed URL yields null and the resolver's own
+ * `url-malformed` refusal is what the caller sees.
+ */
+function resolvedHostnameOf(raw: string): string | null {
+  let url: URL
+  try {
+    url = new URL(raw)
+  } catch {
+    return null
+  }
+  return classifyHost(url.hostname) === 'needs-resolution' ? url.hostname : null
+}
+
+/**
+ * Create a `ui-scan` run: resolve its contract, freeze it, and only then queue it (plan 3.2, 5.1).
+ *
+ * Every refusal happens here, before `createRun`, so an invalid address cannot leave a queued row and
+ * cannot start a browser. The contract - not the request - is what the executor reads, so the run's
+ * permissions are the ones persisted at creation and cannot be widened by a later request or by a
+ * config change while it is queued.
+ */
+async function createUiScanRun(c: Context, raw: unknown) {
+  if (!config.features.urlScan)
+    return c.json(
+      {
+        error: 'url-scan-disabled',
+        message: 'This build does not offer URL scanning yet.',
+      },
+      400,
+    )
+  const parsed = uiScanBodySchema.safeParse(raw)
+  if (!parsed.success)
+    return c.json({ error: 'invalid-request', details: parsed.error.issues }, 400)
+  const body = parsed.data
+  // The contract resolver is a pure synchronous decision, so the one impure step - asking the system
+  // resolver - happens here and is handed to it as a lookup table. A name the resolver cannot answer
+  // yields `null`, which is "no positive evidence of a private address" rather than "private": the
+  // connect-time check is authoritative, and a transient lookup failure must not permanently refuse
+  // a reachable public site.
+  const host = resolvedHostnameOf(body.entryUrl)
+  const address = host ? await resolveHostAddress(host) : null
+  const resolution = resolveUiScanContract(body, {
+    reachableOrigins: config.urlScan.trustedOrigins,
+    ...(host && address
+      ? { resolveAddress: (name: string) => (name === host ? address : null) }
+      : {}),
+  })
+  if (resolution.kind !== 'resolved')
+    return c.json(
+      {
+        error: resolution.reasonCode,
+        message: resolution.message,
+        field: resolution.field,
+      },
+      400,
+    )
+  const contract = resolution.contract
+  return withAdmission(async () => {
+    if (!canCreateRun(c.req.header('authorization')))
+      return c.json({ error: 'evaluation-in-progress' }, 409)
+    const run = await createRun({
+      goal: contract.goal,
+      kind: 'ui-scan',
+      // A UI run has no business environment; the id records only that this is not a business run.
+      environmentId: 'default',
+      entryUrl: contract.entryUrl,
+      uiContract: contract,
+      ...(body.budget ? { budget: body.budget } : {}),
+      ...(body.viewport ? { viewport: body.viewport } : {}),
+    })
+    void startRunExecution(run.id).catch((err) =>
+      console.error(
+        `[run:${run.id}] execution error`,
+        err instanceof Error ? err.message : 'execution failed',
+      ),
+    )
+    return c.json(
+      {
+        runId: run.id,
+        status: run.status,
+        kind: 'ui-scan' as const,
+        contractHash: contract.hash,
+        eventsUrl: `/api/runs/${run.id}/events`,
+        reportUrl: `/api/runs/${run.id}/report`,
+      },
+      202,
+    )
+  })
+}
 
 runRoutes.get('/api/runs/:id', async (c) => {
   const run = await getRun(c.req.param('id'))

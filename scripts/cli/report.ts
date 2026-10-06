@@ -1,6 +1,7 @@
 import 'dotenv/config'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
+import { reportSummaryLines } from './report-summary.ts'
 const args = process.argv.slice(2).filter((arg) => arg !== '--')
 const runId = args[args.indexOf('--run') + 1]
 if (!args.includes('--run') || !runId || !/^[\w-]+$/.test(runId)) {
@@ -18,7 +19,13 @@ try {
   await mkdir(dir, { recursive: true })
   const path = resolve(dir, `${runId}.json`)
   await writeFile(path, JSON.stringify(report, null, 2) + '\n')
-  console.log(`Web: ${base}/?run=${encodeURIComponent(runId)}\nJSON: ${path}`)
+  console.log(
+    [
+      ...reportSummaryLines(report),
+      `Web: ${base}/?run=${encodeURIComponent(runId)}`,
+      `JSON: ${path}`,
+    ].join('\n'),
+  )
 } catch (error) {
   console.error(error instanceof Error ? error.message : 'Report export failed')
   process.exitCode = 1

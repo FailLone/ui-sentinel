@@ -1,8 +1,12 @@
 import type { FocusMeasurement } from '../server/reports/run-report.ts'
+import type { UiScanReport } from '../server/reports/ui-scan-report.ts'
 import React, { useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import type { Finding, RuleProposal, RunEvent, RunReport } from '../shared/types.ts'
+import { UI_DEFAULT_GOAL } from '../shared/ui-goal.ts'
 import { artifactUrl, mergeEvents, terminalStatuses, executionStage } from './state.ts'
+import { UiScanReportSection } from './ui-scan-report.tsx'
+import { buildUiScanRequest, uiScanClientHint } from './ui-scan-request.ts'
 import './style.css'
 
 async function api<T>(path: string, body?: unknown): Promise<T> {
@@ -43,8 +47,10 @@ type Report = RunReport & {
   persistence?: { status: string; issues: string[] }
   coverage?: unknown
   hypotheses?: unknown[]
+  /** The `ui-scan` projection, present only for a URL scan run (plan 6.3). */
+  uiScan?: UiScanReport
   business?: {
-    status: 'versioned' | 'legacy-unversioned'
+    status: 'versioned' | 'legacy-unversioned' | 'ui-scan-not-applicable'
     profileId: string | null
     revision: string | null
     hash: string | null
@@ -236,6 +242,16 @@ function App() {
   )
   const [openId, setOpenId] = useState(runId),
     [goal, setGoal] = useState(DEFAULT_GOALS.checkout!)
+  // The mode the form is building. `business` is the default so an operator who never touches the
+  // selector gets exactly the behaviour they had before; `ui-scan` is chosen explicitly.
+  const [mode, setMode] = useState<'business' | 'ui-scan'>('business')
+  const [entryUrl, setEntryUrl] = useState('')
+  const [uiGoal, setUiGoal] = useState(UI_DEFAULT_GOAL)
+  const [maxPages, setMaxPages] = useState(3)
+  const [maxDepth, setMaxDepth] = useState(1)
+  const [resourceOrigins, setResourceOrigins] = useState('')
+  const [dataOrigins, setDataOrigins] = useState('')
+  const [advanced, setAdvanced] = useState(false)
   const [profiles, setProfiles] = useState<readonly ProfileOption[]>([])
   const [profileId, setProfileId] = useState('checkout')
   const [health, setHealth] = useState('连接中'),
@@ -327,6 +343,25 @@ function App() {
   async function start() {
     try {
       setError('')
+      if (mode === 'ui-scan') {
+        // The client catches only the obvious mistakes; the server re-validates and is authoritative.
+        const hint = uiScanClientHint(entryUrl)
+        if (hint) throw new Error(hint)
+        const result = await api<{ runId: string }>(
+          '/api/runs',
+          buildUiScanRequest({
+            entryUrl,
+            goal: uiGoal,
+            maxPages,
+            maxDepth,
+            resourceOrigins,
+            dataOrigins,
+          }),
+        )
+        setRunId(result.runId)
+        setOpenId(result.runId)
+        return
+      }
       const profile = profiles.find((p) => p.id === profileId)
       if (!profile) throw new Error('请选择业务配置')
       // The environment is the profile's own declared default, taken from the catalogue rather
@@ -364,36 +399,135 @@ function App() {
       </header>
       <section>
         <h2>开始检查</h2>
-        <label>
-          业务配置
-          <select
-            value={profileId}
-            onChange={(e) => {
-              const next = e.target.value
-              setProfileId(next)
-              // The goal text is a starting point for that business, not a hint about findings.
-              setGoal(DEFAULT_GOALS[next] ?? '')
-            }}
-          >
-            {profiles.map((profile) => (
-              <option key={profile.id} value={profile.id}>
-                {profile.name}（{profile.id}@{profile.revision}）
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          检查目标
-          <textarea value={goal} onChange={(e) => setGoal(e.target.value)} />
-        </label>
-        <p>
-          环境：
-          {profiles.find((p) => p.id === profileId)?.environments.join('、') ?? '加载中'}
-          {profiles.length === 0 && ' · 业务配置加载失败时不会回退到默认业务'}
-        </p>
-        <button disabled={!ready || !goal.trim() || !profiles.length} onClick={start}>
-          开始检查
-        </button>
+        <fieldset>
+          <legend>检查模式</legend>
+          <label>
+            <input
+              type="radio"
+              name="mode"
+              checked={mode === 'business'}
+              onChange={() => setMode('business')}
+            />
+            业务检查（使用已注册的业务配置）
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="mode"
+              checked={mode === 'ui-scan'}
+              onChange={() => setMode('ui-scan')}
+            />
+            网址 UI 检查（匿名、有界，不需要业务适配器）
+          </label>
+        </fieldset>
+        {mode === 'ui-scan' ? (
+          <>
+            <p>
+              边界：匿名会话 · 有界采样 · 不提交业务操作 · 支持 GET 型动态数据 · 跨源资源需在下方的
+              高级选项中显式声明。业务结果不适用。
+            </p>
+            <label>
+              网址
+              <input
+                value={entryUrl}
+                onChange={(e) => setEntryUrl(e.target.value)}
+                placeholder="https://example.org/catalog?category=books#items"
+              />
+            </label>
+            <label>
+              检查目标（可空，留空使用中性默认目标）
+              <textarea value={uiGoal} onChange={(e) => setUiGoal(e.target.value)} />
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={advanced}
+                onChange={(e) => setAdvanced(e.target.checked)}
+              />
+              高级选项（范围、来源、预算）
+            </label>
+            {advanced && (
+              <fieldset>
+                <label>
+                  最多页面
+                  <input
+                    type="number"
+                    min={1}
+                    max={3}
+                    value={maxPages}
+                    onChange={(e) => setMaxPages(Number(e.target.value))}
+                  />
+                </label>
+                <label>
+                  最大深度
+                  <input
+                    type="number"
+                    min={0}
+                    max={1}
+                    value={maxDepth}
+                    onChange={(e) => setMaxDepth(Number(e.target.value))}
+                  />
+                </label>
+                <label>
+                  允许的资源来源（精确 origin，每行一个）
+                  <textarea
+                    value={resourceOrigins}
+                    onChange={(e) => setResourceOrigins(e.target.value)}
+                    placeholder="https://cdn.example.org"
+                  />
+                </label>
+                <label>
+                  允许的只读数据来源（精确 origin，每行一个）
+                  <textarea
+                    value={dataOrigins}
+                    onChange={(e) => setDataOrigins(e.target.value)}
+                    placeholder="https://api.example.org"
+                  />
+                </label>
+                <p>
+                  资源许可只放行加载，不放行写入、导航或 API
+                  语义；未声明的跨源请求会被拒绝并记录为执行边界。
+                </p>
+              </fieldset>
+            )}
+            <button disabled={!ready || !entryUrl.trim()} onClick={start}>
+              开始检查
+            </button>
+          </>
+        ) : (
+          <>
+            <label>
+              业务配置
+              <select
+                value={profileId}
+                onChange={(e) => {
+                  const next = e.target.value
+                  setProfileId(next)
+                  // The goal text is a starting point for that business, not a hint about findings.
+                  setGoal(DEFAULT_GOALS[next] ?? '')
+                }}
+              >
+                {profiles.map((profile) => (
+                  <option key={profile.id} value={profile.id}>
+                    {profile.name}（{profile.id}@{profile.revision}）
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              检查目标
+              <textarea value={goal} onChange={(e) => setGoal(e.target.value)} />
+            </label>
+            <p>
+              环境：
+              {profiles.find((p) => p.id === profileId)?.environments.join('、') ?? '加载中'}
+              {profiles.length === 0 && ' · 业务配置加载失败时不会回退到默认业务'}
+            </p>
+            <button disabled={!ready || !goal.trim() || !profiles.length} onClick={start}>
+              开始检查
+            </button>
+          </>
+        )}
         <hr />
         <label>
           恢复历史运行
@@ -427,7 +561,8 @@ function App() {
               执行：{report.status} · 业务：{report.businessResult} · 停止原因：
               {report.stopReason ?? '尚未停止'}
             </p>
-            {report.business && (
+            {report.uiScan && <UiScanReportSection report={report.uiScan} runId={runId} />}
+            {report.business && report.business.status !== 'ui-scan-not-applicable' && (
               <div className="business">
                 {report.business.status === 'legacy-unversioned' ? (
                   // A real state, not a missing value: this run executed before contracts were
