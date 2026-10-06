@@ -17,7 +17,7 @@ function policy(overrides: Partial<Parameters<typeof createNetworkPolicy>[0]> = 
     entryUrl: ENTRY,
     resourceOrigins: [],
     dataOrigins: [],
-    trustedOrigins: [],
+    reachableOrigins: [],
     ...overrides,
   })
 }
@@ -95,14 +95,31 @@ describe('navigation decisions', () => {
     ).toMatchObject({ allow: false, reasonCode: 'write-denied' })
   })
 
-  it('allows an explicitly configured trusted local origin and no others', () => {
-    const local = policy({ trustedOrigins: ['http://127.0.0.1:5055'] })
-    expect(local.decide({ ...document, url: 'http://127.0.0.1:5055/fixture' }).allow).toBe(true)
-    // The service's own API port is not a trusted fixture origin. It is refused either as an
-    // unlisted origin or as a private address; the test pins the refusal, not which rule fires.
+  it('navigates a configured local fixture entry and refuses other local origins', () => {
+    // `reachableOrigins` lets a private fixture be *reached*; it does not make it a page. The fixture
+    // is navigable because it is this run's entry origin.
+    const fixture = 'http://127.0.0.1:5055'
+    const local = createNetworkPolicy({
+      entryUrl: `${fixture}/fixture`,
+      resourceOrigins: [],
+      dataOrigins: [],
+      reachableOrigins: [fixture],
+    })
+    expect(local.decide({ ...document, url: `${fixture}/step-2` }).allow).toBe(true)
+    // The service's own control plane is a different origin and is never a fixture.
     const serviceApi = local.decide({ ...document, url: 'http://127.0.0.1:4111/api/runs' })
     expect(serviceApi.allow).toBe(false)
     expect(['outside-navigation-scope', 'private-address']).toContain(serviceApi.reasonCode)
+  })
+
+  it('never treats a declared resource origin as a page destination', () => {
+    // Listing a CDN so its CSS loads must not make the CDN a URL the run can visit; otherwise an
+    // in-page script could convert a resource grant into a navigation grant.
+    const withCdn = policy({ resourceOrigins: [CDN], reachableOrigins: [CDN] })
+    expect(withCdn.decide({ ...document, url: `${CDN}/somewhere` })).toMatchObject({
+      allow: false,
+      reasonCode: 'outside-navigation-scope',
+    })
   })
 })
 

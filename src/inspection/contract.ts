@@ -159,7 +159,7 @@ export type UiContractResolution =
 
 export interface UiContractContext {
   /** Server-configured exact origins allowed to be private (local fixtures/dev). */
-  readonly trustedOrigins: readonly string[]
+  readonly reachableOrigins: readonly string[]
   /** Injected so the resolver stays pure and testable; production passes `dns.lookup`. */
   readonly resolveAddress?: (host: string) => string | null
 }
@@ -283,8 +283,8 @@ export function resolveUiScanContract(
   if (!parsedUrl.ok) return refusal(parsedUrl.reasonCode, 'entryUrl')
   const url = parsedUrl.url
 
-  const trusted = new Set(context.trustedOrigins)
-  if (!trusted.has(url.origin)) {
+  const reachable = new Set(context.reachableOrigins)
+  if (!reachable.has(url.origin)) {
     if (classifyHost(url.hostname) === 'private-literal')
       return refusal('private-address', 'entryUrl')
     const resolved = context.resolveAddress?.(url.hostname) ?? null

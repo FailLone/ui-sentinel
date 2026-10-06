@@ -22,6 +22,8 @@ export type NetworkReasonCode =
   | 'control-surface'
   | 'private-address'
   | 'malformed-url'
+  /** The run's round request budget is spent; exploration stops with a partial record (plan 4.4). */
+  | 'request-budget-exhausted'
 
 export interface NetworkRequestInput {
   readonly requestId: string
@@ -58,8 +60,17 @@ export interface NetworkPolicyConfig {
   readonly entryUrl: string
   readonly resourceOrigins: readonly string[]
   readonly dataOrigins: readonly string[]
-  /** Server-configured exact origins for local development and fixtures. Never caller-supplied. */
-  readonly trustedOrigins: readonly string[]
+  /**
+   * Server-configured exact origins that may be *reached* on a non-standard port - the entry origin
+   * and local fixtures. Never caller-supplied.
+   *
+   * This is an address-reachability grant, not a permission: an origin listed here can be connected
+   * to at its own port, but it is still subject to every navigation, resource and data rule below.
+   * Navigation in particular remains exclusive to `entryUrl`'s origin, because the plan fixes the
+   * run to the entry origin and a resource origin is never a page destination. Keeping the two apart
+   * is what stops "this CDN has to be reachable" from becoming "this CDN is a page I may visit".
+   */
+  readonly reachableOrigins: readonly string[]
 }
 
 const READ_METHODS = ['GET', 'HEAD']
@@ -94,12 +105,18 @@ function addressReason(host: string, resolvedAddress: string | null): NetworkRea
 
 export function createNetworkPolicy(config: NetworkPolicyConfig) {
   const entryOrigin = new URL(config.entryUrl).origin
-  const trusted = new Set(config.trustedOrigins)
+  const reachable = new Set(config.reachableOrigins)
   const resources = new Set(config.resourceOrigins)
   const data = new Set(config.dataOrigins)
 
-  /** An origin is reachable as a page destination only if it is the entry or a trusted local one. */
-  const navigationAllowed = (origin: string) => origin === entryOrigin || trusted.has(origin)
+  /**
+   * Page destinations are the entry origin and nothing else (plan 4.1: "入口 origin 固定").
+   *
+   * A declared resource or data origin is a dependency, not a page: listing a CDN so its CSS loads
+   * must never make that CDN a URL the run can be navigated to, or an in-page script could turn a
+   * resource grant into a navigation grant.
+   */
+  const navigationAllowed = (origin: string) => origin === entryOrigin
 
   function decide(input: NetworkRequestInput): NetworkDecision {
     const receipt = {
@@ -137,9 +154,9 @@ export function createNetworkPolicy(config: NetworkPolicyConfig) {
     // The control surface is refused first and unconditionally: not even a configured local fixture
     // origin may point at it (plan 4.1).
     if (isControlPath(pathname)) return deny('control-surface')
-    // A server-configured exact origin is the documented exception for local development and
+    // A server-configured reachable origin is the documented exception for local development and
     // fixtures, so it is exempt from the private-address refusal - but from nothing else.
-    if (!trusted.has(url.origin)) {
+    if (!reachable.has(url.origin)) {
       const address = addressReason(url.hostname, input.resolvedAddress)
       if (address) return deny(address)
     }
@@ -185,7 +202,25 @@ export function createNetworkPolicy(config: NetworkPolicyConfig) {
     return deny('resource-origin-denied')
   }
 
-  return { decide, entryOrigin, policyRevision: UI_NETWORK_POLICY_REVISION }
+  return {
+    decide,
+    entryOrigin,
+    policyRevision: UI_NETWORK_POLICY_REVISION,
+    /**
+     * Exact origins the address layer may admit on a non-standard port: the reachable fixtures plus
+     * every origin this run actually declared a dependency on. This is a *reachability* set only -
+     * `decide` still applies the navigation, resource and data rules independently, so being listed
+     * here grants no permission beyond "the socket may be opened".
+     */
+    declaredOrigins: [
+      ...config.reachableOrigins,
+      entryOrigin,
+      ...config.resourceOrigins,
+      ...config.dataOrigins,
+    ],
+    /** The subset usable as local fixtures, so the session does not repeat the private-address rule. */
+    fixtureOrigins: [...config.reachableOrigins],
+  }
 }
 
 export type NetworkPolicy = ReturnType<typeof createNetworkPolicy>

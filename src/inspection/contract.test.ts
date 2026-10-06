@@ -88,7 +88,7 @@ describe('uiScanRequestSchema', () => {
 
 describe('resolveUiScanContract', () => {
   it('resolves a valid request into a frozen snapshot with a hash', () => {
-    const resolved = resolveUiScanContract(REQUEST, { trustedOrigins: [] })
+    const resolved = resolveUiScanContract(REQUEST, { reachableOrigins: [] })
     expect(resolved.kind).toBe('resolved')
     if (resolved.kind !== 'resolved') return
     expect(resolved.contract.schemaVersion).toBe(UI_CONTRACT_SCHEMA_VERSION)
@@ -99,7 +99,7 @@ describe('resolveUiScanContract', () => {
   })
 
   it('never carries a business contract', () => {
-    const resolved = resolveUiScanContract(REQUEST, { trustedOrigins: [] })
+    const resolved = resolveUiScanContract(REQUEST, { reachableOrigins: [] })
     if (resolved.kind !== 'resolved') throw new Error('expected resolution')
     expect(resolved.contract).not.toHaveProperty('businessContract')
     expect(resolved.contract).not.toHaveProperty('profileId')
@@ -108,7 +108,7 @@ describe('resolveUiScanContract', () => {
   it('applies the plan default scope and budget when omitted', () => {
     const resolved = resolveUiScanContract(
       { kind: 'ui-scan', entryUrl: 'https://example.org/' },
-      { trustedOrigins: [] },
+      { reachableOrigins: [] },
     )
     if (resolved.kind !== 'resolved') throw new Error('expected resolution')
     expect(resolved.contract.scope).toEqual({ maxPages: 3, maxDepth: 1 })
@@ -117,7 +117,7 @@ describe('resolveUiScanContract', () => {
 
   it('refuses a public host that resolves to a private address', () => {
     const resolved = resolveUiScanContract(REQUEST, {
-      trustedOrigins: [],
+      reachableOrigins: [],
       resolveAddress: () => '127.0.0.1',
     })
     expect(resolved).toMatchObject({ kind: 'refused', reasonCode: 'private-address' })
@@ -125,12 +125,12 @@ describe('resolveUiScanContract', () => {
 
   it('refuses a private literal entry unless its exact origin is configured', () => {
     const privateRequest = { kind: 'ui-scan', entryUrl: 'http://127.0.0.1:5055/fixture' }
-    expect(resolveUiScanContract(privateRequest, { trustedOrigins: [] })).toMatchObject({
+    expect(resolveUiScanContract(privateRequest, { reachableOrigins: [] })).toMatchObject({
       kind: 'refused',
       reasonCode: 'private-address',
     })
     expect(
-      resolveUiScanContract(privateRequest, { trustedOrigins: ['http://127.0.0.1:5055'] }),
+      resolveUiScanContract(privateRequest, { reachableOrigins: ['http://127.0.0.1:5055'] }),
     ).toMatchObject({ kind: 'resolved' })
   })
 
@@ -138,7 +138,7 @@ describe('resolveUiScanContract', () => {
     expect(
       resolveUiScanContract(
         { kind: 'ui-scan', entryUrl: 'https://example.org/__control' },
-        { trustedOrigins: [] },
+        { reachableOrigins: [] },
       ),
     ).toMatchObject({ kind: 'refused', reasonCode: 'control-surface' })
   })
@@ -147,7 +147,7 @@ describe('resolveUiScanContract', () => {
     const resolved = resolveUiScanContract(
       { kind: 'ui-scan', entryUrl: 'ftp://example.org/' },
       {
-        trustedOrigins: [],
+        reachableOrigins: [],
       },
     )
     expect(resolved.kind).toBe('refused')
