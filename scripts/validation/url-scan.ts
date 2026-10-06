@@ -49,13 +49,6 @@ const options = (() => {
  * falling through to the free path, so a paid-looking command can never quietly become a free run and
  * be read as a paid result.
  */
-/** The default matrix of plan 10.2: the five samples, three times each. */
-const DEFAULT_MATRIX = {
-  samples: ['healthy-catalog', 'overlay-defect', 'dom-investigation-defect'] as const,
-  repetitions: 3,
-  // The first authorisation step's ceiling for the UI diagnostic; the formal batch raises it.
-  ceilingUsd: 2,
-}
 
 if (options.mode !== 'preflight' && options.mode !== 'freeze') {
   const manifest = (await (async () => {
@@ -106,6 +99,7 @@ if (options.mode === 'freeze') {
   const { execFileSync } = await import('node:child_process')
   const { buildUrlScanManifest, dirtyPathsAffectingRuns, hashTree, redactConfiguration } =
     await import('./url-scan-freeze.ts')
+  const { urlScanTruth } = await import('../../evaluation/private/url-scan/truth.ts')
   const commit = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim()
   const dirty = dirtyPathsAffectingRuns(
     execFileSync('git', ['status', '--porcelain'], { encoding: 'utf8' }),
@@ -150,9 +144,13 @@ if (options.mode === 'freeze') {
     scorerHash: scorer.hash,
     policyRevision: 'url-scan-1',
     promptRevision: 'ui-goal-policy-1',
-    samples: options.samples ?? [...DEFAULT_MATRIX.samples],
-    repetitions: options.repetitions ?? DEFAULT_MATRIX.repetitions,
-    costCeilingUsd: options.costCeilingUsd ?? DEFAULT_MATRIX.ceilingUsd,
+    // The matrix comes from the sample set itself, not from a second list here: a hard-coded
+    // default could silently plan a batch that omits a sample the truth defines, and the two would
+    // drift apart with nothing to catch it.
+    samples: options.samples ?? urlScanTruth('').samples.map((s) => s.sampleId),
+    repetitions: options.repetitions ?? 3,
+    // The first authorisation step's ceiling for the UI diagnostic; the formal batch raises it.
+    costCeilingUsd: options.costCeilingUsd ?? 2,
   })
   const out =
     options.manifest ?? resolve('data/r0-url-scan', `manifest-${commit.slice(0, 12)}.json`)
