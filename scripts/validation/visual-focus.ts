@@ -1,7 +1,7 @@
 import { CliUsageError, parseVisualCli } from './cli-args.ts'
 import { downloadRunEvidence } from '../../evaluation/support/campaign-evidence.ts'
 import { visualSmokeProblems } from '../../evaluation/preflight/visual-smoke-score.ts'
-import { buildManifest } from '../../evaluation/support/evidence-protocol.ts'
+import { buildArtifactIndex, buildManifest } from '../../evaluation/support/evidence-protocol.ts'
 import { buildIdentity } from '../../evaluation/support/build-identity.ts'
 import { chromium } from 'playwright'
 import { spawn, spawnSync, execFileSync, type ChildProcess } from 'node:child_process'
@@ -89,6 +89,14 @@ const port = async () => {
 }
 const logs: string[] = []
 const requests: Record<string, unknown>[] = []
+const indexedEvidence: {
+  runId: string
+  artifactId: string
+  type: string
+  sha256: string
+  bytes: number
+  path: string
+}[] = []
 let step = 0,
   scenario = 'D0'
 let binding: { candidateId: string; elementRef: string; bindingReason: string } | undefined
@@ -396,7 +404,14 @@ try {
       receipt,
       focusMeasurements: report.focusMeasurements,
     })
+    // The top-level index covers every sample's evidence, with paths relative to this directory so
+    // it still resolves after a move (plan P3.4).
+    indexedEvidence.push(...buildArtifactIndex(downloaded.index, { base: directory }))
   }
+  await writeFile(
+    resolve(directory, 'artifact-index.json'),
+    JSON.stringify(buildArtifactIndex(indexedEvidence, { base: directory }), null, 2) + '\n',
+  )
   const boundaries = []
   for (const boundary of ['budget', 'cancel', 'wrong-binding']) {
     scenario = boundary
