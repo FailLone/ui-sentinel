@@ -18,6 +18,7 @@ import {
   isVisualCaseId,
   type VisualCaseId,
 } from '@evaluation/fixtures/visual.ts'
+import regression from '@evaluation/fixtures/visual-regression-1.json'
 import { readPng, channelDistance } from '@evaluation/support/png.ts'
 
 /** Real arena geometry and behavior tests. The separate validate:visual-focus command proves
@@ -93,18 +94,19 @@ function arenaServer() {
  * different size; running them at the diagnostic viewport would silently test a different layout
  * from the one their truth describes.
  */
-async function openCase(id: VisualCaseId) {
-  const viewport = VISUAL_VIEWPORTS[id]
+async function openCase(id: VisualCaseId, previous = false) {
+  const viewport = previous ? regression.viewports[id] : VISUAL_VIEWPORTS[id]
+  const truth = previous ? regression.truth[id] : visualTruthFor(id)
   await page.setViewportSize(viewport)
   const response = await fetch(`${origin}/__control/reset`, {
     method: 'POST',
     headers: { 'content-type': 'application/json', authorization: `Bearer ${CONTROL_TOKEN}` },
-    body: JSON.stringify({ variant: 'C0', visual: visualTruthFor(id).presentation }),
+    body: JSON.stringify({ variant: 'C0', visual: truth.presentation }),
   })
   expect(response.status).toBe(200)
   await page.goto(`${origin}/`, { waitUntil: 'domcontentloaded' })
   // The search region is rendered client-side, so wait for the component rather than the document.
-  await page.waitForSelector(visualTruthFor(id).targetSelector)
+  await page.waitForSelector(truth.targetSelector)
 }
 
 async function boxOf(selector: string) {
@@ -169,7 +171,7 @@ describe('free preflight: the real arena, real clicks, no model', () => {
       if (id === 'D1')
         await expect
           .poll(() => page.locator(truth.targetSelector).getAttribute('placeholder'))
-          .toBe('Find accessories')
+          .toBe('Look up an item')
       if (id === 'H2') {
         const button = page.getByRole('button', { name: 'Clear search', exact: true })
         expect(await button.isVisible()).toBe(true)
@@ -200,6 +202,28 @@ describe('free preflight: the real arena, real clicks, no model', () => {
         await page.getByRole('button', { name: 'Clear search', exact: true }).click()
         await expect.poll(() => page.locator('.product-card').count()).toBe(3)
         expect(await page.locator(truth.targetSelector).inputValue()).toBe('')
+      }
+    }
+  })
+
+  it('retains the three retired holdouts as real-browser regression cases', async () => {
+    for (const id of ['D1', 'D2', 'H2'] as const) {
+      await openCase(id, true)
+      const truth = regression.truth[id]
+      const measured = await boxOf(truth.targetSelector)
+      for (const key of ['x', 'y', 'width', 'height'] as const)
+        expect(Math.abs(measured[key] - truth.inputBox[key])).toBeLessThanOrEqual(1)
+      const { points } = deriveProbePoints({
+        region: truth.region,
+        excluded: truth.excludedRegions,
+        dangerous: [],
+      })
+      const measurer = createFocusMeasurer(page)
+      for (const point of points) {
+        await page.getByRole('heading', { name: 'Our Products', exact: true }).click()
+        const sample = await measurer.clickAndMeasure({ selector: truth.targetSelector, ...point })
+        expect(sample.targetFocusedBefore).toBe(false)
+        expect(sample.focusedWithinMs === null).toBe(truth.edgeFocus === 'not-focused')
       }
     }
   })

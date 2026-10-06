@@ -90,31 +90,17 @@ const REGION = { x: 430, y: 133, width: 420, height: 50 }
 /** The narrower native input those probe points must fall outside of. */
 const INPUT = { x: 495, y: 144, width: 240, height: 28 }
 
-/**
- * D1 at the run viewport: the same class of defect drawn differently - another place, width, palette
- * and corner. Deliberately shares nothing with D0 but the shape of the problem.
- */
-const D1_REGION = { x: 532, y: 133, width: 294, height: 54 }
-const D1_INPUT = { x: 589, y: 146, width: 180, height: 28 }
+/** P4 geometry is measured from the rendered page at the frozen viewport. */
+const D1_REGION = { x: 556, y: 150.78125, width: 360, height: 64 }
+const D1_INPUT = { x: 639, y: 168.78125, width: 196, height: 28 }
+const NARROW_VIEWPORT = { width: 900, height: 700 }
+const D2_REGION = { x: 240, y: 183.828125, width: 360, height: 60 }
+const D2_INPUT = { x: 323.171875, y: 199.828125, width: 164, height: 28 }
+const D2_ICON = { x: 507.171875, y: 205.828125, width: 9.640625, height: 16 }
 
 /**
- * D2/H2 at the 960x720 narrow viewport: a labelled field with a decorative glyph inside its padding.
- *
- * The icon sits in the field's leading padding and is NOT part of the input, so the scorer must
- * report it as an excluded area rather than let a failure on the icon stand as the evidence.
- */
-const NARROW_VIEWPORT = { width: 960, height: 720 }
-const D2_REGION = { x: 270, y: 162, width: 420, height: 56 }
-const D2_INPUT = { x: 342, y: 176, width: 200, height: 28 }
-const D2_ICON = { x: 324, y: 182, width: 10, height: 16 }
-
-/**
- * All six cases. D0/H0/H1 are the diagnostic set; D1/D2/H2 are the holdouts (plan 2).
- *
- * `region` and `inputBox` are measured from the live page by
- * `data/p2-probe/measure-all.ts`, and `edgeFocus` by `data/p2-probe/behaviour.ts`, which drives the
- * real probe procedure over each page. None of it is chosen by hand - a truth table that disagreed
- * with the page would grade correct work as wrong.
+ * D0/H0/H1 remain diagnostic regression cases; D1/D2/H2 are the fresh P4 holdout.
+ * Geometry and focus behaviour are independently checked by the real-browser free preflight.
  */
 export const VISUAL_TRUTH: Record<VisualCaseId, VisualCaseTruth> = {
   D0: {
@@ -158,7 +144,7 @@ export const VISUAL_TRUTH: Record<VisualCaseId, VisualCaseTruth> = {
   D1: {
     id: 'D1',
     inputBox: D1_INPUT,
-    presentation: 'search-warm-offset-field',
+    presentation: 'search-sage-grid-field',
     targetSelector: TARGET,
     region: D1_REGION,
     excludedRegions: [],
@@ -170,7 +156,7 @@ export const VISUAL_TRUTH: Record<VisualCaseId, VisualCaseTruth> = {
   D2: {
     id: 'D2',
     inputBox: D2_INPUT,
-    presentation: 'search-label-icon-field',
+    presentation: 'search-blue-trailing-field',
     targetSelector: TARGET,
     region: D2_REGION,
     excludedRegions: [D2_ICON],
@@ -182,7 +168,7 @@ export const VISUAL_TRUTH: Record<VisualCaseId, VisualCaseTruth> = {
   H2: {
     id: 'H2',
     inputBox: D2_INPUT,
-    presentation: 'search-labelled-proxy-field',
+    presentation: 'search-blue-trailing-proxy',
     targetSelector: TARGET,
     region: D2_REGION,
     excludedRegions: [D2_ICON],

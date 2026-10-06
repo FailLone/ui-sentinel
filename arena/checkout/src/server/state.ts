@@ -19,6 +19,9 @@ export type VisualPresent =
   | 'search-label-icon-field'
   /** The same drawing with a correct label delegate, and a normal button as a neighbour. */
   | 'search-labelled-proxy-field'
+  | 'search-sage-grid-field'
+  | 'search-blue-trailing-field'
+  | 'search-blue-trailing-proxy'
 
 export const VISUAL_PRESENTS: readonly VisualPresent[] = [
   'search-padded-narrow-input',
@@ -27,6 +30,9 @@ export const VISUAL_PRESENTS: readonly VisualPresent[] = [
   'search-warm-offset-field',
   'search-label-icon-field',
   'search-labelled-proxy-field',
+  'search-sage-grid-field',
+  'search-blue-trailing-field',
+  'search-blue-trailing-proxy',
 ]
 
 const visualPresents = new Set<string>(VISUAL_PRESENTS)

@@ -224,7 +224,10 @@ describe('the full six-case matrix', () => {
         // genuinely excluded area rather than a second control.
         expect(icon.x).toBeGreaterThanOrEqual(truth.region.x)
         expect(icon.x + icon.width).toBeLessThanOrEqual(truth.region.x + truth.region.width)
-        expect(icon.x + icon.width).toBeLessThanOrEqual(truth.inputBox.x)
+        expect(
+          icon.x + icon.width <= truth.inputBox.x ||
+            icon.x >= truth.inputBox.x + truth.inputBox.width,
+        ).toBe(true)
       }
     }
   })

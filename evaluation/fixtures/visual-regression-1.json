@@ -1,0 +1,178 @@
+{
+  "revision": "visual-regression-1",
+  "sourceCommit": "65f550246413d954936ac18d90a127a7500da792",
+  "truth": {
+    "D0": {
+      "id": "D0",
+      "inputBox": {
+        "x": 495,
+        "y": 144,
+        "width": 240,
+        "height": 28
+      },
+      "presentation": "search-padded-narrow-input",
+      "targetSelector": ".visual-search-region input",
+      "region": {
+        "x": 430,
+        "y": 133,
+        "width": 420,
+        "height": 50
+      },
+      "excludedRegions": [],
+      "edgeFocus": "not-focused",
+      "expectSupported": true,
+      "requireProbe": true,
+      "regionOverlapMin": 0.6
+    },
+    "H0": {
+      "id": "H0",
+      "inputBox": {
+        "x": 495,
+        "y": 144,
+        "width": 240,
+        "height": 28
+      },
+      "presentation": "search-proxied-wide-region",
+      "targetSelector": ".visual-search-region input",
+      "region": {
+        "x": 430,
+        "y": 133,
+        "width": 420,
+        "height": 50
+      },
+      "excludedRegions": [],
+      "edgeFocus": "focused",
+      "expectSupported": false,
+      "requireProbe": true,
+      "regionOverlapMin": 0.6
+    },
+    "H1": {
+      "id": "H1",
+      "inputBox": {
+        "x": 490,
+        "y": 161,
+        "width": 260,
+        "height": 34
+      },
+      "presentation": "search-bounded-line-card",
+      "targetSelector": ".visual-search-region input",
+      "region": {
+        "x": 490,
+        "y": 161,
+        "width": 260,
+        "height": 34
+      },
+      "excludedRegions": [],
+      "edgeFocus": "focused",
+      "expectSupported": false,
+      "requireProbe": false,
+      "regionOverlapMin": 0.6
+    },
+    "D1": {
+      "id": "D1",
+      "inputBox": {
+        "x": 589,
+        "y": 146,
+        "width": 180,
+        "height": 28
+      },
+      "presentation": "search-warm-offset-field",
+      "targetSelector": ".visual-search-region input",
+      "region": {
+        "x": 532,
+        "y": 133,
+        "width": 294,
+        "height": 54
+      },
+      "excludedRegions": [],
+      "edgeFocus": "not-focused",
+      "expectSupported": true,
+      "requireProbe": true,
+      "regionOverlapMin": 0.6
+    },
+    "D2": {
+      "id": "D2",
+      "inputBox": {
+        "x": 342,
+        "y": 176,
+        "width": 200,
+        "height": 28
+      },
+      "presentation": "search-label-icon-field",
+      "targetSelector": ".visual-search-region input",
+      "region": {
+        "x": 270,
+        "y": 162,
+        "width": 420,
+        "height": 56
+      },
+      "excludedRegions": [
+        {
+          "x": 324,
+          "y": 182,
+          "width": 10,
+          "height": 16
+        }
+      ],
+      "edgeFocus": "not-focused",
+      "expectSupported": true,
+      "requireProbe": true,
+      "regionOverlapMin": 0.6
+    },
+    "H2": {
+      "id": "H2",
+      "inputBox": {
+        "x": 342,
+        "y": 176,
+        "width": 200,
+        "height": 28
+      },
+      "presentation": "search-labelled-proxy-field",
+      "targetSelector": ".visual-search-region input",
+      "region": {
+        "x": 270,
+        "y": 162,
+        "width": 420,
+        "height": 56
+      },
+      "excludedRegions": [
+        {
+          "x": 324,
+          "y": 182,
+          "width": 10,
+          "height": 16
+        }
+      ],
+      "edgeFocus": "focused",
+      "expectSupported": false,
+      "requireProbe": false,
+      "regionOverlapMin": 0.6
+    }
+  },
+  "viewports": {
+    "D0": {
+      "width": 1280,
+      "height": 768
+    },
+    "H0": {
+      "width": 1280,
+      "height": 768
+    },
+    "H1": {
+      "width": 1280,
+      "height": 768
+    },
+    "D1": {
+      "width": 1280,
+      "height": 768
+    },
+    "D2": {
+      "width": 960,
+      "height": 720
+    },
+    "H2": {
+      "width": 960,
+      "height": 720
+    }
+  }
+}

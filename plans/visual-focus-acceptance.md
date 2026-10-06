@@ -2,7 +2,7 @@
 
 与 [开发任务书](next-development-plan.md)共同执行。状态：P1 最小子集及 P2 开发 smoke 已通过，见 [P1 交接](visual-focus-handoff.md)和 [P2 交接](visual-focus-p2-handoff.md)；以下完整 G0–G6 未全部验收。P3 的开发接口、免费验证和转交边界见 [P3 任务书](visual-focus-p3-plan.md)与[逐项验收](visual-focus-p3-acceptance.md)。`validate:visual-focus -- --preflight` 已实现；新视觉 diagnostic/formal 已实现，P3 免费验证记录见 [P3 交接](visual-focus-p3-handoff.md)；其存在不代表 P4 真实模型验收已通过。本轮验收独立于归档业务契约阶段，旧45/45不能替代新结果。
 
-P2 新增显式 `--p2-smoke [--cases D0,H0,H1] [--spending-source <dir>]` 开发复验入口；它不是下表的 G4 diagnostic。当前 D1/D2/H2 已用于调试，全部视为已知回归案例；P3 实现 revision/冻结/来源门槛；P4 在提示/schema/算法冻结后由主 Agent 准备未参与调试的新 fixture revision，才能继续 holdout 验收。这项 P4 工作不阻塞 P3 免费工具交付。重新冻结并重跑旧 D2 不会恢复盲测身份。详见 [P2 交接](visual-focus-p2-handoff.md)。
+P2 新增显式 `--p2-smoke [--cases D0,H0,H1] [--spending-source <dir>]` 开发复验入口；它不是下表的 G4 diagnostic。原 D1/D2/H2 已用于调试，保存在 `visual-regression-1.json` 作为已知回归；P3 实现 revision/冻结/来源门槛；P4 按 [执行清单](visual-focus-p4-plan.md)在提示/schema/算法冻结后准备 `visual-holdout-2` 新页面，真实验收尚未通过。这项 P4 工作不阻塞 P3 免费工具交付。重新冻结并重跑旧 D2 不会恢复盲测身份。详见 [P2 交接](visual-focus-p2-handoff.md)。
 
 ## 1. 验收命令契约
 
@@ -33,7 +33,7 @@ P2 新增显式 `--p2-smoke [--cases D0,H0,H1] [--spending-source <dir>]` 开发
 | D2 | P4 新 revision 的 holdout：另一视口及布局，输入区包含真实label/装饰图标，明确排除图标后仍有可复现无效输入留白 | 自主发现与正确区域绑定；不得把图标区域失败当成主要证据 |
 | H2 | P4 新 revision 的 holdout：与D1/D2相近外观，正确label代理或清楚的实际输入边界，含相邻正常按钮 | 无该类supported；不得点击相邻按钮或伪造健康结论 |
 
-D0/H0/H1用于诊断调试；当前 D1/D2/H2 已用于开发 smoke，只能算已知回归。上表 holdout 要求对应 P4 的新 revision，在冻结提示/schema/算法后才做其付费验证。开发静态代码可看到fixture定义，**被测Agent绝不能看到**；不宣称这是训练隔离或统计意义上的完全盲测。主Agent review确认holdout不只是改一个case ID。
+D0/H0/H1用于诊断调试；原 D1/D2/H2 已用于开发 smoke，只能算已知回归；它们仍保留真实浏览器测试。上表 D1/D2/H2 现在对应 P4 的新 `visual-holdout-2` revision，在冻结提示/schema/算法后才做其付费验证。开发静态代码可看到fixture定义，**被测Agent绝不能看到**；不宣称这是训练隔离或统计意义上的完全盲测。主Agent review确认holdout不只是改一个case ID。
 
 每例使用固定viewport/fixture revision并记录。D2采用窄视口，但候选和目标仍必须完整处于当前视口；本轮不测试跨屏坐标。字体、动画和加载稳定性由fixture显式控制，不以任意sleep代替ready协议。
 
