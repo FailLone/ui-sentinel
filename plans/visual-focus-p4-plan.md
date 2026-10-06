@@ -1,6 +1,6 @@
 # 主动视觉发现：P4 执行清单
 
-状态：**P4 accepted**。免费 1093 项测试、真实视觉诊断 4/4、视觉正式 18/18、业务诊断 6/6、业务正式 45/45 及所有审计通过，结果与恢复过的错误见 [P4 交接](visual-focus-p4-handoff.md)。执行冻结提交 `a4c0698`，分支 `review/visual-focus-p4`；未合并 main。以下保留实际执行顺序与门槛，总规范仍以 [完整验收计划](visual-focus-acceptance.md) 为准。
+状态：**P4 accepted**。免费 1093 项测试、真实视觉诊断 4/4、视觉正式 18/18、业务诊断 6/6、业务正式 45/45 及所有审计通过，结果与恢复过的错误见 [P4 交接](visual-focus-p4-handoff.md)。执行冻结提交 `a4c0698`，交付分支 `review/visual-focus-p4`，P1–P4 已整体快进合入 main。以下保留实际执行顺序与门槛，总规范仍以 [完整验收计划](visual-focus-acceptance.md) 为准。
 
 ## 1. 冻结边界与新样本
 
