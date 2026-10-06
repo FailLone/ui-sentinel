@@ -27,6 +27,11 @@ export interface FreezeIdentity {
   readonly publicTargetHash: string
   readonly models: { readonly agent: string; readonly vision: string; readonly review: string }
   readonly providers: { readonly agent: string; readonly vision: string }
+  /**
+   * The feature flags the phase runs under. Carried because a flag is a knob like any other: a
+   * diagnostic with the bounded review on and a formal with it off are different experiments, and the
+   * build hash cannot tell them apart.
+   */
   readonly featureProfile: Record<string, string>
   readonly budgets: {
     readonly seconds: number
@@ -85,6 +90,8 @@ export function buildFreezeIdentity(input: {
   fixtureHash: string
   scorerVersion: string
   target: { tag: string; type?: string; id?: string }
+  /** The feature flags the phase executes under; defaults to none pinned. */
+  featureProfile?: Record<string, string>
 }): FreezeIdentity {
   return {
     version: 1,
@@ -100,7 +107,7 @@ export function buildFreezeIdentity(input: {
     publicTargetHash: publicTargetHash(input.target),
     models: input.protocol.models,
     providers: input.protocol.providers,
-    featureProfile: {},
+    featureProfile: input.featureProfile ?? {},
     budgets: input.protocol.budgets,
   }
 }
@@ -116,6 +123,7 @@ export type FreezeMismatch =
   | 'models'
   | 'providers'
   | 'budgets'
+  | 'feature-profile'
 
 /**
  * Compare a candidate identity against the one the paid phase was frozen with.
@@ -141,5 +149,8 @@ export function validateFreeze(
     mismatches.push('providers')
   if (JSON.stringify(actual.budgets) !== JSON.stringify(expected.budgets))
     mismatches.push('budgets')
+  // Canonical, so the same flag set written in a different key order is still the same condition.
+  if (canonicalize(actual.featureProfile ?? {}) !== canonicalize(expected.featureProfile ?? {}))
+    mismatches.push('feature-profile')
   return { ok: mismatches.length === 0, mismatches }
 }

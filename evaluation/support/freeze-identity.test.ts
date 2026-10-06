@@ -53,6 +53,18 @@ describe('freeze identity', () => {
     expect(validateFreeze(identity(), identity())).toEqual({ ok: true, mismatches: [] })
   })
 
+  it('treats the same feature flags in a different key order as the same condition', () => {
+    // A flag set is a set. Comparing it as serialized text would refuse a formal run whose manifest
+    // happened to write the same flags in another order.
+    const a = identity({
+      featureProfile: { visualDiscovery: '1', blockerReview: '1' },
+    })
+    const b = identity({
+      featureProfile: { blockerReview: '1', visualDiscovery: '1' },
+    })
+    expect(validateFreeze(a, b)).toEqual({ ok: true, mismatches: [] })
+  })
+
   it('names each kind of drift rather than failing opaquely', () => {
     const cases: [Partial<FreezeIdentity>, string][] = [
       [{ buildHash: 'c'.repeat(64) }, 'build-hash'],
@@ -64,6 +76,7 @@ describe('freeze identity', () => {
       [{ models: { ...protocol.models, vision: 'other' } }, 'models'],
       [{ providers: { agent: 'Other', vision: 'Alibaba' } }, 'providers'],
       [{ budgets: { seconds: 301, actions: 40, modelCalls: 30 } }, 'budgets'],
+      [{ featureProfile: { blockerReview: '0' } }, 'feature-profile'],
     ]
     for (const [over, expected] of cases) {
       const result = validateFreeze(identity(over), identity())
