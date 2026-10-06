@@ -15,12 +15,31 @@ describe('the private truth is shaped so a score can be trusted', () => {
     expect(urlScanTruth('frozen-build-abc').buildIdentity).toBe('frozen-build-abc')
   })
 
-  it('includes exactly one healthy control and at least one defect pair member', () => {
+  it('is the 5-sample matrix of plan 10.2: three healthy controls and two defect pairs', () => {
     const truth = urlScanTruth('b')
     const healthy = truth.samples.filter((s) => s.variant === 'healthy')
     const defective = truth.samples.filter((s) => s.variant === 'defective')
-    expect(healthy).toHaveLength(1)
-    expect(defective.length).toBeGreaterThanOrEqual(1)
+    // Plan 10.2: one standalone healthy catalogue site, then two normal/abnormal pairs (one the
+    // generic hit-testing rule can exercise, one needing the DOM investigation primitives). Every
+    // defective sample needs a healthy control judged on the *same* public surface, because a defect
+    // claim with no healthy counterpart cannot show the difference is the defect rather than the page.
+    expect(truth.samples).toHaveLength(5)
+    expect(healthy).toHaveLength(3)
+    expect(defective).toHaveLength(2)
+  })
+
+  it('pairs every defect with a healthy control on the same public entry path', () => {
+    const truth = urlScanTruth('b')
+    const pathOf = (url: string) => new URL(url).pathname
+    for (const defect of truth.samples.filter((s) => s.variant === 'defective')) {
+      const control = truth.samples.find(
+        (s) => s.variant === 'healthy' && pathOf(s.entryUrl) === pathOf(defect.entryUrl),
+      )
+      expect(
+        control,
+        `no healthy control shares ${pathOf(defect.entryUrl)} with ${defect.sampleId}`,
+      ).toBeDefined()
+    }
   })
 
   it('gives the healthy control no defect to find', () => {
@@ -51,8 +70,23 @@ describe('the private truth is shaped so a score can be trusted', () => {
     }
   })
 
-  it('keeps every sample on a distinct entry so a result cannot be attributed to the wrong one', () => {
-    const entries = urlScanTruth('b').samples.map((s) => s.entryUrl)
-    expect(new Set(entries).size).toBe(entries.length)
+  it('keeps each pair on one shared entry and different pairs apart', () => {
+    const samples = urlScanTruth('b').samples
+    // A pair *must* share its public entry: that is what makes the pair a controlled contrast, the
+    // same page with only a private switch changed. Two different pairs must not collide, or a result
+    // could be attributed to the wrong one.
+    const pairs = new Map<string, string[]>()
+    for (const sample of samples) {
+      const url = new URL(sample.entryUrl)
+      const key = url.pathname
+      pairs.set(key, [...(pairs.get(key) ?? []), sample.variant])
+    }
+    for (const [path, variants] of pairs) {
+      expect(variants.length, `${path} carries ${variants.length} samples`).toBeLessThanOrEqual(2)
+      if (variants.length === 2)
+        expect(new Set(variants)).toEqual(new Set(['healthy', 'defective']))
+    }
+    // Five samples across three distinct public entries: one standalone healthy site, two pairs.
+    expect(pairs.size).toBe(3)
   })
 })
