@@ -225,7 +225,7 @@ export type ExplorationResult = {
   readonly requestId: string
   readonly kind: 'ranked' | 'handoff'
   readonly reasonCode: ReasonCode
-  readonly binding: ResultBinding
+  readonly binding: ResultBinding | null
 }
 
 export type ResultBinding = {
@@ -240,11 +240,14 @@ export type ResultBinding = {
   readonly policyVersion: string
   readonly promptVersion: string | null
   readonly modelId: string | null
+  readonly provider: string | null
+  readonly adapterRevision: string
+  readonly stateDigest: string
 }
 
 export const CONTRACT_VERSION = 'r1-exploration-contract-1'
-export const POLICY_VERSION = 'r1-exploration-policy-1'
-export const PROMPT_VERSION = 'r1-exploration-prompt-1'
+export const POLICY_VERSION = 'r1-exploration-policy-2'
+export const PROMPT_VERSION = 'r1-exploration-prompt-2'
 
 /** Evaluation-side normalization only. The raw reasonCode is always preserved alongside it. */
 export function normalizeOutcome(result: {

@@ -12,7 +12,10 @@
  */
 import { createHash } from 'node:crypto'
 import { POLICY_VERSION, PROMPT_VERSION, type ExplorationInput } from './contracts.ts'
-import type { Usage } from './receipt.ts'
+import { validateReceipt, STUB_IDENTITY, type TransportIdentity, type Usage } from './receipt.ts'
+import { parseExplorationInput } from './contracts.ts'
+import { stateDigest } from './state.ts'
+import { rankCandidates } from './ranking.ts'
 import type { CandidateScore } from './ranking.ts'
 import type { FairnessState } from './ranking.ts'
 
@@ -20,6 +23,7 @@ export type CacheEntry = {
   readonly scores: readonly CandidateScore[]
   /** `null` means the original usage was unknown. It is kept unknown, never rewritten as zero. */
   readonly usage: Usage | null
+  readonly identity: TransportIdentity
   readonly storedAt: number
 }
 
@@ -27,43 +31,40 @@ export type CacheHit = {
   readonly scores: readonly CandidateScore[]
   /** Cost of the ORIGINAL scoring request. A hit adds no request of its own. */
   readonly originCostUsd: number | null
+  readonly identity: TransportIdentity
   readonly requestCount: 0
 }
 
-export function scoreCacheKey(input: ExplorationInput, fairness?: FairnessState): string {
-  const material = JSON.stringify({
-    contract: 'r1-exploration-contract-1',
-    policy: POLICY_VERSION,
-    prompt: PROMPT_VERSION,
-    taskRevision: input.task.revision,
-    pageId: input.state.pageId,
-    documentVersion: input.state.documentVersion,
-    observationVersion: input.state.observationVersion,
-    relatedStateVersion: input.state.relatedStateVersion,
-    task: input.task,
-    candidates: input.candidates.map((c) => ({
-      id: c.id,
-      targetKey: c.targetKey,
-      text: c.text,
-      role: c.role,
-      publicState: c.publicState,
-      context: c.context,
-      allowedActions: [...c.allowedActions],
-    })),
-    history: input.history,
-    scope: input.scope,
-    fairness: fairness ?? null,
-  })
-  return createHash('sha256').update(material).digest('hex')
+export function scoreCacheKey(
+  input: ExplorationInput,
+  fairness?: FairnessState,
+  identity: TransportIdentity = STUB_IDENTITY,
+): string {
+  return createHash('sha256')
+    .update(
+      JSON.stringify({
+        state: stateDigest(input),
+        policy: POLICY_VERSION,
+        prompt: PROMPT_VERSION,
+        fairness: fairness ?? null,
+        identity,
+      }),
+    )
+    .digest('hex')
 }
 
 export type ScoreCache = {
-  get(input: ExplorationInput, fairness?: FairnessState): CacheHit | null
+  get(
+    input: ExplorationInput,
+    fairness?: FairnessState,
+    identity?: TransportIdentity,
+  ): CacheHit | null
   set(
     input: ExplorationInput,
     scores: readonly CandidateScore[] | null,
     usage: Usage | null,
     fairness?: FairnessState,
+    identity?: TransportIdentity,
   ): void
   invalidateAll(): void
   stats(): { hits: number; misses: number; size: number }
@@ -74,15 +75,22 @@ export function createScoreCache(options: {
   ttlMs: number
   now?: () => number
 }): ScoreCache {
-  const now = options.now ?? (() => Date.now())
+  if (
+    !Number.isInteger(options.capacity) ||
+    options.capacity < 1 ||
+    !Number.isFinite(options.ttlMs) ||
+    options.ttlMs < 0
+  )
+    throw new Error('invalid-cache-options')
+  const now = options.now ?? (() => performance.now())
   const entries = new Map<string, CacheEntry>()
   let hits = 0
   let misses = 0
 
   return {
-    get(input, fairness) {
-      if (!input.state.cacheable) return null
-      const key = scoreCacheKey(input, fairness)
+    get(input, fairness, identity = STUB_IDENTITY) {
+      if (!parseExplorationInput(input).ok || !input.state.cacheable) return null
+      const key = scoreCacheKey(input, fairness, identity)
       const entry = entries.get(key)
       if (!entry || now() - entry.storedAt > options.ttlMs) {
         if (entry) entries.delete(key)
@@ -94,21 +102,48 @@ export function createScoreCache(options: {
       entries.set(key, entry)
       hits += 1
       return {
-        scores: entry.scores,
+        scores: structuredClone(entry.scores),
+        identity: structuredClone(entry.identity),
         // A hit carries no request of its own; the original cost stays attributable but is not
         // re-charged and is not falsified into zero.
         originCostUsd: entry.usage && entry.usage.status === 'known' ? entry.usage.costUsd : null,
         requestCount: 0,
       }
     },
-    set(input, scores, usage, fairness) {
-      if (!input.state.cacheable) return
+    set(input, scores, usage, fairness, identity = STUB_IDENTITY) {
+      if (!parseExplorationInput(input).ok || !input.state.cacheable) return
       // Only a complete, definite scoring result is cacheable. Failures, uncertainty and
       // cancellation arrive here as a null or empty score set and are refused.
-      if (!scores || scores.length === 0) return
-      const key = scoreCacheKey(input, fairness)
+      if (
+        !scores ||
+        scores.length === 0 ||
+        !validateReceipt(
+          {
+            kind: 'scores',
+            scores,
+            usage: usage ?? {
+              status: 'unknown',
+              inputTokens: null,
+              outputTokens: null,
+              costUsd: null,
+              source: 'stub',
+            },
+            modelId: identity.modelId,
+            provider: identity.provider,
+          },
+          rankCandidates(input).eligible.map((c) => c.id),
+          identity,
+        ).ok
+      )
+        return
+      const key = scoreCacheKey(input, fairness, identity)
       entries.delete(key)
-      entries.set(key, { scores, usage, storedAt: now() })
+      entries.set(key, {
+        scores: structuredClone(scores),
+        usage: structuredClone(usage),
+        identity: structuredClone(identity),
+        storedAt: now(),
+      })
       while (entries.size > options.capacity) {
         const oldest = entries.keys().next().value
         if (oldest === undefined) break

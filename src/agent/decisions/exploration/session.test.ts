@@ -3,8 +3,8 @@ import { describe, expect, it, vi } from 'vitest'
 import { parseExplorationInput, type ExplorationInput } from './contracts.ts'
 import { createBudgetLedger } from './budget.ts'
 import { createScoreCache } from './cache.ts'
-import { createStubTransport } from './stub-transport.ts'
-import { createExplorationSession } from './session.ts'
+import { createStubTransport } from '../../../../scripts/r1-jev/stub-transport.ts'
+import { createExplorationSession } from '../../../../scripts/r1-jev/test-support.ts'
 
 function fixture(name: string): ExplorationInput {
   const parsed = parseExplorationInput(
@@ -129,6 +129,7 @@ describe('exploration session with cache', () => {
     const billable = {
       kind: 'scores' as const,
       modelId: 'stub/jev-exploration-1',
+      provider: 'stub',
       scores: [{ candidateId: 'c1', relevance: 0.7, informationGain: 0.6, uncertainty: 0.1 }],
       usage: {
         status: 'known' as const,

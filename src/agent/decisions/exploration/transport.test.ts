@@ -3,8 +3,9 @@ import { describe, expect, it, vi } from 'vitest'
 import { parseExplorationInput, type ExplorationInput } from './contracts.ts'
 import { createBudgetLedger, type BudgetLedger } from './budget.ts'
 import { parseStubReply, type NormalizedReceipt } from './receipt.ts'
-import { requestExplorationScores, type SendFn } from './transport.ts'
-import { createStubTransport } from './stub-transport.ts'
+import type { SendFn } from './transport.ts'
+import { requestExplorationScores } from '../../../../scripts/r1-jev/test-support.ts'
+import { createStubTransport } from '../../../../scripts/r1-jev/stub-transport.ts'
 
 function fixture(name: string): ExplorationInput {
   const parsed = parseExplorationInput(
@@ -57,11 +58,11 @@ describe('exploration score transport', () => {
     expect(result.kind).toBe('ranked')
     expect(result.reasonCode).toBe('ranked')
     expect(result.requestId).toBe(input.requestId)
-    expect(result.binding.observationVersion).toBe('obs-1')
-    expect(result.binding.relatedStateVersion).toBe('state-1')
-    expect(result.binding.scopeRevision).toBe('scope-1')
-    expect(result.binding.contractVersion).toBe('r1-exploration-contract-1')
-    expect(result.binding.promptVersion).toBe('r1-exploration-prompt-1')
+    expect(result.binding?.observationVersion).toBe('obs-1')
+    expect(result.binding?.relatedStateVersion).toBe('state-1')
+    expect(result.binding?.scopeRevision).toBe('scope-1')
+    expect(result.binding?.contractVersion).toBe('r1-exploration-contract-1')
+    expect(result.binding?.promptVersion).toBe('r1-exploration-prompt-2')
     expect(result.scores?.map((s) => s.candidateId)).toEqual(['c1'])
   })
 
@@ -133,6 +134,11 @@ describe('exploration score transport', () => {
       ledger: ledger({ remainingCostUsd: null }),
       send: send as unknown as SendFn,
       billableTransport: true,
+      identity: {
+        modelId: 'stub/jev-exploration-1',
+        provider: 'stub',
+        adapterRevision: 'fixed-response-2',
+      },
     })
     expect(send).not.toHaveBeenCalled()
     expect(result.reasonCode).toBe('budget-exhausted')
@@ -199,6 +205,7 @@ describe('exploration score transport', () => {
   it('honours caller cancellation before the request settles', async () => {
     const controller = new AbortController()
     const { send, resolve } = deferredSend()
+    const live = { relatedStateVersion: 'state-1', observationVersion: 'obs-1' }
     const promise = requestExplorationScores({
       input: fixture('menu'),
       ledger: ledger(),
@@ -209,6 +216,8 @@ describe('exploration score transport', () => {
     const result = await promise
     expect(result.reasonCode).toBe('cancelled')
     // A late resolve must not resurrect a recommendation.
+    live.relatedStateVersion = 'state-2'
+    live.observationVersion = 'obs-2'
     resolve(stubReply('menu'))
     await new Promise((r) => setTimeout(r, 5))
     expect(result.kind).toBe('handoff')
@@ -230,14 +239,17 @@ describe('exploration score transport', () => {
   it('invalidates a reply that arrives after the related state changed', async () => {
     const controller = new AbortController()
     const { send, resolve } = deferredSend()
+    const live = { relatedStateVersion: 'state-1', observationVersion: 'obs-1' }
     const promise = requestExplorationScores({
       input: fixture('menu'),
       ledger: ledger(),
       send,
       signal: controller.signal,
       // The caller reports the page moved on while we were waiting.
-      currentVersions: () => ({ relatedStateVersion: 'state-2', observationVersion: 'obs-1' }),
+      currentVersions: () => live,
     })
+    live.relatedStateVersion = 'state-2'
+    live.observationVersion = 'obs-2'
     resolve(stubReply('menu'))
     await new Promise((r) => setTimeout(r, 5))
     controller.abort(new Error('state-changed'))
@@ -248,12 +260,15 @@ describe('exploration score transport', () => {
 
   it('refuses a late reply whose observation version no longer matches', async () => {
     const { send, resolve } = deferredSend()
+    const live = { relatedStateVersion: 'state-1', observationVersion: 'obs-1' }
     const promise = requestExplorationScores({
       input: fixture('menu'),
       ledger: ledger(),
       send,
-      currentVersions: () => ({ relatedStateVersion: 'state-1', observationVersion: 'obs-2' }),
+      currentVersions: () => live,
     })
+    live.relatedStateVersion = 'state-2'
+    live.observationVersion = 'obs-2'
     resolve(stubReply('menu'))
     const result = await promise
     expect(result.kind).toBe('handoff')
@@ -268,6 +283,7 @@ describe('exploration score transport', () => {
       send: async () => ({
         kind: 'scores',
         modelId: 'stub/jev-exploration-1',
+        provider: 'stub',
         scores: [{ candidateId: 'c1', relevance: 0.7, informationGain: 0.6, uncertainty: 0.1 }],
         usage: {
           status: 'known',

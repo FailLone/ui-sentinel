@@ -194,7 +194,7 @@ describe('pure ranking baseline', () => {
         { candidateId: 'c2', relevance: 1, informationGain: 1, uncertainty: 0.1 },
       ],
     })
-    expect(result.policyVersion).toBe('r1-exploration-policy-1')
+    expect(result.policyVersion).toBe('r1-exploration-policy-2')
     expect(result.orderedCandidateIds[0]).toBe('c2')
     expect(result.eligible.find((c) => c.id === 'c2')?.composite).toBeCloseTo(1, 6)
     expect(result.eligible.find((c) => c.id === 'c1')?.composite).toBeCloseTo(0.1, 6)

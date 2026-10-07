@@ -58,3 +58,35 @@ describe('committed seed expectations', () => {
     expect(continuous).not.toHaveProperty('claims')
   })
 })
+
+describe('closeout replay evidence', () => {
+  it('records actual stale-state rejection and both state snapshots', async () => {
+    const [entry] = await runOfflineCase('stale-reply')
+    expect(entry.stubReasonCode).toBe('stale-state')
+    const step = entry.steps[0] as any
+    expect(step.input.state.observationVersion).toBe('obs-1')
+    expect(step.currentAfter.state.observationVersion).toBe('obs-2')
+    expect(step.exchanges[0].normalizedReceipt.kind).toBe('scores')
+    expect(step.result.kind).toBe('handoff')
+  })
+  it('gives the low-score candidate a turn in four real session decisions', async () => {
+    const [entry] = await runOfflineCase('low-score-fairness')
+    expect(entry.steps).toHaveLength(4)
+    const steps = entry.steps as any[]
+    expect(steps[0].result.orderedCandidateIds[0]).toBe('c2')
+    expect(steps[3].result.orderedCandidateIds[0]).toBe('c1')
+    expect(steps.every((s) => s.result.scores.length === 2)).toBe(true)
+  })
+  it('keeps complete inputs, replies, per-attempt timing and independent rankings', async () => {
+    const [entry] = await runOfflineCase('menu')
+    const step = entry.steps[0] as any
+    expect(entry.durationMs).toBeGreaterThan(0)
+    expect(step.result.trace.durationMs).toBeGreaterThan(0)
+    expect(step.exchanges[0].rawReply.schemaVersion).toBe('r1-stub-reply-1')
+    const body = JSON.parse(step.exchanges[0].request.body)
+    expect(body).not.toHaveProperty('expectedStatus')
+    expect(body).not.toHaveProperty('scenario')
+    expect(entry.baselineOrderedCandidateIds).toEqual(step.baseline.orderedCandidateIds)
+    expect(entry.fusedOrderedCandidateIds).toEqual(step.result.orderedCandidateIds)
+  })
+})

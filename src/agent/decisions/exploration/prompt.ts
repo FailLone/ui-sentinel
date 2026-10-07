@@ -9,6 +9,7 @@
  * echoes our versions cannot be trusted to bind the reply, so its own reported fields are never
  * used as the binding.
  */
+import { rankCandidates } from './ranking.ts'
 import { createHash } from 'node:crypto'
 import { HARD_LIMITS, PROMPT_VERSION, type ExplorationInput } from './contracts.ts'
 
@@ -32,6 +33,10 @@ default high or low score.`
 
 export type ScoringCandidate = {
   readonly id: string
+  readonly targetKey: string | null
+  readonly observationVersion: string
+  readonly geometry: ExplorationInput['candidates'][number]['geometry']
+  readonly estimatedCost: number
   readonly text: string
   readonly role: string
   readonly publicState: {
@@ -46,10 +51,12 @@ export type ScoringCandidate = {
 
 export type ScoringRequestData = {
   readonly task: { readonly goal: string; readonly localTask: string }
-  readonly page: { readonly url: string; readonly pageId: string }
+  readonly page: ExplorationInput['state']
   readonly candidates: readonly ScoringCandidate[]
   readonly history: readonly {
     readonly targetKey: string
+    readonly beforeStateVersion: string
+    readonly afterStateVersion: string
     readonly action: string
     readonly actualEffects: readonly string[]
     readonly outcome: string
@@ -69,19 +76,28 @@ export type ScoringRequest = {
 
 /** Public projection only. Evaluator labels, reasons, checks and scenario names are never read. */
 function projectData(input: ExplorationInput): ScoringRequestData {
+  const eligibleIds = new Set(rankCandidates(input).eligible.map((c) => c.id))
   return {
     task: { goal: input.task.goal, localTask: input.task.localTask },
-    page: { url: input.state.url, pageId: input.state.pageId },
-    candidates: input.candidates.map((candidate) => ({
-      id: candidate.id,
-      text: candidate.text,
-      role: candidate.role,
-      publicState: candidate.publicState,
-      context: candidate.context,
-      allowedActions: candidate.allowedActions,
-    })),
+    page: { ...input.state },
+    candidates: input.candidates
+      .filter((c) => eligibleIds.has(c.id))
+      .map((candidate) => ({
+        id: candidate.id,
+        targetKey: candidate.targetKey,
+        observationVersion: candidate.observationVersion,
+        geometry: candidate.geometry,
+        estimatedCost: candidate.estimatedCost,
+        text: candidate.text,
+        role: candidate.role,
+        publicState: candidate.publicState,
+        context: candidate.context,
+        allowedActions: candidate.allowedActions,
+      })),
     history: input.history.map((entry) => ({
       targetKey: entry.targetKey,
+      beforeStateVersion: entry.beforeStateVersion,
+      afterStateVersion: entry.afterStateVersion,
       action: entry.action,
       actualEffects: entry.actualEffects,
       outcome: entry.outcome,
@@ -92,14 +108,15 @@ function projectData(input: ExplorationInput): ScoringRequestData {
 export function buildScoringRequest(input: ExplorationInput): ScoringRequest {
   const data = projectData(input)
   const body = JSON.stringify(data)
-  const byteLength = Buffer.byteLength(body, 'utf8')
+  const payload = JSON.stringify({ system: SYSTEM_INSTRUCTION, body })
+  const byteLength = Buffer.byteLength(payload, 'utf8')
   return {
     system: SYSTEM_INSTRUCTION,
     data,
     body,
     byteLength,
-    fits: byteLength <= HARD_LIMITS.maxInputBytes,
-    requestDigest: createHash('sha256').update(body).digest('hex'),
+    fits: byteLength <= Math.min(HARD_LIMITS.maxInputBytes, input.limits.maxInputBytes),
+    requestDigest: createHash('sha256').update(payload).digest('hex'),
     promptVersion: PROMPT_VERSION,
   }
 }

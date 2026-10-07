@@ -7,7 +7,7 @@
  * The two columns (program baseline, program + stub) are emitted separately and the real-model
  * row is explicitly "not-run". No coverage, discovery, time or cost claim is made.
  */
-import { mkdirSync, writeFileSync } from 'node:fs'
+import { mkdirSync, writeFileSync, existsSync, lstatSync } from 'node:fs'
 import { resolve, relative, isAbsolute } from 'node:path'
 import { runOfflineCase } from './offline-runner.ts'
 
@@ -31,14 +31,20 @@ const VOLATILE = [
 ] as const
 
 export function stripVolatile(jsonl: string): string {
+  const normalize = (value: unknown): unknown => {
+    if (Array.isArray(value)) return value.map(normalize)
+    if (value && typeof value === 'object')
+      return Object.fromEntries(
+        Object.entries(value)
+          .filter(([key]) => !(VOLATILE as readonly string[]).includes(key))
+          .map(([key, v]) => [key, normalize(v)]),
+      )
+    return value
+  }
   return jsonl
     .trim()
     .split('\n')
-    .map((line) => {
-      const row = JSON.parse(line) as Record<string, unknown>
-      for (const field of VOLATILE) delete row[field]
-      return JSON.stringify(row)
-    })
+    .map((line) => JSON.stringify(normalize(JSON.parse(line))))
     .join('\n')
 }
 
@@ -48,6 +54,12 @@ function safeOutput(output: string): string {
   // Refuse absolute paths, escapes and symlink-ish traversal out of the package.
   if (isAbsolute(output) || !rel || rel.startsWith('..') || isAbsolute(rel))
     throw new Error(`outside-package:${output}`)
+  let parent = PACKAGE_ROOT
+  for (const component of rel.split('/')) {
+    parent = resolve(parent, component)
+    if (existsSync(parent) && lstatSync(parent).isSymbolicLink())
+      throw new Error('output-symlink-refused')
+  }
   return absolute
 }
 
@@ -90,9 +102,9 @@ export async function runOfflineCli(options: OfflineOptions): Promise<number> {
 
   const cases = await runOfflineCase()
   const rows = cases.map((entry) => {
-    const startedAt = new Date().toISOString()
-    const durationMs = 0
+    const { startedAt, durationMs } = entry
     return {
+      ...entry,
       scenario: entry.scenario,
       outcome: entry.stubOutcome,
       baselineOutcome: entry.baselineOutcome,
@@ -106,14 +118,13 @@ export async function runOfflineCli(options: OfflineOptions): Promise<number> {
       rotation: entry.rotation,
       versions: {
         contract: 'r1-exploration-contract-1',
-        policy: 'r1-exploration-policy-1',
-        prompt: 'r1-exploration-prompt-1',
+        policy: 'r1-exploration-policy-2',
+        prompt: 'r1-exploration-prompt-2',
       },
       usage: { mode: 'stub', billable: false },
       realModel: entry.realModel,
       startedAt,
       durationMs,
-      attemptId: crypto.randomUUID(),
     }
   })
 
@@ -141,7 +152,11 @@ export async function runOfflineCli(options: OfflineOptions): Promise<number> {
       2,
     )}\n`,
   )
-  return 0
+  return cases.every(
+    (c) => c.stubOutcome === c.expectedStub && c.baselineOutcome === c.expectedBaseline,
+  )
+    ? 0
+    : 1
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

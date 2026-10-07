@@ -2,8 +2,7 @@
  * Adapts an untrusted provider reply into the internal scoring receipt.
  *
  * The stub schema (`r1-stub-reply-1`) is a TEST DOUBLE description, not a claim about the real
- * provider's wire protocol. The real adapter is `wire.ts`; this module is the internal contract
- * both of them must satisfy.
+ * provider's wire protocol. No real provider adapter has been verified. This is the internal injected-adapter contract.
  *
  * A receipt is all-or-nothing: any missing, duplicated, ambiguous or out-of-range id invalidates
  * the whole batch, so a partially mis-bound reply can never look like a partial success.
@@ -46,12 +45,14 @@ export type NormalizedReceipt =
       readonly scores: readonly Score[]
       readonly usage: Usage
       readonly modelId: string | null
+      readonly provider?: string | null
     }
   | {
       readonly kind: 'handoff'
       readonly reasonCode: string
       readonly usage: Usage
       readonly modelId: string | null
+      readonly provider?: string | null
     }
 
 export type ReceiptRejection = { readonly ok: false; readonly detail: string }
@@ -135,6 +136,7 @@ export function parseStubReply(
         reasonCode: reply.reasonCode ?? 'uncertain',
         usage,
         modelId: reply.model ?? null,
+        provider: reply.provider ?? null,
       },
     }
   if (reply.kind === 'scenario')
@@ -142,44 +144,100 @@ export function parseStubReply(
   if (reply.kind === 'scores')
     return {
       ok: true,
-      value: { kind: 'scores', scores: reply.scores ?? [], usage, modelId: reply.model ?? null },
+      value: {
+        kind: 'scores',
+        scores: reply.scores ?? [],
+        usage,
+        modelId: reply.model ?? null,
+        provider: reply.provider ?? null,
+      },
     }
   return { ok: false, detail: 'receipt-kind-unsupported' }
 }
 
-/**
- * Cross-check a receipt against the candidate set actually sent. Anything other than a complete
- * one-to-one match invalidates the batch.
- */
+export const usageSchema = z.discriminatedUnion('status', [
+  z
+    .object({
+      status: z.literal('known'),
+      inputTokens: z.number().int().nonnegative().nullable(),
+      outputTokens: z.number().int().nonnegative().nullable(),
+      costUsd: z.number().finite().nonnegative(),
+      source: z.enum(['stub', 'provider']),
+    })
+    .strict(),
+  z
+    .object({
+      status: z.literal('unknown'),
+      inputTokens: z.number().int().nonnegative().nullable(),
+      outputTokens: z.number().int().nonnegative().nullable(),
+      costUsd: z.null(),
+      source: z.enum(['stub', 'provider']),
+    })
+    .strict(),
+])
+const scoreSchema = z
+  .object({
+    candidateId: z.string().min(1).max(128),
+    relevance: unitInterval,
+    informationGain: unitInterval,
+    uncertainty: unitInterval.nullable(),
+  })
+  .strict()
+export const normalizedReceiptSchema = z.discriminatedUnion('kind', [
+  z
+    .object({
+      kind: z.literal('scores'),
+      scores: z.array(scoreSchema).max(32),
+      usage: usageSchema,
+      modelId: z.string().max(256).nullable(),
+      provider: z.string().max(256).nullable().optional(),
+    })
+    .strict(),
+  z
+    .object({
+      kind: z.literal('handoff'),
+      reasonCode: z.enum([
+        'uncertain',
+        'insufficient-information',
+        'requires-agent-investigation',
+        'unsupported',
+      ]),
+      usage: usageSchema,
+      modelId: z.string().max(256).nullable(),
+      provider: z.string().max(256).nullable().optional(),
+    })
+    .strict(),
+])
+export type TransportIdentity = {
+  modelId: string | null
+  provider: string | null
+  adapterRevision: string
+}
+export const STUB_IDENTITY: TransportIdentity = Object.freeze({
+  modelId: 'stub/jev-exploration-1',
+  provider: 'stub',
+  adapterRevision: 'fixed-response-2',
+})
+/** Strictly validate the injected adapter boundary, including usage and configured identity. */
 export function validateReceipt(
-  receipt: NormalizedReceipt | null,
+  receipt: unknown,
   candidateIds: readonly string[],
+  identity?: TransportIdentity,
 ): ReceiptAcceptance<NormalizedReceipt> | ReceiptRejection {
-  if (!receipt) return { ok: false, detail: 'receipt-invalid-envelope' }
-  if (receipt.kind === 'handoff') return { ok: true, value: receipt }
-
-  // Re-check numeric ranges here as well as in the envelope parse: this is the gate, and a
-  // receipt built by the wire adapter (or any other path) must not slip past it.
-  for (const score of receipt.scores) {
-    for (const [field, value] of [
-      ['relevance', score.relevance],
-      ['informationGain', score.informationGain],
-      ['uncertainty', score.uncertainty],
-    ] as const) {
-      if (value === null && field === 'uncertainty') continue
-      if (typeof value !== 'number' || !Number.isFinite(value) || value < 0 || value > 1)
-        return { ok: false, detail: `receipt-score-out-of-range:${score.candidateId}:${field}` }
-    }
-  }
-
-  const ids = receipt.scores.map((s) => s.candidateId)
-  const unique = new Set(ids)
-  if (unique.size !== ids.length) return { ok: false, detail: 'receipt-duplicate-candidate' }
-  for (const id of ids) {
+  const parsed = normalizedReceiptSchema.safeParse(receipt)
+  if (!parsed.success) return { ok: false, detail: 'receipt-invalid-envelope' }
+  const reply = parsed.data
+  if (
+    identity &&
+    (reply.modelId !== identity.modelId || (reply.provider ?? null) !== identity.provider)
+  )
+    return { ok: false, detail: 'receipt-identity-mismatch' }
+  if (reply.kind === 'handoff') return { ok: true, value: reply }
+  const ids = reply.scores.map((s) => s.candidateId)
+  if (new Set(ids).size !== ids.length) return { ok: false, detail: 'receipt-duplicate-candidate' }
+  for (const id of ids)
     if (!candidateIds.includes(id)) return { ok: false, detail: `receipt-unknown-candidate:${id}` }
-  }
-  for (const id of candidateIds) {
-    if (!unique.has(id)) return { ok: false, detail: `receipt-missing-candidate:${id}` }
-  }
-  return { ok: true, value: receipt }
+  for (const id of candidateIds)
+    if (!ids.includes(id)) return { ok: false, detail: `receipt-missing-candidate:${id}` }
+  return { ok: true, value: reply }
 }

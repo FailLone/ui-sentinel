@@ -155,7 +155,12 @@ describe('score cache behaviour', () => {
       const input = fixture(name)
       cache.set(
         input,
-        [{ candidateId: 'c1', relevance: 0.5, informationGain: 0.5, uncertainty: null }],
+        input.candidates.map((c) => ({
+          candidateId: c.id,
+          relevance: 0.5,
+          informationGain: 0.5,
+          uncertainty: null,
+        })),
         null,
       )
     }

@@ -5,9 +5,13 @@
  * defensive logic can be exercised without any provider access. A fixed response proves the
  * plumbing, NOT the semantic quality of a real Jev judgement.
  */
+import { bindReceipt } from '../../src/agent/decisions/exploration/adapter.ts'
 import { readFileSync } from 'node:fs'
-import { parseStubReply, type NormalizedReceipt } from './receipt.ts'
-import type { SendFn } from './transport.ts'
+import {
+  parseStubReply,
+  type NormalizedReceipt,
+} from '../../src/agent/decisions/exploration/receipt.ts'
+import type { SendFn } from '../../src/agent/decisions/exploration/transport.ts'
 
 const STUB_DIR = 'evaluation/r1-jev-dev/stub'
 
@@ -21,6 +25,6 @@ export function readStubReply(scenario: string): NormalizedReceipt {
 export function createStubTransport(scenario: string): SendFn {
   return async (_request, options) => {
     options.signal.throwIfAborted()
-    return readStubReply(scenario)
+    return bindReceipt(readStubReply(scenario), options)
   }
 }

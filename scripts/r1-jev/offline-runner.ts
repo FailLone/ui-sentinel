@@ -9,19 +9,16 @@
  * Reading the evaluator label is confined to this runner and to tests. No production module may
  * import `evaluation/r1-jev-dev/evaluator`.
  */
+import { bindReceipt } from '../../src/agent/decisions/exploration/adapter.ts'
 import { readFileSync } from 'node:fs'
-import { createBudgetLedger } from '../../src/agent/decisions/exploration/budget.ts'
 import {
   parseExplorationInput,
   type ExplorationInput,
 } from '../../src/agent/decisions/exploration/contracts.ts'
 import { rankCandidates } from '../../src/agent/decisions/exploration/ranking.ts'
-import {
-  parseStubReply,
-  type NormalizedReceipt,
-} from '../../src/agent/decisions/exploration/receipt.ts'
-import { requestExplorationScores } from '../../src/agent/decisions/exploration/transport.ts'
-import { createStubTransport } from '../../src/agent/decisions/exploration/stub-transport.ts'
+import { parseStubReply } from '../../src/agent/decisions/exploration/receipt.ts'
+import { createExplorationSession } from '../../src/agent/decisions/exploration/session.ts'
+import type { ScoreResult } from '../../src/agent/decisions/exploration/transport.ts'
 
 const PUBLIC_DIR = 'evaluation/r1-jev-dev/public'
 const STUB_DIR = 'evaluation/r1-jev-dev/stub'
@@ -53,6 +50,13 @@ export const scenarios = [
 ] as const
 
 export type CaseResult = {
+  readonly attemptId: string
+  readonly startedAt: string
+  readonly durationMs: number
+  readonly input: unknown
+  readonly baselineOrderedCandidateIds: readonly string[]
+  readonly fusedOrderedCandidateIds: readonly string[]
+  readonly steps: readonly unknown[]
   readonly scenario: string
   readonly expectedBaseline: 'ranked' | 'handoff' | 'invalid-input'
   readonly expectedStub: 'ranked' | 'handoff' | 'invalid-input'
@@ -116,101 +120,123 @@ function baselineExpectation(raw: unknown): 'ranked' | 'handoff' | 'invalid-inpu
   return anyExecutable ? 'ranked' : 'handoff'
 }
 
-function stubReceipt(scenario: string): NormalizedReceipt | 'scenario' {
-  const raw = readJson(`${STUB_DIR}/${scenario}.json`) as { kind: string }
-  if (raw.kind === 'scenario') return 'scenario'
-  const parsed = parseStubReply(raw)
-  if (!parsed.ok) throw new Error(`stub ${scenario}: ${parsed.detail}`)
-  return parsed.value
-}
-
 export async function runOfflineCase(scenario?: string): Promise<CaseResult[]> {
   const list = scenario ? [scenario] : [...scenarios]
   const results: CaseResult[] = []
-
   for (const name of list) {
+    if (!(scenarios as readonly string[]).includes(name)) throw new Error('unknown-scenario')
+    const startedAt = new Date().toISOString()
+    const started = performance.now()
     const raw = readJson(`${PUBLIC_DIR}/${name}.json`)
     const expected = expectedFor(name)
     const parsed = parseExplorationInput(raw)
-
     let transmissions = 0
-    let stubOutcome: CaseResult['stubOutcome']
-    let baselineOutcome: CaseResult['baselineOutcome']
-    let baselineReasonCode: string
-    let stubReasonCode: string
-    let orderedCandidateIds: readonly string[] = []
+    let baselineOutcome: CaseResult['baselineOutcome'] = 'invalid-input'
+    let baselineReasonCode = 'invalid-input'
+    let baselineOrderedCandidateIds: readonly string[] = []
     let rotation: unknown = null
-
-    if (!parsed.ok) {
-      baselineOutcome = 'invalid-input'
-      stubOutcome = 'invalid-input'
-      baselineReasonCode = parsed.reasonCode
-      stubReasonCode = parsed.reasonCode
-    } else {
-      const input: ExplorationInput = parsed.value
-
-      // Column 1: pure program baseline, no transport at all.
-      const baseline = rankCandidates(input, {
-        fairness: { decisionIndex: 0, firstEligibleDecision: {} },
-      })
-      baselineOutcome = baseline.kind
-      baselineReasonCode = baseline.kind === 'ranked' ? 'ranked' : 'no-eligible-candidates'
-      orderedCandidateIds = baseline.orderedCandidateIds
-      rotation = baseline.rotation
-
-      // Column 2: program + fixed-response stub, with the scenario directive honoured.
-      const receipt = stubReceipt(name)
-      const input2 = input
-      const result = await requestExplorationScores({
-        input: input2,
-        ledger: createBudgetLedger({
-          remainingDecisions: input2.budget.remainingDecisions,
-          remainingActions: input2.budget.remainingActions,
-          remainingMs: input2.budget.remainingMs,
-          maxRequestMs: input2.budget.maxRequestMs,
-          remainingCostUsd: input2.budget.remainingCostUsd,
-        }),
-        send: async (request, options) => {
-          transmissions += 1
-          if (receipt === 'scenario') {
-            // The directive resolves only from the test transport; it never reaches production.
-            return Promise.resolve({
-              kind: 'handoff',
-              reasonCode: 'uncertain',
-              usage: {
-                status: 'unknown',
-                inputTokens: null,
-                outputTokens: null,
-                costUsd: null,
-                source: 'provider' as const,
-              },
-              modelId: null,
-            })
-          }
-          void request
-          return receipt
-        },
-      })
-      stubOutcome = result.outcome
-      stubReasonCode = result.reasonCode
-      if (result.kind === 'ranked' && result.orderedCandidateIds)
-        orderedCandidateIds = result.orderedCandidateIds
+    const steps: unknown[] = []
+    const original = parsed.ok ? parsed.value : null
+    let current = structuredClone(raw)
+    const fallbackBudget = {
+      remainingDecisions: 8,
+      remainingActions: 8,
+      remainingMs: 5000,
+      maxRequestMs: 1000,
+      remainingCostUsd: null,
     }
-
+    const exchanges: unknown[] = []
+    const rawStub = readJson(`${STUB_DIR}/${name}.json`) as {
+      kind: string
+      change?: Record<string, string>
+    }
+    const session = createExplorationSession({
+      budget: original?.budget ?? fallbackBudget,
+      currentInput: () => current,
+      send: async (request, options) => {
+        transmissions++
+        let rawReply: unknown = rawStub
+        if (rawStub.kind === 'scenario') {
+          // Actually alter the caller-owned state while a valid response is outstanding.
+          await Promise.resolve()
+          const changed = structuredClone(current) as ExplorationInput
+          Object.assign(changed.state, rawStub.change)
+          for (const candidate of changed.candidates)
+            candidate.observationVersion = changed.state.observationVersion
+          current = changed
+          const sent = JSON.parse(request.body) as { candidates: { id: string }[] }
+          rawReply = {
+            schemaVersion: 'r1-stub-reply-1',
+            kind: 'scores',
+            model: 'stub/jev-exploration-1',
+            provider: 'stub',
+            scores: sent.candidates.map((c) => ({
+              candidateId: c.id,
+              relevance: 0.7,
+              informationGain: 0.6,
+              uncertainty: 0.1,
+            })),
+            usage: { inputTokens: 0, outputTokens: 0, costUsd: 0, costSource: 'non-billable-stub' },
+          }
+        }
+        const receipt = parseStubReply(rawReply)
+        exchanges.push({
+          request: structuredClone(request),
+          attemptId: options.attemptId,
+          requestDigest: options.requestDigest,
+          rawReply: structuredClone(rawReply),
+          normalizedReceipt: receipt.ok ? receipt.value : null,
+        })
+        if (!receipt.ok) throw new Error(receipt.detail)
+        return bindReceipt(receipt.value, options)
+      },
+    })
+    let last!: ScoreResult
+    const count = name === 'low-score-fairness' ? 4 : 1
+    for (let index = 0; index < count; index++) {
+      const fairness = { decisionIndex: index, firstEligibleDecision: { c1: 0, c2: 0 } }
+      const stepInput = structuredClone(current)
+      const parsedStep = parseExplorationInput(stepInput)
+      const baseline = parsedStep.ok ? rankCandidates(parsedStep.value, { fairness }) : null
+      if (baseline) {
+        baselineOutcome = baseline.kind
+        baselineReasonCode = baseline.kind === 'ranked' ? 'ranked' : 'no-eligible-candidates'
+        baselineOrderedCandidateIds = baseline.orderedCandidateIds
+        rotation = baseline.rotation
+      }
+      const previousExchanges = exchanges.length
+      last = await session.decide(stepInput, { fairness })
+      steps.push({
+        index,
+        input: stepInput,
+        fairness,
+        baseline,
+        result: last,
+        exchanges: exchanges.slice(previousExchanges),
+        currentAfter: structuredClone(current),
+      })
+    }
     results.push({
       scenario: name,
+      attemptId: last.trace.attemptId,
+      startedAt,
+      durationMs: performance.now() - started,
+      input: raw,
+      steps,
       expectedBaseline: parsed.ok ? baselineExpectation(raw) : 'invalid-input',
       expectedStub: expected.expectedStub,
       baselineOutcome,
-      stubOutcome,
-      orderedCandidateIds,
+      stubOutcome: last.outcome,
+      baselineReasonCode,
+      stubReasonCode: last.reasonCode,
+      baselineOrderedCandidateIds,
+      fusedOrderedCandidateIds: last.orderedCandidateIds ?? [],
+      orderedCandidateIds: last.orderedCandidateIds ?? [],
       transmissions,
       checks: expected.checks,
       reason: expected.reason,
       rotation,
       realModel: 'not-run',
-      stubReasonCode,
-      baselineReasonCode,
     })
   }
   return results

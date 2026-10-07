@@ -16,6 +16,7 @@
  * still-untried candidate that has been waiting longest. Rotation state is passed in, never
  * kept in a hidden global, and it can never promote a candidate already tried in this state.
  */
+import { z } from 'zod'
 import type { ExplorationCandidate, ExplorationInput } from './contracts.ts'
 import { POLICY_VERSION } from './contracts.ts'
 
@@ -39,6 +40,19 @@ export type FairnessState = {
   readonly firstEligibleDecision: Readonly<Record<string, number>>
 }
 
+export const fairnessSchema = z
+  .object({
+    decisionIndex: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER),
+    firstEligibleDecision: z.record(z.string().min(1).max(128), z.number().int().nonnegative()),
+  })
+  .strict()
+  .refine(
+    (f) =>
+      Object.keys(f.firstEligibleDecision).length <= 32 &&
+      Object.values(f.firstEligibleDecision).every((n) => n <= f.decisionIndex),
+    'invalid-fairness-history',
+  )
+
 export type RankingOptions = {
   readonly scores?: readonly CandidateScore[]
   readonly fairness?: FairnessState
@@ -49,7 +63,7 @@ export type RejectionReason = 'out-of-scope' | 'not-visible' | 'disabled' | 'no-
 export type RankedEntry = {
   readonly id: string
   readonly attemptsInCurrentState: number
-  readonly composite: number | null
+  composite: number | null
 }
 
 export type RankingReceipt = {
@@ -72,6 +86,7 @@ function attemptsInCurrentState(input: ExplorationInput, candidate: ExplorationC
   return input.history.filter(
     (entry) =>
       entry.targetKey === candidate.targetKey &&
+      candidate.allowedActions.includes(entry.action) &&
       entry.outcome !== 'unknown' &&
       entry.beforeStateVersion === input.state.relatedStateVersion,
   ).length
@@ -146,6 +161,22 @@ export function rankCandidates(
     })
   }
 
+  // A partial or malformed scoring batch is not fused: use the complete pure baseline.
+  const scores = options.scores
+  if (
+    scores &&
+    (scores.length !== eligible.length ||
+      new Set(scores.map((s) => s.candidateId)).size !== eligible.length ||
+      scores.some(
+        (s) =>
+          !eligible.some((e) => e.id === s.candidateId) ||
+          [s.relevance, s.informationGain].some((n) => !Number.isFinite(n) || n < 0 || n > 1) ||
+          (s.uncertainty !== null &&
+            (!Number.isFinite(s.uncertainty) || s.uncertainty < 0 || s.uncertainty > 1)),
+      ))
+  ) {
+    for (const entry of eligible) entry.composite = null
+  }
   eligible.sort((a, b) => compare(a, b, attempts, cost))
 
   const rotation = { applied: false, promotedCandidateId: null as string | null }

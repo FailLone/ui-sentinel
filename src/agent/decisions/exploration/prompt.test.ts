@@ -56,7 +56,9 @@ describe('bounded scoring question', () => {
   it('produces a body within the module hard byte ceiling', () => {
     const request = buildScoringRequest(fixture('menu'))
     expect(request.byteLength).toBeLessThanOrEqual(32768)
-    expect(request.byteLength).toBe(Buffer.byteLength(request.body, 'utf8'))
+    expect(request.byteLength).toBe(
+      Buffer.byteLength(JSON.stringify({ system: request.system, body: request.body }), 'utf8'),
+    )
   })
 
   it('refuses to silently truncate an oversized obligation set', () => {
@@ -100,6 +102,6 @@ describe('bounded scoring question', () => {
   it('binds the request to a local digest rather than a provider-reported version', () => {
     const request = buildScoringRequest(fixture('menu'))
     expect(request.requestDigest).toMatch(/^[0-9a-f]{64}$/)
-    expect(request.promptVersion).toBe('r1-exploration-prompt-1')
+    expect(request.promptVersion).toBe('r1-exploration-prompt-2')
   })
 })

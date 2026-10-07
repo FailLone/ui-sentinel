@@ -8,11 +8,12 @@
  * Every exit is a non-recommending result with a distinct reason. A transport failure is never
  * disguised as a low model score, and a late reply can never resurrect a recommendation.
  */
+import { adapterReceiptSchema } from './adapter.ts'
+import { parseScoreResult } from './result.ts'
 import { randomUUID } from 'node:crypto'
 import {
   CONTRACT_VERSION,
   POLICY_VERSION,
-  normalizeOutcome,
   parseExplorationInput,
   type ExplorationInput,
   type ExplorationResult,
@@ -21,20 +22,28 @@ import {
 } from './contracts.ts'
 import type { BudgetLedger } from './budget.ts'
 import { buildScoringRequest } from './prompt.ts'
-import { validateReceipt, type NormalizedReceipt, type Usage } from './receipt.ts'
-import { rankCandidates } from './ranking.ts'
-import type { CandidateScore } from './ranking.ts'
+import {
+  validateReceipt,
+  usageSchema,
+  STUB_IDENTITY,
+  type TransportIdentity,
+  type Usage,
+} from './receipt.ts'
+import { rankCandidates, fairnessSchema } from './ranking.ts'
+import { stateDigest, hasDecisionBudget } from './state.ts'
+import type { CandidateScore, FairnessState } from './ranking.ts'
 
 export type SendOptions = {
   readonly signal: AbortSignal
   readonly deadline: number
   readonly attemptId: string
+  readonly requestDigest: string
 }
 
 export type SendFn = (
   request: { system: string; body: string },
   options: SendOptions,
-) => Promise<NormalizedReceipt>
+) => Promise<unknown>
 
 export type TransportTrace = {
   readonly attempted: boolean
@@ -72,21 +81,32 @@ export type RequestOptions = {
   /** Set for a transport that may bill; an unknown remaining cost then blocks dispatch. */
   readonly billableTransport?: boolean
   /** Live caller view of the versions under which the request is being made. */
+  readonly identity?: TransportIdentity
+  readonly fairness?: FairnessState
+  readonly currentInput?: () => unknown
+  readonly onLateUsage?: (event: { attemptId: string; usage: Usage }) => void
   readonly currentVersions?: () => { relatedStateVersion: string; observationVersion: string }
 }
 
-const ZERO_USAGE: Usage = {
+export const ZERO_USAGE: Usage = {
   status: 'known',
   inputTokens: null,
   outputTokens: null,
   costUsd: 0,
   source: 'stub',
 }
-
-function bindingFor(
+const UNKNOWN_USAGE: Usage = {
+  status: 'unknown',
+  inputTokens: null,
+  outputTokens: null,
+  costUsd: null,
+  source: 'provider',
+}
+export function bindingFor(
   input: ExplorationInput,
   modelId: string | null,
   promptVersion: string | null,
+  identity: TransportIdentity = STUB_IDENTITY,
 ): ResultBinding {
   return {
     taskRevision: input.task.revision,
@@ -97,308 +117,256 @@ function bindingFor(
     scopeRevision: input.scope.revision,
     budgetRevision: input.budget.revision,
     contractVersion: CONTRACT_VERSION,
-    // The version constant, not a re-run of the ranking: bindingFor must not recompute the order.
     policyVersion: POLICY_VERSION,
     promptVersion,
     modelId,
+    provider: identity.provider,
+    adapterRevision: identity.adapterRevision,
+    stateDigest: stateDigest(input),
   }
 }
-
-function rejection(
-  requestId: string,
-  reasonCode: ReasonCode,
-  binding: ResultBinding,
-  trace: Partial<TransportTrace> & { attempted?: boolean },
-): ScoreResult {
-  const result = {
+async function performRequest(options: RequestOptions): Promise<ScoreResult> {
+  const started = performance.now()
+  const attemptId = randomUUID()
+  const identity = structuredClone(options.identity ?? STUB_IDENTITY)
+  const fairness = options.fairness ? structuredClone(options.fairness) : undefined
+  const parsed = parseExplorationInput(options.input)
+  const input = parsed.ok ? parsed.value : null
+  let usage = ZERO_USAGE
+  let attempted = false
+  let transportStart = started
+  let digest: string | null = null
+  const reject = (reasonCode: ReasonCode, detail?: string): ScoreResult => ({
     schemaVersion: 'r1-exploration-result-1',
-    requestId,
+    requestId: input?.requestId ?? '',
     kind: 'handoff',
     reasonCode,
-    binding,
-  } as const
-  return {
-    ...result,
-    outcome: normalizeOutcome(result),
+    binding: input
+      ? bindingFor(input, identity.modelId, digest ? 'r1-exploration-prompt-2' : null, identity)
+      : null,
+    outcome: reasonCode === 'invalid-input' ? 'invalid-input' : 'handoff',
     trace: {
-      attempted: trace.attempted ?? false,
-      attemptId: trace.attemptId ?? randomUUID(),
-      requestDigest: trace.requestDigest ?? null,
-      durationMs: trace.durationMs ?? 0,
-      transportMs: trace.transportMs ?? 0,
-      usage: trace.usage ?? ZERO_USAGE,
-      deadLetter: trace.deadLetter ?? [],
+      attempted,
+      attemptId,
+      requestDigest: digest,
+      durationMs: performance.now() - started,
+      transportMs: attempted ? performance.now() - transportStart : 0,
+      usage,
+      deadLetter: detail ? [detail] : [],
     },
+  })
+  if (!parsed.ok || !input)
+    return reject('invalid-input', !parsed.ok ? parsed.detail : 'invalid-input')
+  if (fairness && !fairnessSchema.safeParse(fairness).success)
+    return reject('invalid-input', 'invalid-fairness')
+  options.ledger.tighten(input.budget)
+  const liveGuard = (): ReasonCode | null => {
+    if (options.signal?.aborted) return 'cancelled'
+    let current: unknown
+    try {
+      current = options.currentInput?.() ?? options.input
+    } catch {
+      return 'stale-state'
+    }
+    const live = parseExplorationInput(current)
+    if (
+      !live.ok ||
+      live.value.requestId !== input.requestId ||
+      stateDigest(live.value) !== stateDigest(input)
+    )
+      return 'stale-state'
+    let oldView: ReturnType<NonNullable<RequestOptions['currentVersions']>> | undefined
+    try {
+      oldView = options.currentVersions?.()
+    } catch {
+      return 'stale-state'
+    }
+    options.ledger.tighten(live.value.budget)
+    if (
+      oldView &&
+      (oldView.observationVersion !== input.state.observationVersion ||
+        oldView.relatedStateVersion !== input.state.relatedStateVersion)
+    )
+      return 'stale-state'
+    if (!hasDecisionBudget(live.value) || options.ledger.snapshot().remainingMs <= 0)
+      return 'budget-exhausted'
+    if (
+      options.billableTransport &&
+      (live.value.budget.remainingCostUsd === null ||
+        (options.estimatedRequestCostUsd != null &&
+          live.value.budget.remainingCostUsd < options.estimatedRequestCostUsd))
+    )
+      return 'budget-exhausted'
+    return null
+  }
+  const early = liveGuard()
+  if (early) return reject(early)
+  const baseline = rankCandidates(input)
+  if (!baseline.eligible.length) return reject('no-eligible-candidates')
+  const request = buildScoringRequest(input)
+  digest = request.requestDigest
+  if (!request.fits) return reject('unsupported', 'request-exceeds-byte-ceiling')
+  if (
+    options.billableTransport &&
+    (!options.identity ||
+      input.budget.remainingCostUsd === null ||
+      options.estimatedRequestCostUsd == null)
+  )
+    return reject('budget-exhausted', 'billable-identity-or-budget-missing')
+  const quote = options.estimatedRequestCostUsd
+  if (options.billableTransport && quote != null && (input.budget.remainingCostUsd ?? 0) < quote)
+    return reject('budget-exhausted')
+  const ticket = options.ledger.reserve(quote ?? null, options.billableTransport)
+  if (!ticket) return reject('budget-exhausted')
+  const deadline =
+    started +
+    Math.min(
+      input.budget.maxRequestMs,
+      options.ledger.snapshot().maxRequestMs,
+      input.budget.remainingMs,
+      options.ledger.snapshot().remainingMs,
+    )
+  const controller = new AbortController()
+  const abort = () => controller.abort()
+  options.signal?.addEventListener('abort', abort, { once: true })
+  const timer = setTimeout(abort, Math.max(0, deadline - performance.now()))
+  let finished = false
+  let abortRace: (() => void) | undefined
+  // Accounting is independent of recommendation validity, including late replies.
+  const account = (reply: unknown): Usage => {
+    const raw = reply && typeof reply === 'object' && 'usage' in reply ? reply.usage : null
+    const valid = usageSchema.safeParse(raw)
+    const observed = valid.success ? valid.data : UNKNOWN_USAGE
+    options.ledger.settle(
+      ticket,
+      observed.status === 'known' ? observed.costUsd : options.billableTransport ? null : 0,
+    )
+    return observed
+  }
+  try {
+    const before = liveGuard()
+    if (before || performance.now() >= deadline) {
+      options.ledger.release(ticket)
+      return reject(before ?? 'timeout')
+    }
+    attempted = true
+    transportStart = performance.now()
+    usage = options.billableTransport ? UNKNOWN_USAGE : ZERO_USAGE
+    options.ledger.dispatch(ticket)
+    const operation = Promise.resolve(
+      options.send(
+        { system: request.system, body: request.body },
+        {
+          signal: controller.signal,
+          deadline: Date.now() + Math.max(0, deadline - performance.now()),
+          attemptId,
+          requestDigest: request.requestDigest,
+        },
+      ),
+    ).then(
+      (reply) => {
+        const envelope = adapterReceiptSchema.safeParse(reply)
+        const observed = account(
+          envelope.success &&
+            envelope.data.attemptId === attemptId &&
+            envelope.data.requestDigest === digest
+            ? envelope.data.receipt
+            : null,
+        )
+        if (finished) {
+          try {
+            options.onLateUsage?.({ attemptId, usage: observed })
+          } catch {
+            /* audit callbacks cannot revive a result */
+          }
+        }
+        return reply
+      },
+      (error) => {
+        const observed = account(error)
+        if (finished) {
+          try {
+            options.onLateUsage?.({ attemptId, usage: observed })
+          } catch {
+            /* no recommendation */
+          }
+        }
+        throw error
+      },
+    )
+    const reply = await Promise.race([
+      operation,
+      new Promise<never>((_, rejectRace) => {
+        abortRace = () => rejectRace(new Error('aborted'))
+        controller.signal.addEventListener('abort', abortRace, { once: true })
+        if (controller.signal.aborted) abortRace()
+      }),
+    ])
+    const envelope = adapterReceiptSchema.safeParse(reply)
+    usage = account(
+      envelope.success &&
+        envelope.data.attemptId === attemptId &&
+        envelope.data.requestDigest === digest
+        ? envelope.data.receipt
+        : null,
+    )
+    if (options.signal?.aborted) return reject('cancelled')
+    if (controller.signal.aborted || performance.now() >= deadline) return reject('timeout')
+    const guarded = liveGuard()
+    if (guarded) return reject(guarded)
+    if (
+      !envelope.success ||
+      envelope.data.attemptId !== attemptId ||
+      envelope.data.requestDigest !== request.requestDigest
+    )
+      return reject('invalid-receipt', 'adapter-receipt-misbound')
+    const valid = validateReceipt(
+      envelope.data.receipt,
+      baseline.eligible.map((c) => c.id),
+      identity,
+    )
+    if (!valid.ok) return reject('invalid-receipt', valid.detail)
+    if (options.ledger.snapshot().overrun)
+      return reject('budget-exhausted', 'provider-cost-exceeded-reservation')
+    if (valid.value.kind === 'handoff') return reject(valid.value.reasonCode as ReasonCode)
+    const ranked = rankCandidates(input, { scores: valid.value.scores, fairness })
+    return {
+      ...reject('ranked'),
+      kind: 'ranked',
+      reasonCode: 'ranked',
+      outcome: 'ranked',
+      scores: valid.value.scores,
+      orderedCandidateIds: ranked.orderedCandidateIds,
+      rejected: ranked.rejected,
+      policyVersion: ranked.policyVersion,
+    }
+  } catch (error) {
+    // A rejected/aborted request may have reached a provider. Keep unknown paid cost held.
+    const failureUsage =
+      error && typeof error === 'object' && 'usage' in error
+        ? usageSchema.safeParse(error.usage)
+        : null
+    if (failureUsage?.success) usage = failureUsage.data
+    options.ledger.settle(
+      ticket,
+      usage.status === 'known' ? usage.costUsd : options.billableTransport ? null : 0,
+    )
+    const reason = options.signal?.aborted
+      ? 'cancelled'
+      : controller.signal.aborted || performance.now() >= deadline
+        ? 'timeout'
+        : 'transport-failed'
+    return reject(reason, `transport:${reason}`)
+  } finally {
+    finished = true
+    clearTimeout(timer)
+    options.signal?.removeEventListener('abort', abort)
+    if (abortRace) controller.signal.removeEventListener('abort', abortRace)
   }
 }
 
 export async function requestExplorationScores(options: RequestOptions): Promise<ScoreResult> {
-  const started = Date.now()
-  const attemptId = randomUUID()
-
-  const parsed = parseExplorationInput(options.input)
-  if (!parsed.ok) {
-    const empty = {
-      schemaVersion: 'r1-exploration-result-1' as const,
-      requestId:
-        options.input && typeof options.input === 'object' && 'requestId' in options.input
-          ? String((options.input as { requestId: unknown }).requestId)
-          : '',
-      kind: 'handoff' as const,
-      reasonCode: 'invalid-input' as const,
-      binding: null as unknown as ResultBinding,
-    }
-    return {
-      ...empty,
-      outcome: 'invalid-input',
-      trace: {
-        attempted: false,
-        attemptId,
-        requestDigest: null,
-        durationMs: Date.now() - started,
-        transportMs: 0,
-        usage: ZERO_USAGE,
-        deadLetter: [parsed.detail],
-      },
-    }
-  }
-
-  const input = parsed.value
-  const baseline = rankCandidates(input)
-  if (baseline.eligible.length === 0) {
-    return rejection(input.requestId, 'no-eligible-candidates', bindingFor(input, null, null), {
-      durationMs: Date.now() - started,
-    })
-  }
-
-  const reserve = options.ledger.reserve(options.estimatedRequestCostUsd ?? null)
-  if (!reserve) {
-    return rejection(input.requestId, 'budget-exhausted', bindingFor(input, null, null), {
-      durationMs: Date.now() - started,
-    })
-  }
-
-  if (options.billableTransport && options.ledger.snapshot().remainingCostUsd === null) {
-    options.ledger.release(reserve)
-    return rejection(input.requestId, 'budget-exhausted', bindingFor(input, null, null), {
-      durationMs: Date.now() - started,
-    })
-  }
-
-  const request = buildScoringRequest(input)
-  if (!request.fits) {
-    options.ledger.release(reserve)
-    return rejection(
-      input.requestId,
-      'unsupported',
-      bindingFor(input, null, request.promptVersion),
-      {
-        durationMs: Date.now() - started,
-        requestDigest: request.requestDigest,
-        deadLetter: ['request-exceeds-byte-ceiling'],
-      },
-    )
-  }
-
-  const controller = new AbortController()
-  const callerSignal = options.signal
-  const onCallerAbort = () => controller.abort(callerSignal?.reason ?? new Error('cancelled'))
-  callerSignal?.addEventListener('abort', onCallerAbort, { once: true })
-  if (callerSignal?.aborted) onCallerAbort()
-
-  const snapshot = options.ledger.snapshot()
-  // Deadline = min(request cap, caller's CURRENT remaining time, session's declared remaining time).
-  // `input.budget.remainingMs` is the caller's live view and may have shrunk since the session
-  // ledger was created; the ledger's own value is frozen at construction and never ticks down.
-  // Taking the smallest of the three means a stale session value can never grant more time than
-  // the caller currently allows.
-  const budgetMs = Math.max(
-    1,
-    Math.min(input.budget.maxRequestMs, input.budget.remainingMs, snapshot.remainingMs),
-  )
-  const timer = setTimeout(() => controller.abort(new Error('exploration-timeout')), budgetMs)
-
-  const transportStart = Date.now()
-  let transportMs = 0
-  let usage: Usage = ZERO_USAGE
-  const deadLetter: string[] = []
-
-  // A transport that ignores AbortSignal must not be able to hold the caller past the deadline.
-  // Race it against the abort signal and drop whatever arrives too late.
-  const withSignal = <T>(operation: Promise<T>) =>
-    new Promise<T>((resolve, reject) => {
-      const abort = () => reject(controller.signal.reason ?? new Error('cancelled'))
-      controller.signal.addEventListener('abort', abort, { once: true })
-      if (controller.signal.aborted) abort()
-      operation
-        .then(resolve, reject)
-        .finally(() => controller.signal.removeEventListener('abort', abort))
-    })
-
-  try {
-    const reply = await withSignal(
-      options.send(
-        { system: request.system, body: request.body },
-        { signal: controller.signal, deadline: transportStart + budgetMs, attemptId },
-      ),
-    )
-    transportMs = Date.now() - transportStart
-    usage = reply.usage
-
-    // Re-check after the await, before trusting anything in the reply.
-    if (controller.signal.aborted) {
-      options.ledger.settle(reserve, usage.status === 'known' ? usage.costUsd : null)
-      const reason: ReasonCode = options.signal?.aborted ? 'cancelled' : 'timeout'
-      return rejection(
-        input.requestId,
-        reason,
-        bindingFor(input, reply.modelId, request.promptVersion),
-        {
-          attempted: true,
-          attemptId,
-          requestDigest: request.requestDigest,
-          durationMs: Date.now() - started,
-          transportMs,
-          usage,
-          deadLetter,
-        },
-      )
-    }
-    if (options.signal?.aborted) {
-      options.ledger.settle(reserve, usage.status === 'known' ? usage.costUsd : null)
-      return rejection(
-        input.requestId,
-        'cancelled',
-        bindingFor(input, reply.modelId, request.promptVersion),
-        {
-          attempted: true,
-          attemptId,
-          requestDigest: request.requestDigest,
-          durationMs: Date.now() - started,
-          transportMs,
-          usage,
-          deadLetter,
-        },
-      )
-    }
-
-    const live = options.currentVersions?.()
-    if (
-      live &&
-      (live.relatedStateVersion !== input.state.relatedStateVersion ||
-        live.observationVersion !== input.state.observationVersion)
-    ) {
-      options.ledger.settle(reserve, usage.status === 'known' ? usage.costUsd : null)
-      return rejection(
-        input.requestId,
-        'stale-state',
-        bindingFor(input, reply.modelId, request.promptVersion),
-        {
-          attempted: true,
-          attemptId,
-          requestDigest: request.requestDigest,
-          durationMs: Date.now() - started,
-          transportMs,
-          usage,
-          deadLetter: ['versions-changed-while-waiting'],
-        },
-      )
-    }
-
-    options.ledger.settle(reserve, usage.status === 'known' ? usage.costUsd : null)
-    const eligibleIds = baseline.eligible.map((e) => e.id)
-    const validated = validateReceipt(reply, eligibleIds)
-    if (!validated.ok) {
-      return rejection(
-        input.requestId,
-        'invalid-receipt',
-        bindingFor(input, reply.modelId, request.promptVersion),
-        {
-          attempted: true,
-          attemptId,
-          requestDigest: request.requestDigest,
-          durationMs: Date.now() - started,
-          transportMs,
-          usage,
-          deadLetter: [validated.detail],
-        },
-      )
-    }
-    if (validated.value.kind === 'handoff') {
-      const reason = validated.value.reasonCode
-      return rejection(
-        input.requestId,
-        reason === 'requires-agent-investigation'
-          ? 'requires-agent-investigation'
-          : 'insufficient-information',
-        bindingFor(input, reply.modelId, request.promptVersion),
-        {
-          attempted: true,
-          attemptId,
-          requestDigest: request.requestDigest,
-          durationMs: Date.now() - started,
-          transportMs,
-          usage,
-          deadLetter,
-        },
-      )
-    }
-
-    const scores: CandidateScore[] = validated.value.scores.map((s) => ({
-      candidateId: s.candidateId,
-      relevance: s.relevance,
-      informationGain: s.informationGain,
-      uncertainty: s.uncertainty,
-    }))
-    const ranked = rankCandidates(input, { scores })
-    const result = {
-      schemaVersion: 'r1-exploration-result-1',
-      requestId: input.requestId,
-      kind: 'ranked',
-      reasonCode: 'ranked',
-      binding: bindingFor(input, reply.modelId, request.promptVersion),
-    } as const
-    return {
-      ...result,
-      outcome: normalizeOutcome(result),
-      orderedCandidateIds: ranked.orderedCandidateIds,
-      scores,
-      rejected: ranked.rejected,
-      policyVersion: ranked.policyVersion,
-      trace: {
-        attempted: true,
-        attemptId,
-        requestDigest: request.requestDigest,
-        durationMs: Date.now() - started,
-        transportMs,
-        usage,
-        deadLetter,
-      },
-    }
-  } catch (error) {
-    transportMs = Date.now() - transportStart
-    const reason: ReasonCode = options.signal?.aborted
-      ? 'cancelled'
-      : controller.signal.aborted
-        ? 'timeout'
-        : 'transport-failed'
-    // Deliberately record only a coarse class: provider error bodies can echo credentials.
-    deadLetter.push(`transport:${reason}`)
-    // No reply was received, so no cost was incurred: free this ticket's hold. The decision
-    // itself stays consumed, since the request really was dispatched.
-    options.ledger.release(reserve)
-    void error
-    return rejection(input.requestId, reason, bindingFor(input, null, request.promptVersion), {
-      attempted: true,
-      attemptId,
-      requestDigest: request.requestDigest,
-      durationMs: Date.now() - started,
-      transportMs,
-      usage,
-      deadLetter,
-    })
-  } finally {
-    clearTimeout(timer)
-    callerSignal?.removeEventListener('abort', onCallerAbort)
-  }
+  const result = await performRequest(options)
+  if (!parseScoreResult(result).success) throw new Error('internal-result-contract-violation')
+  return result
 }

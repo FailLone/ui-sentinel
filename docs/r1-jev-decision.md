@@ -1,102 +1,67 @@
-# R1 前置：Jev 探索决策模块
+# R1 前置：Jev 探索决策模块与离线验证
 
-本文件说明 `src/agent/decisions/exploration/` 已实现的接口、命令与**明确未接入**的边界。
-它描述的是前置模块（评分 + 程序排序），不是 R1 完成声明，也不包含任何收益结论。
+本模块验证“程序提供公开状态与候选，Jev 评分，程序排序”的可实现边界。目标是让程序连续完成常规交互，必要时交回主 Agent，减少完整主 Agent 的逐步决策调用。本期只有独立决策模块与离线工具；生产执行器、实际点击、可靠恢复及三组端到端实验等待 R0 验收后另行集成。不能由建议推出权限、点击效果、缺陷或任务完成。
 
-状态：前置模块实现中；未接入执行器，未调用真实模型，未验收。
+当前 Agent、纯程序、程序加 Jev 的后续对照须评价发现质量、覆盖、主模型调用减少量、总时间、总成本。当前方向仍待验证：本期固定响应不能证明真实 Jev 判断质量、抗注入能力或整轮收益。不将本项或 R1 标为完成。
 
-## 1. 契约
+## 源码与接口
 
-`r1-exploration-input-1` → `r1-exploration-result-1`。
+`src/agent/decisions/exploration/` 是纯模块目录，无浏览器、数据库、环境变量、fixture 文件读取或网络默认实现。调用方必须注入 `send`。固定响应读取器在 `scripts/r1-jev/stub-transport.ts`，只供离线工具和测试使用。无新增依赖；复用 zod、Node 标准库与现有测试工具。
 
-- 输入字段与语义见 `plans/r1-jev-decision-prework-plan.md` 第 4 节；实现见
-  `contracts.ts`。所有版本字段（task/state/scope/budget 的 revision、observationVersion、
-  documentVersion、relatedStateVersion）由**调用方**拥有；本模块只能比较拿到的版本，
-  不能自行宣布页面未变。
-- 非法输入返回结构化 `{ ok: false, reasonCode: 'invalid-input', detail }`，**不启动传输**。
-  校验顺序：schema（额外字段拒绝）→ 结构引用（重复 ID、候选观察版本过期/冲突、
-  scope 悬空/重复）→ 上限（调用方上限只能收紧模块硬上限 32 候选 / 32 KiB / 32 历史）。
-- 输出只有 `ranked` 与 `handoff` 两种判别，外加 `reasonCode` 区分原因。
-  **不存在** finish / pass / defect / authorized 等结论字段。
-- `normalizeOutcome` 把 `handoff + invalid-input` 归一为 `invalid-input`，其余 handoff
-  归一为 `handoff`；原始 `reasonCode` 始终保留。
+- `contracts.ts`：严格的 `r1-exploration-input-1`；上限 32 候选、32 条历史、32768 字节，调用方可收紧。拒绝额外字段、重复身份、失效观察版本和悬空 scope。输入经 zod 解析产生私有快照。
+- `result.ts`：严格运行时输出 `r1-exploration-result-1`，检查 ranked/handoff 判别与候选集合一致性。非法输入的 binding 是显式 null；有效输入始终保留绑定。没有 authorized/defect/finished 等字段。
+- `state.ts`：完整 task/state/candidates/history/scope/limits/budget revision 的摘要。版本只是调用方声明；模块不会自行证明页面未变。
+- `ranking.ts`：确定性排序，策略 `r1-exploration-policy-2`。按当前相关状态下未尝试、次数、融合分、调用方估计成本、候选 id 排序。历史仅按稳定 targetKey、当前允许动作和 beforeStateVersion 归因。新状态允许重查；未知 targetKey 不跨观察合并。非完整或非法评分批次整体退回纯程序排序，避免部分分数形成非传递比较。
+- 融合权重维持 `0.6 * relevance + 0.4 * informationGain`，uncertainty 保留供解释。低分候选保留队列，几何不判缺陷。每第 4 个决策提升等待最久且仍未尝试的非队首项；调用方显式提供并维护 `fairness: {decisionIndex, firstEligibleDecision}`，会话与缓存路径均传入。没有足够决策预算不能宣称低分项已被检查。
 
-## 2. 纯程序排序（无模型）
+## 传输边界与绑定
 
-`rankCandidates(input, options)` 是纯函数：无模型、网络、浏览器、DB、全局配置。
-相同规范化输入与策略版本输出逐字节相同；输入候选数组重排结果不变。
+`requestExplorationScores({ input, ledger, send, identity, currentInput, signal, fairness, ... })` 返回排名或明确交回原因。
 
-固定字典序优先级（`POLICY_VERSION = r1-exploration-policy-1`）：
+`prompt.ts` 仅投影正常任务与公开事实，包括当前 eligible 候选、公开状态、几何、上下文和带状态版本的实际动作历史。候选范围与回执校验集完全相同。页面文字是数据。评价标签、期望顺序及 fixture 名不进入请求。`byteLength` 和 digest 对实际传给 send 的 `JSON.stringify({system, body})` 计算；超出调用方或模块上限就交回，不静默截断。未来真实适配器增加 HTTP/协议字段后，还必须检查真实线上载荷大小，本期没有验证该协议。
 
-1. **当前相关状态下是否已尝试**（未尝试优先）
-2. 当前相关状态下尝试次数少者优先
-3. 模型融合分高者优先（仅在提供评分回执时参与）
-4. `estimatedCost` 低者优先
-5. 候选 `id` 字节序（最终打破平局，无随机）
+`send(request, context)` 的 context 包含本地 attemptId、requestDigest、AbortSignal 和绝对 deadline。可信适配器须返回 `bindReceipt(normalizedReceipt, context)`，形如 `{attemptId, requestDigest, receipt}`。服务本身不必回显版本；不能让服务自报字段替代本地请求绑定。模块严格校验适配器信封、attempt/digest、配置的 modelId/provider、usage、评分范围和候选一一对应。任何误路由都无有效建议。默认身份仅限固定替身 `{modelId:'stub/jev-exploration-1', provider:'stub', adapterRevision:'fixed-response-2'}`。
 
-尝试次数按 `targetKey + 动作` 归因，且只在 `history.beforeStateVersion === state.relatedStateVersion`
-时计入当前状态。**不使用**按钮文案或短 ref 判定身份；`targetKey` 缺失时不跨观察合并（视为未尝试，
-不永久封禁）。因此「同 target 新状态可重查」与「同状态重复不永久跳过」由同一条规则满足。
+真实提供方协议、结构化输出支持、价格与适配器均未验证。调用方注入的适配器是可信边界；若它把错误请求的结果重新绑定成当前请求，模块不能凭相同候选 ID 识破该适配器缺陷。后续接入须对适配器本身单独验收。
 
-### 融合策略（版本化，本文件先于实现提交固定）
+调用方应提供 `currentInput: () => 当前完整输入`。等待期间会重读 requestId、完整语义快照和当前预算；只传旧 `currentVersions` 两字段接口不足以观察外部状态替换，该接口仅作兼容附加检查。未传 currentInput 时重读原输入对象可发现就地修改，但无法观察调用方把外部变量替换成另一个对象。消费时使用 `validateSuggestionAgainstCurrentState` 再检 issued/current 的请求、页面、文档、观察、候选、任务、历史、scope、预算及动作范围；候选必须在发出时已存在。通过仅表示本模块没有发现失效，执行器仍须独立授权与实际观察。
 
-`FUSION_WEIGHTS = { relevance: 0.6, informationGain: 0.4 }`，`composite = 0.6*relevance + 0.4*informationGain`。
-`uncertainty` 如实记录但不参与排序。无评分时 `composite = null`，排序退回纯程序基线——
-**不以默认分代替缺失评分**。
+## 预算、超时与缓存
 
-### 公平轮转（有界，显式输入）
+每个会话独占 `BudgetLedger`。预留前以当前输入收紧决策、动作、时间与已知成本上限。账本使用单调时钟；请求截止为请求上限、当前剩余时间及会话剩余时间的最小值。取消在发送前检查，返回前比较真实经过时间，避免事件循环延迟使过期结果成为建议。JavaScript 同步阻塞不能被定时器抢占；阻塞结束后该结果会被拒绝，不能承诺硬实时中断。
 
-`ROTATION_CADENCE = 4`：每第 4 个决策（零基 `decisionIndex` 3、7、…）把「等待最久且在当前状态仍未尝试」
-的可执行候选提到队首。轮转状态作为显式参数 `fairness: { decisionIndex, firstEligibleDecision }` 传入，
-**不依赖隐藏全局计数**；轮转永远不会提升当前状态已尝试的候选。低分候选始终留在完整队列中；
-轮转不足四次预算时如实交回，不宣称已覆盖。
+付费注入必须明确 `billableTransport:true`、模型/提供方身份、已知费用余额和有限非负最坏报价 `estimatedRequestCostUsd`，否则不派发。票据按对象身份管理，结算幂等；派发后未知费用保留占用并阻止新预留，不能因为异常、超时或取消就当免费。带严格 usage 的异常可记录实际费用，任意错误正文不落报告。迟到回执/异常的已知费用可结算原票据，并通过 `onLateUsage` 单独记录；已返回的超时/取消结果保持不变。若提供方超出报价，记录 overrun 并停止，模块无法阻止外部服务违反报价。未知真实费用不能推算为 0；明确非付费替身的账本扣款为 0，但其缺失的模型 usage 仍记录 unknown。
 
-几何字段仅作成本/线索，可影响 `estimatedCost`，**不构成缺陷判定或永久过滤依据**。
+缓存验证输入与评分后保存副本，返回也复制。key 包括完整状态摘要、URL、几何/成本、策略/提示版本、模型/提供方/适配器身份及 fairness。requestId 可更新后重新绑定；预算量不用于命中，而每次执行实时守卫。命中不调用传输，不继承付费报价、不重复扣原费用；保留来源模型和 originCostUsd。失败、取消、超时、过期与不可缓存状态不写入。
 
-## 3. Jev 候选评分模块
+## 离线命令与证据
 
-`requestExplorationScores(options)` 每次只做一件事：构造有界问题 → 注入传输 → 逐项复核回执 → 返回判别结果。
-默认传输是包内 stub（`stub-transport.ts`），**不读 env、不加载 dotenv、不发起 fetch**。
+环境：Node 24.x、pnpm 10.17.1、Git。先 `pnpm install --frozen-lockfile --store-dir .r1-pnpm-store`。当前只支持专用前置工具；导出树不包含 R0 私有夹具及原 scripts，所以不要用顶层通用 build/test 来代替本期验证。
 
-- **问题构造**：`prompt.ts`。system 指令声明页面文字/候选文本/上下文/历史文本为不可信数据，
-  不允许其改权限、schema 或任务；请求体只含公开字段，评价标签、理由、checks、fixture 名一律不进入。
-  超过 32 KiB 时返回 `fits:false` 并交回，**不静默截断事实**。
-- **绑定**：请求体本地 SHA-256 摘要 `requestDigest`。服务若不自报版本，绝不把自报字段当可信绑定。
-- **回执**：`receipt.ts`。precise 一一对应；任何缺失/重复/越界 ID 使整批无效（`invalid-receipt`）。
-  分数范围在解析与 `validateReceipt` 两处都复核，防止非解析路径绕过。
-- **预算**：`budget.ts`。会话级账本，派发前预留最坏成本；`remainingCostUsd` 为 null（未知）时
-  对付费传输拒绝派发；已知费用失败也保留 usage 与计费事实，缺失保持 unknown，**不推断为 0**。
-- **传输**：`transport.ts`。超时 = `min(maxRequestMs, 调用方剩余时限)`，取消优先；传输即使无视
-  AbortSignal 也不能拖过 deadline（`withSignal` 竞争）；迟到回执不能复活建议；等待期间版本变化
-  （`currentVersions`）使结果作废（`stale-state`）。失败不伪装成低分。日志不落 authorization 或
-  任意服务错误体。
-- **缓存**：`cache.ts`。会话实例内、容量 64 LRU、TTL 有限。key 覆盖 contract/policy/prompt 版本、
-  任务、页面、文档/观察/相关状态版本、候选公开内容与动作范围、历史、scope、公平轮转状态；
-  `requestId` 故意不入 key。`cacheable:false` 不读不写；失败/不确定/取消/超时永不缓存。
-- **会话门面**：`session.ts`。命中缓存只短路传输，**预算与取消每次实时检查**，命中不得绕过守卫；
-  命中返回绑定当前 `requestId`，来源费用与命中成本分开记账。
-- **消费复核**：`validateSuggestionAgainstCurrentState`。消费者交付**当前**版本、候选、scope、预算
-  再检一次；单靠发起快照或响应自报版本无法防异步变化。此函数只拒绝，不授予权限。
-
-## 4. 离线工具与开发样本
-
-```
-pnpm r1:jev:offline -- --output <包内相对目录>     # 默认 stub，拒绝默认网络
-pnpm r1:jev:test                                  # 本期专用 Vitest 配置
-pnpm exec vitest run --config plans/r1-jev-input/vitest.r1.config.ts
+```sh
+node plans/r1-jev-input/preflight.mjs
+pnpm exec tsc --noEmit
+pnpm r1:jev:test
+pnpm r1:jev:offline -- --output artifacts/offline
+pnpm r1:jev:offline -- --real --dry-run --output artifacts/real-plan
 ```
 
-输出 `results.jsonl`（逐条 input/request/result/outcome/versions/timing/usage）与 `summary.json`。
-纯程序列与程序+stub 列**分开**；真实模型行标 `not-run`；不宣称任何收益。
-两次运行剥离时间/attemptId 后确定字段逐字节相同，原始值保留。
+22 个独立开发种子不含 R0 私有答案。离线两列分别保留纯程序与程序加固定响应的排名。`stale-reply` 真正改变当前观察后返回有效评分，要求 stale-state；`low-score-fairness` 实际连续执行四次会话决策，记录 c1 获得机会。它们是给定状态下的模拟调度，没有实际操作页面。每步保存原始公开输入、发送请求、固定原始回复、归一回执、结果、attempt/digest、真实计时及 usage；评价期望只留在评价侧。两次重放只剥离明确的计时/attempt 等易变字段，其他嵌套字段全部比较。CLI 期望不匹配返回非零。
 
-`--real --dry-run` 只输出计划（`real-plan.json`）：`authorized:false`、模型兼容性 `unverified`、
-需单独授权、价格来源 unknown、未知费用即停。`--real` 不带 `--dry-run` 直接拒绝。
-**未核实**提供方是否支持任意 JSON 输出；不借用 R0 的授权、预算或账本。
+提交后在干净克隆中运行：
 
-## 5. 明确未接入的边界
+```sh
+# 仅本克隆的生成物排除，不改变共享仓库或全局配置
+printf 'artifacts/\n.r1-pnpm-store/\n' >> .git/info/exclude
+node scripts/r1-jev/collect-evidence.mjs artifacts/final-evidence
+```
 
-- 不接入 R0 主执行器 / 浏览器动作循环 / 检查账本 / 结束证明 / 报告 / 默认开关。
-- 不做真实模型调用；`--real` 仅 dry-run 计划。未核实提供方对任意 JSON 输出的兼容性。
-- 固定 stub 回执只证明接线与防御逻辑，**不证明 Jev 判断质量或抗注入能力**。
-- 不宣称提高整轮扫描覆盖、发现率、时间或成本。
+收集器记录实际 argv、源码 SHA、配置摘要、时间、退出码及原始日志。测试与离线子进程都通过 NODE_OPTIONS 加载 `network-trap.cjs`，并用 fetch/https/net 正向拒绝测试确认陷阱生效。该陷阱是 Node API 运行时保护，不是操作系统防火墙。静态测试同时检查模块不引入网络 API；真实模型没有运行。
+
+返程包 `SHA256SUMS` 覆盖除自身以外的全部文件；`evidence/index.json` 覆盖全部证据叶子文件，不对自身生成循环摘要。`tools/verify-package.mjs` 检查完整索引、摘要、bundle、前置关系、源码 SHA、允许修改范围和工具与提交一致性；`--rebuild` 创建独立目录、独立 pnpm store，安装锁定依赖并重新采证。压缩包外单独给出压缩包 SHA-256。
+
+## R0 与后续路线
+
+冻结源起点为 `8adc93a422398c61a9a738562bfb23710f36bcc6` 的脱敏导出；交付输入 tip `c15f0ff3af50bc8c77da429a706432e8df739cde`，原 dev tip `a3e03eeffb94358dda7cf4a4ebca0dfdd34dc070`。收尾分支独立保存，最终 SHA 见返程包 delivery.json。不跟随 R0 正在发生的提交变化；原执行器、提示、网络限制、账本、证明/报告、冻结评分器、工作台和默认开关均不改。
+
+R0 结束后只集成允许路径的最终 diff，不能把脱敏导出树覆盖原仓库。先完成状态采集与可信适配器、唯一执行器接线、动作后实际观察、恢复和交回，再进行当前 Agent/纯程序/程序加 Jev 三组端到端对照。Roadmap 只可登记“独立前置模块及离线防御逻辑有证据；真实质量与收益未验证”，并链接最终返程证据；本次不直接修改正在维护的 Roadmap。
