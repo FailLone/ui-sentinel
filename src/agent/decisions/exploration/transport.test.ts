@@ -110,6 +110,22 @@ describe('exploration score transport', () => {
     expect(result.reasonCode).toBe('budget-exhausted')
   })
 
+  it('does not dispatch when the caller byte ceiling is tightened below the input', async () => {
+    const send = vi.fn()
+    // maxInputBytes is the ceiling on the final request. Tightening it below the input makes the
+    // input itself invalid, so the rejection happens before any transport is touched.
+    const input = fixture('menu')
+    const tightened = { ...input, limits: { ...input.limits, maxInputBytes: 400 } }
+    const result = await requestExplorationScores({
+      input: tightened,
+      ledger: ledger(),
+      send: send as unknown as SendFn,
+    })
+    expect(send).not.toHaveBeenCalled()
+    expect(result.kind).toBe('handoff')
+    expect(result.reasonCode).toBe('invalid-input')
+  })
+
   it('refuses to dispatch when the remaining cost is unknown and the transport bills', async () => {
     const send = vi.fn()
     const result = await requestExplorationScores({

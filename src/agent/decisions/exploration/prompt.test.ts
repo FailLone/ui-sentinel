@@ -77,6 +77,26 @@ describe('bounded scoring question', () => {
     expect(request.data.candidates[0].text.length).toBe(20000)
   })
 
+  it('keeps the projected body within the caller byte ceiling for every committed seed', () => {
+    const manifest = JSON.parse(readFileSync('evaluation/r1-jev-dev/manifest.json', 'utf8')) as {
+      cases: { files: { role: string; path: string }[] }[]
+    }
+    const offenders: string[] = []
+    let checked = 0
+    for (const entry of manifest.cases) {
+      const file = entry.files.find((f) => f.role === 'public')!
+      const parsed = parseExplorationInput(JSON.parse(readFileSync(file.path, 'utf8')))
+      if (!parsed.ok) continue
+      checked += 1
+      const request = buildScoringRequest(parsed.value)
+      // maxInputBytes is the ceiling on the FINAL request, so the projection must never exceed it.
+      if (!request.fits || request.byteLength > parsed.value.limits.maxInputBytes)
+        offenders.push(`${file.path}:${request.byteLength}>${parsed.value.limits.maxInputBytes}`)
+    }
+    expect(checked).toBeGreaterThanOrEqual(20)
+    expect(offenders).toEqual([])
+  })
+
   it('binds the request to a local digest rather than a provider-reported version', () => {
     const request = buildScoringRequest(fixture('menu'))
     expect(request.requestDigest).toMatch(/^[0-9a-f]{64}$/)
