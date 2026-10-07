@@ -1,9 +1,13 @@
 import { createServer } from 'node:http'
 
 /** Only the harness owns the variant. Public pages expose behaviour, never labels or controls. */
-export const URL_SCAN_HOLDOUT_LAYOUT = 'holdout-grid-1' as const
+export const URL_SCAN_HOLDOUT_LAYOUT = 'holdout-sidebar-2' as const
+export const URL_SCAN_SEEN_LAYOUT = 'holdout-grid-1' as const
 export async function startUrlScanFixture(
-  layout: 'development' | typeof URL_SCAN_HOLDOUT_LAYOUT = 'development',
+  layout:
+    | 'development'
+    | typeof URL_SCAN_HOLDOUT_LAYOUT
+    | typeof URL_SCAN_SEEN_LAYOUT = 'development',
 ) {
   let defective = false
   const requests: { method: string; path: string }[] = []
@@ -43,9 +47,11 @@ export async function startUrlScanFixture(
     const brokenSort = defective && url.pathname === '/detail'
     response.writeHead(200, { 'content-type': 'text/html; charset=utf-8' })
     const holdoutStyle =
-      layout === URL_SCAN_HOLDOUT_LAYOUT
+      layout === URL_SCAN_SEEN_LAYOUT
         ? 'body{display:grid;grid-template-columns:260px minmax(300px,680px);gap:16px;max-width:1020px;margin:24px auto;padding:18px;background:#f4f7fa}h1,p{grid-column:1/-1}#rows{grid-column:2;grid-row:3/6;background:white;padding:24px 42px;min-height:220px}#apply,#filter-wrap{grid-column:1}a{grid-column:1/-1}#panel{grid-column:2;background:#fff;padding:18px}'
-        : ''
+        : layout === URL_SCAN_HOLDOUT_LAYOUT
+          ? 'body{max-width:880px;margin:32px auto;display:grid;grid-template-columns:minmax(420px,1fr) 240px;gap:18px;background:#f8f6f2}h1,p{grid-column:1/-1}label{grid-column:2;grid-row:3}#apply{grid-column:2;grid-row:4;align-self:start}#rows{grid-column:1;grid-row:3/7;list-style:none;margin:0;padding:24px;background:white;border:1px solid #ccd2da;border-radius:8px}#rows li{padding:16px 8px;border-bottom:1px solid #eee}#filter-wrap{grid-column:2;grid-row:5}#panel{grid-column:2;grid-row:6}a{grid-column:1/-1;padding:14px 0}'
+          : ''
     response.end(`<!doctype html><html><head><title>Product catalog</title><style>body{font:16px sans-serif;padding:30px}button,select{padding:12px;margin:8px}#filter-wrap{position:relative;display:inline-block}.screen{position:absolute;inset:0;z-index:2}${holdoutStyle}</style></head><body>
       <h1>Product catalog</h1><p>Choose a sort order and apply it. Prices are numeric.</p>
       <label>Sort <select id="sort" aria-label="Sort"><option value="price">Price</option><option value="name">Name</option></select></label>
