@@ -36,7 +36,12 @@
     "validate:visual-focus": "tsx scripts/validation/visual-focus.ts",
     "validate:url-scan": "tsx scripts/validation/url-scan.ts",
     "r1:jev:offline": "tsx scripts/r1-jev/offline-cli.ts",
-    "r1:jev:test": "vitest run --config plans/r1-jev-input/vitest.r1.config.ts"
+    "r1:jev:test": "vitest run --config plans/r1-jev-input/vitest.r1.config.ts",
+    "r1:jev:real:test": "vitest run --config plans/r1-jev-real/vitest.config.ts",
+    "r1:jev:real": "tsx scripts/r1-jev-real/cli.ts",
+    "r1:jev:score": "tsx scripts/r1-jev-real/cli.ts --score",
+    "r1:jev:verify": "tsx scripts/r1-jev-real/cli.ts --verify",
+    "r1:jev:calibrate": "tsx scripts/r1-jev-real/cli.ts --calibrate"
   },
   "dependencies": {
     "@ai-sdk/openai": "^4.0.72",
