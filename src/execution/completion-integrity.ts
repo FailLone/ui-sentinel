@@ -3,7 +3,8 @@ import { config } from '../shared/config.ts'
 import type { Run, RunEvent } from '../shared/types.ts'
 import { getRunSnapshot } from './run-manager.ts'
 import { resolveRunKind } from '../inspection/run-kind.ts'
-import { verifyInspectionProof, type InspectionProof } from '../inspection/completion.ts'
+import { inspectionHistoryIssues } from '../inspection/proof-history.ts'
+import { stat } from 'node:fs/promises'
 
 /** A terminal row alone cannot prove that the execution evidence was committed. */
 export function completionIssues(run: Run, events: readonly RunEvent[]): string[] {
@@ -27,29 +28,8 @@ export function completionIssues(run: Run, events: readonly RunEvent[]): string[
   // record with no kind keeps the legacy business rule, so no historical run is re-judged (plan 6.3).
   const kind = resolveRunKind(run.spec)
   if (kind.kind === 'ui-scan') {
-    /**
-     * A UI completion has its own two requirements.
-     *
-     * The business result must be `not-applicable` - the converse of the business rule, and the
-     * reason a UI run cannot be completed while claiming a business outcome it had no adapter to
-     * verify. And an accepted finish must carry an inspection proof whose hash verifies, because the
-     * proof is what ties the terminal row to the scope the run actually recorded. "The row says
-     * completed" is not evidence, which is exactly why the proof is re-verified from the read
-     * history rather than trusted as written.
-     */
-    if (run.status === 'completed' && run.businessResult !== 'not-applicable')
-      issues.push('ui-business-result-invalid')
-    const accepted = events.find((e) => e.type === 'finish:accepted')
-    if (run.status === 'completed') {
-      const proof = accepted?.payload.inspectionProof as InspectionProof | undefined
-      if (!proof) issues.push('inspection-proof-missing')
-      else if (!verifyInspectionProof(proof)) issues.push('inspection-proof-unverified')
-      else if (
-        ['goal-reached', 'blocked'].includes(run.stopReason ?? '') &&
-        proof.contractHash !== run.spec.uiContract?.hash
-      )
-        issues.push('inspection-proof-contract-mismatch')
-    }
+    if (run.status === 'completed' || (run.status === 'blocked' && run.stopReason === 'blocked'))
+      issues.push(...inspectionHistoryIssues(run, events))
     return issues
   }
   if (
@@ -77,6 +57,19 @@ export async function verifyCompletionCommit(expected: {
     const snapshot = await getRunSnapshot(expected.runId, reader)
     if (!snapshot) throw Error('completion-commit-run-missing')
     const issues = completionIssues(snapshot.run, snapshot.events)
+    if (
+      snapshot.run.spec.kind === 'ui-scan' &&
+      ['completed', 'blocked'].includes(snapshot.run.status) &&
+      ['goal-reached', 'blocked'].includes(snapshot.run.stopReason ?? '')
+    ) {
+      const readable = new Set<string>()
+      for (const row of snapshot.artifactRows.rows) {
+        try {
+          if ((await stat(String(row.file_path))).isFile()) readable.add(String(row.id))
+        } catch {}
+      }
+      issues.push(...inspectionHistoryIssues(snapshot.run, snapshot.events, readable))
+    }
     if (
       snapshot.events.length !== expected.eventIds.length ||
       snapshot.events.some((event, index) => event.id !== expected.eventIds[index])

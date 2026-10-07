@@ -15,12 +15,35 @@ export interface BrowserWorker {
 
 export async function launchBrowser(options?: {
   headless?: boolean
+  uiScan?: boolean
   viewport?: { width: number; height: number }
 }): Promise<BrowserWorker> {
-  const browser = await chromium.launch({
-    headless: options?.headless ?? true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
-  })
+  // UI requests are supplied by the pinned CDP transport. Any other browser egress is denied.
+  const denyServer = options?.uiScan
+    ? (await import('node:net')).createServer((socket) => socket.destroy())
+    : null
+  if (denyServer) await new Promise<void>((resolve) => denyServer.listen(0, '127.0.0.1', resolve))
+  const denyAddress = denyServer?.address()
+  const proxy =
+    denyAddress && typeof denyAddress !== 'string'
+      ? { server: `http://127.0.0.1:${denyAddress.port}`, bypass: '<-loopback>' }
+      : undefined
+  const browser = await chromium
+    .launch({
+      headless: options?.headless ?? true,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        ...(options?.uiScan
+          ? ['--force-webrtc-ip-handling-policy=disable_non_proxied_udp', '--disable-quic']
+          : []),
+      ],
+      ...(proxy ? { proxy } : {}),
+    })
+    .catch((error) => {
+      denyServer?.close()
+      throw error
+    })
 
   const context = await browser.newContext({
     viewport: options?.viewport ?? { width: 1280, height: 768 },
@@ -44,6 +67,7 @@ export async function launchBrowser(options?: {
     async close() {
       await context.close()
       await browser.close()
+      if (denyServer) await new Promise<void>((resolve) => denyServer.close(() => resolve()))
     },
   }
 }
@@ -235,6 +259,23 @@ export async function observePage(
                 )
                 .map((a) => [a.name, a.value]),
             ),
+            interactionExcludedReason: el.closest('[inert]')
+              ? 'inert'
+              : Array.from(
+                    document.querySelectorAll('dialog:modal,[role=dialog][aria-modal=true]'),
+                  ).some((dialog) => {
+                    const r = dialog.getBoundingClientRect()
+                    const style = getComputedStyle(dialog)
+                    return (
+                      r.width > 0 &&
+                      r.height > 0 &&
+                      style.display !== 'none' &&
+                      style.visibility !== 'hidden' &&
+                      !dialog.contains(el)
+                    )
+                  })
+                ? 'modal-background'
+                : undefined,
             hitSamples,
           }
         })

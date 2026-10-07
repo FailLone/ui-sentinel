@@ -156,7 +156,7 @@ const uiContract = buildUiContractSnapshot({
 })
 
 /** A proof the executor would actually have produced for this fixture's scope. */
-function realProof() {
+function realProof(spec: unknown) {
   const scope = createInspectionScope({
     goal: 'Inspect the catalog',
     entryUrl: uiContract.entryUrl,
@@ -176,23 +176,27 @@ function realProof() {
     eventIds: [],
     detail: 'observed',
   })
-  return decideInspectionCompletion({
-    reason: 'scope-covered',
-    facts: {
-      kind: 'ui-scan',
-      featureEnabled: true,
-      contractValid: true,
-      contractHash: uiContract.hash,
-      entryObserved: true,
-      entryEvidenceRefs: ['shot.png'],
-      integrityEpoch: 0,
-      scope,
-      scopeEventIds: ['evt-1'],
-      pendingRules: 0,
-      openHypotheses: 0,
-      unsupportedRecorded: [],
-    },
-  }).proof
+  return {
+    scope,
+    proof: decideInspectionCompletion({
+      reason: 'scope-covered',
+      facts: {
+        kind: 'ui-scan',
+        spec,
+        featureEnabled: true,
+        contractValid: true,
+        contractHash: uiContract.hash,
+        entryObserved: true,
+        entryEvidenceRefs: ['shot.png'],
+        integrityEpoch: 0,
+        scope,
+        scopeEventIds: ['evt-1'],
+        pendingRules: 0,
+        openHypotheses: 0,
+        unsupportedRecorded: [],
+      },
+    }).proof,
+  }
 }
 
 async function completedUi(overrides: { proof?: unknown; reasonCode?: string } = {}) {
@@ -207,11 +211,9 @@ async function completedUi(overrides: { proof?: unknown; reasonCode?: string } =
     uiContract,
   })
   const active = registerActiveRun(run.id)
-  await appendEvent(run.id, 'scope:item-created', {
-    itemId: 'item-1',
-    category: 'entry-observation',
-    status: 'verified',
-  })
+  const { scope, proof } = realProof(run.spec)
+  await appendEvent(run.id, 'page:observed', {}, { evidenceRefs: ['shot.png'] })
+  for (const event of scope.events()) await appendEvent(run.id, event.type, event.payload)
   await appendEvent(run.id, 'finish:accepted', {
     kind: 'ui-scan',
     reasonCode: overrides.reasonCode ?? 'scope-covered',
@@ -219,7 +221,7 @@ async function completedUi(overrides: { proof?: unknown; reasonCode?: string } =
     contractHash: uiContract.hash,
     // A real proof, produced by the same decision function the executor calls: the verifier
     // recomputes its hash, so a hand-written one would be read as an unverified claim.
-    inspectionProof: overrides.proof ?? realProof(),
+    inspectionProof: overrides.proof ?? proof,
   })
   await updateRunStatus(run.id, 'completed', {
     businessResult: 'not-applicable',
@@ -261,5 +263,24 @@ it('refuses a ui-scan completion whose business result is not not-applicable', a
   const snapshot = (await getRunSnapshot(expected.runId))!
   expect(completionIssues(snapshot.run, snapshot.events)).toEqual(
     expect.arrayContaining(['ui-business-result-invalid', 'terminal-event-mismatch']),
+  )
+})
+
+it('rejects an intact proof after scope events are removed and the remaining sequence is renumbered', async () => {
+  const { runId } = await completedUi()
+  const snapshot = (await getRunSnapshot(runId))!
+  const erased = snapshot.events
+    .filter((e) => !e.type.startsWith('scope:'))
+    .map((e, seq) => ({ ...e, seq }))
+  expect(completionIssues(snapshot.run, erased)).toContain('inspection-proof-scope-mismatch')
+})
+it('rejects a completed UI row with cancelled stopReason even when the terminal event agrees', async () => {
+  const { runId } = await completedUi()
+  const { run, events } = (await getRunSnapshot(runId))!
+  const modified = events.map((e) =>
+    e.type === 'run:completed' ? { ...e, payload: { ...e.payload, stopReason: 'cancelled' } } : e,
+  )
+  expect(completionIssues({ ...run, stopReason: 'cancelled' }, modified)).toContain(
+    'inspection-proof-outcome-mismatch',
   )
 })

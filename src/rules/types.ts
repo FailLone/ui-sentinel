@@ -36,6 +36,7 @@ export interface PageSnapshot {
 }
 
 export interface PageElement {
+  readonly interactionExcludedReason?: 'inert' | 'modal-background'
   readonly selector: string
   readonly tag: string
   readonly text: string

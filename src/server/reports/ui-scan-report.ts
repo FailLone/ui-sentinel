@@ -1,4 +1,5 @@
 import { verifyUiContractSnapshot, type UiContractSnapshot } from '../../inspection/contract.ts'
+import { inspectionHistoryIssues } from '../../inspection/proof-history.ts'
 import { resolveRunKind } from '../../inspection/run-kind.ts'
 import {
   verifyInspectionProof,
@@ -15,10 +16,8 @@ import type { Run, RunEvent } from '../../shared/types.ts'
  * the live registry or from today's configuration: a report has to describe the run that executed, so
  * a queued run's frozen contract is what is shown even if the address policy has since changed.
  *
- * The coverage verdict is computed from the *hash-verified* inspection proof rather than from the
- * run's own `inspection:summary` event. The summary is the executor's self-report; the proof is tied
- * to the terminal row by its hash, so a record whose summary claims coverage without a proof that
- * verifies is reported as incomplete rather than as covered.
+ * Coverage is reconciled against the persisted scope, full spec, terminal state and readable
+ * artifacts. A self-consistent proof hash cannot establish coverage without those facts.
  */
 
 export type UiCoverage = 'covered' | 'partial' | 'not-started'
@@ -94,7 +93,11 @@ export interface UiScanReport {
  * A record with no `kind` is a legacy business run and gets no section here: absence is not a new
  * meaning (plan 11.1), so an old row is never presented as a partial UI scan that never started.
  */
-export function uiScanSummary(run: Run, events: readonly RunEvent[]): UiScanReport | undefined {
+export function uiScanSummary(
+  run: Run,
+  events: readonly RunEvent[],
+  readable?: ReadonlySet<string>,
+): UiScanReport | undefined {
   const resolved = resolveRunKind(run.spec)
   if (resolved.kind !== 'ui-scan') return undefined
   const contract: UiContractSnapshot = resolved.contract
@@ -103,7 +106,7 @@ export function uiScanSummary(run: Run, events: readonly RunEvent[]): UiScanRepo
   const snapshot = scope.snapshot()
   const accepted = [...events].reverse().find((e) => e.type === 'finish:accepted')
   const proof = (accepted?.payload.inspectionProof as InspectionProof | undefined) ?? null
-  const proofVerified = verifyInspectionProof(proof)
+  const proofVerified = inspectionHistoryIssues(run, events, readable).length === 0
   const finishReasonCode = (accepted?.payload.reasonCode as string | undefined) ?? null
 
   const coverage: UiCoverage =

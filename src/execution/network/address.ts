@@ -83,8 +83,8 @@ export function checkDestination(input: DestinationInput): DestinationCheck {
   // first: only a literal address is judged directly here, and a name is judged by its answers below.
   if (classifyHost(input.host) !== 'needs-resolution')
     return {
-      allow: false,
-      reasonCode: isPrivateAddress(literal) ? 'private-address' : 'resolution-failed',
+      allow: !isPrivateAddress(literal),
+      reasonCode: isPrivateAddress(literal) ? 'private-address' : 'allowed',
       addresses: [literal],
       trusted: false,
     }

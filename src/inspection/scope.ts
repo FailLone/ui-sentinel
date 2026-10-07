@@ -354,11 +354,33 @@ export function createInspectionScope(options: InspectionScopeOptions = {}) {
             item.reasonCode ?? (item.status === 'pending' ? 'selected-not-resolved' : 'unverified'),
           reasonCode: item.reasonCode,
         })
+    // Sampling is per visited page, not a global category which the first page can satisfy.
+    const localPages = new Set(
+      [...items.values()].filter((i) => i.category === 'local-interaction').map((i) => i.url),
+    )
+    for (const url of localPages) {
+      if (
+        ![...items.values()].some(
+          (i) => i.category === 'local-interaction' && i.url === url && i.selected,
+        )
+      )
+        gaps.push({
+          itemId: `obligation:local-interaction:${url}`,
+          category: 'local-interaction',
+          status: 'pending',
+          reason: 'no-local-interaction-selected',
+          reasonCode: null,
+        })
+    }
     const offered = candidates?.categories ?? []
     const selectedCategory = (category: InspectionCategory) =>
       [...items.values()].some((i) => i.category === category && i.selected)
     for (const category of ['local-interaction', 'navigation'] as const)
-      if (offered.includes(category) && !selectedCategory(category))
+      if (
+        offered.includes(category) &&
+        !selectedCategory(category) &&
+        !(category === 'local-interaction' && localPages.size)
+      )
         gaps.push({
           itemId: `obligation:${category}`,
           category,

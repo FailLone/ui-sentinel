@@ -117,8 +117,13 @@ vi.mock('../business/runtime.ts', async (importOriginal) => {
   }
 })
 
-import { createRun, getRun, getEvents } from './run-manager.ts'
-import { startRunExecution } from './executor.ts'
+import {
+  createRun,
+  getRun,
+  getEvents,
+  reconcileInterruptedRuns as reconcileStoredRuns,
+} from './run-manager.ts'
+import { startRunExecution, cancelRunExecution } from './executor.ts'
 import { initDatabase } from '../storage/database.ts'
 import { clearRules } from '../rules/engine.ts'
 import { registerBuiltinRules } from '../rules/builtin/index.ts'
@@ -142,7 +147,7 @@ const server = createServer((request, response) => {
       `<a href="/detail?id=1">Detail</a>` +
       // A control whose click is observable: the run measures the response, which is what makes the
       // response-time rule applicable at all (its event type is `response:observed`).
-      `<script>document.getElementById('sort').addEventListener('click',function(){` +
+      `<script>document.getElementById('filter').onclick=function(){document.querySelector('h1').textContent='Filtered'};document.getElementById('sort').addEventListener('click',function(){` +
       `document.querySelector('h1').textContent='Sorted'});</script>` +
       `</body></html>`,
   )
@@ -156,9 +161,8 @@ beforeAll(async () => {
   await new Promise<void>((r) => server.listen(0, '127.0.0.1', r))
   const address = server.address()
   if (!address || typeof address === 'string') throw new Error('fixture server did not bind')
-  // `localtest.me` resolves to 127.0.0.1 but is a name, so the entry passes the public-address rule
-  // the way a real user's URL does; the fixture origin is the server-owned exception of plan 4.1.
-  origin = `http://localtest.me:${address.port}`
+  // Exact server-owned fixture exception; callers cannot grant themselves loopback access.
+  origin = `http://127.0.0.1:${address.port}`
   entryUrl = `${origin}/catalog?category=books&sort=price#items`
   harness.trustedOrigins = [origin]
 })
@@ -190,6 +194,7 @@ async function makeUiRun(request: Record<string, unknown> = {}) {
     entryUrl: contract.entryUrl,
     kind: 'ui-scan',
     uiContract: contract,
+    ...(request.budget ? { budget: request.budget as Partial<RunSpec['budget']> } : {}),
   }
   const run = await createRun(spec)
   ids.push(run.id)
@@ -197,6 +202,49 @@ async function makeUiRun(request: Record<string, unknown> = {}) {
 }
 
 describe('ui-scan executor assembly', () => {
+  it('persists budget exhaustion with unverified UI scope and no invented business success', async () => {
+    harness.handler = async () => []
+    const run = await makeUiRun({ budget: { maxModelCalls: 1 } })
+    await startRunExecution(run.id)
+    expect(await getRun(run.id)).toMatchObject({
+      status: 'timed-out',
+      stopReason: 'budget-exhausted',
+      businessResult: 'not-applicable',
+    })
+    const events = await getEvents(run.id)
+    expect(events.some((e) => e.type === 'finish:accepted')).toBe(false)
+    expect(events.some((e) => e.type.startsWith('scope:'))).toBe(true)
+  })
+
+  it('cancels an active UI run without accepting a late completion', async () => {
+    const run = await makeUiRun()
+    harness.handler = async () => {
+      await cancelRunExecution(run.id)
+      return []
+    }
+    await startRunExecution(run.id)
+    expect(await getRun(run.id)).toMatchObject({
+      status: 'cancelled',
+      stopReason: 'cancelled',
+      businessResult: 'not-applicable',
+    })
+    expect((await getEvents(run.id)).some((e) => e.type === 'finish:accepted')).toBe(false)
+  })
+
+  it('reconciles a persisted unstarted UI run after restart without replaying it', async () => {
+    const run = await makeUiRun()
+    await reconcileStoredRuns()
+    await startRunExecution(run.id)
+    expect(await getRun(run.id)).toMatchObject({
+      status: 'interrupted',
+      stopReason: 'reconciliation-required',
+    })
+    expect(
+      (await getEvents(run.id)).find((e) => e.type === 'run:interrupted')?.payload.replayAllowed,
+    ).toBe(false)
+    expect(harness.models).toBe(0)
+  })
+
   it('never assembles a business runtime and records the business result as not-applicable', async () => {
     let phase = 0
     harness.handler = async (tools: any) => {
@@ -272,6 +320,17 @@ describe('ui-scan executor assembly', () => {
             detail: 'the filter control could not be resolved to one element',
           },
         })
+        if (live.page?.url().includes('/detail'))
+          await call(tools, 'page_act', {
+            type: 'click',
+            selector: '#sort',
+            verify: {
+              selector: 'h1',
+              condition: 'text-equals',
+              expected: 'Sorted',
+              basis: 'Sort updates catalog heading',
+            },
+          })
         covered = await call(tools, 'run_finish', { reason: 'scope-covered' })
         await call(tools, 'run_finish', { reason: 'unverified-scope' })
         return []
@@ -303,6 +362,17 @@ describe('ui-scan executor assembly', () => {
       if (phase++ === 0) return []
       if (phase === 2) {
         await call(tools, 'exploration_update', { state: 'catalog', unexploredBranches: [] })
+        if (live.page?.url().includes('/detail'))
+          await call(tools, 'page_act', {
+            type: 'click',
+            selector: '#sort',
+            verify: {
+              selector: 'h1',
+              condition: 'text-equals',
+              expected: 'Sorted',
+              basis: 'Sort updates catalog heading',
+            },
+          })
         covered = await call(tools, 'run_finish', { reason: 'scope-covered' })
         await call(tools, 'run_finish', { reason: 'unverified-scope' })
       }
@@ -356,7 +426,11 @@ describe('ui-scan executor assembly', () => {
         // The candidates are items the executor created from the observation, not a model-supplied
         // list: select the controls it actually offered.
         const [button, link] = ['local-interaction', 'navigation'].map((category) =>
-          packet.inspectionScope.candidates.find((c: any) => c.category === category),
+          packet.inspectionScope.candidates.find(
+            (c: any) =>
+              c.category === category &&
+              (category !== 'local-interaction' || c.description.includes('Filter')),
+          ),
         )
         await call(tools, 'exploration_update', {
           state: 'catalog',
@@ -366,14 +440,30 @@ describe('ui-scan executor assembly', () => {
               itemId: button.itemId,
               basis: 'the filter control is the page’s own stated affordance',
             },
-            {
-              itemId: link.itemId,
-              basis: 'one same-origin detail page is within the declared depth',
-            },
           ],
         })
-        await call(tools, 'page_act', { type: 'click', selector: `#filter` })
+        await call(tools, 'page_act', {
+          type: 'click',
+          selector: `#filter`,
+          verify: {
+            selector: 'h1',
+            condition: 'text-equals',
+            expected: 'Filtered',
+            basis: 'filter updates catalog heading',
+          },
+        })
         await call(tools, 'page_act', { type: 'navigate', url: `${origin}/detail?id=1` })
+        if (live.page?.url().includes('/detail'))
+          await call(tools, 'page_act', {
+            type: 'click',
+            selector: '#sort',
+            verify: {
+              selector: 'h1',
+              condition: 'text-equals',
+              expected: 'Sorted',
+              basis: 'Sort updates catalog heading',
+            },
+          })
         covered = await call(tools, 'run_finish', { reason: 'scope-covered' })
         if (!covered.accepted) await call(tools, 'run_finish', { reason: 'unverified-scope' })
       }
@@ -426,21 +516,39 @@ describe('ui-scan executor assembly', () => {
       if (phase === 2) {
         const packet = JSON.parse(prompt)
         const [button, link] = ['local-interaction', 'navigation'].map((category) =>
-          packet.inspectionScope.candidates.find((c: any) => c.category === category),
+          packet.inspectionScope.candidates.find(
+            (c: any) =>
+              c.category === category &&
+              (category !== 'local-interaction' || c.description.includes('Sort')),
+          ),
         )
         await call(tools, 'exploration_update', {
           state: 'catalog',
           unexploredBranches: [],
-          selectItems: [
-            { itemId: button.itemId, basis: 'the page’s own stated affordance' },
-            {
-              itemId: link.itemId,
-              basis: 'one same-origin detail page is within the declared depth',
-            },
-          ],
+          selectItems: [{ itemId: button.itemId, basis: 'the page’s own stated affordance' }],
         })
-        await call(tools, 'page_act', { type: 'click', selector: '#sort' })
+        await call(tools, 'page_act', {
+          type: 'click',
+          selector: '#sort',
+          verify: {
+            selector: 'h1',
+            condition: 'text-equals',
+            expected: 'Sorted',
+            basis: 'sort updates catalog heading',
+          },
+        })
         await call(tools, 'page_act', { type: 'navigate', url: `${origin}/detail?id=1` })
+        if (live.page?.url().includes('/detail'))
+          await call(tools, 'page_act', {
+            type: 'click',
+            selector: '#sort',
+            verify: {
+              selector: 'h1',
+              condition: 'text-equals',
+              expected: 'Sorted',
+              basis: 'Sort updates catalog heading',
+            },
+          })
         covered = await call(tools, 'run_finish', { reason: 'scope-covered' })
         if (!covered.accepted) await call(tools, 'run_finish', { reason: 'unverified-scope' })
       }
@@ -470,6 +578,10 @@ describe('ui-scan executor assembly', () => {
     harness.handler = async (tools: any) => {
       if (phase++ === 0) return []
       if (phase === 2) {
+        countsBefore = (await getEvents(runId!)).filter(
+          (e) => e.type === 'navigation:committed',
+        ).length
+        await call(tools, 'page_act', { type: 'navigate', url: `${origin}/detail?id=1` })
         countsBefore = (await getEvents(runId!)).filter(
           (e) => e.type === 'navigation:committed',
         ).length
@@ -519,6 +631,17 @@ describe('ui-scan executor assembly', () => {
           void fetch('/api/items', { method: 'POST' }).catch(() => {})
         })
         await live.page!.waitForTimeout(200)
+        if (live.page?.url().includes('/detail'))
+          await call(tools, 'page_act', {
+            type: 'click',
+            selector: '#sort',
+            verify: {
+              selector: 'h1',
+              condition: 'text-equals',
+              expected: 'Sorted',
+              basis: 'Sort updates catalog heading',
+            },
+          })
         covered = await call(tools, 'run_finish', { reason: 'scope-covered' })
         await call(tools, 'run_finish', { reason: 'unverified-scope' })
       }
@@ -533,7 +656,9 @@ describe('ui-scan executor assembly', () => {
     expect(events.some((e) => e.type === 'execution:intervention')).toBe(true)
     expect(
       events.some(
-        (e) => e.type === 'network:decision' && String(e.payload.reasonCode).includes('write'),
+        (e) =>
+          e.type === 'network:decision' &&
+          ['write-denied', 'unsupported-data-method'].includes(String(e.payload.reasonCode)),
       ),
     ).toBe(true)
     // The refusal stands: the run ends blocked with its scope reported partial, not covered.

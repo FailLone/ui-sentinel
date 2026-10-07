@@ -55,3 +55,7 @@ pnpm validate:url-scan -- --preflight
 ## 文档维护
 
 docs 描述当前能力、约束和明确标注的方向；plans 只保留下一步可执行计划。完成计划时将长期有效的接口、命令、约束及未实现边界并入 docs，再删除已完成计划和阶段成绩汇总；过程留 Git 和本地运行记录，不复制到另一层 archive。没有待执行计划时无需保留空的 plans 目录。引用某批耗时与通过率时写明版本、模型配置、样本范围，不能用旧模型验收替代新语义的验证。
+
+## R0 接手验证
+
+采用支持的 Node 24。`pnpm test` 包含网络真实浏览器反例、完成证明篡改/丢失历史和交互后置测量回归。`pnpm validate:url-scan -- --preflight` 使用 loopback 固定模型；`URL_SCAN_FREE_CAMPAIGN_TEST=1 pnpm exec vitest run scripts/validation/url-scan-campaign.test.ts` 额外执行六行免费 campaign，验证 runner 和失败保留。修改验收预期必须说明对应产品语义，禁止为变绿删除反例。见 [接手记录](r0-closeout.md)。

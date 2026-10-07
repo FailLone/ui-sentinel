@@ -13,6 +13,10 @@ export const UI_NETWORK_POLICY_REVISION = 'url-scan-network-1' as const
 
 export type NetworkReasonCode =
   | 'allowed'
+  | 'port-not-allowed'
+  | 'resolution-failed'
+  | 'transport-error'
+  | 'execution-stopped'
   | 'write-denied'
   | 'unsupported-data-method'
   | 'resource-origin-denied'
@@ -92,7 +96,7 @@ const RESOURCE_DESTINATIONS = [
   'imageset',
   'texttrack',
 ]
-const DATA_DESTINATIONS = ['xhr', 'fetch', 'cors-preflight', 'ping', 'beacon']
+const DATA_DESTINATIONS = ['xhr', 'fetch', 'cors-preflight']
 
 function isControlPath(pathname: string): boolean {
   return CONTROL_PREFIXES.some((prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`))
@@ -158,7 +162,13 @@ export function createNetworkPolicy(config: NetworkPolicyConfig) {
     const pathname = url.pathname
     // The control surface is refused first and unconditionally: not even a configured local fixture
     // origin may point at it (plan 4.1).
-    if (isControlPath(pathname)) return deny('control-surface')
+    try {
+      if (isControlPath(decodeURIComponent(pathname))) return deny('control-surface')
+    } catch {
+      return deny('malformed-url')
+    }
+    if (['beacon', 'ping', 'unsupported'].includes(input.destination))
+      return deny('unsupported-channel')
     // A server-configured reachable origin is the documented exception for local development and
     // fixtures, so it is exempt from the private-address refusal - but from nothing else.
     if (!reachable.has(url.origin)) {
@@ -202,13 +212,14 @@ export function createNetworkPolicy(config: NetworkPolicyConfig) {
       return deny(sameOriginAsEntry || data.has(url.origin) ? 'write-denied' : 'data-origin-denied')
     if (input.declaredWrite) return deny('write-denied')
     // An unclassified destination on an origin the run was told about is allowed only as a read.
-    if (sameOriginAsEntry || resources.has(url.origin))
+    if (input.destination === 'other' && sameOriginAsEntry && READ_METHODS.includes(input.method))
       return { ...receipt, allow: true, reasonCode: 'allowed' }
     return deny('resource-origin-denied')
   }
 
   return {
     decide,
+    entryUrl: config.entryUrl,
     entryOrigin,
     policyRevision: UI_NETWORK_POLICY_REVISION,
     /**

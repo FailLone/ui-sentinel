@@ -50,6 +50,12 @@ export interface UrlScanIndependentView {
   readonly entryObserved: boolean
   readonly entryUrl: string
   readonly expectedEntryUrl: string
+  readonly controlReplayPassed?: boolean
+  readonly healthyReplayPassed?: boolean
+  readonly agentBehaviorVerified?: boolean
+  readonly readableEvidenceRefs?: readonly string[]
+  readonly interventionCount?: number
+  readonly findingKeysById?: Readonly<Record<string, string>>
   readonly interactionsPerformed: number
   readonly leakedPrivateAnswers: readonly string[]
   /** Finding keys a separate browser reproduced by hand against the same fixture. */
@@ -88,6 +94,32 @@ export interface UrlScanVerdict {
 function integrityRejections(input: UrlScanScoreInput): UrlScanRejection[] {
   const { run, independent } = input
   const rejections: UrlScanRejection[] = []
+  if (
+    run.status !== 'completed' ||
+    run.stopReason !== 'goal-reached' ||
+    run.businessResult !== 'not-applicable'
+  )
+    rejections.push({
+      code: 'terminal-invalid',
+      detail: 'A complete UI result must have completed / goal-reached / not-applicable',
+    })
+  if (run.persistence.status !== 'verified' || run.persistence.issues.length)
+    rejections.push({ code: 'persistence-unverified', detail: 'Durable state must be verified' })
+  if (!independent.buildIdentity || !independent.expectedBuildIdentity)
+    rejections.push({ code: 'build-identity-empty', detail: 'No build identity supplied' })
+  if (independent.interventionCount !== 0)
+    rejections.push({
+      code: 'intervened-or-unknown',
+      detail: 'Site verdict requires known clean evidence',
+    })
+  if (!independent.readableEvidenceRefs)
+    rejections.push({ code: 'evidence-not-read', detail: 'Artifacts were not independently read' })
+  for (const item of run.items.filter((i) => ['verified', 'failed'].includes(i.status)))
+    if (
+      !item.evidenceRefs.length ||
+      item.evidenceRefs.some((ref) => !independent.readableEvidenceRefs?.includes(ref))
+    )
+      rejections.push({ code: 'item-evidence-unreadable', detail: item.itemId })
   if (independent.expectedRunId !== undefined && independent.expectedRunId !== run.runId)
     rejections.push({
       code: 'run-identity-mismatch',
@@ -172,18 +204,29 @@ function findingRejections(input: UrlScanScoreInput): UrlScanRejection[] {
       detail: `a healthy control produced ${supported.length} supported finding(s)`,
     })
   for (const finding of supported) {
-    if (!finding.evidenceRefs.length)
+    if (
+      !finding.evidenceRefs.length ||
+      finding.evidenceRefs.some((ref) => !independent.readableEvidenceRefs?.includes(ref))
+    )
       rejections.push({
         code: 'finding-without-evidence',
         detail: `finding ${finding.id} cites no evidence`,
       })
   }
   if (truth.variant === 'defective') {
+    if (independent.controlReplayPassed !== true)
+      rejections.push({
+        code: 'healthy-control-not-replayed',
+        detail: 'Defects require independent healthy counterpart verification',
+      })
     if (!supported.length)
       rejections.push({
         code: 'no-supported-finding',
         detail: 'a defective sample produced no supported finding',
       })
+    for (const finding of supported)
+      if (independent.findingKeysById?.[finding.id] !== truth.expectedFindingKey)
+        rejections.push({ code: 'finding-target-unverified', detail: finding.id })
     const key = truth.expectedFindingKey
     if (key && !independent.reproducedFindingKeys.includes(key))
       rejections.push({
@@ -199,7 +242,13 @@ export function scoreUrlScan(input: UrlScanScoreInput): UrlScanVerdict {
   // A healthy claim needs a real interaction: a page that was only observed cannot show that a
   // control works. This is checked here rather than in the integrity list because a defective sample
   // may legitimately be inconclusive for a different reason and is reported as such.
-  if (input.truth.variant === 'healthy' && input.independent.interactionsPerformed === 0)
+  if (
+    input.truth.variant === 'healthy' &&
+    (input.independent.interactionsPerformed === 0 ||
+      input.independent.healthyReplayPassed !== true ||
+      input.independent.agentBehaviorVerified !== true ||
+      !input.run.items.some((i) => i.category === 'local-interaction' && i.status === 'verified'))
+  )
     rejections.push({
       code: 'no-interaction',
       detail:

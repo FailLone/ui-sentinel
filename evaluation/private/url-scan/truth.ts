@@ -76,8 +76,8 @@ export function urlScanTruth(
         expectedFindingKey: 'foreground-control-covered',
         reproduction:
           `Open ${base}/overlay?category=books, click the "Filters" button. On the healthy variant the` +
-          ` panel opens; on this variant an invisible overlay at ${controlOrigin}/__control returns the` +
-          ` hit test, so the button is present, visible and enabled but the click never reaches it.`,
+          ` panel opens; on this variant an invisible foreground layer intercepts the` +
+          ` pointer hit, so the button is present, visible and enabled but the click never reaches it.`,
       },
       {
         sampleId: 'dom-healthy',

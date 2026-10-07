@@ -1,3 +1,5 @@
+import { startUrlScanFixture } from '../../evaluation/private/url-scan/fixture.ts'
+import { replayUrlSample } from '../../evaluation/private/url-scan/replay.ts'
 import { spawn, type ChildProcess } from 'node:child_process'
 import { createServer } from 'node:http'
 import { createServer as createNetServer } from 'node:net'
@@ -83,13 +85,9 @@ if (options.mode !== 'preflight' && options.mode !== 'freeze') {
     )
     process.exit(0)
   }
-  console.error(
-    `FAIL(2): --${options.mode} is a paid mode and this development authorisation does not include ` +
-      `paid acceptance runs. The batch ${options.batch} is planned against ${manifest.hash}; use ` +
-      `--dry-run to review the matrix, and obtain an explicit authorisation for the batch, run count ` +
-      `and cost ceiling before running it.`,
-  )
-  process.exit(2)
+  const { runUrlCampaign } = await import('./url-scan-campaign.ts')
+  await runUrlCampaign(manifest, options.batch!, options.mode as 'diagnostic' | 'formal')
+  process.exit(0)
 }
 
 if (options.mode === 'freeze') {
@@ -111,44 +109,40 @@ if (options.mode === 'freeze') {
     )
     process.exit(2)
   }
-  const [build, scorer] = await Promise.all([
-    hashTree(resolve('dist')),
-    hashTree(resolve('evaluation/private/url-scan')),
-  ])
-  const { createHash } = await import('node:crypto')
-  // The fixtures are the harness that serves the scanned site plus the private truth that labels its
-  // variants: both are what a result's "healthy" or "defective" claim actually rests on, so both are
-  // in the identity. Hashing them here rather than listing names means a fixture edit moves the hash.
-  const fixtureFiles = [
-    resolve('scripts/validation/url-scan.ts'),
-    resolve('evaluation/private/url-scan/truth.ts'),
-  ]
-  const fixtureHash = createHash('sha256')
-    .update((await Promise.all(fixtureFiles.map((f) => readFile(f, 'utf8')))).join('\u0000'))
-    .digest('hex')
+  const { urlScanIdentity, urlScanConfiguration } = await import('./url-scan-campaign.ts')
+  const identity = await urlScanIdentity()
+  const { AGENT_MODEL, VISION_MODEL } = await import('../../evaluation/support/model-gateway.ts')
+  const { resolveProviders } = await import('../../evaluation/private/export/diagnostic-config.ts')
+  const providers = resolveProviders(process.env)
+  if (!providers.ok) throw Error('provider-configuration-refused')
+  const prices = JSON.parse(process.env.URL_SCAN_PRICES_JSON ?? '{}')
+  for (const model of [AGENT_MODEL, VISION_MODEL])
+    if (!(prices[model]?.prompt > 0) || !(prices[model]?.completion > 0))
+      throw Error('freeze-requires-current-prices: URL_SCAN_PRICES_JSON')
+  const repetitions = options.repetitions ?? 1
+  if (![1, 3].includes(repetitions)) throw Error('freeze-requires-diagnostic-1-or-formal-3')
   const manifest = buildUrlScanManifest({
     commit,
-    buildHash: build.hash,
-    configuration: redactConfiguration({
-      model: process.env.AGENT_MODEL ?? '<unset>',
-      visionModel: process.env.VISION_MODEL ?? '<unset>',
-      urlScan: process.env.EXECUTION_URL_SCAN === '1',
-      trustedOrigins: process.env.URL_SCAN_TRUSTED_ORIGINS ?? '',
-      budget: {
-        totalTimeoutMs: process.env.RUN_TOTAL_TIMEOUT_MS ?? '<default>',
-        maxActions: process.env.RUN_MAX_ACTIONS ?? '<default>',
-        maxModelCalls: process.env.RUN_MAX_MODEL_CALLS ?? '<default>',
-      },
-    }),
-    fixtureHash,
-    scorerHash: scorer.hash,
+    buildHash: identity.buildHash,
+    configuration: redactConfiguration(
+      urlScanConfiguration({
+        providers: { agent: providers.agent, vision: providers.vision },
+        prices,
+        stage: repetitions === 1 ? 'diagnostic' : 'formal',
+      }),
+    ),
+    fixtureHash: identity.fixtureHash,
+    scorerHash: identity.scorerHash,
     policyRevision: 'url-scan-1',
     promptRevision: 'ui-goal-policy-1',
     // The matrix comes from the sample set itself, not from a second list here: a hard-coded
     // default could silently plan a batch that omits a sample the truth defines, and the two would
     // drift apart with nothing to catch it.
-    samples: options.samples ?? urlScanTruth('').samples.map((s) => s.sampleId),
-    repetitions: options.repetitions ?? 3,
+    samples: options.samples ?? [
+      ...urlScanTruth('').samples.map((s) => s.sampleId),
+      ...(repetitions === 1 ? ['boundary-diagnostic'] : []),
+    ],
+    repetitions,
     // The first authorisation step's ceiling for the UI diagnostic; the formal batch raises it.
     costCeilingUsd: options.costCeilingUsd ?? 2,
   })
@@ -187,79 +181,19 @@ const reservePort = async () => {
 const freePort = () => reservePort()
 
 /** A recorded fact about a variant, so the same fixture can serve a healthy and a defective page. */
-type Variant = 'healthy' | 'defective'
-
-/**
- * The scanned site.
- *
- * One document, two variants. The variant is chosen by the private control endpoint, never by
- * anything in the public page: there is no query parameter, no hidden input and no comment that
- * tells the agent which variant it is looking at. The *only* public difference is the behaviour the
- * defect actually produces - in the defective variant the sort button does nothing - which is exactly
- * what a real defect looks like and what an independent reviewer would reproduce by hand.
- */
-let variant: Variant = 'healthy'
-const pageRequests: { method: string; path: string }[] = []
-
-const ROWS = [
-  { id: 'b', name: 'Blue widget', price: '20.00' },
-  { id: 'a', name: 'Amber gadget', price: '5.00' },
-  { id: 'c', name: 'Cyan sprocket', price: '12.00' },
-]
-
-function catalog(rows: typeof ROWS) {
-  return (
-    `<html><head><title>Catalog</title></head><body>` +
-    `<h1>Catalog</h1>` +
-    `<div id="controls"><button id="apply" type="button">Apply sort</button>` +
-    `<select id="sort" aria-label="Sort"><option value="name">Name</option>` +
-    `<option value="price">Price</option></select></div>` +
-    `<ul id="rows">` +
-    rows.map((r) => `<li data-id="${r.id}">${r.price} · ${r.name}</li>`).join('') +
-    `</ul>` +
-    `<a href="/detail?id=1">Detail</a>` +
-    // The button's only effect: in the healthy variant the rows reorder; in the defective one the
-    // handler is absent, which is the defect an independent measurement can see.
-    (variant === 'healthy'
-      ? `<script>document.getElementById('apply').addEventListener('click',function(){` +
-        `var l=document.getElementById('rows');var rows=[].slice.call(l.children);` +
-        `rows.sort(function(a,b){return a.textContent.localeCompare(b.textContent)});` +
-        `rows.forEach(function(r){l.appendChild(r)});` +
-        `document.getElementById('controls').dataset.applied='1'});</script>`
-      : '') +
-    `</body></html>`
-  )
-}
-
-const fixture = createServer((request, response) => {
-  const url = new URL(request.url ?? '/', 'http://fixture.local')
-  if (url.pathname === '/__control') {
-    // Private: switches the variant. No public page links here, and the scanned origin is a
-    // different port from the control, so a run cannot reach this even by guessing the path.
-    variant = url.searchParams.get('variant') === 'defective' ? 'defective' : 'healthy'
-    response.setHeader('content-type', 'application/json')
-    response.end(JSON.stringify({ variant }))
-    return
-  }
-  pageRequests.push({ method: request.method ?? 'GET', path: url.pathname + url.search })
-  response.setHeader('content-type', 'text/html')
-  response.end(url.pathname === '/detail' ? catalog(ROWS.slice(0, 1)) : catalog(ROWS))
-})
-await new Promise<void>((r) => fixture.listen(0, '127.0.0.1', r))
-const fixturePort = (fixture.address() as { port: number }).port
-// `localtest.me` resolves to 127.0.0.1 but is a name, so the entry passes the public-address rule the
-// way a real URL does, and the fixture origin is the server-owned exception of plan 4.1.
-const fixtureOrigin = `http://localtest.me:${fixturePort}`
+const publicFixture = await startUrlScanFixture()
+const fixtureOrigin = publicFixture.origin
+const pageRequests = publicFixture.requests
+// Variant switching is available only on this distinct private harness port.
 const controlPort = await freePort()
-
-/** The built-in http fixture does not serve the control port; a tiny listener does. */
 const control = createServer((request, response) => {
   const url = new URL(request.url ?? '/', 'http://control.local')
-  variant = url.searchParams.get('variant') === 'defective' ? 'defective' : 'healthy'
-  response.setHeader('content-type', 'application/json')
-  response.end(JSON.stringify({ variant }))
+  publicFixture.setVariant(
+    url.searchParams.get('variant') === 'defective' ? 'defective' : 'healthy',
+  )
+  response.end('ok')
 })
-await new Promise<void>((r) => control.listen(controlPort, '127.0.0.1', r))
+await new Promise<void>((resolve) => control.listen(controlPort, '127.0.0.1', resolve))
 
 const entryUrl = `${fixtureOrigin}/catalog?category=books&sort=price`
 
@@ -271,7 +205,9 @@ const entryUrl = `${fixtureOrigin}/catalog?category=books&sort=price`
  * a selection has to name the items this run actually offered, which are read from the prompt rather
  * than invented. That is also what a real agent does, and it is why this cannot be a hard-coded list.
  */
-type PromptView = { inspectionScope?: { candidates?: { itemId: string; category: string }[] } }
+type PromptView = {
+  inspectionScope?: { candidates?: { itemId: string; category: string; description: string }[] }
+}
 type ScriptedCall =
   | { name: string; args: Record<string, unknown> }
   | ((prompt: PromptView) => { name: string; args: Record<string, unknown> })
@@ -284,7 +220,9 @@ const SCENARIOS = {
     { name: 'page_observe', args: {} },
     (prompt: PromptView) => {
       const candidates = prompt.inspectionScope?.candidates ?? []
-      const interaction = candidates.find((c) => c.category === 'local-interaction')
+      const interaction = candidates.find(
+        (c) => c.category === 'local-interaction' && c.description.includes('Apply sort'),
+      )
       const navigation = candidates.find((c) => c.category === 'navigation')
       // Both obligations the observation created are selected, because the page really did offer
       // both and the run's scope has to answer for each. Selecting only the convenient one and
@@ -304,22 +242,27 @@ const SCENARIOS = {
                   },
                 ]
               : []),
-            ...(navigation
-              ? [
-                  {
-                    itemId: navigation.itemId,
-                    basis: 'one same-origin detail page is within depth 1',
-                  },
-                ]
-              : []),
           ],
         },
       }
     },
-    { name: 'page_act', args: { type: 'click', role: 'button', name: 'Apply sort', nth: 0 } },
+    {
+      name: 'page_act',
+      args: {
+        type: 'click',
+        role: 'button',
+        name: 'Apply sort',
+        nth: 0,
+        verify: {
+          selector: '#rows .price',
+          condition: 'numeric-ascending',
+          basis: 'The public sort control selects Price and says Apply sort',
+        },
+      },
+    },
     { name: 'page_observe', args: {} },
     // The second obligation: one same-origin page, within the declared depth of 1.
-    { name: 'page_act', args: { type: 'navigate', url: `${fixtureOrigin}/detail?id=1` } },
+    { name: 'page_act', args: { type: 'navigate', url: `${fixtureOrigin}/info` } },
     { name: 'page_observe', args: {} },
     { name: 'run_finish', args: { reason: 'scope-covered' } },
   ],
@@ -351,6 +294,7 @@ const model = createServer(async (request, response) => {
     model?: string
     messages?: { role?: string; content?: unknown }[]
   }
+  await writeFile(`${dir}/model-inputs.jsonl`, JSON.stringify(body) + '\n', { flag: 'a' })
   const calls = SCENARIOS[scenario]
   const state = String(body.messages?.find((m) => m?.role === 'user')?.content ?? '')
   // The fixture also serves the vision and completion-review routes (all pointed at this one origin).
@@ -585,17 +529,57 @@ try {
   assertions.observedEntry = pageRequests.length > requestsBefore
   assertions.ledgerHasItems = (report.uiScan?.inspection?.items ?? []).length > 0
 
+  const served = pageRequests.slice(requestsBefore)
+  const readableEvidenceRefs: string[] = []
+  const savedSnapshots: any[] = []
+  for (const artifact of report.artifacts ?? []) {
+    const response = await fetch(base + artifact.url)
+    if (!response.ok) continue
+    const bytes = Buffer.from(await response.arrayBuffer())
+    if (!bytes.length) continue
+    readableEvidenceRefs.push(artifact.id)
+    if (artifact.type === 'snapshot') {
+      try {
+        savedSnapshots.push(JSON.parse(bytes.toString('utf8')))
+      } catch {}
+    }
+  }
+  const agentBehaviorVerified = savedSnapshots.some((snapshot) => {
+    const text = String(snapshot.text ?? '')
+    const positions = ['5 · Amber gadget', '12 · Cyan sprocket', '20 · Blue widget'].map((value) =>
+      text.indexOf(value),
+    )
+    return (
+      positions.every((value) => value >= 0) &&
+      positions[0]! < positions[1]! &&
+      positions[1]! < positions[2]!
+    )
+  })
+  const replay = await replayUrlSample(entryUrl, sample)
+  await writeFile(`${dir}/independent-replay.png`, replay.screenshot)
+  await writeFile(
+    `${dir}/independent-replay.json`,
+    JSON.stringify({ ...replay, screenshot: undefined }, null, 2),
+  )
   const independent: UrlScanIndependentView = {
-    buildIdentity: 'preflight-local',
-    expectedBuildIdentity: 'preflight-local',
+    buildIdentity: (await (await import('./url-scan-freeze.ts')).hashTree(resolve('dist'))).hash,
+    expectedBuildIdentity: (await (await import('./url-scan-freeze.ts')).hashTree(resolve('dist')))
+      .hash,
     serverRequestCount: pageRequests.length - requestsBefore,
-    writeCount: 0,
+    writeCount: served.filter((r) => !['GET', 'HEAD', 'OPTIONS'].includes(r.method)).length,
     entryObserved: pageRequests.length > requestsBefore,
     entryUrl: report.uiScan?.contract?.entryUrl ?? entryUrl,
     expectedEntryUrl: entryUrl,
     // A click on the sort control is the interaction this sample needs; the run recorded one action.
-    interactionsPerformed: Number(report.usage?.actions ?? 0) >= 1 ? 1 : 0,
-    leakedPrivateAnswers: [],
+    interactionsPerformed: served.filter((r) => r.path === '/items?sort=price').length,
+    healthyReplayPassed: replay.passed,
+    readableEvidenceRefs,
+    agentBehaviorVerified,
+    interventionCount: report.uiScan?.interventions?.length ?? 0,
+    leakedPrivateAnswers:
+      (await readFile(`${dir}/model-inputs.jsonl`, 'utf8')).match(
+        /foreground-control-covered|sort-ignores-selection|expectedFindingKey/g,
+      ) ?? [],
     reproducedFindingKeys: [],
   }
   const verdict = scoreUrlScan({ run: runViewOf(report), independent, truth: sample })
@@ -737,11 +721,10 @@ try {
         }),
     ),
   )
-  fixture.closeAllConnections()
   control.closeAllConnections()
   model.closeAllConnections()
   await Promise.all([
-    new Promise<void>((r) => fixture.close(() => r())),
+    publicFixture.close(),
     new Promise<void>((r) => control.close(() => r())),
     new Promise<void>((r) => model.close(() => r())),
   ])

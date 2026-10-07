@@ -82,7 +82,7 @@ curl -X POST http://localhost:4111/api/runs -H 'content-type: application/json' 
 
 私网、loopback、link-local 和云元数据地址在**入队前**拒绝。本机开发与 fixture 只能由**服务器配置**的精确 origin 放行（`URL_SCAN_TRUSTED_ORIGINS`），UI/API 无权自行添加本地例外；控制服务与评估端口即使同机也不在放行范围。
 
-**结束语义**由检查账本决定，不由模型自述决定。空规则队列、工具调用成功、模型说「完成」都不足以让任务变成 `completed`。`scope-covered` 需要：契约 hash 有效、入口确实导航并产出可读证据、观察到的局部交互/导航义务已实际执行、适用的自动规则已执行、所选条目有同 run 同目标的证据、无在途调查或已选未验证条目、所有拒绝与不支持维度已记录。发现的缺陷**不影响**完成——`failed` 是一次完成了的测量。不满足时返回 `finish:rejected` 与 `missingFacts/itemIds/reasonCodes`，并给出可用的 partial 结束建议。已选但未验证的事项必须保留为 `partial`，不能被「清空探索分支」抹掉。
+**结束语义**由检查账本决定，不由模型自述决定。空规则队列、工具调用成功、模型说「完成」都不足以让任务变成 `completed`。`scope-covered` 需要：契约 hash 有效、入口确实导航并产出可读证据、每页已选局部交互有实际后置测量、导航有落地观察、适用的自动规则已执行、所选条目有同 run 同目标的证据、无在途调查或已选未验证条目、所有拒绝与不支持维度已记录。发现的缺陷**不影响**完成——`failed` 是一次完成了的测量。不满足时返回 `finish:rejected` 与 `missingFacts/itemIds/reasonCodes`，并给出可用的 partial 结束建议。已选但未验证的事项必须保留为 `partial`，不能被「清空探索分支」抹掉。
 
 `businessResult` 对 UI 运行恒为 `not-applicable`——不是 `unknown`，也不是 `success`。报告分列执行状态、检查范围（`covered`/`partial`/`not-started`）、发现、依据/证据/未验证原因与全部执行器干预；无发现时文案是「在已验证范围内未发现问题」，不代表整站合格。一次真实的网络拦截会置位运行级证据完整性，之后的状态不能用来证明原站点 pass/fail。
 
@@ -176,7 +176,7 @@ pnpm validate:learning -- --recheck <已关闭且已批准的学习目录>
 
 ## 当前能力与边界
 
-购物、导出业务、输入区域聚焦验证与可组合调查均已实现；网址 UI 检查（ui-scan）已实现并完成免费接线验证，**尚未**做真实模型能力验收（见下）。当前仍为受信单机服务，未实现任意网站全覆盖、PRD/Figma 自动接入、多机调度或通用规则自动发布。业务调查仍沿用业务完成契约，调查结束并不意味着整体报告会显示业务成功；未知与未验证范围必须保留。
+购物、导出业务、输入区域聚焦验证与可组合调查均已实现；网址 UI 检查（ui-scan）已接手修复首轮验收问题并进行免费验证，**尚未**完成真实模型能力验收及 R0 阶段验收（见 [接手记录](docs/r0-closeout.md)）。当前仍为受信单机服务，未实现任意网站全覆盖、PRD/Figma 自动接入、多机调度或通用规则自动发布。业务调查仍沿用业务完成契约，调查结束并不意味着整体报告会显示业务成功；未知与未验证范围必须保留。
 
 - [产品目标、现状差距与 Roadmap](docs/product-roadmap.md)
 - [架构与 Agent 职责](docs/architecture.md)

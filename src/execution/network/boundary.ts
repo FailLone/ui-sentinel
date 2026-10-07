@@ -76,6 +76,9 @@ export interface RunNetworkBoundary {
   settle: () => Promise<void>
   /** The refusals this run's UI policy produced, in the order they happened. */
   readonly decisions: readonly NetworkDecisionRecord[]
+  readonly navigation?: ReturnType<
+    typeof import('../../inspection/navigation-scope.ts').createNavigationBudget
+  >
 }
 
 /**
@@ -119,6 +122,7 @@ async function installUiBoundary(
    * the claim it belongs to.
    */
   let tail: Promise<unknown> = Promise.resolve()
+  let persistenceFailure: unknown = null
   /**
    * The allowed requests, bounded.
    *
@@ -130,7 +134,7 @@ async function installUiBoundary(
   const allowed = new Map<string, { origin: string; destination: string; count: number }>()
   const record = (decision: NetworkDecisionRecord) => {
     decisions.push(decision)
-    if (decision.allow) {
+    if (decision.allow && !decision.truncated) {
       let origin = 'unparseable'
       try {
         origin = new URL(decision.url).origin
@@ -141,6 +145,12 @@ async function installUiBoundary(
       const entry = allowed.get(key)
       if (entry) entry.count++
       else allowed.set(key, { origin, destination: decision.destination, count: 1 })
+      if (decision.destination === 'document')
+        tail = tail
+          .then(() => deps.appendEvent('network:decision', { ...decision }))
+          .catch((error) => {
+            persistenceFailure = error
+          })
       return
     }
     tail = tail
@@ -151,25 +161,38 @@ async function installUiBoundary(
           method: decision.method,
         })
         await deps.appendEvent('network:decision', { ...decision })
-        if (decision.destination === 'Document')
+        if (decision.destination === 'document')
           await deps.inspection?.recordNavigationDenied({
             url: decision.url,
             reasonCode: decision.reasonCode,
           })
       })
-      .catch(() => {})
+      .catch((error) => {
+        persistenceFailure = error
+      })
   }
 
-  await installUiNetworkSession({
+  const session = await installUiNetworkSession({
     context: deps.context,
     page: deps.page,
     policy,
+    scope: contract.scope,
+    signal: deps.signal,
+    isFinished: deps.isFinished,
     onDecision: record,
     onOpenPage: (url) => {
-      tail = tail.then(() => recordUnsupportedChannel(deps, url, 'new-window')).catch(() => {})
+      tail = tail
+        .then(() => recordUnsupportedChannel(deps, url, 'new-window'))
+        .catch((error) => {
+          persistenceFailure = error
+        })
     },
     onWebSocket: (url) => {
-      tail = tail.then(() => recordUnsupportedChannel(deps, url, 'websocket')).catch(() => {})
+      tail = tail
+        .then(() => recordUnsupportedChannel(deps, url, 'websocket'))
+        .catch((error) => {
+          persistenceFailure = error
+        })
     },
   })
 
@@ -187,8 +210,11 @@ async function installUiBoundary(
     await deps.recordUnsupported(dimension, 'unsupported-release-capability')
 
   return {
+    navigation: session.navigation,
     settle: async () => {
+      await session.settle()
       await tail
+      if (persistenceFailure) throw persistenceFailure
       if (allowed.size)
         await deps.appendEvent('network:allowed-summary', {
           policyRevision: policy.policyRevision,

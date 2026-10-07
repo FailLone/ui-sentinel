@@ -308,19 +308,8 @@ export function createInspectionHost(options: InspectionHostOptions) {
   /**
    * Resolve the ledger item an action actually acted on.
    *
-   * This is the seam that turns a dispatched action into scope, and the linkage is resolved here in
-   * three steps, most specific first:
-   *
-   * 1. The ref the action named. A model that quotes an element ref is naming a target of one
-   *    observation, and that item is the one it acted on.
-   * 2. The run's own outstanding obligation, when exactly one selected item in the action's category is
-   *    still unresolved. An agent that used `role`/`name` - which is what the brief tells it to do -
-   *    still performed the interaction it declared, and requiring it to also quote a ref would mean a
-   *    run could never conclude the check it plainly did. The match is only made when it is
-   *    unambiguous; with several candidates outstanding the action is recorded as its own item rather
-   *    than attributed to a guess.
-   * 3. Otherwise the action is recorded as an honest item of its own, resolved by the outcome it
-   *    reports.
+   * Only an exact ref in its recorded observation can discharge an existing obligation.
+   * Role/selector actions without that binding remain separate measurements.
    */
   async function resolveInteraction(input: {
     ref: string
@@ -335,15 +324,10 @@ export function createInspectionHost(options: InspectionHostOptions) {
     /** The observation whose ref list the target was read from. */
     snapshotId?: string
   }) {
-    const offered = input.snapshotId
-      ? (offeredBySnapshot.get(input.snapshotId) ?? candidates)
-      : candidates
+    const offered = input.snapshotId ? (offeredBySnapshot.get(input.snapshotId) ?? []) : candidates
     const byRef = input.ref ? offered.find((c) => c.ref === input.ref) : undefined
-    const outstanding = items().filter(
-      (i) => i.selected && i.status === 'pending' && i.category === input.category,
-    )
-    const matched =
-      byRef ?? (outstanding.length === 1 ? { itemId: outstanding[0]!.itemId } : undefined)
+    // Never guess identity from the number of pending checks. A stale ref is not a match.
+    const matched = byRef?.category === input.category ? byRef : undefined
     if (matched) {
       const current = items().find((i) => i.itemId === matched.itemId)
       if (current && !current.selected)
@@ -449,7 +433,18 @@ export function createInspectionHost(options: InspectionHostOptions) {
    * and a model that never calls this tool still has to answer for the sampling the plan requires.
    */
   async function selectItems(entries: readonly { itemId: string; basis: string }[]) {
-    for (const entry of entries) scope.selectItem(entry.itemId, entry.basis)
+    for (const entry of entries) {
+      const item = items().find((i) => i.itemId === entry.itemId)
+      if (
+        item?.category === 'local-interaction' &&
+        !item.selected &&
+        items().filter(
+          (i) => i.selected && i.category === 'local-interaction' && i.url === item.url,
+        ).length >= 3
+      )
+        throw Error('local-interaction-sampling-cap')
+      scope.selectItem(entry.itemId, entry.basis)
+    }
     scope.syncSelection(entries)
     await persist()
     return entries.map((entry) => scope.snapshot().items.find((i) => i.itemId === entry.itemId)!)
@@ -512,11 +507,23 @@ export function createInspectionHost(options: InspectionHostOptions) {
     excludeItem,
     leavePage,
     candidateItems,
+    selectedCandidates: () =>
+      [...offeredBySnapshot.values()]
+        .flat()
+        .filter((candidate) =>
+          items().some(
+            (item) =>
+              item.itemId === candidate.itemId &&
+              item.selected &&
+              ['pending', 'unverified'].includes(item.status),
+          ),
+        ),
     completionFacts,
     snapshot: (): InspectionScopeSnapshot => scope.snapshot(),
     completionGaps: () => scope.completionGaps(),
     events: () => scope.events(),
     scopeEventIds: () => [...scopeEventIds],
+    flush: persist,
   }
 }
 

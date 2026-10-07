@@ -1,3 +1,4 @@
+import { isIP } from 'node:net'
 /**
  * URL identity and address classification for a `ui-scan` run.
  *
@@ -102,6 +103,11 @@ function ipv4FromMapped(address: string): string | null {
 function isPrivateIpv4(octets: readonly number[]): boolean {
   const [a, b] = octets as [number, number, number, number]
   return (
+    a >= 224 || // multicast / reserved
+    (a === 198 && (b === 18 || b === 19)) || // benchmark networks, including proxy fake-IP ranges
+    (a === 192 && b === 0) ||
+    (a === 198 && b === 51 && octets[2] === 100) ||
+    (a === 203 && b === 0 && octets[2] === 113) ||
     a === 0 || // "this network"
     a === 10 || // private
     a === 127 || // loopback
@@ -126,8 +132,16 @@ export function isPrivateAddress(address: string): boolean {
   }
   const octets = parseIpv4(value)
   if (octets) return isPrivateIpv4(octets)
-  if (!value.includes(':')) return true
-  const normalized = value.toLowerCase()
+  if (isIP(value) !== 6) return true
+  const normalized = new URL(`http://[${value}]/`).hostname.slice(1, -1).toLowerCase()
+  const hexMapped = /^::ffff:([0-9a-f]{1,4}):([0-9a-f]{1,4})$/.exec(normalized)
+  if (hexMapped) {
+    const a = parseInt(hexMapped[1]!, 16),
+      b = parseInt(hexMapped[2]!, 16)
+    return isPrivateIpv4([a >> 8, a & 255, b >> 8, b & 255])
+  }
+  // Only globally routable unicast. Reject compatible, translation, multicast and reserved space.
+  if (!/^[23][0-9a-f]{3}:/.test(normalized) || normalized.startsWith('2001:db8:')) return true
   const firstGroup = normalized.split(':')[0] ?? ''
   if (normalized === '::1' || normalized === '::') return true
   if (/^f[cd][0-9a-f]{2}$/.test(firstGroup)) return true // fc00::/7 unique-local

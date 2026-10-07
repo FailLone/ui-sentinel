@@ -14,7 +14,7 @@ import { urlScanTruth } from './truth.ts'
  * independent measurements and the private truth, so a bug that makes production say "covered" cannot
  * make the scorer agree.
  */
-const truth = urlScanTruth()
+const truth = urlScanTruth('test-build')
 
 function healthyInput(overrides: Partial<UrlScanScoreInput> = {}): UrlScanScoreInput {
   return {
@@ -52,6 +52,21 @@ function healthyInput(overrides: Partial<UrlScanScoreInput> = {}): UrlScanScoreI
       entryUrl: truth.entryUrl,
       expectedEntryUrl: truth.entryUrl,
       interactionsPerformed: 1,
+      healthyReplayPassed: true,
+      controlReplayPassed: true,
+      agentBehaviorVerified: true,
+      readableEvidenceRefs: [
+        'artifact-1',
+        'artifact-2',
+        'evidence-1',
+        'shot.png',
+        'artifact-finding',
+      ],
+      interventionCount: 0,
+      findingKeysById: {
+        'finding-1': 'foreground-control-covered',
+        f1: 'foreground-control-covered',
+      },
       leakedPrivateAnswers: [],
       reproducedFindingKeys: [],
     },
@@ -245,6 +260,21 @@ describe('the scorer confirms a defect only on independent evidence', () => {
         entryUrl: truth.entryUrl,
         expectedEntryUrl: truth.entryUrl,
         interactionsPerformed: 1,
+        healthyReplayPassed: true,
+        controlReplayPassed: true,
+        agentBehaviorVerified: true,
+        readableEvidenceRefs: [
+          'artifact-1',
+          'artifact-2',
+          'evidence-1',
+          'shot.png',
+          'artifact-finding',
+        ],
+        interventionCount: 0,
+        findingKeysById: {
+          'finding-1': 'foreground-control-covered',
+          f1: 'foreground-control-covered',
+        },
         leakedPrivateAnswers: [],
         reproducedFindingKeys: [defective.expectedFindingKey!],
       },
@@ -284,6 +314,21 @@ describe('the scorer confirms a defect only on independent evidence', () => {
         entryUrl: truth.entryUrl,
         expectedEntryUrl: truth.entryUrl,
         interactionsPerformed: 1,
+        healthyReplayPassed: true,
+        controlReplayPassed: true,
+        agentBehaviorVerified: true,
+        readableEvidenceRefs: [
+          'artifact-1',
+          'artifact-2',
+          'evidence-1',
+          'shot.png',
+          'artifact-finding',
+        ],
+        interventionCount: 0,
+        findingKeysById: {
+          'finding-1': 'foreground-control-covered',
+          f1: 'foreground-control-covered',
+        },
         leakedPrivateAnswers: [],
         reproducedFindingKeys: [],
       },
@@ -323,6 +368,21 @@ describe('the scorer confirms a defect only on independent evidence', () => {
         entryUrl: truth.entryUrl,
         expectedEntryUrl: truth.entryUrl,
         interactionsPerformed: 1,
+        healthyReplayPassed: true,
+        controlReplayPassed: true,
+        agentBehaviorVerified: true,
+        readableEvidenceRefs: [
+          'artifact-1',
+          'artifact-2',
+          'evidence-1',
+          'shot.png',
+          'artifact-finding',
+        ],
+        interventionCount: 0,
+        findingKeysById: {
+          'finding-1': 'foreground-control-covered',
+          f1: 'foreground-control-covered',
+        },
         leakedPrivateAnswers: [],
         reproducedFindingKeys: [defective.expectedFindingKey!],
       },

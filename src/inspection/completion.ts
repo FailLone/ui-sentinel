@@ -15,7 +15,7 @@ import type { InspectionItem, InspectionScope } from './scope.ts'
  * and the scope it claims came from one decision.
  */
 
-export const INSPECTION_PROOF_VERSION = 'inspection-proof-1' as const
+export const INSPECTION_PROOF_VERSION = 'inspection-proof-2' as const
 
 export type InspectionReason = 'scope-covered' | 'observed-blocker' | 'unverified-scope'
 
@@ -39,6 +39,7 @@ export interface InspectionProof {
   readonly outcome: 'goal-reached' | 'blocked'
   readonly contractHash: string
   readonly scopeDigest: string
+  readonly specDigest: string
   readonly items: readonly Pick<
     InspectionItem,
     'itemId' | 'category' | 'status' | 'reasonCode' | 'evidenceRefs' | 'basis'
@@ -58,6 +59,7 @@ export interface InspectionProof {
 export interface InspectionCompletionFacts {
   readonly kind: RunKind
   readonly featureEnabled: boolean
+  readonly spec?: unknown
   readonly contractValid: boolean
   readonly contractHash: string
   readonly entryObserved: boolean
@@ -87,7 +89,7 @@ export interface InspectionCompletionDecision {
   readonly proof?: InspectionProof
 }
 
-function canonical(value: unknown): string {
+export function canonical(value: unknown): string {
   if (Array.isArray(value)) return `[${value.map(canonical).join(',')}]`
   if (value && typeof value === 'object')
     return `{${Object.entries(value as Record<string, unknown>)
@@ -98,7 +100,12 @@ function canonical(value: unknown): string {
   return JSON.stringify(value)
 }
 
+export function proofDigest(value: unknown): string {
+  return createHash('sha256').update(canonical(value)).digest('hex')
+}
+
 function buildProof(input: {
+  spec?: unknown
   claim: InspectionReason
   outcome: 'goal-reached' | 'blocked'
   contractHash: string
@@ -120,9 +127,12 @@ function buildProof(input: {
     claim: input.claim,
     outcome: input.outcome,
     contractHash: input.contractHash,
-    scopeDigest: createHash('sha256')
-      .update(canonical(items.map((i) => [i.itemId, i.status, i.reasonCode, i.evidenceRefs])))
-      .digest('hex'),
+    scopeDigest: proofDigest({
+      items: snapshot.items,
+      candidates: snapshot.candidates,
+      unsupported: snapshot.unsupported,
+    }),
+    specDigest: proofDigest(input.spec ?? null),
     items,
     counts: {
       total: snapshot.counts.total,
@@ -192,6 +202,7 @@ export function decideInspectionCompletion(input: {
       outcome: 'blocked',
       reasonCode: 'observed-blocker',
       proof: buildProof({
+        spec: facts.spec,
         claim: reason,
         outcome: 'blocked',
         contractHash: facts.contractHash,
@@ -223,6 +234,7 @@ export function decideInspectionCompletion(input: {
       outcome: 'blocked',
       reasonCode: 'unverified-scope',
       proof: buildProof({
+        spec: facts.spec,
         claim: reason,
         outcome: 'blocked',
         contractHash: facts.contractHash,
@@ -302,6 +314,7 @@ export function decideInspectionCompletion(input: {
     outcome: 'goal-reached',
     reasonCode: 'scope-covered',
     proof: buildProof({
+      spec: facts.spec,
       claim: reason,
       outcome: 'goal-reached',
       contractHash: facts.contractHash,

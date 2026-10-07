@@ -2,7 +2,7 @@ import type { Rule } from '../types.ts'
 
 export const overlayBlockingRule: Rule = {
   id: 'overlay-blocking',
-  revision: '2.0.0',
+  revision: '2.1.0',
   name: 'Action hit testing',
   description:
     'Reports sampled interception of visible actions; never infers blocking from rectangle overlap.',
@@ -11,7 +11,11 @@ export const overlayBlockingRule: Rule = {
   routing: { version: '1', execution: 'automatic', eventTypes: [] },
   async evaluate({ snapshot }) {
     const targets = snapshot.elements.filter(
-      (e) => e.visible && (e.tag === 'button' || e.tag === 'a') && e.enabled !== false,
+      (e) =>
+        !e.interactionExcludedReason &&
+        e.visible &&
+        (e.tag === 'button' || e.tag === 'a') &&
+        e.enabled !== false,
     )
     const sampled = targets.filter((e) => e.hitSamples && e.hitSamples.length >= 5)
     const blocked = sampled.filter((e) => e.hitSamples!.every((s) => s.relation === 'unrelated'))

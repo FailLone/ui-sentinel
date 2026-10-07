@@ -1,8 +1,14 @@
 import { z } from 'zod'
+import { interactionVerificationInput } from './interaction-verification.ts'
 import { hypothesisTriggers } from './task-state.ts'
 
 export const actionInput = z.object({
   type: z.enum(['click', 'probe', 'fill', 'navigate', 'scroll']),
+  verify: interactionVerificationInput
+    .optional()
+    .describe(
+      'UI checks: bounded post-action measurement grounded in public evidence. An action receipt alone does not verify an interaction.',
+    ),
   ref: z
     .string()
     .max(40)

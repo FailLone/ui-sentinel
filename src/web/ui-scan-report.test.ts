@@ -160,11 +160,12 @@ describe('U09: a covered run with no findings says so within its scope, not for 
       gaps: [],
     },
     proof: {
-      version: 'inspection-proof-1',
+      version: 'inspection-proof-2',
       kind: 'ui-scan',
       claim: 'scope-covered',
       outcome: 'goal-reached',
       contractHash: 'abc123',
+      specDigest: 'test',
       scopeDigest: 'digest',
       items: [],
       counts: { total: 2, verified: 2, failed: 0, unverified: 0, excluded: 0 },

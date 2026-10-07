@@ -1,3 +1,4 @@
+import { saveEvidence } from '../../execution/browser.ts'
 import { describe, it, expect, beforeAll } from 'vitest'
 import { createRun, appendEvent, updateRunStatus } from '../../execution/run-manager.ts'
 import { initDatabase } from '../../storage/database.ts'
@@ -37,6 +38,8 @@ async function partiallyCoveredRun() {
     entryUrl: uiContract.entryUrl,
     uiContract,
   })
+  const artifact = await saveEvidence(run.id, 'snapshot', JSON.stringify({ url: ENTRY }))
+  await appendEvent(run.id, 'page:observed', {}, { evidenceRefs: [artifact] })
   const scope = createInspectionScope({ goal: uiContract.goal, entryUrl: uiContract.entryUrl })
   const verified = scope.createItem({
     category: 'entry-observation',
@@ -49,7 +52,7 @@ async function partiallyCoveredRun() {
   })
   scope.resolveItem(verified.itemId, {
     status: 'verified',
-    evidenceRefs: ['artifact-1'],
+    evidenceRefs: [artifact],
     eventIds: [],
     detail: 'entry observed',
   })
@@ -72,7 +75,26 @@ async function partiallyCoveredRun() {
     detail: 'the control was replaced by the time it was acted on',
   })
   for (const event of scope.events()) await appendEvent(run.id, event.type, event.payload)
+  const proof = decideInspectionCompletion({
+    reason: 'unverified-scope',
+    facts: {
+      kind: 'ui-scan',
+      featureEnabled: true,
+      spec: run.spec,
+      contractValid: true,
+      contractHash: uiContract.hash,
+      entryObserved: true,
+      entryEvidenceRefs: [artifact],
+      integrityEpoch: 0,
+      scope,
+      scopeEventIds: ['saved'],
+      pendingRules: 0,
+      openHypotheses: 0,
+      unsupportedRecorded: [],
+    },
+  }).proof
   await appendEvent(run.id, 'finish:accepted', {
+    inspectionProof: proof,
     reasonCode: 'unverified-scope',
     kind: 'ui-scan',
     businessResult: 'not-applicable',
@@ -100,6 +122,8 @@ async function coveredRun() {
     entryUrl: uiContract.entryUrl,
     uiContract,
   })
+  const artifact = await saveEvidence(run.id, 'snapshot', JSON.stringify({ url: ENTRY }))
+  await appendEvent(run.id, 'page:observed', {}, { evidenceRefs: [artifact] })
   const scope = createInspectionScope({ goal: uiContract.goal, entryUrl: uiContract.entryUrl })
   const item = scope.createItem({
     category: 'entry-observation',
@@ -112,7 +136,7 @@ async function coveredRun() {
   })
   scope.resolveItem(item.itemId, {
     status: 'verified',
-    evidenceRefs: ['artifact-1'],
+    evidenceRefs: [artifact],
     eventIds: [],
     detail: 'entry observed',
   })
@@ -121,11 +145,12 @@ async function coveredRun() {
     reason: 'scope-covered',
     facts: {
       kind: 'ui-scan',
+      spec: run.spec,
       featureEnabled: true,
       contractValid: true,
       contractHash: uiContract.hash,
       entryObserved: true,
-      entryEvidenceRefs: ['artifact-1'],
+      entryEvidenceRefs: [artifact],
       integrityEpoch: 0,
       scope,
       scopeEventIds: scope.events().map((e) => String(e.payload.itemId)),

@@ -62,7 +62,14 @@ describe('ui navigation scope', () => {
   })
 
   it('refuses a depth beyond the contract before dispatch', () => {
-    expect(decideUiNavigation({ ...base, url: 'https://shop.example.org/about/team' })).toEqual({
+    expect(
+      decideUiNavigation({
+        ...base,
+        fromUrl: 'https://shop.example.org/detail',
+        depths: new Map([['https://shop.example.org/detail', 1]]),
+        url: 'https://shop.example.org/about/team',
+      }),
+    ).toEqual({
       allow: false,
       reasonCode: 'depth-exceeded',
     })
@@ -77,9 +84,7 @@ describe('ui navigation scope', () => {
 
   it('confines a maxDepth of 0 to the entry document', () => {
     const scope = { ...base, maxDepth: 0 }
-    expect(
-      decideUiNavigation({ ...scope, url: 'https://shop.example.org/catalog?page=2' }),
-    ).toMatchObject({ allow: true })
+    expect(decideUiNavigation({ ...scope, url: entry })).toMatchObject({ allow: true })
     expect(decideUiNavigation({ ...scope, url: 'https://shop.example.org/detail' })).toEqual({
       allow: false,
       reasonCode: 'depth-exceeded',
@@ -103,22 +108,18 @@ describe('ui navigation scope', () => {
     ).toMatchObject({ allow: true })
   })
 
-  it('does not treat a fragment as a distinct page', () => {
-    // The fragment never reaches the server and a fragment-only change does not load a document, so
-    // it is not a second page against the budget - but it is preserved on the normalized address.
+  it('counts different fragment routes as distinct pages', () => {
     expect(normalizePageUrl('https://shop.example.org/catalog#panel')).toBe(
-      'https://shop.example.org/catalog',
+      'https://shop.example.org/catalog#panel',
     )
-    const spent = [entry, 'https://shop.example.org/a', 'https://shop.example.org/b']
-    // Same document, different fragment: the address the run would execute keeps the fragment, but
-    // it is the page it already visited, so no budget is spent.
     expect(
-      decideUiNavigation({
-        ...base,
-        visited: spent,
-        url: 'https://shop.example.org/catalog?category=books&sort=price#panel',
-      }),
-    ).toMatchObject({ allow: true })
+      decideUiNavigation({ ...base, maxPages: 1, url: entry.replace('#items', '#panel') }),
+    ).toMatchObject({ allow: false, reasonCode: 'page-budget-exhausted' })
+  })
+  it('allows a direct deep path as one navigation edge', () => {
+    expect(
+      decideUiNavigation({ ...base, url: 'https://shop.example.org/docs/reference/intro' }).allow,
+    ).toBe(true)
   })
 
   it('refuses a malformed address rather than guessing at it', () => {

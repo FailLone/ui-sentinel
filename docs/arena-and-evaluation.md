@@ -87,7 +87,7 @@ pnpm validate:url-scan -- --preflight
 
 `validate:business -- --preflight` 通过实际 HTTP 创建任务（不直接调用 executeRun），跑完 E0–E4 固定模型场景，再注入一次未知写入与一次非法 finish 验证系统阻止它们，最后用真实浏览器驱动工作台 U01–U05 并保存三张真实 UI 截图（创建表单、导出成功报告、缺陷证据）。它证明契约**可执行**，不写成「真实 Agent 自主发现通过」。
 
-`validate:url-scan -- --preflight` 有自己的入口而不是挂在业务或视觉脚本上的一个标志，因此一个误设的 flag 无法把网址预检变成付费运行。它主动清空所有真实凭据、把模型指向本地固定服务，通过正式 HTTP 创建 `kind: 'ui-scan'` 任务并跑完固定模型场景：健康样本必须真的到达 covered/completed（`observedEntry`、`usage.actions ≥ 1`、入口保真、无业务适配器、`businessResult: 'not-applicable'`、证明 hash 可校验），非法 finish 必须被拒绝且不产生 covered/completed，越界导航必须在**派发前**被拒且目标未到达。分数由 `evaluation/private/url-scan/scorer.ts` 给出，它读**独立**事实（服务器请求计数、写计数、持久记录、构建身份），从不复用生产 verdict 函数——复用一个正在被检验的函数，会与它的 bug 一致。证据写入 `data/r0-url-scan/<timestamp>/`。
+`validate:url-scan -- --preflight` 有自己的入口而不是挂在业务或视觉脚本上的一个标志，因此一个误设的 flag 无法把网址预检变成付费运行。它主动清空所有真实凭据、把模型指向本地固定服务，通过正式 HTTP 创建 `kind: 'ui-scan'` 任务并跑完固定模型场景：健康样本必须真的到达 covered/completed（`observedEntry`、独立服务实际交互请求、独立浏览器正常结果和已保存的页面状态、入口保真、无业务适配器、`businessResult: 'not-applicable'`、证明与持久历史、spec、终态及 artifacts 一致），非法 finish 必须被拒绝且不产生 covered/completed，越界导航必须在**派发前**被拒且目标未到达。分数由 `evaluation/private/url-scan/scorer.ts` 给出，它读**独立**事实（服务器请求计数、写计数、持久记录、构建身份），从不复用生产 verdict 函数——复用一个正在被检验的函数，会与它的 bug 一致。证据写入 `data/r0-url-scan/<timestamp>/`。
 
 网址样本的私有真值在 `evaluation/private/url-scan/`：变体标签、预期缺陷 key 与复现步骤都在这里，公开页面、fixture HTML/JS/API、URL 与模型请求中都不出现。构建身份由冻结清单在评分时注入，不用字面量——否则每个分数都会声称是写下它时恰好 checkout 的那棵树。
 
@@ -104,7 +104,9 @@ pnpm validate:url-scan -- --dry-run --manifest <清单> --batch <批次名>   # 
 
 按计划 10.2，首轮 UI 矩阵是 5 个样本各 3 次共 15 次；异常组各需至少 1 项被独立复现的有效发现，健康组 3×3 次都必须真实正常验证且零 supported 误报。
 
-付费入口在当前开发授权下**不运行**：`--diagnostic`/`--formal` 会明确拒绝并返回退出码 2，指出批次、清单 hash 与需要取得的授权，绝不退化成免费运行再被读成付费结果。
+`--diagnostic`/`--formal` 已接入 runner，但本次未授权、未执行付费调用。运行前必须有 `URL_SCAN_APPROVAL_FILE`，绑定 manifestHash、batch、mode、maxRuns、ceilingUsd、campaignDirectory、smokeRequests=1；正式模式还须提供同构建成功的 diagnosticDirectory。runner 复核实际构建/评分器/脚本 hash、干净树和现价，复用现有模型网关与持久累计费用账本。诊断默认 6 行（5 样本 + U08），正式 15 行，另有 1 次共享预算 smoke。`URL_SCAN_PRICES_JSON` 必须给出固定主/视觉模型的当前 prompt/completion 单 token 价格，才能 freeze；runner 遇到价格变化要求重新冻结。
+
+免费验证 runner 本身可执行：`URL_SCAN_FREE_CAMPAIGN_TEST=1 pnpm exec vitest run scripts/validation/url-scan-campaign.test.ts`。它使用注入的固定 upstream，结果强制标 B，保留异常样本未发现缺陷的失败行；不能写成 C 通过。完整流程、授权文件字段和当前边界见 [接手记录](r0-closeout.md)。
 
 ## 结果与证据
 

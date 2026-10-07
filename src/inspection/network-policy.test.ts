@@ -191,7 +191,9 @@ describe('data request decisions', () => {
     // write or the unsupported-method reason here, so the test asserts the refusal, not the label.
     const followUp = withApi.decide({ ...fetch, method: 'POST', url: `${API}/items` })
     expect(followUp.allow).toBe(false)
-    expect(['write-denied', 'unsupported-data-method']).toContain(followUp.reasonCode)
+    expect(['write-denied', 'unsupported-data-method', 'unsupported-channel']).toContain(
+      followUp.reasonCode,
+    )
   })
 
   it('refuses a declared resource origin as a data destination', () => {
@@ -216,7 +218,9 @@ describe('data request decisions', () => {
       url: 'https://shop.example.org/api/items',
     })
     expect(decision.allow).toBe(false)
-    expect(['write-denied', 'unsupported-data-method']).toContain(decision.reasonCode)
+    expect(['write-denied', 'unsupported-data-method', 'unsupported-channel']).toContain(
+      decision.reasonCode,
+    )
   })
 
   it('refuses a same-origin GET that the public semantics declare to write', () => {
@@ -237,7 +241,9 @@ describe('data request decisions', () => {
       destination: 'ping',
     })
     expect(decision.allow).toBe(false)
-    expect(['write-denied', 'unsupported-data-method']).toContain(decision.reasonCode)
+    expect(['write-denied', 'unsupported-data-method', 'unsupported-channel']).toContain(
+      decision.reasonCode,
+    )
   })
 })
 

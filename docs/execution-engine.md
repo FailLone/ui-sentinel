@@ -62,7 +62,9 @@ EXECUTION_BLOCKER_REVIEW 默认关闭。开启时使用 OpenRouter Decisions API
 
 网址运行与业务运行共用同一个执行器、工具、预算和证据存储，差别全在契约能力与收尾方式。
 
-**访问边界**是逐跳、派发前的。`src/execution/network/boundary.ts` 在浏览器访问任何地址**之前**安装会话，用 Chromium 的逐请求暂停机制在每一跳派发前判定，而不是等落地后再看 URL。导航按 entry origin / `maxPages` / `maxDepth` 判定；资源按同源或契约声明的 `resourceOrigins`；fetch/XHR 按同源或 `dataOrigins` 且限 GET/HEAD。资源许可不授权 API，API 许可不授权导航或写入。方法、按钮文字和模型意图都不构成放行依据。
+**访问边界**是逐跳、派发前的。`src/execution/network/boundary.ts` 在浏览器访问任何地址**之前**安装会话，用 Chromium 的逐请求暂停机制在每一跳派发前判定，而不是等落地后再看 URL。导航按 entry origin / `maxPages` / `maxDepth` 判定，深度是导航边数，query/fragment 都属于路由身份；资源按同源或契约声明的 `resourceOrigins`；fetch/XHR 按同源或 `dataOrigins` 且限 GET/HEAD。资源许可不授权 API，API 许可不授权导航或写入。方法、按钮文字和模型意图都不构成放行依据。
+
+CDP 的请求类型先转换为统一枚举。UI 请求不再使用 `Fetch.continueRequest` 自行解析连接，而由固定已审核 IP 的 Node HTTP(S) 通道读取后交付，原 hostname 用于 Host/SNI 和证书校验。浏览器的其他出站路径由拒绝代理封闭；业务模式保留原 route/写入授权。响应流和解码流共享并发预算，超限、读取失败、取消均明确拒绝，不能返回空正文的伪成功。Navigation API 的隔离世界监听覆盖 hash/pushState；若同步启动路由早于监听状态准备、或无法阻止提交，记录干预并停止继续扩大检查范围。
 
 **拒绝的两种含义是不同的**，不能混为一谈：
 
@@ -71,7 +73,9 @@ EXECUTION_BLOCKER_REVIEW 默认关闭。开启时使用 OpenRouter Decisions API
 
 无论哪种，受影响范围都保留为未验证条目，不删除、也不冒充为站点缺陷。
 
-**结束证明**由 `src/inspection/completion.ts` 纯函数产生，`scope-covered` 的全部前提见 `README` 的网址模式一节。`unverified-scope` 可接受结束，但由执行器把所有未决条目固定为 `unverified` 而不是删除它们；没有任何 gap 时的 partial 请求会被拒绝，不能凭空制造一个 blocker。`observed-blocker` 需要真实测量到的导航/页面/工具失败，普通质量发现不构成阻断。
+**结束证明**由 `src/inspection/completion.ts` 纯函数产生，`scope-covered` 的全部前提见 `README` 的网址模式一节。`unverified-scope` 可接受结束，保留当次持久账本中的 pending/unverified 缺口，不在生成证明后修改账本；没有任何 gap 时的 partial 请求会被拒绝，不能凭空制造一个 blocker。`observed-blocker` 需要真实测量到的导航/页面/工具失败，普通质量发现不构成阻断。
+
+`inspection-proof-2` 的 hash 之外还核对完整 RunSpec 摘要、事件重建的 scope、计数、目标/观察版本、终态与证据文件。删去范围事件或丢失 artifacts 会使报告不可宣称 covered。`page_act.verify` 支持有公开依据的有界后置测量；单次动作成功不能直接算验证。已有调查程序可用动作之后的断言结清其所绑定的检查。
 
 **证据完整性作用于记账，而不只是结论**：一次干预之后，受影响的已选条目不能被提升为 verified。
 

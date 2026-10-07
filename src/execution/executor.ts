@@ -1,3 +1,5 @@
+import { uiActionRefusal } from './ui-action-boundary.ts'
+import { measureInteraction, type InteractionVerification } from './interaction-verification.ts'
 import { inspectInput, programInput } from './investigation/program.ts'
 import { inspectElements } from './investigation/measure.ts'
 import { investigateProgram } from './investigation/service.ts'
@@ -387,6 +389,8 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
    * is gathered from the browser and turned into scope without the caller having to thread a dozen
    * locals through the failure paths. An unsettled action is always settled before the next one starts.
    */
+  let programActionItems: string[] | null = null
+  const candidateBindings = new Map<string, import('playwright').ElementHandle<Element>>()
   let activeAction: {
     type: string
     ref: string
@@ -397,6 +401,8 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     navigated: boolean
     landedUrls: readonly string[]
     settled: boolean
+    verify?: InteractionVerification
+    actionError?: string
   } | null = null
   /** True after the first observation, which is the point the bounded scan may run from. */
   let visualScanEligible = false
@@ -636,19 +642,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     }
     return result
   }
-  /**
-   * Turn the action just performed into ledger scope.
-   *
-   * The item an action resolves is the item the run *declared* it would check, so a successful
-   * interaction or navigation leaves no selected item outstanding - a healthy page then reaches
-   * `scope-covered` on real measurements instead of the model inventing an anomaly to explain.
-   * One item per check, too: a link whose own candidate is resolved is its navigation record, not an
-   * offer item beside a landing item.
-   *
-   * It runs as soon as the action is performed, and again from `observe()` under a flag, so a
-   * same-document move can be recorded before the observation that follows it - and so a deferred or
-   * failed path still settles rather than losing the fact that the action happened.
-   */
+  /** Resolve the exact bound target only after a fresh observation and a measured postcondition. */
   async function settleActionLedger(): Promise<void> {
     const pending = activeAction
     if (!inspection || !pending || pending.settled) return
@@ -658,19 +652,59 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     // The address the browser reports, not the one the last snapshot happened to carry: this settles
     // as soon as the document has moved, which is *before* the observation that follows it.
     const landedAt = worker?.page.url() ?? pending.beforeUrl
-    const outcome = pending.type === 'probe' ? 'unverified' : 'verified'
+    const fresh =
+      !!observed && observed.evidenceRefs.some((ref) => !pending.beforeRefs.includes(ref))
+    const measurement =
+      fresh && !pending.actionError && pending.verify && integrity.epoch() === 0
+        ? await measureInteraction(worker!.page, pending.verify)
+        : null
+    const navigated =
+      fresh &&
+      !pending.actionError &&
+      pending.navigated &&
+      landedAt !== pending.beforeUrl &&
+      integrity.epoch() === 0
+    const outcome = measurement?.outcome ?? (navigated ? 'verified' : 'unverified')
+    const reasonCode = pending.actionError
+      ? 'action-failed'
+      : (measurement?.reasonCode ??
+        (navigated ? 'navigation-observed' : 'postcondition-not-verified'))
+    const measurementRefs: string[] = []
+    if (measurement) {
+      const ref = await saveEvidence(
+        runId,
+        'interaction-measurement',
+        JSON.stringify({
+          ...measurement,
+          target: pending.target,
+          sourceSnapshot: pending.snapshotPage,
+          url: landedAt,
+        }),
+        evidenceMetadata(),
+        guard,
+      )
+      measurementRefs.push(ref)
+      await appendEvent(
+        runId,
+        'interaction:measured',
+        { target: pending.target, sourceSnapshot: pending.snapshotPage, outcome, reasonCode },
+        { evidenceRefs: [ref, ...observed!.evidenceRefs] },
+      )
+    }
     const resolved = await inspection.resolveInteraction({
       ref: pending.ref,
       target: pending.target,
       url: landedAt,
-      evidenceRefs: [...new Set([...(observed?.evidenceRefs ?? []), ...pending.beforeRefs])],
+      evidenceRefs: [
+        ...new Set([...(observed?.evidenceRefs ?? []), ...pending.beforeRefs, ...measurementRefs]),
+      ],
       outcome,
-      ...(outcome === 'unverified'
-        ? { reasonCode: 'probe-only', detail: 'probe actions measure without acting' }
-        : {}),
+      reasonCode,
+      detail: measurement ? JSON.stringify(measurement) : (pending.actionError ?? reasonCode),
       category: pending.navigated ? 'navigation' : 'local-interaction',
       ...(pending.snapshotPage ? { snapshotId: pending.snapshotPage } : {}),
     })
+    if (resolved && programActionItems) programActionItems.push(resolved.itemId)
     // The document being left is finished, and this happens *after* the action's own item was
     // resolved: a navigation fulfils the candidate it was aimed at, so closing that candidate as
     // abandoned would turn the run's own successful move into an unfinished check. Its stale
@@ -691,17 +725,19 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           url,
           from: pending.beforeUrl,
           evidenceRefs: [...(observed?.evidenceRefs ?? [])],
-          outcome: 'verified',
+          outcome: fresh && integrity.epoch() === 0 ? 'verified' : 'unverified',
+          reasonCode:
+            fresh && integrity.epoch() === 0 ? 'navigation-observed' : 'postcondition-not-verified',
           detail: `the run landed at ${url}`,
         })
   }
 
   const observe = (allowReuse = false) =>
     profileOperation('observation', async () => {
-      // An action that has not yet been turned into scope is settled here, so the observation that
-      // follows it can never run against a page whose ledger entry is still missing.
+      // Post-action evidence must exist before its ledger obligation can be concluded.
+      const result = await performObservation(allowReuse)
       await settleActionLedger()
-      return performObservation(allowReuse)
+      return result
     })
   async function performObservation(allowReuse: boolean) {
     guard()
@@ -878,7 +914,12 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           interactionTags.includes(element.tag) &&
           element.visible &&
           element.enabled &&
-          (element.tag !== 'a' || sameOriginHref(pageUrl, element.attributes.href)),
+          !latest!.snapshot.elements.find((e) => e.selector === element.selector)
+            ?.interactionExcludedReason &&
+          (element.tag !== 'a' ||
+            (sameOriginHref(pageUrl, element.attributes.href) &&
+              networkBoundary?.navigation?.check(new URL(element.attributes.href!, pageUrl).href)
+                .allow)),
       )
       .map((element) => ({
         ref: element.ref,
@@ -887,6 +928,16 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           | 'navigation'
           | 'local-interaction',
       }))
+    for (const candidate of offered) {
+      const detail = elementStore.getDetail(candidate.ref)
+      if (!detail.found) continue
+      const handle = await worker!.page
+        .locator(detail.element.selector)
+        .elementHandle()
+        .catch(() => null)
+      if (handle)
+        candidateBindings.set(candidate.ref, handle as import('playwright').ElementHandle<Element>)
+    }
     const categories = [...new Set(offered.map((o) => o.category))]
     await inspection.recordObservation({
       url: pageUrl,
@@ -920,7 +971,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       },
       tokenUsage: 'unavailable-until-reported',
     })
-    worker = await launchBrowser({ viewport: run.spec.viewport })
+    worker = await launchBrowser({ viewport: run.spec.viewport, uiScan: !!uiScan })
     guard()
     const page = worker.page
     let mutationFailed = false
@@ -1770,6 +1821,56 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         if (selector) resolvedLocator = page.locator(selector)
         targetDesc = `vision:${input.visualDescription}`
       }
+      if (inspection && input.ref) {
+        const binding = candidateBindings.get(input.ref)
+        const detail = elementStore.getDetail(input.ref)
+        if (
+          !binding ||
+          !detail.found ||
+          !(await binding.evaluate((node) => node.isConnected).catch(() => false))
+        )
+          throw Error('target-lost: observed ref is no longer connected')
+        resolvedLocator ??= page.locator(detail.element.selector)
+        const actual = await resolvedLocator.elementHandle()
+        if (!actual || !(await binding.evaluate((node, other) => node === other, actual)))
+          throw Error('target-mismatch: ref does not identify this action')
+        targetDesc ||= detail.element.selector
+      }
+      if (inspection && resolvedLocator && !actingRef) {
+        const actual = await resolvedLocator.elementHandle()
+        for (const candidate of [
+          ...inspection.selectedCandidates(),
+          ...inspection.candidateItems(),
+        ]) {
+          const binding = candidateBindings.get(candidate.ref)
+          if (
+            actual &&
+            binding &&
+            (await binding
+              .evaluate((node, other) => node.isConnected && node === other, actual)
+              .catch(() => false))
+          ) {
+            actingRef = candidate.ref
+            actionSnapshotPage = candidate.snapshotId
+            break
+          }
+        }
+      }
+      if (uiScan && resolvedLocator && input.type !== 'probe') {
+        const refusal = await uiActionRefusal(resolvedLocator, input.type)
+        if (refusal) {
+          await appendEvent(runId, 'action:denied', {
+            type: input.type,
+            target: targetDesc,
+            reasonCode: refusal,
+          })
+          await inspection?.recordGap({
+            reasonCode: refusal,
+            detail: `Skipped ${targetDesc}: ${refusal}`,
+          })
+          return { error: refusal, status: 'denied', inspection: inspectionSummary() }
+        }
+      }
       guard()
       const actionId = randomUUID()
       let dispatchTime = Date.now()
@@ -1780,13 +1881,15 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       let ourNavigation = false
       if (input.type === 'navigate' && input.url) {
         const decision = uiScan
-          ? decideUiNavigation({
+          ? (networkBoundary?.navigation?.check(input.url, beforeUrl) ??
+            decideUiNavigation({
               entryUrl: uiScan.entryUrl,
               maxPages: uiScan.scope.maxPages,
               maxDepth: uiScan.scope.maxDepth,
               visited: visitedPages,
               url: input.url,
-            })
+              fromUrl: beforeUrl,
+            }))
           : { allow: true as const, normalized: input.url }
         await appendEvent(runId, 'navigation:requested', {
           url: input.url,
@@ -1842,6 +1945,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         navigated: ourNavigation,
         landedUrls: [],
         settled: false,
+        ...(input.verify ? { verify: input.verify } : {}),
       }
       if (inspection) {
         // The address an in-page move lands on. A same-document hash change is part of the action
@@ -1854,7 +1958,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
             activeAction.landedUrls = [...activeAction.landedUrls, url]
           // The action has reached its destination, so its ledger entry may be written now - before
           // the post-action observation, which must probe the page the action actually produced.
-          if (!activeAction.settled && url !== activeAction.beforeUrl) void settleActionLedger()
+          activeAction.navigated ||= url !== activeAction.beforeUrl
         }
         page.on('framenavigated', onFrameNavigated)
         actionNavigationListener = onFrameNavigated as (frame: unknown) => void
@@ -1876,7 +1980,9 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           }
         } else if (input.type === 'fill') {
           if (!resolvedLocator) throw new Error('target required')
-          await resolvedLocator.fill(input.value ?? '')
+          if (uiScan && (await resolvedLocator.evaluate((element) => element.tagName === 'SELECT')))
+            await resolvedLocator.selectOption(input.value ?? '')
+          else await resolvedLocator.fill(input.value ?? '')
         } else if (input.type === 'navigate') {
           if (!input.url) throw new Error('navigation denied: a destination is required')
           // A UI run's destination was already judged by its own navigation scope before this point,
@@ -1992,13 +2098,14 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         if (ourNavigation && input.url) {
           const landed = page.url()
           const approved = uiScan
-            ? decideUiNavigation({
+            ? (networkBoundary?.navigation?.check(landed) ??
+              decideUiNavigation({
                 entryUrl: uiScan.entryUrl,
                 maxPages: uiScan.scope.maxPages,
                 maxDepth: uiScan.scope.maxDepth,
                 visited: visitedPages,
                 url: landed,
-              })
+              }))
             : { allow: true as const, normalized: landed }
           if (!approved.allow) {
             await appendEvent(runId, 'navigation:denied', {
@@ -2023,7 +2130,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       } catch (error) {
         // A failed action is still an action: the attempt is on the record, so it is settled before
         // the error is returned rather than being lost with the exception.
-        await settleActionLedger()
+        if (activeAction) activeAction.actionError = String(error)
         if (actionNavigationListener) {
           page.off('framenavigated', actionNavigationListener as never)
           actionNavigationListener = null
@@ -2055,7 +2162,6 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         }
       }
       staleDetector.recordAction()
-      await settleActionLedger()
       if (actionNavigationListener) {
         page.off('framenavigated', actionNavigationListener as never)
         actionNavigationListener = null
@@ -2262,6 +2368,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         facts: {
           kind: 'ui-scan',
           featureEnabled: !!config.features?.urlScan,
+          spec: run!.spec,
           contractValid: !!uiScan && verifyUiContractSnapshot(uiScan),
           contractHash: uiScan!.hash,
           entryObserved: facts.entryObserved,
@@ -2287,18 +2394,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         await appendEvent(runId, 'finish:rejected', reply)
         return reply
       }
-      // An `unverified-scope` ending keeps every unfinished item in the ledger as unverified rather
-      // than removing it: a partial run reports a partial run, and the gaps it reported stay legible.
-      if (decision.reasonCode === 'unverified-scope')
-        for (const gap of inspection!.completionGaps())
-          if (!gap.itemId.startsWith('obligation:'))
-            inspection!.scope.resolveItem(gap.itemId, {
-              status: 'unverified',
-              reasonCode: gap.reasonCode ?? 'unverified-scope',
-              evidenceRefs: [],
-              eventIds: [],
-              detail: 'left unverified at finish; the run reported partial scope',
-            })
+      // Preserve the exact persisted ledger used by the proof, including pending gaps.
       const transition = phaseTracker.enterFinalizing('agent-ready')
       if (transition.changed)
         await appendEvent(runId, 'run:phase-changed', {
@@ -2386,40 +2482,71 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         inputSchema: programInput,
         execute: (input) =>
           serial('investigation_run', async () => {
-            const result = await investigateProgram(input, {
-              page,
-              runId,
-              guard,
-              signal,
-              remainingActions: () => budget.maxActions - usage.actions,
-              clean: () => integrity.snapshot().status === 'clean',
-              metadata: evidenceMetadata,
-              screenshot: async () =>
-                saveEvidence(
-                  runId,
-                  'screenshot',
-                  await page.screenshot({ scale: 'css', timeout: 3000 }),
-                  evidenceMetadata(),
-                  guard,
-                ),
-              act: async (action) => {
-                guard()
-                sideEffectPolicy?.setReadOnly(false)
-                try {
-                  return await performAction(action)
-                } finally {
-                  sideEffectPolicy?.setReadOnly(true)
-                }
-              },
-              registered: (id, phenomenon) => {
-                knownHypothesisIds.add(id)
-                taskState.recordHypothesis(id, phenomenon, 'always')
-              },
-              resolved: (id, status) => {
-                taskState.resolveHypothesis(id, status)
-              },
-            })
-            return result
+            programActionItems = []
+            let result: Awaited<ReturnType<typeof investigateProgram>>
+            try {
+              result = await investigateProgram(input, {
+                page,
+                runId,
+                guard,
+                signal,
+                remainingActions: () => budget.maxActions - usage.actions,
+                clean: () => integrity.snapshot().status === 'clean',
+                metadata: evidenceMetadata,
+                screenshot: async () =>
+                  saveEvidence(
+                    runId,
+                    'screenshot',
+                    await page.screenshot({ scale: 'css', timeout: 3000 }),
+                    evidenceMetadata(),
+                    guard,
+                  ),
+                act: async (action) => {
+                  guard()
+                  sideEffectPolicy?.setReadOnly(false)
+                  try {
+                    return await performAction(action)
+                  } finally {
+                    sideEffectPolicy?.setReadOnly(true)
+                  }
+                },
+                registered: (id, phenomenon) => {
+                  knownHypothesisIds.add(id)
+                  taskState.recordHypothesis(id, phenomenon, 'always')
+                },
+                resolved: (id, status) => {
+                  taskState.resolveHypothesis(id, status)
+                },
+              })
+              const lastAct = input.steps.map((step) => step.op === 'act').lastIndexOf(true)
+              const postconditionMeasured =
+                lastAct >= 0 &&
+                input.assertions.some(
+                  (assertion) =>
+                    input.steps.findIndex(
+                      (step) => step.op === 'measure' && step.name === assertion.left.sample,
+                    ) > lastAct,
+                )
+              if (
+                inspection &&
+                postconditionMeasured &&
+                integrity.epoch() === 0 &&
+                result.verdict !== 'unknown'
+              ) {
+                for (const itemId of programActionItems ?? [])
+                  inspection.scope.resolveItem(itemId, {
+                    status: result.verdict === 'pass' ? 'verified' : 'failed',
+                    reasonCode: 'program-postcondition-measured',
+                    evidenceRefs: result.evidenceRefs,
+                    eventIds: [],
+                    detail: `Bounded program result ${result.verdict}; public basis: ${input.basis}`,
+                  })
+                await inspection.flush()
+              }
+              return result
+            } finally {
+              programActionItems = null
+            }
           }),
       }),
       ...(temporalInvestigator

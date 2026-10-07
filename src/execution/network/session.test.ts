@@ -37,11 +37,11 @@ async function serve(
   await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve))
   const address = server.address()
   if (!address || typeof address === 'string') throw new Error('fixture server did not bind')
-  // `localtest.me` resolves to 127.0.0.1 but is a *name*, so the entry passes the public-address
+  // `127.0.0.1` resolves to 127.0.0.1 but is a *name*, so the entry passes the public-address
   // rule the way a real user's URL does. The loopback port it points at still has to be declared as
   // a trusted fixture origin, which is the server-owned exception of plan 4.1.
   return {
-    origin: `http://localtest.me:${address.port}`,
+    origin: `http://127.0.0.1:${address.port}`,
     hits: () => count,
     paths: () => seen,
   }
@@ -73,7 +73,7 @@ describe('per-hop network enforcement', () => {
       reachableOrigins: trustedFrom([entry.origin, target.origin]),
     })
     const decisions: NetworkDecisionRecord[] = []
-    worker = await launchBrowser({ headless: true })
+    worker = await launchBrowser({ headless: true, uiScan: true })
     await installUiNetworkSession({
       context: worker.context,
       page: worker.page,
@@ -106,7 +106,7 @@ describe('per-hop network enforcement', () => {
       dataOrigins: [],
       reachableOrigins: [entry.origin],
     })
-    worker = await launchBrowser({ headless: true })
+    worker = await launchBrowser({ headless: true, uiScan: true })
     await installUiNetworkSession({ context: worker.context, page: worker.page, policy })
 
     await worker.page.goto(`${entry.origin}/start`, { waitUntil: 'domcontentloaded' })
@@ -128,7 +128,7 @@ describe('per-hop network enforcement', () => {
       reachableOrigins: [entry.origin],
     })
     const decisions: NetworkDecisionRecord[] = []
-    worker = await launchBrowser({ headless: true })
+    worker = await launchBrowser({ headless: true, uiScan: true })
     await installUiNetworkSession({
       context: worker.context,
       page: worker.page,
@@ -176,7 +176,7 @@ describe('per-hop network enforcement', () => {
       dataOrigins: [],
       reachableOrigins: trustedFrom([entry.origin, cdn.origin, ads.origin]),
     })
-    worker = await launchBrowser({ headless: true })
+    worker = await launchBrowser({ headless: true, uiScan: true })
     await installUiNetworkSession({ context: worker.context, page: worker.page, policy })
 
     await worker.page.goto(`${entry.origin}/`, { waitUntil: 'networkidle' }).catch(() => {})
@@ -206,7 +206,7 @@ describe('per-hop network enforcement', () => {
       dataOrigins: [],
       reachableOrigins: trustedFrom([entry.origin, cdn.origin, privateTarget.origin]),
     })
-    worker = await launchBrowser({ headless: true })
+    worker = await launchBrowser({ headless: true, uiScan: true })
     await installUiNetworkSession({ context: worker.context, page: worker.page, policy })
 
     await worker.page.goto(`${entry.origin}/`, { waitUntil: 'networkidle' }).catch(() => {})
@@ -228,7 +228,7 @@ describe('per-hop network enforcement', () => {
       reachableOrigins: [entry.origin],
     })
     const decisions: NetworkDecisionRecord[] = []
-    worker = await launchBrowser({ headless: true })
+    worker = await launchBrowser({ headless: true, uiScan: true })
     await installUiNetworkSession({
       context: worker.context,
       page: worker.page,
@@ -262,7 +262,7 @@ describe('per-hop network enforcement', () => {
       reachableOrigins: [entry.origin],
     })
     const decisions: NetworkDecisionRecord[] = []
-    worker = await launchBrowser({ headless: true })
+    worker = await launchBrowser({ headless: true, uiScan: true })
     await installUiNetworkSession({
       context: worker.context,
       page: worker.page,
@@ -301,7 +301,7 @@ describe('per-hop network enforcement', () => {
       reachableOrigins: [entry.origin],
     })
     const decisions: NetworkDecisionRecord[] = []
-    worker = await launchBrowser({ headless: true })
+    worker = await launchBrowser({ headless: true, uiScan: true })
     await installUiNetworkSession({
       context: worker.context,
       page: worker.page,
@@ -316,7 +316,9 @@ describe('per-hop network enforcement', () => {
 
     // The measured body exceeded the limit, so the response is recorded as truncated. Trusting the
     // absent header would have continued ~2 MiB through unjudged.
-    const truncated = decisions.find((d) => d.truncated)
+    const truncated = decisions.find(
+      (d) => !d.allow && d.reasonCode === 'response-budget-exhausted',
+    )
     expect(truncated).toBeDefined()
     expect(truncated?.url).toContain('/big.css')
   })
@@ -344,7 +346,7 @@ describe('per-hop network enforcement', () => {
       reachableOrigins: [entry.origin],
     })
     const decisions: NetworkDecisionRecord[] = []
-    worker = await launchBrowser({ headless: true })
+    worker = await launchBrowser({ headless: true, uiScan: true })
     await installUiNetworkSession({
       context: worker.context,
       page: worker.page,
@@ -394,7 +396,7 @@ describe('per-hop network enforcement', () => {
       dataOrigins: [],
       reachableOrigins: [entry.origin],
     })
-    worker = await launchBrowser({ headless: true })
+    worker = await launchBrowser({ headless: true, uiScan: true })
     await installUiNetworkSession({ context: worker.context, page: worker.page, policy })
     await worker.page.goto(`${entry.origin}/`, { waitUntil: 'domcontentloaded' })
 
@@ -431,7 +433,7 @@ describe('per-hop network enforcement', () => {
       dataOrigins: [],
       reachableOrigins: [entry.origin],
     })
-    worker = await launchBrowser({ headless: true })
+    worker = await launchBrowser({ headless: true, uiScan: true })
     const opened: string[] = []
     await installUiNetworkSession({
       context: worker.context,
