@@ -1,0 +1,39 @@
+# R0 K4 正式重复验收失败专项分析
+
+候选 `97d39eda8fcbae9a6e163c6dfc5219668d67043d`；固定批次 `r0-ui-formal-97d39ed-01`；2026-10-07。本文分析真实正式批次，不是实现自测通过声明。保持原15行标准和全部失败，不修改产品、模型、目标、时限或验收器，不自动补丁或重新付费。
+
+诊断C11已6/6通过并独立审计，随后根据恢复授权进入本次正式15行。正式批次已经发生必需出口失败，不能进入K5；同批其余行按预先固定矩阵完成（这是同一阶段，不是下一批重跑），用于保留稳定性证据，不能抵销失败。最终计数及费用另见执行交付记录。
+
+证据根目录：`/Users/xietian/.codex/worktrees/r0-k45-candidate/ui-sentinel/data/r0-url-campaign/r0-ui-formal-97d39ed-01`。
+
+## F1：健康页面只读循环后诚实收尾，仍不满足健康完整完成
+
+- 第6行 `overlay-healthy` 第3次，run `run-7858c7dc-a5be-4b43-acae-56eed1158970`。
+- `row-6/report.json` seq81/124：选择Name及应用排序的原检查均有当前结果节点测量，并为verified；`/items?sort=name`确实到达站点。这不是原动态节点绑定失败，也不是原unknown被新成功事项覆盖。
+- seq35/36已选择Filters与About导航，之后仍未履行。seq129–164连续 `page_inspect/page_observe/element_details` 已获得隐藏section及Filters的实际selector、自身命中的五点数据，但未执行Filters或导航。隐藏区域本来就应在点击前隐藏；没有产品缺陷证据。
+- seq166 `run:no-progress` streak3；seq181 `execution:bounded-recovery` changed=false/checkRef=null/actionsReplayed=0；seq182完整结束被拒；seq184保留no-progress gap；seq188接受unverified-scope；seq191持久 `blocked/blocked/not-applicable`，elapsed111609ms、2动作、9主模型调用。
+- 独立站点请求及重放证明健康控件可工作，原Agent未完成它；`score.json` 的terminal-invalid与no-interaction正确拒绝。这里no-interaction指没有履行健康Filters控件验证，并非完全没有任何动作。
+
+**分类：真实能力稳定性缺口；调度/恢复策略的设计边界待收敛。** 现有无进展检测和不伪造完成在本行正确生效；不能为通过而删除检测、延时或将partial当健康通过。当前证据不足以声称一次具体提示词修改必能解决。
+
+**前次为何未覆盖：** D系列修复主要确保动作后测量、旧gap关联、读循环的有界停止；K1–K3聚焦请求归属、可信blocker、取消/终态与历史证明。它们不证明模型必定从已有前置信息转入安全交互。C11及本次同样本前两次都成功，单次诊断无法证明重复稳定性。
+
+**下一最小验证路径（仅建议，未实施/未授权新批）：** 先在免费固定模型/API路径重放“排序已验证、Filters/导航仍pending、三轮重复读取、没有recoverable原动作”的具体状态，检查是否存在通用且有界的剩余义务引导机会。需同时保留：无可行动作时及时结束、有真实新证据时继续、未知业务写入不重放、取消/错误优先级不变。不得按Filters文案、样本名或case ID硬编码。是否允许一次有界决策引导以及如何证明信息新增，应先形成精确契约；不得仅增加读次数。最后仍需新的完整固定C验收证明健康完成，不能用免费脚本替代能力。
+
+## F2：可预期的只读可点击性试探被归为致命执行错误
+
+- 第7行 `overlay-defect` 第1次，run `run-20887178-1f0e-4b90-ac90-0731d70d5c6f`。
+- 自动规则已保存supported遮挡发现。seq110五点命中均被无关span截获；seq113开始 `type=probe`，seq114 Playwright `locator.click({trial:true})` 报3000ms actionability timeout，明确是span截获输入，`sideEffectPending=false`。
+- seq117停止原因为 `ui-action-execution-error`；seq118 `execution-error/execution-error/not-applicable`，没有finish:accepted/inspection proof。报告persistence为not-final，不是DB内容被篡改的证据；需要与归档持久性核对分开。
+- `src/execution/executor.ts:2170` 将click及probe共同执行trial；`src/execution/executor.ts:2351` 对所有UI动作异常统一abort。该分支由835b11a的K1–K3修复加入，为防执行错误被下轮partial掩盖，但没有区分只读测量的预期阴性结果与真正动作执行故障。
+- `row-7/replay.json` 与健康control重放、命中几何、原始事件共同用于判定；不能只看发现标题或模型口述。正式评分正确拒绝其完整性，即使有效发现应继续保留。
+
+**分类：实现契约缺口，K1错误传播收紧的相邻回归。** 不推翻已验明的取消唯一生效点、可信blocker或未知写入隔离；但受限K1–K3通过并不覆盖全部UI测量返回分类，不能据此宣称R0完成。
+
+**前次为何未覆盖：** 定向反例要求真正动作失败不得自动partial，因此实现采用过宽的UI catch。原probe浏览器测试证明被遮挡会抛错，没有验证“正式API将这个只读测量结果交给调查流程并仍可完整结束”这一相邻路径。C11异常行未走这一具体probe错误分支，单次通过漏掉模型行动选择差异。
+
+**下一最小验证路径（仅建议）：** 先定义只读probe结果的类型与证据条件：同目标、当前页面、成功解析唯一节点、实际命中几何或专用actionability事实可确认阻挡时，允许记录负面测量，关联原事项后继续调查。不能根据任意Timeout字符串推断阻挡；目标不存在/陈旧引用/浏览器关闭/模型截断/工具总超时/取消/真实动作错误仍按原契约失败或取消。业务真实已派发且未知结果继续隔离，禁止自动重放。免费正式API+真实浏览器应覆盖阻挡/健康对照、错误目标、浏览器崩溃/失效证据、取消交错、真实未知写入及后续队列。通过后再决定新候选，不在本轮自动实施。
+
+## 结论边界
+
+这两项不是成本不足或时限太短：F1在111.6秒结束，F2在76.8秒结束，均明显低于300秒。不能靠增加时限修复。F1是旧读循环/收尾家族的能力复发；F2与前次错误分类修复直接相邻。按既有复发协议提交专项分析，禁止继续“补丁加整批重跑”。业务真实回归因K4门禁未满足而不运行；缺失的K5证据不能写作通过。

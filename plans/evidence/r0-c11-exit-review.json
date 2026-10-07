@@ -1,0 +1,182 @@
+{
+  "stage": "K4-1",
+  "candidate": "97d39eda8fcbae9a6e163c6dfc5219668d67043d",
+  "reviewedAt": "2026-10-07T15:18:16.094631+00:00",
+  "reviewer": "R0 Agent, evidence review separate from implementation self-test; no claim of new separate-Agent review",
+  "evidenceDirectory": "/Users/xietian/.codex/worktrees/r0-k45-candidate/ui-sentinel/data/r0-url-campaign/r0-ui-diagnostic-97d39ed-11",
+  "method": [
+    "Independent Python SQLite/artifact/event/proof audit without production imports",
+    "Defect and healthy replay observations compared; C11 row3 replay/control screenshots visually inspected",
+    "Blocker event digest, owner, pre-finish sequence, terminal equality and clean history independently asserted"
+  ],
+  "rows": [
+    {
+      "sample": "healthy-catalog",
+      "runId": "run-919dcc83-d288-495c-a571-c71c51851b90",
+      "terminal": [
+        "completed",
+        "not-applicable",
+        "goal-reached"
+      ],
+      "artifactCount": 22,
+      "eventCount": 198,
+      "selectedUnresolved": [],
+      "hypothesisStatuses": [
+        "refuted"
+      ],
+      "supportedFindings": 0,
+      "issues": [],
+      "archiveVerified": true,
+      "complete": true
+    },
+    {
+      "sample": "overlay-healthy",
+      "runId": "run-539ffb3d-ac87-433f-a09f-d1108546be2f",
+      "terminal": [
+        "completed",
+        "not-applicable",
+        "goal-reached"
+      ],
+      "artifactCount": 43,
+      "eventCount": 361,
+      "selectedUnresolved": [],
+      "hypothesisStatuses": [
+        "refuted"
+      ],
+      "supportedFindings": 0,
+      "issues": [],
+      "archiveVerified": true,
+      "complete": true
+    },
+    {
+      "sample": "overlay-defect",
+      "runId": "run-1d4738ef-c8b6-4a78-befe-b2c1150d1da7",
+      "terminal": [
+        "completed",
+        "not-applicable",
+        "goal-reached"
+      ],
+      "artifactCount": 28,
+      "eventCount": 179,
+      "selectedUnresolved": [],
+      "hypothesisStatuses": [],
+      "supportedFindings": 1,
+      "issues": [],
+      "archiveVerified": true,
+      "complete": true
+    },
+    {
+      "sample": "dom-healthy",
+      "runId": "run-de72c5f3-1dbc-46cc-a579-e90962096303",
+      "terminal": [
+        "completed",
+        "not-applicable",
+        "goal-reached"
+      ],
+      "artifactCount": 23,
+      "eventCount": 174,
+      "selectedUnresolved": [],
+      "hypothesisStatuses": [
+        "refuted"
+      ],
+      "supportedFindings": 0,
+      "issues": [],
+      "archiveVerified": true,
+      "complete": true
+    },
+    {
+      "sample": "dom-investigation-defect",
+      "runId": "run-4446e359-d14a-4a66-a825-2ebeadb720e7",
+      "terminal": [
+        "completed",
+        "not-applicable",
+        "goal-reached"
+      ],
+      "artifactCount": 24,
+      "eventCount": 186,
+      "selectedUnresolved": [],
+      "hypothesisStatuses": [
+        "supported"
+      ],
+      "supportedFindings": 1,
+      "issues": [],
+      "archiveVerified": true,
+      "complete": true
+    },
+    {
+      "sample": "boundary-diagnostic",
+      "runId": "run-8e8f4cdb-54be-410e-b524-f32ec6c3a467",
+      "terminal": [
+        "blocked",
+        "not-applicable",
+        "blocked"
+      ],
+      "artifactCount": 2,
+      "eventCount": 43,
+      "selectedUnresolved": [
+        "item-8fe3ea6a-df08-4bda-990f-3e3f93669aeb",
+        "item-a058dced-1ffb-4166-8603-09e78a5955c0",
+        "item-ef8880ff-de94-416a-a9eb-a033af393100"
+      ],
+      "hypothesisStatuses": [],
+      "supportedFindings": 0,
+      "issues": [],
+      "archiveVerified": true,
+      "complete": false
+    }
+  ],
+  "passed": true,
+  "acceptedForNextStage": true,
+  "r0Accepted": false,
+  "spending": {
+    "limitUsd": 20,
+    "knownCostUsd": 1.6199957099999986,
+    "unknownReservedUsd": 0,
+    "heldReservedUsd": 0,
+    "accountedUsd": 1.6199957099999986,
+    "unknownCount": 0,
+    "exceeded": false
+  },
+  "evidenceHashes": {
+    "summary.json": "45e91cc0d58727326b6206369a3ec87b79246cb2f586bdc4ba4ce24d549ec002",
+    "manifest.json": "dcae272bce99d6ad8e6891eabcd050365de515c1e803ad5a73a013b6bcb8f56b",
+    "independent-archive-audit.json": "3432a0ad806518b7b5c2f7dab47a033086fe727d20b7de204cbae44c45f32482",
+    "row-5/page-requests.json": "5e71fc5e325b3e567abaaa582872b83ba968791cc14c39e61142e141b4a6e091",
+    "row-5/report.json": "46b5bc56a295536fade27947d792a946a13009647795245daf383375e45d2013",
+    "row-5/score.json": "3aa4ca2926fb37b95a5c1460e7c3a4e98b069bbf58b282cb2dc554d5d707b009",
+    "row-5/control-replay.json": "b47b2e2dcc5d96315e45132200d314e4bd70c4eb5cdd005870f25e9faa0e1a83",
+    "row-5/replay.json": "13f7fc628fb988793a1924302e4fba8be5799dbf997d3fd074f34dbe8c2f458c",
+    "row-5/artifact-index.json": "4399811bfa4a92c7ceb9e87a9e8474fa92a6158eee4b11fb61b2a9984dfbca76",
+    "row-5/durability.json": "0f9732071aabc96662979198c067859ad0bf8058fe95745ce8da23df1428a44c",
+    "row-2/page-requests.json": "e945c617c011a28f8d06a5d6f6f6c2f478bd2c907f98989d8f2acfc3760ba6ab",
+    "row-2/report.json": "8f79cc7404e236e9b4e4eed2b8cfdf8635d9b7a2543fc139d5bbfa8a447b3150",
+    "row-2/score.json": "ed81293473c43d0e7ad74ae3b09a415d1b22d02bb8de15cb6781c50b06c0189f",
+    "row-2/replay.json": "3b8787f668ca169eb8c6bf703ece26da318d9eb0dd577b74bfc562709bfe8d2d",
+    "row-2/artifact-index.json": "b4d2b364d3f7bab626e622a3f306901ff1615ddc886741148835ce566971147d",
+    "row-2/durability.json": "0f9732071aabc96662979198c067859ad0bf8058fe95745ce8da23df1428a44c",
+    "row-3/page-requests.json": "f9c65f82f6ff90fbf041fc4b9dcb614817c862556910b2b5dfa9a33e63c66839",
+    "row-3/report.json": "2e115599ab50b47f5c5802cefb92e4c5da7f587a7d99abd8b5d69ab8bbd94521",
+    "row-3/score.json": "64aa4733682f97fc02daec5cc3bf6750e8784c2a1f80bce92bce07e7c4185dc4",
+    "row-3/control-replay.json": "975a24f9ed749a02a638fde3ce401df546c0a991974782d148f54d89e9dc586c",
+    "row-3/replay.json": "ee6d46969e947b309ca3265bd597afa42cb1c0def90c64687b336016e22fe7fb",
+    "row-3/artifact-index.json": "b89cd75ace981b14a624920744b8fd34097a1751751e9b44b176f5b635029f87",
+    "row-3/durability.json": "0f9732071aabc96662979198c067859ad0bf8058fe95745ce8da23df1428a44c",
+    "row-4/page-requests.json": "e7d51583fa2afa30a0f672cf93e0f354e5eeb6dac18849728c0640f53c582ac8",
+    "row-4/report.json": "9301623b2187971715b9704f72ce8d8046f960e0225a23a92d30e2f5d267033e",
+    "row-4/score.json": "9b289bf279f9b57d5d25d58bdadce3f40182c11aafdbe9711e22d4d988501891",
+    "row-4/replay.json": "3592bb14f433c6a30ba030f01a9945686237780558893917734149b464c3526f",
+    "row-4/artifact-index.json": "4458363de3d140c78d7607bf7da14d9fae9ac160713ae55882c8a05e9691c401",
+    "row-4/durability.json": "0f9732071aabc96662979198c067859ad0bf8058fe95745ce8da23df1428a44c",
+    "row-1/page-requests.json": "188ba1f73832243f0990ad699d5e80610967a7b2146a2473fe42a609e9028fe3",
+    "row-1/report.json": "05c9bc8c75de3f66c257f3f86358b1a7e24293b44d50810cdce158bde75c1b7b",
+    "row-1/score.json": "9b289bf279f9b57d5d25d58bdadce3f40182c11aafdbe9711e22d4d988501891",
+    "row-1/replay.json": "2317d3826af91fd02b13730ffdd7d6e6bcd9c3ec808eddd268e99671a318d351",
+    "row-1/artifact-index.json": "6039a7f16cfee9f006243a37b8a44e666eb813b39e7e4a1443185b64b8312644",
+    "row-1/durability.json": "0f9732071aabc96662979198c067859ad0bf8058fe95745ce8da23df1428a44c",
+    "row-6/page-requests.json": "5bc898a6ddebe42bbe57be50c6ff91eecbc1bcd5a0d2af600b9475a149b8c8d4",
+    "row-6/report.json": "ffa1057931934e6d665a2362d84742781afca7dc809df9427f7b63d8d2863285",
+    "row-6/boundary-verdict.json": "f89a21df157ae1c1e0c79da911bf96c8e5c2378155cfa462537116f10fbbefd6",
+    "row-6/artifact-index.json": "c3e746caed3afa8284f8cc3b6b116c0b0772d103b0461522f227d6fcb23e29e8",
+    "row-6/durability.json": "0f9732071aabc96662979198c067859ad0bf8058fe95745ce8da23df1428a44c"
+  }
+}
