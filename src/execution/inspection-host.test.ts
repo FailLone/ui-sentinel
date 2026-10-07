@@ -545,3 +545,27 @@ it('defers route changes and reloads with pending controls while preserving reso
   expect(() => h.assertMayNavigate('https://shop.example.org/info')).not.toThrow()
   expect(h.snapshot().items.find((i) => i.itemId === item.itemId)?.status).toBe('unverified')
 })
+
+it('deduplicates planning progress by public control rather than generated item or snapshot ids', async () => {
+  const { host: h, setSnapshot } = host()
+  for (const snapshot of ['s1', 's2']) {
+    setSnapshot(snapshot)
+    await h.recordObservation({
+      url: 'https://shop.example.org/catalog',
+      evidenceRefs: ['shot', 'snapshot'],
+      candidateItems: [
+        {
+          ref: snapshot + 'e1',
+          description: 'Refresh',
+          samplingKey: 'public-refresh-control',
+          category: 'local-interaction',
+        },
+      ],
+      candidateCategories: ['local-interaction'],
+      candidateDetail: 'Refresh',
+    })
+    await h.selectItems([{ itemId: h.candidateItems()[0]!.itemId, basis: 'Check refresh' }])
+  }
+  expect(h.selectionFacts()).toHaveLength(1)
+  expect(h.completionGaps().filter((g) => g.category === 'local-interaction')).toHaveLength(2)
+})

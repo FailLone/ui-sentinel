@@ -123,6 +123,35 @@ export async function measureInteraction(
       outcome: 'unverified' as const,
       reasonCode: 'measurement-unsupported',
     }
+  const outcome = evaluateInteraction(input, measured)
+  return {
+    input,
+    measured,
+    evidenceRefs,
+    binding: { mode: 'post-action-current', url: page.url(), selector: input.selector },
+    outcome,
+    reasonCode:
+      outcome === 'unverified' ? 'measurement-ambiguous' : 'declared-postcondition-measured',
+  }
+}
+
+/** Deterministic replay of a captured predicate; unsupported data never becomes a failure. */
+export function evaluateInteraction(
+  input: InteractionVerification,
+  measured: {
+    values: (string | null)[]
+    count: number
+    supported: boolean
+  } | null,
+): 'verified' | 'failed' | 'unverified' {
+  if (
+    !measured?.supported ||
+    !Array.isArray(measured.values) ||
+    measured.values.length !== measured.count ||
+    measured.count > 100 ||
+    measured.values.some((v) => v !== null && typeof v !== 'string')
+  )
+    return 'unverified'
   let passed: boolean | null = null
   if (input.condition === 'count-equals' && /^\d+$/.test(input.expected ?? ''))
     passed = measured.count === Number(input.expected)
@@ -147,17 +176,5 @@ export async function measureInteraction(
           ? value.includes(input.expected)
           : value === input.expected
   }
-  return {
-    input,
-    measured,
-    evidenceRefs,
-    binding: { mode: 'post-action-current', url: page.url(), selector: input.selector },
-    outcome:
-      passed === null
-        ? ('unverified' as const)
-        : passed
-          ? ('verified' as const)
-          : ('failed' as const),
-    reasonCode: passed === null ? 'measurement-ambiguous' : 'declared-postcondition-measured',
-  }
+  return passed === null ? 'unverified' : passed ? 'verified' : 'failed'
 }

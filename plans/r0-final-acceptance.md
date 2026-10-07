@@ -64,3 +64,13 @@ D12–D15 最终免费回归：149/149 文件，1478 通过、1 跳过（`data/r
 D16 补齐实际动作验证回执和有界原始证据读取；D17 拒绝遗留已选 pending 本页检查的过早导航。两个修复均只使用真实账本/当前 URL/控件身份，不含 fixture 私有答案。新保留布局 holdout-columns-7；旧六布局均留回归。免费 API 15 场景、原恢复9场景、URL42、业务32在 `data/r0-final-acceptance/d16/` 留存原始日志。D16全量149文件1481通过1跳过；D17首次全量唯一失败是对fragment旧语义的错误预期，按整改计划显式修订后继续完整复核，不能删掉失败批次或声称该次全绿。
 
 D16/D17最终复核：149/149文件、1482通过1跳过（`data/r0-final-acceptance/d16/full-final.log`）；最新构建15场景B `data/r0-continuity/2026-10-07T11-46-00-778Z` 全通过。原恢复9 `data/r0-remediation/2026-10-07T11-41-15-604Z`、URL42 `data/r0-url-scan/2026-10-07T11-41-43-245Z`、业务32 `data/business-preflight/2026-10-07T11-42-02-318Z` 全通过，最后只加强了 pending 时fragment/重载的前置拒绝，其他路径未变。所有命令与首次失败仍留存。
+
+## 诊断 07 与 D18/D19
+
+`r0-ui-diagnostic-00dad71-07` 六行 4 通过 / 2 失败：healthy-catalog、overlay-defect、dom-healthy、boundary 通过；overlay-healthy 首次选中剩余控件时触发无进展结束，dom-investigation-defect 已完整结束且后置测量 failed，但报告漏发对应发现。独立档案审计通过，不等于能力通过；旧批次完整保留。新账本累计 US$1.11547860、unknown 0；加历史 US$1.15270320。
+
+D18 只把首次真实控件选择作为有界调度进展，不作为完成证据；重复选择仍收尾。D19 为原后置失败测量建立带服务端封印的 ui-interaction 发现，保留原动作、预期和事项；在历史及持久校验重算测量、核对截图/观察/动作顺序/摘要，恢复失败不重放动作。私有判定必须在独立浏览器中核实结果节点集合与精确实际值；不把任意 failed 当正确发现。新私有布局 holdout-bordered-8，旧七布局均作为已见回归。
+
+D19 首次增强反例发现历史报告中 persistence 无效但 UI proofVerified 仍为 true，已修复完整 issues 向 UI 摘要传递；失败原报告在 `data/r0-remediation/2026-10-07T12-11-41-818Z/direct-defect/tampered-history-report.json`，不得删除。原9场景增加直接后置失败为10场景，恢复缺陷场景去掉额外 investigation_run，要求仅凭原测量发布恰好一个对应发现；不是降低标准。该次全10场景记录保留，场景计数常量同步修正。
+
+D18/D19 免费出口：构建通过（`data/r0-final-acceptance/d18/d19-build-final-v3.log`）；全量150文件、1487通过、1跳过（`d19-full-v2.log`）。正式 API 恢复/拒绝10场景 `data/r0-remediation/2026-10-07T12-13-16-608Z`，连续性17场景 `data/r0-continuity/2026-10-07T12-13-46-311Z`，URL42 `data/r0-url-scan/2026-10-07T12-14-07-916Z`，业务32 `data/business-preflight/2026-10-07T12-14-26-603Z` 全通过。最后增加“新类别缺失封印”的保守历史拒绝及单测，v3构建与完整单测覆盖；其余B实测路径未改变。以上是开发自测，不能替代下一冻结构建的C诊断/正式轮次。

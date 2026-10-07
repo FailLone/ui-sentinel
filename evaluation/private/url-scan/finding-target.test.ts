@@ -24,3 +24,36 @@ it('requires independent node identity and the same measured assertion, not a se
   receipt.program.targets[0]!.selector = '#rows + p'
   expect(verifiesSortFinding(receipt, [selector])).toBe(false)
 })
+
+it('accepts inline measurements only for independently located result nodes and exact actual values', () => {
+  const receipt = {
+    outcome: 'failed',
+    input: { selector: '.price', condition: 'numeric-ascending' },
+    binding: { mode: 'post-action-current', selector: '.price' },
+    measured: { supported: true, count: 3, values: ['20', '5', '12'] },
+  }
+  expect(verifiesSortFinding(receipt, [], ['.price'])).toBe(true)
+  expect(verifiesSortFinding(receipt, ['.price'], [])).toBe(false)
+  expect(verifiesSortFinding({ ...receipt, outcome: 'unverified' }, [], ['.price'])).toBe(false)
+  expect(
+    verifiesSortFinding(
+      { ...receipt, measured: { ...receipt.measured, values: ['5', '12', '20'] } },
+      [],
+      ['.price'],
+    ),
+  ).toBe(false)
+  expect(
+    verifiesSortFinding(
+      { ...receipt, measured: { ...receipt.measured, supported: false } },
+      [],
+      ['.price'],
+    ),
+  ).toBe(false)
+  expect(
+    verifiesSortFinding(
+      { ...receipt, input: { ...receipt.input, selector: '#other' } },
+      [],
+      ['.price'],
+    ),
+  ).toBe(false)
+})

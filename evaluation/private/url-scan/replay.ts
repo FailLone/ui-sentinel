@@ -37,6 +37,20 @@ export async function replayUrlSample(
       },
       [...new Set(selectors)],
     )
+    const priceListSelectors = await page.evaluate(
+      (candidates) => {
+        const prices = [...document.querySelectorAll('#rows .price')]
+        return candidates.filter((selector) => {
+          try {
+            const nodes = [...document.querySelectorAll(selector)]
+            return nodes.length === prices.length && nodes.every((n, i) => n === prices[i])
+          } catch {
+            return false
+          }
+        })
+      },
+      [...new Set(selectors)],
+    )
     await page.getByRole('combobox', { name: 'Sort', exact: true }).selectOption('name')
     const nameResponse = page.waitForResponse((r) => r.url().includes('/items?sort=name'))
     await page.getByRole('button', { name: 'Apply sort', exact: true }).click()
@@ -60,6 +74,7 @@ export async function replayUrlSample(
       names,
       nameSortWorks,
       firstRowSelectors,
+      priceListSelectors,
       filterWorks,
       passed:
         sample.variant === 'healthy'

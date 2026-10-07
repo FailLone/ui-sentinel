@@ -371,7 +371,9 @@ export async function runUrlCampaign(
           const declaredSelectors = Object.values(saved.artifacts).flatMap((a) =>
             a.exists && a.type === 'measurement'
               ? ((a.data as any)?.program?.targets ?? []).map((t: any) => t.selector)
-              : [],
+              : a.exists && a.type === 'interaction-measurement'
+                ? [(a.data as any)?.input?.selector].filter(Boolean)
+                : [],
           )
           const replay = await replayUrlSample(entryUrl, truth, declaredSelectors)
           let controlReplayPassed = true
@@ -422,7 +424,9 @@ export async function runUrlCampaign(
             // A DOM assertion must actually measure the rows and contradict the public price order.
             if (
               truth.expectedFindingKey === 'sort-ignores-selection' &&
-              evidence.some((receipt) => verifiesSortFinding(receipt, replay.firstRowSelectors))
+              evidence.some((receipt) =>
+                verifiesSortFinding(receipt, replay.firstRowSelectors, replay.priceListSelectors),
+              )
             )
               findingKeysById[finding.id] = truth.expectedFindingKey
           }

@@ -615,6 +615,22 @@ export function createInspectionHost(options: InspectionHostOptions) {
               item.itemId === candidate.itemId && item.selected && item.status === 'pending',
           ),
         ),
+    selectionFacts: () => [
+      ...new Set(
+        items()
+          .filter(
+            (item) => item.selected && ['local-interaction', 'navigation'].includes(item.category),
+          )
+          .map((item) =>
+            JSON.stringify([
+              item.category,
+              samplingKeys.get(item.itemId) && samplingKeys.get(item.itemId) !== item.itemId
+                ? samplingKeys.get(item.itemId)
+                : [item.url, item.basis],
+            ]),
+          ),
+      ),
+    ],
     localSampling,
     assertActionSelectable,
     assertMayNavigate,

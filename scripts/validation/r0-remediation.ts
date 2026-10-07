@@ -48,8 +48,9 @@ const fixture = createServer((req, res) => {
     release = () => {
       if (res.writableEnded || res.destroyed) return
       res.writeHead(200, { 'content-type': 'application/json' })
-      res.end(JSON.stringify({ text: mode === 'defect' ? 'Wrong' : 'Ready' }))
+      res.end(JSON.stringify({ text: mode.includes('defect') ? 'Wrong' : 'Ready' }))
     }
+    if (mode === 'direct-defect') respond()
     return
   }
   res.writeHead(200, { 'content-type': 'text/html' })
@@ -79,6 +80,8 @@ const model = createServer(async (req, res) => {
         basis: 'Public page says Refresh updates status to Ready',
       },
     }
+  } else if (mode === 'direct-defect') {
+    // Finish from the original postcondition; no extra investigation may fabricate coverage.
   } else if (turn === 1) {
     savedRef = packet.recoverableInteractions?.[0]?.checkRef ?? ''
     if (
@@ -126,24 +129,7 @@ const model = createServer(async (req, res) => {
   } else if (mode === 'stale-action' && turn === 2) {
     name = 'interaction_verify'
     args = { checkRef: savedRef }
-  } else if (mode === 'defect' && turn === 2) {
-    name = 'investigation_run'
-    args = {
-      version: 1,
-      phenomenon: 'Status differs from the public expectation',
-      basis: 'Public page says Refresh updates status to Ready',
-      targets: [{ name: 'status', selector: '#result span' }],
-      steps: [{ op: 'measure', name: 'now' }],
-      assertions: [
-        {
-          expectation: 'Status is Ready',
-          left: { sample: 'now', target: 'status', metric: 'text' },
-          operator: 'eq',
-          right: { value: 'Ready' },
-        },
-      ],
-    }
-  } else if (!['healthy', 'defect', 'new-evidence'].includes(mode))
+  } else if (!['healthy', 'defect', 'direct-defect', 'new-evidence'].includes(mode))
     args = { reason: 'unverified-scope' }
   turn++
   const common = {
@@ -204,6 +190,7 @@ try {
   for (mode of [
     'healthy',
     'defect',
+    'direct-defect',
     'wrong-ref',
     'wrong-target',
     'stale-action',
@@ -247,9 +234,38 @@ try {
       mode + '/artifact-index.json',
       saved.index.map((i) => ({ ...i, path: 'artifacts/' + encodeURIComponent(i.artifactId) })),
     )
+    let historicalTamperRejected = true
+    if (mode === 'direct-defect') {
+      const seal = report.events.find((e: any) => e.type === 'interaction:finding-measured')
+      const db = createClient({ url: 'file:' + dbfile })
+      const row = (
+        await db.execute({
+          sql: 'SELECT file_path FROM artifacts WHERE run_id=? AND id=?',
+          args: [runId, seal.payload.receiptRef],
+        })
+      ).rows[0]!
+      const path = String(row.file_path),
+        original = await readFile(path)
+      try {
+        await writeFile(path, '{}')
+        const corrupted = (await fetch(base + '/api/runs/' + runId + '/report').then((r) =>
+          r.json(),
+        )) as any
+        await save(mode + '/tampered-history-report.json', corrupted)
+        historicalTamperRejected =
+          !corrupted.uiScan.proofVerified &&
+          corrupted.persistence.issues.includes('interaction-finding-unverified')
+      } finally {
+        await writeFile(path, original)
+        db.close()
+      }
+    }
     const open = report.events.find((e: any) => e.type === 'interaction:verification-opened')
     const recovered = report.events.filter((e: any) => e.type === 'interaction:recovered')
-    const item = report.uiScan?.inspection.items.find((i: any) => i.itemId === open?.payload.itemId)
+    const seal = report.events.find((e: any) => e.type === 'interaction:finding-measured')
+    const item = report.uiScan?.inspection.items.find(
+      (i: any) => i.itemId === (open?.payload.itemId ?? seal?.payload.itemId),
+    )
     const chain =
       !!open &&
       report.events.some(
@@ -259,8 +275,9 @@ try {
           e.payload.status === 'unverified' &&
           e.seq < open.seq,
       )
-    const complete = ['healthy', 'defect', 'new-evidence'].includes(mode)
+    const complete = ['healthy', 'defect', 'direct-defect', 'new-evidence'].includes(mode)
     const checks = {
+      historicalTamperRejected,
       oneAction: clicks === 1,
       negativeReason:
         mode === 'wrong-ref'
@@ -293,17 +310,22 @@ try {
                       !report.uiScan.proofVerified
                     : true,
 
-      originalUnknownRetained: chain,
+      originalUnknownRetained: mode === 'direct-defect' ? !open && !!seal : chain,
       expectedTerminal: complete
         ? report.status === 'completed' &&
           report.uiScan?.proofVerified &&
           report.uiScan.inspection.coverage === 'covered'
         : report.status !== 'completed' && report.uiScan?.inspection.coverage === 'partial',
       originalItem: complete
-        ? item?.status === (mode === 'defect' ? 'failed' : 'verified')
+        ? item?.status === (mode.includes('defect') ? 'failed' : 'verified')
         : item?.status === 'unverified',
       defectFinding:
-        mode !== 'defect' || report.findings.some((f: any) => f.validationStatus === 'supported'),
+        !mode.includes('defect') ||
+        (report.findings.filter(
+          (f: any) =>
+            f.validationStatus === 'supported' && f.hypothesisId === seal?.payload.hypothesisId,
+        ).length === 1 &&
+          !report.events.some((e: any) => e.type === 'program:measured')),
       bounded: mode !== 'loop' || turn <= 6,
       newEvidence:
         mode !== 'new-evidence' ||
@@ -390,8 +412,8 @@ await save('summary.json', {
   selfTest: true,
   independentAcceptance: false,
   paidRequests: 0,
-  passed: results.length === 9 && results.every((r) => r.passed),
+  passed: results.length === 10 && results.every((r) => r.passed),
   results,
 })
 console.log(JSON.stringify({ directory: root, results, paidRequests: 0 }))
-if (results.length !== 9 || results.some((r) => !r.passed)) process.exitCode = 1
+if (results.length !== 10 || results.some((r) => !r.passed)) process.exitCode = 1

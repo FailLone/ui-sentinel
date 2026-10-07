@@ -1,3 +1,4 @@
+import { interactionFindingIssues } from '../../execution/interaction-finding-proof.ts'
 import { stat, readFile } from 'node:fs/promises'
 import { getRunSnapshot, isRunActive } from '../../execution/run-manager.ts'
 import { inspectionHistoryIssues } from '../../inspection/proof-history.ts'
@@ -315,6 +316,20 @@ export async function buildReport(runId: string) {
         )
       : []
   issues.push(...recoveryIssues)
+  if (run.spec.kind === 'ui-scan')
+    issues.push(
+      ...(await interactionFindingIssues(
+        runId,
+        events,
+        artifactRows.rows.map((r) => ({
+          id: String(r.id),
+          type: String(r.type),
+          path: String(r.file_path),
+          metadata: JSON.parse(String(r.metadata)),
+        })),
+      )),
+    )
+
   const invalid = issues.length > 0
   const hypotheses = hypothesisRows.rows.map((row) => ({
     id: String(row.id),
@@ -479,7 +494,7 @@ export async function buildReport(runId: string) {
     business: businessSummary(run.spec),
     // The `ui-scan` section, projected from this run's own persisted events. Absent entirely for a
     // business or legacy record, so a reader can tell "no UI scan" from "a UI scan with no items".
-    uiScan: uiScanSummary(run, events, readable, recoveryIssues),
+    uiScan: uiScanSummary(run, events, readable, issues),
     events,
     hypotheses,
     artifacts,

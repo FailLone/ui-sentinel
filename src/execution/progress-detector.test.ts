@@ -61,3 +61,17 @@ it('new geometric facts count once; rereading a subset or returning to old geome
   expect(d.check({ ...facts, measurementFacts: [before, after] }).isProgress).toBe(true)
   expect(d.check({ ...facts, measurementFacts: [before, after, before] }).isProgress).toBe(false)
 })
+
+it('counts a newly selected public control once without confusing it with verified progress', () => {
+  const detector = createProgressDetector()
+  detector.check(facts)
+  expect(detector.check({ ...facts, selectionFacts: ['control-a'] })).toMatchObject({
+    isProgress: true,
+    basis: 'New selection facts',
+  })
+  for (let i = 0; i < 4; i++)
+    expect(detector.check({ ...facts, selectionFacts: ['control-a'] }).isProgress).toBe(false)
+  expect(detector.check({ ...facts, selectionFacts: ['control-a', 'control-b'] }).isProgress).toBe(
+    true,
+  )
+})

@@ -1,5 +1,32 @@
 /** Matches a saved comparison to a target independently located by the evaluator's browser. */
-export function verifiesSortFinding(receipt: any, firstRowSelectors: readonly string[]): boolean {
+export function verifiesSortFinding(
+  receipt: any,
+  firstRowSelectors: readonly string[],
+  priceListSelectors: readonly string[] = [],
+): boolean {
+  if (
+    receipt?.outcome === 'failed' &&
+    receipt?.binding?.mode === 'post-action-current' &&
+    receipt.binding.selector === receipt.input?.selector &&
+    receipt.measured?.supported
+  ) {
+    const input = receipt.input,
+      measured = receipt.measured
+    if (input.condition === 'numeric-ascending')
+      return (
+        priceListSelectors.includes(input.selector) &&
+        measured.count === 3 &&
+        JSON.stringify(measured.values) === JSON.stringify(['20', '5', '12'])
+      )
+    if (input.condition === 'text-equals')
+      return (
+        firstRowSelectors.includes(input.selector) &&
+        measured.count === 1 &&
+        ((measured.values?.[0] === '20' && input.expected === '5') ||
+          (measured.values?.[0] === '20 · Blue widget' && input.expected === '5 · Amber gadget'))
+      )
+    return false
+  }
   return (
     receipt?.verdict === 'fail' &&
     Array.isArray(receipt.assertions) &&

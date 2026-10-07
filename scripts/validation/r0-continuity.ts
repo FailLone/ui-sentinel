@@ -50,6 +50,9 @@ const fixture = createServer((req, res) => {
       (mode === 'sampling-cap'
         ? '<p>The additional buttons show their ready state.</p><button type=button id=second onclick="this.textContent=\'Second ready\'">Second</button><button type=button id=third onclick="this.textContent=\'Third ready\'">Third</button><button type=button id=fourth onclick="fetch(\'/fourth-dispatched\')">Fourth</button>'
         : '') +
+      (['late-selection', 'selection-loop'].includes(mode)
+        ? "<button type=button id=details onclick=\"document.getElementById('details-result').textContent='Details ready'\">Details</button><output id=details-result>Details closed</output>"
+        : '') +
       '<h1>Service status</h1><p>Refresh updates the status to Ready.</p><button type=button id=refresh>Refresh</button><output id=result>Idle</output><a href=/info>Information</a><script>refresh.onclick=async()=>{let d=await(await fetch("/status")).json();result.outerHTML="<output id=result>"+d.text+"</output>"}</script>',
   )
 })
@@ -245,6 +248,45 @@ const model = createServer(async (req, res) => {
       args = { reason: 'scope-covered' }
     }
   }
+  if (['late-selection', 'selection-loop'].includes(mode) && turn >= 2) {
+    if (turn === 2) {
+      name = 'page_observe'
+      args = {}
+    } else if (turn === 3 || mode === 'selection-loop') {
+      name = 'exploration_update'
+      args = {
+        state: 'Inspect the Details control',
+        unexploredBranches: [],
+        selectItems: [
+          {
+            itemId: candidates.find((c: any) => c.description.includes('Details'))?.itemId,
+            basis: 'Public details affordance',
+          },
+        ],
+      }
+    } else if (turn === 4) {
+      name = 'page_act'
+      args = {
+        type: 'click',
+        selector: '#details',
+        verify: {
+          selector: '#details-result',
+          condition: 'text-equals',
+          expected: 'Details ready',
+          basis: 'Public details content',
+        },
+      }
+    } else if (turn === 5) {
+      name = 'page_act'
+      args = { type: 'click', selector: '#refresh', verify: verification }
+    } else if (turn === 6) {
+      name = 'page_act'
+      args = { type: 'click', ref: candidates.find((c: any) => c.category === 'navigation')?.ref }
+    } else {
+      name = 'run_finish'
+      args = { reason: 'scope-covered' }
+    }
+  }
   turn++
   const common = {
     id: randomUUID(),
@@ -316,6 +358,8 @@ try {
     'contract-loop',
     'evidence-read',
     'evidence-loop',
+    'late-selection',
+    'selection-loop',
     'action-preflight',
     'unknown-replay',
   ]) {
@@ -354,12 +398,15 @@ try {
     const original = report.uiScan?.inspection.items.find((i: any) => i.itemId === originalId)
     const events = report.events
     const checks = {
+      selectionBounded:
+        mode !== 'selection-loop' || (turn <= 8 && clicks === 0 && report.status !== 'completed'),
       evidenceRead:
         mode !== 'evidence-loop' || (turn <= 7 && clicks === 0 && report.status !== 'completed'),
       actionReceipt:
         [
           'contract-loop',
           'evidence-loop',
+          'selection-loop',
           'program-preflight',
           'wire-null',
           'contract-repair',
@@ -408,7 +455,7 @@ try {
         !report.uiScan.inspection.items.some((i: any) => i.status === 'failed'),
       labelPreflight:
         mode !== 'label-contract' || JSON.stringify(events).includes('verification-value-is-label'),
-      terminal: ['contract-loop', 'evidence-loop'].includes(mode)
+      terminal: ['contract-loop', 'evidence-loop', 'selection-loop'].includes(mode)
         ? report.status !== 'completed' && original?.status === 'pending'
         : mode === 'unknown-replay'
           ? report.status !== 'completed' && original?.status === 'unverified'
@@ -416,7 +463,7 @@ try {
       proof: report.uiScan?.proofVerified === true,
       dispatched:
         clicks ===
-        (['contract-loop', 'evidence-loop'].includes(mode)
+        (['contract-loop', 'evidence-loop', 'selection-loop'].includes(mode)
           ? 0
           : ['unknown-replay', 'sampling-cap'].includes(mode)
             ? 2
@@ -425,7 +472,7 @@ try {
         (e: any) => e.type === 'scope:candidate-reobserved' && e.payload.itemId === originalId,
       ),
       navigation:
-        ['contract-loop', 'evidence-loop'].includes(mode) ||
+        ['contract-loop', 'evidence-loop', 'selection-loop'].includes(mode) ||
         report.uiScan?.inspection.items.find(
           (i: any) => i.itemId === selected.find((c) => c.category === 'navigation')?.itemId,
         )?.status === 'verified',

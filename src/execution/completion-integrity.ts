@@ -1,3 +1,4 @@
+import { interactionFindingIssues } from './interaction-finding-proof.ts'
 import { createClient } from '@libsql/client'
 import { config } from '../shared/config.ts'
 import type { Run, RunEvent } from '../shared/types.ts'
@@ -70,6 +71,19 @@ export async function verifyCompletionCommit(expected: {
         } catch {}
       }
       issues.push(...inspectionHistoryIssues(snapshot.run, snapshot.events, readable))
+      issues.push(
+        ...(await interactionFindingIssues(
+          snapshot.run.id,
+          snapshot.events,
+          snapshot.artifactRows.rows.map((r) => ({
+            id: String(r.id),
+            type: String(r.type),
+            path: String(r.file_path),
+            metadata: JSON.parse(String(r.metadata)),
+          })),
+        )),
+      )
+
       issues.push(
         ...(await recoveryArtifactIssues(
           snapshot.events,

@@ -1,3 +1,4 @@
+import { publishInteractionFinding } from './interaction-finding.ts'
 import { createToolContractRepair } from './tool-contract-repair.ts'
 import { uiActionRefusal } from './ui-action-boundary.ts'
 import { createInteractionRecovery, recoveryDigest } from './interaction-recovery.ts'
@@ -727,6 +728,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         'interaction-measurement',
         JSON.stringify({
           ...measurement,
+          actionId: pending.actionId,
           target: pending.target,
           sourceSnapshot: pending.snapshotPage,
           url: landedAt,
@@ -739,7 +741,10 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         runId,
         'interaction:measured',
         { target: pending.target, sourceSnapshot: pending.snapshotPage, outcome, reasonCode },
-        { evidenceRefs: [ref, ...measurement.evidenceRefs, ...observed!.evidenceRefs] },
+        {
+          actionId: pending.actionId,
+          evidenceRefs: [ref, ...measurement.evidenceRefs, ...observed!.evidenceRefs],
+        },
       )
     }
     const resolved = await inspection.resolveInteraction({
@@ -758,6 +763,18 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     if (resolved)
       uiActionChecks.set(pending.actionId, { itemId: resolved.itemId, target: pending.target })
     if (resolved && programActionItems) programActionItems.push(resolved.itemId)
+    if (resolved && measurement?.outcome === 'failed')
+      await publishInteractionFinding({
+        runId,
+        actionId: pending.actionId,
+        itemId: resolved.itemId,
+        receiptRef: measurementRefs.at(-1)!,
+        evidenceRefs: resolved.evidenceRefs,
+        measurement,
+        metadata: evidenceMetadata(),
+        guard,
+      })
+
     if (
       resolved &&
       measurement?.outcome === 'unverified' &&
@@ -2686,6 +2703,17 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
             detail: `Original action ${check.actionId}; frozen expectation: ${check.input.basis}`,
           })
           await inspection!.flush()
+          if (measurement.outcome === 'failed')
+            await publishInteractionFinding({
+              runId,
+              actionId: check.actionId,
+              itemId: check.itemId,
+              receiptRef,
+              evidenceRefs: refs,
+              measurement,
+              metadata: evidenceMetadata(),
+              guard,
+            })
           return { ...body, evidenceRefs: refs }
         })
       } catch (error) {
@@ -3372,9 +3400,13 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
                 args: [input.hypothesisId, runId],
               })
             if (!h.rows.length) throw new Error('hypothesis not owned by run')
-            if ((await hypothesisClass(runId, input.hypothesisId)).kind === 'program')
+            if (
+              ['program', 'ui-interaction'].includes(
+                (await hypothesisClass(runId, input.hypothesisId)).kind ?? '',
+              )
+            )
               throw Error(
-                'program investigation already saves its computed result; do not resubmit or relabel its finding',
+                'Executor measurement already saves its computed result; do not resubmit or relabel its finding',
               )
             const owned = await db.execute({
               sql: 'SELECT id,type FROM artifacts WHERE run_id=?',
@@ -4119,6 +4151,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
             e.hit.blocked,
           ]),
         }),
+        selectionFacts: inspection?.selectionFacts() ?? [],
         hypothesisFacts: taskState.facts(),
         findingFacts: [...findingFacts],
         measurementFacts: [...measurementFacts],

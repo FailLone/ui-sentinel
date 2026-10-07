@@ -141,3 +141,7 @@ UI 链接导航与目的页内容检查分开：导航动作不接受局部 `ver
 `page_act.verification` 与 `inspectionScope.recentChecks` 返回既有账本的动作→item→验证状态投影；`status=completed` 仍只表示动作结束，不能替代验证。摘要省略大负载时仍保留 verification 的 itemId/outcome/reasonCode。UI 首次读取带证据的原始回执分片可获得最多三次信息访问进展，等价数字引用与缺省/零 offset 归一化，重复分片、空分片、输入错误及递归读取均不获进展；这不产生新页面事实、不解除任何未验证事项。
 
 已选择但仍 pending 的本页局部检查必须在可识别的跨文档导航前处理；前置拒绝不会派发动作。完成本页测量后可继续导航，无法完成则保留事项并 partial。路由身份沿用 query/fragment；pending 局部检查也须在 fragment 路由切换或重载前处理。未选控件及已如实记录的 unknown 不借此伪造验证或清除 gap。
+
+首次选择实际观察到的公开控件属于有界计划进展，允许执行随后测量；以公开 samplingKey 去重，每种控件只计一次，换 itemId 或重复选择不会续期。selectionFacts 只用于无进展调度，pending 仍是 pending，结束校验仍要求真实证据。
+
+UI 后置谓词的 `failed` 测量会由执行器保存 `ui-interaction` 类型发现，关联原 action、原 scope item、动作前预期、动作后当前结果绑定及截图。该发现只说明当前测量与声明预期不符，不证明预期适用于所有页面。提升、持久终态及历史报告均复核服务端封印、文件摘要和事件顺序；受干预、unknown 或无效证据不会产生 supported。`interaction_verify` 的失败恢复使用同一事项和原预期，保留旧 unknown，不重放动作。模型无需再次提交该发现。

@@ -5,6 +5,7 @@ export interface ProgressFacts {
   readonly findingFacts: readonly string[]
   readonly measurementFacts: readonly string[]
   readonly retrievedFacts?: readonly string[]
+  readonly selectionFacts?: readonly string[]
 }
 export interface ProgressCheckResult {
   readonly isProgress: boolean
@@ -16,6 +17,7 @@ export function createProgressDetector() {
   function check(facts: ProgressFacts): ProgressCheckResult {
     const current = [
       `page:${facts.pageFingerprint ?? facts.pageUrl ?? ''}`,
+      ...(facts.selectionFacts ?? []).map((f) => `selection:${f}`),
       ...facts.hypothesisFacts.map((f) => `hypothesis:${f}`),
       ...facts.findingFacts.map((f) => `finding:${f}`),
       ...facts.measurementFacts.map((f) => `measurement:${f}`),
