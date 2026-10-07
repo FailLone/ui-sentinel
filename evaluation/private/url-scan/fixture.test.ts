@@ -1,8 +1,18 @@
 import { it, expect } from 'vitest'
-import { startUrlScanFixture, URL_SCAN_HOLDOUT_LAYOUT, URL_SCAN_SEEN_LAYOUT } from './fixture.ts'
+import {
+  startUrlScanFixture,
+  URL_SCAN_HOLDOUT_LAYOUT,
+  URL_SCAN_SEEN_LAYOUT,
+  URL_SCAN_SEEN_SIDEBAR,
+} from './fixture.ts'
 import { replayUrlSample } from './replay.ts'
 import { urlScanTruth } from './truth.ts'
-it.each(['development', URL_SCAN_SEEN_LAYOUT, URL_SCAN_HOLDOUT_LAYOUT] as const)(
+it.each([
+  'development',
+  URL_SCAN_SEEN_LAYOUT,
+  URL_SCAN_SEEN_SIDEBAR,
+  URL_SCAN_HOLDOUT_LAYOUT,
+] as const)(
   'independently verifies five actual samples and their counterparts with layout %s',
   async (layout) => {
     const fixture = await startUrlScanFixture(layout)

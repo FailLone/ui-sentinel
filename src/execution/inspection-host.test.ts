@@ -418,3 +418,51 @@ describe('the model-side ledger surface', () => {
     expect(h.snapshot().candidates?.truncated).toBe(4)
   })
 })
+
+describe('pending candidate continuity', () => {
+  it('reuses only a pending same-page item and preserves an executed unknown', async () => {
+    const { host: h, setSnapshot } = host()
+    const observation = (ref: string, continuedItemId?: string) =>
+      h.recordObservation({
+        url: 'https://shop.example.org/catalog',
+        evidenceRefs: ['shot.webp'],
+        candidateDetail: 'Filter',
+        candidateCategories: ['local-interaction'],
+        candidateItems: [
+          { ref, description: 'Filter', category: 'local-interaction', continuedItemId },
+        ],
+      })
+    await observation('s1e1')
+    const original = h.candidateItems()[0]!.itemId
+    await h.selectItems([{ itemId: original, basis: 'public control' }])
+    setSnapshot('s2')
+    await observation('s2e1', original)
+    expect(h.candidateItems()[0]!.itemId).toBe(original)
+    expect(events.some((e) => e.type === 'scope:candidate-reobserved')).toBe(true)
+    await h.resolveInteraction({
+      ref: 's2e1',
+      snapshotId: 's2',
+      target: 'Filter',
+      url: 'https://shop.example.org/catalog',
+      category: 'local-interaction',
+      outcome: 'unverified',
+      reasonCode: 'missing-result',
+      evidenceRefs: ['after.json'],
+    })
+    setSnapshot('s3')
+    await observation('s3e1', original)
+    expect(h.candidateItems()[0]!.itemId).not.toBe(original)
+    expect(h.selectedCandidates()).toHaveLength(0)
+    await h.resolveInteraction({
+      ref: 's2e1',
+      snapshotId: 's2',
+      target: 'Filter',
+      url: 'https://shop.example.org/catalog',
+      category: 'local-interaction',
+      outcome: 'verified',
+      evidenceRefs: ['new.json'],
+    })
+    expect(h.snapshot().items.find((i) => i.itemId === original)?.status).toBe('unverified')
+    expect(h.completionGaps().some((g) => g.itemId === original)).toBe(true)
+  })
+})

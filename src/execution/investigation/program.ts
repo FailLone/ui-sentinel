@@ -52,6 +52,14 @@ export const programInput = z
           .object({
             name,
             selector: z.string().min(1).max(400),
+            identityBasis: z
+              .string()
+              .min(1)
+              .max(500)
+              .optional()
+              .describe(
+                'For an identity-sensitive post-action-only check, explain why the original node itself must persist. Never use this for ordinary result content.',
+              ),
             binding: z
               .enum(['node', 'post-action'])
               .optional()
@@ -156,6 +164,37 @@ export const programInput = z
     }
   })
 export type InvestigationProgram = z.infer<typeof programInput>
+
+/** UI-only preflight: reject an ambiguous result contract before any action or hypothesis. */
+export function assertUiProgramBindings(program: InvestigationProgram): void {
+  const lastAction = program.steps.map((step) => step.op).lastIndexOf('act')
+  if (lastAction < 0) return
+  for (const target of program.targets) {
+    if (
+      target.binding === 'post-action' ||
+      target.identityBasis ||
+      program.steps.some((step) => step.op === 'act' && step.target === target.name)
+    )
+      continue
+    const references = program.assertions
+      .flatMap((a) => [a.left, a.right])
+      .filter(
+        (r): r is InvestigationProgram['assertions'][number]['left'] =>
+          'sample' in r && r.target === target.name,
+      )
+    if (
+      references.length &&
+      references.every(
+        (r) =>
+          program.steps.findIndex((step) => step.op === 'measure' && step.name === r.sample) >
+          lastAction,
+      )
+    )
+      throw Error(
+        `ambiguous-result-binding: ${target.name} only checks the post-action result. Declare binding=post-action and bind_results after the final action, or identityBasis for a genuinely identity-sensitive check. No action dispatched.`,
+      )
+  }
+}
 export type Metric = (typeof metrics)[number]
 export type Measurement = Record<Metric, string | number | boolean | null>
 export type Samples = Record<string, Record<string, Measurement>>

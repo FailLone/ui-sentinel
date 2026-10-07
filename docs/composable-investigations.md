@@ -81,3 +81,5 @@ Agent 从公开需求、页面状态和交互提出假设，选择目标并声�
 `targets[].binding` 可选 `node`（默认）或 `post-action`。默认目标首次绑定后始终检查同一 DOM 节点身份，适用于同节点前后对比；节点被替换仍 unknown。预计由动作重建的结果目标应显式使用 `post-action`，并在最后一个 `act` 后、用于断言的 `measure` 前加入 `{op: 'bind_results'}`。该步骤记录当前结果节点的 selector 和文本；结果目标不能作为动作目标，也不能用于绑定前的断言。截图期间发生替换仍不能通过。
 
 此能力不改写旧调查的 unknown，不把重新运行的成功程序视为旧 gap 已解决，也不允许为取得新结果重放业务写入。UI `page_act.verify` 的只读恢复另见执行引擎文档。
+
+UI 扫描还在执行前检查结果契约：动作后才用于断言、且不是操作目标的结果节点，必须声明 `binding: 'post-action'` 和 `bind_results`；如果问题确实关乎原节点身份，使用同节点前后比较，或在目标的 `identityBasis` 中说明为什么必须保留原节点。无用途的 before 样本不代表身份比较。契约缺失返回 `ambiguous-result-binding`，不会派发动作、创建 hypothesis 或删除已有 unknown。业务调查仍保持旧默认节点语义。

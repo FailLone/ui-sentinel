@@ -125,3 +125,7 @@ CDP 的请求类型先转换为统一枚举。UI 请求不再使用 `Fetch.conti
 `interaction:verification-opened`、`interaction:recovered` 和事项更新构成恢复链，记录 actionId、itemId、固定预期、原证据摘要、新观察与测量截图。完成校验和历史报告同时核对归属、顺序和产物内容；缺失或篡改不能产生可信完整证明。引用只存在于活动执行器内，重启仍 interrupted，不恢复动作。
 
 相同事实的重复读取不算进展。纯 UI 检查连续三个无进展轮次触发一次只读观察及至多一个已有事项恢复；出现新观察或可判定测量可继续，否则通过既有结束契约保存 partial。随后再次耗尽无进展窗口直接 partial。进入时间/模型预算保留区时，执行器先尝试完整结束，存在缺口则保存 partial，不再花一轮模型生成结束措辞。不提高总预算；极小调用预算仍保持原 budget-exhausted 行为。partial 是诚实收尾，不能用于健康样本的完整通过。
+
+UI 扫描的待检查控件可以跨观察延续同一事项，但执行器必须确认相同 URL、类别及连接中的同一真实 DOM 节点，并追加 `scope:candidate-reobserved`。同名或同 selector 的替换节点不能继承身份；已执行的 unverified、verified、failed 不通过重新观察合并。旧 unknown 的恢复仍须使用原冻结验证引用。
+
+UI 本地 click/fill 在派发前须有 `page_act.verify` 或处于有测量契约的调查程序；缺失时 `postcondition-required` 拒绝，不执行动作。真实链接导航保留导航后观察校验。`localSampling` 将每页的既有采样上限、已选数量和剩余数量提供给 Agent，上限在派发前检查；业务写入和业务完成契约不受此 UI 前置约束影响。

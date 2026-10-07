@@ -1,7 +1,7 @@
 import { uiActionRefusal } from './ui-action-boundary.ts'
 import { createInteractionRecovery, recoveryDigest } from './interaction-recovery.ts'
 import { measureInteraction, type InteractionVerification } from './interaction-verification.ts'
-import { inspectInput, programInput } from './investigation/program.ts'
+import { inspectInput, programInput, assertUiProgramBindings } from './investigation/program.ts'
 import { inspectElements } from './investigation/measure.ts'
 import { investigateProgram } from './investigation/service.ts'
 import { createVisualFocusRuntime, VISUAL_FOCUS_VERSION } from './visual-focus-runtime.ts'
@@ -979,6 +979,8 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           | 'navigation'
           | 'local-interaction',
       }))
+    const previousCandidates = [...inspection.selectedCandidates(), ...inspection.candidateItems()]
+    const continuedItems = new Map<string, string>()
     for (const candidate of offered) {
       const detail = elementStore.getDetail(candidate.ref)
       if (!detail.found) continue
@@ -986,8 +988,22 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         .locator(detail.element.selector)
         .elementHandle()
         .catch(() => null)
-      if (handle)
+      if (handle) {
+        for (const previous of previousCandidates) {
+          const bound = candidateBindings.get(previous.ref)
+          if (
+            previous.category === candidate.category &&
+            bound &&
+            (await bound
+              .evaluate((node, current) => node.isConnected && node === current, handle)
+              .catch(() => false))
+          ) {
+            continuedItems.set(candidate.ref, previous.itemId)
+            break
+          }
+        }
         candidateBindings.set(candidate.ref, handle as import('playwright').ElementHandle<Element>)
+      }
     }
     const categories = [...new Set(offered.map((o) => o.category))]
     await inspection.recordObservation({
@@ -999,7 +1015,10 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         ? `${offered.length} operable control(s) offered by the observation`
         : 'the observation offered no operable control within this run’s scope',
       candidateCategories: categories,
-      candidateItems: offered,
+      candidateItems: offered.map((candidate) => ({
+        ...candidate,
+        continuedItemId: continuedItems.get(candidate.ref),
+      })),
     })
   }
   try {
@@ -1923,6 +1942,24 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         }
       }
       guard()
+      if (inspection) inspection.assertActionSelectable(actingRef, actionSnapshotPage)
+      if (
+        uiScan &&
+        !programActionItems &&
+        !input.verify &&
+        ['click', 'fill'].includes(input.type) &&
+        resolvedLocator
+      ) {
+        const isLink =
+          input.type === 'click' &&
+          (await resolvedLocator.evaluate(
+            (node) => node instanceof HTMLAnchorElement && !!node.getAttribute('href'),
+          ))
+        if (!isLink)
+          throw Error(
+            'postcondition-required: no action dispatched. Declare page_act.verify from public facts, or compose an investigation_run with explicit post-action measurement. Read current DOM before choosing the result selector.',
+          )
+      }
       const actionId = randomUUID()
       let dispatchTime = Date.now()
       const beforeText = await page.locator('body').innerText()
@@ -2621,6 +2658,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         inputSchema: programInput,
         execute: (input) =>
           serial('investigation_run', async () => {
+            if (uiScan) assertUiProgramBindings(input)
             programActionItems = []
             let result: Awaited<ReturnType<typeof investigateProgram>>
             try {
@@ -3565,7 +3603,12 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         return true
       })
       const agentInput = {
-        ...(uiScan ? { recoverableInteractions: interactionRecovery.available() } : {}),
+        ...(uiScan
+          ? {
+              recoverableInteractions: interactionRecovery.available(),
+              localSampling: inspection?.localSampling(),
+            }
+          : {}),
         activeTools,
         goal: run.spec.goal,
         availableJourneys: availableJourneys()

@@ -202,6 +202,60 @@ async function makeUiRun(request: Record<string, unknown> = {}) {
 }
 
 describe('ui-scan executor assembly', () => {
+  it('does not transfer a pending selection to a replacement node with the same selector', async () => {
+    let phase = 0,
+      original = ''
+    harness.handler = async (tools: any, prompt: string) => {
+      if (phase++ > 0) return []
+      const packet = JSON.parse(prompt)
+      original = packet.inspectionScope.candidates.find((c: any) =>
+        c.description.includes('Filter'),
+      ).itemId
+      await call(tools, 'exploration_update', {
+        state: 'catalog',
+        unexploredBranches: [],
+        selectItems: [{ itemId: original, basis: 'public filter' }],
+      })
+      await live.page!.evaluate(() => {
+        const old = document.querySelector('#filter')!
+        const replacement = old.cloneNode(true) as HTMLButtonElement
+        replacement.onclick = () => {
+          document.querySelector('h1')!.textContent = 'Filtered'
+        }
+        old.replaceWith(replacement)
+      })
+      await call(tools, 'page_observe', {})
+      await call(tools, 'page_act', {
+        type: 'click',
+        selector: '#filter',
+        verify: {
+          selector: 'h1',
+          condition: 'text-equals',
+          expected: 'Filtered',
+          basis: 'public filter result',
+        },
+      })
+      await call(tools, 'run_finish', { reason: 'unverified-scope' })
+      return []
+    }
+    const run = await makeUiRun()
+    await startRunExecution(run.id)
+    const events = await getEvents(run.id)
+    expect(
+      events.some(
+        (e) =>
+          e.type === 'scope:item-updated' &&
+          e.payload.itemId === original &&
+          e.payload.status === 'verified',
+      ),
+    ).toBe(false)
+    const proof = events.find((e) => e.type === 'finish:accepted')?.payload.inspectionProof as any
+    expect(proof.items.find((i: any) => i.itemId === original).status).toBe('pending')
+    expect(
+      proof.items.some((i: any) => i.category === 'local-interaction' && i.status === 'verified'),
+    ).toBe(true)
+  })
+
   it('persists budget exhaustion with unverified UI scope and no invented business success', async () => {
     harness.handler = async () => []
     const run = await makeUiRun({ budget: { maxModelCalls: 1 } })

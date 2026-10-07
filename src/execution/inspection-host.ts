@@ -70,6 +70,8 @@ export interface RecordObservationInput {
     ref: string
     description: string
     category: InspectionCategory
+    /** Executor-only proof of the same connected DOM node, never a text/selector match. */
+    continuedItemId?: string
   }[]
 }
 
@@ -130,8 +132,13 @@ export function createInspectionHost(options: InspectionHostOptions) {
 
   /** Close the envelope on a document: any selected item still pending is honestly unverified. */
   async function leavePage(pageId: string): Promise<void> {
+    const leavingItems = new Set((offeredBySnapshot.get(pageId) ?? []).map((c) => c.itemId))
     for (const item of items())
-      if (item.pageId === pageId && item.selected && item.status === 'pending')
+      if (
+        (item.pageId === pageId || leavingItems.has(item.itemId)) &&
+        item.selected &&
+        item.status === 'pending'
+      )
         scope.resolveItem(item.itemId, {
           status: 'unverified',
           reasonCode: 'navigation-left-target',
@@ -144,7 +151,7 @@ export function createInspectionHost(options: InspectionHostOptions) {
     // a target that is no longer on screen. Selected items stay as obligations.
     candidates = candidates.filter((candidate) => {
       const item = items().find((i) => i.itemId === candidate.itemId)
-      return item?.pageId !== pageId
+      return item?.pageId !== pageId && !leavingItems.has(candidate.itemId)
     })
     await persist()
   }
@@ -186,12 +193,19 @@ export function createInspectionHost(options: InspectionHostOptions) {
     const offered = input.candidateItems ?? []
     const bounded = offered.slice(0, MAX_CANDIDATE_ITEMS)
     candidates = bounded.map((candidate) => {
-      const item = create({
-        category: candidate.category,
-        basis: `observed candidate: ${candidate.description}`,
-        targetSource: 'executor',
-        selected: false,
-      })
+      const previous = items().find((item) => item.itemId === candidate.continuedItemId)
+      const continued =
+        previous?.status === 'pending' &&
+        previous.category === candidate.category &&
+        previous.url === input.url
+      const item = continued
+        ? previous
+        : create({
+            category: candidate.category,
+            basis: `observed candidate: ${candidate.description}`,
+            targetSource: 'executor',
+            selected: false,
+          })
       return {
         itemId: item.itemId,
         ref: candidate.ref,
@@ -202,6 +216,21 @@ export function createInspectionHost(options: InspectionHostOptions) {
     })
     offeredBySnapshot.set(identity().pageId, candidates)
     await persist()
+    for (const candidate of candidates) {
+      const item = items().find((item) => item.itemId === candidate.itemId)!
+      if (item.pageId !== candidate.snapshotId)
+        await options.appendEvent(
+          'scope:candidate-reobserved',
+          {
+            itemId: item.itemId,
+            originalSnapshotId: item.pageId,
+            snapshotId: candidate.snapshotId,
+            ref: candidate.ref,
+            basis: 'same-connected-node',
+          },
+          { evidenceRefs: [...input.evidenceRefs] },
+        )
+    }
     scope.recordCandidates({
       categories: [...input.candidateCategories],
       detail: input.candidateDetail,
@@ -328,7 +357,7 @@ export function createInspectionHost(options: InspectionHostOptions) {
     const byRef = input.ref ? offered.find((c) => c.ref === input.ref) : undefined
     // Never guess identity from the number of pending checks. A stale ref is not a match.
     const matched = byRef?.category === input.category ? byRef : undefined
-    if (matched) {
+    if (matched && items().find((i) => i.itemId === matched.itemId)?.status === 'pending') {
       const current = items().find((i) => i.itemId === matched.itemId)
       if (current && !current.selected)
         await selectItems([{ itemId: matched.itemId, basis: input.target }])
@@ -450,6 +479,21 @@ export function createInspectionHost(options: InspectionHostOptions) {
     return entries.map((entry) => scope.snapshot().items.find((i) => i.itemId === entry.itemId)!)
   }
 
+  const localSampling = () => {
+    const selected = items().filter(
+      (i) => i.selected && i.category === 'local-interaction' && i.url === options.currentUrl(),
+    ).length
+    return { limit: 3, selected, remaining: Math.max(0, 3 - selected) }
+  }
+
+  function assertActionSelectable(ref: string, snapshotId: string) {
+    const candidate = offeredBySnapshot.get(snapshotId)?.find((c) => c.ref === ref)
+    if (candidate?.category !== 'local-interaction') return
+    const item = items().find((i) => i.itemId === candidate.itemId)
+    if (!(item?.selected && item.status === 'pending') && !localSampling().remaining)
+      throw Error('local-interaction-sampling-cap: no action dispatched; finish existing checks')
+  }
+
   /**
    * Exclude an item. Executor-only, by construction: the reason must be one of the frozen boundaries,
    * and the agent's tool surface never reaches this function.
@@ -513,11 +557,11 @@ export function createInspectionHost(options: InspectionHostOptions) {
         .filter((candidate) =>
           items().some(
             (item) =>
-              item.itemId === candidate.itemId &&
-              item.selected &&
-              ['pending', 'unverified'].includes(item.status),
+              item.itemId === candidate.itemId && item.selected && item.status === 'pending',
           ),
         ),
+    localSampling,
+    assertActionSelectable,
     completionFacts,
     snapshot: (): InspectionScopeSnapshot => scope.snapshot(),
     completionGaps: () => scope.completionGaps(),
