@@ -38,3 +38,11 @@ D8/D9 免费验证：6 场景正式 API/SDK/Chromium 接线（含 covered 后循
 保留免费失败：新评分反例初稿调用了局部作用域 helper，修正测试作用域后原预期通过；首次全量有 program-replay 的 afterAll 浏览器 close 超过既有 10 秒，1468 个用例断言通过但该套失败。单套 6/6 复跑通过；保持原时限再作无并行浏览器任务的全量复核，不能将首次失败删掉或声称已证明环境根因。
 
 D8/D9 最终全量复核：147/147 文件、1468 通过、1 跳过，命令 `pnpm test`，无时限/预期改动，`data/r0-final-acceptance/d9/full-2.log`。上述关闭超时保留为未复现稳定性风险。最终 typecheck 和构建通过。
+
+## 诊断 04 与 D10/D11
+
+`r0-ui-diagnostic-2cd1761-04` 完整六行 4 通过 / 2 失败：healthy-catalog、overlay-defect、dom-investigation-defect 和边界通过；overlay-healthy 缺少另一个控件的实际交互，dom-healthy 留下已选链接的 navigation-left-target。新账本累计 US$0.60160122，未知 0；加历史合计 US$0.63882582。原已准备的 `ui-formal-01` 未启动，不能使用未通过的诊断进入正式阶段。
+
+D10 将“控件采样名额”和“独立检查记录”分离，不增加总动作/时限；D11 在直接 URL 导航绕过已选链接前拒绝，要求实际 click，不靠目的 URL 相同冒充原链接验证。详见整改计划。新增 samplingKey 仅供额度，不能用于旧 gap 恢复。免费正式 API 八场景在 `data/r0-continuity/2026-10-07T10-46-39-275Z` 全通过，原九恢复反例在 `data/r0-remediation/2026-10-07T10-46-52-328Z` 全通过。新的私有 `holdout-wide-5` 保留旧四布局作为已见回归；必须重新冻结完整六行与正式阶段，不能拼接本批四个通过结果。
+
+D10/D11 自测：全量 147 文件、1471 通过、1 跳过（`data/r0-final-acceptance/d10/full-final.log`），构建通过；URL 42、业务 32 断言通过。保留 `full.log` 的 afterAll 10 秒清理超时（全部1470断言通过但套件失败）。加浏览器诊断后整套通过，所有 browser close 都不足1秒，仍不能认定超时根因。回放辅助工具另修复了明确的准备阶段资源清理缺口：每次使用显式 context，准备/测量任何失败都在 finally 释放；新增真实浏览器反例证明非法 selector 在准备阶段抛错后上下文为0。未增加任何时限、未改回放预期。之后完整回归通过；偶发清理超时仍作为历史稳定性风险保留。

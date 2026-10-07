@@ -1,7 +1,8 @@
 import { createServer } from 'node:http'
 
 /** Only the harness owns the variant. Public pages expose behaviour, never labels or controls. */
-export const URL_SCAN_HOLDOUT_LAYOUT = 'holdout-list-4' as const
+export const URL_SCAN_HOLDOUT_LAYOUT = 'holdout-wide-5' as const
+export const URL_SCAN_SEEN_LIST = 'holdout-list-4' as const
 export const URL_SCAN_SEEN_CARDS = 'holdout-cards-3' as const
 export const URL_SCAN_SEEN_SIDEBAR = 'holdout-sidebar-2' as const
 export const URL_SCAN_SEEN_LAYOUT = 'holdout-grid-1' as const
@@ -9,6 +10,7 @@ export async function startUrlScanFixture(
   layout:
     | 'development'
     | typeof URL_SCAN_HOLDOUT_LAYOUT
+    | typeof URL_SCAN_SEEN_LIST
     | typeof URL_SCAN_SEEN_CARDS
     | typeof URL_SCAN_SEEN_SIDEBAR
     | typeof URL_SCAN_SEEN_LAYOUT = 'development',
@@ -57,9 +59,11 @@ export async function startUrlScanFixture(
           ? 'body{max-width:880px;margin:32px auto;display:grid;grid-template-columns:minmax(420px,1fr) 240px;gap:18px;background:#f8f6f2}h1,p{grid-column:1/-1}label{grid-column:2;grid-row:3}#apply{grid-column:2;grid-row:4;align-self:start}#rows{grid-column:1;grid-row:3/7;list-style:none;margin:0;padding:24px;background:white;border:1px solid #ccd2da;border-radius:8px}#rows li{padding:16px 8px;border-bottom:1px solid #eee}#filter-wrap{grid-column:2;grid-row:5}#panel{grid-column:2;grid-row:6}a{grid-column:1/-1;padding:14px 0}'
           : layout === URL_SCAN_SEEN_CARDS
             ? 'body{max-width:920px;margin:36px auto;background:#f4f7f8}h1{border-bottom:3px solid #6b7d8a;padding-bottom:18px}#rows{display:grid;grid-template-columns:repeat(3,1fr);list-style:none;padding:0;gap:18px;margin:28px 0}#rows li{background:white;border:1px solid #cdd6dc;padding:32px 16px;border-radius:6px}.price{font-size:22px}#panel{padding:20px;background:white}a{display:block;margin-top:24px}'
-            : layout === URL_SCAN_HOLDOUT_LAYOUT
+            : layout === URL_SCAN_SEEN_LIST
               ? 'body{max-width:820px;margin:20px auto;background:#fbfaf7;color:#203040}h1{padding:12px 18px;background:#e7edf1;border-radius:4px}#rows{list-style:none;padding:12px 20px;border-left:4px solid #63798c;background:white}#rows li{padding:14px 8px;border-bottom:1px solid #eee}.price{display:inline-block;min-width:48px;font-weight:bold}#panel{padding:14px;background:#e7edf1}a{display:block;margin-top:18px}'
-              : ''
+              : layout === URL_SCAN_HOLDOUT_LAYOUT
+                ? 'body{max-width:1000px;margin:24px auto;background:white;color:#1e2935}h1{margin:0;padding:20px;background:#eef2f5}p{padding:0 20px}#rows{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;list-style:none;padding:0;margin:22px 0}#rows li{padding:22px 16px;border-top:5px solid #7894a5;border-bottom:1px solid #b8c8d1;background:#f5f8fa}#panel{padding:18px;background:#eef2f5}a{display:block;padding:18px 0}'
+                : ''
     response.end(`<!doctype html><html><head><title>Product catalog</title><style>body{font:16px sans-serif;padding:30px}button,select{padding:12px;margin:8px}#filter-wrap{position:relative;display:inline-block}.screen{position:absolute;inset:0;z-index:2}${holdoutStyle}</style></head><body>
       <h1>Product catalog</h1><p>Choose a sort order and apply it. Prices are numeric.</p>
       <label>Sort <select id="sort" aria-label="Sort"><option value="price">Price</option><option value="name">Name</option></select></label>

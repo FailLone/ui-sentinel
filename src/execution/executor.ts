@@ -978,6 +978,17 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       )
       .map((element) => ({
         ref: element.ref,
+        samplingKey: JSON.stringify([
+          pageUrl,
+          element.selector,
+          element.tag,
+          element.text,
+          element.attributes.type,
+          element.attributes.name,
+          element.attributes.role,
+          element.attributes['aria-label'],
+          element.attributes.href,
+        ]),
         description: `${element.tag}${element.attributes.type ? `[${element.attributes.type}]` : ''} "${element.text.replace(/\s+/g, ' ').trim().slice(0, 60)}"`,
         category: (element.tag === 'a' ? 'navigation' : 'local-interaction') as
           | 'navigation'
@@ -1946,7 +1957,32 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         }
       }
       guard()
-      if (inspection) inspection.assertActionSelectable(actingRef, actionSnapshotPage)
+      if (inspection && input.type === 'navigate' && input.url) {
+        const destination = URL.canParse(input.url, page.url())
+          ? new URL(input.url, page.url()).href
+          : null
+        for (const candidate of inspection.selectedCandidates()) {
+          if (candidate.category !== 'navigation') continue
+          const binding = candidateBindings.get(candidate.ref)
+          const href = await binding
+            ?.evaluate((node) =>
+              node.isConnected && node instanceof HTMLAnchorElement ? node.href : null,
+            )
+            .catch(() => null)
+          if (destination !== null && href === destination)
+            throw Error(
+              `selected-navigation-requires-click: no navigation dispatched. A selected link is still pending; use page_act click with its current observed ref to test the link itself. Direct URL navigation cannot verify that link.`,
+            )
+        }
+      }
+      if (inspection)
+        inspection.assertActionSelectable(
+          actingRef,
+          actionSnapshotPage,
+          ['click', 'fill', 'probe'].includes(input.type) &&
+            !!resolvedLocator &&
+            !(await resolvedLocator.evaluate((node) => node instanceof HTMLAnchorElement)),
+        )
       if (uiScan && input.verify) await assertInteractionExpectation(page, input.verify)
       if (
         uiScan &&

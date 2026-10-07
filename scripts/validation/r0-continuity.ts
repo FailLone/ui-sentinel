@@ -47,6 +47,9 @@ const fixture = createServer((req, res) => {
     (mode === 'label-contract'
       ? '<label>View<select id=choice><option value=stored-option>Public choice</option></select></label>'
       : '') +
+      (mode === 'sampling-cap'
+        ? '<p>The additional buttons show their ready state.</p><button type=button id=second onclick="this.textContent=\'Second ready\'">Second</button><button type=button id=third onclick="this.textContent=\'Third ready\'">Third</button><button type=button id=fourth onclick="fetch(\'/fourth-dispatched\')">Fourth</button>'
+        : '') +
       '<h1>Service status</h1><p>Refresh updates the status to Ready.</p><button type=button id=refresh>Refresh</button><output id=result>Idle</output><a href=/info>Information</a><script>refresh.onclick=async()=>{let d=await(await fetch("/status")).json();result.outerHTML="<output id=result>"+d.text+"</output>"}</script>',
   )
 })
@@ -161,6 +164,28 @@ const model = createServer(async (req, res) => {
           ? { type: 'click', selector: '#refresh', verify: verification }
           : { type: 'click', ref: candidates.find((c: any) => c.category === 'navigation')?.ref }
   }
+  if (mode === 'sampling-cap' && turn >= 2 && turn <= 7) {
+    name = 'page_act'
+    if (turn <= 3) args = { type: 'click', selector: '#refresh', verify: verification }
+    else if (turn <= 6) {
+      const id = ['second', 'third', 'fourth'][turn - 4]!
+      args = {
+        type: 'click',
+        selector: '#' + id,
+        verify: {
+          selector: '#' + id,
+          condition: 'text-equals',
+          expected: id[0]!.toUpperCase() + id.slice(1) + ' ready',
+          basis: 'Public buttons show their ready state',
+        },
+      }
+    } else
+      args = { type: 'click', ref: candidates.find((c: any) => c.category === 'navigation')?.ref }
+  }
+  if (mode === 'navigation-contract' && turn === 3) {
+    name = 'page_act'
+    args = { type: 'navigate', url: origin + '/info' }
+  }
   turn++
   const common = {
     id: randomUUID(),
@@ -222,6 +247,8 @@ try {
     'continuity',
     'covered-loop',
     'label-contract',
+    'sampling-cap',
+    'navigation-contract',
     'program-preflight',
     'action-preflight',
     'unknown-replay',
@@ -261,6 +288,21 @@ try {
     const original = report.uiScan?.inspection.items.find((i: any) => i.itemId === originalId)
     const events = report.events
     const checks = {
+      navigationPreflight:
+        mode !== 'navigation-contract' ||
+        (JSON.stringify(events).includes('selected-navigation-requires-click') &&
+          !events.some((e: any) => e.type === 'action:executing' && e.payload.type === 'navigate')),
+      sampling:
+        mode !== 'sampling-cap' ||
+        (JSON.stringify(events).includes('local-interaction-sampling-cap') &&
+          !requests.some((r) => r.url === '/fourth-dispatched') &&
+          Math.max(
+            ...messages.map(
+              (m) =>
+                JSON.parse(m.body.messages.find((v: any) => v.role === 'user').content)
+                  .localSampling.selected,
+            ),
+          ) === 3),
       bounded:
         mode !== 'covered-loop' ||
         (turn <= 9 &&
@@ -275,7 +317,7 @@ try {
           ? report.status !== 'completed' && original?.status === 'unverified'
           : report.status === 'completed' && original?.status === 'verified',
       proof: report.uiScan?.proofVerified === true,
-      dispatched: clicks === (mode === 'unknown-replay' ? 2 : 1),
+      dispatched: clicks === (['unknown-replay', 'sampling-cap'].includes(mode) ? 2 : 1),
       continuity: events.some(
         (e: any) => e.type === 'scope:candidate-reobserved' && e.payload.itemId === originalId,
       ),

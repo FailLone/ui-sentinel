@@ -65,3 +65,9 @@ D6/D7 先补 A/B 反例和完整健康流程，再冻结生产候选及新私有
 D8（诊断 03 暴露的收尾缺口）：D6/D7 已使真实健康页的已选交互/导航均 verified、调查均 refuted，但模型重复检索历史后，防循环分支直接新增 no-progress gap，导致已满足闭环的运行 partial。修订为：有界只读恢复后，先通过既有 `finishUiScan(scope-covered)` 完整验证器申请完成；仅被拒绝时新增 no-progress 并 partial。不得跳过持久证据、hypothesis、权限或范围校验。另拒绝把 retrieval receipt 当原始 payload 再次嵌套读取，返回原 payload 引用指引；原始历史不改写。增加 covered 后循环应完整结束、unknown 循环仍 partial、引用嵌套不膨胀的 A/B 回归。诊断 03 原失败保留，新候选整批复验，不拼接。
 
 D9（同批 DOM 健康场景发现）：模型把 select 的可见选项名称当作 DOM value，造成健康控件的错误 failed 测量。增加明确 `selected-label-equals` 测量，保留 `value-equals` 的原始值语义；动作前识别“期望值只匹配选项标签、不匹配任何 option.value”的契约歧义，要求修改验证条件后再操作，不自动替换预期。需要非 select、多选、标签错配、原值比较的浏览器反例。独立健康评分也应拒绝 failed 检查项，即使系统未生成 supported finding；这是补严原有健康无误报标准，旧批次不重打分为通过。
+
+D10（诊断 04 的健康对照）：同一下拉框的多次独立测量消耗了三份“控件采样”额度，使其他控件未被触及。检查记录必须独立保存，不能为省额度合并旧 unknown；但采样额度应按每页公开控件标识计数，而不是按 measurement/item 数量计数。执行器以 URL、公开 selector、tag/name/role/href 等可见身份构造只用于额度的 samplingKey；重访同一公开控件不重复占用名额，总动作 20、模型调用 30、300 秒和最多三种公开控件不变。samplingKey 不授予证据归属、不合并事项、不恢复旧 unknown；待检查事项延续仍须真实 DOM 身份。增加三种控件/多次测量可覆盖、第四种仍拒绝、替换节点不继承 pending/unknown 的 A/B 反例。生产指引只强调验证控件公开宣称的效果，不能把无关不变量当核心功能验证，不包含私有控件名或答案。
+
+D11（诊断 04 的已选导航）：模型先选择了页面链接作为待检查事项，之后用纯 URL navigate 绕过该链接；原事项正确留下 navigation-left-target，但健康闭环因此失败。不能用目的 URL 相等就证明原链接可操作。新增 UI 前置提示：当 navigate 的目标对应仍待检查的已选链接时，在离页前拒绝，并要求用该链接的真实 ref 执行 click。无已选链接的直接 URL 导航继续支持；业务行为不变；不会事后消除已有导航 gap。正式 API 验证拒绝时无导航、随后实际 click 完成同一事项；原错误目标/替换节点反例继续通过。
+
+验收工具清理修复（D10/D11 随附）：`evaluation/support/program-replay.ts` 对准备阶段也应用 context finally 清理，增加真实浏览器 setup 失败反例；不修改生产检查、真值或回放预期。两次既有 afterAll 偶发超时根因未获证实，保留原日志，不能把修复明确清理缺口宣称为已证明其根因。

@@ -72,6 +72,8 @@ export interface RecordObservationInput {
     category: InspectionCategory
     /** Executor-only proof of the same connected DOM node, never a text/selector match. */
     continuedItemId?: string
+    /** Public affordance key for sampling quota ONLY; never proves node/evidence identity. */
+    samplingKey?: string
   }[]
 }
 
@@ -91,6 +93,8 @@ export function createInspectionHost(options: InspectionHostOptions) {
   let candidates: readonly CandidateItem[] = []
   /** Candidate refs from each observation, so an action's ref resolves against the snapshot it named. */
   const offeredBySnapshot = new Map<string, readonly CandidateItem[]>()
+  const samplingKeys = new Map<string, string>()
+  const recordedBindings = new Set<string>()
   /** Ids of the ledger events this run actually persisted, in order. */
   const scopeEventIds: string[] = []
   /** How many of the ledger's own events have already been written; the rest are pending. */
@@ -197,7 +201,8 @@ export function createInspectionHost(options: InspectionHostOptions) {
       const continued =
         previous?.status === 'pending' &&
         previous.category === candidate.category &&
-        previous.url === input.url
+        previous.url === input.url &&
+        (!candidate.samplingKey || samplingKeys.get(previous.itemId) === candidate.samplingKey)
       const item = continued
         ? previous
         : create({
@@ -206,6 +211,7 @@ export function createInspectionHost(options: InspectionHostOptions) {
             targetSource: 'executor',
             selected: false,
           })
+      samplingKeys.set(item.itemId, candidate.samplingKey ?? item.itemId)
       return {
         itemId: item.itemId,
         ref: candidate.ref,
@@ -218,6 +224,20 @@ export function createInspectionHost(options: InspectionHostOptions) {
     await persist()
     for (const candidate of candidates) {
       const item = items().find((item) => item.itemId === candidate.itemId)!
+      if (!recordedBindings.has(item.itemId)) {
+        await options.appendEvent(
+          'scope:candidate-bound',
+          {
+            itemId: item.itemId,
+            snapshotId: candidate.snapshotId,
+            ref: candidate.ref,
+            samplingKey: samplingKeys.get(item.itemId),
+            quotaOnly: true,
+          },
+          { evidenceRefs: [...input.evidenceRefs] },
+        )
+        recordedBindings.add(item.itemId)
+      }
       if (item.pageId !== candidate.snapshotId)
         await options.appendEvent(
           'scope:candidate-reobserved',
@@ -317,12 +337,14 @@ export function createInspectionHost(options: InspectionHostOptions) {
     reasonCode?: string
     detail?: string
     category?: 'local-interaction' | 'navigation'
+    samplingKey?: string
   }) {
     const item = create({
       category: input.category ?? 'local-interaction',
       basis: `${input.basis}: ${input.target}`,
       targetSource: 'executor',
     })
+    samplingKeys.set(item.itemId, input.samplingKey ?? item.itemId)
     scope.resolveItem(item.itemId, {
       status: input.outcome,
       ...(input.reasonCode ? { reasonCode: input.reasonCode } : {}),
@@ -383,6 +405,7 @@ export function createInspectionHost(options: InspectionHostOptions) {
       reasonCode: input.reasonCode,
       detail: input.detail,
       category: input.category,
+      samplingKey: matched ? samplingKeys.get(matched.itemId) : undefined,
     })
   }
 
@@ -467,9 +490,8 @@ export function createInspectionHost(options: InspectionHostOptions) {
       if (
         item?.category === 'local-interaction' &&
         !item.selected &&
-        items().filter(
-          (i) => i.selected && i.category === 'local-interaction' && i.url === item.url,
-        ).length >= 3
+        !sampledKeys(item.url).has(samplingKeys.get(item.itemId) ?? item.itemId) &&
+        sampledKeys(item.url).size >= 3
       )
         throw Error('local-interaction-sampling-cap')
       scope.selectItem(entry.itemId, entry.basis)
@@ -479,18 +501,36 @@ export function createInspectionHost(options: InspectionHostOptions) {
     return entries.map((entry) => scope.snapshot().items.find((i) => i.itemId === entry.itemId)!)
   }
 
+  const sampledKeys = (url: string) =>
+    new Set(
+      items()
+        .filter((i) => i.selected && i.category === 'local-interaction' && i.url === url)
+        .map((i) => samplingKeys.get(i.itemId) ?? i.itemId),
+    )
   const localSampling = () => {
-    const selected = items().filter(
-      (i) => i.selected && i.category === 'local-interaction' && i.url === options.currentUrl(),
-    ).length
-    return { limit: 3, selected, remaining: Math.max(0, 3 - selected) }
+    const selected = sampledKeys(options.currentUrl()).size
+    return {
+      unit: 'distinct-public-controls',
+      limit: 3,
+      selected,
+      remaining: Math.max(0, 3 - selected),
+    }
   }
 
-  function assertActionSelectable(ref: string, snapshotId: string) {
+  function assertActionSelectable(ref: string, snapshotId: string, local = false) {
     const candidate = offeredBySnapshot.get(snapshotId)?.find((c) => c.ref === ref)
-    if (candidate?.category !== 'local-interaction') return
+    if (!candidate) {
+      if (local && !localSampling().remaining)
+        throw Error('local-interaction-sampling-cap: no action dispatched; finish existing checks')
+      return
+    }
+    if (candidate.category !== 'local-interaction') return
     const item = items().find((i) => i.itemId === candidate.itemId)
-    if (!(item?.selected && item.status === 'pending') && !localSampling().remaining)
+    if (
+      item &&
+      !sampledKeys(item.url).has(samplingKeys.get(item.itemId) ?? item.itemId) &&
+      !localSampling().remaining
+    )
       throw Error('local-interaction-sampling-cap: no action dispatched; finish existing checks')
   }
 

@@ -11,8 +11,19 @@ beforeAll(async () => {
   directory = await mkdtemp(join(tmpdir(), 'program-replay-'))
 })
 afterAll(async () => {
-  await browser.close()
-  await rm(directory, { recursive: true, force: true })
+  const started = Date.now()
+  console.info('replay cleanup start', { contexts: browser.contexts().length })
+  try {
+    expect(browser.contexts()).toHaveLength(0)
+  } finally {
+    try {
+      await browser.close()
+      console.info('replay browser closed', { elapsedMs: Date.now() - started })
+    } finally {
+      await rm(directory, { recursive: true, force: true })
+    }
+  }
+  console.info('replay files removed', { elapsedMs: Date.now() - started })
 })
 for (const family of ['menu', 'feedback', 'layout'])
   it(`replays the original model-authored ${family} program without edits; preserve rejected candidates that fail the healthy control`, async () => {
@@ -47,3 +58,16 @@ for (const family of ['menu', 'feedback', 'layout'])
       family === 'layout' ? [false, false] : [true, true],
     )
   })
+
+it('releases the explicit context when evaluator setup fails before measurement', async () => {
+  const saved = JSON.parse(
+    await readFile('evaluation/fixtures/generated-programs/menu.json', 'utf8'),
+  )
+  const program = {
+    ...saved.program,
+    targets: [{ name: 'invalid', selector: 'invalid[' }],
+    steps: [{ op: 'act', type: 'click', target: 'invalid' }],
+  }
+  await expect(replayProgramPair(browser, program, 'menu', directory)).rejects.toThrow()
+  expect(browser.contexts()).toHaveLength(0)
+})

@@ -466,3 +466,47 @@ describe('pending candidate continuity', () => {
     expect(h.completionGaps().some((g) => g.itemId === original)).toBe(true)
   })
 })
+
+it('counts public controls separately from repeated checks without erasing an unknown', async () => {
+  const { host: h, setSnapshot } = host()
+  let original = ''
+  for (const [index, key] of ['a', 'a', 'b', 'c', 'd'].entries()) {
+    const snapshot = `s${index}`,
+      ref = `e${index}`
+    setSnapshot(snapshot)
+    await h.recordObservation({
+      url: 'https://shop.example.org/catalog',
+      evidenceRefs: ['snapshot'],
+      candidateDetail: key,
+      candidateCategories: ['local-interaction'],
+      candidateItems: [{ ref, category: 'local-interaction', description: key, samplingKey: key }],
+    })
+    const item = h.candidateItems()[0]!
+    if (!index) original = item.itemId
+    if (key === 'd') {
+      expect(() => h.assertActionSelectable(ref, snapshot)).toThrow('sampling-cap')
+      await expect(
+        h.selectItems([{ itemId: item.itemId, basis: 'fourth control' }]),
+      ).rejects.toThrow('sampling-cap')
+    } else {
+      expect(() => h.assertActionSelectable(ref, snapshot)).not.toThrow()
+      await h.resolveInteraction({
+        ref,
+        snapshotId: snapshot,
+        target: key,
+        url: 'https://shop.example.org/catalog',
+        category: 'local-interaction',
+        evidenceRefs: ['measurement'],
+        outcome: index ? 'verified' : 'unverified',
+        reasonCode: index ? 'measured' : 'missing',
+      })
+    }
+  }
+  expect(h.localSampling()).toMatchObject({ limit: 3, selected: 3, remaining: 0 })
+  expect(() => h.assertActionSelectable('unoffered', 'missing', true)).toThrow('sampling-cap')
+  expect(
+    h.snapshot().items.filter((i) => i.selected && i.category === 'local-interaction'),
+  ).toHaveLength(4)
+  expect(h.snapshot().items.find((i) => i.itemId === original)?.status).toBe('unverified')
+  expect(h.completionGaps().some((g) => g.itemId === original)).toBe(true)
+})
