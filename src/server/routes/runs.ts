@@ -307,7 +307,14 @@ runRoutes.post('/api/runs/:id/cancel', async (c) => {
   if (terminals.has(run.status))
     return c.json({ accepted: false, reason: `run already in terminal state: ${run.status}` })
   const accepted = await cancelRunExecution(run.id)
-  return c.json({ accepted })
+  return c.json(
+    accepted
+      ? { accepted }
+      : {
+          accepted,
+          reason: 'run terminal submission already owns the lifecycle or the run has ended',
+        },
+  )
 })
 
 runRoutes.get('/api/runs/:id/events', async (c) => {

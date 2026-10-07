@@ -183,62 +183,41 @@ async function executeRun(runId: string): Promise<void> {
 }
 
 async function executeProfiledRun(runId: string, profile: ExecutionProfile): Promise<void> {
-  const run = await getRun(runId)
-  if (!run || run.status !== 'queued' || queue.isCancellationRequested(runId)) return
-  if (queue.requiresReconciliation()) {
-    await updateRunStatus(runId, 'interrupted', { stopReason: 'reconciliation-required' })
-    await appendEvent(runId, 'run:completed', {
-      status: 'interrupted',
-      stopReason: 'reconciliation-required',
-    })
-    return
-  }
-  const check = checkModelConfig()
-  if (!check.ready) {
-    await updateRunStatus(runId, 'execution-error', { stopReason: 'execution-error' })
-    await appendEvent(runId, 'run:error', {
-      error: 'configuration-missing',
-      missing: check.missing,
-    })
-    return
-  }
-  const legacyUnversioned = !run.spec.businessContract
-  /**
-   * Which kind of run this is, and the contract it is governed by (plan 3.1).
-   *
-   * This is the executor's single branch point. A `ui-scan` run has no adapter, so it is not a
-   * business run with the profile filed off: it never resolves a legacy contract, never builds a
-   * BusinessRuntime and never runs the side-effect policy. Reading the kind from the persisted spec
-   * (rather than from a flag or the live registry) is what keeps a queued run's permissions frozen.
-   */
-  const runKind = resolveRunKind(run.spec)
-  if (runKind.kind === 'invalid') {
-    await appendEvent(runId, 'execution:stopped', {
-      reason: 'execution-error',
-      error: `invalid-run-kind:${runKind.reasonCode}`,
-      message: runKind.message,
-    })
-    await updateRunStatus(runId, 'execution-error', { stopReason: 'execution-error' })
-    await appendEvent(runId, 'run:completed', {
-      status: 'execution-error',
-      businessResult: 'unknown',
-      stopReason: 'execution-error',
-    })
-    return
-  }
-  const uiScan = runKind.kind === 'ui-scan' ? runKind.contract : null
-  let businessRuntime: BusinessRuntime | null = null
-  if (runKind.kind === 'business')
-    try {
-      const contract = runKind.contract ?? legacyCompatibleContract(run.spec.entryUrl)
-      if (!verifyContractSnapshot(contract)) throw Error('business-contract-hash-mismatch')
-      if (contract.environment.publicOrigin !== new URL(run.spec.entryUrl).origin)
-        throw Error('business-contract-origin-mismatch')
-      businessRuntime = createBusinessRuntime(contract)
-    } catch (error) {
+  const prepared = await queue.withRunLifecycle(runId, async () => {
+    const run = await getRun(runId)
+    if (!run || run.status !== 'queued' || queue.isCancellationRequested(runId)) return
+    if (queue.requiresReconciliation()) {
+      await updateRunStatus(runId, 'interrupted', { stopReason: 'reconciliation-required' })
+      await appendEvent(runId, 'run:completed', {
+        status: 'interrupted',
+        stopReason: 'reconciliation-required',
+      })
+      return
+    }
+    const check = checkModelConfig()
+    if (!check.ready) {
+      await updateRunStatus(runId, 'execution-error', { stopReason: 'execution-error' })
+      await appendEvent(runId, 'run:error', {
+        error: 'configuration-missing',
+        missing: check.missing,
+      })
+      return
+    }
+    const legacyUnversioned = !run.spec.businessContract
+    /**
+     * Which kind of run this is, and the contract it is governed by (plan 3.1).
+     *
+     * This is the executor's single branch point. A `ui-scan` run has no adapter, so it is not a
+     * business run with the profile filed off: it never resolves a legacy contract, never builds a
+     * BusinessRuntime and never runs the side-effect policy. Reading the kind from the persisted spec
+     * (rather than from a flag or the live registry) is what keeps a queued run's permissions frozen.
+     */
+    const runKind = resolveRunKind(run.spec)
+    if (runKind.kind === 'invalid') {
       await appendEvent(runId, 'execution:stopped', {
         reason: 'execution-error',
-        error: String(error),
+        error: `invalid-run-kind:${runKind.reasonCode}`,
+        message: runKind.message,
       })
       await updateRunStatus(runId, 'execution-error', { stopReason: 'execution-error' })
       await appendEvent(runId, 'run:completed', {
@@ -248,8 +227,34 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       })
       return
     }
-  const active = registerActiveRun(runId),
-    signal = active.abortController.signal
+    const uiScan = runKind.kind === 'ui-scan' ? runKind.contract : null
+    let businessRuntime: BusinessRuntime | null = null
+    if (runKind.kind === 'business')
+      try {
+        const contract = runKind.contract ?? legacyCompatibleContract(run.spec.entryUrl)
+        if (!verifyContractSnapshot(contract)) throw Error('business-contract-hash-mismatch')
+        if (contract.environment.publicOrigin !== new URL(run.spec.entryUrl).origin)
+          throw Error('business-contract-origin-mismatch')
+        businessRuntime = createBusinessRuntime(contract)
+      } catch (error) {
+        await appendEvent(runId, 'execution:stopped', {
+          reason: 'execution-error',
+          error: String(error),
+        })
+        await updateRunStatus(runId, 'execution-error', { stopReason: 'execution-error' })
+        await appendEvent(runId, 'run:completed', {
+          status: 'execution-error',
+          businessResult: 'unknown',
+          stopReason: 'execution-error',
+        })
+        return
+      }
+    const active = registerActiveRun(runId)
+    return { run, legacyUnversioned, runKind, uiScan, businessRuntime, active }
+  })
+  if (!prepared) return
+  const { run, legacyUnversioned, runKind, uiScan, businessRuntime, active } = prepared
+  const signal = active.abortController.signal
   const startedAt = Date.now(),
     budget = run.spec.budget
   let timedOut = false,
@@ -1073,6 +1078,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     })
   }
   try {
+    guard()
     await updateRunStatus(runId, 'running')
     await appendEvent(runId, 'run:started', {
       goal: run.spec.goal,
@@ -1092,6 +1098,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       },
       tokenUsage: 'unavailable-until-reported',
     })
+    guard()
     worker = await launchBrowser({ viewport: run.spec.viewport, uiScan: !!uiScan })
     guard()
     const page = worker.page
@@ -4250,94 +4257,101 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     await interactionRecovery.dispose()
     await Promise.allSettled(investigationBlockers.map((cached) => cached.handle.dispose()))
     if (worker) await worker.close().catch(() => {})
-    // Cancellation can arrive while finish evidence or browser cleanup is being persisted.
-    // Keep it distinct from an inspection blocker; a genuine unknown write still wins.
-    if (uiScan && stopReason !== 'reconciliation-required' && queue.isCancellationRequested(runId))
-      stopReason = 'cancelled'
-    if (stopReason === 'reconciliation-required') queue.requireReconciliation()
-    const finalReason = stopReason as StopReason
-    const status =
-      finalReason === 'goal-reached'
-        ? 'completed'
-        : finalReason === 'blocked'
-          ? 'blocked'
-          : finalReason === 'cancelled'
-            ? 'cancelled'
-            : finalReason === 'budget-exhausted'
-              ? 'timed-out'
-              : finalReason === 'reconciliation-required'
-                ? 'interrupted'
-                : finalReason === 'no-progress' || finalReason === 'finish-incomplete'
-                  ? 'blocked'
-                  : 'execution-error'
-    usage.elapsedMs = Date.now() - startedAt
-    await updateRunStatus(runId, status, { businessResult, stopReason, usage: reportedUsage() })
-    await appendEvent(runId, 'run:completed', {
-      status,
-      businessResult,
-      stopReason,
-      usage,
-      tokenUsage:
-        modelUsageAvailable && reportedModelCalls === usage.modelCalls
-          ? 'available'
-          : 'unavailable',
-    })
-    requestTracker.finishPending('Run ended before request completion')
-    const requestSummary = requestTracker.summarize()
-    const progressSummary = summarizeProgress(classifications)
-    await appendEvent(runId, 'execution:profile', profile.finish(requestSummary.records))
-    const lastEvent = await appendEvent(runId, 'run:statistics', {
-      requests: {
-        total: requestSummary.totalRequests,
-        agent: requestSummary.agentRequests,
-        vision: requestSummary.visionRequests,
-        success: requestSummary.successCount,
-        error: requestSummary.errorCount,
-        totalInputTokens: requestSummary.totalInputTokens,
-        totalOutputTokens: requestSummary.totalOutputTokens,
-        totalDurationMs: requestSummary.totalDurationMs,
-        avgInputTokensPerCall: requestSummary.avgInputTokensPerCall,
+    await queue.commitRun(
+      runId,
+      sideEffectPending ? 'reconciliation-required' : stopReason,
+      async (reason) => {
+        stopReason = reason
+        try {
+          if (stopReason === 'reconciliation-required') queue.requireReconciliation()
+          const finalReason = stopReason as StopReason
+          const status =
+            finalReason === 'goal-reached'
+              ? 'completed'
+              : finalReason === 'blocked'
+                ? 'blocked'
+                : finalReason === 'cancelled'
+                  ? 'cancelled'
+                  : finalReason === 'budget-exhausted'
+                    ? 'timed-out'
+                    : finalReason === 'reconciliation-required'
+                      ? 'interrupted'
+                      : finalReason === 'no-progress' || finalReason === 'finish-incomplete'
+                        ? 'blocked'
+                        : 'execution-error'
+          usage.elapsedMs = Date.now() - startedAt
+          await updateRunStatus(runId, status, {
+            businessResult,
+            stopReason,
+            usage: reportedUsage(),
+          })
+          await appendEvent(runId, 'run:completed', {
+            status,
+            businessResult,
+            stopReason,
+            usage,
+            tokenUsage:
+              modelUsageAvailable && reportedModelCalls === usage.modelCalls
+                ? 'available'
+                : 'unavailable',
+          })
+          requestTracker.finishPending('Run ended before request completion')
+          const requestSummary = requestTracker.summarize()
+          const progressSummary = summarizeProgress(classifications)
+          await appendEvent(runId, 'execution:profile', profile.finish(requestSummary.records))
+          const lastEvent = await appendEvent(runId, 'run:statistics', {
+            requests: {
+              total: requestSummary.totalRequests,
+              agent: requestSummary.agentRequests,
+              vision: requestSummary.visionRequests,
+              success: requestSummary.successCount,
+              error: requestSummary.errorCount,
+              totalInputTokens: requestSummary.totalInputTokens,
+              totalOutputTokens: requestSummary.totalOutputTokens,
+              totalDurationMs: requestSummary.totalDurationMs,
+              avgInputTokensPerCall: requestSummary.avgInputTokensPerCall,
+            },
+            progress: { ...progressSummary, noProgressDecisions },
+            observations: { total: observeCount, ...staleDetector.getStats() },
+            perRequest: requestSummary.records.map((r) => ({
+              seq: r.seq,
+              purpose: r.purpose,
+              model: r.model,
+              durationMs: r.durationMs,
+              inputTokens: r.inputTokens,
+              outputTokens: r.outputTokens,
+              status: r.status,
+              ...(r.error ? { error: r.error } : {}),
+            })),
+            perResponse: classifications.map((c, i) => ({
+              seq: i + 1,
+              category: c.category,
+              basis: c.basis,
+              toolsCalled: c.toolsCalled,
+            })),
+          })
+          await verifyCompletionCommit({
+            runId,
+            status,
+            businessResult,
+            stopReason,
+            lastEvent,
+            eventIds: [...active.eventIds],
+          })
+        } catch (error) {
+          queue.requireReconciliation()
+          // No model retry or business replay follows an uncertain commit.
+          await updateRunStatus(runId, 'interrupted', { stopReason: 'reconciliation-required' })
+          await appendEvent(runId, 'run:storage-inconsistent', {
+            error: String(error),
+            replayAllowed: false,
+          })
+          throw error
+        } finally {
+          removeActiveRun(runId)
+        }
       },
-      progress: { ...progressSummary, noProgressDecisions },
-      observations: { total: observeCount, ...staleDetector.getStats() },
-      perRequest: requestSummary.records.map((r) => ({
-        seq: r.seq,
-        purpose: r.purpose,
-        model: r.model,
-        durationMs: r.durationMs,
-        inputTokens: r.inputTokens,
-        outputTokens: r.outputTokens,
-        status: r.status,
-        ...(r.error ? { error: r.error } : {}),
-      })),
-      perResponse: classifications.map((c, i) => ({
-        seq: i + 1,
-        category: c.category,
-        basis: c.basis,
-        toolsCalled: c.toolsCalled,
-      })),
-    })
-    try {
-      await verifyCompletionCommit({
-        runId,
-        status,
-        businessResult,
-        stopReason,
-        lastEvent,
-        eventIds: [...active.eventIds],
-      })
-    } catch (error) {
-      queue.requireReconciliation()
-      // No model retry or business replay follows an uncertain commit.
-      await updateRunStatus(runId, 'interrupted', { stopReason: 'reconciliation-required' })
-      await appendEvent(runId, 'run:storage-inconsistent', {
-        error: String(error),
-        replayAllowed: false,
-      })
-      throw error
-    } finally {
-      removeActiveRun(runId)
-    }
+    )
   }
 }
 
