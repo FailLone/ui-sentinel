@@ -22,13 +22,25 @@ export type BudgetSnapshot = {
   readonly remainingCostUsd: number | null
 }
 
+/** One outstanding reservation. It must be handed back on settle or release. */
+export type ReservationTicket = {
+  readonly decisionIndex: number
+  readonly reservedUsd: number
+}
+
 export type BudgetLedger = {
   /** Reserve one decision and its worst-case cost. Returns null when the budget cannot cover it. */
-  reserve(estimatedCostUsd: number | null): { readonly decisionIndex: number } | null
-  /** Release a reservation whose request never produced output. Keeps settled costs debited. */
-  releaseCost(amount: number): void
-  /** Debit the actual cost once a request settles with a known figure. */
-  settle(actualCostUsd: number | null): void
+  reserve(estimatedCostUsd: number | null): ReservationTicket | null
+  /**
+   * Release ONE reservation whose request produced no output. Only that ticket's hold is freed;
+   * every other in-flight reservation stays held.
+   */
+  release(ticket: ReservationTicket): void
+  /**
+   * Debit the actual cost once a request settles. Releases only this ticket's hold, so a
+   * concurrent request still in flight keeps its reservation.
+   */
+  settle(ticket: ReservationTicket, actualCostUsd: number | null): void
   snapshot(): BudgetSnapshot
   readonly decisionIndex: number
 }
@@ -55,13 +67,14 @@ export function createBudgetLedger(input: BudgetLedgerInput): BudgetLedger {
       remainingDecisions -= 1
       decisionIndex += 1
       if (estimate !== null) reservedCost += estimate
-      return { decisionIndex }
+      return { decisionIndex, reservedUsd: estimate ?? 0 }
     },
-    releaseCost(amount) {
-      reservedCost = Math.max(0, reservedCost - amount)
+    release(ticket) {
+      // Free only THIS ticket's hold; other in-flight reservations remain held.
+      reservedCost = Math.max(0, reservedCost - ticket.reservedUsd)
     },
-    settle(actualCostUsd) {
-      reservedCost = 0
+    settle(ticket, actualCostUsd) {
+      reservedCost = Math.max(0, reservedCost - ticket.reservedUsd)
       if (actualCostUsd !== null && remainingCostUsd !== null)
         remainingCostUsd = Math.max(0, remainingCostUsd - actualCostUsd)
     },

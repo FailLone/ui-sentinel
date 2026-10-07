@@ -172,7 +172,7 @@ export async function requestExplorationScores(options: RequestOptions): Promise
   }
 
   if (options.billableTransport && options.ledger.snapshot().remainingCostUsd === null) {
-    options.ledger.releaseCost(options.estimatedRequestCostUsd ?? 0)
+    options.ledger.release(reserve)
     return rejection(input.requestId, 'budget-exhausted', bindingFor(input, null, null), {
       durationMs: Date.now() - started,
     })
@@ -180,7 +180,7 @@ export async function requestExplorationScores(options: RequestOptions): Promise
 
   const request = buildScoringRequest(input)
   if (!request.fits) {
-    options.ledger.releaseCost(options.estimatedRequestCostUsd ?? 0)
+    options.ledger.release(reserve)
     return rejection(
       input.requestId,
       'unsupported',
@@ -232,7 +232,7 @@ export async function requestExplorationScores(options: RequestOptions): Promise
 
     // Re-check after the await, before trusting anything in the reply.
     if (controller.signal.aborted) {
-      options.ledger.settle(usage.status === 'known' ? usage.costUsd : null)
+      options.ledger.settle(reserve, usage.status === 'known' ? usage.costUsd : null)
       const reason: ReasonCode = options.signal?.aborted ? 'cancelled' : 'timeout'
       return rejection(
         input.requestId,
@@ -250,7 +250,7 @@ export async function requestExplorationScores(options: RequestOptions): Promise
       )
     }
     if (options.signal?.aborted) {
-      options.ledger.settle(usage.status === 'known' ? usage.costUsd : null)
+      options.ledger.settle(reserve, usage.status === 'known' ? usage.costUsd : null)
       return rejection(
         input.requestId,
         'cancelled',
@@ -273,7 +273,7 @@ export async function requestExplorationScores(options: RequestOptions): Promise
       (live.relatedStateVersion !== input.state.relatedStateVersion ||
         live.observationVersion !== input.state.observationVersion)
     ) {
-      options.ledger.settle(usage.status === 'known' ? usage.costUsd : null)
+      options.ledger.settle(reserve, usage.status === 'known' ? usage.costUsd : null)
       return rejection(
         input.requestId,
         'stale-state',
@@ -290,7 +290,7 @@ export async function requestExplorationScores(options: RequestOptions): Promise
       )
     }
 
-    options.ledger.settle(usage.status === 'known' ? usage.costUsd : null)
+    options.ledger.settle(reserve, usage.status === 'known' ? usage.costUsd : null)
     const eligibleIds = baseline.eligible.map((e) => e.id)
     const validated = validateReceipt(reply, eligibleIds)
     if (!validated.ok) {
@@ -369,6 +369,9 @@ export async function requestExplorationScores(options: RequestOptions): Promise
         : 'transport-failed'
     // Deliberately record only a coarse class: provider error bodies can echo credentials.
     deadLetter.push(`transport:${reason}`)
+    // No reply was received, so no cost was incurred: free this ticket's hold. The decision
+    // itself stays consumed, since the request really was dispatched.
+    options.ledger.release(reserve)
     void error
     return rejection(input.requestId, reason, bindingFor(input, null, request.promptVersion), {
       attempted: true,
