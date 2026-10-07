@@ -47,7 +47,7 @@
 
 请求使用 `typesafe/jev-1.13`；响应返回带日期的快照，教程原文称其为 "the dated build of `typesafe/jev-1.13` that produced it"，示例 `"model": "typesafe/jev-1.13-20260917"`。另一别名 `~typesafe/jev-latest` 原文 "tracks the newest release"。
 
-**`typesafe/jev-1.13` 自身是否为会随时间解析到新快照的别名：文档未说明（NOT STATED）**。本客户端继续在响应身份不符时拒绝，不自动接受或重试。
+页面目录已给出规范标识关系，见 §2.4：`typesafe/jev-1.13` 为 canonical slug，`typesafe/jev-1.13-20260917` 为其 permaslug。本客户端继续在响应身份不符时拒绝，不自动接受或重试。
 
 ### 1.5 错误与重试
 
@@ -57,34 +57,55 @@ OpenRouter 文档状态码：`400` "Invalid request parameters"、`401` "Missing
 
 ## 2. 有依据的最坏费用上界
 
-**上界结构成立，但缺一个数字，因此配置中 `quoteUsd` 仍为 `null`。**
+**上界已建立，并已写入 `smoke-config.json` 的 `quoteUsd` 与 `basis`。**
 
-可推导的结构（依据均来自原文）：
+### 2.0 关于上一版结论的更正（必须由验收方注意）
+
+本文件先前版本称模型页返回 HTTP 404、单价无法取得。**该结论是错的**，原因是工具差异：`WebFetch` 取该页返回 404，但该页是**服务端渲染**的，直接用 HTTP 客户端取回 **200**（实测 481,884 字节）。价格自始可得，先前的「缺项」判断属于工具误判，现予更正。
+
+### 2.1 已核对的价格事实
+
+来自 `https://openrouter.ai/typesafe/jev-1.13`（2026-10-07 实取页面字节）：
+
+- 页面正文原文：**"$0.042 per million input tokens, $0 per million output tokens."**、**"$0.042/M input tokens and $0.00/M output tokens."**
+- 目录记录两个计价 SKU，**仅有 token 计价，无任何按请求或固定费用 SKU**：`Input Price` = `4.2e-8`（`unitLabel: "/M tokens"`，`displayMultiplier: 1000000`）、`Output Price` = `0`。
+- **上下文长度 32,000 token**（页面出现 32000 / "32,000" 共 20 余处；另有 FAQ "context length of Jev 1.13?"）。
+- 该费率可由官方公布的两个 usage 示例独立交叉验证：492 × 4.2e-8 = **0.000020664**（教程公布值），476 × 4.2e-8 = **0.000019992**（教程公布值），两者**精确吻合**。
+
+### 2.2 上界推导
 
 ```
-最坏输入 token 上界 = state 字节 + questions 字节        （教程："consumed by both the state and the questions"）
-上界费用(USD)       = 最坏输入 token 上界 × 每输入 token 单价  （指南："You pay per input token at the price on the model page"）
+每请求最坏上界 = 上下文上限 × 输入单价 = 32000 × 4.2e-8 = US$0.001344
+本批 6 次请求 = 6 × 0.001344 = US$0.008064   （远低于 US$0.25 上限）
 ```
 
-本批 6 个状态的实测线上载荷为 5155 字节（`artifacts/r1-jev-real/smoke-dry-run/requests/s01.json` 的 `byteLength`），最坏情形约 5190 字节。UTF-8 中单 token 不可能少于 1 字节，故 **5190 是 5190 个输入 token 的保守上界**；输出免费；5 个问题一次往返。
+输出 token 免费，不计入上界。**问题数量没有文档化的 token 计量**，因此上界保守地按整个上下文上限计费 —— 这是模型能接受的最大输入，取其为上界无须知道问题数的换算关系。
 
-**缺失的事实：`typesafe/jev-1.13` 的每输入 token 单价。**
+**该上界成立的前提（已记录，未被隐去）**：本客户端在本地拒绝超限载荷（`compile.ts` 的字节上限与 `profile.maxQuestions`），故实际请求不会超出上限。**「超限请求是否被拒、是否仍计费」文档未说明**，因此上界只在客户端保持请求不超限时为硬消费上限——本地字节上限正是为此设置。
 
-- 本批核对时 `https://openrouter.ai/typesafe/jev-1.13` 返回 **HTTP 404**，模型页价格无法取得。
-- 指南原文只把读者指向该页："The Jev model page currently shows the budget and pricing."，正文未给费率。
-- **上一版本文件曾记录"输入 $0.042/百万 token、输出 $0/百万 token"。该数字在本批无法重新核实（模型页 404），因此不得当作已核对事实使用。** 它既不能支撑 `quoteUsd`，也不能支撑 `billingBoundVerified=true`。
-- 教程中的示例费用（如 24 条 × 5 问题约 $0.001131）**不得**用于反推单价 —— 那是均价估计，正是计划禁止的做法。
+实现为可复核代码：`scripts/r1-jev-real/cost-bound.ts`（含 10 项测试，交叉验证上述两个官方示例）。
 
-一旦取得该单价，应按「最坏线上输入 token 上界 × 单价」写入 `protocol.basis`，记录 `source` 与 `checkedAt`，并**重新冻结与授权**；届时 5190 token 的结构上界可直接复用。
-
-### 2.1 其他明确缺项
+### 2.3 仍存的明确缺项
 
 - **每请求问题数量上限：文档未说明（NOT STATED）**。`questions` 是无 `maxProperties` 的开放对象；文档只给每问题的选项/等级上限（choice ≤255 选项，score 2–10 等级）。本地 65 问题上限是**实验策略，不是提供方承诺**。
 - **失败或取消请求是否计费：文档未说明（NOT STATED）**。模块继续保持未知费用占用、不自动重放。
-- **退避与幂等性：文档未说明**。
-- **`typesafe/jev-1.13` 是否随时间解析到新快照：文档未说明**。
+- **超限请求的处置与计费：未说明**（见 2.2 前提）。
+- **退避与幂等性**：OpenRouter 侧无退避说明；TypeSafe 侧建议指数退避，本客户端仍为 0 自动重试。
 
-这些缺项是明确的真实调用阻塞：`plans/r1-jev-real/smoke-config.json` 中 `questionsVerified=false`、`billingBoundVerified=false`、`quoteUsd=null`，只能 dry-run。运行 `pnpm r1:jev:real -- --dry-run` 仍返回阻塞项 `question-limit-unverified`、`billing-bound-unverified`；退出码 0 只代表材料生成成功，不代表允许付费。
+### 2.4 模型身份（别名问题已闭合）
+
+页面目录记录同时给出 `modelSlug: "typesafe/jev-1.13"`、**`canonicalModelSlug: "typesafe/jev-1.13"`**（与 modelSlug 相同）与 **`permaslug: "typesafe/jev-1.13-20260917"`**。即 `typesafe/jev-1.13` 是**规范 slug**，`typesafe/jev-1.13-20260917` 是其**固定快照 permaslug**，两者是同一目录条目的两个标识，**不是会随时间滚动的别名**。滚动别名另有一个：`~typesafe/jev-latest`。
+
+客户端继续在响应身份不符时拒绝，不自动接受或重试；`expectedModel` 保持为 `typesafe/jev-1.13-20260917`。
+
+### 2.5 当前的运行阻塞状态
+
+`plans/r1-jev-real/smoke-config.json` 现为：
+
+- `billingBoundVerified = true`，`quoteUsd = 0.001344`，`basis` 含算法、计费项、价格快照与适用范围 —— 符合「获得有依据的上界时，在 basis/source/checkedAt 中记录算法、计费项、价格快照和适用范围」的要求，**不是**把布尔字段单独改成 true。
+- `questionsVerified` **仍为 `false`**：问题数量上限确实未被文档化，本批**不**为放行而合并这一缺项。
+
+因此 dry-run 只报 `question-limit-unverified` 一项阻塞（`billing-bound-unverified` 已消解）。**本批仍然只做 dry-run**：缺少该批的明确授权，且 `questionsVerified` 仍未闭合。退出码 0 只代表材料生成成功，不代表允许付费。
 
 ## 3. 本地限制（实验策略，非提供方承诺）
 
