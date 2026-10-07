@@ -280,6 +280,7 @@ describe('exploration score transport', () => {
     const result = await requestExplorationScores({
       input: fixture('menu'),
       ledger: book,
+      estimatedRequestCostUsd: 0.25,
       send: async () => ({
         kind: 'scores',
         modelId: 'stub/jev-exploration-1',

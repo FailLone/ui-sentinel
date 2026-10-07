@@ -147,6 +147,7 @@ describe('exploration session with cache', () => {
         maxRequestMs: 1000,
         remainingCostUsd: 1,
       }),
+      estimatedRequestCostUsd: 0.25,
       send: async () => billable,
     })
     const first = await s.decide(fixture('menu'))

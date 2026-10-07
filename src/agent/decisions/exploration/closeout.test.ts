@@ -421,3 +421,24 @@ describe('withdrawn and upper-bound budgets', () => {
     expect(r.trace.durationMs).toBeLessThan(500)
   })
 })
+
+describe('zero quote is still a bound', () => {
+  it('records unexpected positive cost against a zero quote and stops', async () => {
+    const book = ledger()
+    const receipt = reply()
+    const r = await requestExplorationScores({
+      input: fixture(),
+      ledger: book,
+      ...paid,
+      estimatedRequestCostUsd: 0,
+      send: async () => ({
+        ...receipt,
+        usage: { ...receipt.usage, status: 'known', costUsd: 0.1 },
+      }),
+    })
+    expect(r.reasonCode).toBe('budget-exhausted')
+    expect(book.snapshot().overrun).toBe(true)
+    expect(book.snapshot().remainingCostUsd).toBeCloseTo(0.9)
+    expect(book.reserve(0, true)).toBeNull()
+  })
+})

@@ -119,9 +119,9 @@ export function createBudgetLedger(input: BudgetLedgerInput): BudgetLedger {
         return
       }
       tickets.delete(ticket)
+      if (actual > ticket.reservedUsd) overrun = true
       if (balance !== null) {
-        if (actual > balance || (ticket.reservedUsd > 0 && actual > ticket.reservedUsd))
-          overrun = true
+        if (actual > balance) overrun = true
         balance = Math.max(0, balance - actual)
       }
     },
