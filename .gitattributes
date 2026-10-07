@@ -1,0 +1,2 @@
+# Preserve hashed historical fixture bytes across checkouts.
+evaluation/fixtures/approved-retry/** -text

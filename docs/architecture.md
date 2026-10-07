@@ -1,0 +1,122 @@
+# 当前架构与 Agent 职责
+
+状态：采用现有技术栈，停止框架和模型优化矩阵。本文描述当前实现；明确标注的后续能力不属于已交付功能。
+
+产品目标、现状差距和分阶段演进方向见[产品 Roadmap](product-roadmap.md)；其中规划能力不属于本文的当前实现。
+
+UI Sentinel 是由 Agent 主导的 Web 质量检查服务。Agent 根据任务探索页面、提出并验证问题；规则与执行工具负责复用已知检查、控制副作用、测量和保存证据。规则未命中不代表页面合格，业务完成也不代表质量检查完成。
+
+## 模块与数据流
+
+```mermaid
+flowchart LR
+  UI[React 工作台] --> API[Hono HTTP / SSE]
+  API --> Queue[串行执行队列]
+  Queue --> Agent[Mastra Agent]
+  Agent --> Tools[有类型执行工具]
+  Tools --> Browser[Playwright / Midscene]
+  Tools --> Rules[规则 / 路径 / 调查程序]
+  Tools --> Store[libSQL / 证据文件]
+  Store --> Report[报告与日志]
+  Report --> UI
+  UI --> Feedback[确认 / 候选验证 / 人工批准]
+  Feedback --> Rules
+```
+
+| 模块 | 当前责任 |
+| --- | --- |
+| src/business | 业务契约配置与校验、注册表与冻结、公开协议适配器、规范化事实、副作用策略输入 |
+| src/inspection | 网址模式契约、URL/地址分类、有界导航、逐跳网络策略、检查账本与完成证明 |
+| src/agent | 探索政策、有限上下文、模型请求与计时、结束判断、规则候选生成 |
+| src/execution | 队列与取消、页面控制、工具验证、预算、事实与证据、可靠终结、检查宿主与网络边界 |
+| src/rules | 规则目录、按事实路由、共享检查、声明式时序规则 |
+| src/server | HTTP/SSE、控制接口、业务配置解析、持久报告组装（含 ui-scan 报告段） |
+| src/storage | 数据表与事务；模型 SDK 不拥有运行状态 |
+| src/web | 本地任务创建（业务 / 网址两种模式）、报告、日志、证据及反馈操作 |
+| arena / evaluation | 可重复业务靶场（购物、导出）、私有真值、评分与验收支撑、`evaluation/private/url-scan` 私有样本真值 |
+
+Mastra Core 提供 Agent/Tools；Playwright 提供浏览器状态、动作和证据；Midscene/Qwen 提供必要的视觉定位。Hono、libSQL、React 分别负责服务、持久化、工作台。没有 Effect 依赖，也没有保留第二套 Stagehand/Browser Use 运行循环。
+
+## 判别任务契约：业务与网址
+
+执行器仍然只有一个，但任务契约现在是一个**判别联合**：`RunSpec.kind` 是 `'business'` 或 `'ui-scan'`。`resolveRunKind` 先读这个判别字段，再决定本次运行拥有哪些能力。
+
+- **business**：原样保留——注册表解析、环境白名单、adapter、要求与阈值、副作用策略、Journey。缺 `kind` 的历史记录按原语义解释，绝不被套用今天就有的默认配置。
+- **ui-scan**：`business` 能力为 `null`。不调用 `legacyCompatibleContract`，不装配 `BusinessRuntime`，不注入任何业务 profile（包括空适配器）。共享的是执行器的生命周期、工具串行化、预算、浏览器、证据存储、规则引擎和调查程序；**不**共享的是业务契约、业务事实、Journey 与阻断审查。
+
+```mermaid
+flowchart LR
+  API[POST /api/runs] --> K{rawBody.kind}
+  K -->|business| BReg[selectBusinessContract]
+  K -->|'ui-scan'| URes[resolveUiScanContract]
+  BReg --> Spec[RunSpec.businessContract]
+  URes --> UContract[UiContractSnapshot + hash]
+  UContract --> Spec2[RunSpec.uiContract]
+  Spec --> One[同一个执行器]
+  Spec2 --> One
+  One --> Net{kind?}
+  Net -->|business| OldNet[原业务网络/副作用策略]
+  Net -->|'ui-scan'| UiNet[execution/network 逐跳边界]
+  One --> Led{kind?}
+  Led -->|'ui-scan'| Scope[inspection 检查账本 + 完成证明]
+```
+
+一次网址运行的装配顺序是**先边界后导航**：网络会话必须在浏览器访问任何地址之前安装，否则入口文档和它加载的一切都已经派发出去，而那正是边界要防的状态。检查账本由执行器单方写入——模型只能在实际创建过的条目中选择，并记录自己确实存在的未知，不能标记已验证、不能删除义务、空更新不能清除执行器拥有的义务。
+
+完成时由 `inspection/completion.ts` 这一纯函数按当前事实判定，返回带 hash 的证明；`completion-integrity` 用同一契约摘要校验持久终态。报告不读执行器的自报摘要来推断覆盖度，而是由**校验通过**的证明投影——一条声称覆盖却没有可校验证明的记录会显示为未完成。
+
+## 业务契约层
+
+执行器只有一个，业务差异全部来自版本化配置与可信适配器——通用代码不按 checkout/export、页面标题或 case ID 分支。
+
+```mermaid
+flowchart LR
+  API[POST /api/runs] --> Reg[注册表: 已知 profile@revision]
+  Reg --> Sel{配置与环境匹配?}
+  Sel -->|否| R400[400, 不入队]
+  Sel -->|是| Snap[冻结契约快照 + 自排除 SHA-256]
+  Snap --> Run[RunSpec.businessContract]
+  Run --> Adapter[适配器: origin+method+path+schema]
+  Adapter --> Fact[business:fact 规范化]
+  Fact --> Exec[执行器 / 规则 / 任务状态]
+  Fact --> Rep[报告: profile/revision/hash/要求来源]
+```
+
+契约快照含公开要求、`retryAvailabilityMs`、`feedbackWarningMs`、写入上限、环境边界、adapter revision 与 `hash`；hash 排除自身、按键排序稳定。**快照先持久化再入队**，活动任务不重读可变配置。同一环境内相同内容产生相同 hash；要求、策略、环境或 adapter 版本变化产生新 hash。环境每次启动的端口不同，所以运行期 hash 逐次不同，这是环境在快照内的直接结果。
+
+适配器只解释浏览器已观察的公开请求/响应，不自己调用业务 API、不持有 Page 或私有控制器，也不能被 Agent 动态注册。它按 origin、method、path 与响应 schema 识别请求，产出统一事实；读取失败、截断、非法 ID、无归属响应一律不升级为可靠事实。适配器可选择**保留**某个公开业务资源（`retainResource`），执行器将其正文逐字持久化为 `resource` 证据并追加 `business:resource` 事件——用于「业务为什么这样表现」这类必须以业务自己发布的文档为依据的断言，而不是以页面渲染出的样子为依据。
+
+运行时按 `operationId`（实体身份）与 `attempt`（该实体尝试次数）组织事实，去重与排序键包含两者与业务状态版本；乱序旧响应不能覆盖新成功，新操作或矛盾版本会使已核实终态失效。异步业务（导出）的 `processing` 是已接受操作而非未知写入，随后允许公开只读轮询，等待明确业务状态；真正未知的写入仍走 reconciliation-required，不自动重放、不靠 GET 猜测取消隔离。
+
+## Agent 的职责
+
+1. 理解任务、产品约束与允许操作，选择探索范围和下一步。
+2. 使用当前页面事实与语义定位目标；名称、位置变化时重新判断，不依赖固定业务元素 ID。
+3. 查询相关规则，绑定当前触发事件和目标，复用已验证路径与调查。
+4. 在没有规则时提出假设，采集能够支持或反驳假设的证据，说明未知和未覆盖范围。
+5. 按证据主动结束；明确业务结果、检查完成度和阻断，不能用自然语言自称完成。
+6. 将人工确认的发现转为规则候选；验证正例、反例和 unknown，由人批准发布。
+
+Agent 不拥有无限执行权限：动作预算、导航边界、重复写入保护、证据有效性和最终提交由执行层执行。模型建议与实际执行日志分别记录，不存储或要求模型私有思维链。
+
+## 端到端流程
+
+创建任务后，服务将其排队并持久化。执行器打开页面，提供 a11y、文本、元素引用和近期关键事实。Agent 探索并调用工具；每个动作返回结果和必要的后置观察。规则按事实和触发条件选择，语义规则由 Agent 绑定后执行。
+
+时序问题可调用一次有类型原子调查，由执行层完成整个采样窗口。输入区域的视觉疑点由 Qwen 生成候选，Agent 绑定后用聚焦探针验证。其他可由 DOM 事实表达的假设，Agent 可用 page_inspect 获取事实，并生成 investigation_run 程序组合测量和动作；执行器校验并计算结果，详情见[可组合调查](composable-investigations.md)。最终 run_finish 由执行器核对未决假设、测量、业务状态和证据。报告从持久记录生成；完成提交还由新连接核验，不一致时隔离并等待核对。
+
+有限 Jev 阻断审查是可选能力，默认关闭。它只处理已有充分证据的阻断收尾建议，不能替代开放探索；所有建议仍需执行器复核。[执行契约](execution-engine.md)包含具体边界。
+
+## 当前部署与并发边界
+
+当前为受信单机、loopback 服务；Web 是同端口工作台。任务串行，页面只有一个写入者。尚未实现多用户认证、远程 Worker 或分布式调度。两个业务（购物 `checkout@1`、导出 `export@1`）已接入同一执行器；导出的公开协议不含变体编号、故障描述或私有开关，服务端私有变体策略由独立 loopback 端口与 token 保护，浏览器不可达。
+
+历史运行不带业务契约字段，报告显示 `legacy-unversioned` 而不套用今天的默认配置；未完成的旧任务重启后仍为 interrupted，不重放。
+
+未来多机部署可由唯一控制服务暴露 Web/API，Worker 主动连接控制服务，不要求每个 Worker 暴露公网端口。共享账号的服务端状态不能通过复制浏览器 storageState 隔离；只有确认资源独立的任务才能并行，登录快照不是数据库事务分叉。该设计暂不实施。
+
+## 证据与演进边界
+
+发现关联截图、动作、规则版本、实际测量和来源；红框是证据副本，不覆盖原图。DOM 命中拦截不自动证明视觉遮挡，执行器拦截造成的现象不能归因于被测产品。
+
+[视觉聚焦验证](visual-focus.md)目前只覆盖输入区域；可组合调查覆盖已有测量原语能表达的问题，不能证明任意视觉体验。PRD/Figma 导入、完整知识检索、程序的自动前置状态恢复与跨页面重绑定、通用规则发布仍是后续方向。业务任务的调查沿用业务完成契约，可能以 blocked / business unknown 收尾，不得把调查完成改写为业务成功。网址任务（`kind: 'ui-scan'`）用自己的检查账本与完成证明收尾，`businessResult` 恒为 `not-applicable`，同样不得把「检查已完成」读成「网站合格」。新模型筛选、后台视觉分析、并发业务写、多机调度、插件平台与向量库明确不在范围内。

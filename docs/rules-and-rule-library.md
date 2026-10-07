@@ -1,0 +1,78 @@
+# 规则与规则库
+
+状态：已有规则接口、事实路由、声明式时序规则、人工批准与绑定式复查；通用插件市场和完整 Hook 框架未实现。
+
+## 规则是什么
+
+规则是可重复的质量判断能力，由适用条件、预期、检查方法和证据要求组成。它不是某个页面元素 ID 对应的脚本。业务规则引用产品要求；通用规则按语义角色和观察事实适用，运行时再绑定当前目标。
+
+例如“允许重试后，重试入口应在约定时间内可操作”可以适用于支付、上传和其他业务。只有本次操作确实允许重试、目标语义明确、测量完整时，才有判断依据；单凭按钮名字包含 Retry 不能判错。
+
+绑定读规范化事实而不是业务字段，因此同一份已批准声明可以绑定订单或导出任务，不依赖 `orderId`。声明里的 `expectation.target`（如 `Retry button`）是**语义采样键**，不要求实际按钮文字相同——把文案改成「重新生成」的页面仍应绑到同一份声明，采样值取声明的键，而不是复制按钮文字替代声明。目标从 Agent 绑定的当前事件与元素引用推导；旧事件、错 run、错 operation/attempt、陈旧或歧义元素一律拒绝或返回 unknown，不选第一个继续。
+
+规则库是知识的一部分。Agent 仍需主动探索规则未覆盖的问题；没有适用规则或缺少证据都不等于通过。
+
+## 当前代码契约
+
+src/rules/types.ts 定义 Rule、RuleContext 和 RuleResult。规则有 id、revision、name、description、category、enabled 与 evaluate(context)。上下文提供快照、事件、当前 URL、时间和可选事实版本；结果包含：
+
+- pass、fail、unknown、not-applicable 四态。
+- severity、expected、actual、confidence。
+- ruleRevision、evidenceRefs、details。
+
+规则不可绕过执行器直接进行任意浏览器写入。人工编写的内置规则通过注册入口加载；模型生成的规则使用受限声明，由编译器转为检查器，不执行模型生成的任意源码。
+
+## 选择和运行
+
+规则元数据支持自动执行与 semantic-binding 两类路由，并声明事件类型、触发条件。便宜的事实筛选先找候选，Agent 查询摘要后按需展开详情；语义规则需要它关联当前事件与目标。
+
+一次页面观察不等于执行全部规则。相同规则修订和事实版本可以复用结果；页面或触发事实变化后重新评估。缓存不跨越已经失效的证据。低成本通用检查也不应完全依赖模型想起才运行。
+
+元素引用属于当前观察，变化后失效。匹配有歧义时要求重新绑定或返回 unknown，不能悄悄选择第一个元素。绑定式时序检查保存触发、稳定目标及整个采样窗口，避免把别的按钮可操作误当成目标恢复。
+
+## 能力路由与网址模式
+
+规则按 capability 与 applicability 路由，能力边界显式而不是隐式：
+
+- 依赖 `business:fact` 的规则（`business-outcome`）在没有适配器的网址运行中不适用——是明确的 not-applicable，**不是**「全部 pass」，也不是「全部不可用」。
+- `overlay-blocking` 只筛 visible/enabled 的 button/a 并报告采样点的指针拦截；正常模态框背后的暂时被拦、视口外控件和符合公开条件的禁用状态不会被升级成缺陷。不能确认「此时应可操作」时保持 unknown 或限定范围，不按页面名称特判。
+- `response-time` 在网址模式没有可判定的阈值：通用站点不声明 SLA，套用购物阈值就是虚构一个合同从未写过的数字。规则仍返回 `unknown` 并保留测量，但带一个 `unchecked.reasonCode`，因此它被记为**本次契约的能力边界**而非未完成的义务，不会让范围完成永远不可达；其他原因的 `unknown`（证据被干预、规则自身报错）仍然阻塞完整完成。
+
+规则判定的修改必须升级 rule revision，旧证据仍按旧 revision 展示，并通过原购物/导出回归与新的健康反例。
+
+## 关键路径
+
+关键路径描述前置条件、允许操作、步骤、分支、期望终态与验证事实。路径完成结果与途中质量检查分开：
+
+- 正常成功、预期拒绝和未知业务结果分别记录。
+- 遮挡、关键操作不可达、失败恢复等按相应证据检查。
+- 延时按真实测量与要求判定；阈值来自当次契约（`feedbackWarningMs`）。运行没有声明可靠阈值时判 unknown，**不套用**记忆中的十秒；缺少时间证据也是 unknown 或 not-applicable，不是 pass。
+
+当前路径片段位于 src/execution/journeys，按契约身份（profile、contract hash、adapter revision、origin）隔离：标题和路径相同但契约不同的页面不复用，无契约的旧 Journey 不参与新任务复用（旧报告仍可读）。PRD 自动生成完整任意业务路径尚未交付。未来规则 Hook 可围绕观察、动作、转换和路径结束组织，但不能把拟定 Hook 名称当成已有 API。
+
+## 无规则的问题如何沉淀
+
+Agent 记录假设，设计能够反驳它的操作并取证。时序调查、视觉聚焦探针以及[可组合调查程序](composable-investigations.md)可保存测量与有界结论；程序自动保存的发现不能通过 findings_submit 改写为更大的主张。人工确认“问题真实”只允许生成候选，不代表批准该规则。
+
+当前学习流程：确认发现 → 生成声明 → 校验 schema → 异常/健康/unknown 验证 → 人工审阅 → 批准启用 → 绑定式真实复查。修订保留来源和旧版本，不能悄悄扩大适用范围。已有同一批准规则的回归不需要重复批准。
+
+工作台提供反馈与候选操作。批量验证入口如下，尖括号内容需替换；这些命令会调用真实模型：
+
+```sh
+pnpm validate:learning -- --source <已关闭验收目录> --finding <发现ID> --confirm-reason <人工确认理由>
+pnpm validate:learning -- --revise <学习目录> --previous <候选ID> --revision-reason <审阅意见>
+pnpm validate:learning -- --resume <学习目录> --approve <候选ID> --reviewer <审阅者>
+pnpm validate:learning -- --recheck <已关闭且已批准学习目录>
+```
+
+其他机器无需取得原始整个 data 目录。执行 `pnpm fixture:approved-retry` 可从[Git 中的批准资料](../evaluation/fixtures/approved-retry/README.md)恢复 `data/fixtures/approved-retry`，作为既有规则的复查来源。导入保持原声明、候选 ID、人工审阅者和时间，不调用 approve/enable API；新规则不能借此跳过审批。
+
+只有收到对应人工授权，操作者才应使用确认或首次批准参数。复查要求保持原批准与声明，并使用新目录保存失败，不能覆盖原记录。
+
+## 扩展的验收要求
+
+新增规则至少有违规、健康、条件不适用和信息不足样本；若涉及语义定位，还需名称变化、多目标歧义、布局变化或目标失效样本。业务适用范围与私有靶场答案分开。尤其保持 unknown、not-applicable 与 fail 的区别——unknown 不能算作规则通过，健康样本必须有实际 pass 测量，不能以 not-applicable 代替。
+
+跨业务迁移既有批准规则时（导出靶场 E1/E4 就是这件事），声明的语义 target、timeoutMs 与适用性**不得修改**；复查要求原批准与声明未变。规则迁移组的健康样本必须存在实际 pass 测量，并有一个 `source=rule` 的 fail 发现，不能只有探索性 finding。
+
+未来可增加规则包元数据、Hook 和 SDK 模板，但应沿用上述四态结果、版本、证据和副作用边界。当前候选审批仍面向受限声明式时序规则；保存调查程序不代表它已经支持通用规则提案、适用性审查与自动发布。

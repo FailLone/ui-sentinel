@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ES2022",
+    "moduleResolution": "bundler",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "outDir": "dist",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@arena/*": ["./arena/*"],
+      "@evaluation/*": ["./evaluation/*"]
+    },
+    "jsx": "react-jsx"
+  },
+  "include": ["src/**/*", "arena/**/*", "evaluation/**/*", "scripts/**/*"],
+  "exclude": ["node_modules", "dist", "data"]
+}

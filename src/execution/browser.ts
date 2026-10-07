@@ -1,0 +1,408 @@
+import type { EvidenceIntegrity } from '../shared/evidence-integrity.ts'
+import { profileOperation } from './profiling.ts'
+import { chromium, type Browser, type BrowserContext, type Page } from 'playwright'
+import * as path from 'node:path'
+import * as fs from 'node:fs/promises'
+
+const ARTIFACTS_DIR = path.resolve('data/artifacts')
+
+export interface BrowserWorker {
+  readonly browser: Browser
+  readonly context: BrowserContext
+  readonly page: Page
+  close(): Promise<void>
+}
+
+export async function launchBrowser(options?: {
+  headless?: boolean
+  uiScan?: boolean
+  viewport?: { width: number; height: number }
+}): Promise<BrowserWorker> {
+  // UI requests are supplied by the pinned CDP transport. Any other browser egress is denied.
+  const denyServer = options?.uiScan
+    ? (await import('node:net')).createServer((socket) => socket.destroy())
+    : null
+  if (denyServer) await new Promise<void>((resolve) => denyServer.listen(0, '127.0.0.1', resolve))
+  const denyAddress = denyServer?.address()
+  const proxy =
+    denyAddress && typeof denyAddress !== 'string'
+      ? { server: `http://127.0.0.1:${denyAddress.port}`, bypass: '<-loopback>' }
+      : undefined
+  const browser = await chromium
+    .launch({
+      headless: options?.headless ?? true,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        ...(options?.uiScan
+          ? ['--force-webrtc-ip-handling-policy=disable_non_proxied_udp', '--disable-quic']
+          : []),
+      ],
+      ...(proxy ? { proxy } : {}),
+    })
+    .catch((error) => {
+      denyServer?.close()
+      throw error
+    })
+
+  const context = await browser.newContext({
+    viewport: options?.viewport ?? { width: 1280, height: 768 },
+    serviceWorkers: 'block',
+  })
+
+  // tsx compiles with esbuild keepNames:true, injecting __name() wrappers
+  // around named functions. The helper lives at module scope in Node but is
+  // absent inside Playwright's browser evaluate context. String form avoids
+  // the same transform being applied to this polyfill.
+  await context.addInitScript(
+    'if(typeof __name==="undefined"){window.__name=function(fn){return fn}}',
+  )
+
+  const page = await context.newPage()
+
+  return {
+    browser,
+    context,
+    page,
+    async close() {
+      await context.close()
+      await browser.close()
+      if (denyServer) await new Promise<void>((resolve) => denyServer.close(() => resolve()))
+    },
+  }
+}
+
+export async function saveScreenshot(page: Page, runId: string, label: string): Promise<string> {
+  const dir = path.join(ARTIFACTS_DIR, runId)
+  await fs.mkdir(dir, { recursive: true })
+
+  const filename = `${label}-${Date.now()}.png`
+  const filepath = path.join(dir, filename)
+
+  await page.screenshot({ path: filepath, fullPage: false })
+
+  return filepath
+}
+
+export async function saveFullPageScreenshot(
+  page: Page,
+  runId: string,
+  label: string,
+): Promise<string> {
+  const dir = path.join(ARTIFACTS_DIR, runId)
+  await fs.mkdir(dir, { recursive: true })
+
+  const filename = `${label}-full-${Date.now()}.png`
+  const filepath = path.join(dir, filename)
+
+  await page.screenshot({ path: filepath, fullPage: true })
+
+  return filepath
+}
+
+/** Persist an artifact ID; the API resolves paths from the database, never model input. */
+export async function saveEvidence(
+  runId: string,
+  type: string,
+  data: Buffer | string,
+  metadata: Record<string, unknown> = {},
+  guard: () => void = () => {},
+): Promise<string> {
+  return profileOperation(
+    'persistence',
+    () => persistEvidence(runId, type, data, metadata, guard),
+    {
+      type,
+    },
+  )
+}
+
+async function persistEvidence(
+  runId: string,
+  type: string,
+  data: Buffer | string,
+  metadata: Record<string, unknown>,
+  guard: () => void,
+) {
+  const { randomUUID } = await import('node:crypto')
+  const { getDbClient } = await import('../storage/database.ts')
+  const id = `${randomUUID()}.${type === 'screenshot' ? 'png' : 'json'}`
+  const dir = path.join(ARTIFACTS_DIR, runId)
+  await fs.mkdir(dir, { recursive: true })
+  const file = path.join(dir, id)
+  guard()
+  await fs.writeFile(file, data)
+  try {
+    guard()
+  } catch (error) {
+    await fs.rm(file, { force: true })
+    throw error
+  }
+  await getDbClient().execute({
+    sql: 'INSERT INTO artifacts (id,run_id,type,file_path,metadata) VALUES (?,?,?,?,?)',
+    args: [id, runId, type, file, JSON.stringify(metadata)],
+  })
+  return id
+}
+
+export function isAllowedPageUrl(raw: string, entryUrl: string): boolean {
+  try {
+    const u = new URL(raw)
+    const pathname = decodeURIComponent(u.pathname)
+    return (
+      u.origin === new URL(entryUrl).origin &&
+      /^https?:$/.test(u.protocol) &&
+      !pathname.includes('__control') &&
+      !pathname.includes('/evaluation') &&
+      !pathname.includes('/src/server') &&
+      !pathname.includes('/.git') &&
+      !pathname.includes('/.env')
+    )
+  } catch {
+    return false
+  }
+}
+
+export async function observePage(
+  page: Page,
+  runId: string,
+  evidenceMetadata: () => { evidenceIntegrity?: EvidenceIntegrity } = () => ({}),
+) {
+  const screenshotPath = await saveEvidence(
+    runId,
+    'screenshot',
+    await profileOperation('screenshot', () => page.screenshot({ fullPage: false, scale: 'css' })),
+    {
+      url: page.url(),
+      viewport: page.viewportSize(),
+      capturedAt: new Date().toISOString(),
+      ...evidenceMetadata(),
+    },
+  )
+  const observation = await profileOperation('dom', () =>
+    page.evaluate(() => {
+      function selector(el: Element): string {
+        const parts: string[] = []
+        for (let n: Element | null = el; n && n !== document.documentElement; n = n.parentElement) {
+          const tag = n.tagName.toLowerCase()
+          const siblings: Element[] = Array.from(n.parentElement?.children ?? []).filter(
+            (s) => s.tagName === n!.tagName,
+          )
+          parts.unshift(`${tag}:nth-of-type(${siblings.indexOf(n) + 1})`)
+        }
+        return 'html > ' + parts.join(' > ')
+      }
+      const elements = Array.from(
+        document.querySelectorAll(
+          'button,a,input,select,textarea,[role="button"],[role="dialog"],[role="alert"],h1,h2,p',
+        ),
+      )
+        .slice(0, 180)
+        .map((el) => {
+          const b = el.getBoundingClientRect(),
+            style = getComputedStyle(el)
+          const visible =
+            b.width > 0 && b.height > 0 && style.visibility !== 'hidden' && style.display !== 'none'
+          const bounds = { x: b.x, y: b.y, width: b.width, height: b.height }
+          const points = [
+            [0.5, 0.5],
+            [0.2, 0.2],
+            [0.8, 0.2],
+            [0.2, 0.8],
+            [0.8, 0.8],
+          ]
+          const hitSamples = points.map(([px, py]) => {
+            const x = b.x + b.width * px,
+              y = b.y + b.height * py
+            const hit = document.elementFromPoint(x, y)
+            const relation = !hit
+              ? 'none'
+              : hit === el
+                ? 'self'
+                : el.contains(hit)
+                  ? 'descendant'
+                  : hit.contains(el)
+                    ? 'ancestor'
+                    : 'unrelated'
+            const hb = hit?.getBoundingClientRect()
+            return {
+              x,
+              y,
+              hitSelector: hit ? selector(hit) : null,
+              relation,
+              ...(hb
+                ? { blockerBounds: { x: hb.x, y: hb.y, width: hb.width, height: hb.height } }
+                : {}),
+            }
+          })
+          return {
+            selector: selector(el),
+            tag: el.tagName.toLowerCase(),
+            text: (el.textContent ?? '').trim().slice(0, 700),
+            visible,
+            bounds,
+            enabled:
+              !('disabled' in el && el.disabled) && el.getAttribute('aria-disabled') !== 'true',
+            attributes: Object.fromEntries(
+              Array.from(el.attributes)
+                .filter((a) =>
+                  [
+                    'role',
+                    'type',
+                    'aria-label',
+                    'aria-disabled',
+                    'disabled',
+                    'href',
+                    'readonly',
+                    'id',
+                  ].includes(a.name),
+                )
+                .map((a) => [a.name, a.value]),
+            ),
+            interactionExcludedReason: el.closest('[inert]')
+              ? 'inert'
+              : Array.from(
+                    document.querySelectorAll('dialog:modal,[role=dialog][aria-modal=true]'),
+                  ).some((dialog) => {
+                    const r = dialog.getBoundingClientRect()
+                    const style = getComputedStyle(dialog)
+                    return (
+                      r.width > 0 &&
+                      r.height > 0 &&
+                      style.display !== 'none' &&
+                      style.visibility !== 'hidden' &&
+                      !dialog.contains(el)
+                    )
+                  })
+                ? 'modal-background'
+                : undefined,
+            hitSamples,
+          }
+        })
+      return {
+        url: location.href,
+        title: document.title,
+        viewport: { width: innerWidth, height: innerHeight },
+        elements,
+        text: document.body.innerText.slice(0, 12000),
+        observedAt: new Date().toISOString(),
+      }
+    }),
+  )
+  const metadata = evidenceMetadata()
+  const snapshot = { ...observation, screenshotPath, ...metadata }
+  const snapshotRef = await saveEvidence(runId, 'snapshot', JSON.stringify(snapshot), metadata)
+  return { snapshot, evidenceRefs: [screenshotPath, snapshotRef] }
+}
+
+/** Render a derived red-box copy in an isolated page; the inspected page is untouched. */
+export async function annotateEvidence(
+  browser: Browser,
+  runId: string,
+  sourceId: string,
+  rectangles: readonly { x: number; y: number; width: number; height: number }[],
+  viewport: { width: number; height: number },
+): Promise<string> {
+  const { getDbClient } = await import('../storage/database.ts')
+  const result = await getDbClient().execute({
+    sql: 'SELECT file_path,metadata FROM artifacts WHERE id=? AND run_id=? AND type=?',
+    args: [sourceId, runId, 'screenshot'],
+  })
+  if (!result.rows.length) throw new Error('Original screenshot missing')
+  const sourceMetadata = JSON.parse(String(result.rows[0].metadata))
+  const png = await fs.readFile(String(result.rows[0].file_path))
+  const context = await browser.newContext({ viewport, serviceWorkers: 'block' })
+  try {
+    await context.route('**/*', (r) => r.abort())
+    const page = await context.newPage()
+    const rects = rectangles.filter(
+      (r) => Object.values(r).every(Number.isFinite) && r.width > 0 && r.height > 0,
+    )
+    await page.setContent(
+      `<style>body{margin:0}img,svg{position:absolute;inset:0}</style><img src="data:image/png;base64,${png.toString('base64')}"><svg width="${viewport.width}" height="${viewport.height}">${rects.map((r) => `<rect x="${r.x}" y="${r.y}" width="${r.width}" height="${r.height}" fill="rgba(255,0,0,0.12)" stroke="red" stroke-width="3"/>`).join('')}</svg>`,
+    )
+    await page.locator('img').evaluate((img: HTMLImageElement) => img.decode())
+    return saveEvidence(runId, 'screenshot', await page.screenshot(), {
+      annotation: true,
+      sourceRef: sourceId,
+      coordinateSource: 'DOM hit-test',
+      rectangles: rects,
+      ...(sourceMetadata.evidenceIntegrity === undefined
+        ? {}
+        : { evidenceIntegrity: sourceMetadata.evidenceIntegrity }),
+    })
+  } finally {
+    await context.close()
+  }
+}
+
+export async function captureA11yTree(page: Page): Promise<string> {
+  return profileOperation('a11y', () => page.locator('body').ariaSnapshot())
+}
+
+export function isAllowedNavigationUrl(raw: string, entryUrl: string): boolean {
+  if (!isAllowedPageUrl(raw, entryUrl)) return false
+  const path = decodeURIComponent(new URL(raw).pathname)
+  const entryPath = decodeURIComponent(new URL(entryUrl).pathname)
+  return (
+    (path === '/' || path === entryPath) &&
+    !/\.(?:[cm]?[jt]sx?|json|map|md|ya?ml|toml)$/i.test(path) &&
+    !/^\/(?:api|src|node_modules|@)/.test(path)
+  )
+}
+
+/** Read-only sampling: visible, enabled and at least one pointer-reachable viewport point. */
+export async function sampleElementCondition(
+  page: Page,
+  selector: string,
+  condition: 'element-visible' | 'element-actionable',
+): Promise<boolean | null> {
+  const locator = page.locator(selector)
+  if ((await locator.count()) !== 1) return null
+  const element = await locator.elementHandle()
+  if (!element) return null
+  try {
+    return await sampleBoundElementCondition(element, condition)
+  } finally {
+    await element.dispose()
+  }
+}
+
+export async function sampleBoundElementCondition(
+  element: import('playwright').ElementHandle<SVGElement | HTMLElement>,
+  condition: 'element-visible' | 'element-actionable',
+): Promise<boolean | null> {
+  if (!(await element.evaluate((el) => el.isConnected))) return null
+  if (!(await element.isVisible())) return false
+  if (condition === 'element-visible') return true
+  if (!(await element.isEnabled())) return false
+  return element.evaluate((element) => {
+    if (!element.isConnected) return null
+    if (element.closest('[inert]')) return false
+    const rect = element.getBoundingClientRect()
+    const left = Math.max(0, rect.left),
+      top = Math.max(0, rect.top)
+    const right = Math.min(innerWidth, rect.right),
+      bottom = Math.min(innerHeight, rect.bottom)
+    if (right <= left || bottom <= top) return false
+    const points = [
+      [0.5, 0.5],
+      [0.2, 0.2],
+      [0.8, 0.2],
+      [0.2, 0.8],
+      [0.8, 0.8],
+    ]
+    return points.some(([x, y]) => {
+      let hit = document.elementFromPoint(left + (right - left) * x!, top + (bottom - top) * y!)
+      while (hit?.shadowRoot) {
+        const deep = hit.shadowRoot.elementFromPoint(
+          left + (right - left) * x!,
+          top + (bottom - top) * y!,
+        )
+        if (!deep || deep === hit) break
+        hit = deep
+      }
+      return hit === element || (hit !== null && element.contains(hit))
+    })
+  })
+}

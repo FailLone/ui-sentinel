@@ -1,0 +1,184 @@
+import { verifyUiContractSnapshot, type UiContractSnapshot } from '../../inspection/contract.ts'
+import { inspectionHistoryIssues } from '../../inspection/proof-history.ts'
+import { resolveRunKind } from '../../inspection/run-kind.ts'
+import {
+  verifyInspectionProof,
+  type InspectionProof,
+  type InspectionReason,
+} from '../../inspection/completion.ts'
+import { projectInspectionScope, type InspectionCandidateSummary } from '../../inspection/scope.ts'
+import type { Run, RunEvent } from '../../shared/types.ts'
+
+/**
+ * The `ui-scan` section of a report (plan 6.3).
+ *
+ * Everything here is projected from the run's own persisted events and spec, never re-derived from
+ * the live registry or from today's configuration: a report has to describe the run that executed, so
+ * a queued run's frozen contract is what is shown even if the address policy has since changed.
+ *
+ * Coverage is reconciled against the persisted scope, full spec, terminal state and readable
+ * artifacts. A self-consistent proof hash cannot establish coverage without those facts.
+ */
+
+export type UiCoverage = 'covered' | 'partial' | 'not-started'
+
+export interface UiScanReport {
+  readonly kind: 'ui-scan'
+  readonly businessResult: 'not-applicable'
+  readonly contract: {
+    readonly hash: string
+    readonly integrity: 'verified' | 'hash-mismatch'
+    /** The address as submitted, and the address the browser executed - both, kept distinct. */
+    readonly requestedUrl: string
+    readonly entryUrl: string
+    readonly origin: string
+    readonly goal: string
+    readonly goalSource: 'user' | 'default'
+    readonly session: 'anonymous'
+    readonly scope: { readonly maxPages: number; readonly maxDepth: number }
+    readonly access: {
+      readonly resourceOrigins: readonly string[]
+      readonly dataOrigins: readonly string[]
+    }
+    readonly businessWrites: 'none'
+    readonly availableCapabilities: readonly string[]
+    readonly unsupportedCapabilities: readonly string[]
+    readonly schemaVersion: string
+    readonly policyRevision: string
+  }
+  readonly inspection: {
+    readonly coverage: UiCoverage
+    readonly counts: ReturnType<ReturnType<typeof projectInspectionScope>['snapshot']>['counts']
+    readonly items: readonly {
+      readonly itemId: string
+      readonly category: string
+      readonly url: string
+      readonly status: string
+      readonly selected: boolean
+      readonly basis: string
+      readonly targetSource: 'executor' | 'agent'
+      readonly reasonCode: string | null
+      readonly detail: string | null
+      readonly evidenceRefs: readonly string[]
+      readonly ruleRevision: string | null
+      readonly parentNavigation: string | null
+    }[]
+    readonly gaps: readonly {
+      readonly itemId: string
+      readonly category: string
+      readonly status: string
+      readonly reason: string
+      readonly reasonCode: string | null
+    }[]
+    readonly candidates: InspectionCandidateSummary | null
+    readonly unsupported: readonly { readonly dimension: string; readonly reasonCode: string }[]
+  }
+  readonly proof: InspectionProof | null
+  readonly proofVerified: boolean
+  /** The reason the run named when it asked to finish, whether or not it was accepted. */
+  readonly finishReasonCode: InspectionReason | string | null
+  /** Every executor intervention that touched the admissibility of a site verdict. */
+  readonly interventions: readonly {
+    readonly eventId: string
+    readonly seq: number
+    readonly kind: string
+    readonly reasonCode: string | null
+    readonly detail: string | null
+  }[]
+}
+
+/**
+ * The report's `ui-scan` section, or `undefined` for a run that is not a UI scan.
+ *
+ * A record with no `kind` is a legacy business run and gets no section here: absence is not a new
+ * meaning (plan 11.1), so an old row is never presented as a partial UI scan that never started.
+ */
+export function uiScanSummary(
+  run: Run,
+  events: readonly RunEvent[],
+  readable?: ReadonlySet<string>,
+): UiScanReport | undefined {
+  const resolved = resolveRunKind(run.spec)
+  if (resolved.kind !== 'ui-scan') return undefined
+  const contract: UiContractSnapshot = resolved.contract
+
+  const scope = projectInspectionScope(events)
+  const snapshot = scope.snapshot()
+  const accepted = [...events].reverse().find((e) => e.type === 'finish:accepted')
+  const proof = (accepted?.payload.inspectionProof as InspectionProof | undefined) ?? null
+  const proofVerified = inspectionHistoryIssues(run, events, readable).length === 0
+  const finishReasonCode = (accepted?.payload.reasonCode as string | undefined) ?? null
+
+  const coverage: UiCoverage =
+    proofVerified && proof!.claim === 'scope-covered' && proof!.outcome === 'goal-reached'
+      ? 'covered'
+      : snapshot.counts.total > 0
+        ? 'partial'
+        : 'not-started'
+
+  const interventions = events
+    .filter((e) => e.type === 'execution:intervention')
+    .map((e) => ({
+      eventId: e.id,
+      seq: e.seq,
+      kind: String(e.payload.kind ?? 'intervention'),
+      reasonCode: (e.payload.reasonCode as string | null) ?? null,
+      detail: (e.payload.detail as string | null) ?? null,
+    }))
+
+  return {
+    kind: 'ui-scan',
+    businessResult: 'not-applicable',
+    contract: {
+      hash: contract.hash,
+      integrity: verifyUiContractSnapshot(contract) ? 'verified' : 'hash-mismatch',
+      requestedUrl: contract.requestedUrl,
+      entryUrl: contract.entryUrl,
+      origin: contract.origin,
+      goal: contract.goal,
+      goalSource: contract.goalSource,
+      session: contract.session,
+      scope: contract.scope,
+      access: contract.access,
+      businessWrites: contract.businessWrites,
+      availableCapabilities: contract.availableCapabilities,
+      unsupportedCapabilities: contract.unsupportedCapabilities,
+      schemaVersion: contract.schemaVersion,
+      policyRevision: contract.policyRevision,
+    },
+    inspection: {
+      coverage,
+      counts: snapshot.counts,
+      items: snapshot.items.map((item) => ({
+        itemId: item.itemId,
+        category: item.category,
+        url: item.url,
+        status: item.status,
+        selected: item.selected,
+        basis: item.basis,
+        targetSource: item.targetSource,
+        reasonCode: item.reasonCode,
+        detail: item.detail,
+        evidenceRefs: item.evidenceRefs,
+        ruleRevision: item.ruleRevision,
+        parentNavigation: item.parentNavigation,
+      })),
+      gaps: scope.completionGaps().map((gap) => ({
+        itemId: gap.itemId,
+        category: gap.category,
+        status: gap.status,
+        reason: gap.reason,
+        reasonCode: gap.reasonCode,
+      })),
+      candidates: snapshot.candidates,
+      unsupported: snapshot.unsupported.map((u) => ({
+        dimension: u.dimension,
+        reasonCode: u.reasonCode,
+      })),
+    },
+    proof,
+    proofVerified,
+    finishReasonCode,
+    interventions,
+  }
+}

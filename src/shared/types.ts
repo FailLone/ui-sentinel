@@ -1,0 +1,180 @@
+import type { BusinessContractSnapshot } from '../business/types.ts'
+import type { UiContractSnapshot } from '../inspection/contract.ts'
+
+export type RunStatus =
+  | 'queued'
+  | 'running'
+  | 'completed'
+  | 'blocked'
+  | 'timed-out'
+  | 'cancelled'
+  | 'execution-error'
+  | 'interrupted'
+
+/**
+ * `not-applicable` is the fourth business result, and it belongs to exactly one kind of run.
+ *
+ * A `ui-scan` run has no business adapter, so "did the business succeed" has no meaning for it; the
+ * report says so explicitly rather than leaving it `unknown`, which would read as "not checked yet".
+ * The converse holds too: no business run ever becomes `not-applicable`, because a missing adapter
+ * is not evidence that the business is out of scope.
+ */
+export type BusinessResult = 'success' | 'rejected' | 'unknown' | 'not-applicable'
+
+export type StopReason =
+  | 'goal-reached'
+  | 'queue-empty'
+  | 'budget-exhausted'
+  | 'cancelled'
+  | 'execution-error'
+  | 'blocked'
+  | 'reconciliation-required'
+  | 'model-request-timeout'
+  | 'no-progress'
+  | 'finish-incomplete'
+
+export interface RunBudget {
+  readonly totalTimeoutMs: number
+  readonly maxActions: number
+  readonly maxModelCalls: number
+}
+
+export interface RunSpec {
+  readonly goal: string
+  readonly environmentId: string
+  readonly entryUrl: string
+  readonly budget: RunBudget
+  readonly viewport: { readonly width: number; readonly height: number }
+  /**
+   * Which kind of run this is. Absent on records created before kinds existed; such a record is read
+   * as a legacy business run and is never re-interpreted as a UI scan.
+   */
+  readonly kind?: 'ui-scan' | 'business'
+  /**
+   * The frozen business contract this run was created with. Older runs created before business
+   * contracts existed have no field here; their reports stay readable as legacy-unversioned and
+   * are never retro-fitted with today's requirements.
+   */
+  readonly businessContract?: BusinessContractSnapshot
+  /**
+   * The frozen UI contract of a `ui-scan` run. Mutually exclusive with `businessContract`; a spec
+   * carrying both is invalid, not one-or-the-other.
+   */
+  readonly uiContract?: UiContractSnapshot
+}
+
+export interface Run {
+  readonly id: string
+  readonly spec: RunSpec
+  readonly status: RunStatus
+  readonly businessResult: BusinessResult
+  readonly stopReason: StopReason | null
+  readonly usage: RunUsage
+  readonly createdAt: string
+  readonly updatedAt: string
+}
+
+export interface RunUsage {
+  readonly actions: number
+  readonly modelCalls: number
+  readonly elapsedMs: number
+  readonly modelInputTokens: number | null
+  readonly modelOutputTokens: number | null
+}
+
+export interface RunEvent {
+  readonly id: string
+  readonly runId: string
+  readonly seq: number
+  readonly type: string
+  readonly timestamp: string
+  readonly stepId: string | null
+  readonly actionId: string | null
+  readonly payload: Record<string, unknown>
+  readonly evidenceRefs: readonly string[]
+}
+
+export type FindingSource = 'rule' | 'agent'
+
+export type FindingValidation = 'candidate' | 'supported' | 'inconclusive' | 'refuted'
+
+export type FindingSeverity = 'error' | 'warning' | 'info'
+
+export interface Finding {
+  readonly id: string
+  readonly runId: string
+  readonly source: FindingSource
+  readonly ruleId: string | null
+  readonly ruleRevision: string | null
+  readonly hypothesisId: string | null
+  readonly validationStatus: FindingValidation
+  readonly severity: FindingSeverity
+  readonly title: string
+  readonly expected: string
+  readonly actual: string
+  readonly stepId: string | null
+  readonly evidenceRefs: readonly string[]
+  readonly createdAt: string
+}
+
+export type FeedbackVerdict = 'confirmed' | 'intentional' | 'cannot-reproduce' | 'deferred'
+
+export interface FindingFeedback {
+  readonly findingId: string
+  readonly verdict: FeedbackVerdict
+  readonly reason: string
+  readonly createdAt: string
+}
+
+export type RuleProposalStatus = 'draft' | 'validating' | 'approved' | 'rejected' | 'enabled'
+
+export interface RuleProposal {
+  readonly id: string
+  readonly findingId: string
+  readonly ruleConfig: Record<string, unknown>
+  readonly status: RuleProposalStatus
+  readonly positiveResults: readonly RuleTestResult[]
+  readonly negativeResults: readonly RuleTestResult[]
+  readonly reviewedBy: string | null
+  readonly createdAt: string
+  readonly updatedAt: string
+}
+
+export interface RuleTestResult {
+  readonly input: string
+  readonly expected: 'pass' | 'fail' | 'unknown'
+  readonly actual: 'pass' | 'fail' | 'unknown' | 'error'
+  readonly passed: boolean
+}
+
+export interface Hypothesis {
+  readonly id: string
+  readonly runId: string
+  readonly phenomenon: string
+  readonly basis: string
+  readonly verificationPlan: string
+  readonly status: 'open' | 'supported' | 'refuted' | 'inconclusive'
+  readonly evidenceRefs: readonly string[]
+  readonly createdAt: string
+}
+
+export interface RunReport {
+  readonly runId: string
+  readonly status: RunStatus
+  readonly businessResult: BusinessResult
+  readonly stopReason: StopReason | null
+  readonly persistence?: {
+    readonly status: 'inconsistent' | 'verified' | 'not-final'
+    readonly issues: readonly string[]
+    readonly recordedStatus: RunStatus
+    readonly recordedBusinessResult: BusinessResult
+    readonly recordedStopReason: StopReason | null
+    readonly readConsistency: 'single-read-transaction'
+  }
+  readonly findings: readonly Finding[]
+  readonly usage: RunUsage
+  readonly exploredStates: readonly string[]
+  readonly unexploredBranches: readonly string[]
+  readonly evaluatedRuleCount: number
+  readonly unknownCount: number
+}
