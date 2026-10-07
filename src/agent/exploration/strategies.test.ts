@@ -2,11 +2,11 @@ import { describe, expect, it } from 'vitest'
 import { assessStrategies, planCounterexampleInvestigation } from './strategies.ts'
 import { buildFrontier } from './frontier.ts'
 import { reduceTrajectory, type TrajectoryEvent } from './trajectory.ts'
-import { normalizeFacts, type RawPlanningFacts } from './facts.ts'
+import { normalizeFacts, type PlanningFactsDraft } from './facts.ts'
 
 const stateKey = { relatedStateVersion: 'state-1', viewKey: 'anon' }
 
-function raw(overrides: Partial<RawPlanningFacts> = {}): RawPlanningFacts {
+function raw(overrides: Partial<PlanningFactsDraft> = {}): PlanningFactsDraft {
   return {
     schemaVersion: 'r1-exploration-input-1',
     requestId: 's01',
@@ -61,7 +61,7 @@ function raw(overrides: Partial<RawPlanningFacts> = {}): RawPlanningFacts {
   }
 }
 
-function facts(overrides: Partial<RawPlanningFacts> = {}) {
+function facts(overrides: Partial<PlanningFactsDraft> = {}) {
   const result = normalizeFacts(raw(overrides))
   if (!result.ok) throw new Error(result.reason)
   return result.value

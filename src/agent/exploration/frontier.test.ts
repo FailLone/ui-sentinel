@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import { buildFrontier, type FrontierCandidate } from './frontier.ts'
 import { reduceTrajectory, type TrajectoryEvent } from './trajectory.ts'
-import { normalizeFacts, type RawPlanningFacts } from './facts.ts'
+import { normalizeFacts, type PlanningFactsDraft } from './facts.ts'
 import type { ExplorationInput } from '../decisions/exploration/contracts.ts'
 
-function raw(overrides: Partial<RawPlanningFacts> = {}): RawPlanningFacts {
+function raw(overrides: Partial<PlanningFactsDraft> = {}): PlanningFactsDraft {
   return {
     schemaVersion: 'r1-exploration-input-1',
     requestId: 's01',
@@ -83,7 +83,7 @@ function raw(overrides: Partial<RawPlanningFacts> = {}): RawPlanningFacts {
   }
 }
 
-function facts(overrides: Partial<RawPlanningFacts> = {}) {
+function facts(overrides: Partial<PlanningFactsDraft> = {}) {
   const result = normalizeFacts(raw(overrides))
   if (!result.ok) throw new Error(result.reason)
   return result.value
@@ -96,7 +96,7 @@ const observedHere = (candidates: { candidateId: string; targetKey: string }[]):
   candidates,
 })
 
-const entriesOf = (list: readonly FrontierCandidate[]) => list.map((c) => c.candidateId)
+const entriesOf = (list: readonly { candidateId: string }[]) => list.map((c) => c.candidateId)
 
 describe('buildFrontier', () => {
   it('exposes the eligible controls as available entries with their allowed actions', () => {

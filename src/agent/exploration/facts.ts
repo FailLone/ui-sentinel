@@ -29,7 +29,15 @@ export type PlanningFacts = {
   readonly view: ViewContext
 }
 
+/** Untrusted facts as they arrive. They are parsed, never trusted. */
 export type RawPlanningFacts = Record<string, unknown>
+
+/**
+ * The typed shape a caller assembles before handing facts over: exactly a valid exploration input
+ * plus the declared view context. Callers (including the later S4 bridge) build this; the planner
+ * still re-validates it because it does not trust its caller.
+ */
+export type PlanningFactsDraft = ExplorationInput & { readonly view: ViewContext }
 
 export type FactsAcceptance = { readonly ok: true; readonly value: PlanningFacts }
 export type FactsRejection = { readonly ok: false; readonly reason: string }

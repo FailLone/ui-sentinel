@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { normalizeFacts, type RawPlanningFacts } from './facts.ts'
+import { normalizeFacts, type PlanningFactsDraft, type RawPlanningFacts } from './facts.ts'
 
 /** Caller-supplied public facts. No browser, database, environment or file source is involved. */
-function raw(overrides: Partial<RawPlanningFacts> = {}): RawPlanningFacts {
+function raw(overrides: Partial<PlanningFactsDraft> = {}): PlanningFactsDraft {
   return {
     schemaVersion: 'r1-exploration-input-1',
     requestId: 's01',
