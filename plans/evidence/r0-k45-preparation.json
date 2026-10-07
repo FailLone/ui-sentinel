@@ -1,0 +1,117 @@
+{
+  "date": "2026-10-07",
+  "candidate": "97d39eda8fcbae9a6e163c6dfc5219668d67043d",
+  "paid": false,
+  "executionAuthorization": "pending explicit resumption after pause",
+  "candidateWorkspace": "/Users/xietian/.codex/worktrees/r0-k45-candidate/ui-sentinel",
+  "stages": [
+    {
+      "id": "K4-1",
+      "batch": "r0-ui-diagnostic-97d39ed-11",
+      "runs": 6,
+      "smokeRequests": 1,
+      "manifest": "plans/evidence/r0-k45-ui-diagnostic-manifest.json"
+    },
+    {
+      "id": "K4-2",
+      "batch": "r0-ui-formal-97d39ed-01",
+      "runs": 15,
+      "smokeRequests": 1,
+      "manifest": "plans/evidence/r0-k45-ui-formal-manifest.json",
+      "requires": "K4-1 independently passed"
+    },
+    {
+      "id": "K5-1",
+      "runs": 5,
+      "smokeSessions": 1,
+      "maxSmokeRequests": 6,
+      "requires": "K4-2 independently passed"
+    },
+    {
+      "id": "K5-2",
+      "runs": 45,
+      "additionalSmokeRequests": 0,
+      "requires": "K5-1 same-build sealed pass; existing approved source"
+    }
+  ],
+  "totalRuns": 71,
+  "ledgers": [
+    {
+      "name": "current",
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-final-acceptance/2026-10-07/paid-ledger/campaign.db",
+      "sha256": "6579a333cc2741cbee0bc29807d193f17ef87138522e0a4ba23497f8af2135b2",
+      "campaign": [
+        [
+          "0946f830-00b6-4f46-af69-79bd2166ef9d",
+          20.0
+        ]
+      ],
+      "rawStatuses": [
+        [
+          "settled",
+          494
+        ]
+      ],
+      "effectiveKnownUsd": "1.54694796",
+      "heldUsd": "0",
+      "unknownUsd": "0",
+      "leaseCount": 0
+    },
+    {
+      "name": "historical",
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-acceptance/2026-10-07/paid-ledger/campaign.db",
+      "sha256": "2889c5edf9f2d6b4170a3d5295148c02a3b7e26c354a58f423544337264176c9",
+      "campaign": [
+        [
+          "46a9ad04-53c1-45bc-9791-8df6f4a35807",
+          2.0
+        ]
+      ],
+      "rawStatuses": [
+        [
+          "settled",
+          11
+        ],
+        [
+          "unknown",
+          1
+        ]
+      ],
+      "effectiveKnownUsd": "0.03722460",
+      "heldUsd": "0",
+      "unknownUsd": "0",
+      "leaseCount": 0
+    }
+  ],
+  "knownTotalUsd": "1.58417256",
+  "currentLedgerRemainingUsd": "18.45305204",
+  "reuseFixtureManifestSha256": "182b5ff29ff165c5e1b5952150ccdad3221d064eeceda5b22ea2917f615d5b95",
+  "reuseFixtureFilesVerified": 14,
+  "paidRequestsThisPreparation": 0,
+  "testsRerun": 0,
+  "newBuilds": 0,
+  "approvalFilesCreated": 0,
+  "r0Accepted": false,
+  "preparationEvidence": [
+    {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-k45-preparation/prices.json",
+      "sha256": "f7e29a73f77d12fcde4be2e12783ffd162814d01b0486ec181f332a2c7209093"
+    },
+    {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-k45-preparation/prices-read.log",
+      "sha256": "19c04b4abc0c0f57537d109850fcc87a16e5be9b0f9aaf3679c28369de1efd93"
+    },
+    {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-k45-preparation/freeze.log",
+      "sha256": "299d9df549ba878072813346a9549cab10928cf152c1d7aa868e855d8b779c73"
+    },
+    {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-k45-preparation/prepare.log",
+      "sha256": "9a3a42b7937f29f6889976feab9886793d913bc13a50d3d46967c2d55c5935e7"
+    },
+    {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-k45-preparation/identity-check.log",
+      "sha256": "545896220286d7dee4a74b93a9cc8e6101f6a4a50468aa39731011759c6f80a7"
+    }
+  ]
+}
