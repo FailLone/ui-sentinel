@@ -171,3 +171,19 @@ UI `page_act(type=probe)` 只接受实际观察到的局部控件，不带行为
 有效阴性probe保存原run/action/item/ref、测量、截图和文件摘要，通过`probe:measured`关联原pending局部检查为failed；已有规则发现保留。actionable仅是可点击性，没有实际点击，不把原行为效果检查标成verified。工具返回probeMeasurement及effectTested=false。旧unknown不会被该路径恢复，也不新建成功项绕过gap。历史报告和持久终态检查probe事件的原始绑定、动作归属、阴性事实、原事项更新以及测量JSON和所引用截图的字节摘要、产物类型；旧无probe记录不改判。
 
 `remaining-obligation-guidance.ts`只负责全运行一次调度机会。触发须是干净UI运行已达三轮无进展、既有只读恢复没有新事实、存在当前仍连接的已选pending控件/导航、动作预算可用且未进入时间/模型预算保留区。引导列原item/ref，模型仍使用原工具和权限，执行器不自动点击或重放；正常权限校验、取消、错误和写入隔离保持优先。提示及其事件不计入进展事实，不重置计数。下一轮无实际新事实即按原完成验证器完整结束或partial；有实际新事实可继续调查，但不补发引导。健康partial仍不能通过验收。
+
+## 动作参数的派发前契约
+
+`page_act` 在 SDK 输入校验阶段按动作类型检查参数；内部 `performAction` 调用也在观察、定位、写权限解锁、动作计账与 `activeAction` 建立之前复核。无效输入返回字段级 `validationErrors`，使用原全运行一次、单模型轮次的工具修正机会；输入错误不是测量或进展。修正轮次仍无真实新事实时进入原无进展收尾，不再叠加剩余义务引导。
+
+| type | 必填 | 合法附加字段 / 限制 |
+| --- | --- | --- |
+| click | 一个目标 | 可带 verify；不接受 value/url/scrollY |
+| probe | 一个目标 | 不接受 verify/value/url/scrollY；只测 actionability，不点击 |
+| fill | 一个目标、value | 空字符串明确清空；可带 verify；不接受 url/scrollY |
+| navigate | 明确的绝对 HTTP(S) url | 不接受目标字段、verify/value/scrollY；不从 ref/标签猜 URL |
+| scroll | 明确的 scrollY（-1000 至 1000） | 不接受目标字段、verify/value/url；不默认滚动500 |
+
+一个目标为 role+name、selector、visualDescription 三选一，UI 可只用已观察 ref；ref 可与一个定位方法交叉核对，nth 只用于 role+name。空白目标、不完整 role/name、互斥定位方法和未知字段拒绝。业务模式不把 ref 本身当成 locator。SDK 的可选 `null` 只表示字段未提供：fill 的 `value=null` 和 navigate 的 `url=null` 仍是缺参；不是默认值。`investigation_run` 的嵌套 click/fill/scroll 在整个程序开始前也复用此参数契约。
+
+该层只判断参数形状与组合。DOM 身份、后置测量公开依据、导航范围、写入权限及取消仍按原执行规则检查；不从字段合法推导目标存在或动作成功。已选链接仍须实际 click，直接 navigate 不能解决原导航事项。真正动作失败、取消与未知写入不被改成输入错误或自动重放。详细免费证据见 `plans/r0-action-contract-handoff.md`；R0 真实验收状态仍为未通过。
