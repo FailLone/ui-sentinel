@@ -1,0 +1,103 @@
+{
+  "kind": "K1-K3-development-delivery",
+  "date": "2026-10-07",
+  "candidateCommit": "835b11a98b0cbcbedd73dbdeacef9c5771e6ec1e",
+  "baseCommit": "9cd7f75e46cf3037188d846dd12f6d316d8b009a",
+  "analysisCommit": "1228ff4",
+  "testedWorkingTreeParent": "1228ff4",
+  "identityMapping": "B logs record the parent commit while the implementation was uncommitted; dist hash and source contents identify the tested candidate now committed above. Documentation-only later commits do not change that candidate.",
+  "hashes": {
+    "dist": "eaccd89e7c5ff2111c737d99a5e885b9104245ceb6311e2bb6a9c2842cde9287",
+    "source": "197b173c4900c3ac8080dfb2d5ed9b51a27a0bc3281c8eaeafd4311988b519e0",
+    "scripts": "cdbdf8f78beffb3b561898a2da08ba4bb7ff1de13843c4ff18462f5d1bc99c79",
+    "privateOracle": "fbe12205ee4639c4fed5ec0cee52ec40c3d72ca5f2754384b2cd955538fa978b"
+  },
+  "selfTestPassed": true,
+  "independentReview": "pending",
+  "r0Accepted": false,
+  "paidRequests": 0,
+  "configuration": {
+    "node": "24.21.0",
+    "pnpm": "10.17.1",
+    "model": "fixed-local for B; explicit mocks for A",
+    "uiTimeoutMs": 300000,
+    "uiMaxActions": 20,
+    "uiMaxModelCalls": 30,
+    "remoteCredentials": "blanked/local endpoints in free harness"
+  },
+  "checks": [
+    {
+      "command": "pnpm build",
+      "exitCode": 0,
+      "log": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-k123/build-frozen.log",
+      "sha256": "e5c231ce332221416c8635ef8886337c0d2893d6b9f3a5bd71da529d42ce1683"
+    },
+    {
+      "command": "pnpm test",
+      "exitCode": 0,
+      "log": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-k123/full-frozen.log",
+      "sha256": "fc4b92bae94b6ca5deeae61377e9c1a370c4f6121d2647120eba68e45ae06492",
+      "filesPassed": 152,
+      "testsPassed": 1499,
+      "testsSkipped": 1
+    },
+    {
+      "command": "pnpm exec tsx scripts/validation/r0-k123.ts",
+      "exitCode": 0,
+      "log": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-k123/browser-frozen.log",
+      "sha256": "aa5ccfc39548d50b01f0c564cdc4973814dc74d61d27f30d658d67f954bb16ac",
+      "directory": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-k123-browser/2026-10-07T14-11-20-358Z",
+      "checks": 18,
+      "passed": true
+    },
+    {
+      "command": "pnpm exec tsx scripts/validation/r0-remediation.ts",
+      "exitCode": 0,
+      "log": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-k123/remediation-frozen.log",
+      "sha256": "f80d8285e232aa706e8107f133269378875dd684a36a736c3d2342513dacd1ae",
+      "directory": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-remediation/2026-10-07T14-11-32-226Z",
+      "checks": 10,
+      "passed": true
+    },
+    {
+      "command": "pnpm exec tsx scripts/validation/r0-continuity.ts",
+      "exitCode": 0,
+      "log": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-k123/continuity-frozen.log",
+      "sha256": "3522234d96a7784f437dbf768f28f618adf12f7e9753680ca1bc4eac368e0aca",
+      "directory": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-continuity/2026-10-07T14-11-45-561Z",
+      "checks": 19,
+      "passed": true
+    },
+    {
+      "command": "pnpm validate:url-scan",
+      "exitCode": 0,
+      "log": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-k123/url-frozen.log",
+      "sha256": "2c4bd5d962465409b38ef4aa35c6d47c84e847b7b86213230396178c1c6a43a6",
+      "directory": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-url-scan/2026-10-07T14-12-09-604Z",
+      "checks": 42,
+      "passed": true
+    },
+    {
+      "command": "pnpm validate:business",
+      "exitCode": 0,
+      "log": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-k123/business-frozen.log",
+      "sha256": "58a5d07d32821f3e086ada5a8666d04ee4eed706dd76f9f396e056a403a5183e",
+      "directory": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/business-preflight/2026-10-07T14-12-28-075Z",
+      "checks": 32,
+      "passed": true
+    }
+  ],
+  "retainedFailures": [
+    {
+      "directory": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-remediation/2026-10-07T13-56-06-107Z",
+      "reason": "Normal action waited for pending GET; tool-timeout prevented original unknown and recovery. Analysis committed before generic lifecycle correction; no fixture exceptions."
+    }
+  ],
+  "oldC10Review": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-k123-browser/2026-10-07T14-11-20-358Z/c10-new-oracle-review.json",
+  "remaining": [
+    "Independent Agent review pending",
+    "No new real-model diagnostic/formal campaign",
+    "K4/K5 and R0 acceptance incomplete",
+    "Old stability anomalies retained; historical root causes not proven"
+  ]
+}
