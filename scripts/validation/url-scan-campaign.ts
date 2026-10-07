@@ -17,6 +17,7 @@ import { replayUrlSample } from '../../evaluation/private/url-scan/replay.ts'
 import { verifiesSortFinding } from '../../evaluation/private/url-scan/finding-target.ts'
 import { urlScanTruth } from '../../evaluation/private/url-scan/truth.ts'
 import { scoreUrlScan } from '../../evaluation/private/url-scan/scorer.ts'
+import { scoreBoundary } from '../../evaluation/private/url-scan/boundary-scorer.ts'
 import { readUrlScanPrices } from './url-scan-prices.ts'
 import {
   hashTree,
@@ -362,11 +363,9 @@ export async function runUrlCampaign(
         const requests = [...fixture.requests]
         await writeJson(resolve(runDirectory, 'page-requests.json'), requests)
         if (!truth) {
-          row.passed =
-            report.uiScan?.inspection?.coverage !== 'covered' &&
-            report.uiScan?.interventions?.length > 0 &&
-            !report.findings.some((f: any) => f.validationStatus === 'supported') &&
-            !requests.some((r) => r.method === 'POST')
+          const verdict = scoreBoundary(report, requests, row.runId!)
+          row.passed = verdict.passed
+          await writeJson(resolve(runDirectory, 'boundary-verdict.json'), verdict)
         } else {
           const declaredSelectors = Object.values(saved.artifacts).flatMap((a) =>
             a.exists && a.type === 'measurement'
@@ -512,18 +511,29 @@ export async function runUrlCampaign(
           const db = createClient({ url: databaseUrl })
           try {
             const rs = await db.execute({
-              sql: 'SELECT status,business_result FROM runs WHERE id=?',
+              sql: 'SELECT status,business_result,stop_reason FROM runs WHERE id=?',
               args: [row.runId],
             })
             const es = await db.execute({
-              sql: 'SELECT id FROM run_events WHERE run_id=? ORDER BY seq',
+              sql: 'SELECT id,run_id,seq,type,payload,evidence_refs FROM run_events WHERE run_id=? ORDER BY seq',
               args: [row.runId],
             })
             const ok =
               rs.rows[0]?.status === report.status &&
               rs.rows[0]?.business_result === report.businessResult &&
-              JSON.stringify(es.rows.map((r) => r.id)) ===
-                JSON.stringify(report.events.map((e: any) => e.id))
+              rs.rows[0]?.stop_reason === report.stopReason &&
+              es.rows.length === report.events.length &&
+              es.rows.every((r, i) => {
+                const e = report.events[i]
+                return (
+                  r.id === e.id &&
+                  r.run_id === e.runId &&
+                  r.seq === e.seq &&
+                  r.type === e.type &&
+                  isDeepStrictEqual(JSON.parse(String(r.payload)), e.payload) &&
+                  isDeepStrictEqual(JSON.parse(String(r.evidence_refs)), e.evidenceRefs)
+                )
+              })
             await writeJson(resolve(runDirectory, 'durability.json'), { passed: ok })
             row.passed &&= ok
           } finally {

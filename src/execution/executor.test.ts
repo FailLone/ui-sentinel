@@ -111,6 +111,7 @@ const ids: string[] = []
  * and would prove nothing about the adapter under test.
  */
 let paymentOutcome: 'success' | 'failed' | 'uncertain' = 'success'
+let cancelUnknownOnWrite: string | null = null
 /** Export fixture state: how many jobs were created, and whether a status read settles them. */
 let exportJobs = 0
 let exportJobId = ''
@@ -169,6 +170,7 @@ const server = createServer((req, res) => {
   if (req.url === '/api/checkout') {
     writes++
     if (paymentOutcome === 'uncertain') {
+      if (cancelUnknownOnWrite) void cancelRunExecution(cancelUnknownOnWrite)
       res.writeHead(500, { 'content-type': 'application/json' })
       res.end('{}')
       return
@@ -553,6 +555,7 @@ afterAll(async () => {
   await Promise.all(ids.map((id) => rm(`data/artifacts/${id}`, { recursive: true, force: true })))
 })
 beforeEach(() => {
+  cancelUnknownOnWrite = null
   config.features.blockerReview = false
   config.budget.totalTimeoutMs = 20000
   harness.reviews = 0
@@ -893,6 +896,33 @@ it('latches shared resources after an uncertain write until explicit reconciliat
   expect(writes).toBe(1)
   await acknowledgeReconciliation()
   expect(executionBusy()).toBe(false)
+})
+
+it('keeps a genuinely dispatched unknown business write quarantined when cancellation races its receipt', async () => {
+  harness.handler = async (tools: any) =>
+    call(tools, 'page_act', { type: 'click', selector: 'button' })
+  const run = await createRun({
+    goal: 'inspect',
+    environmentId: 'test',
+    entryUrl: url + '/uncertain-page',
+  })
+  ids.push(run.id)
+  cancelUnknownOnWrite = run.id
+  try {
+    await startRunExecution(run.id)
+    expect(writes).toBe(1)
+    expect((await getEvents(run.id)).some((e) => e.type === 'run:cancel-requested')).toBe(true)
+    expect((await getEvents(run.id)).some((e) => e.type === 'finish:accepted')).toBe(false)
+    expect((await getRun(run.id))?.stopReason).toBe('reconciliation-required')
+    expect((await getRun(run.id))?.businessResult).not.toBe('success')
+    const next = await makeRun()
+    await startRunExecution(next.id)
+    expect((await getRun(next.id))?.status).toBe('interrupted')
+    expect(writes).toBe(1)
+  } finally {
+    cancelUnknownOnWrite = null
+    await acknowledgeReconciliation()
+  }
 })
 
 describe('execution contract regressions', () => {

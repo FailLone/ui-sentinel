@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto'
 import type { RunKind } from './run-kind.ts'
 import type { InspectionItem, InspectionScope } from './scope.ts'
+import type { BlockerEvidence } from './blocker-evidence.ts'
 
 /**
  * The UI completion decision and its persisted proof (plan 6.2, 6.3).
@@ -15,7 +16,7 @@ import type { InspectionItem, InspectionScope } from './scope.ts'
  * and the scope it claims came from one decision.
  */
 
-export const INSPECTION_PROOF_VERSION = 'inspection-proof-2' as const
+export const INSPECTION_PROOF_VERSION = 'inspection-proof-3' as const
 
 export type InspectionReason = 'scope-covered' | 'observed-blocker' | 'unverified-scope'
 
@@ -33,7 +34,7 @@ export type CompletionRefusal =
   | 'blocker-unsubstantiated'
 
 export interface InspectionProof {
-  readonly version: typeof INSPECTION_PROOF_VERSION
+  readonly version: typeof INSPECTION_PROOF_VERSION | 'inspection-proof-2'
   readonly kind: 'ui-scan'
   readonly claim: InspectionReason
   readonly outcome: 'goal-reached' | 'blocked'
@@ -53,6 +54,7 @@ export interface InspectionProof {
   }
   readonly unsupported: readonly string[]
   readonly decidedAt: string
+  readonly blockerEvidence?: readonly BlockerEvidence[]
   readonly hash: string
 }
 
@@ -72,7 +74,7 @@ export interface InspectionCompletionFacts {
   readonly openHypotheses: number
   readonly unsupportedRecorded: readonly string[]
   /** Measured blocking facts, e.g. a navigation or tool failure with its error. */
-  readonly blockerEvidence?: readonly string[]
+  readonly blockerEvidence?: readonly BlockerEvidence[]
 }
 
 export interface InspectionCompletionDecision {
@@ -111,6 +113,7 @@ function buildProof(input: {
   contractHash: string
   scope: InspectionScope
   unsupported: readonly string[]
+  blockerEvidence?: readonly BlockerEvidence[]
 }): InspectionProof {
   const snapshot = input.scope.snapshot()
   const items = snapshot.items.map((item) => ({
@@ -143,13 +146,14 @@ function buildProof(input: {
     },
     unsupported: [...input.unsupported],
     decidedAt: new Date().toISOString(),
+    blockerEvidence: [...(input.blockerEvidence ?? [])],
   }
   return { ...body, hash: createHash('sha256').update(canonical(body)).digest('hex') }
 }
 
 export function verifyInspectionProof(proof: InspectionProof | null | undefined): boolean {
   if (!proof || typeof proof !== 'object') return false
-  if (proof.version !== INSPECTION_PROOF_VERSION) return false
+  if (![INSPECTION_PROOF_VERSION, 'inspection-proof-2'].includes(proof.version)) return false
   const { hash, ...body } = proof
   if (typeof hash !== 'string') return false
   return createHash('sha256').update(canonical(body)).digest('hex') === hash
@@ -171,6 +175,8 @@ export function decideInspectionCompletion(input: {
     return { accepted: false, outcome: 'rejected', reasonCode: 'not-a-ui-scan' }
   if (!facts.featureEnabled)
     return { accepted: false, outcome: 'rejected', reasonCode: 'url-scan-disabled' }
+  if (!facts.contractValid)
+    return { accepted: false, outcome: 'rejected', reasonCode: 'contract-unverified' }
 
   const gaps = facts.scope.completionGaps()
   const gapText = [
@@ -185,7 +191,10 @@ export function decideInspectionCompletion(input: {
   if (reason === 'observed-blocker') {
     // A blocker is a measured fact, not a quality finding: an ordinary defect that does not stop the
     // next check does not make the run blocked.
-    if (!facts.blockerEvidence?.length)
+    if (
+      !facts.blockerEvidence?.length ||
+      facts.blockerEvidence.some((ref) => !ref.eventId || !/^[a-f0-9]{64}$/.test(ref.digest))
+    )
       return {
         accepted: false,
         outcome: 'rejected',
@@ -208,6 +217,7 @@ export function decideInspectionCompletion(input: {
         contractHash: facts.contractHash,
         scope: facts.scope,
         unsupported: facts.unsupportedRecorded,
+        blockerEvidence: facts.blockerEvidence,
       }),
     }
   }

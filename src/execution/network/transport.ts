@@ -50,6 +50,9 @@ export async function readPinnedResponse(input: {
   signal: AbortSignal
   timeoutMs?: number
 }) {
+  // This transport belongs exclusively to UI inspection. Never rely on a caller's
+  // interpretation of a browser request to grant a write at the actual socket boundary.
+  if (!['GET', 'HEAD'].includes(input.method)) throw new TransportRefusal('transport-error')
   const url = new URL(input.url)
   const headers = Object.fromEntries(
     Object.entries(input.headers).filter(

@@ -3,6 +3,7 @@ import { projectInspectionScope } from './scope.ts'
 import { verifyUiContractSnapshot } from './contract.ts'
 import type { Run, RunEvent } from '../shared/types.ts'
 import { recoveryHistoryIssues } from './recovery-history.ts'
+import { blockerHistoryIssues } from './blocker-evidence.ts'
 
 /** Reconcile a proof with durable facts. A self-consistent JSON hash alone is never coverage. */
 export function inspectionHistoryIssues(
@@ -39,10 +40,25 @@ function inspectHistory(
     accepted.payload.reasonCode !== proof.claim ||
     (proof.claim === 'scope-covered'
       ? proof.outcome !== 'goal-reached' || run.status !== 'completed'
-      : proof.outcome !== 'blocked')
+      : proof.outcome !== 'blocked' || run.status !== 'blocked')
   )
     issues.push('inspection-proof-outcome-mismatch')
   const history = events.filter((e) => e.seq < accepted.seq)
+  if (proof.version === 'inspection-proof-3') {
+    if (events.some((e) => e.type === 'run:cancel-requested' || e.type === 'run:cancelled'))
+      issues.push('inspection-cancelled')
+    if (history.some((e) => e.type === 'execution:stopped' || e.type === 'action:failed'))
+      issues.push('inspection-execution-failed')
+  }
+  if (accepted.runId !== run.id) issues.push('inspection-finish-run-mismatch')
+  issues.push(
+    ...blockerHistoryIssues(
+      run.id,
+      history,
+      proof.blockerEvidence,
+      proof.claim === 'observed-blocker',
+    ),
+  )
   const scope = projectInspectionScope(history)
   const snapshot = scope.snapshot()
   if (events.some((e) => e.seq > accepted.seq && e.type.startsWith('scope:')))

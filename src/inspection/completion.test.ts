@@ -333,7 +333,7 @@ describe('unverified-scope and observed-blocker', () => {
       reason: 'observed-blocker',
       facts: facts({
         scope: ledger(),
-        blockerEvidence: ['navigation failed: net::ERR_CONNECTION_REFUSED'],
+        blockerEvidence: [{ eventId: 'denied-event', digest: 'a'.repeat(64) }],
       }),
     })
     expect(withEvidence).toMatchObject({ accepted: true, outcome: 'blocked' })

@@ -147,6 +147,7 @@ import type { SlimSnapshot } from './observation-slim.ts'
 import { createStaleDetector } from './stale-detector.ts'
 import { extractToolSummary, type HistoryEntry } from '../agent/context/compact-history.ts'
 import { executeModelRequest, guardModelAttempt, beginAttemptTool } from '../agent/model/request.ts'
+import { collectUiBlockers } from '../inspection/blocker-evidence.ts'
 import { createTaskState } from './task-state.ts'
 import {
   decisionMemory,
@@ -1119,8 +1120,10 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     const detachedResponses = new Set<import('playwright').Request>()
     const policyDenied = new Set<import('playwright').Request>()
     const pendingWrites = new Set<import('playwright').Request>()
+    // Only the business boundary dispatches writes. UI's CDP read transport owns its
+    // refusals; a browser POST event is not proof that a business write left the process.
     page.on('request', (request) => {
-      if (!['GET', 'HEAD', 'OPTIONS'].includes(request.method())) {
+      if (businessRuntime && !['GET', 'HEAD', 'OPTIONS'].includes(request.method())) {
         pendingWrites.add(request)
         networkWrites++
       }
@@ -1423,6 +1426,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         inspection?.recordUnsupported(dimension, reasonCode),
     })
     await page.goto(run.spec.entryUrl, { waitUntil: 'domcontentloaded' })
+    if (uiScan) await networkBoundary.flush?.()
     await observe()
     let activeVisionId: string | undefined
     let activeVisionHandle: ReturnType<RequestTracker['startRequest']> | null = null
@@ -2165,7 +2169,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           })
           guard()
           if (input.type === 'click') {
-            sideEffectPending = true
+            sideEffectPending = !!businessRuntime
             dispatchTime = Date.now()
             await resolvedLocator.click()
           }
@@ -2191,6 +2195,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           await new Promise((r) => setTimeout(r, 50))
         }
         await drainResponses()
+        if (uiScan) await networkBoundary?.flush?.()
         guard()
         if (mutationFailed) throw new Error('reconciliation-required')
         sideEffectPending = false
@@ -2336,6 +2341,12 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           active.abortController.abort(new Error('reconciliation-required'))
           throw new Error('reconciliation-required')
         }
+        if (uiScan) {
+          // A dispatched action failing is an execution failure, even when a policy
+          // intervention also exists. Never let the next loop turn turn it into partial.
+          active.abortController.abort(new Error('ui-action-execution-error'))
+          throw error
+        }
         guard()
         staleDetector.recordAction()
         await observe()
@@ -2420,7 +2431,8 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           await observe()
           // Every network receipt is written before the claim that reads them, so a refusal cannot
           // land after the decision it should have changed.
-          await networkBoundary?.settle()
+          if (uiScan) await networkBoundary?.flush?.()
+          else await networkBoundary?.settle()
           if (uiScan && inspection) return finishUiScan(parsed as { reason: string })
           const pendingRules = await pendingKnownRules()
           const gaps = [
@@ -2556,26 +2568,34 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
      * partial suggestion: a run that may not claim coverage is not left with no way to end.
      */
     async function finishUiScan(parsed: { reason: string }) {
-      const facts = inspection!.completionFacts()
-      const decision = decideInspectionCompletion({
-        reason: parsed.reason as Parameters<typeof decideInspectionCompletion>[0]['reason'],
-        facts: {
-          kind: 'ui-scan',
-          featureEnabled: !!config.features?.urlScan,
-          spec: run!.spec,
-          contractValid: !!uiScan && verifyUiContractSnapshot(uiScan),
-          contractHash: uiScan!.hash,
-          entryObserved: facts.entryObserved,
-          entryEvidenceRefs: facts.entryEvidenceRefs,
-          integrityEpoch: integrity.epoch(),
-          scope: inspection!.scope,
-          scopeEventIds: facts.scopeEventIds,
-          pendingRules: await pendingKnownRules(),
-          openHypotheses: taskState.hasOpenHypotheses() ? 1 : 0,
-          unsupportedRecorded: facts.unsupportedRecorded,
-          blockerEvidence: await uiBlockerEvidence(),
-        },
-      })
+      guard()
+      await networkBoundary?.flush?.()
+      await drainResponses()
+      guard()
+      if (sideEffectPending || pendingWrites.size || mutationFailed)
+        throw new Error('reconciliation-required')
+      let facts = inspection!.completionFacts()
+      const decide = async () =>
+        decideInspectionCompletion({
+          reason: parsed.reason as Parameters<typeof decideInspectionCompletion>[0]['reason'],
+          facts: {
+            kind: 'ui-scan',
+            featureEnabled: !!config.features?.urlScan,
+            spec: run!.spec,
+            contractValid: !!uiScan && verifyUiContractSnapshot(uiScan),
+            contractHash: uiScan!.hash,
+            entryObserved: facts.entryObserved,
+            entryEvidenceRefs: facts.entryEvidenceRefs,
+            integrityEpoch: integrity.epoch(),
+            scope: inspection!.scope,
+            scopeEventIds: facts.scopeEventIds,
+            pendingRules: await pendingKnownRules(),
+            openHypotheses: taskState.hasOpenHypotheses() ? 1 : 0,
+            unsupportedRecorded: facts.unsupportedRecorded,
+            blockerEvidence: await uiBlockerEvidence(),
+          },
+        })
+      let decision = await decide()
       if (!decision.accepted) {
         const reply = {
           accepted: false,
@@ -2588,6 +2608,14 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         await appendEvent(runId, 'finish:rejected', reply)
         return reply
       }
+      // Only an admissible finish closes the read session. Drain the shutdown receipts and
+      // re-evaluate the same facts: a concurrent failure or cancellation cannot be hidden.
+      await networkBoundary?.seal?.()
+      await drainResponses()
+      guard()
+      facts = inspection!.completionFacts()
+      decision = await decide()
+      if (!decision.accepted) throw Error('ui-finalization-facts-changed')
       // Preserve the exact persisted ledger used by the proof, including pending gaps.
       const transition = phaseTracker.enterFinalizing('agent-ready')
       if (transition.changed)
@@ -2625,25 +2653,17 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         { reasonCode: decision.reasonCode, businessResult: 'not-applicable' },
         { stepId, evidenceRefs: [...facts.entryEvidenceRefs] },
       )
+      guard()
       return { accepted: true, reasonCode: decision.reasonCode, proof: decision.proof }
     }
     /**
      * Measured facts that can substantiate a blocker.
      *
-     * A blocker is a failure that actually prevented progress - an unreachable page, a tool error, a
-     * refused navigation that left the run with nothing to inspect. An ordinary quality finding is
-     * not one, which is why the ledger's own refusals are collected here rather than the findings.
+     * Only durable policy refusals / unsupported channels qualify. Allowed requests,
+     * execution errors and model descriptions cannot substantiate this reason.
      */
-    async function uiBlockerEvidence(): Promise<readonly string[]> {
-      const events = await getEvents(runId)
-      return events
-        .filter(
-          (event) =>
-            event.type === 'network:decision' ||
-            event.type === 'network:channel-denied' ||
-            event.type === 'execution:intervention',
-        )
-        .map((event) => event.id)
+    async function uiBlockerEvidence() {
+      return collectUiBlockers(runId, await getEvents(runId))
     }
     async function recoverInteraction(checkRef: string) {
       if (!inspection || !uiScan) return { error: 'ui-recovery-unavailable' }
@@ -3613,6 +3633,16 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     })
     if (visualScanEligible && config.features?.visualDiscovery) await visualFocus.scan()
     while (!finished) {
+      if (uiScan && inspection) {
+        guard()
+        await networkBoundary?.flush?.()
+        guard()
+        if (integrity.epoch() > 0) {
+          const completion = await finishUiScan({ reason: 'observed-blocker' })
+          if (!completion.accepted) throw Error('ui-blocker-proof-unavailable')
+          break
+        }
+      }
       if (uiScan && inspection && noToolStreak >= 3) {
         if (!uiRecoveryUsed) {
           uiRecoveryUsed = true
@@ -4220,6 +4250,10 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     await interactionRecovery.dispose()
     await Promise.allSettled(investigationBlockers.map((cached) => cached.handle.dispose()))
     if (worker) await worker.close().catch(() => {})
+    // Cancellation can arrive while finish evidence or browser cleanup is being persisted.
+    // Keep it distinct from an inspection blocker; a genuine unknown write still wins.
+    if (uiScan && stopReason !== 'reconciliation-required' && queue.isCancellationRequested(runId))
+      stopReason = 'cancelled'
     if (stopReason === 'reconciliation-required') queue.requireReconciliation()
     const finalReason = stopReason as StopReason
     const status =

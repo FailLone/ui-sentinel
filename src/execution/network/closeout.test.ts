@@ -99,6 +99,56 @@ it('opens the vetted socket without resolving the hostname again, preserving Hos
   expect(response.body.toString()).toBe('pinned')
   expect(host).toBe(url.host)
 })
+
+it('cannot dispatch a write through the UI transport even if its caller claims it is safe', async () => {
+  let writes = 0
+  const entry = await serve((_q: any, r: any) => {
+    writes++
+    r.end('unexpected')
+  })
+  await expect(
+    readPinnedResponse({
+      url: entry,
+      address: '127.0.0.1',
+      method: 'POST',
+      headers: {},
+      budget: createBodyBudget(1024, 1024),
+      signal: new AbortController().signal,
+    }),
+  ).rejects.toThrow('transport-error')
+  expect(writes).toBe(0)
+})
+
+it('cancels admitted reads with shutdown receipts and seals new admission', async () => {
+  let release: (() => void) | undefined
+  const entry = await serve((q: any, r: any) => {
+    if (q.url === '/slow') {
+      release = () => r.end('ok')
+      return
+    }
+    r.end('<p>entry</p>')
+  })
+  const w = await session(entry)
+  await w.page.goto(entry)
+  const pending = w.page.evaluate(() =>
+    fetch('/slow')
+      .then((r) => r.text())
+      .catch(() => 'cancelled'),
+  )
+  for (let i = 0; !release && i < 100; i++) await new Promise((r) => setTimeout(r, 10))
+  expect(release).toBeDefined()
+  w.network.seal()
+  const refused = w.page.evaluate(() =>
+    fetch('/later')
+      .then(() => false)
+      .catch(() => true),
+  )
+  await w.network.settle()
+  expect(await pending).toBe('cancelled')
+  expect(await refused).toBe(true)
+  expect(w.decisions.some((d) => d.url.endsWith('/slow') && d.finalizationShutdown)).toBe(true)
+  expect(w.decisions.some((d) => d.url.endsWith('/later'))).toBe(false)
+})
 it('applies page limits to script navigation before the destination server sees a request', async () => {
   const paths: string[] = []
   const entry = await serve((q: any, r: any) => {

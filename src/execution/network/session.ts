@@ -8,6 +8,8 @@ import type { NetworkDecision, NetworkPolicy } from '../../inspection/network-po
 export interface NetworkDecisionRecord extends NetworkDecision {
   readonly truncated?: boolean
   readonly sessionReason?: string
+  /** An admitted read cancelled only after a finish claim passed its first fact check. */
+  readonly finalizationShutdown?: boolean
 }
 export interface NetworkLimits {
   readonly maxRequests: number
@@ -85,6 +87,7 @@ export async function installUiNetworkSession(options: UiNetworkSessionOptions) 
   options.page.on('close', stop)
   const pending = new Set<Promise<void>>()
   let dispatched = 0
+  let sealed = false
   const emit = (decision: NetworkDecisionRecord) => {
     decisions.push(decision)
     options.onDecision?.(decision)
@@ -110,6 +113,7 @@ export async function installUiNetworkSession(options: UiNetworkSessionOptions) 
     }),
   })
   cdp.on('Runtime.bindingCalled', (event) => {
+    if (sealed) return
     if (event.name !== '__sentinelRouteDecision') return
     const route = JSON.parse(event.payload)
     if (route.ready) {
@@ -140,16 +144,24 @@ export async function installUiNetworkSession(options: UiNetworkSessionOptions) 
     }
   })
 
-  options.page.on('websocket', (socket) =>
-    options.onWebSocket?.(socket.url(), 'unsupported-channel'),
+  options.page.on(
+    'websocket',
+    (socket) => !sealed && options.onWebSocket?.(socket.url(), 'unsupported-channel'),
   )
   options.context.on('page', (opened) => {
     if (opened === options.page) return
-    options.onOpenPage?.(opened.url(), 'unsupported-channel')
+    if (!sealed) options.onOpenPage?.(opened.url(), 'unsupported-channel')
     void opened.close().catch(() => {})
   })
 
   cdp.on('Fetch.requestPaused', (event) => {
+    if (sealed) {
+      // No new inspection facts after the shutdown boundary. Already admitted work is drained.
+      void cdp
+        .send('Fetch.failRequest', { requestId: event.requestId, errorReason: 'BlockedByClient' })
+        .catch(() => {})
+      return
+    }
     const task = (async () => {
       const previous = event.redirectedRequestId
         ? requests.get(event.redirectedRequestId)
@@ -168,7 +180,13 @@ export async function installUiNetworkSession(options: UiNetworkSessionOptions) 
         reasonCode: NetworkDecisionRecord['reasonCode'],
         sessionReason?: string,
       ) => {
-        emit({ ...receipt, allow: false, reasonCode, ...(sessionReason ? { sessionReason } : {}) })
+        emit({
+          ...receipt,
+          allow: false,
+          reasonCode,
+          ...(sessionReason ? { sessionReason } : {}),
+          ...(sealed && reasonCode === 'execution-stopped' ? { finalizationShutdown: true } : {}),
+        })
         await cdp
           .send('Fetch.failRequest', { requestId: event.requestId, errorReason: 'BlockedByClient' })
           .catch(() => {})
@@ -243,6 +261,7 @@ export async function installUiNetworkSession(options: UiNetworkSessionOptions) 
   // Same-document changes cannot dispatch a document request. Track their real route identity;
   // exceeding the scope changes page behaviour and therefore emits a persisted intervention.
   cdp.on('Page.navigatedWithinDocument', (event) => {
+    if (sealed) return
     if (event.frameId !== mainFrameId || event.url === navigation.current()) return
     const result = navigation.reserve(event.url, navigation.current())
     if (result.allow) navigation.arrive(event.url)
@@ -267,8 +286,12 @@ export async function installUiNetworkSession(options: UiNetworkSessionOptions) 
     decisions,
     requestsDispatched: () => dispatched,
     navigation,
+    seal: () => {
+      sealed = true
+      controller.abort()
+    },
     settle: async () => {
-      await Promise.all([...pending])
+      while (pending.size) await Promise.all([...pending])
     },
   }
 }

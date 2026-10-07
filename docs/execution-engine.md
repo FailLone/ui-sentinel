@@ -147,3 +147,13 @@ UI 链接导航与目的页内容检查分开：导航动作不接受局部 `ver
 UI 后置谓词的 `failed` 测量会由执行器保存 `ui-interaction` 类型发现，关联原 action、原 scope item、动作前预期、动作后当前结果绑定及截图。该发现只说明当前测量与声明预期不符，不证明预期适用于所有页面。提升、持久终态及历史报告均复核服务端封印、文件摘要和事件顺序；受干预、unknown 或无效证据不会产生 supported。`interaction_verify` 的失败恢复使用同一事项和原预期，保留旧 unknown，不重放动作。模型无需再次提交该发现。
 
 干净 UI 运行中，`exploration_update.recordGap` 与仍待测量的已选控件/导航计划分开：包含新选择或存在 pending 选择时，工具在任何记录写入前拒绝永久 gap 声明。先用 selectItems 计划并测量，或以 unverified-scope 保留 pending 结束；干预后可以继续记下实际无法验证范围。已经保存的 gap 不因空更新或后续成功而消失。导航不占局部控件采样额度，返回 localSampling 供计划核对。
+
+### UI 边界阻塞、终态与历史证明
+
+业务 Request 对象级 pendingWrites 及 click 的未知写入预留仅适用于业务运行。纯 UI 请求由原 CDP session 与固定地址只读传输负责；传输层在实际打开 socket 前再次限制 GET/HEAD。浏览器尝试 POST 后被拒绝，不等于业务写入已经发出。真正的业务未知回执仍优先进入 reconciliation-required、隔离后续任务且不重放，包括取消与实际写入并发的情况。
+
+UI 的 Agent 结束与确定性结束共用 finishUiScan：flush 已发生的网络决策及响应记录，检查取消、预算和未知写入，再读取真实 blocker；常规观察与动作不等待所有 GET 返回，保留动态结果的后续只读恢复。已受干预的正常循环可以不再调用模型，申请 observed-blocker；传输错误、动作执行失败、模型截断和取消各走其真实失败终态，不在异常 catch 补造 partial。结束预检接受后，网络 session 封闭新请求准入，取消尚未完成的只读请求并保存 network:shutdown-request / network:sealed，再排空记录、重新检查同一结束契约。终结取消不作为站点 blocker，也不解除旧 gap；真正执行错误或变化后的事实会拒绝过期证明。保留已放行请求汇总，后续关闭流量不能补写检查范围。
+
+inspection-proof-3 的 observed-blocker 保存真实拒绝/不支持通道事件的 ID 和完整事件摘要。普通 allow、execution-stopped、transport-error 或模型文字不能支撑 blocker。持久终态与历史报告重新验证同 run、先于 finish、事件语义、摘要及实际终态；取消和执行失败记录也会使新证明失效。原 proof-2 内容不迁移、不改写，covered 继续原校验；旧 observed-blocker 缺少可信封印时显示不可验证，不补造事实。需要受控重新检查才能取得新证明。
+
+独立边界验收同时核验 blocked / blocked / not-applicable、持久状态、结束事件及 blocker 摘要、服务器无写入、无污染误报。partial 字段本身不是通过条件，旧 C10 仍失败。免费契约回归入口为 `pnpm exec tsx scripts/validation/r0-k123.ts`；该脚本使用本地固定模型，证明接线与拒绝行为，不授予真实模型验收资格。
