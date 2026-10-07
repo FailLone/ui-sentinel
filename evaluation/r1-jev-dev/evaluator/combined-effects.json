@@ -1,0 +1,7 @@
+{
+  "schemaVersion": "r1-evaluator-case-1",
+  "scenario": "combined-effects",
+  "expectedStatus": "ranked",
+  "reason": "历史允许展开、内容变化与导航同时存在，不做互斥分类。",
+  "checks": []
+}

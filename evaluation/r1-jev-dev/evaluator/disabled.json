@@ -1,0 +1,7 @@
+{
+  "schemaVersion": "r1-evaluator-case-1",
+  "scenario": "disabled",
+  "expectedStatus": "handoff",
+  "reason": "禁用入口不能成为有效建议，不据此判断站点缺陷。",
+  "checks": []
+}

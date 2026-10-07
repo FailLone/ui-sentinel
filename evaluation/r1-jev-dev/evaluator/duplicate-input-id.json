@@ -1,0 +1,9 @@
+{
+  "schemaVersion": "r1-evaluator-case-1",
+  "scenario": "duplicate-input-id",
+  "expectedStatus": "invalid-input",
+  "reason": "候选 ID 重复使整个输入无效。",
+  "checks": [
+    "zero-transmissions"
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "schemaVersion": "r1-evaluator-case-1",
+  "scenario": "missing-candidate-reply",
+  "expectedStatus": "handoff",
+  "reason": "回执遗漏评分使整个批次无效。",
+  "checks": []
+}

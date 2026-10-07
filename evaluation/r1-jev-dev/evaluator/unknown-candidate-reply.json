@@ -1,0 +1,7 @@
+{
+  "schemaVersion": "r1-evaluator-case-1",
+  "scenario": "unknown-candidate-reply",
+  "expectedStatus": "handoff",
+  "reason": "回执引用集合外 ID，整批拒绝。",
+  "checks": []
+}

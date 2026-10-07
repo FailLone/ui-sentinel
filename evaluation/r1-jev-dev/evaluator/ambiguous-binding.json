@@ -1,0 +1,9 @@
+{
+  "schemaVersion": "r1-evaluator-case-1",
+  "scenario": "ambiguous-binding",
+  "expectedStatus": "handoff",
+  "reason": "调用方未提供可执行绑定；不能从同文案自动选第一个。",
+  "checks": [
+    "zero-transmissions"
+  ]
+}

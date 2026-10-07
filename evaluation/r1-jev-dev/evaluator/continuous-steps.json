@@ -1,0 +1,9 @@
+{
+  "schemaVersion": "r1-evaluator-case-1",
+  "scenario": "continuous-steps",
+  "expectedStatus": "ranked",
+  "reason": "给定首状态只评价一次候选决策，不推断其后路径已执行。",
+  "checks": [
+    "no-end-to-end-coverage-claim"
+  ]
+}

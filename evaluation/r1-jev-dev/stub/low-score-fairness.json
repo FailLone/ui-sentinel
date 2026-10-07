@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "r1-stub-reply-1",
+  "kind": "scores",
+  "binding": "bind-to-current-request-in-test-transport",
+  "model": "stub/jev-exploration-1",
+  "provider": "stub",
+  "scores": [
+    {
+      "candidateId": "c1",
+      "relevance": 0.01,
+      "informationGain": 0.01,
+      "uncertainty": 0.2
+    },
+    {
+      "candidateId": "c2",
+      "relevance": 0.9,
+      "informationGain": 0.9,
+      "uncertainty": 0.1
+    }
+  ],
+  "usage": null
+}

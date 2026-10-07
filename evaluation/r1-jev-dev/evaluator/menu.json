@@ -1,0 +1,7 @@
+{
+  "schemaVersion": "r1-evaluator-case-1",
+  "scenario": "menu",
+  "expectedStatus": "ranked",
+  "reason": "关闭的菜单是未尝试的当前可执行候选；实际展开效果未知。",
+  "checks": []
+}

@@ -1,0 +1,9 @@
+{
+  "schemaVersion": "r1-evaluator-case-1",
+  "scenario": "uncacheable",
+  "expectedStatus": "ranked",
+  "reason": "调用方声明不可缓存时不能写入或命中成功缓存。",
+  "checks": [
+    "two-calls-two-transmissions"
+  ]
+}

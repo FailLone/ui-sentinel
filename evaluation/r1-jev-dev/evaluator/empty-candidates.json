@@ -1,0 +1,9 @@
+{
+  "schemaVersion": "r1-evaluator-case-1",
+  "scenario": "empty-candidates",
+  "expectedStatus": "handoff",
+  "reason": "没有可执行候选应交回，不宣称结束。",
+  "checks": [
+    "zero-transmissions"
+  ]
+}

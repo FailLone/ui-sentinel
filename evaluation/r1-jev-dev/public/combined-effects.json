@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "r1-exploration-input-1",
+  "requestId": "request-1",
+  "task": {
+    "goal": "检查帮助文档页面的局部导航与内容切换",
+    "localTask": "选择一个尚未检查的可执行局部控件",
+    "revision": "task-1"
+  },
+  "state": {
+    "pageId": "page-docs",
+    "url": "https://guide.invalid/help",
+    "documentVersion": "doc-1",
+    "observationVersion": "obs-1",
+    "relatedStateVersion": "state-2",
+    "cacheable": true
+  },
+  "candidates": [
+    {
+      "id": "c1",
+      "targetKey": "node-c1",
+      "observationVersion": "obs-1",
+      "text": "详细章节",
+      "role": "button",
+      "publicState": {
+        "visible": true,
+        "enabled": true,
+        "expanded": null,
+        "selected": null
+      },
+      "geometry": {
+        "x": 120,
+        "y": 80,
+        "width": 120,
+        "height": 36,
+        "inViewport": true
+      },
+      "context": "文档导航",
+      "allowedActions": [
+        "click",
+        "inspect"
+      ],
+      "estimatedCost": 1
+    }
+  ],
+  "history": [
+    {
+      "targetKey": "node-c1",
+      "candidateId": "old-c1",
+      "action": "click",
+      "beforeStateVersion": "state-1",
+      "afterStateVersion": "state-2",
+      "actualEffects": [
+        "expanded",
+        "content-changed",
+        "navigated"
+      ],
+      "outcome": "observed"
+    }
+  ],
+  "scope": {
+    "revision": "scope-1",
+    "executableCandidateIds": [
+      "c1"
+    ]
+  },
+  "budget": {
+    "revision": "budget-1",
+    "remainingDecisions": 8,
+    "remainingActions": 8,
+    "remainingMs": 5000,
+    "maxRequestMs": 1000,
+    "remainingCostUsd": null
+  },
+  "limits": {
+    "maxCandidates": 32,
+    "maxInputBytes": 32768,
+    "maxHistory": 32
+  }
+}

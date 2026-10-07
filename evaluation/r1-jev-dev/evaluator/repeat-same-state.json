@@ -1,0 +1,9 @@
+{
+  "schemaVersion": "r1-evaluator-case-1",
+  "scenario": "repeat-same-state",
+  "expectedStatus": "ranked",
+  "reason": "未尝试 c2 应在已尝试 c1 前（纯程序组）。",
+  "checks": [
+    "baseline-first:c2"
+  ]
+}
