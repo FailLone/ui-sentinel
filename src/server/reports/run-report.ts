@@ -321,7 +321,12 @@ export async function buildReport(runId: string) {
     issues.push(
       ...(await probeArtifactIssues(
         events,
-        new Map(artifactRows.rows.map((r) => [String(r.id), String(r.file_path)])),
+        new Map(
+          artifactRows.rows.map((r) => [
+            String(r.id),
+            { path: String(r.file_path), type: String(r.type) },
+          ]),
+        ),
       )),
     )
   if (run.spec.kind === 'ui-scan')

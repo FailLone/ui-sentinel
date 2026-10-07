@@ -88,7 +88,12 @@ export async function verifyCompletionCommit(expected: {
       issues.push(
         ...(await probeArtifactIssues(
           snapshot.events,
-          new Map(snapshot.artifactRows.rows.map((r) => [String(r.id), String(r.file_path)])),
+          new Map(
+            snapshot.artifactRows.rows.map((r) => [
+              String(r.id),
+              { path: String(r.file_path), type: String(r.type) },
+            ]),
+          ),
         )),
         ...(await recoveryArtifactIssues(
           snapshot.events,

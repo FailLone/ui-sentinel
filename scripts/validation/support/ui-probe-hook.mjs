@@ -25,7 +25,20 @@ chromium.launch = async function (...args) {
         const l = locator(...args),
           elementHandle = l.elementHandle.bind(l)
         l.elementHandle = async (...args) => {
-          const h = await elementHandle(...args)
+          let h = await elementHandle(...args)
+          if (
+            h &&
+            armed &&
+            mode === 'initial-replaced' &&
+            new Error().stack.includes('measureUiProbe')
+          ) {
+            armed = false
+            await h.evaluate((n) => {
+              n.outerHTML = n.outerHTML
+            })
+            h = await elementHandle(...args)
+            process.send?.({ event: 'initial-replaced' })
+          }
           if (h) {
             const click = h.click.bind(h)
             h.click = async (...args) => {

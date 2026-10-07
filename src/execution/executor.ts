@@ -2215,14 +2215,16 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           if (!resolvedLocator || !probeCandidate) throw Error('probe-target-missing')
           const measured = await measureUiProbe(
             resolvedLocator,
+            { handle: candidateBindings.get(actingRef), url: beforeUrl },
             guard,
             Math.min(3000, config.budget.toolTimeoutMs / 3),
           )
           guard()
+          const screenshotBytes = await page.screenshot({ timeout: 3000 })
           const screenshot = await saveEvidence(
             runId,
             'screenshot',
-            await page.screenshot({ timeout: 3000 }),
+            screenshotBytes,
             evidenceMetadata(),
             guard,
           )
@@ -2235,6 +2237,9 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
             ref: actingRef,
             sourceSnapshot: actionSnapshotPage,
             evidenceRefs: [screenshot],
+            evidenceHashes: {
+              [screenshot]: createHash('sha256').update(screenshotBytes).digest('hex'),
+            },
           }
           const raw = JSON.stringify(receipt)
           const receiptRef = await saveEvidence(

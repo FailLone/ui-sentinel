@@ -166,8 +166,8 @@ inspection-proof-3 的 observed-blocker 保存真实拒绝/不支持通道事件
 
 ### UI 只读 probe 与一次剩余义务引导（F2/F1）
 
-UI `page_act(type=probe)` 只接受实际观察到的局部控件，不带行为效果 verify。`ui-probe.ts` 绑定唯一原节点，在当前URL与连接身份保持时执行trial，并复用公开DOM几何测量。只有trial本身的Timeout且前后均可见、启用、完整位于视口/裁切内、采样命中率为0，才能返回intercepted；不依据异常文案推断遮挡。缺失、歧义、替换节点或浏览器故障不能产生有效阴性测量，取消仍优先。其余UI动作异常仍保留execution-error。业务probe及未知写入隔离路径不变。
+UI `page_act(type=probe)` 只接受实际观察到的局部控件，不带行为效果 verify。`ui-probe.ts` 复用观察阶段保存的原节点handle，locator只交叉核对唯一身份，不在probe入口重绑节点，在当前URL与连接身份保持时执行trial，并复用公开DOM几何测量。只有trial本身的Timeout且前后均可见、启用、完整位于视口/裁切内、采样命中率为0，才能返回intercepted；不依据异常文案推断遮挡。缺失、歧义、替换节点或浏览器故障不能产生有效阴性测量，取消仍优先。其余UI动作异常仍保留execution-error。业务probe及未知写入隔离路径不变。
 
-有效阴性probe保存原run/action/item/ref、测量、截图和文件摘要，通过`probe:measured`关联原pending局部检查为failed；已有规则发现保留。actionable仅是可点击性，没有实际点击，不把原行为效果检查标成verified。工具返回probeMeasurement及effectTested=false。旧unknown不会被该路径恢复，也不新建成功项绕过gap。历史报告和持久终态检查probe事件的原始绑定、动作归属、阴性事实、原事项更新以及文件摘要；旧无probe记录不改判。
+有效阴性probe保存原run/action/item/ref、测量、截图和文件摘要，通过`probe:measured`关联原pending局部检查为failed；已有规则发现保留。actionable仅是可点击性，没有实际点击，不把原行为效果检查标成verified。工具返回probeMeasurement及effectTested=false。旧unknown不会被该路径恢复，也不新建成功项绕过gap。历史报告和持久终态检查probe事件的原始绑定、动作归属、阴性事实、原事项更新以及测量JSON和所引用截图的字节摘要、产物类型；旧无probe记录不改判。
 
 `remaining-obligation-guidance.ts`只负责全运行一次调度机会。触发须是干净UI运行已达三轮无进展、既有只读恢复没有新事实、存在当前仍连接的已选pending控件/导航、动作预算可用且未进入时间/模型预算保留区。引导列原item/ref，模型仍使用原工具和权限，执行器不自动点击或重放；正常权限校验、取消、错误和写入隔离保持优先。提示及其事件不计入进展事实，不重置计数。下一轮无实际新事实即按原完成验证器完整结束或partial；有实际新事实可继续调查，但不补发引导。健康partial仍不能通过验收。

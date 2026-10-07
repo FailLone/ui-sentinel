@@ -1,14 +1,19 @@
-import { errors, type Locator } from 'playwright'
+import { errors, type Locator, type ElementHandle } from 'playwright'
 import { measureElement } from './investigation/measure.ts'
 
 /** Only a failed trial corroborated by current, bound geometry is a negative measurement. */
-export async function measureUiProbe(locator: Locator, guard: () => void, timeout: number) {
+export async function measureUiProbe(
+  locator: Locator,
+  binding: { handle: ElementHandle<Element> | undefined | null; url: string },
+  guard: () => void,
+  timeout: number,
+) {
   guard()
   if ((await locator.count()) !== 1) throw Error('probe-target-not-unique')
-  const handle = await locator.elementHandle()
+  const handle = binding.handle
   if (!handle) throw Error('probe-target-missing')
   const page = locator.page()
-  const url = page.url()
+  const url = binding.url
   const sameTarget = async () => {
     guard()
     if (page.url() !== url || (await locator.count()) !== 1) throw Error('probe-target-changed')
@@ -23,7 +28,7 @@ export async function measureUiProbe(locator: Locator, guard: () => void, timeou
       await current?.dispose()
     }
   }
-  try {
+  {
     await sameTarget()
     const before = await measureElement(handle)
     let trialError: unknown
@@ -56,7 +61,5 @@ export async function measureUiProbe(locator: Locator, guard: () => void, timeou
       after,
       dispatched: false as const,
     }
-  } finally {
-    await handle.dispose()
   }
 }

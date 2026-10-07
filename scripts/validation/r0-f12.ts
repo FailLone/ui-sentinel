@@ -29,7 +29,14 @@ const fixture = createServer((req, res) => {
   res.setHeader('content-type', 'text/html')
   if (req.url === '/info') return res.end('<h1>Information</h1><p>Public information.</p>')
   if (mode === 'no-items' || mode === 'after-normal') return res.end('<h1>Public information</h1>')
-  const blocked = ['intercepted', 'cancel', 'closed', 'replaced', 'real-click-error'].includes(mode)
+  const blocked = [
+    'intercepted',
+    'cancel',
+    'closed',
+    'replaced',
+    'real-click-error',
+    'initial-replaced',
+  ].includes(mode)
   res.end(
     `<h1>Options</h1><p>Open reveals the details.</p><span style="position:relative;display:inline-block"><button id=open type=button style="width:140px;height:60px" onclick="document.getElementById('details').hidden=false;fetch('/opened')">Open</button>${blocked ? '<span style="position:absolute;inset:0;z-index:2;background:#ddd"></span>' : ''}</span><section id=details hidden>Public details</section><a href=/info>Information</a>`,
   )
@@ -155,6 +162,7 @@ const launch = () => {
   child.on('message', (m) => ipc.push(m))
   return child
 }
+let expectedRows = 0
 let child = launch(),
   currentRun = ''
 const rows: any[] = [],
@@ -178,13 +186,14 @@ async function stop() {
 }
 try {
   await ready()
-  for (mode of [
+  const modes = [
     'healthy',
     'intercepted',
     'invalid',
     'ambiguous',
     'missing',
     'real-click-error',
+    'initial-replaced',
     'replaced',
     'closed',
     'cancel',
@@ -195,7 +204,12 @@ try {
     'guide-cancel',
     'guide-budget',
     'no-items',
-  ]) {
+  ]
+  const planned = process.argv.includes('--probe-only')
+    ? modes.filter((m) => !m.startsWith('guide-') && m !== 'no-items')
+    : modes
+  expectedRows = planned.length * 2 + 4
+  for (mode of planned) {
     turn = 0
     guided = 0
     requests = []
@@ -242,7 +256,7 @@ try {
       reminders = events.filter((e: any) => e.type === 'execution:remaining-obligation-guidance')
     const expected = ['cancel', 'guide-cancel'].includes(mode)
       ? 'cancelled'
-      : ['closed', 'replaced', 'real-click-error'].includes(mode)
+      : ['closed', 'replaced', 'real-click-error', 'initial-replaced'].includes(mode)
         ? 'execution-error'
         : ['guide-ignore', 'guide-second-loop', 'guide-budget'].includes(mode)
           ? 'blocked'
@@ -275,6 +289,8 @@ try {
         noClick: !requests.some((r) => r.url === '/opened'),
         noActionFailure: !events.some((e: any) => e.type === 'action:failed'),
       })
+    if (mode === 'initial-replaced')
+      checks.barrierTriggered = ipc.some((m) => m.event === 'initial-replaced')
     if (mode === 'healthy')
       Object.assign(checks, {
         positiveOnly:
@@ -293,7 +309,17 @@ try {
         oneRealClick: requests.filter((r) => r.url === '/opened').length === 1,
         noFindings: report.findings.length === 0,
       })
-    if (['invalid', 'ambiguous', 'missing', 'closed', 'replaced', 'cancel'].includes(mode))
+    if (
+      [
+        'invalid',
+        'ambiguous',
+        'missing',
+        'closed',
+        'replaced',
+        'initial-replaced',
+        'cancel',
+      ].includes(mode)
+    )
       checks.noFalseMeasurement = probes.length === 0
     if (mode.startsWith('guide-') && mode !== 'guide-budget')
       Object.assign(checks, {
@@ -328,11 +354,18 @@ try {
     event = blocked.events.find((e: any) => e.type === 'probe:measured')
   const db = createClient({ url: 'file:' + resolve(root, 'runs.db') })
   try {
-    for (const variant of ['wrong-association', 'tampered-receipt']) {
+    for (const variant of [
+      'wrong-association',
+      'tampered-receipt',
+      'tampered-screenshot',
+      'wrong-screenshot-type',
+    ]) {
       const original = JSON.stringify(event.payload)
       const file = await db.execute({
-        sql: 'SELECT file_path FROM artifacts WHERE id=?',
-        args: [event.payload.receiptRef],
+        sql: 'SELECT file_path,type FROM artifacts WHERE id=?',
+        args: [
+          variant.includes('screenshot') ? event.payload.evidenceRefs[0] : event.payload.receiptRef,
+        ],
       })
       const path = String(file.rows[0]!.file_path)
       const bytes = await readFile(path)
@@ -340,6 +373,11 @@ try {
         await db.execute({
           sql: 'UPDATE run_events SET payload=? WHERE id=?',
           args: [JSON.stringify({ ...event.payload, itemId: 'wrong-original' }), event.id],
+        })
+      else if (variant === 'wrong-screenshot-type')
+        await db.execute({
+          sql: 'UPDATE artifacts SET type=? WHERE id=?',
+          args: ['snapshot', event.payload.evidenceRefs[0]],
         })
       else await writeFile(path, JSON.stringify({ forged: true }))
       const changed: any = await fetch(`${base}/api/runs/${blocked.runId}/report`).then((r) =>
@@ -352,6 +390,11 @@ try {
         args: [original, event.id],
       })
       await writeFile(path, bytes)
+      if (variant === 'wrong-screenshot-type')
+        await db.execute({
+          sql: 'UPDATE artifacts SET type=? WHERE id=?',
+          args: [String(file.rows[0]!.type), event.payload.evidenceRefs[0]],
+        })
     }
   } finally {
     db.close()
@@ -385,7 +428,7 @@ try {
     selfTest: true,
     independentAcceptance: false,
     paidRequests: 0,
-    passed: rows.length === 34 && rows.every((r) => r.passed),
+    passed: rows.length === expectedRows && rows.every((r) => r.passed),
     rows,
   })
 }
@@ -393,7 +436,7 @@ console.log(
   JSON.stringify({
     directory: root,
     rows: rows.length,
-    passed: rows.length === 34 && rows.every((r) => r.passed),
+    passed: rows.length === expectedRows && rows.every((r) => r.passed),
   }),
 )
-if (rows.length !== 34 || rows.some((r) => !r.passed)) process.exitCode = 1
+if (rows.length !== expectedRows || rows.some((r) => !r.passed)) process.exitCode = 1

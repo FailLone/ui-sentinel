@@ -66,18 +66,39 @@ export function probeHistoryIssues(events: readonly RunEvent[]): string[] {
 
 export async function probeArtifactIssues(
   events: readonly RunEvent[],
-  paths: ReadonlyMap<string, string>,
+  artifacts: ReadonlyMap<string, { path: string; type: string }>,
 ) {
   const issues: string[] = []
   for (const e of events.filter((e) => e.type === 'probe:measured')) {
     try {
       const { receiptRef, sha256, ...body } = e.payload
-      const raw = await readFile(paths.get(String(receiptRef))!)
+      const artifact = artifacts.get(String(receiptRef))
+      if (artifact?.type !== 'probe-measurement') throw Error('probe-receipt-type')
+      const raw = await readFile(artifact.path)
       if (
         createHash('sha256').update(raw).digest('hex') !== sha256 ||
         JSON.stringify(JSON.parse(raw.toString())) !== JSON.stringify(body)
       )
         throw Error('probe-bytes-mismatch')
+      const refs = body.evidenceRefs as string[]
+      const hashes = body.evidenceHashes as Record<string, string>
+      if (
+        !Array.isArray(refs) ||
+        !refs.length ||
+        !hashes ||
+        refs.length !== Object.keys(hashes).length
+      )
+        throw Error('probe-evidence-unsealed')
+      for (const ref of refs) {
+        const screenshot = artifacts.get(ref)
+        if (
+          screenshot?.type !== 'screenshot' ||
+          createHash('sha256')
+            .update(await readFile(screenshot.path))
+            .digest('hex') !== hashes[ref]
+        )
+          throw Error('probe-screenshot-mismatch')
+      }
     } catch {
       issues.push('probe-artifact-unverified')
     }
