@@ -134,6 +134,7 @@ export async function hashTree(
 
 /** Keys whose values are secrets. Matched case-insensitively anywhere in a key name. */
 const SECRET_KEY = /(key|token|secret|password|passwd|authorization|credential|cookie)/i
+const PUBLIC_TOKEN_COUNTS = new Set(['maxOutputTokens', 'min_prompt_tokens', 'max_prompt_tokens'])
 
 /**
  * Redact a configuration block for a manifest.
@@ -149,7 +150,11 @@ export function redactConfiguration(input: Record<string, unknown>): Record<stri
       return Object.fromEntries(
         Object.entries(value as Record<string, unknown>).map(([k, v]) => [
           k,
-          SECRET_KEY.test(k) ? '<redacted>' : redact(v),
+          PUBLIC_TOKEN_COUNTS.has(k) && typeof v === 'number' && Number.isFinite(v)
+            ? v
+            : SECRET_KEY.test(k)
+              ? '<redacted>'
+              : redact(v),
         ]),
       )
     return value

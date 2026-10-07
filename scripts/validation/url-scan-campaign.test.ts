@@ -9,7 +9,7 @@ import {
   urlScanConfiguration,
   assertFrozenConfiguration,
 } from './url-scan-campaign.ts'
-import { buildUrlScanManifest } from './url-scan-freeze.ts'
+import { buildUrlScanManifest, redactConfiguration } from './url-scan-freeze.ts'
 import { urlScanTruth } from '../../evaluation/private/url-scan/truth.ts'
 import { AGENT_MODEL, VISION_MODEL } from '../../evaluation/support/model-gateway.ts'
 
@@ -167,4 +167,29 @@ it('refuses changed runtime budgets and flags in the frozen configuration', () =
   expect(() =>
     assertFrozenConfiguration({ ...config, lengthRecoveryWithoutReasoning: true }),
   ).toThrow('frozen-configuration-mismatch')
+})
+
+it('keeps public token limits and price tiers through the actual freeze serialization', () => {
+  const prices = { model: { quote: { overrides: [{ min_prompt_tokens: 256000 }] } } }
+  const configuration = urlScanConfiguration({
+    providers: { agent: 'Alibaba', vision: 'Alibaba' },
+    prices,
+    stage: 'diagnostic',
+  })
+  const redacted = redactConfiguration(configuration)
+  expect(redacted).toEqual(configuration)
+  expect(() => assertFrozenConfiguration(redacted)).not.toThrow()
+  expect(
+    redactConfiguration({
+      apiKey: 'secret',
+      authToken: 123,
+      maxOutputTokens: 'secret',
+      cookie: 'secret',
+    }),
+  ).toEqual({
+    apiKey: '<redacted>',
+    authToken: '<redacted>',
+    maxOutputTokens: '<redacted>',
+    cookie: '<redacted>',
+  })
 })
