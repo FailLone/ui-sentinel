@@ -1,0 +1,31 @@
+{
+  "version": "r1-jev-campaign-1",
+  "phase": "smoke",
+  "profile": {
+    "version": "jev-provider-profile-1",
+    "endpoint": "https://openrouter.ai/api/alpha/decisions",
+    "requestModel": "typesafe/jev-1.13",
+    "expectedModel": "typesafe/jev-1.13-20260917",
+    "provider": "TypeSafe",
+    "readinessConfidence": 0,
+    "maxQuestions": 65,
+    "maxResponseBytes": 1048576
+  },
+  "dataset": "evaluation/r1-jev-real/smoke-inputs.json",
+  "datasetSha256": "c8b4abdb2d39ac0a987335b48f0f43bb70352ee5cd94a56e173f297448a1b932",
+  "repetitions": 1,
+  "limits": {
+    "maxAttempts": 6,
+    "maxCostUsd": 0.25,
+    "maxWallMs": 300000
+  },
+  "requestTimeoutMs": 15000,
+  "protocol": {
+    "questionsVerified": false,
+    "billingBoundVerified": false,
+    "source": "https://openrouter.ai/docs/api/api-reference/alphadecisions/submit-a-decisions-request",
+    "checkedAt": "2026-10-07",
+    "quoteUsd": null,
+    "basis": ""
+  }
+}

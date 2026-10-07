@@ -1,0 +1,738 @@
+{
+  "version": "r1-jev-dataset-1",
+  "split": "development",
+  "cases": [
+    {
+      "id": "s01",
+      "input": {
+        "schemaVersion": "r1-exploration-input-1",
+        "requestId": "s01",
+        "task": {
+          "goal": "检查文档导航的目录入口",
+          "localTask": "Rank only the current controls for this goal, or hand back if investigation or information is missing.",
+          "revision": "task-1"
+        },
+        "state": {
+          "pageId": "p0",
+          "url": "https://synthetic.invalid/view/0",
+          "documentVersion": "doc-1",
+          "observationVersion": "obs-1",
+          "relatedStateVersion": "state-1",
+          "cacheable": false
+        },
+        "candidates": [
+          {
+            "id": "c0",
+            "targetKey": "node-0",
+            "observationVersion": "obs-1",
+            "text": "页脚帮助",
+            "role": "button",
+            "publicState": {
+              "visible": true,
+              "enabled": true,
+              "expanded": false,
+              "selected": null
+            },
+            "geometry": {
+              "x": 100,
+              "y": 80,
+              "width": 120,
+              "height": 36,
+              "inViewport": true
+            },
+            "context": "版权说明",
+            "allowedActions": [
+              "click",
+              "inspect"
+            ],
+            "estimatedCost": 1
+          },
+          {
+            "id": "c1",
+            "targetKey": "node-1",
+            "observationVersion": "obs-1",
+            "text": "目录",
+            "role": "button",
+            "publicState": {
+              "visible": true,
+              "enabled": true,
+              "expanded": false,
+              "selected": null
+            },
+            "geometry": {
+              "x": 240,
+              "y": 80,
+              "width": 120,
+              "height": 36,
+              "inViewport": true
+            },
+            "context": "隐藏的章节导航",
+            "allowedActions": [
+              "click",
+              "inspect"
+            ],
+            "estimatedCost": 1
+          },
+          {
+            "id": "c2",
+            "targetKey": "node-2",
+            "observationVersion": "obs-1",
+            "text": "页脚帮助",
+            "role": "button",
+            "publicState": {
+              "visible": true,
+              "enabled": false,
+              "expanded": false,
+              "selected": null
+            },
+            "geometry": {
+              "x": 380,
+              "y": 80,
+              "width": 120,
+              "height": 36,
+              "inViewport": true
+            },
+            "context": "版权说明",
+            "allowedActions": [
+              "click",
+              "inspect"
+            ],
+            "estimatedCost": 1
+          }
+        ],
+        "history": [],
+        "scope": {
+          "revision": "scope-1",
+          "executableCandidateIds": [
+            "c0",
+            "c1",
+            "c2"
+          ]
+        },
+        "budget": {
+          "revision": "budget-1",
+          "remainingDecisions": 8,
+          "remainingActions": 8,
+          "remainingMs": 600000,
+          "maxRequestMs": 15000,
+          "remainingCostUsd": 5
+        },
+        "limits": {
+          "maxCandidates": 32,
+          "maxInputBytes": 32768,
+          "maxHistory": 32
+        }
+      }
+    },
+    {
+      "id": "s03",
+      "input": {
+        "schemaVersion": "r1-exploration-input-1",
+        "requestId": "s03",
+        "task": {
+          "goal": "Inspect the unopened shipping details panel",
+          "localTask": "Rank only the current controls for this goal, or hand back if investigation or information is missing.",
+          "revision": "task-1"
+        },
+        "state": {
+          "pageId": "p1",
+          "url": "https://synthetic.invalid/view/1",
+          "documentVersion": "doc-1",
+          "observationVersion": "obs-1",
+          "relatedStateVersion": "state-1",
+          "cacheable": false
+        },
+        "candidates": [
+          {
+            "id": "c0",
+            "targetKey": "node-0",
+            "observationVersion": "obs-1",
+            "text": "Shipping details",
+            "role": "button",
+            "publicState": {
+              "visible": true,
+              "enabled": true,
+              "expanded": false,
+              "selected": null
+            },
+            "geometry": {
+              "x": 100,
+              "y": 80,
+              "width": 120,
+              "height": 36,
+              "inViewport": true
+            },
+            "context": "Collapsed delivery options",
+            "allowedActions": [
+              "click",
+              "inspect"
+            ],
+            "estimatedCost": 1
+          },
+          {
+            "id": "c1",
+            "targetKey": "node-1",
+            "observationVersion": "obs-1",
+            "text": "About us",
+            "role": "button",
+            "publicState": {
+              "visible": true,
+              "enabled": true,
+              "expanded": false,
+              "selected": null
+            },
+            "geometry": {
+              "x": 240,
+              "y": 80,
+              "width": 120,
+              "height": 36,
+              "inViewport": true
+            },
+            "context": "Company biography",
+            "allowedActions": [
+              "click",
+              "inspect"
+            ],
+            "estimatedCost": 1
+          },
+          {
+            "id": "c2",
+            "targetKey": "node-2",
+            "observationVersion": "obs-1",
+            "text": "About us",
+            "role": "button",
+            "publicState": {
+              "visible": true,
+              "enabled": false,
+              "expanded": false,
+              "selected": null
+            },
+            "geometry": {
+              "x": 380,
+              "y": 80,
+              "width": 120,
+              "height": 36,
+              "inViewport": true
+            },
+            "context": "Company biography",
+            "allowedActions": [
+              "click",
+              "inspect"
+            ],
+            "estimatedCost": 1
+          }
+        ],
+        "history": [],
+        "scope": {
+          "revision": "scope-1",
+          "executableCandidateIds": [
+            "c0",
+            "c1",
+            "c2"
+          ]
+        },
+        "budget": {
+          "revision": "budget-1",
+          "remainingDecisions": 8,
+          "remainingActions": 8,
+          "remainingMs": 600000,
+          "maxRequestMs": 15000,
+          "remainingCostUsd": 5
+        },
+        "limits": {
+          "maxCandidates": 32,
+          "maxInputBytes": 32768,
+          "maxHistory": 32
+        }
+      }
+    },
+    {
+      "id": "s05",
+      "input": {
+        "schemaVersion": "r1-exploration-input-1",
+        "requestId": "s05",
+        "task": {
+          "goal": "检查价格页尚未查看的团队套餐",
+          "localTask": "Rank only the current controls for this goal, or hand back if investigation or information is missing.",
+          "revision": "task-1"
+        },
+        "state": {
+          "pageId": "p2",
+          "url": "https://synthetic.invalid/view/2",
+          "documentVersion": "doc-1",
+          "observationVersion": "obs-1",
+          "relatedStateVersion": "state-1",
+          "cacheable": false
+        },
+        "candidates": [
+          {
+            "id": "c0",
+            "targetKey": "node-0",
+            "observationVersion": "obs-1",
+            "text": "个人套餐",
+            "role": "button",
+            "publicState": {
+              "visible": true,
+              "enabled": true,
+              "expanded": false,
+              "selected": null
+            },
+            "geometry": {
+              "x": 100,
+              "y": 80,
+              "width": 120,
+              "height": 36,
+              "inViewport": true
+            },
+            "context": "当前已查看的价格面板",
+            "allowedActions": [
+              "click",
+              "inspect"
+            ],
+            "estimatedCost": 1
+          },
+          {
+            "id": "c1",
+            "targetKey": "node-1",
+            "observationVersion": "obs-1",
+            "text": "团队套餐",
+            "role": "button",
+            "publicState": {
+              "visible": true,
+              "enabled": true,
+              "expanded": false,
+              "selected": null
+            },
+            "geometry": {
+              "x": 240,
+              "y": 80,
+              "width": 120,
+              "height": 36,
+              "inViewport": true
+            },
+            "context": "未选中的价格标签",
+            "allowedActions": [
+              "click",
+              "inspect"
+            ],
+            "estimatedCost": 1
+          },
+          {
+            "id": "c2",
+            "targetKey": "node-2",
+            "observationVersion": "obs-1",
+            "text": "个人套餐",
+            "role": "button",
+            "publicState": {
+              "visible": true,
+              "enabled": false,
+              "expanded": false,
+              "selected": null
+            },
+            "geometry": {
+              "x": 380,
+              "y": 80,
+              "width": 120,
+              "height": 36,
+              "inViewport": true
+            },
+            "context": "当前已查看的价格面板",
+            "allowedActions": [
+              "click",
+              "inspect"
+            ],
+            "estimatedCost": 1
+          }
+        ],
+        "history": [],
+        "scope": {
+          "revision": "scope-1",
+          "executableCandidateIds": [
+            "c0",
+            "c1",
+            "c2"
+          ]
+        },
+        "budget": {
+          "revision": "budget-1",
+          "remainingDecisions": 8,
+          "remainingActions": 8,
+          "remainingMs": 600000,
+          "maxRequestMs": 15000,
+          "remainingCostUsd": 5
+        },
+        "limits": {
+          "maxCandidates": 32,
+          "maxInputBytes": 32768,
+          "maxHistory": 32
+        }
+      }
+    },
+    {
+      "id": "s07",
+      "input": {
+        "schemaVersion": "r1-exploration-input-1",
+        "requestId": "s07",
+        "task": {
+          "goal": "Inspect the account accessibility help",
+          "localTask": "Rank only the current controls for this goal, or hand back if investigation or information is missing.",
+          "revision": "task-1"
+        },
+        "state": {
+          "pageId": "p3",
+          "url": "https://synthetic.invalid/view/3",
+          "documentVersion": "doc-1",
+          "observationVersion": "obs-1",
+          "relatedStateVersion": "state-1",
+          "cacheable": false
+        },
+        "candidates": [
+          {
+            "id": "c0",
+            "targetKey": "node-0",
+            "observationVersion": "obs-1",
+            "text": "Learn more",
+            "role": "button",
+            "publicState": {
+              "visible": true,
+              "enabled": true,
+              "expanded": false,
+              "selected": null
+            },
+            "geometry": {
+              "x": 100,
+              "y": 80,
+              "width": 120,
+              "height": 36,
+              "inViewport": true
+            },
+            "context": "Accessibility keyboard settings",
+            "allowedActions": [
+              "click",
+              "inspect"
+            ],
+            "estimatedCost": 1
+          },
+          {
+            "id": "c1",
+            "targetKey": "node-1",
+            "observationVersion": "obs-1",
+            "text": "Learn more",
+            "role": "button",
+            "publicState": {
+              "visible": true,
+              "enabled": true,
+              "expanded": false,
+              "selected": null
+            },
+            "geometry": {
+              "x": 240,
+              "y": 80,
+              "width": 120,
+              "height": 36,
+              "inViewport": true
+            },
+            "context": "Promotional campaign information",
+            "allowedActions": [
+              "click",
+              "inspect"
+            ],
+            "estimatedCost": 1
+          },
+          {
+            "id": "c2",
+            "targetKey": "node-2",
+            "observationVersion": "obs-1",
+            "text": "Learn more",
+            "role": "button",
+            "publicState": {
+              "visible": true,
+              "enabled": false,
+              "expanded": false,
+              "selected": null
+            },
+            "geometry": {
+              "x": 380,
+              "y": 80,
+              "width": 120,
+              "height": 36,
+              "inViewport": true
+            },
+            "context": "Promotional campaign information",
+            "allowedActions": [
+              "click",
+              "inspect"
+            ],
+            "estimatedCost": 1
+          }
+        ],
+        "history": [],
+        "scope": {
+          "revision": "scope-1",
+          "executableCandidateIds": [
+            "c0",
+            "c1",
+            "c2"
+          ]
+        },
+        "budget": {
+          "revision": "budget-1",
+          "remainingDecisions": 8,
+          "remainingActions": 8,
+          "remainingMs": 600000,
+          "maxRequestMs": 15000,
+          "remainingCostUsd": 5
+        },
+        "limits": {
+          "maxCandidates": 32,
+          "maxInputBytes": 32768,
+          "maxHistory": 32
+        }
+      }
+    },
+    {
+      "id": "s17",
+      "input": {
+        "schemaVersion": "r1-exploration-input-1",
+        "requestId": "s17",
+        "task": {
+          "goal": "检查哪个继续按钮对应键盘设置",
+          "localTask": "Rank only the current controls for this goal, or hand back if investigation or information is missing.",
+          "revision": "task-1"
+        },
+        "state": {
+          "pageId": "p8",
+          "url": "https://synthetic.invalid/view/8",
+          "documentVersion": "doc-1",
+          "observationVersion": "obs-1",
+          "relatedStateVersion": "state-1",
+          "cacheable": false
+        },
+        "candidates": [
+          {
+            "id": "c0",
+            "targetKey": "node-0",
+            "observationVersion": "obs-1",
+            "text": "继续",
+            "role": "button",
+            "publicState": {
+              "visible": true,
+              "enabled": true,
+              "expanded": false,
+              "selected": null
+            },
+            "geometry": {
+              "x": 100,
+              "y": 80,
+              "width": 120,
+              "height": 36,
+              "inViewport": true
+            },
+            "context": "",
+            "allowedActions": [
+              "click",
+              "inspect"
+            ],
+            "estimatedCost": 1
+          },
+          {
+            "id": "c1",
+            "targetKey": "node-1",
+            "observationVersion": "obs-1",
+            "text": "继续",
+            "role": "button",
+            "publicState": {
+              "visible": true,
+              "enabled": true,
+              "expanded": false,
+              "selected": null
+            },
+            "geometry": {
+              "x": 240,
+              "y": 80,
+              "width": 120,
+              "height": 36,
+              "inViewport": true
+            },
+            "context": "",
+            "allowedActions": [
+              "click",
+              "inspect"
+            ],
+            "estimatedCost": 1
+          },
+          {
+            "id": "c2",
+            "targetKey": "node-2",
+            "observationVersion": "obs-1",
+            "text": "继续",
+            "role": "button",
+            "publicState": {
+              "visible": true,
+              "enabled": false,
+              "expanded": false,
+              "selected": null
+            },
+            "geometry": {
+              "x": 380,
+              "y": 80,
+              "width": 120,
+              "height": 36,
+              "inViewport": true
+            },
+            "context": "",
+            "allowedActions": [
+              "click",
+              "inspect"
+            ],
+            "estimatedCost": 1
+          }
+        ],
+        "history": [],
+        "scope": {
+          "revision": "scope-1",
+          "executableCandidateIds": [
+            "c0",
+            "c1",
+            "c2"
+          ]
+        },
+        "budget": {
+          "revision": "budget-1",
+          "remainingDecisions": 8,
+          "remainingActions": 8,
+          "remainingMs": 600000,
+          "maxRequestMs": 15000,
+          "remainingCostUsd": 5
+        },
+        "limits": {
+          "maxCandidates": 32,
+          "maxInputBytes": 32768,
+          "maxHistory": 32
+        }
+      }
+    },
+    {
+      "id": "s21",
+      "input": {
+        "schemaVersion": "r1-exploration-input-1",
+        "requestId": "s21",
+        "task": {
+          "goal": "调查跨三个步骤的草稿丢失原因，需要先复现并验证",
+          "localTask": "Rank only the current controls for this goal, or hand back if investigation or information is missing.",
+          "revision": "task-1"
+        },
+        "state": {
+          "pageId": "p10",
+          "url": "https://synthetic.invalid/view/10",
+          "documentVersion": "doc-1",
+          "observationVersion": "obs-1",
+          "relatedStateVersion": "state-1",
+          "cacheable": false
+        },
+        "candidates": [
+          {
+            "id": "c0",
+            "targetKey": "node-0",
+            "observationVersion": "obs-1",
+            "text": "上一步",
+            "role": "button",
+            "publicState": {
+              "visible": true,
+              "enabled": true,
+              "expanded": false,
+              "selected": null
+            },
+            "geometry": {
+              "x": 100,
+              "y": 80,
+              "width": 120,
+              "height": 36,
+              "inViewport": true
+            },
+            "context": "返回未观察的第一步",
+            "allowedActions": [
+              "click",
+              "inspect"
+            ],
+            "estimatedCost": 1
+          },
+          {
+            "id": "c1",
+            "targetKey": "node-1",
+            "observationVersion": "obs-1",
+            "text": "下一步",
+            "role": "button",
+            "publicState": {
+              "visible": true,
+              "enabled": true,
+              "expanded": false,
+              "selected": null
+            },
+            "geometry": {
+              "x": 240,
+              "y": 80,
+              "width": 120,
+              "height": 36,
+              "inViewport": true
+            },
+            "context": "向导第二步，未提供其余步骤状态",
+            "allowedActions": [
+              "click",
+              "inspect"
+            ],
+            "estimatedCost": 1
+          },
+          {
+            "id": "c2",
+            "targetKey": "node-2",
+            "observationVersion": "obs-1",
+            "text": "上一步",
+            "role": "button",
+            "publicState": {
+              "visible": true,
+              "enabled": false,
+              "expanded": false,
+              "selected": null
+            },
+            "geometry": {
+              "x": 380,
+              "y": 80,
+              "width": 120,
+              "height": 36,
+              "inViewport": true
+            },
+            "context": "返回未观察的第一步",
+            "allowedActions": [
+              "click",
+              "inspect"
+            ],
+            "estimatedCost": 1
+          }
+        ],
+        "history": [],
+        "scope": {
+          "revision": "scope-1",
+          "executableCandidateIds": [
+            "c0",
+            "c1",
+            "c2"
+          ]
+        },
+        "budget": {
+          "revision": "budget-1",
+          "remainingDecisions": 8,
+          "remainingActions": 8,
+          "remainingMs": 600000,
+          "maxRequestMs": 15000,
+          "remainingCostUsd": 5
+        },
+        "limits": {
+          "maxCandidates": 32,
+          "maxInputBytes": 32768,
+          "maxHistory": 32
+        }
+      }
+    }
+  ]
+}
