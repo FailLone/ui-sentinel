@@ -73,3 +73,17 @@ it('normalizes only optional nulls and still refuses missing required action ope
       .success,
   ).toBe(false)
 })
+
+it.each([
+  { op: 'act', type: 'click', target: 'button', value: 'unused' },
+  { op: 'act', type: 'fill', target: 'button', value: '', scrollY: 500 },
+  { op: 'act', type: 'scroll', target: 'button', scrollY: 500 },
+])('rejects invalid nested action operands before any program execution: %j', (action) => {
+  const result = programInput.safeParse({
+    ...input(),
+    steps: [action, { op: 'measure', name: 'after' }],
+  })
+  expect(result.success).toBe(false)
+  if (!result.success)
+    expect(result.error.issues.some((i) => i.path[0] === 'steps' && i.path[1] === 0)).toBe(true)
+})

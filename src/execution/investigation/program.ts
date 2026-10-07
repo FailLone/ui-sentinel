@@ -1,3 +1,4 @@
+import { actionInput } from '../action-input.ts'
 import { z } from 'zod'
 
 export const metrics = [
@@ -163,6 +164,21 @@ export const programInput = z
       }
       if (s.op === 'wait') waits += s.ms
       if (s.op === 'act') {
+        // Validate the entire program before any browser binding/measurement. Nested actions
+        // share the same operand contract as page_act rather than silently ignoring fields.
+        const action = actionInput.safeParse({
+          type: s.type,
+          ...(s.target ? { selector: s.target } : {}),
+          value: s.value,
+          scrollY: s.scrollY,
+        })
+        if (!action.success)
+          for (const error of action.error.issues)
+            ctx.addIssue({
+              code: 'custom',
+              path: ['steps', p.steps.indexOf(s), ...error.path],
+              message: error.message,
+            })
         if (s.target && resultTargets.has(s.target)) issue('Result targets cannot be acted on')
         actions++
         if (s.type === 'scroll' ? s.scrollY === undefined : !s.target || !targets.has(s.target))

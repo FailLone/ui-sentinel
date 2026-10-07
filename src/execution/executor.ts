@@ -1,3 +1,4 @@
+import { actionInputValidationError } from './action-input.ts'
 import { publishInteractionFinding } from './interaction-finding.ts'
 import { measureUiProbe } from './ui-probe.ts'
 import { createRemainingObligationGuidance } from './remaining-obligation-guidance.ts'
@@ -1905,6 +1906,8 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     })
     async function performAction(input: z.infer<typeof actionInput>) {
       guard()
+      const invalid = actionInputValidationError(input, { allowRefOnly: !!inspection })
+      if (invalid) return invalid
       if (phaseTracker.phase === 'finalizing')
         return {
           error: 'page_act blocked: system is in finalizing phase. Call run_finish instead.',
@@ -1912,6 +1915,8 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         }
       if (sideEffectPending) throw new Error('reconciliation-required')
       if (usage.actions >= budget.maxActions) throw new Error('budget-exhausted')
+      // Lift business read-only protection only after the complete input contract is valid.
+      sideEffectPolicy?.setReadOnly(false)
       stepId = `action-${usage.actions + 1}`
       await observe(true)
       let resolvedLocator: import('playwright').Locator | undefined
@@ -2280,8 +2285,8 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         } else if (input.type === 'fill') {
           if (!resolvedLocator) throw new Error('target required')
           if (uiScan && (await resolvedLocator.evaluate((element) => element.tagName === 'SELECT')))
-            await resolvedLocator.selectOption(input.value ?? '')
-          else await resolvedLocator.fill(input.value ?? '')
+            await resolvedLocator.selectOption(input.value!)
+          else await resolvedLocator.fill(input.value!)
         } else if (input.type === 'navigate') {
           if (!input.url) throw new Error('navigation denied: a destination is required')
           // A UI run's destination was already judged by its own navigation scope before this point,
@@ -2291,7 +2296,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           if (!uiScan && !isAllowedNavigationUrl(input.url, run!.spec.entryUrl))
             throw new Error('navigation denied')
           await page.goto(input.url, { waitUntil: 'domcontentloaded' })
-        } else await page.mouse.wheel(0, input.scrollY ?? 500)
+        } else await page.mouse.wheel(0, input.scrollY!)
         const responseDeadline = Date.now() + config.budget.toolTimeoutMs
         while (pendingWrites.size) {
           guard()
@@ -2916,7 +2921,6 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
                   ),
                 act: async (action) => {
                   guard()
-                  sideEffectPolicy?.setReadOnly(false)
                   try {
                     return await performAction(action)
                   } finally {
@@ -3220,9 +3224,6 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         execute: (input) =>
           serial('page_act', () => {
             guard()
-            // A UI run has no write permission to arm, so there is no read-only barrier to lift:
-            // every write is refused by its network policy rather than by this policy's budget.
-            sideEffectPolicy?.setReadOnly(false)
             return performAction(input)
           }),
       }),
@@ -4311,6 +4312,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         },
       )
       contractRepair.observe(result.toolResults ?? [])
+      const repairingContract = !!contractRepairAdvice
       contractRepairAdvice = undefined
       const record = lastRecord!
       const u = result.usage
@@ -4342,6 +4344,9 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         retrievedFacts: [...inspectedResultRefs],
       }
       const progressCheck = progressDetector.check(progressFacts)
+      // A failed contract repair gets no second scheduling allowance from F1. Input errors
+      // themselves are not progress and never replenish the existing one-turn repair.
+      if (repairingContract && !progressCheck.isProgress) guidanceExhausted = true
       if (remainingObligationGuidance) {
         guidanceExhausted = !progressCheck.isProgress
         await appendEvent(runId, 'execution:remaining-obligation-guidance-result', {
