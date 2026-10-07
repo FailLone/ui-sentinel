@@ -17,6 +17,9 @@ for idx,row in enumerate(rows,1):
   if a['runId']!=row['runId'] or sha!=a['sha256'] or len(raw)!=a['bytes']: issues.append('artifact-mismatch:'+a['artifactId'])
   files[a['artifactId']]=q
  db=sqlite3.connect(f'file:{p}/runs.db?mode=ro',uri=True)
+ storedArtifacts={a[0]:(a[1],a[2]) for a in db.execute('select id,run_id,type from artifacts where run_id=?',(row['runId'],))}
+ for a in index:
+  if storedArtifacts.get(a['artifactId'])!=(row['runId'],a['type']): issues.append('artifact-db-type-owner:'+a['artifactId'])
  stored=db.execute('select status,business_result,stop_reason from runs where id=?',(row['runId'],)).fetchone()
  if list(stored or [])!=[report['status'],report['businessResult'],report['stopReason']]: issues.append('terminal-mismatch')
  events=db.execute('select id,type,payload,evidence_refs,seq from run_events where run_id=? order by seq',(row['runId'],)).fetchall()
@@ -27,9 +30,17 @@ for idx,row in enumerate(rows,1):
   refs=json.loads(refs)
   if any(ref not in files for ref in refs): issues.append('unowned-event-ref:'+eid)
   body=json.loads(payload)
-  if kind in ('program:measured','interaction:recovered') and body.get('receiptRef') and body.get('sha256'):
+  if kind in ('program:measured','interaction:recovered','probe:measured') and body.get('receiptRef') and body.get('sha256'):
    q=files.get(body['receiptRef'])
    if not q or hashlib.sha256(q.read_bytes()).hexdigest()!=body['sha256']: issues.append('measurement-hash:'+eid)
+  if kind=='probe:measured':
+   q=files.get(body.get('receiptRef'))
+   expected={k:v for k,v in body.items() if k not in ('receiptRef','sha256')}
+   if not q or json.loads(q.read_text())!=expected: issues.append('probe-receipt-payload:'+eid)
+   if body.get('runId')!=row['runId'] or storedArtifacts.get(body.get('receiptRef'))!=(row['runId'],'probe-measurement'): issues.append('probe-owner-type:'+eid)
+   for ref in body.get('evidenceRefs',[]):
+    shot=files.get(ref)
+    if not shot or hashlib.sha256(shot.read_bytes()).hexdigest()!=body.get('evidenceHashes',{}).get(ref) or storedArtifacts.get(ref)!=(row['runId'],'screenshot'): issues.append('probe-screenshot-seal:'+eid)
  calls=json.loads((p/'page-requests.json').read_text())
  writes=[r for r in calls if r.get('method') not in ('GET','HEAD')]
  if writes: issues.append('fixture-write-reached-server')

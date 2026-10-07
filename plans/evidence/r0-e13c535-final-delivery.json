@@ -1,0 +1,460 @@
+{
+  "schemaVersion": "r0-final-delivery-1",
+  "date": "2026-10-08",
+  "timezone": "Asia/Shanghai",
+  "verdict": "not-passed",
+  "r0Complete": false,
+  "candidate": "e13c535009695ee70c3794868224ac3842090f79",
+  "acceptedPriorDeliveryCommit": "562c7861ba6bf1d1a318d38dc98274d276d4fb9c",
+  "workspace": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-e13c535-final/candidate",
+  "branch": "codex/r0-closeout",
+  "build": {
+    "dist": "1829cce652b1d67ff3e7d9e8d63c09babfe127acd671c95bd407292011eccb7a",
+    "source": "76d57e0d9f48f96274adb921eb259c743327bf7fa33c01d4da2e3c1fe00846b4",
+    "scripts": "e6fb2bbec4624500b8005e8047a51a64b2018029d64a02bd8fe68c0b3592e55a",
+    "business": "b25bf431859530bf652d8a63751846f3dd6d61e815965a95a7cc343ccf7c99c1",
+    "reused": true,
+    "rebuilt": false,
+    "environment": "Node 24.21.0 / pnpm 10.17.1"
+  },
+  "authorization": "plans/evidence/r0-e13c535-authorization.json",
+  "stages": [
+    {
+      "id": "K4-1",
+      "name": "ui-diagnostic",
+      "batch": "r0-ui-diagnostic-e13c535-01",
+      "manifestHash": "18290a7d9ad81619dc61b6d0a84bdf83a98b87b99789bee85442123ffd963746",
+      "planned": 6,
+      "executed": 6,
+      "passed": 5,
+      "failed": 1,
+      "unknown": 0,
+      "notRun": 0,
+      "smokePlanned": 1,
+      "smokeExecuted": 1,
+      "smokePassed": true,
+      "exitAccepted": false,
+      "evidenceDirectory": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-e13c535-final/candidate/data/r0-url-campaign/r0-ui-diagnostic-e13c535-01",
+      "exitReview": "plans/evidence/r0-e13c535-diagnostic-exit.json"
+    },
+    {
+      "id": "K4-2",
+      "name": "ui-formal",
+      "planned": 15,
+      "executed": 0,
+      "notRun": 15,
+      "smokePlanned": 1,
+      "smokeExecuted": 0,
+      "reason": "prior-stage-not-passed"
+    },
+    {
+      "id": "K5-1",
+      "name": "business-diagnostic",
+      "planned": 5,
+      "executed": 0,
+      "notRun": 5,
+      "smokeMaxRequests": 6,
+      "smokeExecuted": 0,
+      "reason": "prior-stage-not-passed"
+    },
+    {
+      "id": "K5-2",
+      "name": "business-formal",
+      "planned": 45,
+      "groups": {
+        "A": 15,
+        "B": 6,
+        "C": 18,
+        "D": 6
+      },
+      "executed": 0,
+      "notRun": 45,
+      "reason": "prior-stage-not-passed"
+    }
+  ],
+  "totalPlannedTasks": 71,
+  "totalExecutedTasks": 6,
+  "totalNotRunTasks": 65,
+  "rows": [
+    {
+      "row": 1,
+      "sampleId": "healthy-catalog",
+      "runId": "run-da532d2f-410e-4553-b3e9-1d33f16de5ce",
+      "passed": true,
+      "facts": {
+        "archiveVerified": true,
+        "terminal": [
+          "completed",
+          "goal-reached",
+          "not-applicable"
+        ],
+        "supportedFindings": 0,
+        "acceptedProofVerified": true,
+        "rawSortMeasurements": [
+          {
+            "snapshot": null,
+            "order": "name",
+            "values": [
+              "5 · Amber gadget",
+              "20 · Blue widget",
+              "12 · Cyan sprocket"
+            ]
+          },
+          {
+            "snapshot": null,
+            "order": "name",
+            "values": [
+              "5 · Amber gadget",
+              "20 · Blue widget",
+              "12 · Cyan sprocket"
+            ]
+          },
+          {
+            "snapshot": null,
+            "order": "price",
+            "values": [
+              "5 · Amber gadget",
+              "12 · Cyan sprocket",
+              "20 · Blue widget"
+            ]
+          },
+          {
+            "snapshot": null,
+            "order": "price",
+            "values": [
+              "5 · Amber gadget",
+              "12 · Cyan sprocket",
+              "20 · Blue widget"
+            ]
+          },
+          {
+            "snapshot": null,
+            "order": "price",
+            "values": [
+              "5 · Amber gadget",
+              "12 · Cyan sprocket",
+              "20 · Blue widget"
+            ]
+          }
+        ],
+        "navigationRequestObserved": true
+      }
+    },
+    {
+      "row": 2,
+      "sampleId": "overlay-healthy",
+      "runId": "run-6370ffc5-0982-4a6e-a4cf-345467db6532",
+      "passed": true,
+      "facts": {
+        "archiveVerified": true,
+        "terminal": [
+          "completed",
+          "goal-reached",
+          "not-applicable"
+        ],
+        "supportedFindings": 0,
+        "acceptedProofVerified": true,
+        "rawSortMeasurements": [
+          {
+            "snapshot": null,
+            "order": "name",
+            "values": [
+              "5 · Amber gadget",
+              "20 · Blue widget",
+              "12 · Cyan sprocket"
+            ]
+          },
+          {
+            "snapshot": null,
+            "order": "name",
+            "values": [
+              "5 · Amber gadget",
+              "20 · Blue widget",
+              "12 · Cyan sprocket"
+            ]
+          },
+          {
+            "snapshot": null,
+            "order": "name",
+            "values": [
+              "5 · Amber gadget",
+              "20 · Blue widget",
+              "12 · Cyan sprocket"
+            ]
+          },
+          {
+            "snapshot": null,
+            "order": "name",
+            "values": [
+              "5 · Amber gadget",
+              "20 · Blue widget",
+              "12 · Cyan sprocket"
+            ]
+          },
+          {
+            "snapshot": null,
+            "order": "name",
+            "values": [
+              "5 · Amber gadget",
+              "20 · Blue widget",
+              "12 · Cyan sprocket"
+            ]
+          }
+        ],
+        "navigationRequestObserved": true
+      }
+    },
+    {
+      "row": 3,
+      "sampleId": "overlay-defect",
+      "runId": "run-5eef0614-ba15-4467-9c41-b7c97f138824",
+      "passed": true,
+      "facts": {
+        "archiveVerified": true,
+        "terminal": [
+          "completed",
+          "goal-reached",
+          "not-applicable"
+        ],
+        "supportedFindings": 1,
+        "acceptedProofVerified": true,
+        "independentlyValidFinding": "foreground-control-covered"
+      }
+    },
+    {
+      "row": 4,
+      "sampleId": "dom-healthy",
+      "runId": "run-e59c67c0-c136-47b7-b2e2-557e2c7c829f",
+      "passed": true,
+      "facts": {
+        "archiveVerified": true,
+        "terminal": [
+          "completed",
+          "goal-reached",
+          "not-applicable"
+        ],
+        "supportedFindings": 0,
+        "acceptedProofVerified": true,
+        "rawSortMeasurements": [
+          {
+            "snapshot": null,
+            "order": "price",
+            "values": [
+              "5 · Amber gadget",
+              "12 · Cyan sprocket",
+              "20 · Blue widget"
+            ]
+          },
+          {
+            "snapshot": null,
+            "order": "price",
+            "values": [
+              "5 · Amber gadget",
+              "12 · Cyan sprocket",
+              "20 · Blue widget"
+            ]
+          },
+          {
+            "snapshot": null,
+            "order": "price",
+            "values": [
+              "5 · Amber gadget",
+              "12 · Cyan sprocket",
+              "20 · Blue widget"
+            ]
+          },
+          {
+            "snapshot": null,
+            "order": "price",
+            "values": [
+              "5 · Amber gadget",
+              "12 · Cyan sprocket",
+              "20 · Blue widget"
+            ]
+          },
+          {
+            "snapshot": null,
+            "order": "name",
+            "values": [
+              "5 · Amber gadget",
+              "20 · Blue widget",
+              "12 · Cyan sprocket"
+            ]
+          },
+          {
+            "snapshot": null,
+            "order": "name",
+            "values": [
+              "5 · Amber gadget",
+              "20 · Blue widget",
+              "12 · Cyan sprocket"
+            ]
+          }
+        ],
+        "navigationRequestObserved": true
+      }
+    },
+    {
+      "row": 5,
+      "sampleId": "dom-investigation-defect",
+      "runId": "run-ce606f5b-af3a-4cac-ae86-e2c4edcac56e",
+      "passed": false,
+      "facts": {
+        "archiveVerified": true,
+        "terminal": [
+          "execution-error",
+          "execution-error",
+          "not-applicable"
+        ],
+        "supportedFindings": 1,
+        "acceptedProofVerified": false,
+        "independentlyValidFinding": "sort-ignores-selection",
+        "failure": {
+          "eventSeq": 137,
+          "error": "Error: navigation denied: a destination is required",
+          "remainingItemIds": [
+            "item-d54c7a23-47b6-4856-862c-73b088ca740b"
+          ],
+          "violatedAcceptance": "Abnormal sample requires complete terminal and accepted durable proof; finding alone insufficient"
+        }
+      }
+    },
+    {
+      "row": 6,
+      "sampleId": "boundary-diagnostic",
+      "runId": "run-5df7d001-164c-43bc-ae23-7999ea5ef061",
+      "passed": true,
+      "facts": {
+        "archiveVerified": true,
+        "terminal": [
+          "blocked",
+          "blocked",
+          "not-applicable"
+        ],
+        "supportedFindings": 0,
+        "acceptedProofVerified": true,
+        "blocker": "pre-finish POST unsupported-data-method, no write reached fixture"
+      }
+    }
+  ],
+  "failure": {
+    "row": 5,
+    "runId": "run-ce606f5b-af3a-4cac-ae86-e2c4edcac56e",
+    "classification": "real-model tool-selection/input-contract stability failure",
+    "adjacentImplementationBoundary": "navigate URL optional in actionInput; missing destination caught inside UI action execution block and aborts as ui-action-execution-error before navigation dispatch",
+    "terminal": [
+      "execution-error",
+      "execution-error",
+      "not-applicable"
+    ],
+    "minimumTrace": "raw archive minimal-failure.json and candidate/data/r0-url-campaign/r0-ui-diagnostic-e13c535-01/row-5",
+    "nextSuggestion": "First define pre-dispatch action-specific parameter validation and bounded invalid-input response; preserve fatal dispatched-action errors, cancellation and unknown-write quarantine. Free targeted proof and candidate review before any separately authorized complete paid batch; no automatic retry.",
+    "productPatched": false,
+    "paidRetried": false
+  },
+  "cost": {
+    "beforeKnownUsd": "1.82777604",
+    "newCostUsd": "0.08724984",
+    "sharedLedgerKnownUsd": "1.91502588",
+    "historicalOtherLedgerUsd": "0.03722460",
+    "r0TotalKnownUsd": "1.95225048",
+    "limitUsd": "20",
+    "remainingUsd": "18.08497412",
+    "newSettledRequests": 53,
+    "unknownCount": 0,
+    "unknownReservedUsd": "0",
+    "heldReservedUsd": "0",
+    "leaseCount": 0,
+    "campaignId": "0946f830-00b6-4f46-af69-79bd2166ef9d",
+    "campaignDirectory": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-final-acceptance/2026-10-07/paid-ledger",
+    "requestsByModel": [
+      [
+        "deepseek/deepseek-v4.1-flash",
+        "Alibaba",
+        53,
+        0.08724984
+      ]
+    ]
+  },
+  "rawArchive": {
+    "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-e13c535-final/r0-e13c535-diagnostic-final-evidence.tar.gz",
+    "bytes": 4158374,
+    "sha256": "fd8821b9c6448ab4093f6b6fa217c8610577225df004169527ae671bf81e36fd",
+    "entriesVerified": 258,
+    "containsRawDatabaseEventsScreenshotsModelRequestsAndResponses": true,
+    "containsCredentials": false,
+    "availability": "local only; not pushed to Git"
+  },
+  "review": {
+    "archiveVerified": true,
+    "productStagePassed": false,
+    "method": [
+      "Independent Python SQLite and every artifact byte/type/owner audit",
+      "Independently checked terminal, accepted proof hash, event order and raw healthy sorting snapshots/requests",
+      "Defect/healthy Playwright replay values compared and row3/row5 paired PNGs visually inspected",
+      "Boundary prior blocker digest, no server write and durable proof asserted",
+      "Original row5 upstream tool-call arguments inspected; no model calls during review"
+    ],
+    "separateAgentReview": false,
+    "allFailureEvidenceRetained": true
+  },
+  "businessPreparation": {
+    "verified": true,
+    "sourceDirectory": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-e13c535-final/candidate/data/fixtures/approved-retry",
+    "sourceDatabaseHash": "3a36acbfb76bb86b039ce3234b9a7ffd1d96a7e014142dcf4e46bd527e3e812c",
+    "proposalId": "proposal-fc30e9bb-46bc-40ec-b88b-ff52f0565607",
+    "reviewedBy": "user",
+    "declarationHash": "f3ac227c94ea3c16471bbf00ee4e2f811d3b005600049520271979bf1792161e",
+    "newApprovalCreated": false,
+    "fixtureAndScorerChanges": false,
+    "credentials": "existing .env reference only; never archived"
+  },
+  "historicalEvidence": [
+    {
+      "index": "plans/evidence/r0-f12-delivery.json",
+      "review": "plans/evidence/r0-f12-review.json",
+      "hashesChecked": 17,
+      "scope": "Accepted limited F1/F2 current-candidate self-tests/review plus exact unchanged-path mapping; no repeated complete test suite"
+    },
+    {
+      "plan": "plans/r0-k45-execution-plan.md",
+      "scope": "unchanged accepted contract/regression evidence and approved fixture only; old candidate manifests/approvals not reused"
+    },
+    {
+      "candidate": "97d39ed",
+      "diagnostic": "6/6 historical",
+      "formal": "13/15 historical failed",
+      "usedToFillCurrentRows": false,
+      "localRawArchive": "data/r0-k45-delivery/r0-97d39ed-c11-and-formal01.tar.gz",
+      "sha256": "71c487d7aec2feb749911031798e0664abb0b4f36232257185b2c6ec86177f8e"
+    }
+  ],
+  "support": {
+    "trial": "anonymous bounded same-origin ui-scan and evidence reports",
+    "limitations": [
+      "No formal repeat stability proof",
+      "No current-candidate business-stage evidence",
+      "Known already-seen layout, no unseen generalization claim",
+      "Login/write/unbounded cross-origin flows outside R0",
+      "Invalid navigate without URL can terminate before selected navigation is verified"
+    ],
+    "instructions": "plans/r0-e13c535-final-handoff.md#用户试用",
+    "r1GateSatisfied": false
+  },
+  "roadmap": {
+    "maintainerFileUnchangedSha256": "88a0095ac567a7b7459d0b3b75df17de1aa191d85176d7bbd0537a57590be10f",
+    "suggestedUpdate": "Limited F1/F2 review accepted; new UI diagnostic 5/6, missing-URL navigation execution-error; formal UI/K5 not admitted; R0 incomplete",
+    "crossThreadMessagesSent": false
+  },
+  "repositoryDelivery": {
+    "expectedRemoteBefore": "562c7861ba6bf1d1a318d38dc98274d276d4fb9c",
+    "remote": "https://github.com/FailLone/ui-sentinel.git",
+    "destination": "refs/heads/codex/r0-closeout",
+    "mainNotMerged": true
+  },
+  "evidenceHashes": {
+    "plans/evidence/r0-e13c535-authorization.json": "3b15dbe6369021b7ccd26b17dce180b588f624b51af5d6b9a52c0976319c58a2",
+    "plans/evidence/r0-e13c535-diagnostic-exit.json": "d05460ae7881e3296345825725a4d5dfecb1bb27ccda8766074ebeebe6c8752f",
+    "plans/r0-e13c535-final-handoff.md": "41b1e154179925e997691d25ff88989efb421fbb927cd03c8e618c0e2a870c25"
+  }
+}
