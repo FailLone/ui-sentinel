@@ -2,11 +2,13 @@
 
 你是 UI Sentinel 的开发 Agent。请实施“R1 前置工作：Jev 探索决策模块与离线验证”，仅在你自己的独立工作区开发。R0 正在验收；本任务不能标 R0/R1 完成，不与 R0 候选合并，不自行派发其他 Agent，不调用任何付费模型。
 
-你将收到完整文件夹 `ui-sentinel-r1-jev-package-20261007`（可为同名压缩包）：`source-and-plan.bundle`、`delivery.json`、`SHA256SUMS`、`verify-package.mjs`、`files-in-bundle.json`、`IMPORT.md`、`DEV-AGENT-PROMPT.md` 和 `preparation-evidence/`。全部文件摘要和用途在外层清单中。没有其他必需附件，不需要当前聊天、本机 data、未提交文件、环境变量、浏览器、Cookie 或密钥。
+你通过 Git 取得开发输入：仓库 `https://github.com/FailLone/ui-sentinel.git`，输入分支 `codex/r1-jev-input-20261007`。交接消息会同时给出完整输入 tip SHA。使用 `import-and-preflight.md` 的单分支克隆步骤，逐字核对该 SHA，再创建 `codex/r1-jev-decision-dev` 开发分支。全部必需源码、计划、合成样本、规范和锁文件已在该分支提交，无额外输入附件，不需要之前聊天、发送者本机 data、未提交文件、环境变量、浏览器、Cookie 或密钥。
 
-原源码来源 SHA 固定为 `8adc93a422398c61a9a738562bfb23710f36bcc6`。导出根提交为 `3c002b849369d730788e689553e70344163038eb`，不是原历史的后代。开发输入 tip 与 branch 以随包 delivery.json 的完整 SHA 为准，外层 DEV-AGENT-PROMPT.md 也给出字面值；导入后逐字核对。从该 tip 建 `codex/r1-jev-decision-dev` 分支。bundle 包含独立筛选源码仓库的完整历史，无前置。不要把该树覆盖到原产品 repo，也不要找“最新 main”替代基线。
+原源码来源固定为 `8adc93a422398c61a9a738562bfb23710f36bcc6`，独立导出根为 `3c002b849369d730788e689553e70344163038eb`。输入分支不是 R0 的后代，专门排除了原历史里的私有答案/保留集；不要 fetch 其他分支、原历史或标签来调优，不要用“最新 main”换基线。后续仅把允许路径的新增实现 diff 集成回主仓库，不将整棵导出树合并覆盖 R0。
 
-先读 `plans/r1-jev-decision-prework-plan.md`（权威任务合同）、`plans/r1-jev-input/input-materials.md`、`import-and-preflight.md`、`return-and-acceptance.md`、`r0-boundary.md`。包内已提交最新未提交 Roadmap 的已识别副本，以及 architecture/execution-engine/development 等参考规范；任务所需方向与 R0 边界已独立写入计划。原 R0 答案/保留集/脚本/历史不交付且本任务不需要；不得要求读未传递资料或借原 data。
+本次**Git 提供开发输入，压缩包提供返程成果**。旧源码输入压缩包无需取得，也不是当前开发基线。
+
+先读 `plans/r1-jev-decision-prework-plan.md`（权威任务合同）、`plans/r1-jev-input/input-materials.md`、`import-and-preflight.md`、`return-and-acceptance.md`、`r0-boundary.md`。分支已提交最新未提交 Roadmap 的已识别副本，以及 architecture/execution-engine/development 等参考规范；任务所需方向与 R0 边界已独立写入计划。原 R0 答案/保留集/脚本/历史不交付且本任务不需要；不得要求读未传递资料或借原 data。
 
 产品目标是用 Jev 参与高频探索评分来真正减少主 Agent 逐步决策：程序采集候选/状态/历史，Jev 评分，程序排序，未来连续执行常规交互；主 Agent 保留方向、复杂语义、多步调查、新调查程序。先做“评分+程序排序”，收益尚未证明。Jev 预测不代表真实操作效果、权限、缺陷或完成。未来对照当前 Agent、纯程序、程序+Jev 的发现质量、覆盖、调用减少、总时间和总成本；本期不进行端到端收益实验。
 

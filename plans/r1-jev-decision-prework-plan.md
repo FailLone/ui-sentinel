@@ -1,6 +1,6 @@
 # R1 前置工作：Jev 探索决策模块与离线验证
 
-计划版本 r1-jev-prework-1，2026-10-07（Asia/Shanghai）。状态：规划及开发输入准备；未实现，未验收，不代表 R1 或 R0 完成。本计划为远端开发的完整任务合同，不需要聊天记录、本机 data、会话或环境变量。
+计划版本 r1-jev-prework-2，2026-10-07（Asia/Shanghai）。状态：规划及开发输入准备；未实现，未验收，不代表 R1 或 R0 完成。本计划为远端开发的完整任务合同，不需要聊天记录、本机 data、会话或环境变量。
 
 ## 1. 产品方向与证据边界
 
@@ -13,8 +13,8 @@
 ## 2. 基线与实际核查
 
 - 原源码来源 SHA：`8adc93a422398c61a9a738562bfb23710f36bcc6`，读取时为 `codex/r0-closeout` HEAD。不是“最新 main”，不是 R0 通过声明。
-- 独立导出根提交：`3c002b849369d730788e689553e70344163038eb`。交付计划 tip 及 bundle 身份见外层 `delivery.json`。开发必须从该 delivery tip 建分支；返程须以该 tip 为开发基线。
-- 导出采用新仓库的完整历史、无前置提交，**不是原仓库完整历史**。原历史中有 R0 私有答案/保留集，故不传递。生产源码按上述 SHA 原字节导出，逐文件 SHA-256 在 `plans/r1-jev-input/source-provenance.json`。
+- 独立导出根提交：`3c002b849369d730788e689553e70344163038eb`。本次改为 Git 分支交接：仓库 `https://github.com/FailLone/ui-sentinel.git`，输入分支 `codex/r1-jev-input-20261007`。交接提示给出完整输入 tip SHA，dev 核对后固定它并从该提交建 `codex/r1-jev-decision-dev`；返程须以该输入 tip 为开发基线，不跟随分支后续变更。旧压缩包的 delivery.json 仅标识旧版 bundle，不能替代本次 Git 输入 tip。
+- Git 输入分支采用独立导出历史，**不是原 R0 分支的后代**。单分支克隆可取得全部所需文件，无需输入附件或 bundle；返程 bundle 打包该独立分支的完整历史、无前置提交。原历史中有 R0 私有答案/保留集，故不传递。生产源码按上述 SHA 原字节导出，逐文件 SHA-256 在 `plans/r1-jev-input/source-provenance.json`。
 - 原工作区存在 Roadmap 与 R0 context/interaction/investigation 的未提交修改；没有复制这些产品代码。Roadmap 单独复制到导出仓库，摘要 `1e1196545ecd98664c666df7e1a5317891dbe0eebd3874b0d225058724313ad8`。它写的代码现状 main@3cdd68f 是维护快照，不替代本项源码 SHA。
 - 只读取 R0 冻结身份：一个较早清单为 `3cdd68fc5db205e39d8629db246f8d629dab6c75`；读取时 authorized 清单为上述 `8adc93a...`，buildHash 均为 `b405b4c5d7560f26323da9a3f2229e92eb4ca042fe0c6ba115082abee8fd23b9`。不复制私有清单、不推断最终验收状态；R0 以后变更不自动推进本项基线。必要边界已抽取到 `plans/r1-jev-input/r0-boundary.md`。
 
@@ -102,7 +102,7 @@ Jev 评分只在程序控制下影响排序；先实施上述纯基线，另有�
 
 | 批次 | 进入条件 / 文件归属 | 必须交付与验收出口 |
 | --- | --- | --- |
-| P0 导入/预检 | 本交付包完整；独立目录 | 验摘要/bundle/tip；安装冻结依赖；保存工具版本与预检日志；材料缺失不猜 |
+| P0 Git 获取/预检 | 单分支取得完整输入；独立目录 | 核对交接完整 tip、源码与 fixture 摘要；安装冻结依赖；保存版本/日志；材料缺失不猜 |
 | P1 契约与样本 | P0；exploration/contracts + r1-jev-dev | schema 与 public fixture 校验，非法输入无请求；严格标签隔离；版本/候选/权限测试 T01–T03、T13 |
 | P2 确定性基线 | P1 输入类型固定；exploration/ranking | 可重复排序、状态化去重、公平机会、成本/tie 规则；T04–T06 |
 | P3 Jev 模块 | P1；exploration/transport/prompt/cache/budget | P2/P3 可在契约稳定后独立推进；全部失效/错误/并发/费用 T07–T12、T14；不用付费 |

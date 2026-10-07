@@ -1,51 +1,31 @@
-# 导入与环境预检（macOS / Linux shell）
+# Git 获取开发输入与环境预检
 
-这是独立源码快照包，不需要原产品仓库或它的 Git 历史。本期开发只需要 Git、Node 24.x、pnpm 10.17.1 和依赖注册表网络。Windows 可在安装了这些工具的 WSL 中执行，未宣称验证原生 PowerShell。
+本次开发输入通过 Git 分支提供，成果通过压缩包返程。不再要求传递或导入源码输入压缩包。需要你自己机器上的 Git、Node 24.x、pnpm 10.17.1，以及 GitHub/依赖注册表访问能力；不假定全局 tsx、Python、jq 或浏览器已安装。
 
-## 1. 安装工具并确认实际运行版本
+## 1. 克隆指定分支，固定输入提交
 
-Node 可从 Node.js 官方发行安装 24.x 或用你已安装的版本管理器切换；Git 使用操作系统安装包。缺 pnpm 时在选定 Node 下执行 `npm install --global pnpm@10.17.1`，不假定 Corepack、Python、jq 或全局 tsx。本包不附第三方工具二进制。
+先从交接提示取得完整输入 tip SHA（40位），赋值给下面的变量。它是唯一允许的开发起点，不能替换成“最新 main”。目标目录须不存在，并与现有 R0 工作区分开。
+
+```sh
+r1_expected_tip='<交接提示给出的完整40位输入tip>'
+git clone --single-branch --no-tags --branch codex/r1-jev-input-20261007 https://github.com/FailLone/ui-sentinel.git ui-sentinel-r1-jev-dev
+cd ui-sentinel-r1-jev-dev
+test "$(git rev-parse HEAD)" = "$r1_expected_tip"
+git status --porcelain=v1
+git switch -c codex/r1-jev-decision-dev "$r1_expected_tip"
+```
+
+SHA 不一致立即停止并记录，不自行追随新提交。分支完整包含筛选源码历史；不需要额外 fetch 原产品分支/标签，也不需要旧版 bundle。这个输入分支不是 R0 的后代，是为排除私有验收资料而建立的源码快照；后续按允许路径 diff 集成，不整树合并覆盖 R0。
+
+## 2. 运行环境与材料预检
+
+Node 使用官方发行 24.x 或已安装的版本管理器切换；缺 pnpm 时，在选定 Node 下执行 `npm install --global pnpm@10.17.1`。不假定 Corepack 已安装。macOS/Linux shell 可直接执行以下步骤；Windows 可使用配置好工具的 WSL。
 
 ```sh
 node --version
 pnpm --version
 pnpm exec node --version
 git --version
-```
-
-node 和 pnpm exec node 都必须是 v24.x，pnpm 必须 10.17.1。目录自动切版本可能改变后者；导入后在 checkout 再检查。不要忽略 unsupported engine 警告继续声称环境通过。
-
-## 2. 校验外层包并导入独立工作区
-
-将收到的全部文件放在同一包目录（包含准备证据），先进入该目录。下面使用当前实际路径生成变量，没有要求与发送者相同的绝对路径。`SHA256SUMS` 自身摘要应与发送消息比对；包内 hash 可发现损坏，不能替代可信渠道的摘要。
-
-```sh
-node verify-package.mjs
-# Linux 可额外用 sha256sum -c SHA256SUMS；macOS 用 shasum -a 256 -c SHA256SUMS
-r1_package_dir="$PWD"
-r1_tip=$(node -p 'require("./delivery.json").deliveryTipSha')
-r1_ref=$(node -p 'require("./delivery.json").bundle.ref')
-r1_bundle=$(node -p 'require("./delivery.json").bundle.path')
-# 选择一个不存在的新目录，不在现有 R0 checkout 内运行 git init。
-mkdir ../r1-jev-dev-workspace
-cd ../r1-jev-dev-workspace
-git init
-git bundle verify "$r1_package_dir/$r1_bundle"
-git bundle list-heads "$r1_package_dir/$r1_bundle"
-git fetch "$r1_package_dir/$r1_bundle" "$r1_ref:refs/heads/codex/r1-jev-decision-dev"
-git switch codex/r1-jev-decision-dev
-test "$(git rev-parse HEAD)" = "$r1_tip"
-git status --porcelain=v1
-node "$r1_package_dir/verify-package.mjs" --tree "$PWD"
-```
-
-bundle verify 必须报告完整历史/无 prerequisites，ref/tip 与 delivery.json 相符；任何不一致停止并报告。`--tree` 在**首次导入未修改时**校验所有 tracked 文件逐字摘要及文件集合。开发后的树应按返程 diff 审查，不要求与原输入全树相同。
-
-## 3. 独立依赖与输入检查
-
-本期本地可写目录添加到当前独立 repo 的 `.git/info/exclude`，不修改原共享 .gitignore：
-
-```sh
 node --input-type=module -e 'import {appendFileSync} from "node:fs"; appendFileSync(".git/info/exclude", "\n.r1-pnpm-store/\nartifacts/\n")'
 node plans/r1-jev-input/preflight.mjs
 pnpm install --frozen-lockfile --store-dir .r1-pnpm-store
@@ -53,11 +33,11 @@ pnpm exec tsc --noEmit
 git status --porcelain=v1
 ```
 
-依赖按包内锁文件，安装成功不代表产品测试成功。pnpm 可能提示 esbuild/sharp/bufferutil 的 install script 被默认忽略；本期不盲目 approve 所有脚本。TypeScript、Vitest、tsx 必须实际可运行；若所用平台缺必要二进制，列环境失败和必要依赖，给出有依据的最小安装方法后复验。无需 Playwright browser、服务 dist、数据库或 .env，不运行全量 `pnpm build`、旧 `validate:*`、旧 `smoke:*`。
+node 和 pnpm exec node 均须 v24.x，pnpm 为10.17.1；目录自动切版本可能导致两者不一致，不能忽略 engine 警告。预检核对只读参考源码/配置摘要、Roadmap 快照和全部合成输入摘要，并检查没有不应出现的私有资料。环境/材料缺失分别记录，不能靠发送者机器文件补猜。
 
-准备阶段已进行的命令/结果以外层 preparation-evidence 为准；此时产品实现尚未开始，没有本期 Vitest 用例，不能把“没有测试”当通过。
+所有 store、node_modules 和 artifacts 留在自己的独立目录。不共享 R0 的 dist/DB/证据/profile/端口/费用账本。pnpm 可能提示忽略 esbuild/sharp/bufferutil 安装脚本，不要盲目 approve 所有脚本；本期实际所需 tsc/tsx/Vitest 应可运行，确有缺二进制则记录最小安装方法并复验。无须产品 dist、浏览器或 .env。
 
-## 4. dev 实现后执行并完整记录
+## 3. 开发后的免费复验
 
 ```sh
 node plans/r1-jev-input/preflight.mjs
@@ -67,6 +47,6 @@ pnpm r1:jev:offline -- --output artifacts/r1-jev/run-1
 pnpm r1:jev:offline -- --output artifacts/r1-jev/run-2
 ```
 
-另外对实际修改的 TS/JSON 文件执行 `pnpm exec biome format <文件列表>`。离线模式必须显式替身、不访问提供方；不要仅靠清空一个 API key 判断零外网。测试应装网络陷阱/注入传输计数，并覆盖 T01–T16。实际运行日志、退出码、版本、源码/config 身份、输入输出按返程协议保存。
+对实际修改的 TS/JSON 执行 `pnpm exec biome format <文件列表>`。新模块/用例尚未实现时，空 Vitest 列表不能算测试通过。默认 stub，测试需网络陷阱或注入传输计数，不能只靠没 key 宣称零外网。禁止运行真实模型或 R0 付费入口，不运行本筛选分支未交付的全产品脚本。
 
-全部路径相对于新 workspace 或交付包；日志机器路径映射回包内 evidence 或 bundle checkout。安装环境/网络无法满足则准确记录，不拿本机 node_modules、全局工具或旧 dist 冒充重建成功。
+全部实际命令、退出码、原始日志、源码/配置/fixture 身份和工具版本按 return-and-acceptance.md 保存，路径相对返程包。代码全部提交后，从最终分支生成完整历史代码 bundle，与证据一起压缩返程；接收者不依赖远端 Git 或你的本机文件即可验收。

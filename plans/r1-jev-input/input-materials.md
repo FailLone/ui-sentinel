@@ -1,17 +1,17 @@
 # 开发输入材料分类与索引
 
-本包可直接用于 R1 前置模块开发；它是经筛选的源码快照，不是可运行全部 R0 服务/验收的产品分发。本任务全部必需文本和 fixture 已入 Git，不依赖开发者或规划者 data。
+本 Git 输入分支可直接用于 R1 前置模块开发；它是经筛选的源码快照，不是可运行全部 R0 服务/验收的产品分发。本任务全部必需文本和 fixture 已入 Git，不依赖开发者或规划者 data。
 
-## A. bundle 内已提交文件
+## A. Git 输入分支内已提交文件
 
-外层 `delivery.json` 记录原源码 SHA、导出根提交、交付 tip、分支、bundle 类型/前置和摘要；`files-in-bundle.json` 为交付 tip 全部文件的相对路径与 SHA-256。源码逐文件来源见 `source-provenance.json`，后者只覆盖原字节复制的参考源码/配置。
+通过 `https://github.com/FailLone/ui-sentinel.git` 的 `codex/r1-jev-input-20261007` 单分支克隆取得全部文件。按交接消息提供的完整 tip SHA 核对，不使用“最新 main”。源码逐文件来源见 `source-provenance.json`；完整文件集合用 `git ls-tree -r --name-only <输入tip>` 获取，Git 对象绑定全部文件。新增计划与合成样本也已提交。
 
 | 相对路径 | 用途 |
 | --- | --- |
 | plans/r1-jev-decision-prework-plan.md | 权威任务合同：方向、边界、四批开发、schema、T01–T16 与集成事项 |
 | plans/r1-jev-input/input-materials.md | A/B/C/D 分类与引用解析 |
 | plans/r1-jev-input/import-and-preflight.md | 可复制导入、依赖安装、预检、复验命令 |
-| plans/r1-jev-input/dev-agent-prompt.md | 完整实施提示词；外层 DEV-AGENT-PROMPT.md 附最终 SHA，发给远端使用 |
+| plans/r1-jev-input/dev-agent-prompt.md | 完整实施提示词；与交接提示中完整输入 tip 一起使用 |
 | plans/r1-jev-input/return-and-acceptance.md | 返程格式、完整性门禁、独立验收、整改模板、Roadmap 建议模板 |
 | plans/r1-jev-input/r0-boundary.md | 已脱离私有答案的 R0 必需边界 |
 | plans/r1-jev-input/source-provenance.json | 生产源码/配置逐文件来源、Roadmap 未提交快照身份、明确排除项 |
@@ -27,11 +27,11 @@
 
 原 docs 的链接可能指向没有交付的历史评价材料、R0 closeout 或脚本。这些链接只解释原产品背景，**不是隐含开发要求**。对应任务所需要求均已在主计划与 r0-boundary 中独立写明；本期不需要获取、重建或猜测被排除文档/脚本。运行模块禁止读评价侧标签。
 
-## B. 额外附件
+## B. 输入不需要额外附件；压缩包仅用于返程
 
-没有必需的非 Git 业务资料、截图、历史样本或数据附件。外层交付文件是运输与校验元数据，不是缺失源码的替代：bundle、delivery.json、SHA256SUMS、verify-package.mjs、files-in-bundle.json、DEV-AGENT-PROMPT.md、IMPORT.md、preparation-evidence/ 原始准备日志及索引。每一文件均以相对路径、用途、摘要列在外层清单中。
+本次以 Git 分支交接，不需要旧源码压缩包、delivery.json 或发送者本机准备日志才能开发。必需源码、规范、样本、锁文件和预检均已提交。原有输入压缩包是 v1 历史交付，已被本 Git 流程替代；不得以其旧 tip 替代本次交接 tip。
 
-SHA256SUMS 对除自身以外全部文件逐一哈希；自身摘要在最终交付消息中给出，以免循环自引用。任意必要非 Git 附件未来新增时，必须明确用途、相对路径和 hash，不允许“开发机已有”。
+完成后 dev 按 return-and-acceptance.md 生成返程压缩包，包含完整代码 bundle、清单、摘要及复核必需原始证据。不能仅返回 GitHub 链接或开发机路径。当前无必需非 Git 业务数据附件；未来新增必须记录相对路径、用途、SHA-256。
 
 ## C. 可重建材料
 
@@ -51,4 +51,4 @@ SHA256SUMS 对除自身以外全部文件逐一哈希；自身摘要在最终交
 
 ## 已知环境与外部限制
 
-规划环境 Node v24.21.0、pnpm 10.17.1、Git 2.50.1 (Apple Git-155)。支持环境以包内 engines 为准，本期统一 Node 24.x，远端须安装 Node/pnpm/Git；不能假定有 Python、jq、tsx 全局命令或浏览器。安装依赖需要注册表可达，准备过程实际结果见外层证据，不预先承诺远端网络可达。真实 Jev API 新评分用法/现价/模型服务能力尚未核实，当前无真实调用授权；不阻塞 stub/注入模块，不得包装成真实服务验证通过。
+规划环境 Node v24.21.0、pnpm 10.17.1、Git 2.50.1 (Apple Git-155)。支持环境以包内 engines 为准，本期统一 Node 24.x，远端须安装 Node/pnpm/Git；不能假定有 Python、jq、tsx 全局命令或浏览器。安装依赖需要注册表可达，发送端已验证原输入可独立安装及类型检查；本次 dev 仍须在自己的干净目录保存实际结果，不预先承诺远端网络可达。真实 Jev API 新评分用法/现价/模型服务能力尚未核实，当前无真实调用授权；不阻塞 stub/注入模块，不得包装成真实服务验证通过。
