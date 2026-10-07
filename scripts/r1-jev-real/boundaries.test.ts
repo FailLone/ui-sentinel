@@ -1,6 +1,6 @@
 import { it, expect } from 'vitest'
 import { readFileSync, readdirSync } from 'node:fs'
-import { join, resolve, dirname } from 'node:path'
+import { join, resolve, dirname, relative } from 'node:path'
 function walk(dir: string): string[] {
   return readdirSync(dir, { withFileTypes: true }).flatMap((d) =>
     d.isDirectory() ? walk(join(dir, d.name)) : [join(dir, d.name)],
@@ -15,8 +15,10 @@ it('offline import graph cannot reach the real provider or CLI, recursively', ()
     file = resolve(file)
     if (seen.has(file)) return
     seen.add(file)
-    expect(file).not.toContain('/jev-provider/')
-    expect(file).not.toContain('/r1-jev-real/')
+    const modulePath = relative(process.cwd(), file).split('\\').join('/')
+    expect(modulePath.startsWith('../')).toBe(false)
+    expect(modulePath).not.toMatch(/^src\/agent\/decisions\/jev-provider\//)
+    expect(modulePath).not.toMatch(/^scripts\/r1-jev-real\//)
     const text = readFileSync(file, 'utf8')
     for (const match of text.matchAll(/(?:from\s*|import\s*\(|require\s*\()(['"])([^'"]+)\1/g)) {
       if (match[2].startsWith('.')) visit(resolve(dirname(file), match[2]))
