@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import { reduceTrajectory, stateKeyOf, type TrajectoryEvent } from './trajectory.ts'
 
-const key = (relatedStateVersion: string, viewKey = 'anon') => ({ relatedStateVersion, viewKey })
+const key = (relatedStateVersion: string, viewKey = 'anon') => ({
+  pageId: 'p0',
+  documentVersion: 'doc-1',
+  relatedStateVersion,
+  viewKey,
+})
 
 const observed = (
   relatedStateVersion: string,
@@ -39,7 +44,14 @@ describe('reduceTrajectory — visited, selected and verified stay distinct', ()
   it('records a dispatch as selected but never as verified', () => {
     const t = reduceTrajectory([
       observed('state-1', [{ candidateId: 'c1', targetKey: 'node-1' }]),
-      { kind: 'dispatched', targetKey: 'node-1', action: 'click', beforeStateKey: key('state-1') },
+      {
+        kind: 'dispatched',
+        attemptId: 'a1',
+        itemId: 'item-1',
+        targetKey: 'node-1',
+        action: 'click',
+        beforeStateKey: key('state-1'),
+      },
     ])
     expect(t.attempts).toHaveLength(1)
     expect(t.attempts[0].selected).toBe(true)
@@ -50,9 +62,18 @@ describe('reduceTrajectory — visited, selected and verified stay distinct', ()
   it('does not let an observed outcome without evidence count as verified', () => {
     const t = reduceTrajectory([
       observed('state-1', [{ candidateId: 'c1', targetKey: 'node-1' }]),
-      { kind: 'dispatched', targetKey: 'node-1', action: 'click', beforeStateKey: key('state-1') },
+      {
+        kind: 'dispatched',
+        attemptId: 'a1',
+        itemId: 'item-1',
+        targetKey: 'node-1',
+        action: 'click',
+        beforeStateKey: key('state-1'),
+      },
       {
         kind: 'settled',
+        attemptId: 'a1',
+        itemId: 'item-1',
         targetKey: 'node-1',
         action: 'click',
         beforeStateKey: key('state-1'),
@@ -69,9 +90,18 @@ describe('reduceTrajectory — visited, selected and verified stay distinct', ()
   it('counts an item as verified only with a measured post-observation and an evidence reference', () => {
     const t = reduceTrajectory([
       observed('state-1', [{ candidateId: 'c1', targetKey: 'node-1' }]),
-      { kind: 'dispatched', targetKey: 'node-1', action: 'click', beforeStateKey: key('state-1') },
+      {
+        kind: 'dispatched',
+        attemptId: 'a1',
+        itemId: 'item-1',
+        targetKey: 'node-1',
+        action: 'click',
+        beforeStateKey: key('state-1'),
+      },
       {
         kind: 'settled',
+        attemptId: 'a1',
+        itemId: 'item-1',
         targetKey: 'node-1',
         action: 'click',
         beforeStateKey: key('state-1'),
@@ -79,7 +109,6 @@ describe('reduceTrajectory — visited, selected and verified stay distinct', ()
         effects: ['expanded'],
         outcome: 'observed',
         evidenceRef: 'attempt-7/measurement.json',
-        itemId: 'item-1',
       },
     ])
     expect(t.attempts[0].verified).toBe(true)
@@ -98,9 +127,18 @@ describe('reduceTrajectory — visited, selected and verified stay distinct', ()
   it('keeps the transition edge from the state the action actually started in', () => {
     const t = reduceTrajectory([
       observed('state-1', [{ candidateId: 'c1', targetKey: 'node-1' }]),
-      { kind: 'dispatched', targetKey: 'node-1', action: 'click', beforeStateKey: key('state-1') },
+      {
+        kind: 'dispatched',
+        attemptId: 'a1',
+        itemId: 'item-1',
+        targetKey: 'node-1',
+        action: 'click',
+        beforeStateKey: key('state-1'),
+      },
       {
         kind: 'settled',
+        attemptId: 'a1',
+        itemId: 'item-1',
         targetKey: 'node-1',
         action: 'click',
         beforeStateKey: key('state-1'),
@@ -118,9 +156,18 @@ describe('reduceTrajectory — visited, selected and verified stay distinct', ()
   it('attributes attempts within a state, and lets a changed state allow re-checking', () => {
     const t = reduceTrajectory([
       observed('state-1', [{ candidateId: 'c1', targetKey: 'node-1' }]),
-      { kind: 'dispatched', targetKey: 'node-1', action: 'click', beforeStateKey: key('state-1') },
+      {
+        kind: 'dispatched',
+        attemptId: 'a1',
+        itemId: 'item-1',
+        targetKey: 'node-1',
+        action: 'click',
+        beforeStateKey: key('state-1'),
+      },
       {
         kind: 'settled',
+        attemptId: 'a1',
+        itemId: 'item-1',
         targetKey: 'node-1',
         action: 'click',
         beforeStateKey: key('state-1'),
@@ -137,9 +184,18 @@ describe('reduceTrajectory — visited, selected and verified stay distinct', ()
   it('does not treat an unknown outcome as a completed attempt in the state', () => {
     const t = reduceTrajectory([
       observed('state-1', [{ candidateId: 'c1', targetKey: 'node-1' }]),
-      { kind: 'dispatched', targetKey: 'node-1', action: 'click', beforeStateKey: key('state-1') },
+      {
+        kind: 'dispatched',
+        attemptId: 'a1',
+        itemId: 'item-1',
+        targetKey: 'node-1',
+        action: 'click',
+        beforeStateKey: key('state-1'),
+      },
       {
         kind: 'settled',
+        attemptId: 'a1',
+        itemId: 'item-1',
         targetKey: 'node-1',
         action: 'click',
         beforeStateKey: key('state-1'),

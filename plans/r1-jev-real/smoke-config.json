@@ -22,10 +22,10 @@
   "requestTimeoutMs": 15000,
   "protocol": {
     "questionsVerified": false,
-    "billingBoundVerified": true,
+    "billingBoundVerified": false,
     "source": "https://openrouter.ai/typesafe/jev-1.13",
     "checkedAt": "2026-10-07",
-    "quoteUsd": 0.001344,
-    "basis": "Worst-case per-request reservation = context cap x input rate. Billing items: input tokens charged, output tokens free (provider docs: 'Jev charges for input tokens, and output tokens are free.'). Price snapshot 2026-10-07 from the model page: '$0.042 per million input tokens, $0 per million output tokens'; catalog Input Price 4.2e-8 USD/token, Output Price 0; verified against both published usage examples (492 x 4.2e-8 = 0.000020664; 476 x 4.2e-8 = 0.000019992). No non-token fee SKU exists for this model. QUESTIONS HAVE NO DOCUMENTED TOKEN COUNT, so the bound conservatively charges the full 32000-token context: 32000 x 4.2e-8 = 0.001344 USD/request; 6 requests = 0.008064 USD, inside the 0.25 ceiling. Scope: this six-state smoke batch, each request assembled locally under limits.maxInputBytes and profile.maxQuestions, so no request may exceed the cap. See scripts/r1-jev-real/cost-bound.ts."
+    "quoteUsd": null,
+    "basis": "Public price snapshot: USD 0.042 per million input tokens, output free, context 32000 tokens. Conditional arithmetic only: 32000 * 4.2e-8 = 0.001344 USD. No verified mapping from wire bytes/questions to billed tokens or bound for failed/over-limit requests. Local 32768-byte limit is not a token limit. Paid run remains blocked pending a justified reservation for this frozen batch and explicit authorization."
   }
 }

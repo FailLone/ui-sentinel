@@ -28,7 +28,13 @@ const importGraph = (entries: string[]) => {
 describe('exploration planner boundaries', () => {
   it('ships at least the four planning modules plus the shared contract it reuses', () => {
     const names = plannerSources().map((p) => p.split('/').pop())
-    for (const module of ['facts.ts', 'trajectory.ts', 'frontier.ts', 'strategies.ts', 'scheduler.ts'])
+    for (const module of [
+      'facts.ts',
+      'trajectory.ts',
+      'frontier.ts',
+      'strategies.ts',
+      'scheduler.ts',
+    ])
       expect(names).toContain(module)
   })
 

@@ -38,21 +38,27 @@ describe('worstCaseCostBound', () => {
     expect(worstCaseCostBound(JEV_PRICE_2026_10_07, 6, 0.001).withinCeiling).toBe(false)
   })
 
-  it('charges nothing for output tokens', () => {
-    const paidOutput: PriceFact = { ...JEV_PRICE_2026_10_07, outputUsdPerToken: 1e-6 }
-    expect(worstCaseCostBound(paidOutput, 1, 1).perRequestUsd).toBe(
-      worstCaseCostBound(JEV_PRICE_2026_10_07, 1, 1).perRequestUsd,
-    )
+  it('rejects unsupported output pricing and invalid ceilings', () => {
+    const price: PriceFact = { ...JEV_PRICE_2026_10_07, outputUsdPerToken: 1e-6 }
+    expect(() => worstCaseCostBound(price, 1, 1)).toThrow('unsupported-output-price')
+    expect(() => worstCaseCostBound(JEV_PRICE_2026_10_07, 1, NaN)).toThrow('invalid-ceiling')
+    expect(worstCaseCostBound(JEV_PRICE_2026_10_07, 6, 0.25).verified).toBe(false)
   })
 
   it('refuses a negative or non-finite rate rather than returning a nonsense bound', () => {
-    expect(() => worstCaseCostBound({ ...JEV_PRICE_2026_10_07, inputUsdPerToken: -1 }, 1, 1)).toThrowError(
-      /invalid-price-fact/,
-    )
     expect(() =>
-      worstCaseCostBound({ ...JEV_PRICE_2026_10_07, inputUsdPerToken: Number.POSITIVE_INFINITY }, 1, 1),
+      worstCaseCostBound({ ...JEV_PRICE_2026_10_07, inputUsdPerToken: -1 }, 1, 1),
     ).toThrowError(/invalid-price-fact/)
-    expect(() => worstCaseCostBound(JEV_PRICE_2026_10_07, -1, 1)).toThrowError(/invalid-request-count/)
+    expect(() =>
+      worstCaseCostBound(
+        { ...JEV_PRICE_2026_10_07, inputUsdPerToken: Number.POSITIVE_INFINITY },
+        1,
+        1,
+      ),
+    ).toThrowError(/invalid-price-fact/)
+    expect(() => worstCaseCostBound(JEV_PRICE_2026_10_07, -1, 1)).toThrowError(
+      /invalid-request-count/,
+    )
   })
 
   it('states the assumptions the bound rests on, including the undocumented one', () => {
@@ -60,7 +66,7 @@ describe('worstCaseCostBound', () => {
     expect(bound.assumptions.join(' ')).toMatch(/context length/)
     expect(bound.assumptions.join(' ')).toMatch(/output tokens are free/)
     expect(bound.assumptions.join(' ')).toMatch(/over-cap/)
-    expect(bound.assumptions.join(' ')).toMatch(/client rejects oversize payloads/)
+    expect(bound.assumptions.join(' ')).toMatch(/local bytes are not tokens/)
   })
 
   it('is deterministic', () => {

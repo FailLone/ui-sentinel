@@ -3,11 +3,15 @@ import { planNext, RECOVERY_CAP, type Plan, type PlanRequest } from './scheduler
 import { normalizeFacts, type PlanningFactsDraft } from './facts.ts'
 import {
   reduceTrajectory,
+  branchKeyOf,
+  stateKeyOf,
   type PlanningStateKey,
   type TrajectoryEvent,
 } from './trajectory.ts'
 
 const anon = (relatedStateVersion: string): PlanningStateKey => ({
+  pageId: 'p0',
+  documentVersion: 'doc-1',
   relatedStateVersion,
   viewKey: 'anon',
 })
@@ -85,12 +89,15 @@ const attempt = (
 ): TrajectoryEvent[] => [
   {
     kind: 'dispatched',
+    attemptId: `${relatedStateVersion}:${targetKey}`,
+    itemId: `item-${targetKey}`,
     targetKey,
     action: 'click',
     beforeStateKey: anon(relatedStateVersion),
   },
   {
     kind: 'settled',
+    attemptId: `${relatedStateVersion}:${targetKey}`,
     targetKey,
     action: 'click',
     beforeStateKey: anon(relatedStateVersion),
@@ -211,8 +218,8 @@ describe('planNext — selection and duplicate control', () => {
         }),
       ),
     )
-    expect(plan.targetKey).toBe('node-1')
-    expect(plan.basis.riskBasis).toBe('coverage')
+    expect(plan.targetKey).toBe('node-2')
+    expect(plan.basis.riskBasis).toBe('declared')
   })
 
   it('carries the caller-declared risk source through when a risk-hinted target is chosen', () => {
@@ -252,7 +259,7 @@ describe('planNext — continuous steps and preconditions', () => {
       ),
     )
     expect(plan.basis.continuousStep).toBe(true)
-    expect(plan.basis.precondition).toBe('state-2::anon')
+    expect(plan.basis.precondition).toBe(JSON.stringify(['p0', 'doc-1', 'state-2', 'anon']))
   })
 
   it('does not offer a continuation when the predecessor never completed', () => {
@@ -263,12 +270,14 @@ describe('planNext — continuous steps and preconditions', () => {
             observed('state-1', [{ candidateId: 'c1', targetKey: 'node-1' }]),
             {
               kind: 'dispatched',
+              attemptId: 'a1',
               targetKey: 'node-1',
               action: 'click',
               beforeStateKey: anon('state-1'),
             },
             {
               kind: 'settled',
+              attemptId: 'a1',
               targetKey: 'node-1',
               action: 'click',
               beforeStateKey: anon('state-1'),
@@ -323,7 +332,7 @@ describe('planNext — handoff objects', () => {
           observed('state-1', [{ candidateId: 'c1', targetKey: 'node-1' }]),
           ...attempt('state-1', 'node-1'),
         ]),
-        recovery: { 'node-1': RECOVERY_CAP },
+        recovery: { [branchKeyOf(stateKeyOf(anon('state-1')), 'node-1')]: RECOVERY_CAP },
       }),
     )
     if (plan.kind !== 'handoff') return
@@ -337,7 +346,7 @@ describe('planNext — handoff objects', () => {
           observed('state-1', [{ candidateId: 'c1', targetKey: 'node-1' }]),
           ...attempt('state-1', 'node-1'),
         ]),
-        recovery: { 'node-1': RECOVERY_CAP },
+        recovery: { [branchKeyOf(stateKeyOf(anon('state-1')), 'node-1')]: RECOVERY_CAP },
       }),
     )
     if (plan.kind === 'act') expect(plan.targetKey).not.toBe('node-1')
@@ -364,12 +373,14 @@ describe('planNext — handoff objects', () => {
           observed('state-1', [{ candidateId: 'c1', targetKey: 'node-1' }]),
           {
             kind: 'dispatched',
+            attemptId: 'a1',
             targetKey: 'node-1',
             action: 'click',
             beforeStateKey: anon('state-1'),
           },
           {
             kind: 'settled',
+            attemptId: 'a1',
             targetKey: 'node-1',
             action: 'click',
             beforeStateKey: anon('state-1'),

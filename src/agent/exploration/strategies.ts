@@ -1,143 +1,262 @@
-/**
- * Reusable exploration strategies: boundary input, return/refresh, repeat operation, state switch,
- * and counterexample investigation.
- *
- * Every strategy states WHEN it applies and what it must measure afterwards. Applicability is
- * decided from caller-declared public facts only — a control's role, its declared toggle state, an
- * observed navigation — never from a guess about the product's business rules.
- *
- * `boundary-input` is the sharp edge: it may only propose a value when the caller supplied a
- * PUBLIC constraint in the control's context. Without one it stays applicable-but-not-proposable,
- * because inventing an SLA or a business rule is exactly the failure this module must prevent.
- *
- * No browser, model, network, database, environment or file access happens here.
- */
+/** Pure high-level intents, not executable browser commands or authority grants.
+ * Unsupported/missing facts produce explicit non-proposable assessments. */
+import { z } from 'zod'
 import type { ActualEffect, PublicAction } from '../decisions/exploration/contracts.ts'
 import type { PlanningFacts } from './facts.ts'
-import type { Frontier } from './frontier.ts'
-
-export type StrategyId = 'boundary-input' | 'return-refresh' | 'repeat-operation' | 'state-switch'
-
-export type StrategyPlanStep = {
-  readonly targetKey: string
-  readonly action: PublicAction
-}
-
+import { ineligibility, type Frontier } from './frontier.ts'
+import { currentStateOf } from './trajectory.ts'
+export type StrategyId =
+  | 'boundary-input'
+  | 'return-refresh'
+  | 'repeat-operation'
+  | 'state-switch'
+  | 'recovery'
+export type StrategyPlanStep =
+  | { readonly targetKey: string; readonly action: PublicAction }
+  | {
+      readonly targetKey: string
+      readonly action: 'fill'
+      readonly value: string
+      readonly constraintRef: string
+    }
+  | {
+      readonly targetKey: null
+      readonly action: 'back' | 'refresh'
+      readonly expectedState: string
+      readonly evidenceRef: string
+    }
 export type StrategyAssessment = {
   readonly strategyId: StrategyId
   readonly applicable: boolean
-  /** False when an applicable strategy still lacks the public facts needed to act on it. */
   readonly proposable: boolean
   readonly reason: string
   readonly plan: { readonly steps: readonly StrategyPlanStep[] }
   readonly maxActions: number
-  /** The post-observation predicate this strategy must satisfy to count as verified. */
   readonly requiredMeasurement: string
+  readonly precondition: string
+  readonly observationVersion: string
 }
-
-/** Local policy ceiling, not a provider promise. A caller may tighten it, never raise it. */
 export const STRATEGY_MAX_ACTIONS = 2
-
+const text = z
+  .string()
+  .min(1)
+  .max(2048)
+  .refine((s) => !!s.trim())
+const optionsSchema = z
+  .object({
+    /** These identify intents supported by the future bridge, NOT permission to execute. */
+    fillCandidateIds: z.array(text).max(32).default([]),
+    boundaries: z
+      .array(
+        z
+          .object({
+            candidateId: text,
+            stateKey: text,
+            observationVersion: text,
+            kind: z.literal('max-length'),
+            maximum: z.number().int().min(0).max(256),
+            evidenceRef: text,
+          })
+          .strict(),
+      )
+      .max(32)
+      .default([]),
+    navigation: z
+      .object({
+        action: z.enum(['back', 'refresh']),
+        stateKey: text,
+        expectedState: text,
+        observationVersion: text,
+        evidenceRef: text,
+      })
+      .strict()
+      .optional(),
+    repeatReasons: z.record(z.string(), text).default({}),
+    recovery: z
+      .object({ stateKey: text, consumed: z.number().int().nonnegative(), reason: text })
+      .strict()
+      .optional(),
+  })
+  .strict()
+export type StrategyOptions = z.input<typeof optionsSchema>
 const TEXT_ROLES = new Set(['textbox', 'searchbox', 'combobox', 'spinbutton'])
-
-/** A public constraint is present only when the caller's own context text states one. */
-function statesPublicConstraint(context: string): boolean {
-  return /\d|maximum|minimum|最多|最少|不超过|至少|限|required|必须/.test(context)
-}
-
-export function assessStrategies(facts: PlanningFacts, frontier: Frontier): StrategyAssessment[] {
-  const attemptsHere = frontier.available.filter((entry) => entry.attemptsInCurrentState > 0)
-  const textEntries = frontier.available.filter((entry) => TEXT_ROLES.has(entry.role))
-  const toggles = frontier.available.filter((entry) =>
-    (['expanded', 'selected'] as const).some((key) => entry.publicState[key] === true),
+export function assessStrategies(
+  facts: PlanningFacts,
+  frontier: Frontier,
+  rawOptions: StrategyOptions = {},
+): StrategyAssessment[] {
+  const current = currentStateOf(facts),
+    observation = facts.input.state.observationVersion
+  const fresh = frontier.stateKey === current && frontier.observationVersion === observation
+  const parsed = optionsSchema.safeParse(rawOptions)
+  const options = parsed.success ? parsed.data : optionsSchema.parse({})
+  const b = facts.input.budget
+  const maxActions =
+    b.remainingDecisions > 0 && b.remainingMs > 0 && b.maxRequestMs > 0
+      ? Math.min(STRATEGY_MAX_ACTIONS, b.remainingActions)
+      : 0
+  // Recheck against current facts so a stale frontier cannot resurrect an old candidate.
+  const eligible = frontier.available.flatMap((entry) => {
+    const candidate = facts.input.candidates.find(
+      (c) => c.id === entry.candidateId && c.targetKey === entry.targetKey,
+    )
+    if (
+      entry.targetKey === null ||
+      entry.replayBlocked ||
+      !candidate ||
+      ineligibility(facts, candidate) !== null
+    )
+      return []
+    return [
+      {
+        ...entry,
+        allowedActions: candidate.allowedActions,
+        publicState: candidate.publicState,
+        role: candidate.role,
+      },
+    ]
+  })
+  const attemptEntries = frontier.available.filter((e) => e.attemptsInCurrentState > 0)
+  const repeats = eligible.filter(
+    (e) =>
+      e.attemptsInCurrentState > 0 &&
+      e.attemptsInCurrentState < 2 &&
+      options.repeatReasons[e.candidateId],
   )
-  // Navigation is taken from the OBSERVED effect, never inferred from two state keys differing:
-  // an in-page state change also moves the key without the page ever navigating.
-  const navigated = frontier.paths.some((path) => path.effects.includes('navigated'))
-
-  const base = { steps: [] as StrategyPlanStep[] }
+  const toggles = eligible.filter(
+    (e) =>
+      e.allowedActions.includes('click') &&
+      (e.publicState.expanded === true || e.publicState.selected === true) &&
+      e.attemptsInCurrentState === 0,
+  )
+  const textEntries = eligible.filter(
+    (e) => TEXT_ROLES.has(e.role) && e.attemptsInCurrentState === 0,
+  )
+  const nav = options.navigation
+  const navigationCurrent =
+    nav && nav.stateKey === current && nav.observationVersion === observation
+  const navigationKnown =
+    navigationCurrent &&
+    (nav.action === 'refresh'
+      ? nav.expectedState === current
+      : frontier.paths.some(
+          (p) =>
+            p.postcondition === current &&
+            p.steps.at(-1)?.effects.includes('navigated') &&
+            p.steps.at(-1)?.from === nav.expectedState,
+        ))
+  const navSteps: StrategyPlanStep[] = navigationKnown
+    ? [
+        {
+          targetKey: null,
+          action: nav.action,
+          expectedState: nav.expectedState,
+          evidenceRef: nav.evidenceRef,
+        },
+      ]
+    : []
+  const boundary = options.boundaries.find(
+    (c) =>
+      c.stateKey === current &&
+      c.observationVersion === observation &&
+      options.fillCandidateIds.includes(c.candidateId) &&
+      textEntries.some((e) => e.candidateId === c.candidateId),
+  )
+  const entry = boundary && textEntries.find((e) => e.candidateId === boundary.candidateId)
+  // A max-length test uses a concrete max+1 value from a structured public constraint.
+  const boundarySteps: StrategyPlanStep[] =
+    boundary && entry
+      ? [
+          {
+            targetKey: entry.targetKey!,
+            action: 'fill',
+            value: 'x'.repeat(boundary.maximum + 1),
+            constraintRef: boundary.evidenceRef,
+          },
+        ]
+      : []
+  const make = (
+    strategyId: StrategyId,
+    applicable: boolean,
+    steps: StrategyPlanStep[],
+    requiredMeasurement: string,
+    reason: string,
+    cost = steps.length,
+  ): StrategyAssessment => {
+    const proposable =
+      fresh && parsed.success && applicable && steps.length > 0 && cost <= maxActions
+    return {
+      strategyId,
+      applicable,
+      proposable,
+      reason: !fresh
+        ? 'stale-frontier'
+        : !parsed.success
+          ? 'invalid-strategy-context'
+          : maxActions === 0
+            ? 'budget-exhausted'
+            : reason,
+      plan: { steps: proposable ? steps : [] },
+      maxActions,
+      requiredMeasurement,
+      precondition: current,
+      observationVersion: observation,
+    }
+  }
   return [
-    {
-      strategyId: 'repeat-operation',
-      applicable: attemptsHere.length > 0,
-      proposable: attemptsHere.length > 0,
-      reason:
-        attemptsHere.length > 0
-          ? 'a target was already tried in the current related state'
-          : 'no attempt has started in the current related state',
-      plan: attemptsHere.length
-        ? {
-            steps: attemptsHere.map((entry) => ({
-              targetKey: entry.targetKey!,
-              action: entry.allowedActions[0],
-            })),
-          }
-        : base,
-      maxActions: STRATEGY_MAX_ACTIONS,
-      requiredMeasurement: 'before-and-after',
-    },
-    {
-      strategyId: 'state-switch',
-      applicable: toggles.length > 0,
-      proposable: toggles.length > 0,
-      reason:
-        toggles.length > 0
-          ? 'a control declares an expanded/selected state that can be switched'
-          : 'no control declares a toggle state, so there is nothing to switch',
-      plan: toggles.length
-        ? { steps: toggles.map((entry) => ({ targetKey: entry.targetKey!, action: entry.allowedActions[0] })) }
-        : base,
-      maxActions: STRATEGY_MAX_ACTIONS,
-      requiredMeasurement: 'before-and-after',
-    },
-    {
-      strategyId: 'return-refresh',
-      applicable: navigated,
-      proposable: navigated,
-      reason: navigated
-        ? 'an observed action navigated away from a state we still hold'
-        : 'no observed navigation, so there is nothing to return to',
-      plan: navigated ? { steps: [] } : base,
-      maxActions: STRATEGY_MAX_ACTIONS,
-      requiredMeasurement: 're-observed-postcondition',
-    },
-    {
-      strategyId: 'boundary-input',
-      applicable: textEntries.length > 0,
-      proposable: textEntries.some((entry) => statesPublicConstraint(entry.context)),
-      reason:
-        textEntries.length === 0
-          ? 'no text entry control is available'
-          : textEntries.some((entry) => statesPublicConstraint(entry.context))
-            ? 'a text entry declares a public constraint'
-            : 'text entry present but no public-constraint is declared, so no value may be proposed',
-      plan: textEntries.some((entry) => statesPublicConstraint(entry.context))
-        ? {
-            steps: textEntries
-              .filter((entry) => statesPublicConstraint(entry.context))
-              .map((entry) => ({ targetKey: entry.targetKey!, action: entry.allowedActions[0] })),
-          }
-        : base,
-      maxActions: STRATEGY_MAX_ACTIONS,
-      requiredMeasurement: 'declared-constraint-outcome',
-    },
+    make(
+      'repeat-operation',
+      attemptEntries.length > 0,
+      repeats
+        .slice(0, maxActions)
+        .map((e) => ({ targetKey: e.targetKey!, action: e.allowedActions[0] })),
+      'before-and-after',
+      'requires explicit repeat reason; at most two attempts in this state',
+    ),
+    make(
+      'state-switch',
+      toggles.length > 0,
+      toggles
+        .slice(0, maxActions)
+        .map((e) => ({ targetKey: e.targetKey!, action: 'click' as const })),
+      'before-and-after',
+      'check one bounded subset; remaining candidates stay in the frontier',
+    ),
+    make(
+      'return-refresh',
+      frontier.paths.some((p) => p.effects.includes('navigated')) || !!nav,
+      navSteps,
+      're-observed-postcondition',
+      'requires current navigation context and observed return path',
+    ),
+    make(
+      'boundary-input',
+      textEntries.length > 0,
+      boundarySteps,
+      'declared-constraint-outcome',
+      'requires structured public-constraint and supported fill intent; reserve one action for post-observation',
+      2,
+    ),
+    make(
+      'recovery',
+      !!options.recovery,
+      options.recovery?.stateKey === current && options.recovery.consumed < 1 ? navSteps : [],
+      're-observed-postcondition',
+      'one read-only navigation recovery per stalled state; otherwise hand back',
+    ),
   ]
 }
-
 export type CounterexampleClaim = {
   readonly targetKey: string
   readonly claimedEffect: ActualEffect
-  /** Whether the claimed effect was actually measured. An unmeasured claim is not a defect. */
   readonly verified?: boolean
 }
-
 export type CounterexamplePlan = {
   readonly kind: 'compare-healthy' | 'alternative-sequence' | 'requires-verification'
   readonly steps: readonly StrategyPlanStep[]
   readonly reason: string
   readonly requiredMeasurement: string
 }
-
 export function planCounterexampleInvestigation(
   facts: PlanningFacts,
   claim: CounterexampleClaim,
@@ -146,29 +265,35 @@ export function planCounterexampleInvestigation(
     return {
       kind: 'requires-verification',
       steps: [],
-      reason: 'claimed effect has no measured support and cannot be treated as a defect',
+      reason: 'claim requires measured support',
       requiredMeasurement: 'measured-observation',
     }
-  const alternatives = facts.input.candidates.filter(
-    (candidate) =>
-      candidate.targetKey !== null &&
-      candidate.targetKey !== claim.targetKey &&
-      candidate.role === facts.input.candidates.find((c) => c.targetKey === claim.targetKey)?.role,
-  )
-  if (alternatives.length > 0)
+  const original = facts.input.candidates.find((c) => c.targetKey === claim.targetKey)
+  const b = facts.input.budget
+  const available =
+    original && b.remainingDecisions > 0 && b.remainingMs > 0 && b.maxRequestMs > 0
+      ? facts.input.candidates.filter(
+          (c) =>
+            c.targetKey !== null &&
+            c.targetKey !== claim.targetKey &&
+            c.role === original.role &&
+            ineligibility(facts, c) === null,
+        )
+      : []
+  const steps = available
+    .slice(0, Math.min(STRATEGY_MAX_ACTIONS, b.remainingActions))
+    .map((c) => ({ targetKey: c.targetKey!, action: c.allowedActions[0] }))
+  if (steps.length)
     return {
       kind: 'compare-healthy',
-      steps: alternatives.map((candidate) => ({
-        targetKey: candidate.targetKey!,
-        action: candidate.allowedActions[0],
-      })),
-      reason: 'same-role neighbour is available to compare against a claimed anomaly',
+      steps,
+      reason: 'same-role comparison candidate; health still requires measurement',
       requiredMeasurement: 'comparison-and-healthy-outcome',
     }
   return {
     kind: 'alternative-sequence',
     steps: [],
-    reason: 'no comparable neighbour, so an alternative sequence is required instead',
+    reason: 'handoff: no eligible affordable comparison; agent must plan an alternate path',
     requiredMeasurement: 'alternate-path-outcome',
   }
 }

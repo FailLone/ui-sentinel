@@ -1,195 +1,208 @@
-/**
- * Pure state / path trajectory for the R1 exploration planner.
- *
- * This module is the planner's memory: it turns a caller-supplied event log into the facts a plan
- * is allowed to reason about. Three things are deliberately kept apart and can never be inferred
- * from one another:
- *
- *   visited  - the page/state was observed (we looked at it)
- *   selected - an action was dispatched against a target
- *   verified - an action's post-observation was MEASURED and attached to a checkable item
- *
- * "We opened the page", "we clicked it" and "we proved something about it" are different claims.
- * Only a `settled` event carrying both an `itemId` and an `evidenceRef` reaches `verified`.
- *
- * No browser, model, network, database, environment or file access happens here.
- */
-import type { ActualEffect, Outcome, PublicAction } from '../decisions/exploration/contracts.ts'
-
-export type StateKeyInput = {
-  readonly relatedStateVersion: string
-  readonly viewKey: string
-}
-
-/** Stable, order-independent identity of a related state (version + declared view context). */
-export function stateKeyOf(input: StateKeyInput): string {
-  return `${input.relatedStateVersion}::${input.viewKey}`
-}
-
+/** Pure, run-local projection of executor observations. Never an inspection-ledger writer. */
+import { z } from 'zod'
+import {
+  actualEffects,
+  outcomes,
+  publicActions,
+  type PublicAction,
+} from '../decisions/exploration/contracts.ts'
+const id = z
+  .string()
+  .min(1)
+  .max(256)
+  .refine((s) => s.trim().length > 0)
+export const planningStateSchema = z
+  .object({
+    pageId: id,
+    documentVersion: id,
+    relatedStateVersion: id,
+    viewKey: id,
+  })
+  .strict()
+export type StateKeyInput = z.infer<typeof planningStateSchema>
 export type PlanningStateKey = StateKeyInput
-
-export type TrajectoryEvent =
-  | {
-      readonly kind: 'observed'
-      readonly stateKey: PlanningStateKey
-      readonly candidates: readonly { readonly candidateId: string; readonly targetKey: string }[]
-    }
-  | {
-      readonly kind: 'dispatched'
-      readonly targetKey: string
-      readonly action: PublicAction
-      readonly beforeStateKey: PlanningStateKey
-    }
-  | {
-      readonly kind: 'settled'
-      readonly targetKey: string
-      readonly action: PublicAction
-      readonly beforeStateKey: PlanningStateKey
-      readonly afterStateKey: PlanningStateKey
-      readonly effects: readonly ActualEffect[]
-      readonly outcome: Outcome
-      /** Present only when the post-observation was actually measured. */
-      readonly evidenceRef?: string
-      /** The checkable item this measured post-observation belongs to. */
-      readonly itemId?: string
-    }
-
+export function stateKeyOf(input: StateKeyInput): string {
+  const s = planningStateSchema.parse(input)
+  return JSON.stringify([s.pageId, s.documentVersion, s.relatedStateVersion, s.viewKey])
+}
+export function currentStateOf(facts: {
+  input: { state: Omit<StateKeyInput, 'viewKey'> }
+  view: { viewKey: string }
+}): string {
+  return stateKeyOf({
+    pageId: facts.input.state.pageId,
+    documentVersion: facts.input.state.documentVersion,
+    relatedStateVersion: facts.input.state.relatedStateVersion,
+    viewKey: facts.view.viewKey,
+  })
+}
+/** Recovery/replay limits belong to one branch in one relevant state. */
+export function branchKeyOf(stateKey: string, targetKey: string): string {
+  return JSON.stringify([stateKey, targetKey])
+}
+const common = {
+  attemptId: id,
+  targetKey: id,
+  action: z.enum(publicActions),
+  beforeStateKey: planningStateSchema,
+  itemId: id.optional(),
+}
+const eventSchema = z.discriminatedUnion('kind', [
+  z
+    .object({
+      kind: z.literal('observed'),
+      stateKey: planningStateSchema,
+      candidates: z.array(z.object({ candidateId: id, targetKey: id }).strict()).max(32),
+    })
+    .strict(),
+  z.object({ kind: z.literal('dispatched'), ...common }).strict(),
+  z
+    .object({
+      kind: z.literal('settled'),
+      ...common,
+      afterStateKey: planningStateSchema,
+      effects: z.array(z.enum(actualEffects)).max(3),
+      outcome: z.enum(outcomes),
+      evidenceRef: id.optional(),
+    })
+    .strict(),
+])
+export type TrajectoryEvent = z.infer<typeof eventSchema>
 export type TrajectoryAttempt = {
+  readonly attemptId: string
   readonly targetKey: string
   readonly action: PublicAction
+  readonly dispatchedIndex: number
+  readonly settledIndex: number | null
   readonly beforeState: string
   readonly afterState: string | null
-  readonly outcome: Outcome | null
-  readonly effects: readonly ActualEffect[]
+  readonly outcome: 'observed' | 'failed' | 'unknown' | null
+  readonly effects: readonly ('expanded' | 'content-changed' | 'navigated')[]
   readonly selected: true
   readonly verified: boolean
+  readonly itemId: string | null
+  readonly evidenceRef: string | null
 }
-
 export type TrajectoryTransition = {
+  readonly attemptId: string
   readonly from: string
   readonly to: string
   readonly targetKey: string
   readonly action: PublicAction
-  readonly effects: readonly ActualEffect[]
+  readonly effects: TrajectoryAttempt['effects']
 }
-
 export type Trajectory = {
   readonly visitedStates: readonly string[]
-  /** Candidates seen per state, so an unvisited branch can be named rather than forgotten. */
   readonly observations: ReadonlyMap<string, readonly string[]>
-  /** targetKey -> the set of state keys it has been observed in. */
   readonly observedTargets: ReadonlyMap<string, ReadonlySet<string>>
   readonly attempts: readonly TrajectoryAttempt[]
   readonly transitions: readonly TrajectoryTransition[]
   readonly verifiedItems: readonly string[]
+  readonly rejectedEvents: readonly { index: number; reason: string }[]
   attemptsInState(targetKey: string, stateKey: string): number
 }
-
-type Mutable = {
-  visited: string[]
-  observations: Map<string, string[]>
-  observedTargets: Map<string, Set<string>>
-  attempts: TrajectoryAttempt[]
-  transitions: TrajectoryTransition[]
-  verified: string[]
-}
-
-/**
- * Fold an event log into a trajectory. The input is never mutated; a new value is returned.
- * An attempt's outcome is attributed to the state it *started* in: a candidate can be untried in a
- * state that was reached later, and a changed state therefore re-opens a target for checking.
- */
-export function reduceTrajectory(events: readonly TrajectoryEvent[]): Trajectory {
-  const acc: Mutable = {
-    visited: [],
-    observations: new Map(),
-    observedTargets: new Map(),
-    attempts: [],
-    transitions: [],
-    verified: [],
-  }
-
-  for (const event of events) {
-    if (event.kind === 'observed') {
-      const stateKey = stateKeyOf(event.stateKey)
-      if (!acc.visited.includes(stateKey)) acc.visited.push(stateKey)
-      const previous = acc.observations.get(stateKey) ?? []
-      acc.observations.set(stateKey, [
-        ...previous,
-        ...event.candidates
-          .map((c) => c.candidateId)
-          .filter((id) => !previous.includes(id)),
+/** Match a unique dispatch and declared check item. Invalid or late receipts are diagnostics.
+ * Unknown/failed outcomes stay visible but cannot establish successful paths/verification. */
+export function reduceTrajectory(events: readonly unknown[]): Trajectory {
+  const visited = new Set<string>(),
+    observations = new Map<string, string[]>()
+  const observedTargets = new Map<string, Set<string>>()
+  const attempts: TrajectoryAttempt[] = [],
+    transitions: TrajectoryTransition[] = []
+  const rejectedEvents: { index: number; reason: string }[] = []
+  for (const [index, raw] of events.entries()) {
+    const parsed = eventSchema.safeParse(raw)
+    const reject = (reason: string) => rejectedEvents.push({ index, reason })
+    if (!parsed.success) {
+      reject('invalid-event')
+      continue
+    }
+    const e = parsed.data
+    if (e.kind === 'observed') {
+      const key = stateKeyOf(e.stateKey)
+      visited.add(key)
+      observations.set(key, [
+        ...new Set([...(observations.get(key) ?? []), ...e.candidates.map((c) => c.candidateId)]),
       ])
-      for (const candidate of event.candidates) {
-        const seen = acc.observedTargets.get(candidate.targetKey) ?? new Set<string>()
-        seen.add(stateKey)
-        acc.observedTargets.set(candidate.targetKey, seen)
+      for (const c of e.candidates) {
+        const seen = observedTargets.get(c.targetKey) ?? new Set<string>()
+        seen.add(key)
+        observedTargets.set(c.targetKey, seen)
       }
       continue
     }
-    if (event.kind === 'dispatched') {
-      acc.attempts.push({
-        targetKey: event.targetKey,
-        action: event.action,
-        beforeState: stateKeyOf(event.beforeStateKey),
+    const before = stateKeyOf(e.beforeStateKey)
+    const n = attempts.findIndex((a) => a.attemptId === e.attemptId)
+    if (e.kind === 'dispatched') {
+      if (n !== -1) {
+        reject('duplicate-dispatch')
+        continue
+      }
+      attempts.push({
+        attemptId: e.attemptId,
+        targetKey: e.targetKey,
+        action: e.action,
+        dispatchedIndex: index,
+        settledIndex: null,
+        beforeState: before,
         afterState: null,
         outcome: null,
         effects: [],
         selected: true,
         verified: false,
+        itemId: e.itemId ?? null,
+        evidenceRef: null,
       })
       continue
     }
-    // settled: close the most recent matching open attempt.
-    const open = [...acc.attempts]
-      .reverse()
-      .find(
-        (a) =>
-          a.targetKey === event.targetKey &&
-          a.action === event.action &&
-          a.beforeState === stateKeyOf(event.beforeStateKey) &&
-          a.outcome === null,
-      )
-    const from = stateKeyOf(event.beforeStateKey)
-    const to = stateKeyOf(event.afterStateKey)
-    const measured = event.outcome === 'observed' && Boolean(event.evidenceRef) && Boolean(event.itemId)
-    acc.attempts = acc.attempts.map((a) =>
-      a === open
-        ? {
-            ...a,
-            afterState: to,
-            outcome: event.outcome,
-            effects: [...event.effects],
-            verified: measured,
-          }
-        : a,
-    )
-    acc.transitions.push({
-      from,
-      to,
-      targetKey: event.targetKey,
-      action: event.action,
-      effects: [...event.effects],
-    })
-    if (measured && event.itemId && !acc.verified.includes(event.itemId))
-      acc.verified.push(event.itemId)
+    const a = attempts[n]
+    if (
+      !a ||
+      a.outcome !== null ||
+      a.targetKey !== e.targetKey ||
+      a.action !== e.action ||
+      a.beforeState !== before ||
+      a.itemId !== (e.itemId ?? null)
+    ) {
+      reject('unmatched-or-closed-settlement')
+      continue
+    }
+    const after = stateKeyOf(e.afterStateKey)
+    const verified = e.outcome === 'observed' && a.itemId !== null && !!e.evidenceRef
+    attempts[n] = {
+      ...a,
+      settledIndex: index,
+      afterState: after,
+      outcome: e.outcome,
+      effects: [...e.effects],
+      verified,
+      evidenceRef: e.evidenceRef ?? null,
+    }
+    if (e.outcome === 'observed')
+      transitions.push({
+        attemptId: e.attemptId,
+        from: before,
+        to: after,
+        targetKey: e.targetKey,
+        action: e.action,
+        effects: [...e.effects],
+      })
   }
-
-  const attempts = acc.attempts
   return {
-    visitedStates: [...acc.visited],
-    observations: new Map(acc.observations),
-    observedTargets: new Map(acc.observedTargets),
+    visitedStates: [...visited],
+    observations,
+    observedTargets,
     attempts,
-    transitions: acc.transitions,
-    verifiedItems: acc.verified,
-    /**
-     * Attempts that STARTED in `stateKey` and actually completed. An `unknown` outcome is not a
-     * completed attempt, matching the ranking module's attribution rule.
-     */
-    attemptsInState(targetKey: string, stateKey: string): number {
+    transitions,
+    rejectedEvents,
+    verifiedItems: [...new Set(attempts.filter((a) => a.verified).map((a) => a.itemId!))],
+    attemptsInState(targetKey, stateKey) {
       return attempts.filter(
-        (a) => a.targetKey === targetKey && a.beforeState === stateKey && a.outcome !== null && a.outcome !== 'unknown',
+        (a) =>
+          a.targetKey === targetKey &&
+          a.beforeState === stateKey &&
+          a.outcome !== null &&
+          a.outcome !== 'unknown',
       ).length
     },
   }

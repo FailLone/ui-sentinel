@@ -58,14 +58,24 @@ describe('normalizeFacts', () => {
   it('reports the declared view context without granting any authority', () => {
     const result = normalizeFacts(
       raw({
-        view: { kind: 'declared', roleLabel: 'admin', source: 'page-banner', viewKey: 'decl-admin' },
+        view: {
+          kind: 'declared',
+          roleLabel: 'admin',
+          source: 'page-banner',
+          viewKey: 'decl-admin',
+        },
       }),
     )
     expect(result.ok).toBe(true)
     if (!result.ok) return
     expect(result.value.view.roleLabel).toBe('admin')
     // The normalized view exposes exactly these facts: no permission or authority field exists.
-    expect(Object.keys(result.value.view).sort()).toEqual(['kind', 'roleLabel', 'source', 'viewKey'])
+    expect(Object.keys(result.value.view).sort()).toEqual([
+      'kind',
+      'roleLabel',
+      'source',
+      'viewKey',
+    ])
   })
 
   it('rejects a candidate whose observation version is not the current observation', () => {

@@ -12,13 +12,9 @@
  *  - QUESTIONS DO NOT CARRY A DOCUMENTED TOKEN COUNT. No source maps "N questions + state" to
  *    billed input tokens. The bound therefore conservatively assumes the request uses its ENTIRE
  *    context cap, which is the largest input the model can accept at all.
- *  - the cap itself is enforced on our side: `compile.ts` refuses a wire over the byte ceiling and
- *    `profile.maxQuestions` caps the question count, so an oversize request is rejected locally
- *    rather than sent.
- *
- * RESIDUAL UNKNOWN, recorded honestly: whether a request that exceeds the context cap is rejected
- * and whether such a request is billed is NOT documented. This bound is a spend ceiling only if
- * the client keeps every request inside the cap, which the local byte ceiling is designed to do.
+ *  - wire bytes do not prove provider token counts. This function is conditional arithmetic,
+ *    NOT proof of a hard reservation for accepted, failed, cancelled or oversized requests.
+ *    It must not by itself set billingBoundVerified=true.
  *
  * This module contacts nothing and reads no credential.
  */
@@ -51,6 +47,7 @@ export const JEV_PRICE_2026_10_07: PriceFact = {
 }
 
 export type CostBound = {
+  readonly verified: false
   readonly requests: number
   readonly perRequestUsd: number
   readonly batchUsd: number
@@ -74,10 +71,14 @@ export function worstCaseCostBound(
     throw new Error('invalid-price-fact')
   if (!Number.isInteger(requests) || requests <= 0) throw new Error('invalid-request-count')
 
+  if (price.outputUsdPerToken !== 0) throw new Error('unsupported-output-price')
+  if (!finiteNonNegative(ceilingUsd)) throw new Error('invalid-ceiling')
+
   // Output is free, so the worst case is pure input at the full context cap.
   const perRequestUsd = price.contextTokens * price.inputUsdPerToken
   const batchUsd = perRequestUsd * requests
   return {
+    verified: false,
     requests,
     perRequestUsd,
     batchUsd,
@@ -87,8 +88,8 @@ export function worstCaseCostBound(
       `worst-case input uses the full ${price.contextTokens}-token context length`,
       'output tokens are free, so they add nothing to the bound',
       'the rate is the model page Input Price SKU, not an average of observed calls',
-      'no additional per-request or non-token fee SKU exists for this model',
-      'an over-cap request is NOT documented as capped or free; the client rejects oversize payloads at its own byte ceiling before sending',
+      'additional or failure-path charges have not been independently bounded',
+      'provider token accounting and over-cap/failure billing require separate evidence; local bytes are not tokens',
     ],
     source: price.source,
     checkedAt: price.checkedAt,

@@ -4,7 +4,12 @@ import { buildFrontier } from './frontier.ts'
 import { reduceTrajectory, type TrajectoryEvent } from './trajectory.ts'
 import { normalizeFacts, type PlanningFactsDraft } from './facts.ts'
 
-const stateKey = { relatedStateVersion: 'state-1', viewKey: 'anon' }
+const stateKey = {
+  pageId: 'p0',
+  documentVersion: 'doc-1',
+  relatedStateVersion: 'state-1',
+  viewKey: 'anon',
+}
 
 function raw(overrides: Partial<PlanningFactsDraft> = {}): PlanningFactsDraft {
   return {
@@ -70,22 +75,46 @@ function facts(overrides: Partial<PlanningFactsDraft> = {}) {
 const assessed = (f: ReturnType<typeof facts>, events: TrajectoryEvent[]) =>
   assessStrategies(f, buildFrontier(f, reduceTrajectory(events)))
 
-const byId = (list: ReturnType<typeof assessed>, id: string) => list.find((s) => s.strategyId === id)!
+const byId = (list: ReturnType<typeof assessed>, id: string) =>
+  list.find((s) => s.strategyId === id)!
 
-const observed = (relatedStateVersion: string, candidates: { candidateId: string; targetKey: string }[]) =>
-  ({ kind: 'observed', stateKey: { ...stateKey, relatedStateVersion }, candidates }) as TrajectoryEvent
+const observed = (
+  relatedStateVersion: string,
+  candidates: { candidateId: string; targetKey: string }[],
+) =>
+  ({
+    kind: 'observed',
+    stateKey: { ...stateKey, relatedStateVersion },
+    candidates,
+  }) as TrajectoryEvent
 
-const probe = (relatedStateVersion: string, targetKey: string, action: 'click' | 'inspect' = 'click') =>
-  ({ kind: 'dispatched', targetKey, action, beforeStateKey: { ...stateKey, relatedStateVersion } }) as TrajectoryEvent
+const probe = (
+  relatedStateVersion: string,
+  targetKey: string,
+  action: 'click' | 'inspect' = 'click',
+) =>
+  ({
+    kind: 'dispatched',
+    attemptId: 'a1',
+    targetKey,
+    action,
+    beforeStateKey: { ...stateKey, relatedStateVersion },
+  }) as TrajectoryEvent
 
 /** An observed navigation genuinely moves a path's precondition away from its postcondition. */
 const navigatedTo = (relatedStateVersion: string, targetKey: string) =>
   ({
     kind: 'settled',
+    attemptId: 'a1',
     targetKey,
     action: 'click',
     beforeStateKey: { ...stateKey, relatedStateVersion },
-    afterStateKey: { relatedStateVersion: 'state-2', viewKey: 'anon' },
+    afterStateKey: {
+      pageId: 'p0',
+      documentVersion: 'doc-1',
+      relatedStateVersion: 'state-2',
+      viewKey: 'anon',
+    },
     effects: ['navigated'],
     outcome: 'observed',
   }) as TrajectoryEvent
@@ -99,6 +128,7 @@ const settled = (
 ) =>
   ({
     kind: 'settled',
+    attemptId: 'a1',
     targetKey,
     action,
     beforeStateKey: { ...stateKey, relatedStateVersion },
@@ -112,6 +142,7 @@ describe('assessStrategies — applicability is declared, never assumed', () => 
     const list = assessed(facts(), [observed('state-1', [])])
     expect(list.map((s) => s.strategyId).sort()).toEqual([
       'boundary-input',
+      'recovery',
       'repeat-operation',
       'return-refresh',
       'state-switch',
@@ -120,7 +151,9 @@ describe('assessStrategies — applicability is declared, never assumed', () => 
   })
 
   it('does not apply the repeat-operation strategy before anything has been tried', () => {
-    const list = assessed(facts(), [observed('state-1', [{ candidateId: 'c1', targetKey: 'node-1' }])])
+    const list = assessed(facts(), [
+      observed('state-1', [{ candidateId: 'c1', targetKey: 'node-1' }]),
+    ])
     expect(byId(list, 'repeat-operation').applicable).toBe(false)
   })
 
@@ -132,21 +165,30 @@ describe('assessStrategies — applicability is declared, never assumed', () => 
     ])
     const s = byId(list, 'repeat-operation')
     expect(s.applicable).toBe(true)
-    expect(s.plan.steps).toEqual([{ targetKey: 'node-1', action: 'click' }])
+    expect(s.proposable).toBe(false) // no measured item or explicit repeat reason
     expect(s.requiredMeasurement).toContain('before-and-after')
   })
 
   it('applies state-switch only for a control with a declared toggle state', () => {
     const toggling = raw()
     toggling.candidates = [
-      { ...toggling.candidates[0], publicState: { visible: true, enabled: true, expanded: true, selected: null } },
+      {
+        ...toggling.candidates[0],
+        publicState: { visible: true, enabled: true, expanded: true, selected: null },
+      },
     ]
     expect(
-      assessed(facts({ candidates: toggling.candidates, scope: { revision: 'scope-1', executableCandidateIds: ['c1'] } }), [
-        observed('state-1', []),
-      ]).find((s) => s.strategyId === 'state-switch')?.applicable,
+      assessed(
+        facts({
+          candidates: toggling.candidates,
+          scope: { revision: 'scope-1', executableCandidateIds: ['c1'] },
+        }),
+        [observed('state-1', [])],
+      ).find((s) => s.strategyId === 'state-switch')?.applicable,
     ).toBe(true)
-    expect(byId(assessed(facts(), [observed('state-1', [])]), 'state-switch').applicable).toBe(false)
+    expect(byId(assessed(facts(), [observed('state-1', [])]), 'state-switch').applicable).toBe(
+      false,
+    )
   })
 
   it('applies return-refresh when an observed navigation moved off a state we still hold', () => {
@@ -165,10 +207,16 @@ describe('assessStrategies — applicability is declared, never assumed', () => 
       // The related state moves (state-1 -> state-2) but nothing navigated.
       {
         kind: 'settled',
+        attemptId: 'a1',
         targetKey: 'node-1',
         action: 'click',
         beforeStateKey: stateKey,
-        afterStateKey: { relatedStateVersion: 'state-2', viewKey: 'anon' },
+        afterStateKey: {
+          pageId: 'p0',
+          documentVersion: 'doc-1',
+          relatedStateVersion: 'state-2',
+          viewKey: 'anon',
+        },
         effects: ['expanded'],
         outcome: 'observed',
       } as TrajectoryEvent,
@@ -190,10 +238,16 @@ describe('assessStrategies — applicability is declared, never assumed', () => 
     box.candidates = [{ ...box.candidates[0], role: 'textbox' }]
     box.scope = { revision: 'scope-1', executableCandidateIds: ['c1'] }
     expect(
-      byId(assessed(facts({ candidates: box.candidates, scope: box.scope }), [observed('state-1', [])]), 'boundary-input')
-        .applicable,
+      byId(
+        assessed(facts({ candidates: box.candidates, scope: box.scope }), [
+          observed('state-1', []),
+        ]),
+        'boundary-input',
+      ).applicable,
     ).toBe(true)
-    expect(byId(assessed(facts(), [observed('state-1', [])]), 'boundary-input').applicable).toBe(false)
+    expect(byId(assessed(facts(), [observed('state-1', [])]), 'boundary-input').applicable).toBe(
+      false,
+    )
   })
 
   it('marks boundary-input as needing a public constraint before it may propose a value', () => {
@@ -217,8 +271,8 @@ describe('assessStrategies — applicability is declared, never assumed', () => 
       assessed(facts({ candidates: box.candidates, scope: box.scope }), [observed('state-1', [])]),
       'boundary-input',
     )
-    expect(s.proposable).toBe(true)
-    expect(s.plan.steps.length).toBeGreaterThan(0)
+    expect(s.proposable).toBe(false)
+    expect(s.plan.steps).toEqual([])
   })
 
   it('declares a maximum action count for every applicable strategy', () => {
@@ -252,17 +306,26 @@ describe('planCounterexampleInvestigation', () => {
   })
 
   it('proposes an alternative sequence when no healthy neighbour exists', () => {
-    const plan = planCounterexampleInvestigation(facts({ scope: { revision: 'scope-1', executableCandidateIds: [] }, candidates: [] }), {
-      targetKey: 'node-1',
-      claimedEffect: 'navigated',
-      verified: true,
-    })
+    const plan = planCounterexampleInvestigation(
+      facts({ scope: { revision: 'scope-1', executableCandidateIds: [] }, candidates: [] }),
+      {
+        targetKey: 'node-1',
+        claimedEffect: 'navigated',
+        verified: true,
+      },
+    )
     expect(plan.kind).toBe('alternative-sequence')
   })
 
   it('is deterministic for identical inputs', () => {
-    const a = planCounterexampleInvestigation(facts(), { targetKey: 'node-1', claimedEffect: 'expanded' })
-    const b = planCounterexampleInvestigation(facts(), { targetKey: 'node-1', claimedEffect: 'expanded' })
+    const a = planCounterexampleInvestigation(facts(), {
+      targetKey: 'node-1',
+      claimedEffect: 'expanded',
+    })
+    const b = planCounterexampleInvestigation(facts(), {
+      targetKey: 'node-1',
+      claimedEffect: 'expanded',
+    })
     expect(JSON.stringify(a)).toEqual(JSON.stringify(b))
   })
 })

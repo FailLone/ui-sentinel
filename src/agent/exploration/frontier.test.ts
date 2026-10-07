@@ -89,8 +89,15 @@ function facts(overrides: Partial<PlanningFactsDraft> = {}) {
   return result.value
 }
 
-const stateKey = { relatedStateVersion: 'state-1', viewKey: 'anon' }
-const observedHere = (candidates: { candidateId: string; targetKey: string }[]): TrajectoryEvent => ({
+const stateKey = {
+  pageId: 'p0',
+  documentVersion: 'doc-1',
+  relatedStateVersion: 'state-1',
+  viewKey: 'anon',
+}
+const observedHere = (
+  candidates: { candidateId: string; targetKey: string }[],
+): TrajectoryEvent => ({
   kind: 'observed',
   stateKey,
   candidates,
@@ -122,9 +129,16 @@ describe('buildFrontier', () => {
       facts(),
       reduceTrajectory([
         observedHere([{ candidateId: 'c1', targetKey: 'node-1' }]),
-        { kind: 'dispatched', targetKey: 'node-1', action: 'click', beforeStateKey: stateKey },
+        {
+          kind: 'dispatched',
+          attemptId: 'a1',
+          targetKey: 'node-1',
+          action: 'click',
+          beforeStateKey: stateKey,
+        },
         {
           kind: 'settled',
+          attemptId: 'a1',
           targetKey: 'node-1',
           action: 'click',
           beforeStateKey: stateKey,
@@ -146,21 +160,48 @@ describe('buildFrontier', () => {
         // node-9 was seen on a different related state and never checked here.
         {
           kind: 'observed',
-          stateKey: { relatedStateVersion: 'state-9', viewKey: 'anon' },
+          stateKey: {
+            pageId: 'p0',
+            documentVersion: 'doc-1',
+            relatedStateVersion: 'state-9',
+            viewKey: 'anon',
+          },
           candidates: [{ candidateId: 'c9', targetKey: 'node-9' }],
         },
       ]),
     )
     expect(f.unexploredBranches.map((b) => b.targetKey)).toContain('node-9')
     expect(f.unexploredBranches.find((b) => b.targetKey === 'node-9')?.seenInStates).toEqual([
-      'state-9::anon',
+      JSON.stringify(['p0', 'doc-1', 'state-9', 'anon']),
     ])
   })
 
   it('does not list a target as an unexplored branch in the state where it was already handled', () => {
     const f = buildFrontier(
       facts(),
-      reduceTrajectory([observedHere([{ candidateId: 'c1', targetKey: 'node-1' }])]),
+      reduceTrajectory([
+        observedHere([{ candidateId: 'c1', targetKey: 'node-1' }]),
+        {
+          kind: 'dispatched',
+          attemptId: 'measured',
+          targetKey: 'node-1',
+          action: 'click',
+          beforeStateKey: stateKey,
+          itemId: 'item-1',
+        },
+        {
+          kind: 'settled',
+          attemptId: 'measured',
+          targetKey: 'node-1',
+          action: 'click',
+          beforeStateKey: stateKey,
+          afterStateKey: stateKey,
+          itemId: 'item-1',
+          evidenceRef: 'evidence/measurement.json',
+          outcome: 'observed',
+          effects: [],
+        },
+      ]),
     )
     expect(f.unexploredBranches.map((b) => b.targetKey)).not.toContain('node-1')
   })
@@ -170,22 +211,36 @@ describe('buildFrontier', () => {
       facts(),
       reduceTrajectory([
         observedHere([{ candidateId: 'c1', targetKey: 'node-1' }]),
-        { kind: 'dispatched', targetKey: 'node-1', action: 'click', beforeStateKey: stateKey },
         {
-          kind: 'settled',
+          kind: 'dispatched',
+          attemptId: 'a1',
           targetKey: 'node-1',
           action: 'click',
           beforeStateKey: stateKey,
-          afterStateKey: { relatedStateVersion: 'state-2', viewKey: 'anon' },
+        },
+        {
+          kind: 'settled',
+          attemptId: 'a1',
+          targetKey: 'node-1',
+          action: 'click',
+          beforeStateKey: stateKey,
+          afterStateKey: {
+            pageId: 'p0',
+            documentVersion: 'doc-1',
+            relatedStateVersion: 'state-2',
+            viewKey: 'anon',
+          },
           effects: ['expanded'],
           outcome: 'observed',
         },
       ]),
     )
     expect(f.paths).toHaveLength(1)
-    expect(f.paths[0].steps).toEqual([{ targetKey: 'node-1', action: 'click' }])
-    expect(f.paths[0].precondition).toBe('state-1::anon')
-    expect(f.paths[0].postcondition).toBe('state-2::anon')
+    expect(f.paths[0].steps).toMatchObject([
+      { targetKey: 'node-1', action: 'click', attemptId: 'a1' },
+    ])
+    expect(f.paths[0].precondition).toBe(JSON.stringify(['p0', 'doc-1', 'state-1', 'anon']))
+    expect(f.paths[0].postcondition).toBe(JSON.stringify(['p0', 'doc-1', 'state-2', 'anon']))
   })
 
   it('retains every candidate in the retained queue so none disappears permanently', () => {
@@ -193,9 +248,9 @@ describe('buildFrontier', () => {
     expect(f.retained.map((r) => r.candidateId).sort()).toEqual(['c1', 'c2', 'c3', 'c4'])
   })
 
-  it('flags a continuous-step opportunity only from an available, untried entry', () => {
+  it('does not invent a continuous-step predecessor from a mere observation', () => {
     const f = buildFrontier(facts(), reduceTrajectory([observedHere([])]))
-    expect(f.continuousOpportunity).toEqual({ targetKey: 'node-1', action: 'click' })
+    expect(f.continuousOpportunity).toBeNull()
   })
 
   it('drops the continuous-step opportunity once the only untried entry is used up', () => {
@@ -206,9 +261,16 @@ describe('buildFrontier', () => {
       }),
       reduceTrajectory([
         observedHere([{ candidateId: 'c1', targetKey: 'node-1' }]),
-        { kind: 'dispatched', targetKey: 'node-1', action: 'click', beforeStateKey: stateKey },
+        {
+          kind: 'dispatched',
+          attemptId: 'a1',
+          targetKey: 'node-1',
+          action: 'click',
+          beforeStateKey: stateKey,
+        },
         {
           kind: 'settled',
+          attemptId: 'a1',
           targetKey: 'node-1',
           action: 'click',
           beforeStateKey: stateKey,

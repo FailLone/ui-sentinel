@@ -1,47 +1,40 @@
-/**
- * Bounded, explainable exploration scheduling for R1.
- *
- * The scheduler chooses what to check next, or hands the work back. It PROPOSES ONLY:
- *
- *   - it never operates a browser and never dispatches an action;
- *   - it never grants permission, so a caller must re-authorize every proposal;
- *   - it never writes `verified`, never marks a task finished and never declares a defect;
- *   - it never decides the action from a model. Model scores may arrive later as an optional
- *     ordering hint, but they can only reorder the program's own eligible queue — they can never
- *     add a candidate, override scope, bypass budget, or promote a target whose recovery is spent.
- *
- * Ordering reuses the committed `r1-exploration-policy-2` comparator in `ranking.ts` rather than
- * introducing a second scorer, so planning and scoring cannot drift apart.
- *
- * Risk is one priority input among several. Duplicate control, coverage gap and the remaining
- * budget all constrain the choice, and an untried candidate always outranks a repeat.
- */
+/** Versioned pure proposal. The executor remains the sole authority for actions and budgets. */
+import { z } from 'zod'
 import { rankCandidates, type FairnessState } from '../decisions/exploration/ranking.ts'
 import type { PublicAction } from '../decisions/exploration/contracts.ts'
 import type { PlanningFacts } from './facts.ts'
-import { buildFrontier, type Frontier, type FrontierCandidate } from './frontier.ts'
-import type { Trajectory } from './trajectory.ts'
-
-/** One active recovery scheme per stalled branch. Reaching the cap stops recovery, it does not extend it. */
+import { buildFrontier, type Frontier } from './frontier.ts'
+import {
+  branchKeyOf,
+  currentStateOf,
+  stateKeyOf,
+  type PlanningStateKey,
+  type Trajectory,
+} from './trajectory.ts'
+export const PLAN_VERSION = 'r1-exploration-plan-2'
 export const RECOVERY_CAP = 1
-
+export const MAX_ATTEMPTS_PER_STATE = 2
 export type RiskHint = {
   readonly targetKey: string
   readonly basis: string
   readonly source: string
 }
-
 export type PlanRequest = {
   readonly facts: PlanningFacts
   readonly trajectory: Trajectory
-  /** How many recovery schemes this target has already consumed. */
+  /** Keys MUST use branchKeyOf(currentStateOf(facts), targetKey). */
   readonly recovery?: Readonly<Record<string, number>>
-  /** Caller-declared risk hints. Only ever raises priority, never adds a candidate or grants scope. */
+  /** Explicit, caller-declared reason for one additional measured repeat. Never authorization. */
+  readonly repeatReasons?: Readonly<Record<string, string>>
   readonly risk?: readonly RiskHint[]
-  /** Program-owned fairness rotation state. */
   readonly fairness?: FairnessState
+  /** Read-only inspection-host checklist projection; absent means coverage universe unknown. */
+  readonly checks?: readonly {
+    readonly itemId: string
+    readonly targetKey: string
+    readonly stateKey: PlanningStateKey
+  }[]
 }
-
 export type PlanBasis = {
   readonly coverageGap: boolean
   readonly duplicateObservation: boolean
@@ -50,195 +43,254 @@ export type PlanBasis = {
   readonly continuousStep: boolean
   readonly precondition: string
   readonly policyVersion: string
+  readonly repeatReason: string | null
 }
-
 export type ActPlan = {
+  readonly version: typeof PLAN_VERSION
   readonly kind: 'act'
+  readonly binding: {
+    requestId: string
+    observationVersion: string
+    scopeRevision: string
+    budgetRevision: string
+    taskRevision: string
+  }
   readonly targetKey: string
   readonly candidateId: string
   readonly action: PublicAction
   readonly basis: PlanBasis
 }
-
 export type HandoffReason =
   | 'insufficient-information'
   | 'budget-exhausted'
   | 'unrecoverable'
   | 'requires-agent-investigation'
-
 export type HandoffPlan = {
+  readonly version: typeof PLAN_VERSION
   readonly kind: 'handoff'
   readonly handoff: {
     readonly reason: HandoffReason
     readonly detail: string
-    readonly executedActions: readonly { readonly targetKey: string; readonly action: PublicAction }[]
+    readonly executedActions: readonly {
+      attemptId: string
+      targetKey: string
+      action: PublicAction
+    }[]
     readonly unverifiedItems: readonly string[]
+    readonly uncheckedCandidates: readonly string[]
     readonly continuableCandidates: readonly string[]
-    /** Targets whose effect was never measured. Blind replay of these is never proposed. */
     readonly forbiddenReplays: readonly string[]
-    readonly remainingBudget: {
-      readonly decisions: number
-      readonly actions: number
-      readonly ms: number
-    }
+    readonly remainingBudget: { decisions: number; actions: number; ms: number }
     readonly coverage: {
-      readonly visitedStates: number
-      readonly observedTargets: number
-      readonly verifiedItems: number
+      visitedStates: number
+      observedTargets: number
+      verifiedItems: number
+      checklistKnown: boolean
     }
     readonly evidenceRefs: readonly string[]
   }
 }
-
 export type Plan = ActPlan | HandoffPlan
-
-type Budget = PlanningFacts['input']['budget']
-
-function exhausted(budget: Budget): boolean {
-  return (
-    budget.remainingDecisions <= 0 ||
-    budget.remainingActions <= 0 ||
-    budget.remainingMs <= 0 ||
-    budget.maxRequestMs <= 0
+const recoverySchema = z.record(z.string(), z.number().int().nonnegative())
+function unresolved(request: PlanRequest, targetKey: string) {
+  return request.trajectory.attempts.some(
+    (a) => a.targetKey === targetKey && (a.outcome === null || a.outcome === 'unknown'),
   )
 }
-
-function coverageOf(trajectory: Trajectory) {
-  return {
-    visitedStates: trajectory.visitedStates.length,
-    observedTargets: trajectory.observedTargets.size,
-    verifiedItems: trajectory.verifiedItems.length,
-  }
+function selectable(request: PlanRequest, targetKey: string, current: string) {
+  const key = branchKeyOf(current, targetKey)
+  if (unresolved(request, targetKey) || (request.recovery?.[key] ?? 0) >= RECOVERY_CAP) return false
+  const attempts = request.trajectory.attempts.filter(
+    (a) => a.targetKey === targetKey && a.beforeState === current,
+  )
+  if (!attempts.length) return true
+  // A failed or unmeasured action cannot become a repeat merely through a priority hint.
+  return (
+    attempts.length < MAX_ATTEMPTS_PER_STATE &&
+    attempts.every((a) => a.verified) &&
+    !!request.repeatReasons?.[key]?.trim()
+  )
 }
-
-/** Every exit the caller may still take, in a stable order, so a handoff is actionable. */
-function continuable(frontier: Frontier, trajectory: Trajectory, currentState: string): string[] {
-  return frontier.retained
-    .filter(
-      (entry) =>
-        entry.targetKey !== null &&
-        trajectory.attemptsInState(entry.targetKey, currentState) === 0,
-    )
-    .map((entry) => entry.candidateId)
-    .sort()
-}
-
 function handoff(
   request: PlanRequest,
   frontier: Frontier,
-  currentState: string,
+  current: string,
   reason: HandoffReason,
   detail: string,
 ): HandoffPlan {
-  const measured = request.trajectory.attempts.filter((a) => a.verified && a.targetKey)
-  const unmeasured = request.trajectory.attempts.filter((a) => !a.verified && a.targetKey)
+  const attempts = request.trajectory.attempts
+  const unverified = new Set(attempts.filter((a) => !a.verified && a.itemId).map((a) => a.itemId!))
+  for (const c of request.checks ?? []) {
+    if (
+      !attempts.some(
+        (a) =>
+          a.verified &&
+          a.itemId === c.itemId &&
+          a.targetKey === c.targetKey &&
+          a.beforeState === stateKeyOf(c.stateKey),
+      )
+    )
+      unverified.add(c.itemId)
+  }
   return {
+    version: PLAN_VERSION,
     kind: 'handoff',
     handoff: {
       reason,
       detail,
-      executedActions: request.trajectory.attempts.map((a) => ({
+      executedActions: attempts.map((a) => ({
+        attemptId: a.attemptId,
         targetKey: a.targetKey,
         action: a.action,
       })),
-      unverifiedItems: unmeasured.map((a) => a.targetKey),
-      continuableCandidates: continuable(frontier, request.trajectory, currentState),
-      // An action whose effect was never measured must not be blindly replayed by whoever continues.
-      forbiddenReplays: [...new Set(unmeasured.map((a) => a.targetKey))].sort(),
+      unverifiedItems: [...unverified].sort(),
+      uncheckedCandidates: frontier.retained
+        .filter(
+          (c) =>
+            !attempts.some(
+              (a) => a.verified && a.targetKey === c.targetKey && a.beforeState === current,
+            ),
+        )
+        .map((c) => c.candidateId)
+        .sort(),
+      continuableCandidates: frontier.available
+        .filter((c) => c.targetKey && selectable(request, c.targetKey, current))
+        .map((c) => c.candidateId)
+        .sort(),
+      forbiddenReplays: [
+        ...new Set(attempts.filter((a) => !a.verified).map((a) => a.targetKey)),
+      ].sort(),
       remainingBudget: {
         decisions: request.facts.input.budget.remainingDecisions,
         actions: request.facts.input.budget.remainingActions,
         ms: request.facts.input.budget.remainingMs,
       },
-      coverage: coverageOf(request.trajectory),
-      evidenceRefs: measured.map((a) => `${a.beforeState}/${a.targetKey}`).sort(),
+      coverage: {
+        visitedStates: request.trajectory.visitedStates.length,
+        observedTargets: request.trajectory.observedTargets.size,
+        verifiedItems: request.trajectory.verifiedItems.length,
+        checklistKnown: request.checks !== undefined,
+      },
+      evidenceRefs: [
+        ...new Set(attempts.filter((a) => a.evidenceRef).map((a) => a.evidenceRef!)),
+      ].sort(),
     },
   }
 }
-
-/**
- * Reuse the shared comparator to order the eligible frontier, then apply the constraints that are
- * this module's own: duplicate control, recovery cap, continuous-step opportunity and risk hints.
- */
-function orderedEligible(
-  request: PlanRequest,
-  frontier: Frontier,
-  currentState: string,
-): FrontierCandidate[] {
-  const eligible = frontier.available.filter((entry) => entry.targetKey !== null)
-  const ids = new Set(eligible.map((e) => e.candidateId))
-  // The comparator receives the same eligible set the frontier exposes; anything else is fused away
-  // by the ranking module's own all-or-nothing rule, leaving the pure program order.
-  const ranked = rankCandidates(
-    { ...request.facts.input, candidates: request.facts.input.candidates.filter((c) => ids.has(c.id)) },
-    { fairness: request.fairness },
-  )
-  const order = new Map(ranked.orderedCandidateIds.map((id, index) => [id, index]))
-  return [...eligible].sort((a, b) => {
-    // An untried entry always outranks a repeat in the current state, whatever the model said.
-    const aTried = request.trajectory.attemptsInState(a.targetKey!, currentState) > 0 ? 1 : 0
-    const bTried = request.trajectory.attemptsInState(b.targetKey!, currentState) > 0 ? 1 : 0
-    if (aTried !== bTried) return aTried - bTried
-    const aOrder = order.get(a.candidateId) ?? Number.MAX_SAFE_INTEGER
-    const bOrder = order.get(b.candidateId) ?? Number.MAX_SAFE_INTEGER
-    if (aOrder !== bOrder) return aOrder - bOrder
-    return a.candidateId < b.candidateId ? -1 : 1
-  })
-}
-
 export function planNext(request: PlanRequest): Plan {
-  const frontier = buildFrontier(request.facts, request.trajectory)
-  const currentState = `${request.facts.input.state.relatedStateVersion}::${request.facts.view.viewKey}`
-  const recovery = request.recovery ?? {}
-  const riskByTarget = new Map((request.risk ?? []).map((hint) => [hint.targetKey, hint]))
-
-  if (exhausted(request.facts.input.budget))
-    return handoff(request, frontier, currentState, 'budget-exhausted', 'remaining budget is zero')
-
-  const ordered = orderedEligible(request, frontier, currentState)
-  const recovered = (targetKey: string) => (recovery[targetKey] ?? 0) >= RECOVERY_CAP
-
-  const untried = ordered.find((entry) => !recovered(entry.targetKey!))
-  const repeatable = ordered.find((entry) => recovered(entry.targetKey!) === false)
-  const chosen = untried ?? repeatable
-
-  if (!chosen || chosen.targetKey === null) {
-    const spent = ordered.length > 0
+  const frontier = buildFrontier(request.facts, request.trajectory),
+    current = currentStateOf(request.facts)
+  const budget = request.facts.input.budget
+  if (
+    budget.remainingDecisions <= 0 ||
+    budget.remainingActions <= 0 ||
+    budget.remainingMs <= 0 ||
+    budget.maxRequestMs <= 0
+  )
     return handoff(
       request,
       frontier,
-      currentState,
-      spent ? 'unrecoverable' : 'insufficient-information',
-      spent
-        ? 'every remaining target has exhausted its recovery cap'
-        : 'no eligible candidate remains within the declared scope',
+      current,
+      'budget-exhausted',
+      'remaining decision/action/time budget is zero',
     )
-  }
-
-  const attemptsHere = request.trajectory.attemptsInState(chosen.targetKey, currentState)
-  const rotationApplied = request.fairness
-    ? (request.fairness.decisionIndex + 1) % 4 === 0
-    : false
-  const hint = riskByTarget.get(chosen.targetKey)
-  const preconditionWorked = request.trajectory.transitions.some(
-    (transition) => transition.to === currentState && transition.from !== currentState,
+  if (
+    request.trajectory.rejectedEvents.length ||
+    !recoverySchema.safeParse(request.recovery ?? {}).success
   )
-
-  const basis: PlanBasis = {
-    coverageGap: attemptsHere === 0,
-    duplicateObservation: attemptsHere > 0,
-    riskBasis: hint ? 'declared' : rotationApplied ? 'rotation' : 'coverage',
-    riskSource: hint ? hint.source : null,
-    continuousStep: preconditionWorked && attemptsHere === 0,
-    precondition: currentState,
-    policyVersion: 'r1-exploration-policy-2',
-  }
-
+    return handoff(
+      request,
+      frontier,
+      current,
+      'requires-agent-investigation',
+      'invalid trajectory or recovery facts',
+    )
+  const eligible = frontier.available.filter(
+    (c) => c.targetKey && selectable(request, c.targetKey, current),
+  )
+  if (!eligible.length)
+    return handoff(
+      request,
+      frontier,
+      current,
+      !frontier.available.length
+        ? 'insufficient-information'
+        : frontier.available.some(
+              (c) =>
+                c.targetKey &&
+                (request.recovery?.[branchKeyOf(current, c.targetKey)] ?? 0) >= RECOVERY_CAP,
+            )
+          ? 'unrecoverable'
+          : 'requires-agent-investigation',
+      'no safe untried target or explicitly bounded repeat remains',
+    )
+  const ids = new Set(eligible.map((c) => c.candidateId))
+  // Project this state once, instead of combining stale input.history with a second memory.
+  const history = request.trajectory.attempts
+    .filter((a) => a.beforeState === current && a.outcome !== null)
+    .map((a) => ({
+      targetKey: a.targetKey,
+      candidateId: eligible.find((c) => c.targetKey === a.targetKey)?.candidateId ?? a.targetKey,
+      action: a.action,
+      beforeStateVersion: request.facts.input.state.relatedStateVersion,
+      afterStateVersion: a.afterState ?? '',
+      actualEffects: [...a.effects],
+      outcome: a.outcome!,
+    }))
+  const ranked = rankCandidates(
+    {
+      ...request.facts.input,
+      history,
+      candidates: request.facts.input.candidates.filter((c) => ids.has(c.id)),
+    },
+    { fairness: request.fairness },
+  )
+  const order = new Map(ranked.orderedCandidateIds.map((id, index) => [id, index]))
+  const risk = new Map(
+    (request.risk ?? [])
+      .filter((h) => h.basis.trim() && h.source.trim())
+      .map((h) => [h.targetKey, h]),
+  )
+  const ordered = [...eligible].sort((a, b) => {
+    const tried = Number(a.attemptsInCurrentState > 0) - Number(b.attemptsInCurrentState > 0)
+    if (tried) return tried
+    // A real fairness promotion wins over risk, preventing permanent low-priority starvation.
+    if (!ranked.rotation.applied) {
+      const priority = Number(risk.has(b.targetKey!)) - Number(risk.has(a.targetKey!))
+      if (priority) return priority
+    }
+    return (order.get(a.candidateId) ?? 999) - (order.get(b.candidateId) ?? 999)
+  })
+  const chosen = ordered[0],
+    hint = risk.get(chosen.targetKey!)
+  const repeat = chosen.attemptsInCurrentState > 0
+  const last = request.trajectory.attempts.at(-1)
   return {
+    version: PLAN_VERSION,
     kind: 'act',
-    targetKey: chosen.targetKey,
+    binding: {
+      requestId: request.facts.input.requestId,
+      observationVersion: request.facts.input.state.observationVersion,
+      scopeRevision: request.facts.input.scope.revision,
+      budgetRevision: budget.revision,
+      taskRevision: request.facts.input.task.revision,
+    },
+    targetKey: chosen.targetKey!,
     candidateId: chosen.candidateId,
     action: chosen.allowedActions[0],
-    basis,
+    basis: {
+      coverageGap: !repeat,
+      duplicateObservation: repeat,
+      riskBasis: ranked.rotation.applied ? 'rotation' : hint ? 'declared' : 'coverage',
+      riskSource: hint?.source ?? null,
+      continuousStep:
+        !repeat &&
+        last?.outcome === 'observed' &&
+        last.afterState === current &&
+        last.beforeState !== current,
+      precondition: current,
+      policyVersion: 'r1-exploration-policy-2',
+      repeatReason: repeat ? request.repeatReasons![branchKeyOf(current, chosen.targetKey!)] : null,
+    },
   }
 }

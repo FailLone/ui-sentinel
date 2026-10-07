@@ -45,14 +45,11 @@ describe('smoke-config.json', () => {
     expect(loaded.cases.map((c) => c.id)).toEqual(['s01', 's03', 's05', 's07', 's17', 's21'])
   })
 
-  it('records the billing bound with a stated basis instead of a bare boolean', () => {
+  it('keeps conditional arithmetic separate from a verified billing reservation', () => {
     const parsed = configSchema.parse(config)
-    expect(parsed.protocol.billingBoundVerified).toBe(true)
-    // A verified bound is only acceptable with an inspectable basis and an HTTPS source.
-    expect(parsed.protocol.quoteUsd).toBe(0.001344)
-    expect(parsed.protocol.basis.length).toBeGreaterThan(80)
-    expect(parsed.protocol.source.startsWith('https://')).toBe(true)
-    expect(blockers(parsed)).not.toContain('billing-bound-unverified')
+    expect(parsed.protocol.billingBoundVerified).toBe(false)
+    expect(parsed.protocol.quoteUsd).toBeNull()
+    expect(blockers(parsed)).toContain('billing-bound-unverified')
   })
 
   it('still blocks on the question-count limit, which remains undocumented', () => {
@@ -60,14 +57,6 @@ describe('smoke-config.json', () => {
     const parsed = configSchema.parse(config)
     expect(parsed.protocol.questionsVerified).toBe(false)
     expect(blockers(parsed)).toContain('question-limit-unverified')
-  })
-
-  it('keeps the reserved quote inside the batch ceiling', () => {
-    const parsed = configSchema.parse(config)
-    expect(parsed.protocol.quoteUsd! * parsed.limits.maxAttempts).toBeLessThanOrEqual(
-      parsed.limits.maxCostUsd,
-    )
-    expect(blockers(parsed)).not.toContain('quote-exceeds-batch-budget')
   })
 
   it('never raises a caller limit above the module hard ceilings', () => {
@@ -98,7 +87,7 @@ describe('dry-run on the six states', () => {
     const output = join(freshDir(), 'dry')
     const result = dryRun(ROOT, config, output)
     expect(result.blockers).toContain('question-limit-unverified')
-    expect(result.blockers).not.toContain('billing-bound-unverified')
+    expect(result.blockers).toContain('billing-bound-unverified')
   })
 
   it('emits a freeze whose schema parses and whose config digest matches the file', () => {

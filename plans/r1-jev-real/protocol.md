@@ -55,57 +55,22 @@ OpenRouter 文档状态码：`400` "Invalid request parameters"、`401` "Missing
 
 速率限制仅 `429` 条目，**无数值配额、窗口或响应头说明**。重试指引仅 `524` 的 "Please try again later."，**无退避或幂等性说明**。TypeSafe 文档另列 `401`/`422`/`429`/`529`，对后两者建议 "retry the request with exponential backoff"。本版本仍执行零自动重试。
 
-## 2. 有依据的最坏费用上界
+## 2. 价格事实与仍未闭合的费用预留（2026-10-08 收尾更正）
 
-**上界已建立，并已写入 `smoke-config.json` 的 `quoteUsd` 与 `basis`。**
+2026-10-07 核对的价格快照为输入 USD 0.042/百万 token、输出免费、上下文 32000 token；来源是 [模型页](https://openrouter.ai/typesafe/jev-1.13) 和前述指南。价格不是本轮付费测量结果，不保证未来不变。
 
-### 2.0 关于上一版结论的更正（必须由验收方注意）
+`32000 × 4.2e-8 = 0.001344 USD`，六次条件估算为 0.008064 USD；这只是按完整上下文和输入单价进行的算术。先前开发稿把它称为已验证硬上界，并设 billingBoundVerified=true，验收不接受该推断：
 
-本文件先前版本称模型页返回 HTTP 404、单价无法取得。**该结论是错的**，原因是工具差异：`WebFetch` 取该页返回 404，但该页是**服务端渲染**的，直接用 HTTP 客户端取回 **200**（实测 481,884 字节）。价格自始可得，先前的「缺项」判断属于工具误判，现予更正。
+- 32768 **字节**上限和 65 问题上限不能证明提供方总计费 token <=32000；本地没有提供方计量或有依据的上界映射。
+- 失败、取消、超上下文请求的计费上界仍未知；正常 usage 示例只核对单价，不能替代异常路径依据。
+- 目录未展示固定费不能独自证明所有请求路径都无其他费用。
+- 当前 canonical slug/permaslug 的对应关系是身份快照，不等于规范 slug 永不重新指向其他构建。继续对响应 dated model 严格校验，不自动接受身份变化。
 
-### 2.1 已核对的价格事实
+因此 smoke-config 恢复 `billingBoundVerified=false`、`quoteUsd=null`；`questionsVerified=false` 保持不变。`cost-bound.ts` 返回 `verified:false` 的条件算术，拒绝非零输出费率（尚无输出上限依据）及非法总额度，不能作为放行证明。最坏费用预留需要支持这个冻结小批及失败路径的依据；没有依据就保持阻塞，不能用测试通过或同意预算代替协议事实。
 
-来自 `https://openrouter.ai/typesafe/jev-1.13`（2026-10-07 实取页面字节）：
+仍需闭合：每请求问题上限（当前六状态各 5 问题）、上述计费问题、明确小批授权。退避/幂等性指导未闭合，客户端仍禁止自动重试。准备预算仍为最多 6 次 HTTP、USD 0.25、15 秒/请求、5 分钟/批、并发 1、零重试、冷缓存；这是拟定上限，不是授权或已确认硬报价。
 
-- 页面正文原文：**"$0.042 per million input tokens, $0 per million output tokens."**、**"$0.042/M input tokens and $0.00/M output tokens."**
-- 目录记录两个计价 SKU，**仅有 token 计价，无任何按请求或固定费用 SKU**：`Input Price` = `4.2e-8`（`unitLabel: "/M tokens"`，`displayMultiplier: 1000000`）、`Output Price` = `0`。
-- **上下文长度 32,000 token**（页面出现 32000 / "32,000" 共 20 余处；另有 FAQ "context length of Jev 1.13?"）。
-- 该费率可由官方公布的两个 usage 示例独立交叉验证：492 × 4.2e-8 = **0.000020664**（教程公布值），476 × 4.2e-8 = **0.000019992**（教程公布值），两者**精确吻合**。
-
-### 2.2 上界推导
-
-```
-每请求最坏上界 = 上下文上限 × 输入单价 = 32000 × 4.2e-8 = US$0.001344
-本批 6 次请求 = 6 × 0.001344 = US$0.008064   （远低于 US$0.25 上限）
-```
-
-输出 token 免费，不计入上界。**问题数量没有文档化的 token 计量**，因此上界保守地按整个上下文上限计费 —— 这是模型能接受的最大输入，取其为上界无须知道问题数的换算关系。
-
-**该上界成立的前提（已记录，未被隐去）**：本客户端在本地拒绝超限载荷（`compile.ts` 的字节上限与 `profile.maxQuestions`），故实际请求不会超出上限。**「超限请求是否被拒、是否仍计费」文档未说明**，因此上界只在客户端保持请求不超限时为硬消费上限——本地字节上限正是为此设置。
-
-实现为可复核代码：`scripts/r1-jev-real/cost-bound.ts`（含 10 项测试，交叉验证上述两个官方示例）。
-
-### 2.3 仍存的明确缺项
-
-- **每请求问题数量上限：文档未说明（NOT STATED）**。`questions` 是无 `maxProperties` 的开放对象；文档只给每问题的选项/等级上限（choice ≤255 选项，score 2–10 等级）。本地 65 问题上限是**实验策略，不是提供方承诺**。
-- **失败或取消请求是否计费：文档未说明（NOT STATED）**。模块继续保持未知费用占用、不自动重放。
-- **超限请求的处置与计费：未说明**（见 2.2 前提）。
-- **退避与幂等性**：OpenRouter 侧无退避说明；TypeSafe 侧建议指数退避，本客户端仍为 0 自动重试。
-
-### 2.4 模型身份（别名问题已闭合）
-
-页面目录记录同时给出 `modelSlug: "typesafe/jev-1.13"`、**`canonicalModelSlug: "typesafe/jev-1.13"`**（与 modelSlug 相同）与 **`permaslug: "typesafe/jev-1.13-20260917"`**。即 `typesafe/jev-1.13` 是**规范 slug**，`typesafe/jev-1.13-20260917` 是其**固定快照 permaslug**，两者是同一目录条目的两个标识，**不是会随时间滚动的别名**。滚动别名另有一个：`~typesafe/jev-latest`。
-
-客户端继续在响应身份不符时拒绝，不自动接受或重试；`expectedModel` 保持为 `typesafe/jev-1.13-20260917`。
-
-### 2.5 当前的运行阻塞状态
-
-`plans/r1-jev-real/smoke-config.json` 现为：
-
-- `billingBoundVerified = true`，`quoteUsd = 0.001344`，`basis` 含算法、计费项、价格快照与适用范围 —— 符合「获得有依据的上界时，在 basis/source/checkedAt 中记录算法、计费项、价格快照和适用范围」的要求，**不是**把布尔字段单独改成 true。
-- `questionsVerified` **仍为 `false`**：问题数量上限确实未被文档化，本批**不**为放行而合并这一缺项。
-
-因此 dry-run 只报 `question-limit-unverified` 一项阻塞（`billing-bound-unverified` 已消解）。**本批仍然只做 dry-run**：缺少该批的明确授权，且 `questionsVerified` 仍未闭合。退出码 0 只代表材料生成成功，不代表允许付费。
+本轮未运行真实模型或读取密钥。新的 dry-run 应同时显示问题数和费用依据阻塞；退出 0 只表示材料生成，不表示可付费。
 
 ## 3. 本地限制（实验策略，非提供方承诺）
 
@@ -118,5 +83,5 @@ OpenRouter 文档状态码：`400` "Invalid request parameters"、`401` "Missing
 ## 4. 本批未做的事
 
 - 未调用真实 Jev，未读取或交付任何密钥，未生成授权记录。
-- 未把任何布尔字段改为 `true`，未写入 `quoteUsd`。
+- 收尾已撤销开发稿不成立的费用 verified/quote；未生成付费授权。
 - 未反复搜索或安装 SDK 制造进展；核对在公开文档内一次完成，并如实记录缺项。
