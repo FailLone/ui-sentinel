@@ -65,7 +65,14 @@ export function createExplorationSession(config: {
           if (fresh.kind === 'ranked') {
             return {
               ...fresh,
-              trace: { ...fresh.trace, attempted: false, requestDigest: null, cache: 'hit' },
+              trace: {
+                ...fresh.trace,
+                attempted: false,
+                requestDigest: null,
+                cache: 'hit',
+                // Attribute the ORIGINAL request's cost; the hit itself charged nothing.
+                originCostUsd: hit.originCostUsd,
+              },
             }
           }
           return fresh

@@ -45,6 +45,11 @@ export type TransportTrace = {
   readonly deadLetter: readonly string[]
   /** Set by the session facade; the bare transport never reads a cache. */
   readonly cache?: 'hit' | 'miss' | 'disabled'
+  /**
+   * Cost of the ORIGINAL scoring request a cache hit was served from. `null` for a miss or when
+   * the original usage was unknown. The hit itself adds no request and is never re-charged.
+   */
+  readonly originCostUsd?: number | null
 }
 
 export type ScoreResult = ExplorationResult & {

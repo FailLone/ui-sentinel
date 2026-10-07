@@ -124,6 +124,39 @@ describe('exploration session with cache', () => {
     expect(result.trace.usage.costUsd).toBe(0)
     expect(result.trace.usage.source).toBe('stub')
   })
+
+  it('reports a cache hit as a separate origin cost, with a zero-cost request of its own', async () => {
+    const billable = {
+      kind: 'scores' as const,
+      modelId: 'stub/jev-exploration-1',
+      scores: [{ candidateId: 'c1', relevance: 0.7, informationGain: 0.6, uncertainty: 0.1 }],
+      usage: {
+        status: 'known' as const,
+        inputTokens: 10,
+        outputTokens: 2,
+        costUsd: 0.25,
+        source: 'provider' as const,
+      },
+    }
+    const s = createExplorationSession({
+      ledger: createBudgetLedger({
+        remainingDecisions: 8,
+        remainingActions: 8,
+        remainingMs: 5000,
+        maxRequestMs: 1000,
+        remainingCostUsd: 1,
+      }),
+      send: async () => billable,
+    })
+    const first = await s.decide(fixture('menu'))
+    const second = await s.decide(clone(fixture('menu')))
+    // The original score's cost stays attributable and is NOT re-charged on the hit.
+    expect(first.trace.usage.costUsd).toBeCloseTo(0.25, 9)
+    expect(second.trace.cache).toBe('hit')
+    expect(second.trace.usage.costUsd).toBe(0)
+    expect(second.trace.originCostUsd).toBeCloseTo(0.25, 9)
+    expect(s.stats().ledger.remainingCostUsd).toBeCloseTo(0.75, 9)
+  })
 })
 
 describe('concurrent decisions against one budget', () => {
