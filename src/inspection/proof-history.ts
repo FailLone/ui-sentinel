@@ -4,6 +4,7 @@ import { verifyUiContractSnapshot } from './contract.ts'
 import type { Run, RunEvent } from '../shared/types.ts'
 import { recoveryHistoryIssues } from './recovery-history.ts'
 import { blockerHistoryIssues } from './blocker-evidence.ts'
+import { probeHistoryIssues } from './probe-history.ts'
 
 /** Reconcile a proof with durable facts. A self-consistent JSON hash alone is never coverage. */
 export function inspectionHistoryIssues(
@@ -26,7 +27,7 @@ function inspectHistory(
   const proof = accepted?.payload.inspectionProof as InspectionProof | undefined
   if (!accepted || !proof) return ['inspection-proof-missing']
   if (!verifyInspectionProof(proof)) return ['inspection-proof-unverified']
-  const issues: string[] = recoveryHistoryIssues(events)
+  const issues: string[] = [...recoveryHistoryIssues(events), ...probeHistoryIssues(events)]
   if (
     !run.spec.uiContract ||
     !verifyUiContractSnapshot(run.spec.uiContract) ||

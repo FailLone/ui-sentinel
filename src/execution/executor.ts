@@ -1,4 +1,6 @@
 import { publishInteractionFinding } from './interaction-finding.ts'
+import { measureUiProbe } from './ui-probe.ts'
+import { createRemainingObligationGuidance } from './remaining-obligation-guidance.ts'
 import { createToolContractRepair } from './tool-contract-repair.ts'
 import { uiActionRefusal } from './ui-action-boundary.ts'
 import { createInteractionRecovery, recoveryDigest } from './interaction-recovery.ts'
@@ -432,6 +434,12 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     settled: boolean
     verify?: InteractionVerification
     actionError?: string
+    probe?: {
+      outcome: 'actionable' | 'intercepted'
+      itemId: string
+      receiptRef: string
+      evidenceRefs: string[]
+    }
   } | null = null
   const interactionRecovery = createInteractionRecovery({
     page: () => worker!.page,
@@ -698,6 +706,31 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     pending.settled = true
     activeAction = null
     const observed = latest
+    if (pending.probe) {
+      // Positive actionability does not establish the control's effect. A conclusive
+      // interception can fail only the original pending local check, never a new proxy.
+      const probe = pending.probe
+      if (
+        probe.outcome === 'intercepted' &&
+        integrity.epoch() === 0 &&
+        inspection.snapshot().items.some((i) => i.itemId === probe.itemId && i.status === 'pending')
+      ) {
+        const resolved = await inspection.resolveInteraction({
+          ref: pending.ref,
+          snapshotId: pending.snapshotPage,
+          target: pending.target,
+          url: pending.beforeUrl,
+          category: 'local-interaction',
+          outcome: 'failed',
+          reasonCode: 'probe-intercepted',
+          detail: probe.receiptRef,
+          evidenceRefs: [...pending.beforeRefs, ...probe.evidenceRefs],
+        })
+        if (resolved?.itemId !== probe.itemId) throw Error('probe-item-association-mismatch')
+        uiActionChecks.set(pending.actionId, { itemId: resolved.itemId, target: pending.target })
+      }
+      return
+    }
     // The address the browser reports, not the one the last snapshot happened to carry: this settles
     // as soon as the document has moved, which is *before* the observation that follows it.
     const landedAt = worker?.page.url() ?? pending.beforeUrl
@@ -2050,6 +2083,17 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
             !!resolvedLocator &&
             !(await resolvedLocator.evaluate((node) => node instanceof HTMLAnchorElement)),
         )
+      const probeCandidate =
+        uiScan && input.type === 'probe'
+          ? [...inspection!.selectedCandidates(), ...inspection!.candidateItems()].find(
+              (c) =>
+                c.ref === actingRef &&
+                c.snapshotId === actionSnapshotPage &&
+                c.category === 'local-interaction',
+            )
+          : undefined
+      if (uiScan && input.type === 'probe' && (!probeCandidate || input.verify))
+        throw Error('probe-requires-observed-local-target-without-postcondition')
       if (uiScan && input.verify) await assertInteractionExpectation(page, input.verify)
       if (
         uiScan &&
@@ -2167,7 +2211,55 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       }
       try {
         guard()
-        if (input.type === 'click' || input.type === 'probe') {
+        if (uiScan && input.type === 'probe') {
+          if (!resolvedLocator || !probeCandidate) throw Error('probe-target-missing')
+          const measured = await measureUiProbe(
+            resolvedLocator,
+            guard,
+            Math.min(3000, config.budget.toolTimeoutMs / 3),
+          )
+          guard()
+          const screenshot = await saveEvidence(
+            runId,
+            'screenshot',
+            await page.screenshot({ timeout: 3000 }),
+            evidenceMetadata(),
+            guard,
+          )
+          const receipt = {
+            ...measured,
+            runId,
+            actionId,
+            itemId: probeCandidate.itemId,
+            target: targetDesc,
+            ref: actingRef,
+            sourceSnapshot: actionSnapshotPage,
+            evidenceRefs: [screenshot],
+          }
+          const raw = JSON.stringify(receipt)
+          const receiptRef = await saveEvidence(
+            runId,
+            'probe-measurement',
+            raw,
+            evidenceMetadata(),
+            guard,
+          )
+          await appendEvent(
+            runId,
+            'probe:measured',
+            { ...receipt, receiptRef, sha256: createHash('sha256').update(raw).digest('hex') },
+            { actionId, stepId, evidenceRefs: [receiptRef, screenshot] },
+          )
+          activeAction!.probe = {
+            outcome: measured.outcome,
+            itemId: probeCandidate.itemId,
+            receiptRef,
+            evidenceRefs: [receiptRef, screenshot],
+          }
+          measurementFacts.add(
+            JSON.stringify(['probe', measured.url, targetDesc, measured.outcome, measured.after]),
+          )
+        } else if (input.type === 'click' || input.type === 'probe') {
           if (!resolvedLocator)
             throw new Error('target required: provide role+name, selector, or visualDescription')
           await resolvedLocator.click({
@@ -2377,10 +2469,12 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         actionNavigationListener = null
       }
       await persistUsage()
+      const probeMeasurement = activeAction?.probe
       await observe()
       return {
         action: input,
         status: 'completed',
+        ...(probeMeasurement ? { probeMeasurement, effectTested: false } : {}),
         ...(inspection ? { verification: uiActionReceipt(actionId) } : {}),
         inspection: inspectionSummary(),
         recoverableInteractions: interactionRecovery.available(),
@@ -3624,6 +3718,9 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     const contractRepair = createToolContractRepair()
     let contractRepairAdvice: ReturnType<typeof contractRepair.take>
     let uiRecoveryUsed = false
+    const remainingGuidance = createRemainingObligationGuidance()
+    let remainingObligationGuidance: ReturnType<typeof remainingGuidance.take>
+    let guidanceExhausted = false
     const reviewedStates = new Set<string>()
     const refreshedReviewVersions = new Set<string>()
     const agent = new Agent({
@@ -3672,27 +3769,67 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
             continue
           }
         }
-        contractRepairAdvice = contractRepair.take()
+        contractRepairAdvice = guidanceExhausted ? undefined : contractRepair.take()
         if (contractRepairAdvice) {
           await appendEvent(runId, 'execution:contract-repair', contractRepairAdvice)
           noToolStreak = 2
           continue
         }
+        const reserve = phaseTracker.shouldFinalize({
+          elapsedMs: Date.now() - startedAt,
+          modelCallsUsed: usage.modelCalls,
+          noProgressStreak: 0,
+        })
+        if (
+          !guidanceExhausted &&
+          !reserve.should &&
+          phaseTracker.phase !== 'finalizing' &&
+          usage.actions < budget.maxActions &&
+          !sideEffectPending &&
+          integrity.epoch() === 0
+        ) {
+          const pending = new Set(
+            inspection
+              .snapshot()
+              .items.filter((i) => i.selected && i.status === 'pending')
+              .map((i) => i.itemId),
+          )
+          const connected = []
+          for (const c of inspection.candidateItems()) {
+            if (
+              pending.has(c.itemId) &&
+              (await candidateBindings
+                .get(c.ref)
+                ?.evaluate((n) => n.isConnected && n.ownerDocument === document))
+            )
+              connected.push(c)
+          }
+          guard()
+          remainingObligationGuidance = remainingGuidance.take(connected)
+          if (remainingObligationGuidance)
+            await appendEvent(
+              runId,
+              'execution:remaining-obligation-guidance',
+              remainingObligationGuidance,
+            )
+        }
         // No-progress is a scheduling fact, not an unverified UI dimension. An already
         // covered run must pass the same durable verifier before adding a genuine gap.
-        const completion = await finishUiScan({ reason: 'scope-covered' })
-        if (completion.accepted) break
-        await inspection.recordGap({
-          reasonCode: 'no-progress',
-          detail: 'Repeated reads added no relevant facts; bounded read-only recovery exhausted.',
-        })
-        await finishUiScan({ reason: 'unverified-scope' })
-        break
+        if (!remainingObligationGuidance) {
+          const completion = await finishUiScan({ reason: 'scope-covered' })
+          if (completion.accepted) break
+          await inspection.recordGap({
+            reasonCode: 'no-progress',
+            detail: 'Repeated reads added no relevant facts; bounded recovery exhausted.',
+          })
+          await finishUiScan({ reason: 'unverified-scope' })
+          break
+        }
       }
       const finCheck = phaseTracker.shouldFinalize({
         elapsedMs: Date.now() - startedAt,
         modelCallsUsed: usage.modelCalls,
-        noProgressStreak: noToolStreak,
+        noProgressStreak: remainingObligationGuidance ? 0 : noToolStreak,
       })
       if (finCheck.should) {
         if (
@@ -3934,6 +4071,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
             }
           : {}),
         ...(contractRepairAdvice ? { contractRepairAdvice } : {}),
+        ...(remainingObligationGuidance ? { remainingObligationGuidance } : {}),
         budgetRemaining: {
           actions: budget.maxActions - usage.actions,
           modelCalls: budget.maxModelCalls - usage.modelCalls,
@@ -4199,6 +4337,15 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         retrievedFacts: [...inspectedResultRefs],
       }
       const progressCheck = progressDetector.check(progressFacts)
+      if (remainingObligationGuidance) {
+        guidanceExhausted = !progressCheck.isProgress
+        await appendEvent(runId, 'execution:remaining-obligation-guidance-result', {
+          newFacts: progressCheck.isProgress,
+          basis: progressCheck.basis,
+          previousNoProgressStreak: noToolStreak,
+        })
+        remainingObligationGuidance = undefined
+      }
       noToolStreak = progressCheck.isProgress ? 0 : noToolStreak + 1
       if (!progressCheck.isProgress) noProgressDecisions++
       if (noToolStreak === 3) {

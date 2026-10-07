@@ -3,6 +3,7 @@ import { stat, readFile } from 'node:fs/promises'
 import { getRunSnapshot, isRunActive } from '../../execution/run-manager.ts'
 import { inspectionHistoryIssues } from '../../inspection/proof-history.ts'
 import { recoveryArtifactIssues } from '../../inspection/recovery-history.ts'
+import { probeArtifactIssues } from '../../inspection/probe-history.ts'
 import { completionIssues } from '../../execution/completion-integrity.ts'
 import { interventionLimitation } from '../../shared/evidence-integrity.ts'
 import { unresolvedAnalyses } from './legacy-analysis.ts'
@@ -316,6 +317,13 @@ export async function buildReport(runId: string) {
         )
       : []
   issues.push(...recoveryIssues)
+  if (run.spec.kind === 'ui-scan')
+    issues.push(
+      ...(await probeArtifactIssues(
+        events,
+        new Map(artifactRows.rows.map((r) => [String(r.id), String(r.file_path)])),
+      )),
+    )
   if (run.spec.kind === 'ui-scan')
     issues.push(
       ...(await interactionFindingIssues(
