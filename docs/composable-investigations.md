@@ -83,3 +83,5 @@ Agent 从公开需求、页面状态和交互提出假设，选择目标并声�
 此能力不改写旧调查的 unknown，不把重新运行的成功程序视为旧 gap 已解决，也不允许为取得新结果重放业务写入。UI `page_act.verify` 的只读恢复另见执行引擎文档。
 
 UI 扫描还在执行前检查结果契约：动作后才用于断言、且不是操作目标的结果节点，必须声明 `binding: 'post-action'` 和 `bind_results`；如果问题确实关乎原节点身份，使用同节点前后比较，或在目标的 `identityBasis` 中说明为什么必须保留原节点。无用途的 before 样本不代表身份比较。契约缺失返回 `ambiguous-result-binding`，不会派发动作、创建 hypothesis 或删除已有 unknown。业务调查仍保持旧默认节点语义。
+
+交互测量区分 select 的 DOM value 和选项标签：`value-equals` 精确比较内部值，`selected-label-equals` 比较单选控件当前选中项的公开标签（多选或非 select 返回 unverified）。UI 动作前若预期只匹配选项标签而不匹配任何 option.value，会返回 `verification-value-is-label` 要求明确契约，不自动翻译预期，也不会先操作再误报失败。

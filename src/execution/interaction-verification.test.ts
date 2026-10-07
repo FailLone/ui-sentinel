@@ -134,3 +134,43 @@ it('does not report offscreen or intentionally disabled controls as intercepted 
     await rm(`data/artifacts/${id}`, { recursive: true, force: true })
   }
 })
+
+it('keeps select labels separate from DOM values and rejects ambiguous pre-action contracts', async () => {
+  const { assertInteractionExpectation } = await import('./interaction-verification.ts')
+  const w = await launchBrowser()
+  try {
+    await w.page.setContent(
+      '<select><option value="internal-42">Public choice</option></select><p>Public choice</p>',
+    )
+    const input = {
+      selector: 'select',
+      condition: 'value-equals' as const,
+      expected: 'Public choice',
+      basis: 'The public selected label',
+    }
+    await expect(assertInteractionExpectation(w.page, input)).rejects.toThrow(
+      'verification-value-is-label',
+    )
+    expect((await measureInteraction(w.page, input)).outcome).toBe('failed')
+    await expect(
+      assertInteractionExpectation(w.page, { ...input, expected: 'internal-42' }),
+    ).resolves.toBeUndefined()
+    expect((await measureInteraction(w.page, { ...input, expected: 'internal-42' })).outcome).toBe(
+      'verified',
+    )
+    const label = { ...input, condition: 'selected-label-equals' as const }
+    expect((await measureInteraction(w.page, label)).outcome).toBe('verified')
+    expect((await measureInteraction(w.page, { ...label, expected: 'Other choice' })).outcome).toBe(
+      'failed',
+    )
+    expect((await measureInteraction(w.page, { ...label, selector: 'p' })).outcome).toBe(
+      'unverified',
+    )
+    await w.page.locator('select').evaluate((s: HTMLSelectElement) => {
+      s.multiple = true
+    })
+    expect((await measureInteraction(w.page, label)).outcome).toBe('unverified')
+  } finally {
+    await w.close()
+  }
+})

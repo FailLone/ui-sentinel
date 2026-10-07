@@ -391,3 +391,13 @@ describe('the scorer confirms a defect only on independent evidence', () => {
     expect(verdict.rejections.map((r) => r.code)).toContain('finding-without-evidence')
   })
 })
+
+it('rejects failed healthy checks even when no finding was submitted', () => {
+  const input = healthyInput()
+  const items = input.run.items.map((item, index) =>
+    index === 0 ? { ...item, status: 'failed' as const } : item,
+  )
+  const verdict = scoreUrlScan({ ...input, run: { ...input.run, findings: [], items } })
+  expect(verdict.outcome).toBe('not-verified')
+  expect(verdict.rejections.map((r) => r.code)).toContain('healthy-false-positive')
+})

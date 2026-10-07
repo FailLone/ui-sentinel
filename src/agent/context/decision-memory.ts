@@ -77,6 +77,14 @@ export function readToolResult(history: readonly HistoryEntry[], ref: string, of
   const entry = history[Number(match[1])]
   const item = entry && rawTools(entry)[Number(match[2])]
   if (!item) return { error: 'Unknown resultRef' }
+  const summary = extractToolSummary(item)
+  if (summary.tool === 'tool_result_read' || summary.tool === 'history_read')
+    return {
+      error:
+        summary.tool === 'tool_result_read'
+          ? `This is a retrieval receipt, not an original payload. Read resultRef ${summary.resultRef ?? 'from its returned cursor'} with the original nextOffset; do not retrieve receiptRef ${ref}.`
+          : `This is a history retrieval receipt. Use an original resultRef from its entries, not receiptRef ${ref}.`,
+    }
   const raw = JSON.stringify(item)
   if (offset < 0 || offset > raw.length) return { error: 'Offset outside result' }
   let chunk = '',

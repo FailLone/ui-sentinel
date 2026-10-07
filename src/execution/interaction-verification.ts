@@ -9,16 +9,21 @@ export const interactionVerificationInput = z.object({
     .describe(
       'Public DOM CSS selector for the postcondition. Numeric order requires at least two matching nodes, each with strictly numeric text; a parent container or mixed label text is unsupported. Use a text predicate or bounded investigation for other content.',
     ),
-  condition: z.enum([
-    'text-equals',
-    'text-contains',
-    'value-equals',
-    'expanded-equals',
-    'count-equals',
-    'visible',
-    'numeric-ascending',
-    'numeric-descending',
-  ]),
+  condition: z
+    .enum([
+      'text-equals',
+      'text-contains',
+      'value-equals',
+      'selected-label-equals',
+      'expanded-equals',
+      'count-equals',
+      'visible',
+      'numeric-ascending',
+      'numeric-descending',
+    ])
+    .describe(
+      'value-equals compares the DOM value, which can differ from a select option’s visible label. For the displayed selected option use selected-label-equals (single select only).',
+    ),
   expected: z.string().max(1000).optional(),
   basis: z
     .string()
@@ -29,6 +34,26 @@ export const interactionVerificationInput = z.object({
     ),
 })
 export type InteractionVerification = z.infer<typeof interactionVerificationInput>
+
+/** Reject a demonstrably ambiguous select expectation before spending the original action. */
+export async function assertInteractionExpectation(page: Page, input: InteractionVerification) {
+  if (input.condition !== 'value-equals' || input.expected === undefined) return
+  const confused = await page
+    .locator(input.selector)
+    .evaluateAll((nodes, expected) => {
+      if (nodes.length !== 1 || !(nodes[0] instanceof HTMLSelectElement)) return false
+      const options = [...nodes[0].options]
+      return (
+        !options.some((o) => o.value === expected) &&
+        options.some((o) => o.label.trim() === expected)
+      )
+    }, input.expected)
+    .catch(() => false)
+  if (confused)
+    throw Error(
+      'verification-value-is-label: no action dispatched. value-equals requires the DOM option value; use selected-label-equals for its displayed label. The expectation was not changed.',
+    )
+}
 /** No arbitrary JavaScript from the agent; unsupported or ambiguous measurements stay unverified. */
 export async function measureInteraction(
   page: Page,
@@ -59,6 +84,12 @@ export async function measureInteraction(
         if (elements.length > 100) return { values: [], count: elements.length, supported: false }
         const values = elements.map((element) => {
           if (condition === 'value-equals') return 'value' in element ? String(element.value) : null
+          if (condition === 'selected-label-equals')
+            return element instanceof HTMLSelectElement &&
+              !element.multiple &&
+              element.selectedOptions.length === 1
+              ? element.selectedOptions[0]!.label.trim()
+              : null
           if (condition === 'expanded-equals') return element.getAttribute('aria-expanded')
           if (condition === 'visible') {
             const r = element.getBoundingClientRect(),

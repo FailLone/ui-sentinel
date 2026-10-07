@@ -264,3 +264,17 @@ it('retains structured SDK validation errors without crashing or presenting succ
     JSON.parse(original.toolResults)[0],
   )
 })
+
+it('does not recursively serialize retrieval receipts as if they were new evidence', () => {
+  const history = [entry('page_inspect', { elements: [{ text: 'Public fact' }] })]
+  const first = readToolResult(history, '0.0')
+  history.push(entry('tool_result_read', first, { resultRef: '0.0' }))
+  expect(readToolResult(history, '1.0')).toMatchObject({
+    error: expect.stringContaining('resultRef 0.0'),
+  })
+  history.push(entry('history_read', historyPage(history, 0, 2)))
+  expect(readToolResult(history, '2.0')).toMatchObject({
+    error: expect.stringContaining('original resultRef'),
+  })
+  expect(readToolResult(history, '0.0')).toEqual(first)
+})

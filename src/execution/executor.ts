@@ -1,6 +1,10 @@
 import { uiActionRefusal } from './ui-action-boundary.ts'
 import { createInteractionRecovery, recoveryDigest } from './interaction-recovery.ts'
-import { measureInteraction, type InteractionVerification } from './interaction-verification.ts'
+import {
+  measureInteraction,
+  assertInteractionExpectation,
+  type InteractionVerification,
+} from './interaction-verification.ts'
 import { inspectInput, programInput, assertUiProgramBindings } from './investigation/program.ts'
 import { inspectElements } from './investigation/measure.ts'
 import { investigateProgram } from './investigation/service.ts'
@@ -1943,6 +1947,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       }
       guard()
       if (inspection) inspection.assertActionSelectable(actingRef, actionSnapshotPage)
+      if (uiScan && input.verify) await assertInteractionExpectation(page, input.verify)
       if (
         uiScan &&
         !programActionItems &&
@@ -3510,6 +3515,10 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
             continue
           }
         }
+        // No-progress is a scheduling fact, not an unverified UI dimension. An already
+        // covered run must pass the same durable verifier before adding a genuine gap.
+        const completion = await finishUiScan({ reason: 'scope-covered' })
+        if (completion.accepted) break
         await inspection.recordGap({
           reasonCode: 'no-progress',
           detail: 'Repeated reads added no relevant facts; bounded read-only recovery exhausted.',

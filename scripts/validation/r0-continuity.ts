@@ -44,7 +44,10 @@ const fixture = createServer((req, res) => {
     return res.end(JSON.stringify({ text: 'Ready' }))
   }
   res.end(
-    '<h1>Service status</h1><p>Refresh updates the status to Ready.</p><button type=button id=refresh>Refresh</button><output id=result>Idle</output><a href=/info>Information</a><script>refresh.onclick=async()=>{let d=await(await fetch("/status")).json();result.outerHTML="<output id=result>"+d.text+"</output>"}</script>',
+    (mode === 'label-contract'
+      ? '<label>View<select id=choice><option value=stored-option>Public choice</option></select></label>'
+      : '') +
+      '<h1>Service status</h1><p>Refresh updates the status to Ready.</p><button type=button id=refresh>Refresh</button><output id=result>Idle</output><a href=/info>Information</a><script>refresh.onclick=async()=>{let d=await(await fetch("/status")).json();result.outerHTML="<output id=result>"+d.text+"</output>"}</script>',
   )
 })
 const origin = await listen(fixture)
@@ -122,15 +125,41 @@ const model = createServer(async (req, res) => {
             }),
       }
     }
-  } else if (turn === 3 && mode !== 'continuity') {
+  } else if (turn === 3 && !['continuity', 'covered-loop'].includes(mode)) {
     name = mode === 'program-preflight' ? 'investigation_run' : 'page_act'
     args =
       mode === 'program-preflight'
         ? program(true)
         : { type: 'click', selector: '#refresh', verify: verification }
-  } else if ((turn === 3 && mode === 'continuity') || (turn === 4 && mode !== 'continuity')) {
+  } else if (
+    (turn === 3 && ['continuity', 'covered-loop'].includes(mode)) ||
+    (turn === 4 && !['continuity', 'covered-loop'].includes(mode))
+  ) {
     name = 'page_act'
     args = { type: 'click', ref: candidates.find((c: any) => c.category === 'navigation')?.ref }
+  }
+  if (mode === 'covered-loop' && turn >= 4) {
+    name = 'page_inspect'
+    args = { selector: 'h1', offset: 0 }
+  }
+  if (mode === 'label-contract' && turn >= 2 && turn <= 5) {
+    name = 'page_act'
+    args =
+      turn <= 3
+        ? {
+            type: 'fill',
+            selector: '#choice',
+            value: 'Public choice',
+            verify: {
+              selector: '#choice',
+              condition: turn === 2 ? 'value-equals' : 'selected-label-equals',
+              expected: 'Public choice',
+              basis: 'Public option label in the View control',
+            },
+          }
+        : turn === 4
+          ? { type: 'click', selector: '#refresh', verify: verification }
+          : { type: 'click', ref: candidates.find((c: any) => c.category === 'navigation')?.ref }
   }
   turn++
   const common = {
@@ -189,7 +218,14 @@ try {
       break
     await sleep(100)
   }
-  for (mode of ['continuity', 'program-preflight', 'action-preflight', 'unknown-replay']) {
+  for (mode of [
+    'continuity',
+    'covered-loop',
+    'label-contract',
+    'program-preflight',
+    'action-preflight',
+    'unknown-replay',
+  ]) {
     turn = 0
     clicks = 0
     messages = []
@@ -225,6 +261,15 @@ try {
     const original = report.uiScan?.inspection.items.find((i: any) => i.itemId === originalId)
     const events = report.events
     const checks = {
+      bounded:
+        mode !== 'covered-loop' ||
+        (turn <= 9 &&
+          events.filter((e: any) => e.type === 'execution:bounded-recovery').length === 1),
+      healthyChecks:
+        mode === 'unknown-replay' ||
+        !report.uiScan.inspection.items.some((i: any) => i.status === 'failed'),
+      labelPreflight:
+        mode !== 'label-contract' || JSON.stringify(events).includes('verification-value-is-label'),
       terminal:
         mode === 'unknown-replay'
           ? report.status !== 'completed' && original?.status === 'unverified'

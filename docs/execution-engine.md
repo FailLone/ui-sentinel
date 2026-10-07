@@ -129,3 +129,5 @@ CDP 的请求类型先转换为统一枚举。UI 请求不再使用 `Fetch.conti
 UI 扫描的待检查控件可以跨观察延续同一事项，但执行器必须确认相同 URL、类别及连接中的同一真实 DOM 节点，并追加 `scope:candidate-reobserved`。同名或同 selector 的替换节点不能继承身份；已执行的 unverified、verified、failed 不通过重新观察合并。旧 unknown 的恢复仍须使用原冻结验证引用。
 
 UI 本地 click/fill 在派发前须有 `page_act.verify` 或处于有测量契约的调查程序；缺失时 `postcondition-required` 拒绝，不执行动作。真实链接导航保留导航后观察校验。`localSampling` 将每页的既有采样上限、已选数量和剩余数量提供给 Agent，上限在派发前检查；业务写入和业务完成契约不受此 UI 前置约束影响。
+
+防循环的只读恢复没有新事实时，执行器先向同一完整结束验证器申请 `scope-covered`；已有范围、调查、规则及证据确已满足时正常完成。被拒绝后才记录 no-progress 并 partial。因此重复读取本身既不能证明检查完成，也不会把已证实的完成降为 partial。历史检索不能递归读取检索回执自身；工具会返回原始结果引用指引，原历史保持不变。

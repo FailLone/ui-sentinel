@@ -198,10 +198,11 @@ function findingRejections(input: UrlScanScoreInput): UrlScanRejection[] {
   const { run, independent, truth } = input
   const rejections: UrlScanRejection[] = []
   const supported = run.findings.filter((f) => f.validationStatus === 'supported')
-  if (truth.variant === 'healthy' && supported.length)
+  const failedItems = run.items.filter((item) => item.status === 'failed')
+  if (truth.variant === 'healthy' && (supported.length || failedItems.length))
     rejections.push({
       code: 'healthy-false-positive',
-      detail: `a healthy control produced ${supported.length} supported finding(s)`,
+      detail: `a healthy control produced ${supported.length} supported finding(s) and ${failedItems.length} failed check(s)`,
     })
   for (const finding of supported) {
     if (
