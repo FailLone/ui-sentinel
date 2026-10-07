@@ -157,3 +157,9 @@ UI 的 Agent 结束与确定性结束共用 finishUiScan：flush 已发生的网
 inspection-proof-3 的 observed-blocker 保存真实拒绝/不支持通道事件的 ID 和完整事件摘要。普通 allow、execution-stopped、transport-error 或模型文字不能支撑 blocker。持久终态与历史报告重新验证同 run、先于 finish、事件语义、摘要及实际终态；取消和执行失败记录也会使新证明失效。原 proof-2 内容不迁移、不改写，covered 继续原校验；旧 observed-blocker 缺少可信封印时显示不可验证，不补造事实。需要受控重新检查才能取得新证明。
 
 独立边界验收同时核验 blocked / blocked / not-applicable、持久状态、结束事件及 blocker 摘要、服务器无写入、无污染误报。partial 字段本身不是通过条件，旧 C10 仍失败。免费契约回归入口为 `pnpm exec tsx scripts/validation/r0-k123.ts`；该脚本使用本地固定模型，证明接线与拒绝行为，不授予真实模型验收资格。
+
+### 取消受理与终态提交的顺序
+
+运行队列通过 per-run 生命周期仲裁统一启动认领、取消受理和终态提交。取消在仲裁内重新读取状态并持久请求后返回 accepted；终态提交在同一仲裁内取得唯一提交权，选择停止原因，直到持久写入和独立校验结束才释放。取消先受理时，无真实未知业务写入则终态为 cancelled；提交先取得顺序时，后来的取消不能穿越异步 SQL 窗口，返回未受理。早期配置/契约失败也使用同一仲裁，不能被旧 queued 快照取消覆盖。
+
+真实未知业务写入与真实持久化错误仍保留隔离，取消不解除它们；迟到工具仍受 abort / attempt guard、响应关闭和浏览器清理约束。此前保存的 finish 意图不删除，cancelled 的运行不能继续认证为完成。仲裁是单进程协议，不提供多实例并发写保证；进程中途崩溃仍由既有恢复和完整性校验保守处理。免费定向入口 `pnpm exec tsx scripts/validation/r0-cancel-order.ts` 使用测试专用IPC同步屏障，验证顺序而非依赖随机延时。
