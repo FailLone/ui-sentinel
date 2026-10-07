@@ -37,6 +37,14 @@ export async function replayUrlSample(
       },
       [...new Set(selectors)],
     )
+    await page.getByRole('combobox', { name: 'Sort', exact: true }).selectOption('name')
+    const nameResponse = page.waitForResponse((r) => r.url().includes('/items?sort=name'))
+    await page.getByRole('button', { name: 'Apply sort', exact: true }).click()
+    await nameResponse
+    await page.waitForTimeout(100)
+    const names = await page.locator('#rows .name').allTextContents()
+    const nameSortWorks =
+      JSON.stringify(names) === JSON.stringify(['Amber gadget', 'Blue widget', 'Cyan sprocket'])
     let filterWorks: boolean | null = null
     if (sample.sampleId.startsWith('overlay-')) {
       await page
@@ -49,11 +57,13 @@ export async function replayUrlSample(
       before,
       prices,
       sortWorks,
+      names,
+      nameSortWorks,
       firstRowSelectors,
       filterWorks,
       passed:
         sample.variant === 'healthy'
-          ? sortWorks && filterWorks !== false
+          ? sortWorks && nameSortWorks && filterWorks !== false
           : sample.expectedFindingKey === 'foreground-control-covered'
             ? filterWorks === false
             : !sortWorks,

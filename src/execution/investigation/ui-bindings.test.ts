@@ -49,3 +49,27 @@ describe('UI pre-action result intent', () => {
     expect(() => assertUiProgramBindings(control)).not.toThrow()
   })
 })
+
+it('normalizes only optional nulls and still refuses missing required action operands', () => {
+  const wire = {
+    ...input(),
+    targets: input().targets.map((t) => ({ ...t, binding: null, identityBasis: null })),
+    steps: [
+      { op: 'act', type: 'click', target: 'button', value: null, scrollY: null },
+      { op: 'measure', name: 'after' },
+    ],
+  }
+  const parsed = programInput.parse(wire)
+  expect(parsed.targets[0]!.binding).toBeUndefined()
+  expect(parsed.steps[0]).toMatchObject({ op: 'act', type: 'click', value: undefined })
+  for (const action of [
+    { op: 'act', type: 'fill', target: 'button', value: null },
+    { op: 'act', type: 'scroll', target: null, scrollY: null },
+    { op: 'act', type: 'click', target: null },
+  ])
+    expect(programInput.safeParse({ ...wire, steps: [action, wire.steps[1]] }).success).toBe(false)
+  expect(
+    programInput.safeParse({ ...wire, steps: [...Array(4).fill(wire.steps[0]), wire.steps[1]] })
+      .success,
+  ).toBe(false)
+})

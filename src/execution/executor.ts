@@ -1,3 +1,4 @@
+import { createToolContractRepair } from './tool-contract-repair.ts'
 import { uiActionRefusal } from './ui-action-boundary.ts'
 import { createInteractionRecovery, recoveryDigest } from './interaction-recovery.ts'
 import {
@@ -1957,6 +1958,16 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         }
       }
       guard()
+      if (
+        uiScan &&
+        input.verify &&
+        (input.type === 'navigate' ||
+          (resolvedLocator &&
+            (await resolvedLocator.evaluate((node) => node instanceof HTMLAnchorElement))))
+      )
+        throw Error(
+          'navigation-verification-is-separate: no action dispatched. Omit verify for navigation; the executor verifies the actual link and destination. Inspect the destination after arriving before composing a separate content check grounded in known requirements. Never infer exact destination text from a link label.',
+        )
       if (inspection && input.type === 'navigate' && input.url) {
         const destination = URL.canParse(input.url, page.url())
           ? new URL(input.url, page.url()).href
@@ -2695,7 +2706,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       investigation_run: createTool({
         id: 'investigation.run',
         description:
-          'Execute an Agent-authored bounded version 1 investigation program. Declare CSS targets, measure/wait/act steps and comparisons of measured metrics. Acts use the normal business action policy and budget; do not repeat a write. Saves program, screenshots, measurements and a bounded comparison finding automatically. Unsupported/ambiguous/replaced targets or intervention yield unknown. No arbitrary JS, no automatic global rule approval. See schema for composition; expectation applicability remains Agent-declared.',
+          'Execute an Agent-authored bounded version 1 investigation program. Declare CSS targets, measure/wait/act steps and comparisons of measured metrics. At most THREE actions and 4000ms total wait; bind_results must follow the FINAL action, then measure. Split separate action/result phases into separate bounded programs. Acts use the normal business action policy and budget; do not repeat a write. Saves program, screenshots, measurements and a bounded comparison finding automatically. Unsupported/ambiguous/replaced targets or intervention yield unknown. No arbitrary JS, no automatic global rule approval. See schema for composition; expectation applicability remains Agent-declared.',
         inputSchema: programInput,
         execute: (input) =>
           serial('investigation_run', async () => {
@@ -3512,6 +3523,8 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       businessContract ?? undefined,
       uiScan,
     )
+    const contractRepair = createToolContractRepair()
+    let contractRepairAdvice: ReturnType<typeof contractRepair.take>
     let uiRecoveryUsed = false
     const reviewedStates = new Set<string>()
     const refreshedReviewVersions = new Set<string>()
@@ -3550,6 +3563,12 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
             noToolStreak = 0
             continue
           }
+        }
+        contractRepairAdvice = contractRepair.take()
+        if (contractRepairAdvice) {
+          await appendEvent(runId, 'execution:contract-repair', contractRepairAdvice)
+          noToolStreak = 2
+          continue
         }
         // No-progress is a scheduling fact, not an unverified UI dimension. An already
         // covered run must pass the same durable verifier before adding a genuine gap.
@@ -3805,6 +3824,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
               ).trim(),
             }
           : {}),
+        ...(contractRepairAdvice ? { contractRepairAdvice } : {}),
         budgetRemaining: {
           actions: budget.maxActions - usage.actions,
           modelCalls: budget.maxModelCalls - usage.modelCalls,
@@ -4038,6 +4058,8 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           },
         },
       )
+      contractRepair.observe(result.toolResults ?? [])
+      contractRepairAdvice = undefined
       const record = lastRecord!
       const u = result.usage
       const classification = classifyResponse({

@@ -56,12 +56,16 @@ export const programInput = z
               .string()
               .min(1)
               .max(500)
+              .nullish()
+              .transform((value) => value ?? undefined)
               .optional()
               .describe(
                 'For an identity-sensitive post-action-only check, explain why the original node itself must persist. Never use this for ordinary result content.',
               ),
             binding: z
               .enum(['node', 'post-action'])
+              .nullish()
+              .transform((value) => value ?? undefined)
               .optional()
               .describe(
                 'Default node preserves identity throughout. post-action is a result slot explicitly read and bound by bind_results after the last action; never an action target.',
@@ -91,15 +95,33 @@ export const programInput = z
             .object({
               op: z.literal('act'),
               type: z.enum(['click', 'fill', 'scroll']),
-              target: name.optional(),
-              value: z.string().max(500).optional(),
-              scrollY: z.number().int().min(-1000).max(1000).optional(),
+              target: name
+                .nullish()
+                .transform((value) => value ?? undefined)
+                .optional(),
+              value: z
+                .string()
+                .max(500)
+                .nullish()
+                .transform((value) => value ?? undefined)
+                .optional(),
+              scrollY: z
+                .number()
+                .int()
+                .min(-1000)
+                .max(1000)
+                .nullish()
+                .transform((value) => value ?? undefined)
+                .optional(),
             })
             .strict(),
         ]),
       )
       .min(1)
-      .max(10),
+      .max(10)
+      .describe(
+        'At most THREE act steps per program, at most 4000ms total wait. For post-action targets, bind_results must follow the FINAL action, then measure. Split separate action/result phases into separate bounded programs.',
+      ),
     assertions: z
       .array(
         z
@@ -226,4 +248,4 @@ export function evaluateProgram(program: InvestigationProgram, samples: Samples)
   return { assertions, verdict }
 }
 export const programInstructions =
-  'For new spatial or before/after questions, compose a minimal investigation_run: short phenomenon/basis, only relevant targets, and usually one measure shared by all assertions. Every assertion must directly match the grounded requirement; do not add unrequested layout relationships or collateral checks. Bind selectors only to inspected elements whose text or role confirms their meaning. For content that appears after an operation, act and inspect it before binding; do not guess a future selector. Save a bounded check of the current contradiction before navigating or resetting. A current-state expectation does not need a before sample unless the question actually compares a change. Do not substitute a time-window condition for the geometry you intend to test. page_inspect reads public DOM text and geometric facts, including noninteractive content, without classifying defects. Use its CSS selectors to declare targets in investigation_run. Compose a version 1 program with measure(name), ordinary act(click/fill/scroll) and bounded wait(ms) steps; assertions compare a measured {sample,target,metric} with {value} or another measurement. Explain your observed phenomenon and the source of the expectation in basis. No issue-category enum or arbitrary JavaScript is needed. A program runs serially, saves its source, screenshots, measured facts and computed comparisons. Use separate measure steps before/after an operation for changes. Metrics describe rectangular DOM geometry and sampled hit tests, not visual meaning or universal usability. Missing/ambiguous/replaced/unsupported targets yield unknown, not proof of failure. Targets default to binding=node and keep the same identity. For result content expected to be rebuilt by an action, explicitly declare binding=post-action, execute the action, then bind_results before measuring. bind_results reads the current public nodes at those declared result selectors. Never use result targets for actions or same-node before/after assertions. Prefer an available specialized probe when its measured scope matches the question. A fail proves only the declared bounded comparison; subjective expectations remain your interpretation. Do not repeat business writes to investigate. Complete remaining scope or run_finish after reading the receipt; do not resubmit its finding. Saved programs are investigation recipes, not automatically approved global rules.'
+  'For new spatial or before/after questions, compose a minimal investigation_run (at most three actions, ten steps, and 4000ms total wait; one final result binding phase): short phenomenon/basis, only relevant targets, and usually one measure shared by all assertions. Every assertion must directly match the grounded requirement; do not add unrequested layout relationships or collateral checks. Bind selectors only to inspected elements whose text or role confirms their meaning. For content that appears after an operation, act and inspect it before binding; do not guess a future selector. Save a bounded check of the current contradiction before navigating or resetting. A current-state expectation does not need a before sample unless the question actually compares a change. Do not substitute a time-window condition for the geometry you intend to test. page_inspect reads public DOM text and geometric facts, including noninteractive content, without classifying defects. Use its CSS selectors to declare targets in investigation_run. Compose a version 1 program with measure(name), ordinary act(click/fill/scroll) and bounded wait(ms) steps; assertions compare a measured {sample,target,metric} with {value} or another measurement. Explain your observed phenomenon and the source of the expectation in basis. No issue-category enum or arbitrary JavaScript is needed. A program runs serially, saves its source, screenshots, measured facts and computed comparisons. Use separate measure steps before/after an operation for changes. Metrics describe rectangular DOM geometry and sampled hit tests, not visual meaning or universal usability. Missing/ambiguous/replaced/unsupported targets yield unknown, not proof of failure. Targets default to binding=node and keep the same identity. For result content expected to be rebuilt by an action, explicitly declare binding=post-action, execute the action, then bind_results before measuring. bind_results reads the current public nodes at those declared result selectors. Never use result targets for actions or same-node before/after assertions. Prefer an available specialized probe when its measured scope matches the question. A fail proves only the declared bounded comparison; subjective expectations remain your interpretation. Do not repeat business writes to investigate. Complete remaining scope or run_finish after reading the receipt; do not resubmit its finding. Saved programs are investigation recipes, not automatically approved global rules.'

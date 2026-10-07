@@ -110,7 +110,7 @@ const model = createServer(async (req, res) => {
     name = 'page_observe'
     args = {}
   } else if (turn === 2) {
-    if (mode === 'program-preflight') {
+    if (['program-preflight', 'wire-null'].includes(mode)) {
       name = 'investigation_run'
       args = program(false)
     } else {
@@ -129,11 +129,10 @@ const model = createServer(async (req, res) => {
       }
     }
   } else if (turn === 3 && !['continuity', 'covered-loop'].includes(mode)) {
-    name = mode === 'program-preflight' ? 'investigation_run' : 'page_act'
-    args =
-      mode === 'program-preflight'
-        ? program(true)
-        : { type: 'click', selector: '#refresh', verify: verification }
+    name = ['program-preflight', 'wire-null'].includes(mode) ? 'investigation_run' : 'page_act'
+    args = ['program-preflight', 'wire-null'].includes(mode)
+      ? program(true)
+      : { type: 'click', selector: '#refresh', verify: verification }
   } else if (
     (turn === 3 && ['continuity', 'covered-loop'].includes(mode)) ||
     (turn === 4 && !['continuity', 'covered-loop'].includes(mode))
@@ -182,9 +181,50 @@ const model = createServer(async (req, res) => {
     } else
       args = { type: 'click', ref: candidates.find((c: any) => c.category === 'navigation')?.ref }
   }
+  if (mode === 'navigation-expectation' && turn === 3) {
+    name = 'page_act'
+    args = {
+      type: 'click',
+      ref: candidates.find((c: any) => c.category === 'navigation')?.ref,
+      verify: {
+        selector: 'body',
+        condition: 'text-contains',
+        expected: 'Invented destination text',
+        basis: 'Unsupported guess from link label',
+      },
+    }
+  }
   if (mode === 'navigation-contract' && turn === 3) {
     name = 'page_act'
     args = { type: 'navigate', url: origin + '/info' }
+  }
+  if (mode === 'wire-null' && name === 'investigation_run') {
+    args.targets = args.targets.map((target: any) => ({
+      identityBasis: null,
+      binding: null,
+      ...target,
+    }))
+    args.steps = args.steps.map((step: any) =>
+      step.op === 'act' ? { value: null, scrollY: null, ...step } : step,
+    )
+  }
+  if (['contract-repair', 'contract-loop'].includes(mode) && turn >= 1) {
+    name =
+      turn <= 2
+        ? 'page_observe'
+        : turn <= 4
+          ? 'investigation_run'
+          : turn === 5
+            ? 'page_act'
+            : 'run_finish'
+    args =
+      turn <= 3 || mode === 'contract-loop'
+        ? {}
+        : turn === 4
+          ? program(true)
+          : turn === 5
+            ? { type: 'click', ref: candidates.find((c: any) => c.category === 'navigation')?.ref }
+            : { reason: 'scope-covered' }
   }
   turn++
   const common = {
@@ -249,7 +289,11 @@ try {
     'label-contract',
     'sampling-cap',
     'navigation-contract',
+    'navigation-expectation',
     'program-preflight',
+    'wire-null',
+    'contract-repair',
+    'contract-loop',
     'action-preflight',
     'unknown-replay',
   ]) {
@@ -288,10 +332,18 @@ try {
     const original = report.uiScan?.inspection.items.find((i: any) => i.itemId === originalId)
     const events = report.events
     const checks = {
+      contractRepair:
+        !['contract-repair', 'contract-loop'].includes(mode) ||
+        (events.filter((e: any) => e.type === 'execution:contract-repair').length === 1 &&
+          (mode !== 'contract-loop' || turn <= 5)),
       navigationPreflight:
         mode !== 'navigation-contract' ||
         (JSON.stringify(events).includes('selected-navigation-requires-click') &&
           !events.some((e: any) => e.type === 'action:executing' && e.payload.type === 'navigate')),
+      navigationExpectation:
+        mode !== 'navigation-expectation' ||
+        (JSON.stringify(events).includes('navigation-verification-is-separate') &&
+          !report.uiScan.inspection.items.some((item: any) => item.status === 'failed')),
       sampling:
         mode !== 'sampling-cap' ||
         (JSON.stringify(events).includes('local-interaction-sampling-cap') &&
@@ -313,25 +365,29 @@ try {
       labelPreflight:
         mode !== 'label-contract' || JSON.stringify(events).includes('verification-value-is-label'),
       terminal:
-        mode === 'unknown-replay'
-          ? report.status !== 'completed' && original?.status === 'unverified'
-          : report.status === 'completed' && original?.status === 'verified',
+        mode === 'contract-loop'
+          ? report.status !== 'completed' && original?.status === 'pending'
+          : mode === 'unknown-replay'
+            ? report.status !== 'completed' && original?.status === 'unverified'
+            : report.status === 'completed' && original?.status === 'verified',
       proof: report.uiScan?.proofVerified === true,
-      dispatched: clicks === (['unknown-replay', 'sampling-cap'].includes(mode) ? 2 : 1),
+      dispatched:
+        clicks ===
+        (mode === 'contract-loop' ? 0 : ['unknown-replay', 'sampling-cap'].includes(mode) ? 2 : 1),
       continuity: events.some(
         (e: any) => e.type === 'scope:candidate-reobserved' && e.payload.itemId === originalId,
       ),
       navigation:
+        mode === 'contract-loop' ||
         report.uiScan?.inspection.items.find(
           (i: any) => i.itemId === selected.find((c) => c.category === 'navigation')?.itemId,
         )?.status === 'verified',
-      preflight:
-        mode === 'program-preflight'
-          ? JSON.stringify(events).includes('ambiguous-result-binding') &&
-            report.hypotheses.length === 1
-          : mode === 'action-preflight'
-            ? JSON.stringify(events).includes('postcondition-required')
-            : true,
+      preflight: ['program-preflight', 'wire-null'].includes(mode)
+        ? JSON.stringify(events).includes('ambiguous-result-binding') &&
+          report.hypotheses.length === 1
+        : mode === 'action-preflight'
+          ? JSON.stringify(events).includes('postcondition-required')
+          : true,
       history:
         mode !== 'unknown-replay' ||
         events.some(

@@ -66,7 +66,7 @@ function uiScanPolicy(
     'element_details. Use tool observations and durable evidence; never invent findings. ' +
     'Prefer a bounded local interaction over wide exploration: scroll, expand and collapse, switch ' +
     'tabs, apply a read-only filter, type into a field without submitting, and follow an in-scope ' +
-    'same-origin link. For a link you selected as a check, click its observed ref; direct URL navigation cannot establish that the selected link works. Record the interactions and navigations you intend to check with ' +
+    'same-origin link. For a link you selected as a check, click its observed ref; direct URL navigation cannot establish that the selected link works. Omit verify on navigation: the executor measures the link and destination. Inspect the destination after arrival before a separate content check; never infer its exact text from the link label. Record the interactions and navigations you intend to check with ' +
     'exploration_update (selectItems/recordGap); only select targets that the current observation ' +
     'actually offered, and only the executor can conclude that a check was verified. This run is ' +
     'expected to check at least one local interaction and, when a same-origin link is available, at ' +

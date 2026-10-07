@@ -12,6 +12,7 @@ import {
   startUrlScanFixture,
   URL_SCAN_HOLDOUT_LAYOUT,
 } from '../../evaluation/private/url-scan/fixture.ts'
+import { verifyHealthyBehavior } from '../../evaluation/private/url-scan/healthy-behavior.ts'
 import { replayUrlSample } from '../../evaluation/private/url-scan/replay.ts'
 import { verifiesSortFinding } from '../../evaluation/private/url-scan/finding-target.ts'
 import { urlScanTruth } from '../../evaluation/private/url-scan/truth.ts'
@@ -393,17 +394,11 @@ export async function runUrlCampaign(
           const snapshots = Object.values(saved.artifacts)
             .filter((a) => a.exists && a.type === 'snapshot')
             .map((a) => a.data as any)
-          const agentBehaviorVerified = snapshots.some((snapshot) => {
-            const text = String(snapshot?.text ?? '')
-            const pos = ['5 · Amber gadget', '12 · Cyan sprocket', '20 · Blue widget'].map((x) =>
-              text.indexOf(x),
-            )
-            return (
-              pos.every((p) => p >= 0) &&
-              pos[0]! < pos[1]! &&
-              pos[1]! < pos[2]! &&
-              (!truth.sampleId.startsWith('overlay-') || text.includes('Available products'))
-            )
+          const agentBehaviorVerified = verifyHealthyBehavior({
+            entryUrl,
+            overlay: truth.sampleId.startsWith('overlay-'),
+            requests,
+            snapshots,
           })
           const findingKeysById: Record<string, string> = {}
           for (const finding of report.findings) {
