@@ -601,6 +601,20 @@ export function createInspectionHost(options: InspectionHostOptions) {
     recordNavigation,
     recordNavigationDenied,
     recordUnsupported,
+    assertAgentGapReady: (newSelections = 0) => {
+      if (
+        newSelections ||
+        items().some(
+          (item) =>
+            item.selected &&
+            item.status === 'pending' &&
+            ['local-interaction', 'navigation'].includes(item.category),
+        )
+      )
+        throw Error(
+          'scope-gap-is-final: no update applied. A pending selected check already records unfinished work. Use selectItems for planned work, then measure it or finish unverified-scope. recordGap is permanent extra unverified scope, not a deferred task, and cannot be cleared by another successful check. Navigation does not consume the local-control sampling quota.',
+        )
+    },
     recordGap,
     selectItems,
     excludeItem,

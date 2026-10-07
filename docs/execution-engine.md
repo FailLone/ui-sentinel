@@ -145,3 +145,5 @@ UI 链接导航与目的页内容检查分开：导航动作不接受局部 `ver
 首次选择实际观察到的公开控件属于有界计划进展，允许执行随后测量；以公开 samplingKey 去重，每种控件只计一次，换 itemId 或重复选择不会续期。selectionFacts 只用于无进展调度，pending 仍是 pending，结束校验仍要求真实证据。
 
 UI 后置谓词的 `failed` 测量会由执行器保存 `ui-interaction` 类型发现，关联原 action、原 scope item、动作前预期、动作后当前结果绑定及截图。该发现只说明当前测量与声明预期不符，不证明预期适用于所有页面。提升、持久终态及历史报告均复核服务端封印、文件摘要和事件顺序；受干预、unknown 或无效证据不会产生 supported。`interaction_verify` 的失败恢复使用同一事项和原预期，保留旧 unknown，不重放动作。模型无需再次提交该发现。
+
+干净 UI 运行中，`exploration_update.recordGap` 与仍待测量的已选控件/导航计划分开：包含新选择或存在 pending 选择时，工具在任何记录写入前拒绝永久 gap 声明。先用 selectItems 计划并测量，或以 unverified-scope 保留 pending 结束；干预后可以继续记下实际无法验证范围。已经保存的 gap 不因空更新或后续成功而消失。导航不占局部控件采样额度，返回 localSampling 供计划核对。

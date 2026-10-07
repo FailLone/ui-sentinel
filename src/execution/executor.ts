@@ -3516,11 +3516,13 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       exploration_update: createTool({
         id: 'exploration.update',
         description: uiScan
-          ? 'Record the state you have reached and select the targets this run will check. selectItems chooses among the candidate items returned with the current observation, each with your basis; recordGap states a genuinely unfinished item and why. Only the executor concludes that a check is verified, so an item reaches a verified status through a saved measurement rather than through this call. Selections are additive: an item already reported as a gap stays reported.'
+          ? 'Record the state you have reached and select the targets this run will check. selectItems chooses among the candidate items returned with the current observation, each with your basis; recordGap declares permanent extra unverified scope, not planned or deferred work: it is refused while selected controls/navigation are pending, unless the executor already intervened. Use selectItems for work you will still measure; navigation does not spend local-control sampling capacity. Only the executor concludes that a check is verified, so an item reaches a verified status through a saved measurement rather than through this call. Selections are additive: an item already reported as a gap stays reported.'
           : 'Record reached states and unfinished branches. Give every branch its actual trigger; use always only for an unconditional obligation. The server derives whether a condition triggered. Untriggered branches are reported separately and do not block completion. Send an empty list to clear previously recorded branches after checking them.',
         inputSchema: explorationInput,
         execute: (input) =>
           serial('exploration_update', async () => {
+            if (uiScan && inspection && input.recordGap && integrity.epoch() === 0)
+              inspection.assertAgentGapReady(input.selectItems?.length ?? 0)
             notes.push(input)
             taskState.setBranches(input.unexploredBranches)
             await appendEvent(runId, 'exploration:state-reached', { state: input.state })
@@ -3547,6 +3549,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
                 task: taskState.snapshot(),
                 selected: ledger.snapshot().counts.selected,
                 candidateItems: candidates,
+                localSampling: ledger.localSampling(),
                 missingFacts: [
                   ...completionGaps(),
                   ...ledger.completionGaps().map((g) => g.reason),

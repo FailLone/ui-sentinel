@@ -569,3 +569,36 @@ it('deduplicates planning progress by public control rather than generated item 
   expect(h.selectionFacts()).toHaveLength(1)
   expect(h.completionGaps().filter((g) => g.category === 'local-interaction')).toHaveLength(2)
 })
+
+it('separates pending plans from final gaps without clearing historical obligations', async () => {
+  const { host: h, events } = host()
+  await h.recordObservation({
+    url: 'https://shop.example.org/catalog',
+    evidenceRefs: ['shot'],
+    candidateDetail: 'public control',
+    candidateCategories: ['local-interaction'],
+    candidateItems: [{ ref: 'e1', description: 'Refresh', category: 'local-interaction' }],
+  })
+  const before = events.length
+  expect(() => h.assertAgentGapReady(1)).toThrow('scope-gap-is-final')
+  expect(events).toHaveLength(before)
+  const item = h.candidateItems()[0]!
+  await h.selectItems([{ itemId: item.itemId, basis: 'public instruction' }])
+  expect(() => h.assertAgentGapReady()).toThrow('scope-gap-is-final')
+  await h.resolveInteraction({
+    ref: 'e1',
+    target: 'Refresh',
+    url: 'https://shop.example.org/catalog',
+    category: 'local-interaction',
+    outcome: 'verified',
+    evidenceRefs: ['measurement'],
+  })
+  expect(() => h.assertAgentGapReady()).not.toThrow()
+  const gap = await h.recordGap({
+    reasonCode: 'external-scope-unverified',
+    detail: 'Additional unavailable requirement',
+  })
+  await h.selectItems([])
+  expect(h.snapshot().items.find((i) => i.itemId === gap.itemId)?.status).toBe('unverified')
+  expect(h.completionGaps().some((g) => g.itemId === gap.itemId)).toBe(true)
+})

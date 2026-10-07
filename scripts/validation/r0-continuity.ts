@@ -287,6 +287,57 @@ const model = createServer(async (req, res) => {
       args = { reason: 'scope-covered' }
     }
   }
+  if (mode === 'premature-gap') {
+    if (turn === 0)
+      args.recordGap = {
+        reasonCode: 'branch-not-checked',
+        detail: 'Deferred untested work is still a plan',
+      }
+    if (turn === 1) {
+      name = 'exploration_update'
+      args = {
+        state: 'Select the actual plan',
+        unexploredBranches: [],
+        selectItems: selected.map((c) => ({ itemId: c.itemId, basis: 'Public control and link' })),
+      }
+    }
+    if (turn === 2) {
+      name = 'exploration_update'
+      args = {
+        state: 'Deferred',
+        unexploredBranches: [],
+        recordGap: {
+          reasonCode: 'branch-not-checked',
+          detail: 'Deferred while selected work is pending',
+        },
+      }
+    }
+  }
+  if (mode === 'final-gap') {
+    if (turn === 3) {
+      name = 'page_act'
+      args = { type: 'click', ref: candidates.find((c: any) => c.category === 'navigation')?.ref }
+    }
+    if (turn === 4) {
+      name = 'exploration_update'
+      args = {
+        state: 'Additional scope unavailable',
+        unexploredBranches: [],
+        recordGap: {
+          reasonCode: 'additional-scope-unverified',
+          detail: 'A public requirement has no verifiable path in this run',
+        },
+      }
+    }
+    if (turn === 5) {
+      name = 'exploration_update'
+      args = { state: 'The extra gap still exists', unexploredBranches: [], selectItems: [] }
+    }
+    if (turn >= 6) {
+      name = 'run_finish'
+      args = { reason: turn === 6 ? 'scope-covered' : 'unverified-scope' }
+    }
+  }
   turn++
   const common = {
     id: randomUUID(),
@@ -346,6 +397,8 @@ try {
   }
   for (mode of [
     'continuity',
+    'premature-gap',
+    'final-gap',
     'covered-loop',
     'label-contract',
     'sampling-cap',
@@ -398,6 +451,16 @@ try {
     const original = report.uiScan?.inspection.items.find((i: any) => i.itemId === originalId)
     const events = report.events
     const checks = {
+      finalGap:
+        mode !== 'final-gap' ||
+        (events.some((e: any) => e.type === 'finish:rejected') &&
+          report.uiScan.inspection.items.some(
+            (i: any) => i.reasonCode === 'additional-scope-unverified' && i.status === 'unverified',
+          )),
+      prematureGap:
+        mode !== 'premature-gap' ||
+        (JSON.stringify(events).includes('scope-gap-is-final') &&
+          !report.uiScan.inspection.items.some((i: any) => i.reasonCode === 'branch-not-checked')),
       selectionBounded:
         mode !== 'selection-loop' || (turn <= 8 && clicks === 0 && report.status !== 'completed'),
       evidenceRead:
@@ -457,9 +520,11 @@ try {
         mode !== 'label-contract' || JSON.stringify(events).includes('verification-value-is-label'),
       terminal: ['contract-loop', 'evidence-loop', 'selection-loop'].includes(mode)
         ? report.status !== 'completed' && original?.status === 'pending'
-        : mode === 'unknown-replay'
-          ? report.status !== 'completed' && original?.status === 'unverified'
-          : report.status === 'completed' && original?.status === 'verified',
+        : mode === 'final-gap'
+          ? report.status !== 'completed' && original?.status === 'verified'
+          : mode === 'unknown-replay'
+            ? report.status !== 'completed' && original?.status === 'unverified'
+            : report.status === 'completed' && original?.status === 'verified',
       proof: report.uiScan?.proofVerified === true,
       dispatched:
         clicks ===
