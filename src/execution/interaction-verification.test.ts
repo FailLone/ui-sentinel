@@ -14,6 +14,29 @@ it('measures real numeric order and refuses ambiguous or unsupported predicates'
     expect((await measureInteraction(w.page, input)).outcome).toBe('failed')
     await w.page.setContent('<ul><li>5</li><li>12</li><li>20</li></ul>')
     expect((await measureInteraction(w.page, input)).outcome).toBe('verified')
+    // A single container must not fall through to text equality and falsely verify order.
+    for (const condition of ['numeric-ascending', 'numeric-descending'] as const) {
+      expect(
+        (
+          await measureInteraction(w.page, {
+            ...input,
+            selector: 'ul',
+            condition,
+            expected: '51220',
+          })
+        ).outcome,
+      ).toBe('unverified')
+      expect(
+        (
+          await measureInteraction(w.page, {
+            ...input,
+            selector: 'missing',
+            condition,
+            expected: '',
+          })
+        ).outcome,
+      ).toBe('unverified')
+    }
     expect(
       (await measureInteraction(w.page, { ...input, condition: 'text-equals', expected: '5' }))
         .outcome,

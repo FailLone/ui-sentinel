@@ -29,6 +29,11 @@ export interface ToolSummary {
   readonly actionType?: string
   readonly noNewFacts?: boolean
   readonly staleWarning?: string
+  readonly verdict?: string
+  readonly validationStatus?: string
+  readonly hypothesisId?: string
+  readonly nextStep?: string
+  readonly targetIssues?: unknown
 }
 
 export interface HistoryCompressionConfig {
@@ -93,6 +98,7 @@ const KEEP_KEYS = new Set([
   'receiptRef',
   'programRef',
   'assertions',
+  'targetIssues',
   'scope',
   'omitted',
   'chunk',

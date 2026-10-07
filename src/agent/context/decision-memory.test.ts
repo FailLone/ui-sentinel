@@ -5,6 +5,57 @@ const entry = (toolName: string, result: unknown, args = {}): HistoryEntry => ({
   text: '',
   toolResults: JSON.stringify([{ payload: { toolName, args, result } }]),
 })
+it('retains an inconclusive verdict and recovery instruction when arguments exceed the memory budget', () => {
+  const history = [
+    entry(
+      'investigation_run',
+      {
+        verdict: 'unknown',
+        validationStatus: 'inconclusive',
+        hypothesisId: 'hyp-dynamic',
+        targetIssues: [
+          { sample: 'after', target: 'notice', reason: 'target-replaced-or-detached' },
+        ],
+        nextStep:
+          'Inspect the current public DOM; a new check does not erase this unverified scope.',
+      },
+      { basis: 'Public basis '.repeat(2000) },
+    ),
+  ]
+  const packet = JSON.parse(JSON.stringify(decisionMemory(history)))
+  expect(packet.latestToolResults.tools[0]).toMatchObject({
+    omitted: true,
+    verdict: 'unknown',
+    validationStatus: 'inconclusive',
+    hypothesisId: 'hyp-dynamic',
+    resultRef: '0.0',
+    nextStep: expect.stringContaining('does not erase'),
+  })
+  expect(Buffer.byteLength(JSON.stringify(packet))).toBeLessThanOrEqual(8000)
+  const full = readToolResult(history, '0.0')
+  expect('error' in full).toBe(false)
+})
+it('bounds eight oversized multilingual outcome summaries in a single packet', () => {
+  const huge = '输入😀\\"'.repeat(4000)
+  const tool = JSON.parse(
+    entry(
+      'investigation_run',
+      {
+        verdict: huge,
+        status: huge,
+        id: huge,
+        validationStatus: huge,
+        hypothesisId: huge,
+        error: huge,
+        nextStep: huge,
+      },
+      { basis: huge },
+    ).toolResults,
+  )[0]
+  const packet = decisionMemory([{ text: '', toolResults: JSON.stringify(Array(8).fill(tool)) }])
+  expect(Buffer.byteLength(JSON.stringify(packet))).toBeLessThanOrEqual(8000)
+  expect(packet.latestToolResults!.tools).toHaveLength(8)
+})
 it('delivers queried history in the next actual decision packet, not just the query arguments', () => {
   const history = [
     entry('hypotheses_record', {

@@ -13,6 +13,7 @@ import {
   URL_SCAN_HOLDOUT_LAYOUT,
 } from '../../evaluation/private/url-scan/fixture.ts'
 import { replayUrlSample } from '../../evaluation/private/url-scan/replay.ts'
+import { verifiesSortFinding } from '../../evaluation/private/url-scan/finding-target.ts'
 import { urlScanTruth } from '../../evaluation/private/url-scan/truth.ts'
 import { scoreUrlScan } from '../../evaluation/private/url-scan/scorer.ts'
 import { readUrlScanPrices } from './url-scan-prices.ts'
@@ -366,7 +367,12 @@ export async function runUrlCampaign(
             !report.findings.some((f: any) => f.validationStatus === 'supported') &&
             !requests.some((r) => r.method === 'POST')
         } else {
-          const replay = await replayUrlSample(entryUrl, truth)
+          const declaredSelectors = Object.values(saved.artifacts).flatMap((a) =>
+            a.exists && a.type === 'measurement'
+              ? ((a.data as any)?.program?.targets ?? []).map((t: any) => t.selector)
+              : [],
+          )
+          const replay = await replayUrlSample(entryUrl, truth, declaredSelectors)
           let controlReplayPassed = true
           if (truth.variant === 'defective') {
             fixture.setVariant('healthy')
@@ -421,17 +427,7 @@ export async function runUrlCampaign(
             // A DOM assertion must actually measure the rows and contradict the public price order.
             if (
               truth.expectedFindingKey === 'sort-ignores-selection' &&
-              evidence.some(
-                (receipt) =>
-                  receipt.program?.targets?.some((t: any) => t.selector.includes('#rows')) &&
-                  receipt.verdict === 'fail' &&
-                  receipt.assertions?.some(
-                    (a: any) =>
-                      a.verdict === 'fail' &&
-                      ['20', '20 · Blue widget'].includes(String(a.actualLeft)) &&
-                      ['5', '5 · Amber gadget'].includes(String(a.actualRight)),
-                  ),
-              )
+              evidence.some((receipt) => verifiesSortFinding(receipt, replay.firstRowSelectors))
             )
               findingKeysById[finding.id] = truth.expectedFindingKey
           }

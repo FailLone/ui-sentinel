@@ -32,6 +32,8 @@ export async function runProgram(raw: InvestigationProgram, host: ProgramHost) {
     screenshotRefs: string[] = [],
     log: { op: string; at: number; detail: string }[] = []
   const handles = new Map<string, ElementHandle<Element>>()
+  const targetIssues: { sample: string; target: string; reason: string }[] = []
+  const bindingIssues = new Map<string, string>()
   const root = await host.page.locator('html').elementHandle({ timeout: 1000 })
   const url = host.page.url()
   const startedAt = Date.now()
@@ -52,7 +54,10 @@ export async function runProgram(raw: InvestigationProgram, host: ProgramHost) {
       (s) => document.querySelectorAll(s).length,
       target.selector,
     )
-    if (count !== 1) return null
+    if (count !== 1) {
+      bindingIssues.set(name, count === 0 ? 'target-missing' : 'target-ambiguous')
+      return null
+    }
     let h = handles.get(name)
     if (!h) {
       h =
@@ -66,8 +71,11 @@ export async function runProgram(raw: InvestigationProgram, host: ProgramHost) {
         (e, s) => e.isConnected && document.querySelector(s) === e,
         target.selector,
       ))
-    )
+    ) {
+      bindingIssues.set(name, h ? 'target-replaced-or-detached' : 'target-unavailable')
       return null
+    }
+    bindingIssues.delete(name)
     return h
   }
   try {
@@ -84,6 +92,12 @@ export async function runProgram(raw: InvestigationProgram, host: ProgramHost) {
         for (const t of program.targets) {
           const h = await bind(t.name)
           measured[t.name] = h ? await measureElement(h) : unknownMeasurement()
+          if (!h)
+            targetIssues.push({
+              sample: step.name,
+              target: t.name,
+              reason: bindingIssues.get(t.name) ?? 'target-unavailable',
+            })
         }
         const shot = await host.screenshot()
         await check()
@@ -144,6 +158,7 @@ export async function runProgram(raw: InvestigationProgram, host: ProgramHost) {
     startedAt,
     finishedAt: Date.now(),
     assertions: evaluated.assertions,
+    targetIssues,
     verdict: error || !host.clean() ? ('unknown' as const) : evaluated.verdict,
     ...(error ? { error } : {}),
     scope:

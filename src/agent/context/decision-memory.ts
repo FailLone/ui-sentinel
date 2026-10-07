@@ -2,6 +2,15 @@ import { extractToolSummary, type HistoryEntry } from './compact-history.ts'
 
 export const MEMORY_BUDGET_BYTES = 8000
 const bytes = (value: unknown) => Buffer.byteLength(JSON.stringify(value))
+function boundedText(value: string | undefined, limit: number) {
+  if (value === undefined) return undefined
+  let result = ''
+  for (const char of value) {
+    if (Buffer.byteLength(JSON.stringify(result + char)) > limit) break
+    result += char
+  }
+  return result
+}
 export function rawTools(entry: HistoryEntry): Record<string, unknown>[] {
   try {
     const result = JSON.parse(entry.toolResults)
@@ -27,12 +36,17 @@ function receipt(item: Record<string, unknown>, resultRef: string, budget: numbe
   if (bytes(summary) <= budget) return summary
   // Never make a missing payload look like an empty successful result.
   const short = {
-    tool: summary.tool.slice(0, 80),
+    tool: boundedText(summary.tool, 40)!,
     resultRef,
     omitted: true,
-    status: summary.status?.slice(0, 80),
-    id: summary.id?.slice(0, 100),
+    status: boundedText(summary.status, 40),
+    id: boundedText(summary.id, 80),
     accepted: summary.accepted,
+    verdict: boundedText(summary.verdict, 30),
+    validationStatus: boundedText(summary.validationStatus, 30),
+    hypothesisId: boundedText(summary.hypothesisId, 80),
+    error: boundedText(summary.error, 80),
+    nextStep: boundedText(summary.nextStep, 160),
     hint: 'Payload exceeds this page. Use tool_result_read(resultRef) for the original result.',
   }
   return short
@@ -98,6 +112,8 @@ export function boundedHistoryPage(history: readonly HistoryEntry[], start: numb
       receiptRef: 'receiptRef' in t ? t.receiptRef : t.resultRef,
       omitted: true,
       id: t.id && Buffer.byteLength(t.id) <= 100 ? t.id : undefined,
+      verdict: t.verdict,
+      validationStatus: t.validationStatus,
     }))
   }
   if (bytes(page) > 1800) throw new Error('history-page-budget-contract')

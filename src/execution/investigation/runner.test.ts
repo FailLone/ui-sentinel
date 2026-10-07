@@ -159,6 +159,36 @@ describe('composable program contracts', () => {
       h.clean = () => false
       expect((await runProgram(program('viewportFraction'), h)).verdict).toBe('unknown')
     }))
+  it('explains replaced targets without rebinding, and permits a fresh current-state measurement', async () => {
+    for (const healthy of [true, false])
+      await fixture(
+        `<button id="refresh" onclick="document.querySelector('#item').outerHTML='<p id=item>${healthy ? 'Ready' : 'Waiting'}</p>'">Refresh status</button><p id="item">Waiting</p>`,
+        async (host) => {
+          const p = program('text')
+          p.targets.push({ name: 'refresh', selector: '#refresh' })
+          p.steps = [
+            { op: 'measure', name: 'before' },
+            { op: 'act', type: 'click', target: 'refresh' },
+            { op: 'measure', name: 'after' },
+          ]
+          p.assertions[0]!.operator = 'eq'
+          p.assertions[0]!.right = { value: 'Ready' }
+          const replaced = await runProgram(p, host)
+          expect(replaced.verdict).toBe('unknown')
+          expect(replaced.samples.after!.item!.text).toBeNull()
+          expect(replaced.targetIssues).toEqual([
+            { sample: 'after', target: 'item', reason: 'target-replaced-or-detached' },
+          ])
+          const observed = await inspectElements(host.page, '#item', 0)
+          p.targets = [{ name: 'item', selector: observed.elements[0]!.selector }]
+          p.steps = [{ op: 'measure', name: 'after' }]
+          const fresh = await runProgram(p, host)
+          expect(fresh.verdict).toBe(healthy ? 'pass' : 'fail')
+          expect(fresh.targetIssues).toEqual([])
+          expect(replaced.verdict).toBe('unknown')
+        },
+      )
+  })
   it('cancellation stops execution and budget is reserved before any action', async () =>
     fixture('<button id="item">Go</button>', async (h) => {
       let acted = 0

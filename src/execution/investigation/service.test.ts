@@ -31,6 +31,62 @@ afterAll(async () => {
   await Promise.all(ids.map((id) => rm(`data/artifacts/${id}`, { recursive: true, force: true })))
 })
 describe('program evidence persistence', () => {
+  it('persists missing-target diagnostics and returns honest recovery guidance', async () => {
+    const run = await createRun({
+      goal: 'Inspect',
+      environmentId: 'arena',
+      entryUrl: 'http://localhost:4173',
+    })
+    ids.push(run.id)
+    const page = await browser.newPage()
+    try {
+      await page.setContent('<p>Public status</p>')
+      const result = await investigateProgram(
+        programInput.parse({
+          version: 1,
+          phenomenon: 'Previously observed status is unavailable',
+          basis: 'Public status content',
+          targets: [{ name: 'notice', selector: '#missing' }],
+          steps: [{ op: 'measure', name: 'now' }],
+          assertions: [
+            {
+              expectation: 'Status is visible',
+              left: { sample: 'now', target: 'notice', metric: 'displayed' },
+              operator: 'eq',
+              right: { value: true },
+            },
+          ],
+        }),
+        {
+          page,
+          runId: run.id,
+          guard: () => {},
+          signal: new AbortController().signal,
+          remainingActions: () => 5,
+          clean: () => true,
+          metadata: () => ({}),
+          registered: () => {},
+          resolved: () => {},
+          act: async () => {},
+          screenshot: async () => saveEvidence(run.id, 'screenshot', await page.screenshot()),
+        },
+      )
+      expect(result.verdict).toBe('unknown')
+      expect(result.targetIssues).toEqual([
+        { sample: 'now', target: 'notice', reason: 'target-missing' },
+      ])
+      expect(result.nextStep).toContain('inconclusive')
+      expect(result.nextStep).toContain('does not erase')
+      expect(await getFindings(run.id)).toHaveLength(0)
+      const saved = (await getEvents(run.id)).find((e) => e.type === 'program:completed')
+      expect(saved!.payload).toMatchObject({
+        targetIssues: result.targetIssues,
+        verdict: 'unknown',
+      })
+    } finally {
+      await page.close()
+    }
+  })
   it('saves replayable source and computed finding; forbids verdict changes and tampering', async () => {
     const run = await createRun({
       goal: 'Inspect',

@@ -2,7 +2,13 @@ import { z } from 'zod'
 import type { Page } from 'playwright'
 
 export const interactionVerificationInput = z.object({
-  selector: z.string().min(1).max(500),
+  selector: z
+    .string()
+    .min(1)
+    .max(500)
+    .describe(
+      'Public DOM CSS selector for the postcondition. Numeric order requires at least two matching nodes, each with strictly numeric text; a parent container or mixed label text is unsupported. Use a text predicate or bounded investigation for other content.',
+    ),
   condition: z.enum([
     'text-equals',
     'text-contains',
@@ -57,11 +63,11 @@ export async function measureInteraction(page: Page, input: InteractionVerificat
   let passed: boolean | null = null
   if (input.condition === 'count-equals' && /^\d+$/.test(input.expected ?? ''))
     passed = measured.count === Number(input.expected)
-  else if (input.condition.startsWith('numeric-') && measured.count >= 2) {
+  else if (input.condition.startsWith('numeric-')) {
     const numbers = measured.values.map((value) =>
       value !== null && /^[-+]?\d+(\.\d+)?$/.test(value) ? Number(value) : NaN,
     )
-    if (numbers.every(Number.isFinite))
+    if (measured.count >= 2 && numbers.every(Number.isFinite))
       passed = numbers.every(
         (value, i) =>
           i === 0 ||

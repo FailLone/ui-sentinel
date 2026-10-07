@@ -14,8 +14,23 @@ it.each(['development', URL_SCAN_HOLDOUT_LAYOUT] as const)(
         expect(html).not.toMatch(
           /expectedFindingKey|foreground-control-covered|sort-ignores-selection|__control|variant=/,
         )
-        const replay = await replayUrlSample(fixture.origin + path, sample)
+        const structural = 'html > body > ul > li:nth-of-type(1)'
+        const replay = await replayUrlSample(fixture.origin + path, sample, [
+          structural,
+          '#rows li:first-child',
+          '#rows .price:first-child',
+          '#rows',
+          '#rows li:nth-child(2)',
+          '#rows, button',
+          'invalid[',
+        ])
         expect(replay.passed, sample.sampleId).toBe(true)
+        expect(replay.firstRowSelectors).toContain(structural)
+        expect(replay.firstRowSelectors).toContain('#rows li:first-child')
+        expect(replay.firstRowSelectors).not.toContain('#rows')
+        expect(replay.firstRowSelectors).not.toContain('#rows li:nth-child(2)')
+        expect(replay.firstRowSelectors).not.toContain('#rows, button')
+        expect(replay.firstRowSelectors).not.toContain('invalid[')
         if (sample.variant === 'defective')
           expect(replay.reproducedFindingKeys).toContain(sample.expectedFindingKey)
       }

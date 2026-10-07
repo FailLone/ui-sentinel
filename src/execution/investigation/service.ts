@@ -114,13 +114,16 @@ export async function investigateProgram(
     verdict: receipt.verdict,
     validationStatus,
     assertions: receipt.assertions,
+    targetIssues: receipt.targetIssues,
     evidenceRefs,
     programRef,
     receiptRef,
     ...(receipt.error ? { error: receipt.error } : {}),
     scope: receipt.scope,
     nextStep:
-      'Continue remaining scope or run_finish; this check is saved. Do not submit it again.',
+      receipt.verdict === 'unknown'
+        ? 'This saved check is inconclusive, not a defect or verified interaction. Read targetIssues/error. If a target was replaced, inspect the current public DOM and bind a new current-state check; do not silently reuse the old node or replay a write. A new check does not erase this unverified scope. Otherwise record the remaining gap and finish partial. Rereading this receipt cannot change its measurements.'
+        : 'Continue remaining scope or run_finish; this check is saved. Do not submit it again.',
   }
   await appendEvent(host.runId, 'program:completed', result, { evidenceRefs })
   return result
