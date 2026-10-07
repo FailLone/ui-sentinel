@@ -74,3 +74,11 @@ D18 只把首次真实控件选择作为有界调度进展，不作为完成证�
 D19 首次增强反例发现历史报告中 persistence 无效但 UI proofVerified 仍为 true，已修复完整 issues 向 UI 摘要传递；失败原报告在 `data/r0-remediation/2026-10-07T12-11-41-818Z/direct-defect/tampered-history-report.json`，不得删除。原9场景增加直接后置失败为10场景，恢复缺陷场景去掉额外 investigation_run，要求仅凭原测量发布恰好一个对应发现；不是降低标准。该次全10场景记录保留，场景计数常量同步修正。
 
 D18/D19 免费出口：构建通过（`data/r0-final-acceptance/d18/d19-build-final-v3.log`）；全量150文件、1487通过、1跳过（`d19-full-v2.log`）。正式 API 恢复/拒绝10场景 `data/r0-remediation/2026-10-07T12-13-16-608Z`，连续性17场景 `data/r0-continuity/2026-10-07T12-13-46-311Z`，URL42 `data/r0-url-scan/2026-10-07T12-14-07-916Z`，业务32 `data/business-preflight/2026-10-07T12-14-26-603Z` 全通过。最后增加“新类别缺失封印”的保守历史拒绝及单测，v3构建与完整单测覆盖；其余B实测路径未改变。以上是开发自测，不能替代下一冻结构建的C诊断/正式轮次。
+
+## 诊断08与 D20 私有判定修订
+
+`r0-ui-diagnostic-5f8eee9-08` 六行5通过/1失败，全部五个 UI 运行均完整结束，边界行正确保留 partial。唯一失败为私有 finding-target-unverified：产品保存了实际 Name 排序后首个名称 Blue widget != Amber gadget 的有效证据；旧判定仅识别首行/价格节点。新账本累计 US$1.24986414、unknown 0；加旧账本 US$1.28708874。独立档案审计通过，原评分不改写、不与旧批拼接。
+
+D20 不改产品实现、提示词、模型、任务或预算，沿用同一页面布局隔离验收器修订。独立浏览器针对实际 selector，在异常页与健康对照重放两种公开排序；测量值需匹配异常实际值，同谓词必须异常 false/健康 true；按被测运行测量前最后一次真实排序请求确定适用性。正式冻结构建仍需重新完整诊断。对08原证据的免费离线复核见 `data/r0-final-acceptance/d20/offline-c08.json`：真实名称节点异常 Blue widget/健康 Amber gadget，确认该证据有效；这只是判定器回归，不把08阶段改成通过。
+
+D20 免费结果：构建、URL42预检通过；新私有反例和9种实际页面布局共12项通过；完整150文件、1488通过1跳过（`data/r0-final-acceptance/d20/full.log`）。未新增产品逻辑，无需重复已通过的恢复/业务B路径；新C必须使用本次完整冻结身份与修订判定，不沿用08评分。

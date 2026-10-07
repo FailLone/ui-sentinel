@@ -11,6 +11,25 @@ export async function replayUrlSample(
   try {
     const page = await browser.newPage()
     await page.goto(entryUrl)
+    const captureResults = () =>
+      page.evaluate(
+        (candidates) => {
+          const rows = document.querySelector('#rows'),
+            result: Record<string, string[]> = {}
+          for (const selector of candidates) {
+            if (typeof selector !== 'string' || selector.length > 500) continue
+            try {
+              const nodes = [...document.querySelectorAll(selector)]
+              if (nodes.length && nodes.length <= 100 && nodes.every((n) => rows?.contains(n)))
+                result[selector] = nodes.map((n) => (n.textContent ?? '').trim())
+            } catch {
+              /* invalid selectors are not verified targets */
+            }
+          }
+          return result
+        },
+        [...new Set(selectors)],
+      )
     const before = await page.locator('#rows .price').allTextContents()
     await page.getByRole('combobox', { name: 'Sort', exact: true }).selectOption('price')
     const response = page.waitForResponse((r) => r.url().includes('/items?sort=price'))
@@ -18,6 +37,7 @@ export async function replayUrlSample(
     await response
     await page.waitForTimeout(100)
     const prices = await page.locator('#rows .price').allTextContents()
+    const priceResults = await captureResults()
     const sortWorks = JSON.stringify(prices) === JSON.stringify(['5', '12', '20'])
     // Private evaluator identity check: equivalent CSS is valid only when it actually selects
     // the first row/price in this independent browser. A substring in a selector proves nothing.
@@ -56,6 +76,7 @@ export async function replayUrlSample(
     await page.getByRole('button', { name: 'Apply sort', exact: true }).click()
     await nameResponse
     await page.waitForTimeout(100)
+    const nameResults = await captureResults()
     const names = await page.locator('#rows .name').allTextContents()
     const nameSortWorks =
       JSON.stringify(names) === JSON.stringify(['Amber gadget', 'Blue widget', 'Cyan sprocket'])
@@ -73,6 +94,7 @@ export async function replayUrlSample(
       sortWorks,
       names,
       nameSortWorks,
+      resultMeasurements: { price: priceResults, name: nameResults },
       firstRowSelectors,
       priceListSelectors,
       filterWorks,

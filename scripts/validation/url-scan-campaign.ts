@@ -377,10 +377,16 @@ export async function runUrlCampaign(
           )
           const replay = await replayUrlSample(entryUrl, truth, declaredSelectors)
           let controlReplayPassed = true
+          let controlResults: typeof replay.resultMeasurements | undefined
           if (truth.variant === 'defective') {
             fixture.setVariant('healthy')
-            const control = await replayUrlSample(entryUrl, { ...truth, variant: 'healthy' })
+            const control = await replayUrlSample(
+              entryUrl,
+              { ...truth, variant: 'healthy' },
+              declaredSelectors,
+            )
             controlReplayPassed = control.passed
+            controlResults = control.resultMeasurements
             await writeFile(resolve(runDirectory, 'control-replay.png'), control.screenshot)
             await writeJson(resolve(runDirectory, 'control-replay.json'), {
               ...control,
@@ -425,7 +431,22 @@ export async function runUrlCampaign(
             if (
               truth.expectedFindingKey === 'sort-ignores-selection' &&
               evidence.some((receipt) =>
-                verifiesSortFinding(receipt, replay.firstRowSelectors, replay.priceListSelectors),
+                verifiesSortFinding(receipt, {
+                  defective: replay.resultMeasurements,
+                  healthy: controlResults,
+                  requests,
+                  measuredAt: report.events.find(
+                    (event: any) =>
+                      [
+                        'program:measured',
+                        'interaction:measured',
+                        'interaction:recovered',
+                      ].includes(event.type) &&
+                      event.evidenceRefs.some(
+                        (id: string) => saved!.artifacts[id]?.data === receipt,
+                      ),
+                  )?.timestamp,
+                }),
               )
             )
               findingKeysById[finding.id] = truth.expectedFindingKey

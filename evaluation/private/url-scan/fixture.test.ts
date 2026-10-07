@@ -38,6 +38,8 @@ it.each([
         const replay = await replayUrlSample(fixture.origin + path, sample, [
           structural,
           '#rows li:first-child',
+          '#rows li:first-child .name',
+          '#rows .price',
           '#rows .price:first-child',
           '#rows',
           '#rows li:nth-child(2)',
@@ -45,6 +47,12 @@ it.each([
           'invalid[',
         ])
         expect(replay.passed, sample.sampleId).toBe(true)
+        expect(replay.resultMeasurements.price['#rows .price']).toEqual(replay.prices)
+        expect(replay.resultMeasurements.name['#rows li:first-child .name']).toEqual([
+          replay.names[0],
+        ])
+        expect(replay.resultMeasurements.price['#rows, button']).toBeUndefined()
+        expect(replay.resultMeasurements.price['invalid[']).toBeUndefined()
         expect(replay.firstRowSelectors).toContain(structural)
         expect(replay.firstRowSelectors).toContain('#rows li:first-child')
         expect(replay.firstRowSelectors).not.toContain('#rows')
