@@ -1,7 +1,10 @@
 import { createServer } from 'node:http'
 
 /** Only the harness owns the variant. Public pages expose behaviour, never labels or controls. */
-export async function startUrlScanFixture() {
+export const URL_SCAN_HOLDOUT_LAYOUT = 'holdout-grid-1' as const
+export async function startUrlScanFixture(
+  layout: 'development' | typeof URL_SCAN_HOLDOUT_LAYOUT = 'development',
+) {
   let defective = false
   const requests: { method: string; path: string }[] = []
   const rows = [
@@ -39,7 +42,11 @@ export async function startUrlScanFixture() {
     const overlay = url.pathname === '/overlay'
     const brokenSort = defective && url.pathname === '/detail'
     response.writeHead(200, { 'content-type': 'text/html; charset=utf-8' })
-    response.end(`<!doctype html><html><head><title>Product catalog</title><style>body{font:16px sans-serif;padding:30px}button,select{padding:12px;margin:8px}#filter-wrap{position:relative;display:inline-block}.screen{position:absolute;inset:0;z-index:2}</style></head><body>
+    const holdoutStyle =
+      layout === URL_SCAN_HOLDOUT_LAYOUT
+        ? 'body{display:grid;grid-template-columns:260px minmax(300px,680px);gap:16px;max-width:1020px;margin:24px auto;padding:18px;background:#f4f7fa}h1,p{grid-column:1/-1}#rows{grid-column:2;grid-row:3/6;background:white;padding:24px 42px;min-height:220px}#apply,#filter-wrap{grid-column:1}a{grid-column:1/-1}#panel{grid-column:2;background:#fff;padding:18px}'
+        : ''
+    response.end(`<!doctype html><html><head><title>Product catalog</title><style>body{font:16px sans-serif;padding:30px}button,select{padding:12px;margin:8px}#filter-wrap{position:relative;display:inline-block}.screen{position:absolute;inset:0;z-index:2}${holdoutStyle}</style></head><body>
       <h1>Product catalog</h1><p>Choose a sort order and apply it. Prices are numeric.</p>
       <label>Sort <select id="sort" aria-label="Sort"><option value="price">Price</option><option value="name">Name</option></select></label>
       <button id="apply" type="button">Apply sort</button><ul id="rows">${rows.map((row) => `<li><span class="price">${row.price}</span> · <span class="name">${row.name}</span></li>`).join('')}</ul>

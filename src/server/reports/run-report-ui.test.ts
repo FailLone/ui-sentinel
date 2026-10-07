@@ -252,6 +252,45 @@ describe('U09: a covered ui-scan run reports completion with a verified proof', 
 })
 
 describe('U16: a completed UI run whose proof does not verify is reported inconsistent', () => {
+  it('does not verify a historical UI report after its referenced artifact disappears', async () => {
+    const { runId } = await coveredRun()
+    const { getDbClient } = await import('../../storage/database.ts')
+    const { rm } = await import('node:fs/promises')
+    const artifacts = await getDbClient().execute({
+      sql: 'SELECT file_path FROM artifacts WHERE run_id=?',
+      args: [runId],
+    })
+    for (const row of artifacts.rows) await rm(String(row.file_path))
+    const { buildReport } = await import('./run-report.ts')
+    const report = await buildReport(runId)
+    expect(report!.uiScan!.proofVerified).toBe(false)
+    expect(report!.uiScan!.inspection.coverage).not.toBe('covered')
+    expect(report!.persistence.status).toBe('inconsistent')
+  })
+
+  it('rejects rehashed proof item forgery against unchanged persistent scope events', async () => {
+    const { runId } = await coveredRun()
+    const { getDbClient } = await import('../../storage/database.ts')
+    const { proofDigest } = await import('../../inspection/completion.ts')
+    const db = getDbClient()
+    const result = await db.execute({
+      sql: "SELECT id,payload FROM run_events WHERE run_id=? AND type='finish:accepted'",
+      args: [runId],
+    })
+    const payload = JSON.parse(String(result.rows[0]!.payload))
+    const { hash, ...proof } = payload.inspectionProof
+    proof.items[0].basis = 'forged verification of another control'
+    payload.inspectionProof = { ...proof, hash: proofDigest(proof) }
+    await db.execute({
+      sql: 'UPDATE run_events SET payload=? WHERE id=?',
+      args: [JSON.stringify(payload), String(result.rows[0]!.id)],
+    })
+    const { buildReport } = await import('./run-report.ts')
+    const report = await buildReport(runId)
+    expect(report!.persistence.issues).toContain('inspection-proof-items-mismatch')
+    expect(report!.uiScan!.proofVerified).toBe(false)
+  })
+
   it('flags a tampered proof rather than showing a completed scan', async () => {
     const { runId } = await coveredRun()
     const { getDbClient } = await import('../../storage/database.ts')

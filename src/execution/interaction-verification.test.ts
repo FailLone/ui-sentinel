@@ -83,3 +83,31 @@ it('observes modal and inert applicability from the live DOM rather than page-pr
     await rm(`data/artifacts/${runId}`, { recursive: true, force: true })
   }
 })
+
+it('does not report offscreen or intentionally disabled controls as intercepted foreground actions', async () => {
+  const { createRun } = await import('./run-manager.ts')
+  const { observePage } = await import('./browser.ts')
+  const { rm } = await import('node:fs/promises')
+  const { id } = await createRun({
+    goal: 'Check foreground controls',
+    environmentId: 'test',
+    entryUrl: 'about:blank',
+  })
+  const worker = await launchBrowser()
+  try {
+    await worker.page.setContent(
+      '<button disabled>Unavailable</button><button style="position:absolute;top:2500px">Below viewport</button><button>Available</button>',
+    )
+    const { snapshot } = await observePage(worker.page, id)
+    expect(snapshot.elements.find((e) => e.text === 'Unavailable')?.enabled).toBe(false)
+    expect(
+      snapshot.elements
+        .find((e) => e.text === 'Below viewport')
+        ?.hitSamples?.every((s) => s.relation === 'none'),
+    ).toBe(true)
+    expect((await overlayBlockingRule.evaluate({ snapshot } as any)).verdict).not.toBe('fail')
+  } finally {
+    await worker.close()
+    await rm(`data/artifacts/${id}`, { recursive: true, force: true })
+  }
+})

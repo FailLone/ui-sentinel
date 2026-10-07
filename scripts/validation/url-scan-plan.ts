@@ -16,8 +16,10 @@ export interface UrlScanPlanSummary {
   readonly fixtureHash: string
   readonly totalRuns: number
   readonly costCeilingUsd: number
-  /** The ceiling divided by the planned runs: the number a reviewer is actually being asked for. */
+  /** Informational average only; enforcement uses one shared cap including smoke, never a per-row cap. */
   readonly perRunCeilingUsd: number
+  readonly budgetAllocation: 'shared-total-including-smoke'
+  readonly smokeRequests: number
   readonly rows: readonly { readonly sampleId: string; readonly repetition: number }[]
 }
 
@@ -34,6 +36,8 @@ export function describeUrlScanPlan(manifest: UrlScanManifest): UrlScanPlanSumma
     totalRuns: rows.length,
     costCeilingUsd: manifest.costCeilingUsd,
     perRunCeilingUsd: manifest.costCeilingUsd / rows.length,
+    budgetAllocation: 'shared-total-including-smoke',
+    smokeRequests: Number((manifest.configuration.gateway as any)?.smokeRequests ?? 0),
     rows,
   }
 }

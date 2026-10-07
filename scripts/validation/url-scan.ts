@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import { startUrlScanFixture } from '../../evaluation/private/url-scan/fixture.ts'
 import { replayUrlSample } from '../../evaluation/private/url-scan/replay.ts'
 import { spawn, type ChildProcess } from 'node:child_process'
@@ -46,10 +47,8 @@ const options = (() => {
  * The planned and paid modes branch here, before any browser, port or fixture is created.
  *
  * `--dry-run` reads a frozen manifest and prints the matrix an operator is being asked to authorise.
- * The paid modes themselves are not runnable yet: the URL campaign runner is not built, and this
- * development authorisation explicitly excludes paid acceptance runs. They refuse by name rather than
- * falling through to the free path, so a paid-looking command can never quietly become a free run and
- * be read as a paid result.
+ * Paid modes require a matching explicit approval and clean frozen identity. They never fall through
+ * to the free path, so a paid-looking command cannot silently produce fixed-model evidence.
  */
 
 if (options.mode !== 'preflight' && options.mode !== 'freeze') {
@@ -115,10 +114,8 @@ if (options.mode === 'freeze') {
   const { resolveProviders } = await import('../../evaluation/private/export/diagnostic-config.ts')
   const providers = resolveProviders(process.env)
   if (!providers.ok) throw Error('provider-configuration-refused')
-  const prices = JSON.parse(process.env.URL_SCAN_PRICES_JSON ?? '{}')
-  for (const model of [AGENT_MODEL, VISION_MODEL])
-    if (!(prices[model]?.prompt > 0) || !(prices[model]?.completion > 0))
-      throw Error('freeze-requires-current-prices: URL_SCAN_PRICES_JSON')
+  const { readUrlScanPrices } = await import('./url-scan-prices.ts')
+  const prices = await readUrlScanPrices(providers)
   const repetitions = options.repetitions ?? 1
   if (![1, 3].includes(repetitions)) throw Error('freeze-requires-diagnostic-1-or-formal-3')
   const manifest = buildUrlScanManifest({
@@ -283,6 +280,7 @@ const SCENARIOS = {
 
 type ScenarioName = keyof typeof SCENARIOS
 let scenario: ScenarioName = 'interact'
+let holdModel = false
 const requests: unknown[] = []
 const modelLog: string[] = []
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
@@ -306,6 +304,8 @@ const model = createServer(async (request, response) => {
     kind: isAgentTurn ? 'agent' : 'other',
     nextAction: isAgentTurn ? null : undefined,
   })
+  while (holdModel && !response.destroyed) await sleep(25)
+  if (response.destroyed) return
   await sleep(400)
   const base = { id: 'fixture', object: 'chat.completion.chunk', created: 1, model: body.model }
   response.setHeader('content-type', 'text/event-stream')
@@ -404,6 +404,29 @@ async function settleRun(runId: string) {
   }
   await api(`/api/runs/${runId}/cancel`, {})
   throw Error('preflight run did not stop')
+}
+
+async function waitFor(predicate: () => Promise<boolean>) {
+  for (let i = 0; i < 200; i++) {
+    if (await predicate()) return
+    await sleep(50)
+  }
+  throw Error('preflight condition not reached')
+}
+
+async function stopChild(child: ChildProcess, signal: NodeJS.Signals = 'SIGTERM') {
+  if (child.exitCode !== null || child.signalCode !== null) return
+  await new Promise<void>((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      child.kill('SIGKILL')
+      reject(Error('child did not exit'))
+    }, 5000)
+    child.once('exit', () => {
+      clearTimeout(timeout)
+      resolve()
+    })
+    child.kill(signal)
+  })
 }
 
 /** Everything the scorer needs, read from the report and the independent server, never from a claim. */
@@ -651,7 +674,12 @@ try {
     assertions.workbenchOffersUrlScan = /网址 UI 检查/.test(body)
 
     // A real run, created from the workbench form, opened back up from history.
+    const created = page.waitForResponse(
+      (r) => r.url() === base + '/api/runs' && r.request().method() === 'POST',
+    )
     await page.getByRole('button', { name: '开始检查' }).click()
+    const workbenchRunId = (await (await created).json()).runId
+    await settleRun(workbenchRunId)
     await page
       .getByText(/网址 UI 检查/)
       .first()
@@ -669,6 +697,102 @@ try {
     await page.screenshot({ path: `${dir}/u20-ui-report.png`, fullPage: true })
     shots.push('u20-ui-report.png')
     details.workbench = { shots }
+
+    // Real API cancellation, including a queued run and a model response that arrives too late.
+    holdModel = true
+    const beforeModel = requests.length
+    const active = (await api('/api/runs', { kind: 'ui-scan', entryUrl })).body.runId
+    await waitFor(
+      async () =>
+        requests.length > beforeModel &&
+        (await api(`/api/runs/${active}`)).body.status === 'running',
+    )
+    const queued = (await api('/api/runs', { kind: 'ui-scan', entryUrl })).body.runId
+    assertions.queuedRunWaits = (await api(`/api/runs/${queued}`)).body.status === 'queued'
+    await api(`/api/runs/${queued}/cancel`, {})
+    await api(`/api/runs/${active}/cancel`, {})
+    holdModel = false
+    assertions.activeCancellation = (await settleRun(active)).status === 'cancelled'
+    assertions.queuedCancellation = (await settleRun(queued)).status === 'cancelled'
+    const cancelled = (await api(`/api/runs/${active}/report`)).body
+    assertions.noLateCompletion = !cancelled.events.some((e: any) => e.type === 'finish:accepted')
+    await writeFile(`${dir}/report-cancelled.json`, JSON.stringify(cancelled, null, 2))
+
+    const budgetRun = (
+      await api('/api/runs', { kind: 'ui-scan', entryUrl, budget: { maxModelCalls: 1 } })
+    ).body.runId
+    const budgetResult = await settleRun(budgetRun)
+    assertions.budgetTerminal =
+      budgetResult.status === 'timed-out' && budgetResult.stopReason === 'budget-exhausted'
+    await writeFile(
+      `${dir}/report-budget.json`,
+      JSON.stringify((await api(`/api/runs/${budgetRun}/report`)).body, null, 2),
+    )
+
+    // Kill a real service with one active and one queued UI task; the restarted service must not replay.
+    holdModel = true
+    const beforeRestartRequests = requests.length
+    const interrupted = (await api('/api/runs', { kind: 'ui-scan', entryUrl })).body.runId
+    await waitFor(async () => requests.length > beforeRestartRequests)
+    const interruptedQueued = (await api('/api/runs', { kind: 'ui-scan', entryUrl })).body.runId
+    await stopChild(children.at(-1)!, 'SIGKILL')
+    holdModel = false
+    const modelCount = requests.length,
+      pageCount = pageRequests.length
+    launch(['dist/server/index.js'])
+    await waitFor(
+      async () => (await api('/api/health').catch(() => null))?.body?.model?.ready === true,
+    )
+    for (const [label, id] of [
+      ['active', interrupted],
+      ['queued', interruptedQueued],
+    ]) {
+      const restored = (await api(`/api/runs/${id}/report`)).body
+      assertions[`restart-${label}-interrupted`] =
+        restored.status === 'interrupted' && restored.stopReason === 'reconciliation-required'
+      assertions[`restart-${label}-no-replay`] = restored.events.some(
+        (e: any) => e.type === 'run:interrupted' && e.payload.replayAllowed === false,
+      )
+      await writeFile(`${dir}/report-restart-${label}.json`, JSON.stringify(restored, null, 2))
+    }
+    await sleep(300)
+    assertions.restartNoRequests =
+      requests.length === modelCount && pageRequests.length === pageCount
+    const recovered = (await api(`/api/runs/${runId}/report`)).body
+    assertions.completedSurvivesRestart =
+      recovered.status === report.status &&
+      recovered.uiScan?.proofVerified === true &&
+      JSON.stringify(recovered.events) === JSON.stringify(report.events)
+    await writeFile(`${dir}/report-healthy-restored.json`, JSON.stringify(recovered, null, 2))
+    const cursor = report.events[Math.floor(report.events.length / 2)].seq
+    const expectedTail = report.events.filter((e: any) => e.seq > cursor)
+    const tail = (await api(`/api/runs/${runId}/events?after=${cursor}`)).body
+    assertions.pollingTailSurvivesRestart = JSON.stringify(tail) === JSON.stringify(expectedTail)
+    const sse = await fetch(`${base}/api/runs/${runId}/events`, {
+      headers: { accept: 'text/event-stream', 'Last-Event-ID': String(cursor) },
+      signal: AbortSignal.timeout(5000),
+    }).then((r) => r.text())
+    await writeFile(`${dir}/restored-events.sse`, sse)
+    const streamed = sse
+      .split('\n\n')
+      .filter((x) => !x.includes('event: done'))
+      .flatMap((x) =>
+        x
+          .split('\n')
+          .filter((l) => l.startsWith('data: '))
+          .map((l) => JSON.parse(l.slice(6))),
+      )
+    assertions.sseTailSurvivesRestart = JSON.stringify(streamed) === JSON.stringify(expectedTail)
+    await page.goto(`${base}/?run=${runId}`)
+    await page
+      .getByText('在已验证范围内未发现问题', { exact: false })
+      .first()
+      .waitFor({ state: 'visible' })
+    assertions.workbenchHistoryRestored = (await page.locator('main').innerText()).includes(
+      '业务不适用',
+    )
+    await page.screenshot({ path: `${dir}/u20-history-restored.png`, fullPage: true })
+    shots.push('u20-history-restored.png')
   } finally {
     await browser.close()
   }

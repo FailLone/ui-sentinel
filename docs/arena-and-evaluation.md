@@ -104,7 +104,7 @@ pnpm validate:url-scan -- --dry-run --manifest <清单> --batch <批次名>   # 
 
 按计划 10.2，首轮 UI 矩阵是 5 个样本各 3 次共 15 次；异常组各需至少 1 项被独立复现的有效发现，健康组 3×3 次都必须真实正常验证且零 supported 误报。
 
-`--diagnostic`/`--formal` 已接入 runner，但本次未授权、未执行付费调用。运行前必须有 `URL_SCAN_APPROVAL_FILE`，绑定 manifestHash、batch、mode、maxRuns、ceilingUsd、campaignDirectory、smokeRequests=1；正式模式还须提供同构建成功的 diagnosticDirectory。runner 复核实际构建/评分器/脚本 hash、干净树和现价，复用现有模型网关与持久累计费用账本。诊断默认 6 行（5 样本 + U08），正式 15 行，另有 1 次共享预算 smoke。`URL_SCAN_PRICES_JSON` 必须给出固定主/视觉模型的当前 prompt/completion 单 token 价格，才能 freeze；runner 遇到价格变化要求重新冻结。
+`--diagnostic`/`--formal` 已接入 runner，但本次未授权、未执行付费调用。运行前必须有 `URL_SCAN_APPROVAL_FILE`，绑定 manifestHash、batch、mode、maxRuns、ceilingUsd、campaignDirectory、smokeRequests=1；正式模式还须提供同构建成功的 diagnosticDirectory。runner 复核实际构建/评分器/脚本 hash、干净树和现价，复用现有模型网关与持久累计费用账本。诊断默认 6 行（5 样本 + U08），正式 15 行，另有 1 次共享预算 smoke。freeze 自动读取固定提供方 endpoint 的完整报价与模型 canonical slug，按最高阶梯/时间段价格保守预留，不使用目录最低价；runner 遇到报价或模型身份变化要求重新冻结。共享预算包括 smoke，均摊展示不是每行独立限额。
 
 免费验证 runner 本身可执行：`URL_SCAN_FREE_CAMPAIGN_TEST=1 pnpm exec vitest run scripts/validation/url-scan-campaign.test.ts`。它使用注入的固定 upstream，结果强制标 B，保留异常样本未发现缺陷的失败行；不能写成 C 通过。完整流程、授权文件字段和当前边界见 [接手记录](r0-closeout.md)。
 

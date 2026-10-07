@@ -8,10 +8,14 @@ import { createClient } from '@libsql/client'
 import { startGateway, AGENT_MODEL, VISION_MODEL } from '../../evaluation/support/model-gateway.ts'
 import { openCampaignSession, writeJson } from '../../evaluation/support/campaign-session.ts'
 import { downloadRunEvidence } from '../../evaluation/support/campaign-evidence.ts'
-import { startUrlScanFixture } from '../../evaluation/private/url-scan/fixture.ts'
+import {
+  startUrlScanFixture,
+  URL_SCAN_HOLDOUT_LAYOUT,
+} from '../../evaluation/private/url-scan/fixture.ts'
 import { replayUrlSample } from '../../evaluation/private/url-scan/replay.ts'
 import { urlScanTruth } from '../../evaluation/private/url-scan/truth.ts'
 import { scoreUrlScan } from '../../evaluation/private/url-scan/scorer.ts'
+import { readUrlScanPrices } from './url-scan-prices.ts'
 import {
   hashTree,
   dirtyPathsAffectingRuns,
@@ -31,6 +35,7 @@ export function urlScanConfiguration(input: {
     prices: input.prices,
     stage: input.stage,
     urlScan: true,
+    fixtureLayout: URL_SCAN_HOLDOUT_LAYOUT,
     viewport: { width: 1280, height: 768 },
     scope: { maxPages: 3, maxDepth: 1 },
     budget: { totalTimeoutMs: 300000, maxActions: 20, maxModelCalls: 30 },
@@ -194,19 +199,12 @@ export async function runUrlCampaign(
     await session.startStage(directory, `url-${mode}`)
     const configuration = manifest.configuration as any
     // A changed provider price invalidates the frozen estimate before any model request.
-    const catalog = (await (testOnly?.upstreamFetch ?? fetch)(
-      'https://openrouter.ai/api/v1/models',
-      { signal: AbortSignal.timeout(15_000) },
-    ).then((r) => r.json())) as any
-    for (const model of [AGENT_MODEL, VISION_MODEL]) {
-      const current = catalog.data?.find((m: any) => m.id === model)?.pricing
-      if (
-        !current ||
-        Number(current.prompt) !== configuration.prices[model].prompt ||
-        Number(current.completion) !== configuration.prices[model].completion
-      )
-        throw Error('price-changed-refreeze-required')
-    }
+    const currentPrices = await readUrlScanPrices(
+      configuration.providers,
+      testOnly?.upstreamFetch ?? fetch,
+    )
+    if (!isDeepStrictEqual(currentPrices, configuration.prices))
+      throw Error('price-changed-refreeze-required')
     await writeJson(resolve(directory, 'prices.json'), configuration.prices)
     gateway = await startGateway(key, directory, testOnly?.upstreamFetch ?? fetch, {
       ledger: session.ledger,
@@ -240,7 +238,7 @@ export async function runUrlCampaign(
       const spend = await session.ledger.spending()
       if (spend.unknownCount || spend.exceeded || spend.accountedUsd >= manifest.costCeilingUsd)
         throw Error('campaign-spending-unverified-or-exhausted')
-      const fixture = await startUrlScanFixture()
+      const fixture = await startUrlScanFixture(configuration.fixtureLayout)
       const truth = urlScanTruth().samples.find((s) => s.sampleId === row.sampleId)
       fixture.setVariant(truth?.variant ?? 'healthy')
       const path = truth

@@ -40,7 +40,14 @@ it.runIf(process.env.URL_SCAN_FREE_CAMPAIGN_TEST === '1')(
     const prices = Object.fromEntries(
       [AGENT_MODEL, VISION_MODEL].map((model) => [
         model,
-        { prompt: 0.0000001, completion: 0.0000001 },
+        {
+          prompt: 0.0000001,
+          completion: 0.0000001,
+          provider: 'fixture',
+          canonicalSlug: model + '-pinned',
+          source: 'https://openrouter.ai/api/v1/models/' + model + '/endpoints',
+          quote: { prompt: 0.0000001, completion: 0.0000001 },
+        },
       ]),
     )
     const manifest = buildUrlScanManifest({
@@ -62,8 +69,20 @@ it.runIf(process.env.URL_SCAN_FREE_CAMPAIGN_TEST === '1')(
     const upstreamFetch: typeof fetch = async (input, init) => {
       if (String(input).endsWith('/models'))
         return Response.json({
-          data: Object.entries(prices).map(([id, pricing]) => ({ id, pricing })),
+          data: Object.entries(prices).map(([id, pricing]) => ({
+            id,
+            canonical_slug: pricing.canonicalSlug,
+            pricing,
+          })),
         })
+      if (String(input).endsWith('/endpoints')) {
+        const model = String(input).split('/models/')[1]!.replace('/endpoints', '')
+        return Response.json({
+          data: {
+            endpoints: [{ provider_name: 'fixture', status: 0, pricing: prices[model]!.quote }],
+          },
+        })
+      }
       requests++
       const body = JSON.parse(String(init?.body))
       if (!body.stream)
