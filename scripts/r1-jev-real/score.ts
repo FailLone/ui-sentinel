@@ -6,13 +6,12 @@ import { rankCandidates } from '../../src/agent/decisions/exploration/ranking.ts
 import { parseExplorationInput } from '../../src/agent/decisions/exploration/contracts.ts'
 import { stateDigest } from '../../src/agent/decisions/exploration/state.ts'
 import { compileInput } from '../../src/agent/decisions/jev-provider/compile.ts'
-import { normalizeResponse } from '../../src/agent/decisions/jev-provider/response.ts'
-import { parseStrictJson } from '../../src/agent/decisions/jev-provider/strict-json.ts'
 import { identityFor, sha256 } from '../../src/agent/decisions/jev-provider/profile.ts'
 import { freezeSchema } from './config.ts'
 import { safeFile, verifyEvidence, writeJson } from './evidence.ts'
 import { loadDataset } from './dataset.ts'
 import { inspectLedger } from './ledger.ts'
+import { evidenceAuditor } from './score-audit.ts'
 const labelSchema = z
   .object({
     id: z.string(),
@@ -86,6 +85,8 @@ export function evaluateEvidence(root: string, evidence: string, labelsPath: str
     dataset.cases.some((c) => !labels.cases.some((l) => l.id === c.id))
   )
     throw new Error('label-case-set')
+  const accounting = inspectLedger(join(evidence, 'ledger.jsonl'), freeze.config.limits)
+  const audit = evidenceAuditor(evidence, accounting, freeze.config.protocol.quoteUsd)
   const rows = new Map<string, any>()
   for (const file of readdirSync(join(evidence, 'results'))) {
     if (!file.endsWith('.json')) throw new Error('unexpected-result-file')
@@ -129,23 +130,11 @@ export function evaluateEvidence(root: string, evidence: string, labelsPath: str
         throw new Error('result-identity-binding')
     }
     row.baseline = rankCandidates(input.value)
+    const replay = audit.row(key, result, currentCompiled, freeze.config.profile)
+    row.semanticHandoff = replay.semanticHandoff
     if (result.kind === 'ranked') {
-      const event = JSON.parse(
-        readFileSync(safeFile(evidence, `attempts/${key}-response.json`), 'utf8'),
-      )
-      if (
-        event.attemptId !== result.trace.attemptId ||
-        event.requestDigest !== currentCompiled.requestDigest ||
-        event.wireDigest !== currentCompiled.wireDigest ||
-        sha256(event.responseText) !== event.responseDigest
-      )
-        throw new Error('response-binding')
-      const normalized = normalizeResponse(
-        parseStrictJson(event.responseText),
-        currentCompiled,
-        freeze.config.profile,
-      )
-      if (normalized.kind !== 'scores') throw new Error('response-not-scores')
+      const normalized = replay.normalized
+      if (normalized?.kind !== 'scores') throw new Error('response-not-scores')
       const recomputed = rankCandidates(input.value, { scores: normalized.scores })
       if (
         JSON.stringify(recomputed.orderedCandidateIds) !==
@@ -156,6 +145,7 @@ export function evaluateEvidence(root: string, evidence: string, labelsPath: str
     }
     rows.set(key, row)
   }
+  audit.finish()
   const perState = labels.cases.map((label) => {
     const original = dataset.cases.find((c) => c.id === label.id)!
     const baseline = rankCandidates(original.input)
@@ -189,11 +179,7 @@ export function evaluateEvidence(root: string, evidence: string, labelsPath: str
         : null
     const baseNdcg =
       label.expected === 'scoreable' ? ndcg(baseline.orderedCandidateIds, label) : null
-    const semanticHandoff = (row: any) =>
-      row?.result.kind === 'handoff' &&
-      ['uncertain', 'insufficient-information', 'requires-agent-investigation'].includes(
-        row.result.reasonCode,
-      )
+    const semanticHandoff = (row: any) => row?.semanticHandoff === true
     const mae = reps.flatMap((row) =>
       row?.result.kind === 'ranked'
         ? label.scores.flatMap((s) => {
@@ -264,12 +250,8 @@ export function evaluateEvidence(root: string, evidence: string, labelsPath: str
       }
     },
   )
-  const accounting = inspectLedger(join(evidence, 'ledger.jsonl'), freeze.config.limits)
   const knownCost = accounting.knownCostUsd
   const unknown = accounting.pending
-  const attemptIds = new Set([...rows.values()].map((r) => r.result.trace.attemptId))
-  if (Object.keys(accounting.tickets).some((id) => !attemptIds.has(id)))
-    throw new Error('unrepresented-paid-attempt')
   const times = [...rows.values()].map((r) => r.result.trace.durationMs).sort((a, b) => a - b)
   const validAdvice = [...rows.values()].filter((r) => r.result.kind === 'ranked').length
   const invalidResponses = [...rows.values()].filter((r) =>
