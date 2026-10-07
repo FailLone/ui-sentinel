@@ -13,7 +13,15 @@
     "privateOracle": "fbe12205ee4639c4fed5ec0cee52ec40c3d72ca5f2754384b2cd955538fa978b"
   },
   "selfTestPassed": true,
-  "independentReview": "pending",
+  "independentReview": {
+    "verdict": "not-passed",
+    "reviewer": "/root/review_k123",
+    "index": "plans/evidence/r0-k123-independent-review.json",
+    "analysis": "plans/r0-k123-independent-review.md",
+    "blockingFindings": 1,
+    "candidateEligible": false,
+    "paidRequests": 0
+  },
   "r0Accepted": false,
   "paidRequests": 0,
   "configuration": {
@@ -91,13 +99,43 @@
     {
       "directory": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-remediation/2026-10-07T13-56-06-107Z",
       "reason": "Normal action waited for pending GET; tool-timeout prevented original unknown and recovery. Analysis committed before generic lifecycle correction; no fixture exceptions."
+    },
+    {
+      "directory": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-k123-independent-review/cancel-terminal/2026-10-07T14-18-19-621Z",
+      "reason": "Independent reviewer reproduced accepted cancellation overwritten by stale terminal commit; no writes, but persistence rejects and quarantines next clean UI run. No additional patch or paid rerun."
     }
   ],
   "oldC10Review": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-k123-browser/2026-10-07T14-11-20-358Z/c10-new-oracle-review.json",
   "remaining": [
-    "Independent Agent review pending",
+    "K2 P1: cancellation acceptance and terminal commit lack a common atomic ordering boundary; next clean UI task is wrongly quarantined",
+    "K1-K3 candidate eligibility withheld by independent review",
     "No new real-model diagnostic/formal campaign",
     "K4/K5 and R0 acceptance incomplete",
     "Old stability anomalies retained; historical root causes not proven"
-  ]
+  ],
+  "selfTestScope": "Recorded frozen checks passed; independent review subsequently found an uncovered cancellation/terminal commit race. This is not an overall K1-K3 pass.",
+  "archives": [
+    {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-k123-delivery/r0-k123-835b11a-selftest.zip",
+      "sha256": "ec37740f1442ca82b04c2cc7183147f0c34ac7d2a29b6fd4f0e622fc97d2857f",
+      "bytes": 16580228,
+      "files": 1521,
+      "integrityVerified": true
+    },
+    {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-k123-delivery/r0-k123-835b11a-independent-review.zip",
+      "sha256": "fede4d0a598098c04fff6af9cbbd5af969334ce955bb4e29db01ff8bb4b1b2cd",
+      "bytes": 45057,
+      "files": 15,
+      "integrityVerified": true
+    }
+  ],
+  "rawArchiveAudit": {
+    "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-k123-delivery/independent-raw-audit.json",
+    "sha256": "6b503e76f2fbafae49df83dc8318199de0bf824c03139ac47863a91ce6f08061",
+    "passed": true,
+    "runs": 14,
+    "secondAgentReview": false,
+    "meaning": "Snapshot/file consistency only; does not negate later concurrency counterexample."
+  }
 }
