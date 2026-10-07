@@ -99,6 +99,9 @@ const KEEP_KEYS = new Set([
   'programRef',
   'assertions',
   'targetIssues',
+  'resultBindings',
+  'recoverableInteractions',
+  'checkRef',
   'scope',
   'omitted',
   'chunk',
@@ -137,7 +140,15 @@ export function extractToolSummary(item: Record<string, unknown>): ToolSummary {
   function copy(value: unknown) {
     if (!value || typeof value !== 'object') return
     for (const [key, field] of Object.entries(value)) {
-      if (KEEP_KEYS.has(key)) summary[key] = field
+      if (key === 'error' && field) {
+        const message = (value as Record<string, unknown>).message
+        summary.error =
+          typeof field === 'string'
+            ? field
+            : typeof message === 'string'
+              ? message
+              : JSON.stringify(field)
+      } else if (KEEP_KEYS.has(key)) summary[key] = field
       if (key === 'pageText') summary.outcomeText = field
     }
   }

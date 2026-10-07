@@ -115,3 +115,13 @@ CDP 的请求类型先转换为统一枚举。UI 请求不再使用 `Fetch.conti
 当流式模型返回length且尚未执行任何工具时，执行器保留失败用量，并使用原有至多一次安全重试，不延长请求或任务时限。可通过AGENT_LENGTH_RECOVERY_WITHOUT_REASONING=1为支持可选推理的OpenAI兼容模型显式启用恢复模式：仅此重试传reasoningEffort=none，正常请求配置不变。默认关闭，不向其他提供方推断此能力。开始/结束事件记录reasoningRecovery=disabled和retryOf；模型仍选择下一工具，全部写入、结束与证据检查保持生效，不能用空响应当成功。
 
 此设置解决的是推理耗尽全部输出、没有产生工具调用的特定失败，不是增加调用预算，也不保证模型总能正确决策。[OpenRouter关于reasoning与max_tokens的说明](https://openrouter.ai/docs/guides/best-practices/reasoning-tokens)说明推理和可见输出共享上限，隐藏推理内容并不能减少其消耗。
+
+### UI 动作后的结果恢复
+
+动作目标与结果节点有不同身份约束。`page_act.verify` 在动作前固定 CSS selector、条件、预期和公开依据；后置测量显式读取当前匹配节点，并在截图前后验证文档、节点身份和测量值未变化。缺失、多匹配或不支持的度量仍为 unverified。
+
+纯 UI 检查对这样的未验证事项提供 `recoverableInteractions`。`interaction_verify({checkRef})` 只接受执行器发放的本次运行引用，不接受替代目标、预期或事项 ID。它重新观察、绑定当前结果并测量，最多两次，要求同文档、同 URL、无中间动作、无执行器干预及原证据字节完整。它不重放任何动作，也不开放给购物/导出业务。有效 verified/failed 回执追加到原 scope item，旧 unverified 事件保留；failed 表示检查已测出不符合预期，并不阻止其他范围完成。发现仍需现有调查工具的证据支持。
+
+`interaction:verification-opened`、`interaction:recovered` 和事项更新构成恢复链，记录 actionId、itemId、固定预期、原证据摘要、新观察与测量截图。完成校验和历史报告同时核对归属、顺序和产物内容；缺失或篡改不能产生可信完整证明。引用只存在于活动执行器内，重启仍 interrupted，不恢复动作。
+
+相同事实的重复读取不算进展。纯 UI 检查连续三个无进展轮次触发一次只读观察及至多一个已有事项恢复；出现新观察或可判定测量可继续，否则通过既有结束契约保存 partial。随后再次耗尽无进展窗口直接 partial。进入时间/模型预算保留区时，执行器先尝试完整结束，存在缺口则保存 partial，不再花一轮模型生成结束措辞。不提高总预算；极小调用预算仍保持原 budget-exhausted 行为。partial 是诚实收尾，不能用于健康样本的完整通过。

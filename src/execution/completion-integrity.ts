@@ -5,6 +5,7 @@ import { getRunSnapshot } from './run-manager.ts'
 import { resolveRunKind } from '../inspection/run-kind.ts'
 import { inspectionHistoryIssues } from '../inspection/proof-history.ts'
 import { stat } from 'node:fs/promises'
+import { recoveryArtifactIssues } from '../inspection/recovery-history.ts'
 
 /** A terminal row alone cannot prove that the execution evidence was committed. */
 export function completionIssues(run: Run, events: readonly RunEvent[]): string[] {
@@ -69,6 +70,12 @@ export async function verifyCompletionCommit(expected: {
         } catch {}
       }
       issues.push(...inspectionHistoryIssues(snapshot.run, snapshot.events, readable))
+      issues.push(
+        ...(await recoveryArtifactIssues(
+          snapshot.events,
+          new Map(snapshot.artifactRows.rows.map((r) => [String(r.id), String(r.file_path)])),
+        )),
+      )
     }
     if (
       snapshot.events.length !== expected.eventIds.length ||

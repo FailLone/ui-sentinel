@@ -246,3 +246,21 @@ it('keeps ancestor and offscreen hit misses consistent with the observation summ
   const latest = decisionMemory([data]).latestToolResults as any
   expect(latest.tools[0].results[0].hit).toMatchObject({ sampled: 3, self: 1, blocked: 2 })
 })
+
+it('retains structured SDK validation errors without crashing or presenting success', () => {
+  const original = entry(
+    'interaction_verify',
+    {
+      error: true,
+      message: 'Unrecognized keys: selector, expected',
+      validationErrors: { errors: ['invalid'] },
+    },
+    { checkRef: 'original', selector: 'wrong' },
+  )
+  const latest = decisionMemory([original]).latestToolResults as any
+  expect(latest.tools[0].error).toContain('Unrecognized keys')
+  expect(latest.tools[0].args).toMatchObject({ checkRef: 'original', selector: 'wrong' })
+  expect(JSON.parse(readToolResult([original], '0.0').chunk!)).toEqual(
+    JSON.parse(original.toolResults)[0],
+  )
+})

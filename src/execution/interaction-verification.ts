@@ -30,33 +30,65 @@ export const interactionVerificationInput = z.object({
 })
 export type InteractionVerification = z.infer<typeof interactionVerificationInput>
 /** No arbitrary JavaScript from the agent; unsupported or ambiguous measurements stay unverified. */
-export async function measureInteraction(page: Page, input: InteractionVerification) {
-  const measured = await page
-    .evaluate(({ selector, condition }) => {
-      const elements = [...document.querySelectorAll(selector)]
-      if (elements.length > 100) return { values: [], count: elements.length, supported: false }
-      const values = elements.map((element) => {
-        if (condition === 'value-equals') return 'value' in element ? String(element.value) : null
-        if (condition === 'expanded-equals') return element.getAttribute('aria-expanded')
-        if (condition === 'visible') {
-          const r = element.getBoundingClientRect(),
-            style = getComputedStyle(element)
-          return String(
-            r.width > 0 &&
-              r.height > 0 &&
-              style.visibility !== 'hidden' &&
-              style.display !== 'none',
-          )
-        }
-        return (element.textContent ?? '').trim()
-      })
-      return { values, count: elements.length, supported: true }
-    }, input)
+export async function measureInteraction(
+  page: Page,
+  input: InteractionVerification,
+  capture?: () => Promise<string[]>,
+) {
+  const binding = await page
+    .evaluateHandle(
+      (selector) => ({
+        root: document.documentElement,
+        url: location.href,
+        elements: [...document.querySelectorAll(selector)],
+      }),
+      input.selector,
+    )
     .catch(() => null)
+  const read = () =>
+    binding
+      ?.evaluate(({ root, url, elements }, { selector, condition }) => {
+        const current = [...document.querySelectorAll(selector)]
+        if (
+          root !== document.documentElement ||
+          url !== location.href ||
+          current.length !== elements.length ||
+          elements.some((e, i) => !e.isConnected || current[i] !== e)
+        )
+          return { values: [], count: current.length, supported: false }
+        if (elements.length > 100) return { values: [], count: elements.length, supported: false }
+        const values = elements.map((element) => {
+          if (condition === 'value-equals') return 'value' in element ? String(element.value) : null
+          if (condition === 'expanded-equals') return element.getAttribute('aria-expanded')
+          if (condition === 'visible') {
+            const r = element.getBoundingClientRect(),
+              style = getComputedStyle(element)
+            return String(
+              r.width > 0 &&
+                r.height > 0 &&
+                style.visibility !== 'hidden' &&
+                style.display !== 'none',
+            )
+          }
+          return (element.textContent ?? '').trim()
+        })
+        return { values, count: elements.length, supported: true }
+      }, input)
+      .catch(() => null)
+  let measured = await read()
+  let evidenceRefs: string[] = []
+  try {
+    evidenceRefs = (await capture?.()) ?? []
+    const confirmed = await read()
+    if (JSON.stringify(measured) !== JSON.stringify(confirmed)) measured = null
+  } finally {
+    await binding?.dispose()
+  }
   if (!measured?.supported)
     return {
       input,
       measured,
+      evidenceRefs,
       outcome: 'unverified' as const,
       reasonCode: 'measurement-unsupported',
     }
@@ -87,6 +119,8 @@ export async function measureInteraction(page: Page, input: InteractionVerificat
   return {
     input,
     measured,
+    evidenceRefs,
+    binding: { mode: 'post-action-current', url: page.url(), selector: input.selector },
     outcome:
       passed === null
         ? ('unverified' as const)

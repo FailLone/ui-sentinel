@@ -72,7 +72,7 @@ function uiScanPolicy(
     'expected to check at least one local interaction and, when a same-origin link is available, at ' +
     'least one navigation within the page and depth limits above. Skip an action whose side effect ' +
     'is unknown and say so. ' +
-    'For a local interaction, include page_act.verify with a bounded postcondition justified by public page facts. The executor measures it after acting; clicking alone does not verify the control. If no supported predicate expresses the result, use investigation_run and keep the original obligation unverified until linked evidence exists. ' +
+    'For a local interaction, include page_act.verify with a bounded postcondition justified by public page facts. The executor reads and binds current result nodes after acting; clicking alone does not verify the control. If it returns unverified and recoverableInteractions offers a checkRef, use interaction_verify(checkRef) to remeasure that exact original postcondition without replaying the action or changing the expectation. If no supported predicate expresses the result, use investigation_run and keep the original obligation unverified until linked evidence exists. ' +
     'Automatic rules run with every observation: read their verdicts from the returned inspection ' +
     'instead of repeating an observation or a check. A pass or a fail completes that check; unknown ' +
     'requires further justified investigation or an honest unverified report. ' +

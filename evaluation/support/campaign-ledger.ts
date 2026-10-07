@@ -68,6 +68,14 @@ export interface CampaignLedger {
   settle(requestId: string, actualUsd: number): Promise<void>
   markUnknown(requestId: string, reason: string): Promise<void>
   release(requestId: string, reason: string): Promise<void>
+  reconcile(input: {
+    requestId: string
+    generationId: string
+    model: string
+    provider: string
+    actualUsd: number
+    evidence: unknown
+  }): Promise<void>
   spending(): Promise<CampaignSpending>
   entries(): Promise<LedgerEntry[]>
   acquireLease(holder: string): Promise<{ ok: boolean; holder: string | null }>
@@ -104,6 +112,11 @@ CREATE TABLE IF NOT EXISTS ledger_requests (
   reason TEXT,
   created_at TEXT NOT NULL,
   settled_at TEXT
+);
+CREATE TABLE IF NOT EXISTS ledger_reconciliations (
+  request_id TEXT PRIMARY KEY, campaign_id TEXT NOT NULL, generation_id TEXT NOT NULL UNIQUE,
+  model TEXT NOT NULL, provider TEXT NOT NULL, actual_usd REAL NOT NULL,
+  evidence TEXT NOT NULL, reconciled_at TEXT NOT NULL
 );
 CREATE TABLE IF NOT EXISTS campaign_lease (
   campaign_id TEXT PRIMARY KEY,
@@ -169,7 +182,7 @@ export async function openCampaignLedger(input: {
   const spendingOf = async (): Promise<CampaignSpending> => {
     const rows = (
       await db.execute({
-        sql: "SELECT status, reserved_usd, actual_usd FROM ledger_requests WHERE campaign_id=? AND status IN ('held','settled','unknown')",
+        sql: "SELECT CASE WHEN c.request_id IS NOT NULL THEN 'settled' ELSE r.status END AS status, r.reserved_usd, COALESCE(c.actual_usd,r.actual_usd) AS actual_usd FROM ledger_requests r LEFT JOIN ledger_reconciliations c ON c.request_id=r.request_id AND c.campaign_id=r.campaign_id WHERE r.campaign_id=? AND r.status IN ('held','settled','unknown')",
         args: [campaignId],
       })
     ).rows
@@ -217,7 +230,7 @@ export async function openCampaignLedger(input: {
         }
         const rows = (
           await tx.execute({
-            sql: "SELECT status, reserved_usd, actual_usd FROM ledger_requests WHERE campaign_id=? AND status IN ('held','settled','unknown')",
+            sql: "SELECT CASE WHEN c.request_id IS NOT NULL THEN 'settled' ELSE r.status END AS status, r.reserved_usd, COALESCE(c.actual_usd,r.actual_usd) AS actual_usd FROM ledger_requests r LEFT JOIN ledger_reconciliations c ON c.request_id=r.request_id AND c.campaign_id=r.campaign_id WHERE r.campaign_id=? AND r.status IN ('held','settled','unknown')",
             args: [campaignId],
           })
         ).rows
@@ -276,6 +289,67 @@ export async function openCampaignLedger(input: {
         sql: "UPDATE ledger_requests SET status='released', reason=?, settled_at=? WHERE request_id=? AND status='held'",
         args: [reason, now(), requestId],
       })
+    },
+    async reconcile(input) {
+      if (
+        !Number.isFinite(input.actualUsd) ||
+        input.actualUsd < 0 ||
+        !input.generationId ||
+        !input.evidence
+      )
+        throw new LedgerError('invalid-reconciliation')
+      const tx = await beginWrite()
+      try {
+        const row = (
+          await tx.execute({
+            sql: 'SELECT * FROM ledger_requests WHERE request_id=? AND campaign_id=?',
+            args: [input.requestId, campaignId],
+          })
+        ).rows[0]
+        if (
+          !row ||
+          row.status !== 'unknown' ||
+          row.model !== input.model ||
+          row.provider !== input.provider
+        )
+          throw new LedgerError('reconciliation-request-mismatch')
+        const old = (
+          await tx.execute({
+            sql: 'SELECT * FROM ledger_reconciliations WHERE request_id=? OR generation_id=?',
+            args: [input.requestId, input.generationId],
+          })
+        ).rows[0]
+        const evidence = JSON.stringify(input.evidence)
+        if (old) {
+          if (
+            old.request_id !== input.requestId ||
+            old.campaign_id !== campaignId ||
+            old.generation_id !== input.generationId ||
+            Number(old.actual_usd) !== input.actualUsd ||
+            old.model !== input.model ||
+            old.provider !== input.provider ||
+            old.evidence !== evidence
+          )
+            throw new LedgerError('reconciliation-conflict')
+        } else
+          await tx.execute({
+            sql: 'INSERT INTO ledger_reconciliations (request_id,campaign_id,generation_id,model,provider,actual_usd,evidence,reconciled_at) VALUES (?,?,?,?,?,?,?,?)',
+            args: [
+              input.requestId,
+              campaignId,
+              input.generationId,
+              input.model,
+              input.provider,
+              input.actualUsd,
+              evidence,
+              now(),
+            ],
+          })
+        await tx.commit()
+      } catch (error) {
+        await tx.rollback().catch(() => {})
+        throw error
+      }
     },
     spending: spendingOf,
     async entries() {

@@ -97,6 +97,7 @@ export function uiScanSummary(
   run: Run,
   events: readonly RunEvent[],
   readable?: ReadonlySet<string>,
+  additionalIssues: readonly string[] = [],
 ): UiScanReport | undefined {
   const resolved = resolveRunKind(run.spec)
   if (resolved.kind !== 'ui-scan') return undefined
@@ -106,7 +107,8 @@ export function uiScanSummary(
   const snapshot = scope.snapshot()
   const accepted = [...events].reverse().find((e) => e.type === 'finish:accepted')
   const proof = (accepted?.payload.inspectionProof as InspectionProof | undefined) ?? null
-  const proofVerified = inspectionHistoryIssues(run, events, readable).length === 0
+  const proofVerified =
+    additionalIssues.length === 0 && inspectionHistoryIssues(run, events, readable).length === 0
   const finishReasonCode = (accepted?.payload.reasonCode as string | undefined) ?? null
 
   const coverage: UiCoverage =

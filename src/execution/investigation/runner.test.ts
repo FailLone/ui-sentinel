@@ -186,6 +186,19 @@ describe('composable program contracts', () => {
           expect(fresh.verdict).toBe(healthy ? 'pass' : 'fail')
           expect(fresh.targetIssues).toEqual([])
           expect(replaced.verdict).toBe('unknown')
+          // Start a separate declared result-slot experiment; never reinterpret the old receipt.
+          p.targets = [
+            { name: 'item', selector: '#item', binding: 'post-action' },
+            { name: 'refresh', selector: '#refresh' },
+          ]
+          p.steps = [
+            { op: 'act', type: 'click', target: 'refresh' },
+            { op: 'bind_results' },
+            { op: 'measure', name: 'after' },
+          ]
+          const resultSlot = await runProgram(p, host)
+          expect(resultSlot.verdict).toBe(healthy ? 'pass' : 'fail')
+          expect(resultSlot.resultBindings[0]!.text).toBe(healthy ? 'Ready' : 'Waiting')
         },
       )
   })
@@ -239,4 +252,33 @@ it('visibility override is rendered, while transparent ancestors still hide it',
       expect((await runProgram(p, host)).verdict).toBe('fail')
     },
   )
+})
+
+it('does not silently bind a result that was missing at the explicit binding step', async () => {
+  for (const rebind of [false, true])
+    await fixture('<button id="refresh">Refresh</button><div id="result"></div>', async (host) => {
+      const p = program('text')
+      p.targets = [
+        { name: 'item', selector: '#result span', binding: 'post-action' },
+        { name: 'refresh', selector: '#refresh' },
+      ]
+      p.steps = [
+        { op: 'act', type: 'click', target: 'refresh' },
+        { op: 'bind_results' },
+        { op: 'measure', name: 'early' },
+        ...(rebind ? [{ op: 'bind_results' as const }] : []),
+        { op: 'measure', name: 'after' },
+      ]
+      p.assertions[0]!.operator = 'eq'
+      p.assertions[0]!.right = { value: 'Ready' }
+      let capture = 0
+      host.screenshot = async () => {
+        if (++capture === 1)
+          await host.page.locator('#result').evaluate((e) => (e.innerHTML = '<span>Ready</span>'))
+        return 'shot'
+      }
+      const receipt = await runProgram(p, host)
+      expect(receipt.verdict).toBe(rebind ? 'pass' : 'unknown')
+      expect(receipt.samples.early!.item!.text).toBeNull()
+    })
 })

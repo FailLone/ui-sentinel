@@ -2,10 +2,11 @@ import { extractToolSummary, type HistoryEntry } from './compact-history.ts'
 
 export const MEMORY_BUDGET_BYTES = 8000
 const bytes = (value: unknown) => Buffer.byteLength(JSON.stringify(value))
-function boundedText(value: string | undefined, limit: number) {
+function boundedText(value: unknown, limit: number) {
   if (value === undefined) return undefined
+  const text = typeof value === 'string' ? value : JSON.stringify(value)
   let result = ''
-  for (const char of value) {
+  for (const char of text ?? '') {
     if (Buffer.byteLength(JSON.stringify(result + char)) > limit) break
     result += char
   }

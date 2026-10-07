@@ -1,4 +1,5 @@
 import { uiActionRefusal } from './ui-action-boundary.ts'
+import { createInteractionRecovery, recoveryDigest } from './interaction-recovery.ts'
 import { measureInteraction, type InteractionVerification } from './interaction-verification.ts'
 import { inspectInput, programInput } from './investigation/program.ts'
 import { inspectElements } from './investigation/measure.ts'
@@ -392,6 +393,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
   let programActionItems: string[] | null = null
   const candidateBindings = new Map<string, import('playwright').ElementHandle<Element>>()
   let activeAction: {
+    actionId: string
     type: string
     ref: string
     target: string
@@ -404,6 +406,26 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     verify?: InteractionVerification
     actionError?: string
   } | null = null
+  const interactionRecovery = createInteractionRecovery({
+    page: () => worker!.page,
+    actionVersion: () => usage.actions,
+    clean: () => integrity.epoch() === 0,
+    guard: () => guard(),
+    hashEvidence: async (refs) => {
+      const hashes: Record<string, string> = {}
+      for (const ref of refs) {
+        const rows = await getDbClient().execute({
+          sql: 'SELECT file_path FROM artifacts WHERE id=? AND run_id=?',
+          args: [ref, runId],
+        })
+        if (rows.rows.length !== 1) throw Error('recovery-evidence-not-owned')
+        hashes[ref] = createHash('sha256')
+          .update(await readFile(String(rows.rows[0]!.file_path)))
+          .digest('hex')
+      }
+      return hashes
+    },
+  })
   /** True after the first observation, which is the point the bounded scan may run from. */
   let visualScanEligible = false
   let visualFocus: ReturnType<typeof createVisualFocusRuntime> | undefined
@@ -656,7 +678,15 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       !!observed && observed.evidenceRefs.some((ref) => !pending.beforeRefs.includes(ref))
     const measurement =
       fresh && !pending.actionError && pending.verify && integrity.epoch() === 0
-        ? await measureInteraction(worker!.page, pending.verify)
+        ? await measureInteraction(worker!.page, pending.verify, async () => [
+            await saveEvidence(
+              runId,
+              'screenshot',
+              await worker!.page.screenshot({ timeout: 3000 }),
+              evidenceMetadata(),
+              guard,
+            ),
+          ])
         : null
     const navigated =
       fresh &&
@@ -671,6 +701,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         (navigated ? 'navigation-observed' : 'postcondition-not-verified'))
     const measurementRefs: string[] = []
     if (measurement) {
+      measurementRefs.push(...measurement.evidenceRefs)
       const ref = await saveEvidence(
         runId,
         'interaction-measurement',
@@ -688,7 +719,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         runId,
         'interaction:measured',
         { target: pending.target, sourceSnapshot: pending.snapshotPage, outcome, reasonCode },
-        { evidenceRefs: [ref, ...observed!.evidenceRefs] },
+        { evidenceRefs: [ref, ...measurement.evidenceRefs, ...observed!.evidenceRefs] },
       )
     }
     const resolved = await inspection.resolveInteraction({
@@ -705,6 +736,26 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       ...(pending.snapshotPage ? { snapshotId: pending.snapshotPage } : {}),
     })
     if (resolved && programActionItems) programActionItems.push(resolved.itemId)
+    if (
+      resolved &&
+      measurement?.outcome === 'unverified' &&
+      pending.verify &&
+      !pending.navigated &&
+      !pending.actionError &&
+      integrity.epoch() === 0
+    ) {
+      const source = await interactionRecovery.register(
+        { actionId: pending.actionId, itemId: resolved.itemId, input: pending.verify },
+        resolved.evidenceRefs,
+      )
+      guard()
+      await appendEvent(
+        runId,
+        'interaction:verification-opened',
+        { ...source, sourceHash: recoveryDigest(source) },
+        { actionId: pending.actionId, evidenceRefs: [...resolved.evidenceRefs] },
+      )
+    }
     // The document being left is finished, and this happens *after* the action's own item was
     // resolved: a navigation fulfils the candidate it was aimed at, so closing that candidate as
     // abandoned would turn the run's own successful move into an unfinished check. Its stale
@@ -1930,12 +1981,18 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       await appendEvent(
         runId,
         'action:executing',
-        { type: input.type, target: targetDesc, dispatchTime },
+        {
+          type: input.type,
+          target: targetDesc,
+          dispatchTime,
+          ...(input.verify ? { verification: input.verify } : {}),
+        },
         { stepId, actionId, evidenceRefs: latest!.evidenceRefs },
       )
       // The action is now on the record and in flight; everything the browser reports from here is
       // gathered into it and turned into scope by `settleActionLedger`.
       activeAction = {
+        actionId,
         type: input.type,
         ref: actingRef,
         target: targetDesc,
@@ -2172,6 +2229,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         action: input,
         status: 'completed',
         inspection: inspectionSummary(),
+        recoverableInteractions: interactionRecovery.available(),
         elements: referenceIndex(),
         url: latest!.snapshot.url,
         a11yTree: latestA11y!,
@@ -2451,7 +2509,88 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         )
         .map((event) => event.id)
     }
+    async function recoverInteraction(checkRef: string) {
+      if (!inspection || !uiScan) return { error: 'ui-recovery-unavailable' }
+      try {
+        return await interactionRecovery.run(checkRef, async (check, assertCurrent) => {
+          const item = inspection!.scope.snapshot().items.find((i) => i.itemId === check.itemId)
+          if (!item || item.status !== 'unverified' || item.category !== 'local-interaction')
+            throw Error('recovery-item-not-unverified')
+          await observe()
+          await assertCurrent()
+          const observationRefs = [...latest!.evidenceRefs]
+          const measurement = await measureInteraction(page, check.input, async () => [
+            await saveEvidence(
+              runId,
+              'screenshot',
+              await page.screenshot({ timeout: 3000 }),
+              evidenceMetadata(),
+              guard,
+            ),
+          ])
+          await assertCurrent()
+          const body = {
+            ...measurement,
+            checkRef,
+            actionId: check.actionId,
+            itemId: check.itemId,
+            sourceHash: recoveryDigest(check),
+            observationRefs,
+          }
+          const receiptRef = await saveEvidence(
+            runId,
+            'interaction-measurement',
+            JSON.stringify(body),
+            evidenceMetadata(),
+            guard,
+          )
+          const refs = [
+            ...new Set([
+              ...Object.keys(check.evidenceHashes),
+              ...observationRefs,
+              ...measurement.evidenceRefs,
+              receiptRef,
+            ]),
+          ]
+          const event = await appendEvent(
+            runId,
+            'interaction:recovered',
+            { ...body, receiptRef, receiptHash: recoveryDigest(body) },
+            { actionId: check.actionId, evidenceRefs: refs },
+          )
+          await assertCurrent()
+          inspection!.scope.resolveItem(check.itemId, {
+            status: measurement.outcome,
+            reasonCode: 'interaction-recovery-measured',
+            evidenceRefs: refs,
+            eventIds: [event.id],
+            detail: `Original action ${check.actionId}; frozen expectation: ${check.input.basis}`,
+          })
+          await inspection!.flush()
+          return { ...body, evidenceRefs: refs }
+        })
+      } catch (error) {
+        guard()
+        await appendEvent(runId, 'interaction:recovery-rejected', {
+          checkRef,
+          reason: String(error),
+        })
+        return { error: String(error), outcome: 'unverified' as const }
+      }
+    }
     const tools = {
+      ...(uiScan
+        ? {
+            interaction_verify: createTool({
+              id: 'interaction.verify',
+              description:
+                'Read-only recovery of an original UI action postcondition. Use checkRef from recoverableInteractions. Reads and explicitly binds current result nodes; never repeats the action, changes its target or expected result. At most two attempts, same document, no intervening action, clean original evidence required. Old unknown evidence remains recorded.',
+              inputSchema: z.object({ checkRef: z.string().uuid() }).strict(),
+              execute: ({ checkRef }) =>
+                serial('interaction_verify', () => recoverInteraction(checkRef)),
+            }),
+          }
+        : {}),
       page_inspect: createTool({
         id: 'page.inspect',
         description:
@@ -3294,6 +3433,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       businessContract ?? undefined,
       uiScan,
     )
+    let uiRecoveryUsed = false
     const reviewedStates = new Set<string>()
     const refreshedReviewVersions = new Set<string>()
     const agent = new Agent({
@@ -3310,12 +3450,61 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     })
     if (visualScanEligible && config.features?.visualDiscovery) await visualFocus.scan()
     while (!finished) {
+      if (uiScan && inspection && noToolStreak >= 3) {
+        if (!uiRecoveryUsed) {
+          uiRecoveryUsed = true
+          const before = JSON.stringify([latest?.snapshot.url, latest?.snapshot.text, latestA11y])
+          await observe()
+          const recovery = interactionRecovery.available()[0]
+          const result = recovery ? await recoverInteraction(recovery.checkRef) : undefined
+          const changed =
+            before !== JSON.stringify([latest?.snapshot.url, latest?.snapshot.text, latestA11y]) ||
+            result?.outcome === 'verified' ||
+            result?.outcome === 'failed'
+          await appendEvent(runId, 'execution:bounded-recovery', {
+            changed,
+            checkRef: recovery?.checkRef ?? null,
+            outcome: result?.outcome ?? null,
+            actionsReplayed: 0,
+          })
+          if (changed) {
+            noToolStreak = 0
+            continue
+          }
+        }
+        await inspection.recordGap({
+          reasonCode: 'no-progress',
+          detail: 'Repeated reads added no relevant facts; bounded read-only recovery exhausted.',
+        })
+        await finishUiScan({ reason: 'unverified-scope' })
+        break
+      }
       const finCheck = phaseTracker.shouldFinalize({
         elapsedMs: Date.now() - startedAt,
         modelCallsUsed: usage.modelCalls,
         noProgressStreak: noToolStreak,
       })
       if (finCheck.should) {
+        if (
+          uiScan &&
+          inspection &&
+          usage.modelCalls > 0 &&
+          (finCheck.reason === 'time-budget-reserve' ||
+            (finCheck.reason === 'model-budget-reserve' &&
+              budget.maxModelCalls > 2 &&
+              usage.modelCalls < budget.maxModelCalls))
+        ) {
+          const completion = await finishUiScan({ reason: 'scope-covered' })
+          if (!completion.accepted) {
+            await inspection.recordGap({
+              reasonCode: finCheck.reason,
+              detail:
+                'Reserved remaining budget for durable partial completion; no further exploration or model request.',
+            })
+            await finishUiScan({ reason: 'unverified-scope' })
+          }
+          break
+        }
         const transition = phaseTracker.enterFinalizing(finCheck.reason)
         if (transition.changed) {
           await appendEvent(runId, 'run:phase-changed', {
@@ -3376,6 +3565,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         return true
       })
       const agentInput = {
+        ...(uiScan ? { recoverableInteractions: interactionRecovery.available() } : {}),
         activeTools,
         goal: run.spec.goal,
         availableJourneys: availableJourneys()
@@ -3785,7 +3975,8 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         hypothesisFacts: taskState.facts(),
         findingFacts: [...findingFacts],
         measurementFacts: [...measurementFacts],
-        retrievedFacts: [...inspectedResultRefs],
+        // UI retrieval delivers existing evidence, not new page/measurement facts.
+        retrievedFacts: uiScan ? [] : [...inspectedResultRefs],
       }
       const progressCheck = progressDetector.check(progressFacts)
       noToolStreak = progressCheck.isProgress ? 0 : noToolStreak + 1
@@ -3843,6 +4034,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     await visualFocus?.dispose().catch(() => {})
     await closeResponses()
     await temporalInvestigator?.close()
+    await interactionRecovery.dispose()
     await Promise.allSettled(investigationBlockers.map((cached) => cached.handle.dispose()))
     if (worker) await worker.close().catch(() => {})
     if (stopReason === 'reconciliation-required') queue.requireReconciliation()

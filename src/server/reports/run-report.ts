@@ -1,6 +1,7 @@
 import { stat, readFile } from 'node:fs/promises'
 import { getRunSnapshot, isRunActive } from '../../execution/run-manager.ts'
 import { inspectionHistoryIssues } from '../../inspection/proof-history.ts'
+import { recoveryArtifactIssues } from '../../inspection/recovery-history.ts'
 import { completionIssues } from '../../execution/completion-integrity.ts'
 import { interventionLimitation } from '../../shared/evidence-integrity.ts'
 import { unresolvedAnalyses } from './legacy-analysis.ts'
@@ -306,6 +307,14 @@ export async function buildReport(runId: string) {
   const readable = new Set(artifacts.filter((a) => a.available).map((a) => a.id))
   if (settled && run.spec.kind === 'ui-scan')
     issues.push(...inspectionHistoryIssues(run, events, readable))
+  const recoveryIssues =
+    run.spec.kind === 'ui-scan'
+      ? await recoveryArtifactIssues(
+          events,
+          new Map(artifactRows.rows.map((r) => [String(r.id), String(r.file_path)])),
+        )
+      : []
+  issues.push(...recoveryIssues)
   const invalid = issues.length > 0
   const hypotheses = hypothesisRows.rows.map((row) => ({
     id: String(row.id),
@@ -470,7 +479,7 @@ export async function buildReport(runId: string) {
     business: businessSummary(run.spec),
     // The `ui-scan` section, projected from this run's own persisted events. Absent entirely for a
     // business or legacy record, so a reader can tell "no UI scan" from "a UI scan with no items".
-    uiScan: uiScanSummary(run, events, readable),
+    uiScan: uiScanSummary(run, events, readable, recoveryIssues),
     events,
     hypotheses,
     artifacts,

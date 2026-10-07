@@ -880,7 +880,12 @@ it('latches shared resources after an uncertain write until explicit reconciliat
   })
   ids.push(run.id)
   await startRunExecution(run.id)
-  expect((await getRun(run.id))?.stopReason).toBe('reconciliation-required')
+  expect(
+    (await getRun(run.id))?.stopReason,
+    JSON.stringify(
+      (await getEvents(run.id)).filter((e) => /error|failed|write|reconcil/.test(e.type)),
+    ),
+  ).toBe('reconciliation-required')
   expect(executionBusy()).toBe(true)
   const next = await makeRun()
   await startRunExecution(next.id)

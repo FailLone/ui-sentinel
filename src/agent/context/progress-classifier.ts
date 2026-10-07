@@ -94,7 +94,14 @@ export function classifyResponse(result: {
 
   if (
     toolsCalled.some((t) =>
-      ['visual.review', 'visual_review', 'page.inspect', 'page_inspect'].includes(t),
+      [
+        'visual.review',
+        'visual_review',
+        'page.inspect',
+        'page_inspect',
+        'interaction.verify',
+        'interaction_verify',
+      ].includes(t),
     )
   ) {
     return {

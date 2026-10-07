@@ -115,6 +115,7 @@ export async function investigateProgram(
     validationStatus,
     assertions: receipt.assertions,
     targetIssues: receipt.targetIssues,
+    resultBindings: receipt.resultBindings,
     evidenceRefs,
     programRef,
     receiptRef,
