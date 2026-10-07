@@ -395,6 +395,21 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
    * is gathered from the browser and turned into scope without the caller having to thread a dozen
    * locals through the failure paths. An unsettled action is always settled before the next one starts.
    */
+  const uiActionChecks = new Map<string, { itemId: string; target: string }>()
+  const uiActionReceipt = (actionId: string) => {
+    const check = uiActionChecks.get(actionId)
+    const item = check && inspection?.snapshot().items.find((item) => item.itemId === check.itemId)
+    return item && check
+      ? {
+          actionId,
+          itemId: item.itemId,
+          target: check.target,
+          outcome: item.status,
+          reasonCode: item.reasonCode,
+          evidenceRefs: item.evidenceRefs,
+        }
+      : undefined
+  }
   let programActionItems: string[] | null = null
   const candidateBindings = new Map<string, import('playwright').ElementHandle<Element>>()
   let activeAction: {
@@ -740,6 +755,8 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       category: pending.navigated ? 'navigation' : 'local-interaction',
       ...(pending.snapshotPage ? { snapshotId: pending.snapshotPage } : {}),
     })
+    if (resolved)
+      uiActionChecks.set(pending.actionId, { itemId: resolved.itemId, target: pending.target })
     if (resolved && programActionItems) programActionItems.push(resolved.itemId)
     if (
       resolved &&
@@ -1968,6 +1985,17 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         throw Error(
           'navigation-verification-is-separate: no action dispatched. Omit verify for navigation; the executor verifies the actual link and destination. Inspect the destination after arriving before composing a separate content check grounded in known requirements. Never infer exact destination text from a link label.',
         )
+      if (inspection) {
+        const destination =
+          input.type === 'navigate' && input.url && URL.canParse(input.url, page.url())
+            ? new URL(input.url, page.url()).href
+            : input.type === 'click' && resolvedLocator
+              ? await resolvedLocator.evaluate((node) =>
+                  node instanceof HTMLAnchorElement ? node.href : null,
+                )
+              : null
+        if (destination) inspection.assertMayNavigate(destination)
+      }
       if (inspection && input.type === 'navigate' && input.url) {
         const destination = URL.canParse(input.url, page.url())
           ? new URL(input.url, page.url()).href
@@ -2300,6 +2328,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           ...(integrity.epoch() ? { limitation: interventionLimitation } : {}),
           action: input,
           status: 'failed',
+          ...(inspection ? { verification: uiActionReceipt(actionId) } : {}),
           elements: referenceIndex(),
           url: latest!.snapshot.url,
           a11yTree: latestA11y!,
@@ -2317,6 +2346,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       return {
         action: input,
         status: 'completed',
+        ...(inspection ? { verification: uiActionReceipt(actionId) } : {}),
         inspection: inspectionSummary(),
         recoverableInteractions: interactionRecovery.available(),
         elements: referenceIndex(),
@@ -2892,6 +2922,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
             for (const e of result.entries)
               for (const t of e.tools) {
                 if (
+                  !uiScan &&
                   inspectedResultRefs.size < 3 &&
                   !['history_read', 'tool_result_read'].includes(t.tool)
                 )
@@ -2915,8 +2946,13 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         execute: (input) =>
           serial('tool_result_read', async () => {
             const result = readToolResult(history, input.resultRef, input.offset ?? 0)
-            if (!('error' in result) && inspectedResultRefs.size < 3)
-              inspectedResultRefs.add(`${input.resultRef}:${input.offset}`)
+            if (
+              !('error' in result) &&
+              result.chunk &&
+              (!uiScan || result.evidenceBearing) &&
+              inspectedResultRefs.size < 3
+            )
+              inspectedResultRefs.add(`${result.resultRef}:${result.offset}`)
             return result
           }),
       }),
@@ -3758,6 +3794,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           ? {
               inspectionScope: {
                 candidates: inspection.candidateItems(),
+                recentChecks: [...uiActionChecks.keys()].slice(-6).map(uiActionReceipt),
                 counts: inspection.snapshot().counts,
                 outstanding: inspection.completionGaps().map((gap) => ({
                   itemId: gap.itemId,
@@ -4085,8 +4122,8 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         hypothesisFacts: taskState.facts(),
         findingFacts: [...findingFacts],
         measurementFacts: [...measurementFacts],
-        // UI retrieval delivers existing evidence, not new page/measurement facts.
-        retrievedFacts: uiScan ? [] : [...inspectedResultRefs],
+        // Bounded first access to original evidence can inform a decision; it is not a new verification.
+        retrievedFacts: [...inspectedResultRefs],
       }
       const progressCheck = progressDetector.check(progressFacts)
       noToolStreak = progressCheck.isProgress ? 0 : noToolStreak + 1

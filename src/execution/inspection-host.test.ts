@@ -510,3 +510,38 @@ it('counts public controls separately from repeated checks without erasing an un
   expect(h.snapshot().items.find((i) => i.itemId === original)?.status).toBe('unverified')
   expect(h.completionGaps().some((g) => g.itemId === original)).toBe(true)
 })
+
+it('defers route changes and reloads with pending controls while preserving resolved unknowns', async () => {
+  const { host: h } = host()
+  await h.recordObservation({
+    url: 'https://shop.example.org/catalog',
+    evidenceRefs: ['shot', 'snapshot'],
+    candidateItems: [{ ref: 'e1', description: 'Refresh', category: 'local-interaction' }],
+    candidateCategories: ['local-interaction'],
+    candidateDetail: 'Refresh',
+  })
+  const item = h.candidateItems()[0]!
+  expect(() => h.assertMayNavigate('https://shop.example.org/info')).not.toThrow()
+  await h.selectItems([{ itemId: item.itemId, basis: 'Check refresh' }])
+  expect(() => h.assertMayNavigate('https://shop.example.org/info')).toThrow(
+    'pending-local-checks-before-navigation',
+  )
+  expect(() => h.assertMayNavigate('https://shop.example.org/catalog#section')).toThrow(
+    'pending-local-checks-before-navigation',
+  )
+  expect(() => h.assertMayNavigate('https://shop.example.org/catalog')).toThrow(
+    'pending-local-checks-before-navigation',
+  )
+  await h.resolveInteraction({
+    ref: 'e1',
+    snapshotId: 's1',
+    target: 'Refresh',
+    url: 'https://shop.example.org/catalog',
+    evidenceRefs: ['unknown'],
+    outcome: 'unverified',
+    reasonCode: 'target-unavailable',
+    category: 'local-interaction',
+  })
+  expect(() => h.assertMayNavigate('https://shop.example.org/info')).not.toThrow()
+  expect(h.snapshot().items.find((i) => i.itemId === item.itemId)?.status).toBe('unverified')
+})

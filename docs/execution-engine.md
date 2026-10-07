@@ -137,3 +137,7 @@ UI 本地 click/fill 在派发前须有 `page_act.verify` 或处于有测量契�
 已选链接必须实际 click 才能验证其可操作性。若直接 URL navigate 对应当前仍待检查的已选链接，UI 执行器返回 `selected-navigation-requires-click`，保留页面与原事项，要求通过当前观察中的 link ref 操作。没有已选链接的直接 URL 导航照常支持；已离页造成的旧 gap 不会事后改为成功。
 
 UI 链接导航与目的页内容检查分开：导航动作不接受局部 `verify`，由执行器验证实际链接派发和目的页观察；到达后才能对已观察内容按已知需求另建调查，不能凭链接文案猜目的页文字。调查可选字段的 `null` 等同缺省，必需动作参数仍校验。程序仍限三次动作、四秒等待，结果绑定只能在最后动作之后。三轮无进展及只读恢复后，若最新调用确为输入校验失败，每运行最多提供一次契约修正模型轮次；该机会不计页面进展、不解除未验证事项，下一轮仍无新事实则 partial。
+
+`page_act.verification` 与 `inspectionScope.recentChecks` 返回既有账本的动作→item→验证状态投影；`status=completed` 仍只表示动作结束，不能替代验证。摘要省略大负载时仍保留 verification 的 itemId/outcome/reasonCode。UI 首次读取带证据的原始回执分片可获得最多三次信息访问进展，等价数字引用与缺省/零 offset 归一化，重复分片、空分片、输入错误及递归读取均不获进展；这不产生新页面事实、不解除任何未验证事项。
+
+已选择但仍 pending 的本页局部检查必须在可识别的跨文档导航前处理；前置拒绝不会派发动作。完成本页测量后可继续导航，无法完成则保留事项并 partial。路由身份沿用 query/fragment；pending 局部检查也须在 fragment 路由切换或重载前处理。未选控件及已如实记录的 unknown 不借此伪造验证或清除 gap。

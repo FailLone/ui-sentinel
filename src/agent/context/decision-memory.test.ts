@@ -278,3 +278,66 @@ it('does not recursively serialize retrieval receipts as if they were new eviden
   })
   expect(readToolResult(history, '0.0')).toEqual(first)
 })
+
+it('retains the executor verification independently of action completion when payload is omitted', () => {
+  const data = {
+    text: '',
+    toolResults: JSON.stringify([
+      {
+        payload: {
+          toolName: 'page_act',
+          result: {
+            status: 'completed',
+            verification: {
+              itemId: 'original-item',
+              outcome: 'unverified',
+              reasonCode: 'target-unavailable',
+              evidenceRefs: ['snapshot-owned'],
+            },
+            inspection: { large: 'x'.repeat(20000) },
+            evidenceRefs: ['snapshot-owned'],
+          },
+        },
+      },
+    ]),
+  }
+  const latest = decisionMemory([data]).latestToolResults as any
+  expect(latest.tools[0]).toMatchObject({
+    omitted: true,
+    status: 'completed',
+    verification: {
+      itemId: 'original-item',
+      outcome: 'unverified',
+      reasonCode: 'target-unavailable',
+    },
+  })
+  expect(readToolResult([data], '0.0')).toMatchObject({ evidenceBearing: true })
+  expect(
+    readToolResult(
+      [
+        {
+          text: '',
+          toolResults: JSON.stringify([
+            {
+              payload: {
+                toolName: 'investigation_run',
+                result: { error: true, message: 'invalid' },
+              },
+            },
+          ]),
+        },
+      ],
+      '0.0',
+    ),
+  ).toMatchObject({ evidenceBearing: false })
+})
+
+it('canonicalizes equivalent numeric receipt refs for bounded read accounting', () => {
+  const entry = {
+    text: '',
+    toolResults: JSON.stringify([
+      { payload: { toolName: 'page_inspect', result: { evidenceRefs: ['owned'], elements: [] } } },
+    ]),
+  }
+  expect(readToolResult([entry], '00.00').resultRef).toBe('0.0')
+})

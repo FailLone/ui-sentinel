@@ -7,6 +7,7 @@ import {
   URL_SCAN_SEEN_CARDS,
   URL_SCAN_SEEN_LIST,
   URL_SCAN_SEEN_WIDE,
+  URL_SCAN_SEEN_STACK,
 } from './fixture.ts'
 import { replayUrlSample } from './replay.ts'
 import { urlScanTruth } from './truth.ts'
@@ -17,6 +18,7 @@ it.each([
   URL_SCAN_SEEN_CARDS,
   URL_SCAN_SEEN_LIST,
   URL_SCAN_SEEN_WIDE,
+  URL_SCAN_SEEN_STACK,
   URL_SCAN_HOLDOUT_LAYOUT,
 ] as const)(
   'independently verifies five actual samples and their counterparts with layout %s',

@@ -56,3 +56,11 @@ D10/D11 自测：全量 147 文件、1471 通过、1 跳过（`data/r0-final-acc
 免费 SDK 初步验证：可选 null 的规范化、导航断言拆分、单次契约修正及持续错误五轮收尾均通过；12 场景证据 `data/r0-continuity/2026-10-07T11-17-54-343Z`。首次类型检查暴露 Zod transform 输出把可选属性推成 required；补显式 optional 恢复原类型契约，保存失败日志 `d12-d13/build.log`。这些仍是 A/B 自测，后续 C 必须新冻结。
 
 D12–D15 最终免费回归：149/149 文件，1478 通过、1 跳过（`data/r0-final-acceptance/d12-d13/full.log`）；原九恢复反例 `data/r0-remediation/2026-10-07T11-19-12-061Z`、URL42 `data/r0-url-scan/2026-10-07T11-19-40-405Z`、业务32 `data/business-preflight/2026-10-07T11-19-59-560Z` 全通过。12 场景 B 已验证最新契约修正路径。旧清理超时未复现，不删除原风险记录。
+
+## 诊断 06 与 D16/D17
+
+`r0-ui-diagnostic-0cbd441-06` 完整六行 4 通过 / 2 失败：healthy-catalog、dom-healthy、dom-investigation-defect、boundary 通过；overlay 健康行仍有 pending 局部检查和导航，异常行已保存有效 overlay 发现但离页遗留局部检查。全部档案的独立 SQLite/哈希/事件审计通过。新账本累计 US$0.96549324、unknown 0；加历史 US$1.00271784。未进入正式阶段，未将这些通过与旧批次拼接。
+
+D16 补齐实际动作验证回执和有界原始证据读取；D17 拒绝遗留已选 pending 本页检查的过早导航。两个修复均只使用真实账本/当前 URL/控件身份，不含 fixture 私有答案。新保留布局 holdout-columns-7；旧六布局均留回归。免费 API 15 场景、原恢复9场景、URL42、业务32在 `data/r0-final-acceptance/d16/` 留存原始日志。D16全量149文件1481通过1跳过；D17首次全量唯一失败是对fragment旧语义的错误预期，按整改计划显式修订后继续完整复核，不能删掉失败批次或声称该次全绿。
+
+D16/D17最终复核：149/149文件、1482通过1跳过（`data/r0-final-acceptance/d16/full-final.log`）；最新构建15场景B `data/r0-continuity/2026-10-07T11-46-00-778Z` 全通过。原恢复9 `data/r0-remediation/2026-10-07T11-41-15-604Z`、URL42 `data/r0-url-scan/2026-10-07T11-41-43-245Z`、业务32 `data/business-preflight/2026-10-07T11-42-02-318Z` 全通过，最后只加强了 pending 时fragment/重载的前置拒绝，其他路径未变。所有命令与首次失败仍留存。

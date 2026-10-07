@@ -181,6 +181,10 @@ const model = createServer(async (req, res) => {
     } else
       args = { type: 'click', ref: candidates.find((c: any) => c.category === 'navigation')?.ref }
   }
+  if (mode === 'navigation-order' && turn === 2) {
+    name = 'page_act'
+    args = { type: 'click', ref: candidates.find((c: any) => c.category === 'navigation')?.ref }
+  }
   if (mode === 'navigation-expectation' && turn === 3) {
     name = 'page_act'
     args = {
@@ -225,6 +229,21 @@ const model = createServer(async (req, res) => {
           : turn === 5
             ? { type: 'click', ref: candidates.find((c: any) => c.category === 'navigation')?.ref }
             : { reason: 'scope-covered' }
+  }
+  if (['evidence-read', 'evidence-loop'].includes(mode) && turn >= 2) {
+    if (turn === 2 || (mode === 'evidence-loop' && turn >= 3)) {
+      name = 'tool_result_read'
+      args = { resultRef: turn % 3 ? '1.0' : '01.0', ...(turn % 2 ? { offset: 0 } : {}) }
+    } else if (turn === 3) {
+      name = 'page_act'
+      args = { type: 'click', selector: '#refresh', verify: verification }
+    } else if (turn === 4) {
+      name = 'page_act'
+      args = { type: 'click', ref: candidates.find((c: any) => c.category === 'navigation')?.ref }
+    } else {
+      name = 'run_finish'
+      args = { reason: 'scope-covered' }
+    }
   }
   turn++
   const common = {
@@ -289,11 +308,14 @@ try {
     'label-contract',
     'sampling-cap',
     'navigation-contract',
+    'navigation-order',
     'navigation-expectation',
     'program-preflight',
     'wire-null',
     'contract-repair',
     'contract-loop',
+    'evidence-read',
+    'evidence-loop',
     'action-preflight',
     'unknown-replay',
   ]) {
@@ -332,10 +354,32 @@ try {
     const original = report.uiScan?.inspection.items.find((i: any) => i.itemId === originalId)
     const events = report.events
     const checks = {
+      evidenceRead:
+        mode !== 'evidence-loop' || (turn <= 7 && clicks === 0 && report.status !== 'completed'),
+      actionReceipt:
+        [
+          'contract-loop',
+          'evidence-loop',
+          'program-preflight',
+          'wire-null',
+          'contract-repair',
+        ].includes(mode) ||
+        events.some(
+          (event: any) =>
+            event.type === 'agent:response' &&
+            event.payload.toolResults.some(
+              (tool: any) =>
+                tool.payload?.toolName === 'page_act' &&
+                tool.payload.result?.verification?.itemId === originalId,
+            ),
+        ),
       contractRepair:
         !['contract-repair', 'contract-loop'].includes(mode) ||
         (events.filter((e: any) => e.type === 'execution:contract-repair').length === 1 &&
           (mode !== 'contract-loop' || turn <= 5)),
+      navigationOrder:
+        mode !== 'navigation-order' ||
+        JSON.stringify(events).includes('pending-local-checks-before-navigation'),
       navigationPreflight:
         mode !== 'navigation-contract' ||
         (JSON.stringify(events).includes('selected-navigation-requires-click') &&
@@ -364,21 +408,24 @@ try {
         !report.uiScan.inspection.items.some((i: any) => i.status === 'failed'),
       labelPreflight:
         mode !== 'label-contract' || JSON.stringify(events).includes('verification-value-is-label'),
-      terminal:
-        mode === 'contract-loop'
-          ? report.status !== 'completed' && original?.status === 'pending'
-          : mode === 'unknown-replay'
-            ? report.status !== 'completed' && original?.status === 'unverified'
-            : report.status === 'completed' && original?.status === 'verified',
+      terminal: ['contract-loop', 'evidence-loop'].includes(mode)
+        ? report.status !== 'completed' && original?.status === 'pending'
+        : mode === 'unknown-replay'
+          ? report.status !== 'completed' && original?.status === 'unverified'
+          : report.status === 'completed' && original?.status === 'verified',
       proof: report.uiScan?.proofVerified === true,
       dispatched:
         clicks ===
-        (mode === 'contract-loop' ? 0 : ['unknown-replay', 'sampling-cap'].includes(mode) ? 2 : 1),
+        (['contract-loop', 'evidence-loop'].includes(mode)
+          ? 0
+          : ['unknown-replay', 'sampling-cap'].includes(mode)
+            ? 2
+            : 1),
       continuity: events.some(
         (e: any) => e.type === 'scope:candidate-reobserved' && e.payload.itemId === originalId,
       ),
       navigation:
-        mode === 'contract-loop' ||
+        ['contract-loop', 'evidence-loop'].includes(mode) ||
         report.uiScan?.inspection.items.find(
           (i: any) => i.itemId === selected.find((c) => c.category === 'navigation')?.itemId,
         )?.status === 'verified',

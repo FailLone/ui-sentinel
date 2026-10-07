@@ -34,6 +34,7 @@ export interface ToolSummary {
   readonly hypothesisId?: string
   readonly nextStep?: string
   readonly targetIssues?: unknown
+  readonly verification?: { itemId?: string; outcome?: string; reasonCode?: string | null }
 }
 
 export interface HistoryCompressionConfig {
@@ -105,6 +106,7 @@ const KEEP_KEYS = new Set([
   'scope',
   'omitted',
   'chunk',
+  'evidenceBearing',
   'offset',
   'nextOffset',
   'totalChars',
@@ -119,6 +121,7 @@ const KEEP_KEYS = new Set([
   'operationId',
   'reused',
   'inspection',
+  'verification',
   'matching',
   'declaration',
   'routing',

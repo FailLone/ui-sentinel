@@ -41,6 +41,15 @@ function receipt(item: Record<string, unknown>, resultRef: string, budget: numbe
     resultRef,
     omitted: true,
     status: boundedText(summary.status, 40),
+    ...(summary.verification
+      ? {
+          verification: {
+            itemId: boundedText(summary.verification.itemId, 80),
+            outcome: boundedText(summary.verification.outcome, 30),
+            reasonCode: boundedText(summary.verification.reasonCode, 80),
+          },
+        }
+      : {}),
     id: boundedText(summary.id, 80),
     accepted: summary.accepted,
     verdict: boundedText(summary.verdict, 30),
@@ -97,7 +106,8 @@ export function readToolResult(history: readonly HistoryEntry[], ref: string, of
   }
   const next = offset + chunk.length
   return {
-    resultRef: ref,
+    resultRef: `${Number(match[1])}.${Number(match[2])}`,
+    evidenceBearing: !summary.error && !!summary.evidenceRefs?.length,
     offset,
     totalChars: raw.length,
     chunk,

@@ -507,6 +507,21 @@ export function createInspectionHost(options: InspectionHostOptions) {
         .filter((i) => i.selected && i.category === 'local-interaction' && i.url === url)
         .map((i) => samplingKeys.get(i.itemId) ?? i.itemId),
     )
+  function assertMayNavigate(destination: string) {
+    const current = options.currentUrl()
+    normalizePageUrl(destination) // Validate the navigation target without changing route identity.
+    const pending = items().filter(
+      (item) =>
+        item.selected &&
+        item.status === 'pending' &&
+        item.category === 'local-interaction' &&
+        normalizePageUrl(item.url) === normalizePageUrl(current),
+    )
+    if (pending.length)
+      throw Error(
+        `pending-local-checks-before-navigation: no action dispatched. Resolve selected local checks before leaving this document, or finish partial: ${pending.map((item) => item.itemId).join(', ')}`,
+      )
+  }
   const localSampling = () => {
     const selected = sampledKeys(options.currentUrl()).size
     return {
@@ -602,6 +617,7 @@ export function createInspectionHost(options: InspectionHostOptions) {
         ),
     localSampling,
     assertActionSelectable,
+    assertMayNavigate,
     completionFacts,
     snapshot: (): InspectionScopeSnapshot => scope.snapshot(),
     completionGaps: () => scope.completionGaps(),
