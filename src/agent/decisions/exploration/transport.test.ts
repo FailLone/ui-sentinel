@@ -182,6 +182,20 @@ describe('exploration score transport', () => {
     expect(result.trace.durationMs).toBeLessThan(1000)
   })
 
+  it("bounds a later decision by the caller's CURRENT remaining time, not the session's", async () => {
+    const base = fixture('menu')
+    // The caller now has 40 ms left, even though the session ledger was created with 5 s.
+    const shortened = { ...base, budget: { ...base.budget, remainingMs: 40 } }
+    const result = await requestExplorationScores({
+      input: shortened,
+      ledger: ledger({ remainingMs: 5000, maxRequestMs: 1000 }),
+      send: () => new Promise(() => {}),
+    })
+    expect(result.reasonCode).toBe('timeout')
+    // 40 ms, not 1000 ms: a frozen session value must not grant a longer timer than the caller allows.
+    expect(result.trace.durationMs).toBeLessThan(500)
+  })
+
   it('honours caller cancellation before the request settles', async () => {
     const controller = new AbortController()
     const { send, resolve } = deferredSend()

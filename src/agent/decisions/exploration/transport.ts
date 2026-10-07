@@ -11,6 +11,7 @@
 import { randomUUID } from 'node:crypto'
 import {
   CONTRACT_VERSION,
+  POLICY_VERSION,
   normalizeOutcome,
   parseExplorationInput,
   type ExplorationInput,
@@ -96,7 +97,8 @@ function bindingFor(
     scopeRevision: input.scope.revision,
     budgetRevision: input.budget.revision,
     contractVersion: CONTRACT_VERSION,
-    policyVersion: rankCandidates(input).policyVersion,
+    // The version constant, not a re-run of the ranking: bindingFor must not recompute the order.
+    policyVersion: POLICY_VERSION,
     promptVersion,
     modelId,
   }
@@ -205,7 +207,15 @@ export async function requestExplorationScores(options: RequestOptions): Promise
   if (callerSignal?.aborted) onCallerAbort()
 
   const snapshot = options.ledger.snapshot()
-  const budgetMs = Math.max(1, Math.min(input.budget.maxRequestMs, snapshot.remainingMs))
+  // Deadline = min(request cap, caller's CURRENT remaining time, session's declared remaining time).
+  // `input.budget.remainingMs` is the caller's live view and may have shrunk since the session
+  // ledger was created; the ledger's own value is frozen at construction and never ticks down.
+  // Taking the smallest of the three means a stale session value can never grant more time than
+  // the caller currently allows.
+  const budgetMs = Math.max(
+    1,
+    Math.min(input.budget.maxRequestMs, input.budget.remainingMs, snapshot.remainingMs),
+  )
   const timer = setTimeout(() => controller.abort(new Error('exploration-timeout')), budgetMs)
 
   const transportStart = Date.now()

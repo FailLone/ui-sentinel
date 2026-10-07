@@ -55,10 +55,6 @@
 
 ## 3. Jev 候选评分模块
 
-（P3 实现中，见后续小节。）
-
-## 3. Jev 候选评分模块
-
 `requestExplorationScores(options)` 每次只做一件事：构造有界问题 → 注入传输 → 逐项复核回执 → 返回判别结果。
 默认传输是包内 stub（`stub-transport.ts`），**不读 env、不加载 dotenv、不发起 fetch**。
 
