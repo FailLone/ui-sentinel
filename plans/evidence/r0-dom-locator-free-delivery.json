@@ -1,0 +1,238 @@
+{
+  "schemaVersion": 1,
+  "outcome": "restricted-information-delivery-fix-complete",
+  "baseDelivery": "b4e0973c282bd867166675fd63d3098e4d4ddbf5",
+  "implementationCandidate": "c1d41e13554a54f53118934cc5a62b8840610b23",
+  "productRebuilt": false,
+  "r0Acceptance": "not-passed; original failure retained",
+  "newModelCalls": 0,
+  "newBrowserRuns": 0,
+  "newPaidCostUsd": 0,
+  "paidSixCallComparisonStarted": false,
+  "codeIdentity": [
+    {
+      "path": "src/agent/context/decision-memory.ts",
+      "bytes": 9506,
+      "sha256": "c76314c9fbb6062cfc57b8381b5f8ee09018836467ebb20c68100cbcea76b588"
+    },
+    {
+      "path": "src/agent/context/dom-locator.test.ts",
+      "bytes": 5752,
+      "sha256": "09431e9b9b7e71c86437f153af344a48818f0e0ea8a8fc9f6cf9936df4cb90ef"
+    },
+    {
+      "path": "src/agent/context/fixtures/r0-overlay-dom-receipt.json",
+      "bytes": 7837,
+      "sha256": "9262e9f716a0b13e47d237b02440b9f13b3a31d201ba42e5028792069d21d626"
+    },
+    {
+      "path": "scripts/validation/verify-dom-locator-ab.ts",
+      "bytes": 5481,
+      "sha256": "6aefb2507151fd97bc56f38c0bc77eb3503a70b421f71e3eabe16f536755a9d0"
+    }
+  ],
+  "source": {
+    "fixedAt": "2026-10-08",
+    "sourceRunId": "run-2f9f51f3-a7f7-4f22-8f4d-6325de29c0ad",
+    "requestSeq": 11,
+    "requestId": "efd690aaeaea758f222284d7",
+    "requestStartedAt": "2026-10-08T05:50:42.942Z",
+    "sourceJsonlLine": 17,
+    "sourceRequestsPath": "data/r0-08acc95-resume/candidate/data/r0-url-campaign/r0-ui-diagnostic-08acc95-default3-01/requests.jsonl",
+    "sourceRequestsSha256": "1723f5b51c0fd7da1c583c110e66bbdf0f88279cfe42c57e80e1db0527f82826",
+    "eventCutoffSeq": 209,
+    "receiptEventSeq": 203,
+    "receiptEventId": "evt-dc96126a-8b0c-4c36-aedf-eb1ec0705c09",
+    "originalResultRef": "8.0",
+    "originalEvidenceRefs": [
+      "0ee35f1a-de74-4a90-8813-977f55c75f24.json"
+    ],
+    "supplementedFields": {
+      "args": {
+        "selector": "body *",
+        "offset": 0
+      },
+      "total": 21,
+      "nextOffset": 12
+    },
+    "newModelCalls": 0,
+    "newBrowserRuns": 0,
+    "newPaidCostUsd": 0,
+    "A": "A.original.json",
+    "B": "B.locator-only.json",
+    "sourcePrefixSha256": "469c9a072bc3a03cfddf016c39549911c266d2b1608e063f80b93cf95585b274",
+    "sourceDatabaseSha256": "78301451c55956f2aafae94b223f3bbdd4022a89944d8473a87ff7e6369fecb4",
+    "sourceArtifactPath": "data/r0-08acc95-resume/candidate/data/r0-url-campaign/r0-ui-diagnostic-08acc95-default3-01/row-2/artifacts/0ee35f1a-de74-4a90-8813-977f55c75f24.json",
+    "sourceArtifactSha256": "06a5076f394b9b0a4e7859d58d8feb31744c9b4315603ca4b9ba5890e2858033",
+    "originalRequestTransportStatus": "success",
+    "originalTaskOutcome": "blocked/partial; not accepted",
+    "sourceTransportRecord": {
+      "requestId": "efd690aaeaea758f222284d7",
+      "run": "row-2",
+      "seq": 11,
+      "status": "success",
+      "transportComplete": true,
+      "model": "deepseek/deepseek-v4.1-flash",
+      "usage": {
+        "prompt_tokens": 13856,
+        "completion_tokens": 744,
+        "total_tokens": 14600,
+        "cost": 0.00256128,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 9216,
+          "cache_write_tokens": 0,
+          "audio_tokens": 0,
+          "video_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.00256128,
+          "upstream_inference_prompt_cost": 0.00166848,
+          "upstream_inference_completions_cost": 0.0008928
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 688,
+          "image_tokens": 0,
+          "audio_tokens": 0
+        }
+      },
+      "startedAt": "2026-10-08T05:50:42.942Z"
+    },
+    "sourceTransportLedgerPath": "data/r0-08acc95-resume/candidate/data/r0-url-campaign/r0-ui-diagnostic-08acc95-default3-01/ledger.jsonl",
+    "sourceTransportLedgerSha256": "a2e7ef76f70e79a74d40530dc889959a65efa5f0fe3d01c25aff0b937e88a6e0",
+    "cutoffPrefixVerified": true
+  },
+  "staticAB": {
+    "A": {
+      "path": "data/r0-dom-locator-free/A.original.json",
+      "bytes": 74073,
+      "sha256": "22bdf2b03513a7e6b2ed85055a91ef7896d55f599a4968e5c9a9fdeb5e71f0cf"
+    },
+    "B": {
+      "path": "data/r0-dom-locator-free/B.locator-only.json",
+      "bytes": 74152,
+      "sha256": "751b874969986b62f9c77ec2f4090481702e4fe13de4c046ba0b829b441ebc2d"
+    },
+    "rawOriginalLine": {
+      "path": "data/r0-dom-locator-free/original-request-line.json",
+      "bytes": 53759,
+      "sha256": "6d83852b8c8e638574895e3e93a754969fefec49633720e42e0497a0ff02afb5"
+    },
+    "diff": {
+      "path": "plans/evidence/r0-dom-locator-static-ab-diff.json",
+      "bytes": 625,
+      "sha256": "f5edbe2821d3e885fa42f03e1db95f8da1cdbd9789babdd4a78ed37bb882cc41"
+    },
+    "verification": {
+      "staticABVerified": true,
+      "candidateRecompressionEqualsBMemory": true,
+      "memoryBeforeBytes": 6576,
+      "memoryAfterBytes": 6643,
+      "memoryBudgetBytes": 8000,
+      "historyIndicesPreserved": [
+        5,
+        6,
+        7,
+        8
+      ],
+      "latestIndexPreserved": 9,
+      "originalReceiptRetrievalFragments": 6,
+      "originalReceiptRecoveredExactly": true,
+      "nextDOMQueryValidated": {
+        "selector": "body *",
+        "offset": 12
+      },
+      "preservedPacketFields": [
+        "inspectionScope",
+        "task",
+        "finishReadiness",
+        "budgetRemaining",
+        "latestToolResults"
+      ],
+      "Asha256": "22bdf2b03513a7e6b2ed85055a91ef7896d55f599a4968e5c9a9fdeb5e71f0cf",
+      "Bsha256": "751b874969986b62f9c77ec2f4090481702e4fe13de4c046ba0b829b441ebc2d",
+      "sourceReceiptSha256": "9262e9f716a0b13e47d237b02440b9f13b3a31d201ba42e5028792069d21d626",
+      "limitation": "Information delivery only; no new model decision or R0 acceptance result."
+    },
+    "sourcePrefixVerified": true,
+    "sourceDOMArtifactVerified": true,
+    "onlyThreeReceiptFieldsRestored": true,
+    "omittedPreserved": true,
+    "otherDecodedFieldsIdentical": true,
+    "otherBodyFieldsIdentical": true,
+    "futurePageFactsAdded": false,
+    "newPromptsOrNextStepHintsAdded": false
+  },
+  "verification": {
+    "newTargetedCases": 4,
+    "existingRelatedCases": 16,
+    "passed": 20,
+    "failed": 0,
+    "typecheck": "passed",
+    "result": {
+      "path": "data/r0-dom-locator-free/tests.json",
+      "bytes": 7352,
+      "sha256": "777ed8088b2d3060a2d1a02532cd13aad419a744be4d3c302cb579af59e3f616"
+    },
+    "typecheckLog": {
+      "path": "data/r0-dom-locator-free/typecheck.log",
+      "bytes": 92,
+      "sha256": "bfa96c708c08e4d9d04e447b27e7afdb47c1b07c91b925104349515484e04134"
+    },
+    "targetedNames": [
+      "preserves the archived 8.0 query and DOM cursor; continuation and original retrieval use distinct offsets",
+      "bounds parallel oversized DOM receipts without truncating queries or displacing the newest verification status",
+      "retains pagination through the 1800-byte history fallback and marks queries that cannot fit it",
+      "does not guess absent pagination or hide errors, and preserves an explicit terminal null with omitted payload"
+    ]
+  },
+  "budgets": {
+    "decisionMemoryBytes": 8000,
+    "historyReadPageBytes": 1800,
+    "omittedQueryJSONBytes": 256,
+    "compactHistoryQueryJSONBytes": 80,
+    "changedExistingBudget": false,
+    "originalSourceMemoryBytes": 6576,
+    "candidateMemoryBytes": 6643
+  },
+  "localArchive": {
+    "path": "data/r0-dom-locator-free/dom-locator-static-ab-and-free-evidence.tar.gz",
+    "bytes": 82387,
+    "sha256": "50d3ffb4ecee3a822bcfb45c9821a27ee3e16b8273d407e3244c1af270e9c3e0"
+  },
+  "evidenceReuse": {
+    "requestStop": "b266089 / 41 tests; not rerun",
+    "priorProductTests": 84,
+    "priorBrowserScenarios": 12,
+    "rerunFullProduct": false
+  },
+  "r1": {
+    "statesRegenerated": false,
+    "newDecisionsOrLabels": false,
+    "unchangedPublicIndex": {
+      "path": "plans/evidence/r0-public-decision-states/index.json",
+      "bytes": 6811,
+      "sha256": "648bdfb1f605d765356125a0d7fd0c5538d78a22bb1fabe5285844c5ddc311c0"
+    },
+    "clarification": "DOM receipt at seq203 is later than S06 cutoff179; cannot backfill. DOM and raw-JSON offsets use different units."
+  },
+  "limitations": [
+    "information delivery proven; model reread reduction not tested",
+    "long query is explicitly omitted and retrievable via original reference",
+    "no general history retention guarantee beyond original window",
+    "original DOM pagination does not guarantee current page identity or business association",
+    "no R0 acceptance status change"
+  ],
+  "protectedExternalFiles": [
+    {
+      "path": "docs/product-roadmap.md",
+      "bytes": 57347,
+      "sha256": "b6ae8ad34b2af88a2d8381cd226e2b89a99f8e20dd479ae843f7c0bc3bd51a3c"
+    },
+    {
+      "path": "plans/independent-root-cause-diagnosis-2026-10-08.md",
+      "bytes": 18505,
+      "sha256": "aabda96b52b447b2c04029529444dcf0d9f50b00e73a98e6c3b63936530163b5"
+    }
+  ]
+}
