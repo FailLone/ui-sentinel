@@ -1,0 +1,712 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-08",
+  "status": "restricted-default-entry-implementation-and-free-evidence-delivered",
+  "candidate": "08acc95d7f67a1ac3cbcf3d9decc9add2f2907eb",
+  "runtimeImplementationCommit": "5cd2640",
+  "apiExecutedCommit": "5cd26400c17c83510b4dd7f5e258bf7b2d8de5ec",
+  "candidateRuntimeAndBuildIdenticalToApiBatch": true,
+  "trees": {
+    "src": "5b4a1b8e0d4e6c05b060a39e6ab914980fa1e14da7126d0e63d0679c857e9f83",
+    "scripts": "484ea3af936b72a77662e7e111c3f22ea8fc6e5a2b3b09bf5e160f62c9273742",
+    "dist": "dc3d09736bf57fb51f646a71e97076e0c813ff3cca09e5c4926cdae5e5d27d1b"
+  },
+  "futureScorerHash": "97e85335011cbb89ee2c67fc70602ee0be46f688b36d61dfdd02bdaacc617a81",
+  "policy": {
+    "contractRevision": "url-scan-default-3",
+    "samplingRevision": "bounded-ui-sampling-1",
+    "candidateLimit": 8,
+    "localQuota": "min(3,N) per first clean observed route",
+    "navigationQuota": 1,
+    "goalMode": "focus",
+    "requestDefaultEmptyArray": false,
+    "serverOwnsPolicy": true,
+    "poolStrategy": "first eight public candidates, preserving one available legal navigation within cap",
+    "revisit": "exact route identity including query/fragment; no second pool or outcome-based replacement",
+    "advancedChecks": "additive, no permission/quota expansion"
+  },
+  "free": {
+    "mainTargeted": {
+      "passed": 83,
+      "files": 7,
+      "log": "data/r0-default-entry-delivery/logs/targeted.log"
+    },
+    "protocolTargeted": {
+      "passed": 5,
+      "overlapWithMain": 4,
+      "newTests": 1,
+      "log": "data/r0-default-entry-delivery/logs/protocol.log"
+    },
+    "uniqueUnitTestsPassed": 84,
+    "apiSdkChromium": {
+      "passed": 12,
+      "failed": 0,
+      "batch": "data/r0-default-entry/2026-10-08T04-41-28-301Z",
+      "rows": [
+        {
+          "mode": "workbench",
+          "runId": "run-89bcb794-e443-41c9-b54d-e24485338eff",
+          "passed": true,
+          "status": "completed",
+          "actions": 3,
+          "modelCalls": 3,
+          "frames": 2,
+          "proofVerified": true,
+          "findings": 0
+        },
+        {
+          "mode": "dom-healthy",
+          "runId": "run-f913e13e-154f-436a-ac64-6429f04b5fd3",
+          "passed": true,
+          "status": "completed",
+          "actions": 3,
+          "modelCalls": 3,
+          "frames": 2,
+          "proofVerified": true,
+          "findings": 0
+        },
+        {
+          "mode": "overlay-healthy",
+          "runId": "run-8771e760-ffb2-4ac3-9f4e-d24aea8c1fca",
+          "passed": true,
+          "status": "completed",
+          "actions": 4,
+          "modelCalls": 5,
+          "frames": 2,
+          "proofVerified": true,
+          "findings": 0
+        },
+        {
+          "mode": "dom-defect",
+          "runId": "run-9f81021b-3324-4d6d-995e-beb94dfc1b00",
+          "passed": true,
+          "status": "completed",
+          "actions": 3,
+          "modelCalls": 3,
+          "frames": 2,
+          "proofVerified": true,
+          "findings": 1
+        },
+        {
+          "mode": "overlay-defect",
+          "runId": "run-5a3b52f0-3f37-40b5-805f-41088c2a5fea",
+          "passed": true,
+          "status": "completed",
+          "actions": 4,
+          "modelCalls": 4,
+          "frames": 2,
+          "proofVerified": true,
+          "findings": 1
+        },
+        {
+          "mode": "many",
+          "runId": "run-1713962c-e537-48cc-b9a4-41f2a0cb3ab1",
+          "passed": true,
+          "status": "completed",
+          "actions": 4,
+          "modelCalls": 6,
+          "frames": 2,
+          "proofVerified": true,
+          "findings": 1
+        },
+        {
+          "mode": "incomplete",
+          "runId": "run-d03815f2-93c4-4442-9da7-aea97e2bccda",
+          "passed": true,
+          "status": "blocked",
+          "actions": 0,
+          "modelCalls": 4,
+          "frames": 1,
+          "proofVerified": true,
+          "findings": 0
+        },
+        {
+          "mode": "revisit",
+          "runId": "run-1d2c351a-dfd3-4dfb-a2aa-526b14855151",
+          "passed": true,
+          "status": "blocked",
+          "actions": 4,
+          "modelCalls": 7,
+          "frames": 2,
+          "proofVerified": true,
+          "findings": 0
+        },
+        {
+          "mode": "empty",
+          "runId": "run-272a40f1-4075-4109-9c8c-ba9807fa7e29",
+          "passed": true,
+          "status": "completed",
+          "actions": 0,
+          "modelCalls": 0,
+          "frames": 1,
+          "proofVerified": true,
+          "findings": 0
+        },
+        {
+          "mode": "cancel",
+          "runId": "run-b7a7bf89-c15e-4cce-9971-87dd1f8d6aba",
+          "passed": true,
+          "status": "cancelled",
+          "actions": 2,
+          "modelCalls": 3,
+          "frames": 1,
+          "proofVerified": false,
+          "findings": 0
+        },
+        {
+          "mode": "fault",
+          "runId": "run-0cbaf88e-d984-4d1d-ba6e-9ddbf04e7b9b",
+          "passed": true,
+          "status": "execution-error",
+          "actions": 3,
+          "modelCalls": 3,
+          "frames": 1,
+          "proofVerified": false,
+          "findings": 0
+        },
+        {
+          "mode": "blocker",
+          "runId": "run-4e73b8c5-2465-4858-a57f-31e1eed455fd",
+          "passed": true,
+          "status": "blocked",
+          "actions": 0,
+          "modelCalls": 0,
+          "frames": 0,
+          "proofVerified": true,
+          "findings": 0
+        }
+      ],
+      "singleBatchDenominator": true,
+      "localScriptedModel": true,
+      "realModelClaim": false
+    },
+    "workbench": {
+      "proof": "data/r0-default-entry-delivery/workbench-proof.json",
+      "historyRestored": true,
+      "postBody": {
+        "kind": "ui-scan",
+        "entryUrl": "http://127.0.0.1:57456/catalog?category=books&sort=price",
+        "scope": {
+          "maxPages": 3,
+          "maxDepth": 1
+        }
+      },
+      "pageErrors": [],
+      "driver": "repository Playwright; CLI startup attempt preserved and closed"
+    },
+    "audit": {
+      "method": "Current agent fresh SQLite mode=ro; exact events/terminal/spec vs reports; original artifact bytes/hash/run ownership; no separate-agent blind review",
+      "root": "data/r0-default-entry/2026-10-08T04-41-28-301Z",
+      "facts": [
+        {
+          "mode": "workbench",
+          "runId": "run-89bcb794-e443-41c9-b54d-e24485338eff",
+          "status": "completed",
+          "coverage": "covered",
+          "frames": [
+            {
+              "url": "http://127.0.0.1:57456/catalog?category=books&sort=price",
+              "required": 2,
+              "pool": [
+                "item-6a7dc51c-78c7-4860-977d-f5c8ab352c56",
+                "item-7c8c934f-ed99-41f1-a343-a09e77240024"
+              ],
+              "truncated": 0
+            },
+            {
+              "url": "http://127.0.0.1:57456/info",
+              "required": 0,
+              "pool": [],
+              "truncated": 0
+            }
+          ],
+          "supportedFindings": [],
+          "artifactsVerified": 18,
+          "databaseCompared": true
+        },
+        {
+          "mode": "dom-healthy",
+          "runId": "run-f913e13e-154f-436a-ac64-6429f04b5fd3",
+          "status": "completed",
+          "coverage": "covered",
+          "frames": [
+            {
+              "url": "http://127.0.0.1:57456/detail?id=1",
+              "required": 2,
+              "pool": [
+                "item-788ba195-aede-4e0e-b4f7-c77140af08ea",
+                "item-e00017de-309e-42d5-a035-e028f18a5524"
+              ],
+              "truncated": 0
+            },
+            {
+              "url": "http://127.0.0.1:57456/info",
+              "required": 0,
+              "pool": [],
+              "truncated": 0
+            }
+          ],
+          "supportedFindings": [],
+          "artifactsVerified": 18,
+          "databaseCompared": true
+        },
+        {
+          "mode": "overlay-healthy",
+          "runId": "run-8771e760-ffb2-4ac3-9f4e-d24aea8c1fca",
+          "status": "completed",
+          "coverage": "covered",
+          "frames": [
+            {
+              "url": "http://127.0.0.1:57456/overlay?category=books",
+              "required": 3,
+              "pool": [
+                "item-1ac5ee9d-6eb1-4472-95fe-a234b6bea9ff",
+                "item-458c960d-6ddc-4ccc-809f-42fafc9988c3",
+                "item-a7fb3a95-3f07-4398-a477-a7a2bc797efb"
+              ],
+              "truncated": 0
+            },
+            {
+              "url": "http://127.0.0.1:57456/info",
+              "required": 0,
+              "pool": [],
+              "truncated": 0
+            }
+          ],
+          "supportedFindings": [],
+          "artifactsVerified": 28,
+          "databaseCompared": true
+        },
+        {
+          "mode": "dom-defect",
+          "runId": "run-9f81021b-3324-4d6d-995e-beb94dfc1b00",
+          "status": "completed",
+          "coverage": "covered",
+          "frames": [
+            {
+              "url": "http://127.0.0.1:57456/detail?id=1",
+              "required": 2,
+              "pool": [
+                "item-aa0acb3d-3b3d-4861-b55f-b7ccdd3c2ba8",
+                "item-51ec4aca-5211-45ba-ad6d-7fedb300063b"
+              ],
+              "truncated": 0
+            },
+            {
+              "url": "http://127.0.0.1:57456/info",
+              "required": 0,
+              "pool": [],
+              "truncated": 0
+            }
+          ],
+          "supportedFindings": [
+            {
+              "ruleId": null,
+              "title": "Measured post-action result contradicts a declared expectation",
+              "actual": "{\"target\":\"#rows .price\",\"measured\":{\"values\":[\"20\",\"5\",\"12\"],\"count\":3,\"supported\":true},\"actionId\":\"a2e758a8-82c8-4005-ad9b-c1a98f9af6ca\",\"itemId\":\"item-51ec4aca-5211-45ba-ad6d-7fedb300063b\"} Scope: this captured result and the declared public expectation only."
+            }
+          ],
+          "artifactsVerified": 18,
+          "databaseCompared": true
+        },
+        {
+          "mode": "overlay-defect",
+          "runId": "run-5a3b52f0-3f37-40b5-805f-41088c2a5fea",
+          "status": "completed",
+          "coverage": "covered",
+          "frames": [
+            {
+              "url": "http://127.0.0.1:57456/overlay?category=books",
+              "required": 3,
+              "pool": [
+                "item-fd7acbc8-d377-4dc9-ab79-4e394f83eb09",
+                "item-f703ec9c-a704-481c-a826-af9805373278",
+                "item-c228e5b1-90ce-4b0b-96d3-0ce9e1888121"
+              ],
+              "truncated": 0
+            },
+            {
+              "url": "http://127.0.0.1:57456/info",
+              "required": 0,
+              "pool": [],
+              "truncated": 0
+            }
+          ],
+          "supportedFindings": [
+            {
+              "ruleId": "overlay-blocking",
+              "title": "Visible action intercepted at all sampled points",
+              "actual": "1 intercepted actions; 0 partially covered; 0 unmeasured"
+            }
+          ],
+          "artifactsVerified": 32,
+          "databaseCompared": true
+        },
+        {
+          "mode": "many",
+          "runId": "run-1713962c-e537-48cc-b9a4-41f2a0cb3ab1",
+          "status": "completed",
+          "coverage": "covered",
+          "frames": [
+            {
+              "url": "http://127.0.0.1:57457/controls",
+              "required": 3,
+              "pool": [
+                "item-db7ec4af-2218-4405-a43e-b40e85bda22f",
+                "item-5a182d19-9778-4c26-bb0c-14784b145462",
+                "item-9753d424-0786-46a6-893d-d3734ae723a0",
+                "item-915721ac-1ea2-4139-8fe3-4b36af237a16"
+              ],
+              "truncated": 0
+            },
+            {
+              "url": "http://127.0.0.1:57457/info",
+              "required": 0,
+              "pool": [],
+              "truncated": 0
+            }
+          ],
+          "supportedFindings": [
+            {
+              "ruleId": null,
+              "title": "Measured post-action result contradicts a declared expectation",
+              "actual": "{\"target\":\"#out0\",\"measured\":{\"values\":[\"false\"],\"count\":1,\"supported\":true},\"actionId\":\"bb3c70fe-cdcc-4665-8fb3-b72a27d6a4d8\",\"itemId\":\"item-db7ec4af-2218-4405-a43e-b40e85bda22f\"} Scope: this captured result and the declared public expectation only."
+            }
+          ],
+          "artifactsVerified": 22,
+          "databaseCompared": true
+        },
+        {
+          "mode": "incomplete",
+          "runId": "run-d03815f2-93c4-4442-9da7-aea97e2bccda",
+          "status": "blocked",
+          "coverage": "partial",
+          "frames": [
+            {
+              "url": "http://127.0.0.1:57457/controls",
+              "required": 3,
+              "pool": [
+                "item-16b79476-8901-4e85-b83d-53bf2efcbc41",
+                "item-0cb66c9f-30db-4c08-acab-1a5f6ffb151b",
+                "item-e4a16c8a-481f-4d09-b0c2-5a7103a76a8c",
+                "item-dd63060d-ca2f-46f6-9b0e-75846e83d935"
+              ],
+              "truncated": 0
+            }
+          ],
+          "supportedFindings": [],
+          "artifactsVerified": 8,
+          "databaseCompared": true
+        },
+        {
+          "mode": "revisit",
+          "runId": "run-1d2c351a-dfd3-4dfb-a2aa-526b14855151",
+          "status": "blocked",
+          "coverage": "partial",
+          "frames": [
+            {
+              "url": "http://127.0.0.1:57456/detail?id=1",
+              "required": 2,
+              "pool": [
+                "item-5a105eb5-26c9-47bb-aaad-a673fcdfbfe7",
+                "item-58b28590-08ed-4d33-b4b8-7ba9871e8fb8"
+              ],
+              "truncated": 0
+            },
+            {
+              "url": "http://127.0.0.1:57456/info",
+              "required": 0,
+              "pool": [],
+              "truncated": 0
+            }
+          ],
+          "supportedFindings": [],
+          "artifactsVerified": 24,
+          "databaseCompared": true
+        },
+        {
+          "mode": "empty",
+          "runId": "run-272a40f1-4075-4109-9c8c-ba9807fa7e29",
+          "status": "completed",
+          "coverage": "covered",
+          "frames": [
+            {
+              "url": "http://127.0.0.1:57457/empty",
+              "required": 0,
+              "pool": [],
+              "truncated": 0
+            }
+          ],
+          "supportedFindings": [],
+          "artifactsVerified": 2,
+          "databaseCompared": true
+        },
+        {
+          "mode": "cancel",
+          "runId": "run-b7a7bf89-c15e-4cce-9971-87dd1f8d6aba",
+          "status": "cancelled",
+          "coverage": "partial",
+          "frames": [
+            {
+              "url": "http://127.0.0.1:57456/detail?id=1",
+              "required": 2,
+              "pool": [
+                "item-8666e346-96c9-4728-8b51-91d2fd281448",
+                "item-6710d9b6-65c8-4db0-aad3-ac74b91a46b9"
+              ],
+              "truncated": 0
+            }
+          ],
+          "supportedFindings": [],
+          "artifactsVerified": 14,
+          "databaseCompared": true
+        },
+        {
+          "mode": "fault",
+          "runId": "run-0cbaf88e-d984-4d1d-ba6e-9ddbf04e7b9b",
+          "status": "execution-error",
+          "coverage": "partial",
+          "frames": [
+            {
+              "url": "http://127.0.0.1:57456/detail?id=1",
+              "required": 2,
+              "pool": [
+                "item-f1c05d57-428e-4e8d-a29d-d142675d31df",
+                "item-2210c4a1-1e59-4cc4-8176-e288b7ce5232"
+              ],
+              "truncated": 0
+            }
+          ],
+          "supportedFindings": [],
+          "artifactsVerified": 16,
+          "databaseCompared": true
+        },
+        {
+          "mode": "blocker",
+          "runId": "run-4e73b8c5-2465-4858-a57f-31e1eed455fd",
+          "status": "blocked",
+          "coverage": "partial",
+          "frames": [],
+          "supportedFindings": [],
+          "artifactsVerified": 2,
+          "databaseCompared": true
+        }
+      ],
+      "artifactsVerified": 202,
+      "passed": true
+    },
+    "futureProtocolAudit": {
+      "method": "Replay archived public snapshots, frozen frames and actual timed requests with new independent future scorer; no new browser/model calls",
+      "out": [
+        {
+          "mode": "workbench",
+          "passed": true,
+          "initialPool": [
+            {
+              "itemId": "item-6a7dc51c-78c7-4860-977d-f5c8ab352c56",
+              "ref": "e3",
+              "description": "select \"PriceName\"",
+              "category": "local-interaction",
+              "snapshotId": "s1"
+            },
+            {
+              "itemId": "item-7c8c934f-ed99-41f1-a343-a09e77240024",
+              "ref": "e4",
+              "description": "button[button] \"Apply sort\"",
+              "category": "local-interaction",
+              "snapshotId": "s1"
+            },
+            {
+              "itemId": "item-d110f608-7840-4389-989c-324543cfe2fe",
+              "ref": "e5",
+              "description": "a \"About this catalog\"",
+              "category": "navigation",
+              "snapshotId": "s1"
+            }
+          ],
+          "required": 2,
+          "omissionRejected": true
+        },
+        {
+          "mode": "dom-healthy",
+          "passed": true,
+          "initialPool": [
+            {
+              "itemId": "item-788ba195-aede-4e0e-b4f7-c77140af08ea",
+              "ref": "e3",
+              "description": "select \"PriceName\"",
+              "category": "local-interaction",
+              "snapshotId": "s1"
+            },
+            {
+              "itemId": "item-e00017de-309e-42d5-a035-e028f18a5524",
+              "ref": "e4",
+              "description": "button[button] \"Apply sort\"",
+              "category": "local-interaction",
+              "snapshotId": "s1"
+            },
+            {
+              "itemId": "item-de10a1e1-fcfa-4711-8779-277ac17655ca",
+              "ref": "e5",
+              "description": "a \"About this catalog\"",
+              "category": "navigation",
+              "snapshotId": "s1"
+            }
+          ],
+          "required": 2,
+          "omissionRejected": true
+        },
+        {
+          "mode": "overlay-healthy",
+          "passed": true,
+          "initialPool": [
+            {
+              "itemId": "item-1ac5ee9d-6eb1-4472-95fe-a234b6bea9ff",
+              "ref": "e3",
+              "description": "select \"PriceName\"",
+              "category": "local-interaction",
+              "snapshotId": "s1"
+            },
+            {
+              "itemId": "item-458c960d-6ddc-4ccc-809f-42fafc9988c3",
+              "ref": "e4",
+              "description": "button[button] \"Apply sort\"",
+              "category": "local-interaction",
+              "snapshotId": "s1"
+            },
+            {
+              "itemId": "item-a7fb3a95-3f07-4398-a477-a7a2bc797efb",
+              "ref": "e5",
+              "description": "button[button] \"Filters\"",
+              "category": "local-interaction",
+              "snapshotId": "s1"
+            },
+            {
+              "itemId": "item-620255f4-a636-4e46-9269-76ba405f662a",
+              "ref": "e6",
+              "description": "a \"About this catalog\"",
+              "category": "navigation",
+              "snapshotId": "s1"
+            }
+          ],
+          "required": 3,
+          "omissionRejected": true
+        }
+      ],
+      "trees": {
+        "src": "5b4a1b8e0d4e6c05b060a39e6ab914980fa1e14da7126d0e63d0679c857e9f83",
+        "scripts": "484ea3af936b72a77662e7e111c3f22ea8fc6e5a2b3b09bf5e160f62c9273742",
+        "dist": "dc3d09736bf57fb51f646a71e97076e0c813ff3cca09e5c4926cdae5e5d27d1b"
+      },
+      "privateScorerHash": "97e85335011cbb89ee2c67fc70602ee0be46f688b36d61dfdd02bdaacc617a81"
+    },
+    "priorAttempts": [
+      {
+        "path": "data/r0-default-entry/2026-10-08T04-15-33-440Z",
+        "usedInFinalDenominator": false,
+        "classification": "sandbox local-listen refusal before any requests"
+      },
+      {
+        "path": "data/r0-default-entry/2026-10-08T04-16-07-408Z",
+        "usedInFinalDenominator": false,
+        "classification": "workbench startup/driver waiting timeout before any run creation"
+      },
+      {
+        "path": "data/r0-default-entry/2026-10-08T04-30-33-218Z",
+        "usedInFinalDenominator": false,
+        "status": "execution-error",
+        "actions": 0,
+        "modelCalls": 0,
+        "classification": "ordinary-entry undefined advanced array iteration defect (fixed); one later invocation used the older failed build"
+      },
+      {
+        "path": "data/r0-default-entry/2026-10-08T04-37-37-702Z",
+        "usedInFinalDenominator": false,
+        "status": "execution-error",
+        "actions": 0,
+        "modelCalls": 0,
+        "classification": "ordinary-entry undefined advanced array iteration defect (fixed); one later invocation used the older failed build"
+      }
+    ],
+    "archive": {
+      "path": "data/r0-default-entry-delivery/r0-default-entry-evidence.tar.gz",
+      "sha256": "b0ca5f3ad6728de774d6fa14d97f918734f5233f9deb710aff902a0f35ed93a6",
+      "bytes": 5480090,
+      "files": 282,
+      "bytesVerified": true,
+      "credentialsIncluded": false
+    },
+    "typecheckLog": "data/r0-default-entry-delivery/logs/typecheck-final.log"
+  },
+  "futureAcceptance": {
+    "revision": "ui-default-sampling-2",
+    "publicPoolCheckedIndependentlyFromOriginalSnapshots": true,
+    "privateV1HealthFunctionBehaviorPreserved": true,
+    "extraRequirementsOutsidePublicSelectedScopeNotImplicitMandatory": true,
+    "originalFiveSamplesMatch": {
+      "healthy-catalog": 2,
+      "dom-healthy": 2,
+      "overlay-healthy": 3,
+      "dom-investigation-defect": 2,
+      "overlay-defect": 3
+    },
+    "formalUi": "15/15 unchanged; 9 healthy zero false findings and 6 valid independently reproduced abnormal findings",
+    "diagnostic": "6 unchanged including trustworthy observed-blocker",
+    "businessDiagnostic": "E0-E4 5 unchanged",
+    "businessFormal": "A15 B6 C18 D6 unchanged",
+    "workbenchEntryAndHistoryRequirement": true,
+    "oldFailedResultsPreserved": true,
+    "newManifestRequiredBeforePaid": true,
+    "paidAuthorizationRestored": false,
+    "noAnswersAddedToRequests": true
+  },
+  "reusedEvidence": [
+    {
+      "path": "plans/evidence/r0-required-scope-delivery.json",
+      "role": "Unchanged bounded repair, closing seal/persistence and optional-cost guard; affected defaults tested by new suite"
+    },
+    {
+      "path": "plans/evidence/r0-action-contract-delivery.json",
+      "role": "57 action/repair,5 business boundaries,8 old API scenarios; historical accepted evidence, not new denominator"
+    },
+    {
+      "path": "plans/evidence/r0-adc6b54-final-delivery.json",
+      "role": "actual paid 5/6 failure and remaining 65 unrun unchanged; no historical passes mixed"
+    }
+  ],
+  "paid": {
+    "newRequests": 0,
+    "newCostUsd": "0",
+    "sharedLedger": {
+      "method": "SQLite mode=ro; no requests or reconciliation writes",
+      "statuses": {
+        "settled": 797
+      },
+      "knownCostUsd": "2.01891375",
+      "remainingUsd": "17.98108625",
+      "unknown": 0,
+      "held": 0,
+      "leases": 0,
+      "newCostUsd": "0",
+      "databaseSha256": "6335ebfe8c5419ca1d0f70344a0a43c0f210900f8c9b69afee3214f407c965b3"
+    },
+    "historicalOtherLedgerCostUsd": "0.03722460",
+    "historicalAllKnownUsd": "2.05613835",
+    "newManifestOrApprovalCreated": false,
+    "status": "paused"
+  },
+  "limits": [
+    "Free scripted tests do not establish real-model autonomous stability or R0 acceptance",
+    "Selection/effect semantics still require public evidence; arbitrary natural-language goal coverage is not compiled",
+    "First clean public candidate pool is bounded to eight; later dynamic controls, unselected controls, unseen routes and parameter combinations remain unchecked",
+    "New route identity retains existing exact query/fragment semantics; same exact revisit never resamples",
+    "Advanced checks outside original candidate pool or beyond three local controls can remain unfinished; no waiver or enlarged quota",
+    "Optional exploration remains denied without trustworthy cost bounds",
+    "Unknown business writes preserve original guards; accepted business boundary evidence reused, no new business run",
+    "Historical manifests/reports remain readable; old paid protocols cannot run against the new default without a fresh freeze and authorization",
+    "Native visible/enabled candidate extraction inherited; custom widgets/canvas not exhaustively sampled"
+  ],
+  "r0Passed": false,
+  "r1Expanded": false,
+  "roadmapMaintainer": "Default workbench/API now share public sampling and closing; restricted free delivery passed; R0 remains not formally accepted and paid execution paused. Existing roadmap edits preserved."
+}
