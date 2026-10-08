@@ -3,7 +3,12 @@ export function verifyHealthyBehavior(input: {
   entryUrl: string
   overlay: boolean
   requests: readonly { method: string; path: string; observedAt?: string }[]
-  snapshots: readonly { url?: string; text?: string; observedAt?: string }[]
+  snapshots: readonly {
+    url?: string
+    text?: string
+    observedAt?: string
+    elements?: readonly any[]
+  }[]
   requiredEffects?: { sort: boolean; filter: boolean }
 }): boolean {
   const orders: Record<string, string[]> = {
@@ -57,6 +62,38 @@ export function verifyDefaultHealthyBehavior(
   )
   if (frames.length !== 1) return false
   const frame = frames[0].payload
+  const first = [...input.snapshots]
+    .filter((s) => s.url === input.entryUrl)
+    .sort((a, b) => Date.parse(a.observedAt ?? '') - Date.parse(b.observedAt ?? ''))[0]
+  if (!first?.elements) return false
+  const publicCandidates = first.elements.filter(
+    (e) =>
+      e.visible &&
+      e.enabled &&
+      !e.interactionExcludedReason &&
+      (['button', 'input', 'select', 'textarea', 'summary'].includes(e.tag) ||
+        (e.tag === 'a' &&
+          e.attributes?.href &&
+          new URL(e.attributes.href, input.entryUrl).origin === new URL(input.entryUrl).origin)),
+  )
+  // Independent fixture structure truth prevents a broken/empty capture from shrinking the promise.
+  if (
+    !publicCandidates.some((e) => e.tag === 'select') ||
+    !publicCandidates.some((e) => e.text === 'Apply sort') ||
+    (input.overlay && !publicCandidates.some((e) => e.text === 'Filters'))
+  )
+    return false
+  const bounded = publicCandidates.slice(0, 8)
+  const link = publicCandidates.find((e) => e.tag === 'a')
+  if (link && !bounded.some((e) => e.tag === 'a')) bounded[bounded.length - 1] = link
+  const descriptions = bounded.map(
+    (e) =>
+      `${e.tag}${e.attributes?.type ? `[${e.attributes.type}]` : ''} "${String(e.text).replace(/\s+/g, ' ').trim().slice(0, 60)}"`,
+  )
+  if (
+    JSON.stringify(frame.candidates.map((c: any) => c.description)) !== JSON.stringify(descriptions)
+  )
+    return false
   const locals = frame.candidates.filter((c: any) => c.category === 'local-interaction')
   const selected = locals.filter((c: any) =>
     report.uiScan.inspection.items.some(

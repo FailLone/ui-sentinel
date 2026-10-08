@@ -1,5 +1,5 @@
 import { it, expect } from 'vitest'
-import { verifyHealthyBehavior } from './healthy-behavior.ts'
+import { verifyHealthyBehavior, verifyDefaultHealthyBehavior } from './healthy-behavior.ts'
 const entryUrl = 'http://localhost/catalog?q=x'
 const time = (n: number) => new Date(n * 1000).toISOString()
 const orders = {
@@ -52,4 +52,76 @@ it('requires independent actual filter expansion as well for overlay control', (
       ],
     }),
   ).toBe(true)
+})
+
+it('future protocol checks public selected effects; legacy private filter obligation is unchanged', () => {
+  const good = { ...input('price'), overlay: true }
+  const candidates = [
+    { itemId: 'sort', category: 'local-interaction', description: 'select "Sort"' },
+    { itemId: 'apply', category: 'local-interaction', description: 'button "Apply sort"' },
+    { itemId: 'other', category: 'local-interaction', description: 'button "Other"' },
+    { itemId: 'filter', category: 'local-interaction', description: 'button "Filters"' },
+  ]
+  const publicElements = candidates.map((c) => ({
+    tag: c.itemId === 'sort' ? 'select' : 'button',
+    text:
+      c.itemId === 'sort'
+        ? 'Sort'
+        : c.itemId === 'apply'
+          ? 'Apply sort'
+          : c.itemId === 'filter'
+            ? 'Filters'
+            : 'Other',
+    visible: true,
+    enabled: true,
+    attributes: {},
+  }))
+  good.snapshots = good.snapshots.map((s) => ({ ...s, elements: publicElements }))
+  const report = {
+    uiScan: {
+      contract: { samplingPolicy: { revision: 'bounded-ui-sampling-1' } },
+      inspection: {
+        items: candidates.map((c) => ({
+          ...c,
+          selected: c.itemId !== 'filter',
+          status: 'verified',
+        })),
+      },
+    },
+    events: [{ type: 'scope:sampling-frozen', payload: { url: entryUrl, count: 3, candidates } }],
+  }
+  expect(verifyHealthyBehavior(good)).toBe(false)
+  expect(verifyDefaultHealthyBehavior({ ...good, report })).toBe(true)
+  const omitted = {
+    ...report,
+    events: [
+      {
+        ...report.events[0]!,
+        payload: { ...report.events[0]!.payload, candidates: candidates.slice(0, 3) },
+      },
+    ],
+  }
+  expect(verifyDefaultHealthyBehavior({ ...good, report: omitted })).toBe(false)
+  expect(
+    verifyDefaultHealthyBehavior({
+      ...good,
+      report: {
+        ...report,
+        events: [{ ...report.events[0]!, payload: { ...report.events[0]!.payload, count: 2 } }],
+      },
+    }),
+  ).toBe(false)
+  const included = {
+    ...report,
+    uiScan: {
+      ...report.uiScan,
+      inspection: {
+        items: report.uiScan.inspection.items.map((i) => ({
+          ...i,
+          selected: i.itemId !== 'other',
+        })),
+      },
+    },
+  }
+  expect(verifyDefaultHealthyBehavior({ ...good, report: included })).toBe(false)
 })
