@@ -1,0 +1,214 @@
+{
+  "baseline": "2ac24efab18f7704f5c0b2b7bd74cf1f22ef94f8",
+  "implementationCommit": "6566d568f5cd1bbe9b6afaef1b12a4b90463288a",
+  "branch": "codex/network-dns-compat",
+  "workspace": "/private/tmp/ui-sentinel-network-dns-compat",
+  "deterministic": {
+    "passed": 62,
+    "failed": 0,
+    "suites": [
+      {
+        "path": "targeted-authorized.log",
+        "passed": 51
+      },
+      {
+        "path": "integration-final.log",
+        "passed": 9
+      },
+      {
+        "path": "system-regression.log",
+        "passed": 2,
+        "notSelected": 9
+      }
+    ],
+    "build": "passed",
+    "note": "Local fixture tests; no model calls. Initial sandbox EPERM and a test cleanup callback issue were resolved; final logs above."
+  },
+  "publicSystem": {
+    "build": {
+      "commit": "6566d568f5cd1bbe9b6afaef1b12a4b90463288a",
+      "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "observerSha256": "0f2f101ee3ac18bb0e730fa9c6bd685bcf97171e8acfabdbf27d2bb463c08723",
+      "serverSha256": "adb44e737dfa540fd06cc4e93af2e4e16c31e168af5371619a001d5dd6fa02ba",
+      "node": "v24.21.0",
+      "dnsMode": "system"
+    },
+    "results": [
+      {
+        "id": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:PNG_transparency_demonstration_1.png",
+        "resources": [
+          "https://upload.wikimedia.org",
+          "https://meta.wikimedia.org"
+        ],
+        "startedAt": "2026-10-08T16:15:16.448Z",
+        "elapsedMs": 189,
+        "observationComplete": false,
+        "observation": null,
+        "failure": "address",
+        "decisions": [
+          {
+            "requestId": "interception-job-1.0",
+            "actionId": null,
+            "method": "GET",
+            "url": "https://commons.wikimedia.org/wiki/File:PNG_transparency_demonstration_1.png",
+            "destination": "document",
+            "redirectFrom": null,
+            "policyRevision": "url-scan-network-1",
+            "dnsMode": "system",
+            "networkStage": "address",
+            "resolvedAddresses": [
+              "198.18.228.47"
+            ],
+            "elapsedMs": 13,
+            "allow": false,
+            "reasonCode": "private-address"
+          }
+        ],
+        "modelCalls": 0,
+        "semanticChecks": 0,
+        "acceptanceClaim": false
+      },
+      {
+        "id": "mdn",
+        "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Responsive_images",
+        "resources": [
+          "https://mdn.github.io",
+          "https://interactive-examples.mdn.mozilla.net"
+        ],
+        "startedAt": "2026-10-08T16:15:16.637Z",
+        "elapsedMs": 164,
+        "observationComplete": false,
+        "observation": null,
+        "failure": "address",
+        "decisions": [
+          {
+            "requestId": "interception-job-1.0",
+            "actionId": null,
+            "method": "GET",
+            "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Responsive_images",
+            "destination": "document",
+            "redirectFrom": null,
+            "policyRevision": "url-scan-network-1",
+            "dnsMode": "system",
+            "networkStage": "address",
+            "resolvedAddresses": [
+              "198.18.228.52"
+            ],
+            "elapsedMs": 7,
+            "allow": false,
+            "reasonCode": "private-address"
+          }
+        ],
+        "modelCalls": 0,
+        "semanticChecks": 0,
+        "acceptanceClaim": false
+      },
+      {
+        "id": "github",
+        "url": "https://github.com/python/cpython",
+        "resources": [
+          "https://github.githubassets.com",
+          "https://avatars.githubusercontent.com",
+          "https://user-images.githubusercontent.com",
+          "https://raw.githubusercontent.com",
+          "https://camo.githubusercontent.com"
+        ],
+        "startedAt": "2026-10-08T16:15:16.801Z",
+        "elapsedMs": 150,
+        "observationComplete": false,
+        "observation": null,
+        "failure": "address",
+        "decisions": [
+          {
+            "requestId": "interception-job-1.0",
+            "actionId": null,
+            "method": "GET",
+            "url": "https://github.com/python/cpython",
+            "destination": "document",
+            "redirectFrom": null,
+            "policyRevision": "url-scan-network-1",
+            "dnsMode": "system",
+            "networkStage": "address",
+            "resolvedAddresses": [
+              "198.18.1.109"
+            ],
+            "elapsedMs": 6,
+            "allow": false,
+            "reasonCode": "private-address"
+          }
+        ],
+        "modelCalls": 0,
+        "semanticChecks": 0,
+        "acceptanceClaim": false
+      }
+    ]
+  },
+  "publicDoh": {
+    "status": "not-run",
+    "reason": "No operator-selected trusted endpoint/bootstrap and disclosure authorization supplied. No arbitrary external resolver used."
+  },
+  "cost": {
+    "modelCalls": 0,
+    "semanticChecks": 0,
+    "paidApiCalls": 0
+  },
+  "audit": {
+    "newDependencyAdvisories": [],
+    "wholeProject": {
+      "moderate": 4,
+      "high": 9
+    },
+    "claim": "Not a clean whole-project security audit."
+  },
+  "localArtifacts": [
+    {
+      "path": "/private/tmp/ui-sentinel-network-dns-compat/data/network-dns-compat/targeted-authorized.log",
+      "bytes": 195,
+      "sha256": "3b6aea54d73e708af29c14f0b7253e55ee8d054e7c325845162252b82440d2a2",
+      "committed": false
+    },
+    {
+      "path": "/private/tmp/ui-sentinel-network-dns-compat/data/network-dns-compat/integration-final.log",
+      "bytes": 203,
+      "sha256": "114d2453657f7549480c61ecc85590d9b8aefb8b6bb0875f2370972ffe63a715",
+      "committed": false
+    },
+    {
+      "path": "/private/tmp/ui-sentinel-network-dns-compat/data/network-dns-compat/system-regression.log",
+      "bytes": 205,
+      "sha256": "caa4e110346cfeaa2b3380b22f079270576fc648aa51f3b1a9004ec3221efe3a",
+      "committed": false
+    },
+    {
+      "path": "/private/tmp/ui-sentinel-network-dns-compat/data/network-dns-compat/build-authorized.log",
+      "bytes": 1282,
+      "sha256": "879cff6d9e232ce10c80e14cd860ca86bebd0b983687a190fb566fb1b14e97d9",
+      "committed": false
+    },
+    {
+      "path": "/private/tmp/ui-sentinel-network-dns-compat/data/network-dns-compat/audit.json",
+      "bytes": 45969,
+      "sha256": "9d3418a4c6b2d89aef78972ca82363426482a50282c17cc55f7df450f49e87e4",
+      "committed": false
+    },
+    {
+      "path": "/private/tmp/ui-sentinel-network-dns-compat/data/network-dns-compat/public-system.log",
+      "bytes": 2579,
+      "sha256": "0c23542c9025d9cb2942120bbd325466419532dfb8b10cde75f91198beb83967",
+      "committed": false
+    },
+    {
+      "path": "/private/tmp/ui-sentinel-network-dns-compat/data/network-dns-compat/public-observer.mjs",
+      "bytes": 46301,
+      "sha256": "0f2f101ee3ac18bb0e730fa9c6bd685bcf97171e8acfabdbf27d2bb463c08723",
+      "committed": false
+    },
+    {
+      "path": "/private/tmp/ui-sentinel-network-dns-compat/data/network-dns-compat/public-system/results.json",
+      "bytes": 3739,
+      "sha256": "3ec2bbac5bca9f42c500efe7e370e07465b95e139c233a7bcd1be9cf9deb15a9",
+      "committed": false
+    }
+  ]
+}
