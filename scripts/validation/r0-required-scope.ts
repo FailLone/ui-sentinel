@@ -335,6 +335,15 @@ try {
     const events = report.events as any[],
       actions = events.filter((e) => e.type === 'action:executing'),
       closing = events.filter((e) => e.type === 'scope:closing')
+    if (expected === 'completed') {
+      assert(report.findings.length === 0, mode + ': healthy false finding')
+      assert(
+        report.uiScan.inspection.items
+          .filter((i: any) => i.basis.startsWith('public-required:'))
+          .every((i: any) => i.status === 'verified'),
+        mode + ': required healthy result not verified',
+      )
+    }
     if (['completed', 'blocked'].includes(expected))
       assert(
         report.uiScan.proofVerified && report.persistence.status === 'verified',

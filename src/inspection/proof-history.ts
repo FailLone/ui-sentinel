@@ -103,7 +103,12 @@ function inspectHistory(
     const mandatory = snapshot.items.filter(
       (i) => i.basis === `public-required:${requirement.id}: ${requirement.description}`,
     )
-    if (mandatory.length !== 1 || !mandatory[0]!.selected)
+    if (
+      mandatory.length !== 1 ||
+      !mandatory[0]!.selected ||
+      mandatory[0]!.targetSource !== 'executor' ||
+      mandatory[0]!.status === 'excluded'
+    )
       issues.push(`required-registration-missing:${requirement.id}`)
     const item = mandatory[0]
     if (!item || !['verified', 'failed'].includes(item.status)) continue
