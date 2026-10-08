@@ -330,6 +330,9 @@ await build({
 child = spawn(
   process.execPath,
   [
+    ...(process.env.R0_PERSISTENCE_TRACE_DIR
+      ? ['--import', resolve('scripts/validation/support/persistence-trace-hook.mjs')]
+      : []),
     '--import',
     resolve('scripts/validation/support/action-input-hook.mjs'),
     resolve(root, 'server.mjs'),
