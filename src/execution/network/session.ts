@@ -1,3 +1,6 @@
+import { config } from '../../shared/config.ts'
+import { createResolver, ResolutionFailure } from './resolver.ts'
+export { systemLookup } from './resolver.ts'
 import { routeGuardSource } from './route-guard.ts'
 import type { BrowserContext, Page } from 'playwright'
 import { checkDestination } from './address.ts'
@@ -6,6 +9,12 @@ import { createNavigationBudget } from '../../inspection/navigation-scope.ts'
 import type { NetworkDecision, NetworkPolicy } from '../../inspection/network-policy.ts'
 
 export interface NetworkDecisionRecord extends NetworkDecision {
+  readonly dnsMode?: 'system' | 'doh'
+  readonly networkStage?: 'policy' | 'resolution' | 'address' | 'connection' | 'tls' | 'complete'
+  readonly resolvedAddresses?: readonly string[]
+  readonly selectedAddress?: string
+  readonly connectedAddress?: string
+  readonly elapsedMs?: number
   readonly truncated?: boolean
   readonly sessionReason?: string
   /** An admitted read cancelled only after a finish claim passed its first fact check. */
@@ -26,6 +35,7 @@ export interface UiNetworkSessionOptions {
   readonly page: Page
   readonly policy: NetworkPolicy
   readonly onDecision?: (record: NetworkDecisionRecord) => void
+  readonly resolver?: ReturnType<typeof createResolver>
   readonly lookup?: (host: string) => Promise<readonly string[]>
   readonly limits?: Partial<NetworkLimits>
   readonly scope?: { maxPages: number; maxDepth: number }
@@ -34,14 +44,6 @@ export interface UiNetworkSessionOptions {
   readonly onOpenPage?: (url: string, reason: 'unsupported-channel') => void
   readonly onWebSocket?: (url: string, reason: 'unsupported-channel') => void
 }
-export async function systemLookup(host: string): Promise<readonly string[]> {
-  const { lookup } = await import('node:dns/promises')
-  const { isIP } = await import('node:net')
-  host = host.replace(/^\[|\]$/g, '')
-  if (isIP(host)) return [host]
-  return (await lookup(host, { all: true })).map((answer) => answer.address)
-}
-
 /** CDP spelling is not Playwright spelling. Unknown types never inherit a resource grant. */
 export function destinationOf(type: string, isMainFrame: boolean): string {
   const types: Record<string, string> = {
@@ -71,7 +73,7 @@ export function destinationOf(type: string, isMainFrame: boolean): string {
 export async function installUiNetworkSession(options: UiNetworkSessionOptions) {
   const { policy } = options
   const limits = { ...DEFAULT_LIMITS, ...options.limits }
-  const lookup = options.lookup ?? systemLookup
+  const resolver = options.resolver ?? createResolver(config.urlScan.dns, options.lookup)
   const budget = createBodyBudget(limits.maxResponseBytes, limits.maxTotalBytes)
   const navigation = createNavigationBudget({
     entryUrl: policy.entryUrl,
@@ -167,6 +169,19 @@ export async function installUiNetworkSession(options: UiNetworkSessionOptions) 
         ? requests.get(event.redirectedRequestId)
         : undefined
       const destination = destinationOf(event.resourceType, event.frameId === mainFrameId)
+      const started = performance.now()
+      let networkStage: NetworkDecisionRecord['networkStage'] = 'policy'
+      let answers: readonly string[] = []
+      let selectedAddress: string | undefined
+      let connectedAddress: string | undefined
+      const diagnostic = () => ({
+        dnsMode: resolver.mode,
+        networkStage,
+        resolvedAddresses: answers,
+        selectedAddress,
+        connectedAddress,
+        elapsedMs: Math.round(performance.now() - started),
+      })
       const receipt = {
         requestId: event.requestId,
         actionId: null,
@@ -182,6 +197,7 @@ export async function installUiNetworkSession(options: UiNetworkSessionOptions) 
       ) => {
         emit({
           ...receipt,
+          ...diagnostic(),
           allow: false,
           reasonCode,
           ...(sessionReason ? { sessionReason } : {}),
@@ -212,7 +228,9 @@ export async function installUiNetworkSession(options: UiNetworkSessionOptions) 
         }
         requests.set(event.requestId, { url: event.request.url, hops })
         const url = new URL(event.request.url)
-        const answers = await lookup(url.hostname).catch(() => [] as readonly string[])
+        networkStage = 'resolution'
+        answers = await resolver.resolve(url.hostname, controller.signal)
+        networkStage = 'address'
         const trusted = policy.fixtureOrigins.includes(url.origin)
         const check = checkDestination({
           host: url.hostname,
@@ -233,18 +251,22 @@ export async function installUiNetworkSession(options: UiNetworkSessionOptions) 
         if (!decision.allow) return await refuse(decision.reasonCode)
         if (controller.signal.aborted || options.isFinished?.())
           return await refuse('execution-stopped')
+        networkStage = 'connection'
+        selectedAddress = answers.find((address) => !address.includes(':')) ?? answers[0]!
         const response = await readPinnedResponse({
           url: event.request.url,
-          address: answers.find((address) => !address.includes(':')) ?? answers[0]!,
+          address: selectedAddress,
           method: event.request.method,
           headers: event.request.headers,
           budget,
           signal: controller.signal,
         })
+        connectedAddress = response.remoteAddress
         if (destination === 'document' && !(response.status >= 300 && response.status < 400)) {
           navigation.arrive(event.request.url)
         }
-        emit(decision)
+        networkStage = 'complete'
+        emit({ ...decision, ...diagnostic() })
         await cdp.send('Fetch.fulfillRequest', {
           requestId: event.requestId,
           responseCode: response.status,
@@ -252,7 +274,18 @@ export async function installUiNetworkSession(options: UiNetworkSessionOptions) 
           body: response.body.toString('base64'),
         })
       } catch (error) {
-        await refuse(error instanceof TransportRefusal ? error.reason : 'transport-error')
+        if (error instanceof ResolutionFailure) {
+          await refuse(
+            error.detail === 'cancelled' ? 'execution-stopped' : 'resolution-failed',
+            error.message,
+          )
+        } else {
+          if (error instanceof TransportRefusal && error.detail === 'tls') networkStage = 'tls'
+          await refuse(
+            error instanceof TransportRefusal ? error.reason : 'transport-error',
+            error instanceof TransportRefusal ? error.detail : undefined,
+          )
+        }
       }
     })()
     pending.add(task)
