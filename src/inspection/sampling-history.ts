@@ -7,9 +7,22 @@ export function samplingFrames(events: readonly RunEvent[], snapshot: Inspection
     .filter((e) => e.type === 'scope:sampling-frozen')
     .map((e) => {
       const p = e.payload as any
-      const selected = (p.pool as string[]).filter((id) =>
-        snapshot.items.some((i) => i.itemId === id && i.selected),
-      )
+      const selected =
+        p.policy?.revision === 'bounded-ui-sampling-2'
+          ? [
+              ...new Set(
+                events
+                  .filter(
+                    (x) =>
+                      x.type === 'scope:sampling-default-selected' &&
+                      x.payload.registrationItemId === p.itemId,
+                  )
+                  .flatMap((x) => x.payload.itemIds as string[]),
+              ),
+            ]
+          : (p.pool as string[]).filter((id) =>
+              snapshot.items.some((i) => i.itemId === id && i.selected),
+            )
       return {
         url: String(p.url),
         registrationItemId: String(p.itemId),
@@ -76,6 +89,13 @@ export function samplingHistoryIssues(
       )
     )
       issues.push('default-sampling-source-mismatch')
+    if (
+      frame.selected.some(
+        (id) =>
+          !frame.pool.includes(id) || !snapshot.items.some((i) => i.itemId === id && i.selected),
+      )
+    )
+      issues.push('default-sampling-selection-invalid')
     if (
       frame.selected.length > frame.required ||
       (covered && frame.selected.length !== frame.required)

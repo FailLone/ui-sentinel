@@ -9,6 +9,7 @@ export async function investigateProgram(
   host: ProgramHost & {
     runId: string
     metadata(): Record<string, unknown>
+    observationsOnly?: boolean
     registered(id: string, phenomenon: string): void
     resolved(id: string, status: 'supported' | 'refuted' | 'inconclusive'): void
   },
@@ -24,7 +25,7 @@ export async function investigateProgram(
     host.metadata(),
     host.guard,
   )
-  if (input.exploration) {
+  if (input.exploration || host.observationsOnly) {
     const receipt = await runProgram(input, host)
     host.guard()
     const body = JSON.stringify({

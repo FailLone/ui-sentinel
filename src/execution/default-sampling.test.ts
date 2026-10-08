@@ -1,6 +1,10 @@
 import { expect, it } from 'vitest'
 import { createInspectionHost } from './inspection-host.ts'
-import { UI_SAMPLING_POLICY } from '../shared/ui-sampling-policy.ts'
+import {
+  UI_SAMPLING_POLICY,
+  UI_SAMPLING_POLICY_V2,
+  UI_CHECK_POLICY,
+} from '../shared/ui-sampling-policy.ts'
 import { projectInspectionScope } from '../inspection/scope.ts'
 import { samplingHistoryIssues } from '../inspection/sampling-history.ts'
 import {
@@ -77,7 +81,7 @@ it('ordinary requests install hashed policy, no empty checks, while legacy snaps
     { reachableOrigins: [] },
   )
   if (r.kind !== 'resolved') throw Error('contract')
-  expect(r.contract.samplingPolicy).toEqual(UI_SAMPLING_POLICY)
+  expect(r.contract.samplingPolicy).toEqual(UI_SAMPLING_POLICY_V2)
   expect(r.contract.requiredChecks).toBeUndefined()
   expect(verifyUiContractSnapshot(r.contract)).toBe(true)
   expect(

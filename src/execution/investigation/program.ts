@@ -50,6 +50,7 @@ export const programInput = z
       ),
     exploration: z
       .object({
+        requirementIds: z.array(z.string().max(80)).max(12).optional(),
         expectedEffect: exploratoryEffectInput
           .nullish()
           .transform((v) => v ?? undefined)

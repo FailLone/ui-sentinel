@@ -1,3 +1,4 @@
+import { checksStatus, checksValid, type ItemChecks } from './check-contract.ts'
 import { randomUUID } from 'node:crypto'
 import type { RunEvent } from '../shared/types.ts'
 
@@ -31,6 +32,7 @@ export const INSPECTION_SCOPE_UPDATE_EVENT = 'scope:item-updated' as const
 export const INSPECTION_SCOPE_SUMMARY_EVENT = 'inspection:summary' as const
 
 export interface InspectionItem {
+  readonly checks?: ItemChecks
   readonly itemId: string
   readonly category: InspectionCategory
   readonly pageId: string
@@ -94,6 +96,7 @@ export interface InspectionScopeSnapshot {
 }
 
 export interface CreateItemInput {
+  readonly checks?: ItemChecks
   readonly category: InspectionCategory
   readonly pageId: string
   readonly stateId: string
@@ -194,6 +197,7 @@ export function createInspectionScope(options: InspectionScopeOptions = {}) {
       targetSource: input.targetSource,
       selected: input.selected ?? true,
       selectionBasis: input.selectionBasis ?? (input.selected === false ? null : input.basis),
+      ...(input.checks ? { checks: structuredClone(input.checks) } : {}),
       status: 'pending',
       reasonCode: null,
       detail: null,
@@ -212,6 +216,8 @@ export function createInspectionScope(options: InspectionScopeOptions = {}) {
   function resolveItem(itemId: string, input: ResolveItemInput): InspectionItem {
     const current = items.get(itemId)
     if (!current) throw new Error(`Cannot resolve an unknown item: ${itemId}`)
+    if (current.checks && ['verified', 'failed'].includes(input.status))
+      throw Error('v2-item-needs-facet-reducer')
     if (input.status === 'verified' && input.evidenceRefs.length === 0)
       throw new Error(
         'A verified item requires at least one saved evidence reference; the executor resolves items from tool receipts.',
@@ -378,7 +384,12 @@ export function createInspectionScope(options: InspectionScopeOptions = {}) {
   function completionGaps(): InspectionGap[] {
     const gaps: InspectionGap[] = []
     for (const item of items.values())
-      if (item.selected && (item.status === 'pending' || item.status === 'unverified'))
+      if (
+        item.selected &&
+        (item.status === 'pending' ||
+          item.status === 'unverified' ||
+          (item.checks && (!checksValid(item.checks) || checksStatus(item.checks) !== item.status)))
+      )
         gaps.push({
           itemId: item.itemId,
           category: item.category,
@@ -424,6 +435,62 @@ export function createInspectionScope(options: InspectionScopeOptions = {}) {
     return gaps
   }
 
+  function updateChecks(itemId: string, checks: ItemChecks, detail: string) {
+    const current = items.get(itemId)
+    if (!current?.checks || !checksValid(checks)) throw Error('invalid-v2-checks')
+    for (const old of current.checks.effects)
+      if (!checks.effects.some((e) => e.requirementHash === old.requirementHash))
+        throw Error('required-effect-cannot-be-removed')
+    if (
+      current.checks.generic.actionId &&
+      checks.generic.actionId !== current.checks.generic.actionId
+    )
+      throw Error('original-action-cannot-be-replaced')
+    const status = checksStatus(checks)
+    const evidenceRefs = [
+      ...new Set([
+        ...current.evidenceRefs,
+        ...checks.sourceReview.refs,
+        ...checks.generic.evidenceRefs,
+        ...checks.effects.flatMap((e) => e.measurementRefs),
+      ]),
+    ]
+    const eventIds = [
+      ...new Set([
+        ...current.eventIds,
+        ...checks.generic.eventIds,
+        ...checks.effects.flatMap((e) => e.eventIds),
+      ]),
+    ]
+    const item = {
+      ...current,
+      checks: structuredClone(checks),
+      status,
+      evidenceRefs,
+      eventIds,
+      detail,
+      reasonCode:
+        status === 'verified' || status === 'failed'
+          ? 'v2-mandatory-checks-concluded'
+          : 'v2-mandatory-checks-incomplete',
+      resolvedAt: status === 'verified' || status === 'failed' ? now() : null,
+    }
+    apply(item)
+    record({
+      type: INSPECTION_SCOPE_UPDATE_EVENT,
+      payload: {
+        itemId,
+        checks: item.checks,
+        status,
+        evidenceRefs,
+        eventIds,
+        detail,
+        reasonCode: item.reasonCode,
+        resolvedAt: item.resolvedAt,
+      },
+    })
+    return item
+  }
   function syncSelection(_entries: readonly { itemId: string; basis: string }[]): void {
     // Selection is applied through `selectItem`. This exists so an empty model update is explicitly a
     // no-op on executor-owned obligations rather than a clear.
@@ -451,6 +518,7 @@ export function createInspectionScope(options: InspectionScopeOptions = {}) {
 
   return {
     createItem,
+    updateChecks,
     resolveItem,
     appendPendingEvidence,
     selectItem,
@@ -501,6 +569,7 @@ export function projectInspectionScope(events: readonly RunEvent[]): InspectionS
     if (!current) continue
     items.set(itemId, {
       ...current,
+      ...(payload.checks === undefined ? {} : { checks: payload.checks }),
       ...(payload.url === undefined ? {} : { url: String(payload.url) }),
       ...(payload.selected === undefined
         ? {}
@@ -513,9 +582,12 @@ export function projectInspectionScope(events: readonly RunEvent[]): InspectionS
             detail: (payload.detail as string | null) ?? null,
             evidenceRefs: (payload.evidenceRefs as string[]) ?? [],
             eventIds: (payload.eventIds as string[]) ?? [],
-            resolvedAt:
-              payload.status === 'pending'
-                ? current.resolvedAt
+            resolvedAt: payload.checks
+              ? (payload.resolvedAt ?? null)
+              : payload.status === 'pending'
+                ? payload.checks
+                  ? null
+                  : current.resolvedAt
                 : ((payload.resolvedAt as string | null) ?? event.timestamp),
           }),
     })

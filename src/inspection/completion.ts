@@ -17,6 +17,7 @@ import type { BlockerEvidence } from './blocker-evidence.ts'
  */
 
 export const INSPECTION_PROOF_VERSION = 'inspection-proof-3' as const
+export const INSPECTION_CHECK_PROOF_VERSION = 'inspection-proof-4' as const
 
 export type InspectionReason = 'scope-covered' | 'observed-blocker' | 'unverified-scope'
 
@@ -34,7 +35,10 @@ export type CompletionRefusal =
   | 'blocker-unsubstantiated'
 
 export interface InspectionProof {
-  readonly version: typeof INSPECTION_PROOF_VERSION | 'inspection-proof-2'
+  readonly version:
+    | typeof INSPECTION_PROOF_VERSION
+    | typeof INSPECTION_CHECK_PROOF_VERSION
+    | 'inspection-proof-2'
   readonly kind: 'ui-scan'
   readonly claim: InspectionReason
   readonly outcome: 'goal-reached' | 'blocked'
@@ -43,7 +47,7 @@ export interface InspectionProof {
   readonly specDigest: string
   readonly items: readonly Pick<
     InspectionItem,
-    'itemId' | 'category' | 'status' | 'reasonCode' | 'evidenceRefs' | 'basis'
+    'itemId' | 'category' | 'status' | 'reasonCode' | 'evidenceRefs' | 'basis' | 'checks'
   >[]
   readonly counts: {
     readonly total: number
@@ -123,9 +127,12 @@ function buildProof(input: {
     reasonCode: item.reasonCode,
     evidenceRefs: item.evidenceRefs,
     basis: item.basis,
+    ...(item.checks ? { checks: item.checks } : {}),
   }))
   const body = {
-    version: INSPECTION_PROOF_VERSION,
+    version: (input.spec as any)?.uiContract?.checkPolicy
+      ? INSPECTION_CHECK_PROOF_VERSION
+      : INSPECTION_PROOF_VERSION,
     kind: 'ui-scan' as const,
     claim: input.claim,
     outcome: input.outcome,
@@ -153,7 +160,12 @@ function buildProof(input: {
 
 export function verifyInspectionProof(proof: InspectionProof | null | undefined): boolean {
   if (!proof || typeof proof !== 'object') return false
-  if (![INSPECTION_PROOF_VERSION, 'inspection-proof-2'].includes(proof.version)) return false
+  if (
+    ![INSPECTION_PROOF_VERSION, INSPECTION_CHECK_PROOF_VERSION, 'inspection-proof-2'].includes(
+      proof.version,
+    )
+  )
+    return false
   const { hash, ...body } = proof
   if (typeof hash !== 'string') return false
   return createHash('sha256').update(canonical(body)).digest('hex') === hash
@@ -179,6 +191,16 @@ export function decideInspectionCompletion(input: {
     return { accepted: false, outcome: 'rejected', reasonCode: 'contract-unverified' }
 
   const gaps = facts.scope.completionGaps()
+  if ((facts.spec as any)?.uiContract?.checkPolicy)
+    for (const item of facts.scope.snapshot().items)
+      if (item.selected && item.category === 'local-interaction' && !item.checks)
+        gaps.push({
+          itemId: item.itemId,
+          category: item.category,
+          status: 'unverified',
+          reason: 'v2-missing-facets',
+          reasonCode: 'v2-missing-facets',
+        })
   const gapText = [
     ...gaps.map((g) => `${g.category}:${g.reason}`),
     ...facts.scope.snapshot().unsupported.map((u) => `unsupported:${u.dimension}`),

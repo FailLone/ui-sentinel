@@ -1,4 +1,4 @@
-import { UI_SAMPLING_DESCRIPTION } from '../shared/ui-sampling-policy.ts'
+import { UI_CHECK_DESCRIPTION as UI_SAMPLING_DESCRIPTION } from '../shared/ui-sampling-policy.ts'
 import type { FocusMeasurement } from '../server/reports/run-report.ts'
 import type { UiScanReport } from '../server/reports/ui-scan-report.ts'
 import React, { useEffect, useState } from 'react'

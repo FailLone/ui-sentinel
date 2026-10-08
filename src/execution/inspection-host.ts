@@ -1,3 +1,4 @@
+import { emptyChecks, parsePublicRelation } from '../inspection/check-contract.ts'
 import type { UiSamplingPolicy } from '../shared/ui-sampling-policy.ts'
 import type { RequiredCheck } from '../inspection/contract.ts'
 import { canonical } from '../inspection/completion.ts'
@@ -54,6 +55,7 @@ export interface InspectionHostOptions {
   readonly entryUrl: string
   readonly goal: string
   readonly requiredChecks?: readonly RequiredCheck[]
+  readonly checkPolicy?: unknown
   readonly samplingPolicy?: UiSamplingPolicy
   /** The current snapshot id, so an item names the observation it belongs to. */
   readonly currentSnapshotId: () => string | undefined
@@ -111,6 +113,28 @@ export function createInspectionHost(options: InspectionHostOptions) {
     }).itemId,
     boundItemId: undefined as string | undefined,
   }))
+  const goalRelation = options.checkPolicy ? parsePublicRelation(options.goal) : null
+  const goalReview =
+    options.checkPolicy && (!goalRelation || goalRelation.name)
+      ? scope.createItem({
+          category: 'investigation',
+          pageId: 'contract',
+          stateId: 'contract',
+          url: options.entryUrl,
+          observationVersion: 'contract',
+          basis: 'default-checks:goal-source-registration',
+          targetSource: 'executor',
+        })
+      : null
+  if (goalReview && !goalRelation)
+    scope.resolveItem(goalReview.itemId, {
+      status: 'unverified',
+      reasonCode: 'goal-unresolved',
+      evidenceRefs: [],
+      eventIds: [],
+      detail:
+        'The nonempty goal is outside the finite public source/focus grammar; fulfillment is not claimed',
+    })
   let candidates: readonly CandidateItem[] = []
   /** Candidate refs from each observation, so an action's ref resolves against the snapshot it named. */
   const offeredBySnapshot = new Map<string, readonly CandidateItem[]>()
@@ -124,6 +148,7 @@ export function createInspectionHost(options: InspectionHostOptions) {
     pool: readonly string[]
     count: number
     refs: readonly string[]
+    defaultSelected?: Set<string>
   }
   const localSamples = new Map<string, Sample>()
   let navigationSample: Sample | undefined
@@ -237,17 +262,23 @@ export function createInspectionHost(options: InspectionHostOptions) {
     // an interaction" apart from "the agent said the page offered one".
     const offered = input.candidateItems ?? []
     const bounded = offered.slice(0, MAX_CANDIDATE_ITEMS)
+    const mandatoryExtra = options.checkPolicy
+      ? offered.filter((c) => c.requiredCheckIds?.length && !bounded.some((b) => b.ref === c.ref))
+      : []
     // Preserve the existing required navigation opportunity inside the same eight-candidate cap.
     const link = offered.find((c) => c.category === 'navigation')
     if (options.samplingPolicy && link && !bounded.some((c) => c.category === 'navigation'))
       bounded[bounded.length - 1] = link
-    candidates = bounded.map((candidate) => {
+    candidates = [...bounded, ...mandatoryExtra].map((candidate) => {
       const previous = items().find((item) => item.itemId === candidate.continuedItemId)
       const continued =
-        previous?.status === 'pending' &&
+        (previous?.status === 'pending' ||
+          (!!options.checkPolicy && !!previous && previous.status !== 'excluded')) &&
         previous.category === candidate.category &&
         previous.url === input.url &&
-        (!candidate.samplingKey || samplingKeys.get(previous.itemId) === candidate.samplingKey)
+        (!!options.checkPolicy ||
+          !candidate.samplingKey ||
+          samplingKeys.get(previous.itemId) === candidate.samplingKey)
       const item = continued
         ? previous
         : create({
@@ -255,8 +286,12 @@ export function createInspectionHost(options: InspectionHostOptions) {
             basis: `observed candidate: ${candidate.description}`,
             targetSource: 'executor',
             selected: false,
+            ...(options.checkPolicy && candidate.category === 'local-interaction'
+              ? { checks: emptyChecks() }
+              : {}),
           })
-      samplingKeys.set(item.itemId, candidate.samplingKey ?? item.itemId)
+      if (!continued || !options.checkPolicy)
+        samplingKeys.set(item.itemId, candidate.samplingKey ?? item.itemId)
       return {
         itemId: item.itemId,
         ref: candidate.ref,
@@ -271,7 +306,7 @@ export function createInspectionHost(options: InspectionHostOptions) {
       const url = input.url
       if (!localSamples.has(url)) {
         const pool = candidates
-          .filter((c) => c.category === 'local-interaction')
+          .filter((c) => c.category === 'local-interaction' && bounded.some((b) => b.ref === c.ref))
           .map((c) => c.itemId)
         const count = Math.min(options.samplingPolicy.localSamplesPerVisitedPage, pool.length)
         const item = create({
@@ -279,7 +314,14 @@ export function createInspectionHost(options: InspectionHostOptions) {
           basis: `default-sampling:local:${url}`,
           targetSource: 'executor',
         })
-        const sample = { url, itemId: item.itemId, pool, count, refs: [...input.evidenceRefs] }
+        const sample: Sample = {
+          url,
+          itemId: item.itemId,
+          pool,
+          count,
+          refs: [...input.evidenceRefs],
+          ...(options.checkPolicy ? { defaultSelected: new Set<string>() } : {}),
+        }
         localSamples.set(url, sample)
         await persist()
         await options.appendEvent(
@@ -288,7 +330,9 @@ export function createInspectionHost(options: InspectionHostOptions) {
             ...sample,
             policy: options.samplingPolicy,
             snapshotId: identity().pageId,
-            candidates: candidates.map((c) => ({ ...c })),
+            candidates: candidates
+              .filter((c) => bounded.some((b) => b.ref === c.ref))
+              .map((c) => ({ ...c })),
             truncated: Math.max(0, offered.length - bounded.length),
           },
           { evidenceRefs: [...input.evidenceRefs] },
@@ -525,6 +569,8 @@ export function createInspectionHost(options: InspectionHostOptions) {
     const byRef = input.ref ? offered.find((c) => c.ref === input.ref) : undefined
     // Never guess identity from the number of pending checks. A stale ref is not a match.
     const matched = byRef?.category === input.category ? byRef : undefined
+    const facetItem = matched && items().find((i) => i.itemId === matched.itemId)
+    if (facetItem?.checks) return facetItem
     if (matched && items().find((i) => i.itemId === matched.itemId)?.status === 'pending') {
       const current = items().find((i) => i.itemId === matched.itemId)
       if (current && !current.selected)
@@ -563,8 +609,14 @@ export function createInspectionHost(options: InspectionHostOptions) {
       if (requirement.boundItemId !== boundItemId) continue
       const current = items().find((i) => i.itemId === requirement.itemId)!
       if (!['pending', 'unverified'].includes(current.status)) continue
+      const effect = measured.checks?.effects.find(
+        (e) => e.sourceKind === 'required-check' && e.sourceId === requirement.check.id,
+      )
+      if (measured.checks && !effect) continue
+      const status = effect ? effect.state : measured.status
+      if (status === 'pending' || status === 'unverified') continue
       scope.resolveItem(requirement.itemId, {
-        status: measured.status,
+        status: status as 'verified' | 'failed' | 'unverified',
         reasonCode: measured.reasonCode ?? undefined,
         evidenceRefs: measured.evidenceRefs,
         eventIds: measured.eventIds,
@@ -654,9 +706,9 @@ export function createInspectionHost(options: InspectionHostOptions) {
       ...localSamples.values(),
       ...(navigationSample ? [navigationSample] : []),
     ]) {
-      const selected = sample.pool.filter((id) =>
-        items().some((i) => i.itemId === id && i.selected),
-      )
+      const selected = sample.defaultSelected
+        ? [...sample.defaultSelected]
+        : sample.pool.filter((id) => items().some((i) => i.itemId === id && i.selected))
       const item = items().find((i) => i.itemId === sample.itemId)!
       if (item.status === 'pending' && selected.length === sample.count && sample.count > 0)
         scope.resolveItem(item.itemId, {
@@ -676,7 +728,9 @@ export function createInspectionHost(options: InspectionHostOptions) {
     )
     return (
       !!sample &&
-      sample.pool.filter((id) => items().some((i) => i.itemId === id && i.selected)).length <
+      (sample.defaultSelected
+        ? sample.defaultSelected.size
+        : sample.pool.filter((id) => items().some((i) => i.itemId === id && i.selected)).length) <
         sample.count
     )
   }
@@ -692,8 +746,11 @@ export function createInspectionHost(options: InspectionHostOptions) {
         ...localSamples.values(),
         ...(navigationSample ? [navigationSample] : []),
       ]) {
+        if (advanced && options.checkPolicy && sample.defaultSelected) continue
         const total = new Set([
-          ...sample.pool.filter((id) => items().some((i) => i.itemId === id && i.selected)),
+          ...(sample.defaultSelected
+            ? [...sample.defaultSelected]
+            : sample.pool.filter((id) => items().some((i) => i.itemId === id && i.selected))),
           ...entries.filter((e) => sample.pool.includes(e.itemId)).map((e) => e.itemId),
         ])
         if (total.size > sample.count)
@@ -703,6 +760,7 @@ export function createInspectionHost(options: InspectionHostOptions) {
     for (const entry of entries) {
       const item = items().find((i) => i.itemId === entry.itemId)
       if (
+        !options.checkPolicy &&
         item?.category === 'local-interaction' &&
         !item.selected &&
         !sampledKeys(item.url).has(samplingKeys.get(item.itemId) ?? item.itemId) &&
@@ -711,6 +769,17 @@ export function createInspectionHost(options: InspectionHostOptions) {
         throw Error('local-interaction-sampling-cap')
       if (!options.samplingPolicy || !item?.selected) scope.selectItem(entry.itemId, entry.basis)
     }
+    if (options.checkPolicy && !advanced)
+      for (const sample of localSamples.values()) {
+        const ids = entries.filter((e) => sample.pool.includes(e.itemId)).map((e) => e.itemId)
+        for (const id of ids) sample.defaultSelected!.add(id)
+        if (ids.length)
+          await options.appendEvent('scope:sampling-default-selected', {
+            registrationItemId: sample.itemId,
+            itemIds: ids,
+            source: 'fixed-public-default-sample',
+          })
+      }
     scope.syncSelection(entries)
     await settleSamplingRegistration()
     await persist()
@@ -734,7 +803,7 @@ export function createInspectionHost(options: InspectionHostOptions) {
     const pending = items().filter(
       (item) =>
         item.selected &&
-        item.status === 'pending' &&
+        (item.status === 'pending' || (!!options.checkPolicy && item.status === 'unverified')) &&
         item.category === 'local-interaction' &&
         normalizePageUrl(item.url) === normalizePageUrl(current),
     )
@@ -847,6 +916,27 @@ export function createInspectionHost(options: InspectionHostOptions) {
       return undefined
     },
     selectionAllowed,
+    checksV2: !!options.checkPolicy,
+    goalSourceRegistered: async (itemId: string, name: string, refs: readonly string[]) => {
+      if (
+        goalReview &&
+        goalRelation?.name === name &&
+        items().find((i) => i.itemId === goalReview.itemId)?.status === 'pending'
+      ) {
+        scope.resolveItem(goalReview.itemId, {
+          status: 'verified',
+          evidenceRefs: refs,
+          eventIds: [],
+          detail: `Original named goal registered on selected item ${itemId}`,
+        })
+        await options.appendEvent(
+          'scope:goal-bound',
+          { goalItemId: goalReview.itemId, itemId, name },
+          { evidenceRefs: [...refs] },
+        )
+        await persist()
+      }
+    },
     requiredChecks: () =>
       required.map((r) => ({ ...r.check, itemId: r.itemId, boundItemId: r.boundItemId })),
     requiredActionError: (
@@ -861,7 +951,7 @@ export function createInspectionHost(options: InspectionHostOptions) {
         if (
           action.type !== (check.action === 'link' ? 'click' : check.action) ||
           action.value !== check.value ||
-          canonical(action.verify) !== canonical(check.verify)
+          (!options.checkPolicy && canonical(action.verify) !== canonical(check.verify))
         )
           return `Required check ${check.id} needs ${check.action} and its frozen value/postcondition; no action dispatched`
       }

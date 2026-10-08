@@ -1,3 +1,4 @@
+import { defaultCheckArtifactIssues } from '../../inspection/check-artifacts.ts'
 import { interactionFindingIssues } from '../../execution/interaction-finding-proof.ts'
 import { stat, readFile } from 'node:fs/promises'
 import { getRunSnapshot, isRunActive } from '../../execution/run-manager.ts'
@@ -309,6 +310,18 @@ export async function buildReport(runId: string) {
   const readable = new Set(artifacts.filter((a) => a.available).map((a) => a.id))
   if (settled && run.spec.kind === 'ui-scan')
     issues.push(...inspectionHistoryIssues(run, events, readable))
+  issues.push(
+    ...(await defaultCheckArtifactIssues(
+      run,
+      events,
+      artifactRows.rows.map((r) => ({
+        id: String(r.id),
+        type: String(r.type),
+        path: String(r.file_path),
+        metadata: JSON.parse(String(r.metadata)),
+      })),
+    )),
+  )
   const recoveryIssues =
     run.spec.kind === 'ui-scan'
       ? await recoveryArtifactIssues(
