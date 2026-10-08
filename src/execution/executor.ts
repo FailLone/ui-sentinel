@@ -6,6 +6,8 @@ import { createRemainingObligationGuidance } from './remaining-obligation-guidan
 import { createToolContractRepair } from './tool-contract-repair.ts'
 import { uiActionRefusal } from './ui-action-boundary.ts'
 import { createInteractionRecovery, recoveryDigest } from './interaction-recovery.ts'
+import { createInteractionExploration } from './interaction-exploration.ts'
+import { measureElement } from './investigation/measure.ts'
 import {
   measureInteraction,
   assertInteractionExpectation,
@@ -424,6 +426,9 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       : undefined
   }
   let programActionItems: string[] | null = null
+  let programExploration:
+    | import('./investigation/program.ts').InvestigationProgram['exploration']
+    | null = null
   const candidateBindings = new Map<string, import('playwright').ElementHandle<Element>>()
   let activeAction: {
     actionId: string
@@ -438,6 +443,10 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     settled: boolean
     verify?: InteractionVerification
     actionError?: string
+    exploration?: {
+      before: Awaited<ReturnType<ReturnType<typeof createInteractionExploration>['capture']>>
+      itemId: string
+    }
     probe?: {
       outcome: 'actionable' | 'intercepted'
       itemId: string
@@ -458,6 +467,26 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           args: [ref, runId],
         })
         if (rows.rows.length !== 1) throw Error('recovery-evidence-not-owned')
+        hashes[ref] = createHash('sha256')
+          .update(await readFile(String(rows.rows[0]!.file_path)))
+          .digest('hex')
+      }
+      return hashes
+    },
+  })
+  const interactionExploration = createInteractionExploration({
+    page: () => worker!.page,
+    actionVersion: () => usage.actions,
+    clean: () => integrity.epoch() === 0,
+    guard: () => guard(),
+    hashEvidence: async (refs) => {
+      const hashes: Record<string, string> = {}
+      for (const ref of refs) {
+        const rows = await getDbClient().execute({
+          sql: 'SELECT file_path FROM artifacts WHERE id=? AND run_id=?',
+          args: [ref, runId],
+        })
+        if (rows.rows.length !== 1) throw Error('exploration-evidence-not-owned')
         hashes[ref] = createHash('sha256')
           .update(await readFile(String(rows.rows[0]!.file_path)))
           .digest('hex')
@@ -801,6 +830,42 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       : (measurement?.reasonCode ??
         (navigated ? 'navigation-observed' : 'postcondition-not-verified'))
     const measurementRefs: string[] = []
+    if (
+      pending.exploration &&
+      !pending.actionError &&
+      fresh &&
+      !navigated &&
+      integrity.epoch() === 0 &&
+      !sideEffectPending
+    ) {
+      const item = inspection.scope
+        .snapshot()
+        .items.find((i) => i.itemId === pending.exploration!.itemId)
+      if (!item?.selected || item.status !== 'pending')
+        throw Error('exploration-original-item-changed')
+      const refs = [...new Set([...pending.beforeRefs, ...observed!.evidenceRefs])]
+      const check = await interactionExploration.register(
+        pending.exploration.before,
+        { actionId: pending.actionId, itemId: item.itemId },
+        refs,
+      )
+      const event = await appendEvent(
+        runId,
+        'interaction:explored',
+        { ...check, effectTested: false },
+        { actionId: pending.actionId, evidenceRefs: refs },
+      )
+      guard()
+      inspection.scope.appendPendingEvidence(item.itemId, {
+        reasonCode: 'exploration-effect-not-verified',
+        evidenceRefs: refs,
+        eventIds: [event.id],
+        detail: `Evidence collection from original action ${pending.actionId}; no effect verdict`,
+      })
+      await inspection.flush()
+      uiActionChecks.set(pending.actionId, { itemId: item.itemId, target: pending.target })
+      return
+    }
     if (measurement) {
       measurementRefs.push(...measurement.evidenceRefs)
       const ref = await saveEvidence(
@@ -2221,6 +2286,36 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
             'postcondition-required: no action dispatched. Declare page_act.verify from public facts, or compose an investigation_run with explicit post-action measurement. Read current DOM before choosing the result selector.',
           )
       }
+      const boundCandidate =
+        inspection &&
+        [...inspection.selectedCandidates(), ...inspection.candidateItems()].find(
+          (c) => c.ref === actingRef && c.snapshotId === actionSnapshotPage,
+        )
+      if (boundCandidate && ['click', 'fill'].includes(input.type))
+        interactionExploration.assertNotRepeated(boundCandidate.itemId)
+      let explorationSource:
+        | { before: Awaited<ReturnType<typeof interactionExploration.capture>>; itemId: string }
+        | undefined
+      if (programExploration) {
+        const item =
+          boundCandidate &&
+          inspection!.scope.snapshot().items.find((i) => i.itemId === boundCandidate.itemId)
+        if (
+          !uiScan ||
+          input.type !== 'click' ||
+          boundCandidate?.category !== 'local-interaction' ||
+          !item?.selected ||
+          item.status !== 'pending'
+        )
+          throw Error('exploration-requires-original-selected-pending-local-control')
+        explorationSource = {
+          itemId: item.itemId,
+          before: await interactionExploration.capture(
+            run.spec.goal,
+            programExploration.expectedEffect,
+          ),
+        }
+      }
       const actionId = randomUUID()
       let dispatchTime = Date.now()
       const beforeText = await page.locator('body').innerText()
@@ -2301,6 +2396,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         landedUrls: [],
         settled: false,
         ...(input.verify ? { verify: input.verify } : {}),
+        ...(explorationSource ? { exploration: explorationSource } : {}),
       }
       if (inspection) {
         // The address an in-page move lands on. A same-document hash change is part of the action
@@ -3000,16 +3096,125 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         return { error: String(error), outcome: 'unverified' as const }
       }
     }
+    async function verifyExploration(checkRef: string, selector?: string) {
+      if (!inspection || !uiScan) return { error: 'ui-exploration-unavailable' }
+      try {
+        return await interactionExploration.run(
+          checkRef,
+          selector,
+          async (check, input, assertCurrent) => {
+            const item = inspection!.scope.snapshot().items.find((i) => i.itemId === check.itemId)
+            if (
+              !item?.selected ||
+              item.status !== 'pending' ||
+              item.category !== 'local-interaction'
+            )
+              throw Error('exploration-original-item-not-pending')
+            await assertCurrent()
+            const measurement = await measureInteraction(page, input, async () => [
+              await saveEvidence(
+                runId,
+                'screenshot',
+                await page.screenshot({ timeout: 3000 }),
+                evidenceMetadata(),
+                guard,
+              ),
+            ])
+            await assertCurrent()
+            const body = {
+              ...measurement,
+              checkRef,
+              actionId: check.actionId,
+              itemId: check.itemId,
+              sourceHash: recoveryDigest(check),
+              sourceGoalHash: check.goalHash,
+            }
+            const receiptRef = await saveEvidence(
+              runId,
+              'interaction-measurement',
+              JSON.stringify(body),
+              evidenceMetadata(),
+              guard,
+            )
+            const refs = [
+              ...new Set([
+                ...Object.keys(check.evidenceHashes),
+                ...measurement.evidenceRefs,
+                receiptRef,
+              ]),
+            ]
+            const event = await appendEvent(
+              runId,
+              'interaction:exploration-measured',
+              { ...body, receiptRef },
+              { actionId: check.actionId, evidenceRefs: refs },
+            )
+            await assertCurrent()
+            const update = {
+              reasonCode: 'original-exploration-effect-measured',
+              evidenceRefs: refs,
+              eventIds: [event.id],
+              detail: `Original action ${check.actionId}; expectation frozen before operation: ${input.basis}`,
+            }
+            if (measurement.outcome === 'unverified')
+              inspection!.scope.appendPendingEvidence(check.itemId, update)
+            else
+              inspection!.scope.resolveItem(check.itemId, {
+                ...update,
+                status: measurement.outcome,
+              })
+            await inspection!.settleRequired(check.itemId)
+            await inspection!.flush()
+            if (measurement.outcome === 'failed')
+              await publishInteractionFinding({
+                runId,
+                actionId: check.actionId,
+                itemId: check.itemId,
+                receiptRef,
+                evidenceRefs: refs,
+                measurement,
+                metadata: evidenceMetadata(),
+                guard,
+              })
+            return { ...body, evidenceRefs: refs }
+          },
+        )
+      } catch (error) {
+        guard()
+        await appendEvent(runId, 'interaction:exploration-rejected', {
+          checkRef,
+          reason: String(error),
+        })
+        return { error: String(error), outcome: 'unverified' as const }
+      }
+    }
     const tools = {
       ...(uiScan
         ? {
             interaction_verify: createTool({
               id: 'interaction.verify',
               description:
-                'Read-only recovery of an original UI action postcondition. Use checkRef from recoverableInteractions. Reads and explicitly binds current result nodes; never repeats the action, changes its target or expected result. At most two attempts, same document, no intervening action, clean original evidence required. Old unknown evidence remains recorded.',
-              inputSchema: z.object({ checkRef: z.string().uuid() }).strict(),
-              execute: ({ checkRef }) =>
-                serial('interaction_verify', () => recoverInteraction(checkRef)),
+                'Read-only verification of an original UI action. Fixed recovery uses checkRef from recoverableInteractions and forbids changing its selector/expectation. Evidence collection uses checkRef from exploratoryInteractions plus a selector actually read by page_inspect after that action; only the independently frozen original-goal expectation can be evaluated. Unknown expectations remain pending. Never repeat the action or use another action’s evidence. Use checkRef from recoverableInteractions for fixed recovery. Reads and explicitly binds current result nodes; never repeats the action, changes its target or expected result. At most two attempts, same document, no intervening action, clean original evidence required. Old unknown evidence remains recorded.',
+              inputSchema: z
+                .object({
+                  checkRef: z.string().uuid(),
+                  selector: z
+                    .string()
+                    .min(1)
+                    .max(500)
+                    .nullish()
+                    .transform((v) => v ?? undefined)
+                    .optional(),
+                })
+                .strict(),
+              execute: ({ checkRef, selector }) =>
+                serial('interaction_verify', async () => {
+                  if (interactionExploration.owns(checkRef))
+                    return await verifyExploration(checkRef, selector)
+                  if (selector)
+                    return { error: 'fixed-recovery-expectation-cannot-change-selector' }
+                  return await recoverInteraction(checkRef)
+                }),
             }),
           }
         : {}),
@@ -3033,6 +3238,9 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
               evidenceMetadata(),
               guard,
             )
+            await interactionExploration.noteInspected(
+              result.elements.map((e) => ({ selector: e.selector, text: e.text })),
+            )
             return { ...result, evidenceRefs: [ref] }
           }),
       }),
@@ -3044,9 +3252,25 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         execute: (input) =>
           serial('investigation_run', async () => {
             if (uiScan) assertUiProgramBindings(input)
+            if (input.exploration && !uiScan) throw Error('exploration-is-ui-only')
             programActionItems = []
+            programExploration = input.exploration ?? null
+            const priorResults = new Map<string, Awaited<ReturnType<typeof measureElement>>>()
             let result: Awaited<ReturnType<typeof investigateProgram>>
             try {
+              if (uiScan && !input.exploration)
+                for (const target of input.targets.filter((t) => t.binding === 'post-action')) {
+                  const h = await page
+                    .locator(`css=${target.selector}`)
+                    .elementHandle({ timeout: 1000 })
+                  if (h) {
+                    try {
+                      priorResults.set(target.name, await measureElement(h))
+                    } finally {
+                      await h.dispose()
+                    }
+                  }
+                }
               result = await investigateProgram(input, {
                 page,
                 runId,
@@ -3080,33 +3304,82 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
                 },
               })
               const lastAct = input.steps.map((step) => step.op === 'act').lastIndexOf(true)
-              const postconditionMeasured =
-                lastAct >= 0 &&
-                input.assertions.some(
-                  (assertion) =>
-                    input.steps.findIndex(
-                      (step) => step.op === 'measure' && step.name === assertion.left.sample,
-                    ) > lastAct,
-                )
+              const related =
+                !input.exploration &&
+                input.steps.filter((s) => s.op === 'act').length === 1 &&
+                lastAct >= 0
+                  ? result.assertions.filter((assertion) => {
+                      const target = input.targets.find((t) => t.name === assertion.left.target)
+                      const action = input.steps.find((s) => s.op === 'act')
+                      const acted =
+                        action?.op === 'act'
+                          ? input.targets.find((t) => t.name === action.target)
+                          : undefined
+                      if (
+                        target?.binding !== 'post-action' ||
+                        target.selector === acted?.selector ||
+                        ![
+                          'text',
+                          'displayed',
+                          'viewportFraction',
+                          'unclippedFraction',
+                          'hitFraction',
+                        ].includes(assertion.left.metric) ||
+                        !('value' in assertion.right) ||
+                        input.steps.findIndex(
+                          (s) => s.op === 'measure' && s.name === assertion.left.sample,
+                        ) <= lastAct
+                      )
+                        return false
+                      const old = priorResults.get(assertion.left.target)?.[assertion.left.metric]
+                      if (
+                        priorResults.has(assertion.left.target) &&
+                        (old === null || old === undefined)
+                      )
+                        return false
+                      return (
+                        old === undefined ||
+                        !(assertion.operator === 'eq'
+                          ? old === assertion.right.value
+                          : typeof old === 'number' &&
+                            typeof assertion.right.value === 'number' &&
+                            (assertion.operator === 'gte'
+                              ? old >= assertion.right.value
+                              : old <= assertion.right.value))
+                      )
+                    })
+                  : []
+              const relatedVerdict = related.some((a) => a.verdict === 'unknown')
+                ? 'unknown'
+                : related.some((a) => a.verdict === 'fail')
+                  ? 'fail'
+                  : 'pass'
               if (
                 inspection &&
-                postconditionMeasured &&
+                related.length > 0 &&
                 integrity.epoch() === 0 &&
-                result.verdict !== 'unknown'
+                result.verdict !== 'unknown' &&
+                relatedVerdict !== 'unknown'
               ) {
                 for (const itemId of programActionItems ?? [])
                   inspection.scope.resolveItem(itemId, {
-                    status: result.verdict === 'pass' ? 'verified' : 'failed',
+                    status: relatedVerdict === 'pass' ? 'verified' : 'failed',
                     reasonCode: 'program-postcondition-measured',
                     evidenceRefs: result.evidenceRefs,
                     eventIds: [],
-                    detail: `Bounded program result ${result.verdict}; public basis: ${input.basis}`,
+                    detail: `Related changed result ${relatedVerdict}; public basis: ${input.basis}`,
                   })
                 await inspection.flush()
               }
-              return result
+              return {
+                ...result,
+                ...(input.exploration
+                  ? { exploratoryInteractions: interactionExploration.available() }
+                  : {}),
+              }
             } finally {
               programActionItems = null
+              programExploration = null
             }
           }),
       }),
@@ -4161,6 +4434,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           .map((h) => h.id),
         submittedFindings: findingMemory(await getFindings(runId)),
         latestToolResults: memory.latestToolResults,
+        ...(uiScan ? { exploratoryInteractions: interactionExploration.available() } : {}),
         history: recentHistory,
         historyWindow: {
           total: history.length,
@@ -4583,6 +4857,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     await closeResponses()
     await temporalInvestigator?.close()
     await interactionRecovery.dispose()
+    await interactionExploration.dispose()
     await Promise.allSettled(investigationBlockers.map((cached) => cached.handle.dispose()))
     if (worker) await worker.close().catch(() => {})
     await queue.commitRun(

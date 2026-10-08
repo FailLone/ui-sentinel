@@ -24,6 +24,43 @@ export async function investigateProgram(
     host.metadata(),
     host.guard,
   )
+  if (input.exploration) {
+    const receipt = await runProgram(input, host)
+    host.guard()
+    const body = JSON.stringify({
+      ...receipt,
+      verdict: 'unknown',
+      runId: host.runId,
+      programRef,
+      effectTested: false,
+    })
+    const receiptRef = await saveEvidence(
+      host.runId,
+      'measurement',
+      body,
+      { ...host.metadata(), kind: 'evidence-collection' },
+      host.guard,
+    )
+    const result = {
+      hypothesisId: undefined,
+      findingId: undefined,
+      verdict: 'unknown' as const,
+      effectTested: false,
+      assertions: [],
+      targetIssues: receipt.targetIssues,
+      resultBindings: receipt.resultBindings,
+      programRef,
+      receiptRef,
+      evidenceRefs: [programRef, receiptRef, ...receipt.screenshotRefs],
+      ...(receipt.error ? { error: receipt.error } : {}),
+      scope:
+        'Evidence collection only. An operation and observed change do not resolve the original control effect.',
+      nextStep:
+        'Read the actual public result. Only a previously frozen independent expectation can be measured through the returned exploration checkRef; otherwise preserve the original pending item.',
+    }
+    await appendEvent(host.runId, 'program:explored', result, { evidenceRefs: result.evidenceRefs })
+    return result
+  }
   const h = await recordHypothesis({
     runId: host.runId,
     kind: 'program',

@@ -1,5 +1,6 @@
 import { actionInput } from '../action-input.ts'
 import { z } from 'zod'
+import { exploratoryEffectInput } from '../interaction-exploration.ts'
 
 export const metrics = [
   'exists',
@@ -46,6 +47,20 @@ export const programInput = z
       .max(1600)
       .describe(
         'One concise sentence grounding the expectation. Avoid long quotations, repeated selectors or a narrative of previous tools.',
+      ),
+    exploration: z
+      .object({
+        expectedEffect: exploratoryEffectInput
+          .nullish()
+          .transform((v) => v ?? undefined)
+          .optional(),
+      })
+      .strict()
+      .nullish()
+      .transform((v) => v ?? undefined)
+      .optional()
+      .describe(
+        'UI only: one selected local click collects evidence, not an effect pass. assertions must be empty. Optional literal effect expectation must be grounded in the original user goal and is frozen before the click; no result selector is guessed.',
       ),
     targets: z
       .array(
@@ -134,12 +149,22 @@ export const programInput = z
           })
           .strict(),
       )
-      .min(1)
+      .min(0)
       .max(8),
   })
   .strict()
   .superRefine((p, ctx) => {
     const issue = (message: string) => ctx.addIssue({ code: 'custom', message })
+    if (p.exploration) {
+      if (p.assertions.length) issue('Exploration does not accept effect or placeholder assertions')
+      const acts = p.steps.filter((s) => s.op === 'act')
+      if (acts.length !== 1 || acts[0]?.type !== 'click')
+        issue('Exploration requires exactly one local click')
+      if (p.targets.length !== 1 || p.targets[0]?.binding === 'post-action')
+        issue(
+          'Exploration declares only its known control; inspect unknown result content afterwards',
+        )
+    } else if (!p.assertions.length) issue('A comparison program requires assertions')
     const targets = new Set(p.targets.map((t) => t.name))
     if (targets.size !== p.targets.length) issue('Duplicate target name')
     const samples = new Set<string>()
@@ -264,4 +289,4 @@ export function evaluateProgram(program: InvestigationProgram, samples: Samples)
   return { assertions, verdict }
 }
 export const programInstructions =
-  'For new spatial or before/after questions, compose a minimal investigation_run (at most three actions, ten steps, and 4000ms total wait; one final result binding phase): short phenomenon/basis, only relevant targets, and usually one measure shared by all assertions. Every assertion must directly match the grounded requirement; do not add unrequested layout relationships or collateral checks. Bind selectors only to inspected elements whose text or role confirms their meaning. For content that appears after an operation, act and inspect it before binding; do not guess a future selector. Save a bounded check of the current contradiction before navigating or resetting. A current-state expectation does not need a before sample unless the question actually compares a change. Do not substitute a time-window condition for the geometry you intend to test. page_inspect reads public DOM text and geometric facts, including noninteractive content, without classifying defects. Use its CSS selectors to declare targets in investigation_run. Compose a version 1 program with measure(name), ordinary act(click/fill/scroll) and bounded wait(ms) steps; assertions compare a measured {sample,target,metric} with {value} or another measurement. Explain your observed phenomenon and the source of the expectation in basis. No issue-category enum or arbitrary JavaScript is needed. A program runs serially, saves its source, screenshots, measured facts and computed comparisons. Use separate measure steps before/after an operation for changes. Metrics describe rectangular DOM geometry and sampled hit tests, not visual meaning or universal usability. Missing/ambiguous/replaced/unsupported targets yield unknown, not proof of failure. Targets default to binding=node and keep the same identity. For result content expected to be rebuilt by an action, explicitly declare binding=post-action, execute the action, then bind_results before measuring. bind_results reads the current public nodes at those declared result selectors. Never use result targets for actions or same-node before/after assertions. Prefer an available specialized probe when its measured scope matches the question. A fail proves only the declared bounded comparison; subjective expectations remain your interpretation. Do not repeat business writes to investigate. Complete remaining scope or run_finish after reading the receipt; do not resubmit its finding. Saved programs are investigation recipes, not automatically approved global rules.'
+  'For a selected pending UI control with unknown result location, investigation_run exploration:{} with exactly one click and assertions:[] collects evidence only. Do not repeat the operation to bind its result. An optional expectedEffect literal must already be supported by the original user goal and is frozen before operating. Afterwards use page_inspect to read the actual noninteractive feedback, then interaction_verify(checkRef,selector) from exploratoryInteractions for that original action. Without an independent expectation keep the item pending. Existing comparisons still require grounded assertions. For new spatial or before/after questions, compose a minimal investigation_run (at most three actions, ten steps, and 4000ms total wait; one final result binding phase): short phenomenon/basis, only relevant targets, and usually one measure shared by all assertions. Every assertion must directly match the grounded requirement; do not add unrequested layout relationships or collateral checks. Bind selectors only to inspected elements whose text or role confirms their meaning. For content that appears after an operation, act and inspect it before binding; do not guess a future selector. Save a bounded check of the current contradiction before navigating or resetting. A current-state expectation does not need a before sample unless the question actually compares a change. Do not substitute a time-window condition for the geometry you intend to test. page_inspect reads public DOM text and geometric facts, including noninteractive content, without classifying defects. Use its CSS selectors to declare targets in investigation_run. Compose a version 1 program with measure(name), ordinary act(click/fill/scroll) and bounded wait(ms) steps; assertions compare a measured {sample,target,metric} with {value} or another measurement. Explain your observed phenomenon and the source of the expectation in basis. No issue-category enum or arbitrary JavaScript is needed. A program runs serially, saves its source, screenshots, measured facts and computed comparisons. Use separate measure steps before/after an operation for changes. Metrics describe rectangular DOM geometry and sampled hit tests, not visual meaning or universal usability. Missing/ambiguous/replaced/unsupported targets yield unknown, not proof of failure. Targets default to binding=node and keep the same identity. For result content expected to be rebuilt by an action, explicitly declare binding=post-action, execute the action, then bind_results before measuring. bind_results reads the current public nodes at those declared result selectors. Never use result targets for actions or same-node before/after assertions. Prefer an available specialized probe when its measured scope matches the question. A fail proves only the declared bounded comparison; subjective expectations remain your interpretation. Do not repeat business writes to investigate. Complete remaining scope or run_finish after reading the receipt; do not resubmit its finding. Saved programs are investigation recipes, not automatically approved global rules.'

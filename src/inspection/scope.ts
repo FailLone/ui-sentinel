@@ -263,6 +263,39 @@ export function createInspectionScope(options: InspectionScopeOptions = {}) {
    * a frozen boundary, a sampling cap or a verifiable fact, so the model cannot clear an item by
    * declaring it out of scope.
    */
+  /** Evidence collection cannot reopen or resolve a check. Only an already pending item accepts it. */
+  function appendPendingEvidence(
+    itemId: string,
+    input: {
+      reasonCode: string
+      detail: string
+      evidenceRefs: readonly string[]
+      eventIds: readonly string[]
+    },
+  ): InspectionItem {
+    const item = items.get(itemId)
+    if (!item || item.status !== 'pending') throw Error('pending-evidence-item-not-pending')
+    const next = {
+      ...item,
+      reasonCode: input.reasonCode,
+      detail: input.detail,
+      evidenceRefs: [...new Set([...item.evidenceRefs, ...input.evidenceRefs])],
+      eventIds: [...new Set([...item.eventIds, ...input.eventIds])],
+    }
+    apply(next)
+    record({
+      type: INSPECTION_SCOPE_UPDATE_EVENT,
+      payload: {
+        itemId,
+        status: 'pending',
+        reasonCode: next.reasonCode,
+        detail: next.detail,
+        evidenceRefs: next.evidenceRefs,
+        eventIds: next.eventIds,
+      },
+    })
+    return next
+  }
   function selectItem(
     itemId: string,
     basis: string,
@@ -419,6 +452,7 @@ export function createInspectionScope(options: InspectionScopeOptions = {}) {
   return {
     createItem,
     resolveItem,
+    appendPendingEvidence,
     selectItem,
     recordGap,
     recordCandidates,
@@ -479,7 +513,10 @@ export function projectInspectionScope(events: readonly RunEvent[]): InspectionS
             detail: (payload.detail as string | null) ?? null,
             evidenceRefs: (payload.evidenceRefs as string[]) ?? [],
             eventIds: (payload.eventIds as string[]) ?? [],
-            resolvedAt: (payload.resolvedAt as string | null) ?? event.timestamp,
+            resolvedAt:
+              payload.status === 'pending'
+                ? current.resolvedAt
+                : ((payload.resolvedAt as string | null) ?? event.timestamp),
           }),
     })
   }
