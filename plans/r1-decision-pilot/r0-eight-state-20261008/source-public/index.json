@@ -1,0 +1,152 @@
+{
+  "selectionSha256": "22dd943276919734ec8cb888513f436d3b5be7a29d4e2e4e1105fc87aeb70b6b",
+  "r1Contract": {
+    "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/src/agent/decisions/exploration/contracts.ts",
+    "sha256": "79e3dbb1bf971c4eed62b9733c6c20c41d6b0a2ee6f83e419325bb1dfe7ce189",
+    "commit": "979b08fce16797295629a4580efe6d18bfb51b59",
+    "schema": "r1-exploration-input-1"
+  },
+  "sourceCandidate": "08acc95d7f67a1ac3cbcf3d9decc9add2f2907eb",
+  "newPaidCostUsd": 0,
+  "newJevOutputs": 0,
+  "ledgerSource": "data/r0-08acc95-resume/campaign-ledger-final-snapshot.db",
+  "ledgerSourceSha256": "ece8176fdcfacaeda45cfc7b16294c6ccd6a4a3c71c311043b159afb78799072",
+  "states": [
+    {
+      "stateId": "S01",
+      "runId": "run-1b87f757-d3b7-434f-a471-0c4e946482e1",
+      "eventCutoffSeq": 53,
+      "inputPath": "plans/evidence/r0-public-decision-states/inputs/S01.json",
+      "inputSha256": "34fbd335bf2d0a4067e8090cd22590054a7c594ae7cb4b2b077bd8e39697d887",
+      "publicPath": "plans/evidence/r0-public-decision-states/public/S01.json",
+      "publicSha256": "89d47daf34bcc1e800b0e200c5798156bf68384a1ae494da7ae07dd4dea914fe",
+      "sourcePrefixSha256": "70f86add67668f74b4a175174e5aa506f4ceba89b774989c987f8ecef8a4606c",
+      "remainingBudget": {
+        "remainingActions": 20,
+        "remainingDecisions": 28,
+        "remainingMs": 252130,
+        "maxRequestMs": 60000,
+        "remainingCostUsd": 17.97290897
+      }
+    },
+    {
+      "stateId": "S02",
+      "runId": "run-1b87f757-d3b7-434f-a471-0c4e946482e1",
+      "eventCutoffSeq": 124,
+      "inputPath": "plans/evidence/r0-public-decision-states/inputs/S02.json",
+      "inputSha256": "66621659f3114819f269ac03ae92ec61eb0bcb1d88cdc614b8a7b7fb01034123",
+      "publicPath": "plans/evidence/r0-public-decision-states/public/S02.json",
+      "publicSha256": "8a75d66b6e2a6259dc98e616056d36460fbd9c90fef355a5cac852c2b453cb90",
+      "sourcePrefixSha256": "d73fd6d0a25c784f268e27e086f6dd0de9ef15250eda2d74cef0cdb0da3d30e0",
+      "remainingBudget": {
+        "remainingActions": 18,
+        "remainingDecisions": 26,
+        "remainingMs": 187021,
+        "maxRequestMs": 60000,
+        "remainingCostUsd": 17.96610725
+      }
+    },
+    {
+      "stateId": "S03",
+      "runId": "run-2f9f51f3-a7f7-4f22-8f4d-6325de29c0ad",
+      "eventCutoffSeq": 61,
+      "inputPath": "plans/evidence/r0-public-decision-states/inputs/S03.json",
+      "inputSha256": "46a4a09ad87a9395c731bde146a00e208bddca78fd69bcea853dd87b041f4249",
+      "publicPath": "plans/evidence/r0-public-decision-states/public/S03.json",
+      "publicSha256": "d20aa017703113113144494a7878e4231e9812bde5e8340cdcef22e7a54761cb",
+      "sourcePrefixSha256": "8a748441deeca44d7f66fc152421f43a70f4fb37771638dd2336dd12b98ac049",
+      "remainingBudget": {
+        "remainingActions": 20,
+        "remainingDecisions": 27,
+        "remainingMs": 238553,
+        "maxRequestMs": 60000,
+        "remainingCostUsd": 17.95421963
+      }
+    },
+    {
+      "stateId": "S04",
+      "runId": "run-2f9f51f3-a7f7-4f22-8f4d-6325de29c0ad",
+      "eventCutoffSeq": 98,
+      "inputPath": "plans/evidence/r0-public-decision-states/inputs/S04.json",
+      "inputSha256": "86afb122fcdd7770a39ded08ff526c21d85f4946cef8f04e39583b7557e50414",
+      "publicPath": "plans/evidence/r0-public-decision-states/public/S04.json",
+      "publicSha256": "5c2c72328dac0df2a8c7c75d98b5fb270c597e0c31d6a75c223157c2ff37a53b",
+      "sourcePrefixSha256": "cd5e619c3b5d48f625c7e3e63962c9c11c993374ec2a36d48f2d9d0f2324b8a8",
+      "remainingBudget": {
+        "remainingActions": 19,
+        "remainingDecisions": 26,
+        "remainingMs": 206315,
+        "maxRequestMs": 60000,
+        "remainingCostUsd": 17.94979385
+      }
+    },
+    {
+      "stateId": "S05",
+      "runId": "run-2f9f51f3-a7f7-4f22-8f4d-6325de29c0ad",
+      "eventCutoffSeq": 142,
+      "inputPath": "plans/evidence/r0-public-decision-states/inputs/S05.json",
+      "inputSha256": "a4278049eeee0258a6c80a436635aa7f180d7356478c7e7e96c83caccf950d5b",
+      "publicPath": "plans/evidence/r0-public-decision-states/public/S05.json",
+      "publicSha256": "52a7d82e472f86dd2493e18c137cda47f75ffbe6bbbd306ae9759f79ac38995a",
+      "sourcePrefixSha256": "986cddd39521c1bd5a9e7065b0bc0452a3e0621e621bdba98837d466b1aff69c",
+      "remainingBudget": {
+        "remainingActions": 18,
+        "remainingDecisions": 24,
+        "remainingMs": 114735,
+        "maxRequestMs": 60000,
+        "remainingCostUsd": 17.93902733
+      }
+    },
+    {
+      "stateId": "S06",
+      "runId": "run-2f9f51f3-a7f7-4f22-8f4d-6325de29c0ad",
+      "eventCutoffSeq": 179,
+      "inputPath": "plans/evidence/r0-public-decision-states/inputs/S06.json",
+      "inputSha256": "6300b1e7112742253f08f7beb8482ac611bd0fdb4747ef6a89cdf7d094cc1425",
+      "publicPath": "plans/evidence/r0-public-decision-states/public/S06.json",
+      "publicSha256": "73ff132bf4485bcd51153b97bdf6c84fc777ff09a324da090abea275994da72c",
+      "sourcePrefixSha256": "6d48910781d145b4f55147c601e1949838fcf4e523ba3a5e8a71c7b6b1ae3ad5",
+      "remainingBudget": {
+        "remainingActions": 17,
+        "remainingDecisions": 23,
+        "remainingMs": 88252,
+        "maxRequestMs": 60000,
+        "remainingCostUsd": 17.93542277
+      }
+    },
+    {
+      "stateId": "S07",
+      "runId": "run-b512ca6c-b967-443b-825d-28503381c967",
+      "eventCutoffSeq": 78,
+      "inputPath": "plans/evidence/r0-public-decision-states/inputs/S07.json",
+      "inputSha256": "683d20dd3feea791b91617ce7082c0ad0cd745d02683c9d57ac8e3a5b3061c56",
+      "publicPath": "plans/evidence/r0-public-decision-states/public/S07.json",
+      "publicSha256": "41b3f87fafcdf234c77a59b4a377468abfdeaad983b3effca06f6635eb0d7d90",
+      "sourcePrefixSha256": "e118fa390a5da6d91e84015839cfee8739752b93acba67264d0c5b36a4bf12c6",
+      "remainingBudget": {
+        "remainingActions": 20,
+        "remainingDecisions": 26,
+        "remainingMs": 186808,
+        "maxRequestMs": 60000,
+        "remainingCostUsd": 17.90979407
+      }
+    },
+    {
+      "stateId": "S08",
+      "runId": "run-b512ca6c-b967-443b-825d-28503381c967",
+      "eventCutoffSeq": 87,
+      "inputPath": "plans/evidence/r0-public-decision-states/inputs/S08.json",
+      "inputSha256": "727f08bc98ebbbbe1bc49f09d325eefde05defa70d83029a52b8fe7789652906",
+      "publicPath": "plans/evidence/r0-public-decision-states/public/S08.json",
+      "publicSha256": "3abedf7fe2ff66653edb4f9b945cfa43b5f15794a3d1626962b267f618905860",
+      "sourcePrefixSha256": "04f43f9e0c13181de96a256492c3c1b6efd52bf6e746626dc56da3b3d46c8807",
+      "remainingBudget": {
+        "remainingActions": 20,
+        "remainingDecisions": 24,
+        "remainingMs": 88593,
+        "maxRequestMs": 60000,
+        "remainingCostUsd": 17.88384599
+      }
+    }
+  ]
+}

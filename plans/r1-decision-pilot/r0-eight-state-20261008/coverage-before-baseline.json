@@ -1,0 +1,554 @@
+[
+  {
+    "id": "S01",
+    "currentCandidates": 3,
+    "pendingSelected": [
+      {
+        "id": "item-91e91ef0-5a18-40d9-ad9d-2caeebb6a1c3",
+        "text": "PriceName",
+        "nativeAction": "fill",
+        "ref": "e3"
+      },
+      {
+        "id": "item-b444fc13-a8b0-4732-960d-3862a13b13e9",
+        "text": "Apply sort",
+        "nativeAction": "click",
+        "ref": "e4"
+      },
+      {
+        "id": "item-e5f96194-f86c-44c9-aa06-7be74e8e65dc",
+        "text": "About this catalog",
+        "nativeAction": "click",
+        "ref": "e5"
+      }
+    ],
+    "clickObligationsBeforeAdmission": [
+      {
+        "id": "item-b444fc13-a8b0-4732-960d-3862a13b13e9",
+        "text": "Apply sort",
+        "ref": "e4",
+        "hitRelations": {
+          "self": 5
+        }
+      },
+      {
+        "id": "item-e5f96194-f86c-44c9-aa06-7be74e8e65dc",
+        "text": "About this catalog",
+        "ref": "e5",
+        "hitRelations": {
+          "self": 5
+        }
+      }
+    ],
+    "fillObligationsOutsideContract": [
+      "item-91e91ef0-5a18-40d9-ad9d-2caeebb6a1c3"
+    ],
+    "completedNotReopened": [],
+    "unselected": [],
+    "selectedUnfinishedNotCandidate": [],
+    "missing": [
+      "live-binding-authorization",
+      "action-preconditions",
+      "action-time-bound",
+      "action-usd-bound"
+    ],
+    "inspectionCoverage": "No new bounded read objective or expected information delta supplied. Existing reads do not justify generic inspect as fill replacement.",
+    "diagnosticOnly": true
+  },
+  {
+    "id": "S02",
+    "currentCandidates": 3,
+    "pendingSelected": [
+      {
+        "id": "item-e5f96194-f86c-44c9-aa06-7be74e8e65dc",
+        "text": "About this catalog",
+        "nativeAction": "click",
+        "ref": "e25"
+      }
+    ],
+    "clickObligationsBeforeAdmission": [
+      {
+        "id": "item-e5f96194-f86c-44c9-aa06-7be74e8e65dc",
+        "text": "About this catalog",
+        "ref": "e25",
+        "hitRelations": {
+          "self": 5
+        }
+      }
+    ],
+    "fillObligationsOutsideContract": [],
+    "completedNotReopened": [
+      "item-91e91ef0-5a18-40d9-ad9d-2caeebb6a1c3"
+    ],
+    "unselected": [
+      "item-effca3b7-3e18-4a4c-96c2-c1b2f686fd19"
+    ],
+    "selectedUnfinishedNotCandidate": [],
+    "missing": [
+      "live-binding-authorization",
+      "action-preconditions",
+      "action-time-bound",
+      "action-usd-bound"
+    ],
+    "inspectionCoverage": "No new bounded read objective or expected information delta supplied. Existing reads do not justify generic inspect as fill replacement.",
+    "diagnosticOnly": true
+  },
+  {
+    "id": "S03",
+    "currentCandidates": 4,
+    "pendingSelected": [
+      {
+        "id": "item-8c6b372b-d0c9-4020-9567-f5f8178630e5",
+        "text": "PriceName",
+        "nativeAction": "fill",
+        "ref": "e3"
+      },
+      {
+        "id": "item-aada2056-83e7-48a6-9d62-d18ebf85412b",
+        "text": "Apply sort",
+        "nativeAction": "click",
+        "ref": "e4"
+      },
+      {
+        "id": "item-4db05551-3b79-40c5-98bb-195f1bd301a5",
+        "text": "Filters",
+        "nativeAction": "click",
+        "ref": "e5"
+      },
+      {
+        "id": "item-9db23f5c-24c4-40e1-a32d-db26fa4bc36e",
+        "text": "About this catalog",
+        "nativeAction": "click",
+        "ref": "e6"
+      }
+    ],
+    "clickObligationsBeforeAdmission": [
+      {
+        "id": "item-aada2056-83e7-48a6-9d62-d18ebf85412b",
+        "text": "Apply sort",
+        "ref": "e4",
+        "hitRelations": {
+          "self": 5
+        }
+      },
+      {
+        "id": "item-4db05551-3b79-40c5-98bb-195f1bd301a5",
+        "text": "Filters",
+        "ref": "e5",
+        "hitRelations": {
+          "self": 5
+        }
+      },
+      {
+        "id": "item-9db23f5c-24c4-40e1-a32d-db26fa4bc36e",
+        "text": "About this catalog",
+        "ref": "e6",
+        "hitRelations": {
+          "self": 5
+        }
+      }
+    ],
+    "fillObligationsOutsideContract": [
+      "item-8c6b372b-d0c9-4020-9567-f5f8178630e5"
+    ],
+    "completedNotReopened": [],
+    "unselected": [],
+    "selectedUnfinishedNotCandidate": [],
+    "missing": [
+      "live-binding-authorization",
+      "action-preconditions",
+      "action-time-bound",
+      "action-usd-bound"
+    ],
+    "inspectionCoverage": "No new bounded read objective or expected information delta supplied. Existing reads do not justify generic inspect as fill replacement.",
+    "diagnosticOnly": true
+  },
+  {
+    "id": "S04",
+    "currentCandidates": 4,
+    "pendingSelected": [
+      {
+        "id": "item-aada2056-83e7-48a6-9d62-d18ebf85412b",
+        "text": "Apply sort",
+        "nativeAction": "click",
+        "ref": "e16"
+      },
+      {
+        "id": "item-4db05551-3b79-40c5-98bb-195f1bd301a5",
+        "text": "Filters",
+        "nativeAction": "click",
+        "ref": "e17"
+      },
+      {
+        "id": "item-9db23f5c-24c4-40e1-a32d-db26fa4bc36e",
+        "text": "About this catalog",
+        "nativeAction": "click",
+        "ref": "e18"
+      }
+    ],
+    "clickObligationsBeforeAdmission": [
+      {
+        "id": "item-aada2056-83e7-48a6-9d62-d18ebf85412b",
+        "text": "Apply sort",
+        "ref": "e16",
+        "hitRelations": {
+          "self": 5
+        }
+      },
+      {
+        "id": "item-4db05551-3b79-40c5-98bb-195f1bd301a5",
+        "text": "Filters",
+        "ref": "e17",
+        "hitRelations": {
+          "self": 5
+        }
+      },
+      {
+        "id": "item-9db23f5c-24c4-40e1-a32d-db26fa4bc36e",
+        "text": "About this catalog",
+        "ref": "e18",
+        "hitRelations": {
+          "self": 5
+        }
+      }
+    ],
+    "fillObligationsOutsideContract": [],
+    "completedNotReopened": [
+      "item-8c6b372b-d0c9-4020-9567-f5f8178630e5"
+    ],
+    "unselected": [],
+    "selectedUnfinishedNotCandidate": [],
+    "missing": [
+      "live-binding-authorization",
+      "action-preconditions",
+      "action-time-bound",
+      "action-usd-bound"
+    ],
+    "inspectionCoverage": "No new bounded read objective or expected information delta supplied. Existing reads do not justify generic inspect as fill replacement.",
+    "diagnosticOnly": true
+  },
+  {
+    "id": "S05",
+    "currentCandidates": 4,
+    "pendingSelected": [
+      {
+        "id": "item-aada2056-83e7-48a6-9d62-d18ebf85412b",
+        "text": "Apply sort",
+        "nativeAction": "click",
+        "ref": "e28"
+      },
+      {
+        "id": "item-4db05551-3b79-40c5-98bb-195f1bd301a5",
+        "text": "Filters",
+        "nativeAction": "click",
+        "ref": "e29"
+      },
+      {
+        "id": "item-9db23f5c-24c4-40e1-a32d-db26fa4bc36e",
+        "text": "About this catalog",
+        "nativeAction": "click",
+        "ref": "e30"
+      }
+    ],
+    "clickObligationsBeforeAdmission": [
+      {
+        "id": "item-aada2056-83e7-48a6-9d62-d18ebf85412b",
+        "text": "Apply sort",
+        "ref": "e28",
+        "hitRelations": {
+          "self": 5
+        }
+      },
+      {
+        "id": "item-4db05551-3b79-40c5-98bb-195f1bd301a5",
+        "text": "Filters",
+        "ref": "e29",
+        "hitRelations": {
+          "self": 5
+        }
+      },
+      {
+        "id": "item-9db23f5c-24c4-40e1-a32d-db26fa4bc36e",
+        "text": "About this catalog",
+        "ref": "e30",
+        "hitRelations": {
+          "self": 5
+        }
+      }
+    ],
+    "fillObligationsOutsideContract": [],
+    "completedNotReopened": [],
+    "unselected": [
+      "item-33679a18-5847-42dd-b725-e685fc69a871"
+    ],
+    "selectedUnfinishedNotCandidate": [],
+    "missing": [
+      "live-binding-authorization",
+      "action-preconditions",
+      "action-time-bound",
+      "action-usd-bound"
+    ],
+    "inspectionCoverage": "No new bounded read objective or expected information delta supplied. Existing reads do not justify generic inspect as fill replacement.",
+    "diagnosticOnly": true
+  },
+  {
+    "id": "S06",
+    "currentCandidates": 4,
+    "pendingSelected": [
+      {
+        "id": "item-4db05551-3b79-40c5-98bb-195f1bd301a5",
+        "text": "Filters",
+        "nativeAction": "click",
+        "ref": "e41"
+      },
+      {
+        "id": "item-9db23f5c-24c4-40e1-a32d-db26fa4bc36e",
+        "text": "About this catalog",
+        "nativeAction": "click",
+        "ref": "e42"
+      }
+    ],
+    "clickObligationsBeforeAdmission": [
+      {
+        "id": "item-4db05551-3b79-40c5-98bb-195f1bd301a5",
+        "text": "Filters",
+        "ref": "e41",
+        "hitRelations": {
+          "self": 5
+        }
+      },
+      {
+        "id": "item-9db23f5c-24c4-40e1-a32d-db26fa4bc36e",
+        "text": "About this catalog",
+        "ref": "e42",
+        "hitRelations": {
+          "self": 5
+        }
+      }
+    ],
+    "fillObligationsOutsideContract": [],
+    "completedNotReopened": [
+      "item-aada2056-83e7-48a6-9d62-d18ebf85412b"
+    ],
+    "unselected": [
+      "item-33679a18-5847-42dd-b725-e685fc69a871"
+    ],
+    "selectedUnfinishedNotCandidate": [],
+    "missing": [
+      "live-binding-authorization",
+      "action-preconditions",
+      "action-time-bound",
+      "action-usd-bound"
+    ],
+    "inspectionCoverage": "No new bounded read objective or expected information delta supplied. Existing reads do not justify generic inspect as fill replacement.",
+    "diagnosticOnly": true
+  },
+  {
+    "id": "S07",
+    "currentCandidates": 4,
+    "pendingSelected": [
+      {
+        "id": "item-9245d6f9-1fdd-40da-8e16-affbcc6fa8af",
+        "text": "PriceName",
+        "nativeAction": "fill",
+        "ref": "e9"
+      },
+      {
+        "id": "item-e739fb19-aa7e-44cf-af1c-7de6a0fc9219",
+        "text": "Apply sort",
+        "nativeAction": "click",
+        "ref": "e10"
+      },
+      {
+        "id": "item-b366131a-776f-4b2d-92fb-d644194fcac4",
+        "text": "Filters",
+        "nativeAction": "click",
+        "ref": "e11"
+      }
+    ],
+    "clickObligationsBeforeAdmission": [
+      {
+        "id": "item-e739fb19-aa7e-44cf-af1c-7de6a0fc9219",
+        "text": "Apply sort",
+        "ref": "e10",
+        "hitRelations": {
+          "self": 5
+        }
+      },
+      {
+        "id": "item-b366131a-776f-4b2d-92fb-d644194fcac4",
+        "text": "Filters",
+        "ref": "e11",
+        "hitRelations": {
+          "unrelated": 5
+        }
+      }
+    ],
+    "fillObligationsOutsideContract": [
+      "item-9245d6f9-1fdd-40da-8e16-affbcc6fa8af"
+    ],
+    "completedNotReopened": [],
+    "unselected": [
+      "item-23f1219b-5af9-4b84-ad35-c54306a7931d"
+    ],
+    "selectedUnfinishedNotCandidate": [
+      {
+        "itemId": "item-b264cc1f-7f67-43e8-a021-fd097ec5a17c",
+        "category": "investigation",
+        "url": "http://127.0.0.1:58226/overlay?category=books",
+        "selected": true,
+        "status": "pending",
+        "reasonCode": null,
+        "pageId": "s1",
+        "stateId": "s1",
+        "observationVersion": "unobserved",
+        "documentVersion": "unobserved",
+        "evidenceRefs": []
+      },
+      {
+        "itemId": "item-b5b3efe3-3424-4560-8408-fe13f1dfb7cf",
+        "category": "automatic-check",
+        "url": "http://127.0.0.1:58226/overlay?category=books",
+        "selected": true,
+        "status": "failed",
+        "reasonCode": null,
+        "pageId": "s1",
+        "stateId": "s1",
+        "observationVersion": "unobserved",
+        "documentVersion": "unobserved",
+        "evidenceRefs": [
+          "c9ef221f-350f-4dfd-8962-d2692c542388.png",
+          "3b979a93-5970-4d71-b47c-73e023dfa31f.json"
+        ]
+      },
+      {
+        "itemId": "item-060faf7a-d1a5-4bfa-92b8-f2a84dd1c5e1",
+        "category": "automatic-check",
+        "url": "http://127.0.0.1:58226/overlay?category=books",
+        "selected": true,
+        "status": "failed",
+        "reasonCode": null,
+        "pageId": "s2",
+        "stateId": "s2",
+        "observationVersion": "unobserved",
+        "documentVersion": "unobserved",
+        "evidenceRefs": [
+          "d869356e-08fa-46ac-b664-9bd5103aedf0.png",
+          "569ead48-35cf-4b2d-b54d-76e72b931cb4.json"
+        ]
+      }
+    ],
+    "missing": [
+      "live-binding-authorization",
+      "action-preconditions",
+      "action-time-bound",
+      "action-usd-bound"
+    ],
+    "inspectionCoverage": "No new bounded read objective or expected information delta supplied. Existing reads do not justify generic inspect as fill replacement.",
+    "diagnosticOnly": true
+  },
+  {
+    "id": "S08",
+    "currentCandidates": 4,
+    "pendingSelected": [
+      {
+        "id": "item-9245d6f9-1fdd-40da-8e16-affbcc6fa8af",
+        "text": "PriceName",
+        "nativeAction": "fill",
+        "ref": "e9"
+      },
+      {
+        "id": "item-e739fb19-aa7e-44cf-af1c-7de6a0fc9219",
+        "text": "Apply sort",
+        "nativeAction": "click",
+        "ref": "e10"
+      },
+      {
+        "id": "item-b366131a-776f-4b2d-92fb-d644194fcac4",
+        "text": "Filters",
+        "nativeAction": "click",
+        "ref": "e11"
+      }
+    ],
+    "clickObligationsBeforeAdmission": [
+      {
+        "id": "item-e739fb19-aa7e-44cf-af1c-7de6a0fc9219",
+        "text": "Apply sort",
+        "ref": "e10",
+        "hitRelations": {
+          "self": 5
+        }
+      },
+      {
+        "id": "item-b366131a-776f-4b2d-92fb-d644194fcac4",
+        "text": "Filters",
+        "ref": "e11",
+        "hitRelations": {
+          "unrelated": 5
+        }
+      }
+    ],
+    "fillObligationsOutsideContract": [
+      "item-9245d6f9-1fdd-40da-8e16-affbcc6fa8af"
+    ],
+    "completedNotReopened": [],
+    "unselected": [
+      "item-23f1219b-5af9-4b84-ad35-c54306a7931d"
+    ],
+    "selectedUnfinishedNotCandidate": [
+      {
+        "itemId": "item-b264cc1f-7f67-43e8-a021-fd097ec5a17c",
+        "category": "investigation",
+        "url": "http://127.0.0.1:58226/overlay?category=books",
+        "selected": true,
+        "status": "pending",
+        "reasonCode": null,
+        "pageId": "s1",
+        "stateId": "s1",
+        "observationVersion": "unobserved",
+        "documentVersion": "unobserved",
+        "evidenceRefs": []
+      },
+      {
+        "itemId": "item-b5b3efe3-3424-4560-8408-fe13f1dfb7cf",
+        "category": "automatic-check",
+        "url": "http://127.0.0.1:58226/overlay?category=books",
+        "selected": true,
+        "status": "failed",
+        "reasonCode": null,
+        "pageId": "s1",
+        "stateId": "s1",
+        "observationVersion": "unobserved",
+        "documentVersion": "unobserved",
+        "evidenceRefs": [
+          "c9ef221f-350f-4dfd-8962-d2692c542388.png",
+          "3b979a93-5970-4d71-b47c-73e023dfa31f.json"
+        ]
+      },
+      {
+        "itemId": "item-060faf7a-d1a5-4bfa-92b8-f2a84dd1c5e1",
+        "category": "automatic-check",
+        "url": "http://127.0.0.1:58226/overlay?category=books",
+        "selected": true,
+        "status": "failed",
+        "reasonCode": null,
+        "pageId": "s2",
+        "stateId": "s2",
+        "observationVersion": "unobserved",
+        "documentVersion": "unobserved",
+        "evidenceRefs": [
+          "d869356e-08fa-46ac-b664-9bd5103aedf0.png",
+          "569ead48-35cf-4b2d-b54d-76e72b931cb4.json"
+        ]
+      }
+    ],
+    "missing": [
+      "live-binding-authorization",
+      "action-preconditions",
+      "action-time-bound",
+      "action-usd-bound"
+    ],
+    "inspectionCoverage": "No new bounded read objective or expected information delta supplied. Existing reads do not justify generic inspect as fill replacement.",
+    "diagnosticOnly": true
+  }
+]
