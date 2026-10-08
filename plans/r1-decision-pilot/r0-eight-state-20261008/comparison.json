@@ -1,0 +1,511 @@
+{
+  "evaluatedAt": "2026-10-08T07:16:59.749224+00:00",
+  "sourceEvaluationCommit": "b266089d8a46b0394e39220f66ac85260b4b19ef",
+  "baselineSha256": "e236a43edebf348e149a92af838e05f996c2b0c53babc192f2a6d42d1e0fba20",
+  "referenceSha256": "3a3d36a3bcce7a1825bf73885d5eee1d026f6d41931982e323610a182dc9f7f7",
+  "referenceStatus": "development-only; human review absent",
+  "denominatorDefinitions": {
+    "parsedStates": 8,
+    "cutoffSourceVerifiedStates": 8,
+    "currentCandidates": 30,
+    "selectedPendingClickObligationsBeforeAdmission": 18,
+    "strictProgramHandoffs": 8,
+    "programCandidateChoices": 0,
+    "programMultiEligibleStates": 0,
+    "historicalStatesWithExactClickMapping": 3,
+    "historicalTotalStates": 8,
+    "historicalTotalToolCalls": 9,
+    "historicalMappedToolCalls": 3,
+    "historicalUnmappedStates": 5,
+    "comparableRankingQualityPairs": 0,
+    "independentlyHumanReviewedStates": 0,
+    "newExecutedBrowserActions": 0,
+    "jevCalls": 0
+  },
+  "states": [
+    {
+      "id": "S01",
+      "cutoff": 53,
+      "remainingTimeLowerMs": 252130,
+      "historicalChoices": [
+        {
+          "kind": "candidate",
+          "candidateId": "item-b444fc13-a8b0-4732-960d-3862a13b13e9",
+          "action": "click",
+          "text": "Apply sort",
+          "ref": "e4",
+          "pointsToPendingSelectedObligation": true,
+          "executableAtCutoff": "unknown"
+        }
+      ],
+      "programChoice": {
+        "kind": "handoff",
+        "reason": "insufficient-information"
+      },
+      "eligibleCount": 0,
+      "jev": "not-run-no-eligible-comparison",
+      "pendingSelectedClickObligations": [
+        {
+          "id": "item-b444fc13-a8b0-4732-960d-3862a13b13e9",
+          "text": "Apply sort",
+          "ref": "e4",
+          "hitRelations": {
+            "self": 5
+          }
+        },
+        {
+          "id": "item-e5f96194-f86c-44c9-aa06-7be74e8e65dc",
+          "text": "About this catalog",
+          "ref": "e5",
+          "hitRelations": {
+            "self": 5
+          }
+        }
+      ],
+      "fillObligationsOutsideContract": [
+        "item-91e91ef0-5a18-40d9-ad9d-2caeebb6a1c3"
+      ],
+      "programMetrics": {
+        "admissionReferenceConsistent": true,
+        "proposesAdvancingCandidate": false,
+        "unjustifiedRepeatProposed": false,
+        "recognizesMissingPrerequisites": true,
+        "handoffConsistentWithDevelopmentReference": true
+      },
+      "historicalQualityMetrics": {
+        "advancesExecutableObligation": null,
+        "unjustifiedRepeat": null,
+        "recognizesMissingPrerequisites": null,
+        "correctHandoff": null
+      },
+      "comparisonVerdict": "insufficient-admission-facts; no ranking superiority inferred"
+    },
+    {
+      "id": "S02",
+      "cutoff": 124,
+      "remainingTimeLowerMs": 187021,
+      "historicalChoices": [
+        {
+          "kind": "candidate",
+          "candidateId": "item-e5f96194-f86c-44c9-aa06-7be74e8e65dc",
+          "action": "click",
+          "text": "About this catalog",
+          "ref": "e25",
+          "pointsToPendingSelectedObligation": true,
+          "executableAtCutoff": "unknown"
+        }
+      ],
+      "programChoice": {
+        "kind": "handoff",
+        "reason": "insufficient-information"
+      },
+      "eligibleCount": 0,
+      "jev": "not-run-no-eligible-comparison",
+      "pendingSelectedClickObligations": [
+        {
+          "id": "item-e5f96194-f86c-44c9-aa06-7be74e8e65dc",
+          "text": "About this catalog",
+          "ref": "e25",
+          "hitRelations": {
+            "self": 5
+          }
+        }
+      ],
+      "fillObligationsOutsideContract": [],
+      "programMetrics": {
+        "admissionReferenceConsistent": true,
+        "proposesAdvancingCandidate": false,
+        "unjustifiedRepeatProposed": false,
+        "recognizesMissingPrerequisites": true,
+        "handoffConsistentWithDevelopmentReference": true
+      },
+      "historicalQualityMetrics": {
+        "advancesExecutableObligation": null,
+        "unjustifiedRepeat": null,
+        "recognizesMissingPrerequisites": null,
+        "correctHandoff": null
+      },
+      "comparisonVerdict": "insufficient-admission-facts; no ranking superiority inferred"
+    },
+    {
+      "id": "S03",
+      "cutoff": 61,
+      "remainingTimeLowerMs": 238553,
+      "historicalChoices": [
+        {
+          "kind": "unmapped",
+          "reason": "fill-outside-click-inspect",
+          "rawTool": "page_act"
+        }
+      ],
+      "programChoice": {
+        "kind": "handoff",
+        "reason": "insufficient-information"
+      },
+      "eligibleCount": 0,
+      "jev": "not-run-no-eligible-comparison",
+      "pendingSelectedClickObligations": [
+        {
+          "id": "item-aada2056-83e7-48a6-9d62-d18ebf85412b",
+          "text": "Apply sort",
+          "ref": "e4",
+          "hitRelations": {
+            "self": 5
+          }
+        },
+        {
+          "id": "item-4db05551-3b79-40c5-98bb-195f1bd301a5",
+          "text": "Filters",
+          "ref": "e5",
+          "hitRelations": {
+            "self": 5
+          }
+        },
+        {
+          "id": "item-9db23f5c-24c4-40e1-a32d-db26fa4bc36e",
+          "text": "About this catalog",
+          "ref": "e6",
+          "hitRelations": {
+            "self": 5
+          }
+        }
+      ],
+      "fillObligationsOutsideContract": [
+        "item-8c6b372b-d0c9-4020-9567-f5f8178630e5"
+      ],
+      "programMetrics": {
+        "admissionReferenceConsistent": true,
+        "proposesAdvancingCandidate": false,
+        "unjustifiedRepeatProposed": false,
+        "recognizesMissingPrerequisites": true,
+        "handoffConsistentWithDevelopmentReference": true
+      },
+      "historicalQualityMetrics": {
+        "advancesExecutableObligation": null,
+        "unjustifiedRepeat": null,
+        "recognizesMissingPrerequisites": null,
+        "correctHandoff": null
+      },
+      "comparisonVerdict": "insufficient-admission-facts; no ranking superiority inferred"
+    },
+    {
+      "id": "S04",
+      "cutoff": 98,
+      "remainingTimeLowerMs": 206315,
+      "historicalChoices": [
+        {
+          "kind": "unmapped",
+          "reason": "page-or-selector-read-not-one-candidate-inspect",
+          "rawTool": "page_inspect"
+        }
+      ],
+      "programChoice": {
+        "kind": "handoff",
+        "reason": "insufficient-information"
+      },
+      "eligibleCount": 0,
+      "jev": "not-run-no-eligible-comparison",
+      "pendingSelectedClickObligations": [
+        {
+          "id": "item-aada2056-83e7-48a6-9d62-d18ebf85412b",
+          "text": "Apply sort",
+          "ref": "e16",
+          "hitRelations": {
+            "self": 5
+          }
+        },
+        {
+          "id": "item-4db05551-3b79-40c5-98bb-195f1bd301a5",
+          "text": "Filters",
+          "ref": "e17",
+          "hitRelations": {
+            "self": 5
+          }
+        },
+        {
+          "id": "item-9db23f5c-24c4-40e1-a32d-db26fa4bc36e",
+          "text": "About this catalog",
+          "ref": "e18",
+          "hitRelations": {
+            "self": 5
+          }
+        }
+      ],
+      "fillObligationsOutsideContract": [],
+      "programMetrics": {
+        "admissionReferenceConsistent": true,
+        "proposesAdvancingCandidate": false,
+        "unjustifiedRepeatProposed": false,
+        "recognizesMissingPrerequisites": true,
+        "handoffConsistentWithDevelopmentReference": true
+      },
+      "historicalQualityMetrics": {
+        "advancesExecutableObligation": null,
+        "unjustifiedRepeat": null,
+        "recognizesMissingPrerequisites": null,
+        "correctHandoff": null
+      },
+      "comparisonVerdict": "insufficient-admission-facts; no ranking superiority inferred"
+    },
+    {
+      "id": "S05",
+      "cutoff": 142,
+      "remainingTimeLowerMs": 114735,
+      "historicalChoices": [
+        {
+          "kind": "candidate",
+          "candidateId": "item-aada2056-83e7-48a6-9d62-d18ebf85412b",
+          "action": "click",
+          "text": "Apply sort",
+          "ref": "e28",
+          "pointsToPendingSelectedObligation": true,
+          "executableAtCutoff": "unknown"
+        }
+      ],
+      "programChoice": {
+        "kind": "handoff",
+        "reason": "insufficient-information"
+      },
+      "eligibleCount": 0,
+      "jev": "not-run-no-eligible-comparison",
+      "pendingSelectedClickObligations": [
+        {
+          "id": "item-aada2056-83e7-48a6-9d62-d18ebf85412b",
+          "text": "Apply sort",
+          "ref": "e28",
+          "hitRelations": {
+            "self": 5
+          }
+        },
+        {
+          "id": "item-4db05551-3b79-40c5-98bb-195f1bd301a5",
+          "text": "Filters",
+          "ref": "e29",
+          "hitRelations": {
+            "self": 5
+          }
+        },
+        {
+          "id": "item-9db23f5c-24c4-40e1-a32d-db26fa4bc36e",
+          "text": "About this catalog",
+          "ref": "e30",
+          "hitRelations": {
+            "self": 5
+          }
+        }
+      ],
+      "fillObligationsOutsideContract": [],
+      "programMetrics": {
+        "admissionReferenceConsistent": true,
+        "proposesAdvancingCandidate": false,
+        "unjustifiedRepeatProposed": false,
+        "recognizesMissingPrerequisites": true,
+        "handoffConsistentWithDevelopmentReference": true
+      },
+      "historicalQualityMetrics": {
+        "advancesExecutableObligation": null,
+        "unjustifiedRepeat": null,
+        "recognizesMissingPrerequisites": null,
+        "correctHandoff": null
+      },
+      "comparisonVerdict": "insufficient-admission-facts; no ranking superiority inferred"
+    },
+    {
+      "id": "S06",
+      "cutoff": 179,
+      "remainingTimeLowerMs": 88252,
+      "historicalChoices": [
+        {
+          "kind": "unmapped",
+          "reason": "page-or-selector-read-not-one-candidate-inspect",
+          "rawTool": "page_observe"
+        }
+      ],
+      "programChoice": {
+        "kind": "handoff",
+        "reason": "insufficient-information"
+      },
+      "eligibleCount": 0,
+      "jev": "not-run-no-eligible-comparison",
+      "pendingSelectedClickObligations": [
+        {
+          "id": "item-4db05551-3b79-40c5-98bb-195f1bd301a5",
+          "text": "Filters",
+          "ref": "e41",
+          "hitRelations": {
+            "self": 5
+          }
+        },
+        {
+          "id": "item-9db23f5c-24c4-40e1-a32d-db26fa4bc36e",
+          "text": "About this catalog",
+          "ref": "e42",
+          "hitRelations": {
+            "self": 5
+          }
+        }
+      ],
+      "fillObligationsOutsideContract": [],
+      "programMetrics": {
+        "admissionReferenceConsistent": true,
+        "proposesAdvancingCandidate": false,
+        "unjustifiedRepeatProposed": false,
+        "recognizesMissingPrerequisites": true,
+        "handoffConsistentWithDevelopmentReference": true
+      },
+      "historicalQualityMetrics": {
+        "advancesExecutableObligation": null,
+        "unjustifiedRepeat": null,
+        "recognizesMissingPrerequisites": null,
+        "correctHandoff": null
+      },
+      "comparisonVerdict": "insufficient-admission-facts; no ranking superiority inferred"
+    },
+    {
+      "id": "S07",
+      "cutoff": 78,
+      "remainingTimeLowerMs": 186808,
+      "historicalChoices": [
+        {
+          "kind": "unmapped",
+          "reason": "page-or-selector-read-not-one-candidate-inspect",
+          "rawTool": "page_inspect"
+        },
+        {
+          "kind": "unmapped",
+          "reason": "page-or-selector-read-not-one-candidate-inspect",
+          "rawTool": "page_inspect"
+        }
+      ],
+      "programChoice": {
+        "kind": "handoff",
+        "reason": "insufficient-information"
+      },
+      "eligibleCount": 0,
+      "jev": "not-run-no-eligible-comparison",
+      "pendingSelectedClickObligations": [
+        {
+          "id": "item-e739fb19-aa7e-44cf-af1c-7de6a0fc9219",
+          "text": "Apply sort",
+          "ref": "e10",
+          "hitRelations": {
+            "self": 5
+          }
+        },
+        {
+          "id": "item-b366131a-776f-4b2d-92fb-d644194fcac4",
+          "text": "Filters",
+          "ref": "e11",
+          "hitRelations": {
+            "unrelated": 5
+          }
+        }
+      ],
+      "fillObligationsOutsideContract": [
+        "item-9245d6f9-1fdd-40da-8e16-affbcc6fa8af"
+      ],
+      "programMetrics": {
+        "admissionReferenceConsistent": true,
+        "proposesAdvancingCandidate": false,
+        "unjustifiedRepeatProposed": false,
+        "recognizesMissingPrerequisites": true,
+        "handoffConsistentWithDevelopmentReference": true
+      },
+      "historicalQualityMetrics": {
+        "advancesExecutableObligation": null,
+        "unjustifiedRepeat": null,
+        "recognizesMissingPrerequisites": null,
+        "correctHandoff": null
+      },
+      "comparisonVerdict": "insufficient-admission-facts; no ranking superiority inferred"
+    },
+    {
+      "id": "S08",
+      "cutoff": 87,
+      "remainingTimeLowerMs": 88593,
+      "historicalChoices": [
+        {
+          "kind": "unmapped",
+          "reason": "batch-details-not-one-candidate-inspect",
+          "rawTool": "element_details"
+        }
+      ],
+      "programChoice": {
+        "kind": "handoff",
+        "reason": "insufficient-information"
+      },
+      "eligibleCount": 0,
+      "jev": "not-run-no-eligible-comparison",
+      "pendingSelectedClickObligations": [
+        {
+          "id": "item-e739fb19-aa7e-44cf-af1c-7de6a0fc9219",
+          "text": "Apply sort",
+          "ref": "e10",
+          "hitRelations": {
+            "self": 5
+          }
+        },
+        {
+          "id": "item-b366131a-776f-4b2d-92fb-d644194fcac4",
+          "text": "Filters",
+          "ref": "e11",
+          "hitRelations": {
+            "unrelated": 5
+          }
+        }
+      ],
+      "fillObligationsOutsideContract": [
+        "item-9245d6f9-1fdd-40da-8e16-affbcc6fa8af"
+      ],
+      "programMetrics": {
+        "admissionReferenceConsistent": true,
+        "proposesAdvancingCandidate": false,
+        "unjustifiedRepeatProposed": false,
+        "recognizesMissingPrerequisites": true,
+        "handoffConsistentWithDevelopmentReference": true
+      },
+      "historicalQualityMetrics": {
+        "advancesExecutableObligation": null,
+        "unjustifiedRepeat": null,
+        "recognizesMissingPrerequisites": null,
+        "correctHandoff": null
+      },
+      "comparisonVerdict": "insufficient-admission-facts; no ranking superiority inferred"
+    }
+  ],
+  "decision": "Do not prepare Jev requests. Program sufficiency is unproven: missing action admission facts collapse the baseline to handoff. Do not label all handoffs as task success.",
+  "sourceFiles": [
+    {
+      "path": "evaluation-only/S01.json",
+      "sha256": "47927aba334c843a3e0ed4093e298f40b759a2427ea897de25876a5456753d48"
+    },
+    {
+      "path": "evaluation-only/S02.json",
+      "sha256": "e655ef3234419b98a0e128970ca871537e3c34ee0232177cd6ca1c722029e488"
+    },
+    {
+      "path": "evaluation-only/S03.json",
+      "sha256": "b77e39b160a5f644d15a9bba4ec43b4c66eb072ac52af9a627292c53e087e26f"
+    },
+    {
+      "path": "evaluation-only/S04.json",
+      "sha256": "f3ae5e32ccba0cff4ba3b63a4126dff45ab8a3d9d434a3b7631d5e51c233dc68"
+    },
+    {
+      "path": "evaluation-only/S05.json",
+      "sha256": "fdb724d3f7e53c52b8672dba367474e4ef74f5620fe82115d1b1b49a4b4b1a13"
+    },
+    {
+      "path": "evaluation-only/S06.json",
+      "sha256": "5cac099417ce0ff1fc53c2bf8bc2fd8453c6a5f38b6bc97d8a2bf9bca06dbfe9"
+    },
+    {
+      "path": "evaluation-only/S07.json",
+      "sha256": "65a9ee9e250a8d671d1b14d99a25f471f340bb4c020d8eca3fb35aeb68219e2b"
+    },
+    {
+      "path": "evaluation-only/S08.json",
+      "sha256": "44084d548c48a4987f7432cf6ab463a7ae968d45b24228feacdb3d7a5ed77216"
+    }
+  ]
+}

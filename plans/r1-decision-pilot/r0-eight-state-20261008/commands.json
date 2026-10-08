@@ -1,0 +1,51 @@
+{
+  "mode": "offline material processing only; no tests, browser, model or production execution",
+  "versions": {
+    "python": "Python 3.9.6",
+    "nodeUsed": "v24.21.0",
+    "pnpmUsed": "10.17.1"
+  },
+  "sourceRootMapping": {
+    "/Users/xietian/Documents/ChatGPT/ui-sentinel": "R0 source checkout",
+    "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007": "R1 analysis checkout"
+  },
+  "sequence": [
+    {
+      "command": "python3 plans/r1-decision-pilot/r0-eight-state-20261008/receive.py <R0 source checkout>",
+      "exitCode": 1,
+      "detail": "initial helper used zip(strict=True), unavailable on Python3.9; no output material written"
+    },
+    {
+      "command": "python3 plans/r1-decision-pilot/r0-eight-state-20261008/receive.py <R0 source checkout>",
+      "exitCode": 0,
+      "output": "source-receipt.json",
+      "detail": "8 source/cutoff audits passed after runtime-compatible equal-length assertion"
+    },
+    {
+      "command": "pnpm exec tsx plans/r1-decision-pilot/r0-eight-state-20261008/freeze-reference.ts",
+      "exitCode": 0,
+      "output": "freeze.json",
+      "historicalEvaluationOpened": false
+    },
+    {
+      "command": "pnpm exec tsx scripts/r1-decision-pilot/cli.ts --input plans/r1-decision-pilot/r0-eight-state-20261008/mapped-public.json --labels plans/r1-decision-pilot/r0-eight-state-20261008/reference.frozen.json --output plans/r1-decision-pilot/r0-eight-state-20261008/baseline",
+      "exitCode": 0,
+      "sourceSha": "9effaf94d851277263e946a0adb929233e258973",
+      "output": "baseline/"
+    },
+    {
+      "command": "python3 plans/r1-decision-pilot/r0-eight-state-20261008/compare-history.py <R0 source checkout>",
+      "exitCode": 0,
+      "output": "comparison.json",
+      "historicalEvaluationOpenedAfterBaselineFreeze": true
+    }
+  ],
+  "stdoutCapture": "tool transcript; commands and generated JSON preserved, no separate raw stdout logs",
+  "finalMaterialIntegrity": {
+    "at": "2026-10-08T07:20:56.320867+00:00",
+    "sourceFilesPassed": 19,
+    "baselineManifestLeavesPassed": 5,
+    "referenceUnchanged": true,
+    "baselineUnchanged": true
+  }
+}
