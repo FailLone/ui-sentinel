@@ -3,9 +3,10 @@ import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { afterAll, afterEach, beforeAll, beforeEach, expect, it } from 'vitest'
 import { createServer } from 'node:http'
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { copyFile, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { createHash } from 'node:crypto'
-import { launchBrowser, type BrowserWorker } from '../execution/browser.ts'
+import { launchBrowser, observePage, type BrowserWorker } from '../execution/browser.ts'
+import { readImagePaintFacts } from '../execution/image-paint.ts'
 import { createEvidenceIntegrity } from '../execution/evidence-integrity.ts'
 import { installUiNetworkSession } from '../execution/network/session.ts'
 import { createNetworkPolicy } from '../inspection/network-policy.ts'
@@ -111,6 +112,191 @@ async function artifactPath(ref: string) {
   })
   return String(rows.rows[0]!.file_path)
 }
+
+const editors =
+  '<input id="input" style="color:blue" value="Synthetic input">' +
+  '<textarea id="textarea" style="color:green">Synthetic text</textarea>' +
+  '<div id="editable" contenteditable="true" style="color:red">Synthetic editor</div>'
+type MutationReceipt = {
+  type: string
+  target: string
+  attribute: string | null
+  oldValue: string | null
+  value: string | null
+}
+async function watchCaretMutations() {
+  await worker.page.evaluate(() => {
+    const host = window as typeof window & { caretRecords?: MutationReceipt[] }
+    host.caretRecords = []
+    new MutationObserver((records) => {
+      for (const record of records)
+        host.caretRecords!.push({
+          type: record.type,
+          target: (record.target as Element).id || record.target.nodeName,
+          attribute: record.attributeName,
+          oldValue: record.oldValue,
+          value:
+            record.target instanceof Element && record.attributeName
+              ? record.target.getAttribute(record.attributeName)
+              : null,
+        })
+    }).observe(document, {
+      subtree: true,
+      attributes: true,
+      attributeOldValue: true,
+      childList: true,
+      characterData: true,
+    })
+  })
+}
+async function caretRecords() {
+  return worker.page.evaluate(
+    () => (window as typeof window & { caretRecords: MutationReceipt[] }).caretRecords,
+  )
+}
+// Optional local handoff receipts; the normal test still removes its temporary artifacts.
+async function retainCaretEvidence(name: string, details: unknown) {
+  if (!process.env.IMAGE_CARET_EVIDENCE_DIR) return
+  const directory = resolve(process.env.IMAGE_CARET_EVIDENCE_DIR, name)
+  await mkdir(directory, { recursive: true })
+  const rows = await getDbClient().execute({
+    sql: 'SELECT id,type,file_path FROM artifacts WHERE run_id=?',
+    args: [runId],
+  })
+  const artifacts = await Promise.all(
+    rows.rows.map(async (row) => {
+      const path = join(directory, String(row.id))
+      const bytes = await readFile(String(row.file_path))
+      await copyFile(String(row.file_path), path)
+      return {
+        id: row.id,
+        type: row.type,
+        path,
+        bytes: bytes.length,
+        sha256: createHash('sha256').update(bytes).digest('hex'),
+      }
+    }),
+  )
+  await writeFile(
+    join(directory, 'receipt.json'),
+    JSON.stringify({ runId, details, artifacts, events: await getEvents(runId) }, null, 2),
+  )
+}
+
+it.each(['default', 'initial'] as const)('caret screenshot control: %s', async (caret) => {
+  html = image().replace('height:60px', 'height:120px') + editors
+  await worker.page.goto(origin + '/page')
+  await worker.page.locator('img').evaluate((img: HTMLImageElement) => img.decode())
+  const before = (await readImagePaintFacts(worker.page, ['#mark']))[0]!
+  await watchCaretMutations()
+  const observed = await observePage(
+    worker.page,
+    runId,
+    undefined,
+    ['#mark'],
+    caret === 'initial' ? { caret } : undefined,
+  )
+  const after = (await readImagePaintFacts(worker.page, ['#mark']))[0]!
+  const records = await caretRecords()
+  const { mutationEpoch: beforeEpoch, ...beforeTarget } = before
+  const { mutationEpoch: afterEpoch, ...afterTarget } = after
+  expect(afterTarget).toEqual(beforeTarget)
+  if (caret === 'default') {
+    expect(afterEpoch).toBeGreaterThan(beforeEpoch!)
+    expect(records).toHaveLength(6)
+    expect([...new Set(records.map((r) => r.target))].sort()).toEqual([
+      'editable',
+      'input',
+      'textarea',
+    ])
+    expect(records.every((r) => r.type === 'attributes' && r.attribute === 'style')).toBe(true)
+    expect(records.some((r) => r.oldValue?.includes('caret-color: transparent'))).toBe(true)
+  } else {
+    expect(afterEpoch).toBe(beforeEpoch)
+    expect(records).toEqual([])
+  }
+  expect(observed.snapshot.imagePaint![0]!.stable).toBe(caret === 'initial')
+  expect(imageRequests).toBe(1)
+  await retainCaretEvidence(`control-${caret}`, { before, after, records, observed })
+})
+
+it('caret-safe experiment preserves static binding and screenshot/source evidence', async () => {
+  html = image().replace('height:60px', 'height:120px') + editors
+  await worker.page.goto(origin + '/page')
+  await watchCaretMutations()
+  const batch = await experiment.observe()
+  const candidate = batch.candidates[0]!
+  expect(candidate.status).toBe('facts-ready')
+  expect(candidate.pending.basis.confirmedBy).toBeNull()
+  const result = await experiment.check(review(candidate))
+  // The only semantic obligation here is the existing synthetic fixture's authored contract.
+  expect(result.verdict, result.actual).toBe('pass')
+  expect(await caretRecords()).toEqual([])
+  const after = (await readImagePaintFacts(worker.page, ['#mark']))[0]!
+  expect(after.nodeId).toBe(candidate.measured.paint!.nodeId)
+  expect(after.mutationEpoch).toBe(candidate.measured.paint!.mutationEpoch)
+  const { buildReport } = await import('../server/reports/run-report.ts')
+  const report = (await buildReport(runId))!
+  expect(
+    result.evidenceRefs.every((ref) => report.artifacts.some((a) => a.id === ref && a.available)),
+  ).toBe(true)
+  for (const artifact of report.artifacts.filter((a) => result.evidenceRefs.includes(a.id))) {
+    const bytes = await readFile(await artifactPath(artifact.id))
+    if (artifact.type === 'screenshot')
+      expect(bytes.subarray(0, 8)).toEqual(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))
+    if (artifact.type === 'image-resource') {
+      const resource = JSON.parse(bytes.toString())
+      expect(Buffer.from(resource.bytes, 'base64')).toEqual(imagePng)
+      expect(resource.sha256).toBe(createHash('sha256').update(imagePng).digest('hex'))
+    }
+  }
+  expect(report.artifacts.filter((a) => a.type === 'screenshot')).toHaveLength(2)
+  expect(report.artifacts.filter((a) => a.type === 'image-resource')).toHaveLength(2)
+  expect(imageRequests).toBe(1)
+  expect(imageShapeDistortionRule.enabled).toBe(false)
+  await retainCaretEvidence('static-binding', {
+    batch,
+    result,
+    after,
+    records: await caretRecords(),
+  })
+})
+
+it.each(['target', 'unrelated'] as const)(
+  'caret-safe binding still rejects real %s DOM changes',
+  async (kind) => {
+    html = image().replace('height:60px', 'height:120px') + editors
+    const candidate = (await discover()).candidates[0]!
+    expect(candidate.status).toBe('facts-ready')
+    await watchCaretMutations()
+    if (kind === 'target')
+      await worker.page.locator('#mark').evaluate((img: HTMLImageElement) => {
+        img.style.width = '260px'
+      })
+    else
+      await worker.page.locator('#editable').evaluate((el) => {
+        el.setAttribute('title', 'Synthetic unrelated page update')
+      })
+    const result = await experiment.check(review(candidate))
+    expect(result.verdict).toBe('unknown')
+    expect(result.actual).toContain('observation-facts-changed')
+    const after = (await readImagePaintFacts(worker.page, ['#mark']))[0]!
+    expect(after.nodeId).toBe(candidate.measured.paint!.nodeId)
+    expect(after.mutationEpoch).toBeGreaterThan(candidate.measured.paint!.mutationEpoch!)
+    expect(after.contentWidth).toBe(
+      kind === 'target' ? 260 : candidate.measured.paint!.contentWidth,
+    )
+    const records = await caretRecords()
+    expect(records).toHaveLength(1)
+    expect(records[0]).toMatchObject({
+      target: kind === 'target' ? 'mark' : 'editable',
+      attribute: kind === 'target' ? 'style' : 'title',
+    })
+    expect(imageRequests).toBe(1)
+    expect(await getFindings(runId)).toHaveLength(0)
+    await retainCaretEvidence(`changed-${kind}`, { candidate, after, records, result })
+  },
+)
 
 it('collects exact facts for distinct same-name images without inventing intent or fetching again', async () => {
   html =

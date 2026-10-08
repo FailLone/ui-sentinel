@@ -209,9 +209,14 @@ export function createImageBindingExperiment(options: {
           }),
         ),
       )
-      const observation = await observePage(page, runId, metadata, [
-        ...new Set(descriptors.map((d) => d.selector)),
-      ])
+      // Default caret hiding writes editor styles and would invalidate our own DOM epoch.
+      const observation = await observePage(
+        page,
+        runId,
+        metadata,
+        [...new Set(descriptors.map((d) => d.selector))],
+        { caret: 'initial' },
+      )
       const observedAt = new Date(now()).toISOString()
       const expiresAt = new Date(now() + MAX_AGE_MS).toISOString()
       const candidates = await Promise.all(
@@ -363,7 +368,7 @@ export function createImageBindingExperiment(options: {
         const { selector } = candidate.measured.contractFields
         if (!(await isSameTarget(entry.handle, selector))) reasons.push('target-lost-or-ambiguous')
         else {
-          live = await observePage(page, runId, metadata, [selector])
+          live = await observePage(page, runId, metadata, [selector], { caret: 'initial' })
           const current = onlyFact(live, selector),
             previous = candidate.measured.paint!
           reasons.push(...factIssues(current))

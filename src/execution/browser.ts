@@ -171,6 +171,7 @@ export async function observePage(
   runId: string,
   evidenceMetadata: () => { evidenceIntegrity?: EvidenceIntegrity } = () => ({}),
   imageSelectors: readonly string[] = [],
+  screenshotOptions: { readonly caret?: 'hide' | 'initial' } = {},
 ) {
   const imageBefore = imageSelectors.length
     ? await readImagePaintFacts(page, imageSelectors)
@@ -178,7 +179,9 @@ export async function observePage(
   const screenshotPath = await saveEvidence(
     runId,
     'screenshot',
-    await profileOperation('screenshot', () => page.screenshot({ fullPage: false, scale: 'css' })),
+    await profileOperation('screenshot', () =>
+      page.screenshot({ fullPage: false, scale: 'css', caret: screenshotOptions.caret }),
+    ),
     {
       url: page.url(),
       viewport: page.viewportSize(),
