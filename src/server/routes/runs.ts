@@ -11,7 +11,7 @@ import { startRunExecution, cancelRunExecution } from '../../execution/executor.
 import { getDbClient } from '../../storage/database.ts'
 import { listPublicProfiles } from '../../business/registry.ts'
 import { selectBusinessContract, selectionError } from '../../business/selection.ts'
-import { resolveUiScanContract } from '../../inspection/contract.ts'
+import { resolveUiScanContract, uiScanRequestSchema } from '../../inspection/contract.ts'
 import { classifyHost } from '../../inspection/url.ts'
 import type { Context } from 'hono'
 
@@ -59,6 +59,7 @@ const inputSchema = z
 const uiScanBodySchema = z
   .object({
     kind: z.literal('ui-scan'),
+    requiredChecks: uiScanRequestSchema.shape.requiredChecks,
     entryUrl: z.string().min(1).max(4096),
     goal: z.string().trim().max(2000).optional(),
     scope: z

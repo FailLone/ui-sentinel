@@ -99,6 +99,29 @@ function inspectHistory(
     if (item.eventIds.some((id) => !history.some((event) => event.id === id)))
       issues.push(`inspection-event-unavailable:${item.itemId}`)
   }
+  for (const requirement of run.spec.uiContract?.requiredChecks ?? []) {
+    const mandatory = snapshot.items.filter(
+      (i) => i.basis === `public-required:${requirement.id}: ${requirement.description}`,
+    )
+    if (mandatory.length !== 1 || !mandatory[0]!.selected)
+      issues.push(`required-registration-missing:${requirement.id}`)
+    const item = mandatory[0]
+    if (!item || !['verified', 'failed'].includes(item.status)) continue
+    const bindings = history.filter(
+      (e) =>
+        e.type === 'scope:required-bound' &&
+        e.payload.requiredItemId === item.itemId &&
+        e.payload.requiredId === requirement.id,
+    )
+    const bound = snapshot.items.find((i) => i.itemId === bindings.at(-1)?.payload.itemId)
+    if (
+      !bound ||
+      !bound.selected ||
+      bound.status !== item.status ||
+      proofDigest(bound.evidenceRefs) !== proofDigest(item.evidenceRefs)
+    )
+      issues.push(`required-measurement-mismatch:${requirement.id}`)
+  }
   if (proof.claim === 'scope-covered') {
     if (
       !snapshot.items.some(

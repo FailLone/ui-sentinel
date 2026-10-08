@@ -34,6 +34,7 @@ export interface UiScanReport {
     readonly origin: string
     readonly goal: string
     readonly goalSource: 'user' | 'default'
+    readonly requiredChecks?: UiContractSnapshot['requiredChecks']
     readonly session: 'anonymous'
     readonly scope: { readonly maxPages: number; readonly maxDepth: number }
     readonly access: {
@@ -139,6 +140,7 @@ export function uiScanSummary(
       origin: contract.origin,
       goal: contract.goal,
       goalSource: contract.goalSource,
+      ...(contract.requiredChecks === undefined ? {} : { requiredChecks: contract.requiredChecks }),
       session: contract.session,
       scope: contract.scope,
       access: contract.access,

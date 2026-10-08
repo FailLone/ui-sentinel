@@ -1,3 +1,5 @@
+import type { RequiredCheck } from '../inspection/contract.ts'
+import { canonical } from '../inspection/completion.ts'
 import {
   createInspectionScope,
   type CreateItemInput,
@@ -50,6 +52,7 @@ export interface InspectionHostOptions {
   readonly runId: string
   readonly entryUrl: string
   readonly goal: string
+  readonly requiredChecks?: readonly RequiredCheck[]
   /** The current snapshot id, so an item names the observation it belongs to. */
   readonly currentSnapshotId: () => string | undefined
   readonly currentUrl: () => string
@@ -74,6 +77,7 @@ export interface RecordObservationInput {
     continuedItemId?: string
     /** Public affordance key for sampling quota ONLY; never proves node/evidence identity. */
     samplingKey?: string
+    requiredCheckIds?: readonly string[]
   }[]
 }
 
@@ -90,6 +94,20 @@ export function createInspectionHost(options: InspectionHostOptions) {
     goal: options.goal,
     entryUrl: options.entryUrl,
   })
+  // Register before the first observation. Missing/ambiguous targets stay selected and pending.
+  const required = (options.requiredChecks ?? []).map((check) => ({
+    check,
+    itemId: scope.createItem({
+      category: 'investigation',
+      pageId: 'contract',
+      stateId: 'contract',
+      url: options.entryUrl,
+      observationVersion: 'contract',
+      basis: `public-required:${check.id}: ${check.description}`,
+      targetSource: 'executor',
+    }).itemId,
+    boundItemId: undefined as string | undefined,
+  }))
   let candidates: readonly CandidateItem[] = []
   /** Candidate refs from each observation, so an action's ref resolves against the snapshot it named. */
   const offeredBySnapshot = new Map<string, readonly CandidateItem[]>()
@@ -222,6 +240,31 @@ export function createInspectionHost(options: InspectionHostOptions) {
     })
     offeredBySnapshot.set(identity().pageId, candidates)
     await persist()
+    for (const candidate of candidates) {
+      for (const requirement of required) {
+        if (
+          !offered
+            .find((c) => c.ref === candidate.ref)
+            ?.requiredCheckIds?.includes(requirement.check.id)
+        )
+          continue
+        if (items().find((i) => i.itemId === requirement.itemId)?.status !== 'pending') continue
+        // A departed/replaced selected target cannot be erased or replaced by a new identity.
+        if (requirement.boundItemId && requirement.boundItemId !== candidate.itemId) continue
+        await selectItems([
+          { itemId: candidate.itemId, basis: `public-required:${requirement.check.id}` },
+        ])
+        requirement.boundItemId = candidate.itemId
+        await options.appendEvent('scope:required-bound', {
+          requiredId: requirement.check.id,
+          requiredItemId: requirement.itemId,
+          itemId: candidate.itemId,
+          snapshotId: candidate.snapshotId,
+          ref: candidate.ref,
+          source: 'frozen-public-request',
+        })
+      }
+    }
     for (const candidate of candidates) {
       const item = items().find((item) => item.itemId === candidate.itemId)!
       if (!recordedBindings.has(item.itemId)) {
@@ -393,6 +436,7 @@ export function createInspectionHost(options: InspectionHostOptions) {
         // on is only known afterwards, so it is written at resolution.
         ...(input.category === 'navigation' ? { url: input.url } : {}),
       })
+      await settleRequired(matched.itemId)
       await persist()
       return items().find((i) => i.itemId === matched.itemId)
     }
@@ -407,6 +451,24 @@ export function createInspectionHost(options: InspectionHostOptions) {
       category: input.category,
       samplingKey: matched ? samplingKeys.get(matched.itemId) : undefined,
     })
+  }
+
+  async function settleRequired(boundItemId: string) {
+    const measured = items().find((i) => i.itemId === boundItemId)
+    if (!measured || measured.status === 'pending' || measured.status === 'excluded') return
+    for (const requirement of required) {
+      if (requirement.boundItemId !== boundItemId) continue
+      const current = items().find((i) => i.itemId === requirement.itemId)!
+      if (!['pending', 'unverified'].includes(current.status)) continue
+      scope.resolveItem(requirement.itemId, {
+        status: measured.status,
+        reasonCode: measured.reasonCode ?? undefined,
+        evidenceRefs: measured.evidenceRefs,
+        eventIds: measured.eventIds,
+        detail: `public-required:${requirement.check.id}; measured item ${boundItemId}: ${measured.detail}`,
+      })
+    }
+    await persist()
   }
 
   async function recordNavigation(input: {
@@ -594,10 +656,62 @@ export function createInspectionHost(options: InspectionHostOptions) {
   return {
     /** The underlying ledger, for the completion decision and the report projection. */
     scope,
+    requiredRegistrationComplete: () =>
+      (options.requiredChecks ?? []).every((check) => {
+        const registered = items().filter(
+          (i) => i.basis === `public-required:${check.id}: ${check.description}`,
+        )
+        return (
+          registered.length === 1 &&
+          registered[0]!.selected &&
+          registered[0]!.targetSource === 'executor' &&
+          registered[0]!.status !== 'excluded'
+        )
+      }),
+    requiredChecks: () =>
+      required.map((r) => ({ ...r.check, itemId: r.itemId, boundItemId: r.boundItemId })),
+    requiredActionError: (
+      ref: string,
+      snapshotId: string,
+      action: { type: string; value?: string; verify?: unknown },
+    ) => {
+      const candidate = offeredBySnapshot.get(snapshotId)?.find((c) => c.ref === ref)
+      const checks = candidate ? required.filter((r) => r.boundItemId === candidate.itemId) : []
+      for (const { check } of checks) {
+        if (action.type === 'probe') continue // A genuine negative probe preserves the original failed check.
+        if (
+          action.type !== (check.action === 'link' ? 'click' : check.action) ||
+          action.value !== check.value ||
+          canonical(action.verify) !== canonical(check.verify)
+        )
+          return `Required check ${check.id} needs ${check.action} and its frozen value/postcondition; no action dispatched`
+      }
+      return undefined
+    },
+    isRequiredTarget: (
+      ref: string,
+      snapshotId: string,
+      category: 'local-interaction' | 'navigation',
+    ) => {
+      const candidate = offeredBySnapshot.get(snapshotId)?.find((c) => c.ref === ref)
+      const item = candidate && items().find((i) => i.itemId === candidate.itemId)
+      if (item?.selected) return true
+      // Original default sampling is mandatory, not an optional extension.
+      return scope
+        .completionGaps()
+        .some(
+          (g) =>
+            g.itemId.startsWith('obligation:') &&
+            g.category === category &&
+            (category === 'navigation' ||
+              g.itemId === `obligation:local-interaction:${options.currentUrl()}`),
+        )
+    },
     recordObservation,
     recordAutomaticCheck,
     recordInteraction,
     resolveInteraction,
+    settleRequired,
     recordNavigation,
     recordNavigationDenied,
     recordUnsupported,

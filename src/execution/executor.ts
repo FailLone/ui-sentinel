@@ -1,3 +1,4 @@
+import { admitOptionalScope } from './scope-admission.ts'
 import { actionInputValidationError } from './action-input.ts'
 import { publishInteractionFinding } from './interaction-finding.ts'
 import { measureUiProbe } from './ui-probe.ts'
@@ -303,6 +304,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         runId,
         entryUrl: uiScan.entryUrl,
         goal: uiScan.goal,
+        requiredChecks: uiScan.requiredChecks,
         currentSnapshotId: () => latestSlim?.snapshotId,
         currentUrl: () => latest?.snapshot.url ?? uiScan.entryUrl,
         currentObservationVersion: () => observationVersion?.key,
@@ -509,6 +511,39 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     if (usage.modelCalls >= budget.maxModelCalls) throw new Error('budget-exhausted')
     usage.modelCalls++
   }
+  let closeCoveredUiScope: () => Promise<boolean> = async () => false
+  let closing = false
+  const explicitScope = uiScan?.requiredChecks !== undefined
+  async function refuseOptionalScope(target: string) {
+    guard()
+    const remaining = {
+      actions: budget.maxActions - usage.actions,
+      modelCalls: budget.maxModelCalls - usage.modelCalls,
+      timeMs: Math.max(0, budget.totalTimeoutMs - (Date.now() - startedAt)),
+    }
+    // No trustworthy bound exists for an agent's new exploratory branch. Do not guess its cost.
+    const decision = admitOptionalScope({
+      remaining,
+      closingReserve: {
+        actions: 0,
+        modelCalls: 2,
+        timeMs: Math.min(60000, budget.totalTimeoutMs * 0.2),
+      },
+    })
+    await inspection!.recordUnsupported(`optional-not-checked:${target}`, decision.reason)
+    await appendEvent(runId, 'scope:admission-refused', {
+      target,
+      ...decision,
+      source: 'live-executor-budget',
+    })
+    return {
+      error: decision.reason,
+      status: 'denied',
+      dispatched: false,
+      notChecked: target,
+      remaining,
+    }
+  }
   let toolTail: Promise<unknown> = Promise.resolve()
   function serial<T>(tool: string, fn: () => Promise<T>, reviewedDecisionId?: string): Promise<T> {
     // Captured by AsyncLocalStorage from the originating generate attempt.
@@ -526,7 +561,11 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       } as T)
     const p = toolTail.then(async () => {
       guard()
+      if (uiScan && (closing || finished))
+        return { error: 'scope-closing', status: 'denied', dispatched: false } as T
       if (finished) throw new Error('run already finished')
+      if (tool !== 'run_finish' && (await closeCoveredUiScope()))
+        return { error: 'scope-closing', status: 'denied', dispatched: false } as T
       const denied = phaseTracker.authorizeTool(tool, taskState.hasOpenHypotheses())
       if (denied) return { error: denied, status: 'denied' } as T
       const toolCallId = randomUUID(),
@@ -1095,6 +1134,27 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         candidateBindings.set(candidate.ref, handle as import('playwright').ElementHandle<Element>)
       }
     }
+    const requiredIds = new Map<string, string[]>()
+    if (explicitScope && pageUrl === uiScan!.entryUrl) {
+      for (const check of uiScan!.requiredChecks!) {
+        const target = worker!.page.locator(check.selector)
+        if ((await target.count().catch(() => 0)) !== 1) continue
+        const actual = await target.elementHandle().catch(() => null)
+        if (!actual) continue
+        for (const candidate of offered) {
+          if ((candidate.category === 'navigation') !== (check.action === 'link')) continue
+          const binding = candidateBindings.get(candidate.ref)
+          if (
+            binding &&
+            (await binding
+              .evaluate((node, other) => node.isConnected && node === other, actual)
+              .catch(() => false))
+          )
+            requiredIds.set(candidate.ref, [...(requiredIds.get(candidate.ref) ?? []), check.id])
+        }
+        await actual.dispose()
+      }
+    }
     const categories = [...new Set(offered.map((o) => o.category))]
     await inspection.recordObservation({
       url: pageUrl,
@@ -1108,12 +1168,14 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       candidateItems: offered.map((candidate) => ({
         ...candidate,
         continuedItemId: continuedItems.get(candidate.ref),
+        requiredCheckIds: requiredIds.get(candidate.ref),
       })),
     })
   }
   try {
     guard()
     await updateRunStatus(runId, 'running')
+    await inspection?.flush()
     await appendEvent(runId, 'run:started', {
       goal: run.spec.goal,
       versions: executionVersions(),
@@ -2025,6 +2087,38 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           }
         }
       }
+      if (inspection && explicitScope) {
+        const requiredError = inspection.requiredActionError(actingRef, actionSnapshotPage, input)
+        if (requiredError)
+          return {
+            error: true,
+            message: requiredError,
+            validationErrors: { errors: [requiredError] },
+            dispatched: false,
+          }
+        const category =
+          resolvedLocator &&
+          (await resolvedLocator.evaluate((node) => node instanceof HTMLAnchorElement))
+            ? 'navigation'
+            : 'local-interaction'
+        const returningForRequired =
+          input.type === 'navigate' &&
+          input.url === uiScan!.entryUrl &&
+          inspection
+            .requiredChecks()
+            .some(
+              (r) =>
+                !r.boundItemId &&
+                inspection
+                  .snapshot()
+                  .items.some((i) => i.itemId === r.itemId && i.status === 'pending'),
+            )
+        if (
+          !returningForRequired &&
+          !inspection.isRequiredTarget(actingRef, actionSnapshotPage, category)
+        )
+          return refuseOptionalScope(input.url ?? actingRef ?? input.type)
+      }
       if (uiScan && resolvedLocator && input.type !== 'probe') {
         const refusal = await uiActionRefusal(resolvedLocator, input.type)
         if (refusal) {
@@ -2678,6 +2772,65 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
      * so a run cannot assemble a favourable case for its own completion. A refusal keeps its usable
      * partial suggestion: a run that may not claim coverage is not left with no way to end.
      */
+    async function uiCompletionDecision(reason: string) {
+      const facts = inspection!.completionFacts()
+      return decideInspectionCompletion({
+        reason: reason as Parameters<typeof decideInspectionCompletion>[0]['reason'],
+        facts: {
+          kind: 'ui-scan',
+          featureEnabled: !!config.features?.urlScan,
+          spec: run!.spec,
+          contractValid:
+            !!uiScan &&
+            verifyUiContractSnapshot(uiScan) &&
+            inspection!.requiredRegistrationComplete(),
+          contractHash: uiScan!.hash,
+          entryObserved: facts.entryObserved,
+          entryEvidenceRefs: facts.entryEvidenceRefs,
+          integrityEpoch: integrity.epoch(),
+          scope: inspection!.scope,
+          scopeEventIds: facts.scopeEventIds,
+          pendingRules: await pendingKnownRules(),
+          openHypotheses: taskState.hasOpenHypotheses() ? 1 : 0,
+          unsupportedRecorded: facts.unsupportedRecorded,
+          blockerEvidence: await uiBlockerEvidence(),
+        },
+      })
+    }
+    closeCoveredUiScope = async () => {
+      if (
+        !explicitScope ||
+        !inspection ||
+        finished ||
+        closing ||
+        activeAction ||
+        programActionItems ||
+        sideEffectPending ||
+        pendingWrites.size ||
+        mutationFailed ||
+        integrity.epoch() !== 0
+      )
+        return false
+      guard()
+      await networkBoundary?.flush?.()
+      await drainResponses()
+      guard()
+      if (integrity.epoch() !== 0) return false
+      const decision = await uiCompletionDecision('scope-covered')
+      if (!decision.accepted) return false
+      closing = true // Serialize the fence before seal/recheck; queued extensions never run.
+      await appendEvent(runId, 'scope:closing', {
+        reason: 'required-scope-covered',
+        source: 'same-completion-function',
+        notChecked: inspection
+          .snapshot()
+          .items.filter((i) => !i.selected && ['pending', 'unverified'].includes(i.status))
+          .map((i) => ({ itemId: i.itemId, basis: i.basis })),
+      })
+      const completion = await finishUiScan({ reason: 'scope-covered' })
+      if (!completion.accepted) throw Error('ui-finalization-facts-changed')
+      return true
+    }
     async function finishUiScan(parsed: { reason: string }) {
       guard()
       await networkBoundary?.flush?.()
@@ -2685,27 +2838,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       guard()
       if (sideEffectPending || pendingWrites.size || mutationFailed)
         throw new Error('reconciliation-required')
-      let facts = inspection!.completionFacts()
-      const decide = async () =>
-        decideInspectionCompletion({
-          reason: parsed.reason as Parameters<typeof decideInspectionCompletion>[0]['reason'],
-          facts: {
-            kind: 'ui-scan',
-            featureEnabled: !!config.features?.urlScan,
-            spec: run!.spec,
-            contractValid: !!uiScan && verifyUiContractSnapshot(uiScan),
-            contractHash: uiScan!.hash,
-            entryObserved: facts.entryObserved,
-            entryEvidenceRefs: facts.entryEvidenceRefs,
-            integrityEpoch: integrity.epoch(),
-            scope: inspection!.scope,
-            scopeEventIds: facts.scopeEventIds,
-            pendingRules: await pendingKnownRules(),
-            openHypotheses: taskState.hasOpenHypotheses() ? 1 : 0,
-            unsupportedRecorded: facts.unsupportedRecorded,
-            blockerEvidence: await uiBlockerEvidence(),
-          },
-        })
+      const decide = () => uiCompletionDecision(parsed.reason)
       let decision = await decide()
       if (!decision.accepted) {
         const reply = {
@@ -2724,9 +2857,9 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       await networkBoundary?.seal?.()
       await drainResponses()
       guard()
-      facts = inspection!.completionFacts()
       decision = await decide()
       if (!decision.accepted) throw Error('ui-finalization-facts-changed')
+      const facts = inspection!.completionFacts()
       // Preserve the exact persisted ledger used by the proof, including pending gaps.
       const transition = phaseTracker.enterFinalizing('agent-ready')
       if (transition.changed)
@@ -2833,6 +2966,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
             eventIds: [event.id],
             detail: `Original action ${check.actionId}; frozen expectation: ${check.input.basis}`,
           })
+          await inspection!.settleRequired(check.itemId)
           await inspection!.flush()
           if (measurement.outcome === 'failed')
             await publishInteractionFinding({
@@ -3650,6 +3784,27 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           serial('exploration_update', async () => {
             if (uiScan && inspection && input.recordGap && integrity.epoch() === 0)
               inspection.assertAgentGapReady(input.selectItems?.length ?? 0)
+            if (explicitScope && inspection) {
+              const defaultSlots = new Set<string>()
+              for (const entry of input.selectItems ?? []) {
+                const candidate = inspection.candidateItems().find((c) => c.itemId === entry.itemId)
+                const item = inspection.snapshot().items.find((i) => i.itemId === entry.itemId)
+                if (item?.selected) continue
+                if (!candidate || !['local-interaction', 'navigation'].includes(candidate.category))
+                  throw Error('selection-requires-current-observed-candidate')
+                if (
+                  !inspection.isRequiredTarget(
+                    candidate.ref,
+                    candidate.snapshotId,
+                    candidate.category as 'local-interaction' | 'navigation',
+                  )
+                )
+                  return refuseOptionalScope(entry.itemId)
+                const slot = `${candidate.category}:${candidate.category === 'local-interaction' ? item!.url : ''}`
+                if (defaultSlots.has(slot)) return refuseOptionalScope(entry.itemId)
+                defaultSlots.add(slot)
+              }
+            }
             notes.push(input)
             taskState.setBranches(input.unexploredBranches)
             await appendEvent(runId, 'exploration:state-reached', { state: input.state })
@@ -3753,6 +3908,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           break
         }
       }
+      if (await closeCoveredUiScope()) break
       if (uiScan && inspection && noToolStreak >= 3) {
         if (!uiRecoveryUsed) {
           uiRecoveryUsed = true
@@ -4009,6 +4165,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           ? {
               inspectionScope: {
                 candidates: inspection.candidateItems(),
+                requiredChecks: inspection.requiredChecks(),
                 recentChecks: [...uiActionChecks.keys()].slice(-6).map(uiActionReceipt),
                 counts: inspection.snapshot().counts,
                 outstanding: inspection.completionGaps().map((gap) => ({
@@ -4017,7 +4174,9 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
                   reason: gap.reason,
                 })),
                 unsupported: inspection.snapshot().unsupported.map((u) => u.dimension),
-                note: 'Select the targets this run will check with exploration_update.selectItems, using their itemId. Only you decide relevance; the executor decides whether a check is verified.',
+                note: explicitScope
+                  ? 'Public required checks are registered by the executor. Missing targets remain obligations. New optional checks require budget admission; measurements alone resolve items.'
+                  : 'Select the targets this run will check with exploration_update.selectItems, using their itemId. Only you decide relevance; the executor decides whether a check is verified.',
               },
             }
           : {}),
