@@ -77,3 +77,7 @@ pnpm exec vitest run src/execution/executor.test.ts -t 'synthetic image candidat
 ## 第二轮：自动生成绑定事实
 
 新增 [独立候选绑定实验](image-binding-experiment.md)，自动生成上述合同的机器字段，并在人工补充语义依据后进行快照失效校验再消费检查器。该入口不改变本页绘制能力、规则 revision 或默认关闭状态，也不等于交付自动语义识别/完整审批后台。
+
+## 后续采集器范围更新（2026-10-09）
+
+上表“DOM超过600节点”的说明保留为首轮实现记录；当前采集器已改用[共享有界完整几何遍历](image-visibility-bounded.md)。节点数量本身不直接否定600以上的简单文档，完整性超预算或复杂绘制仍未测。其他规则语义、来源附件缺口与默认关闭状态不变；旧公网结果没有复验或覆盖。
