@@ -105,8 +105,8 @@ it('keeps unknown reservations for unavailable or mismatched metadata and record
         reservedUsd: 0.5,
         priceSource: 'frozen',
       })
-      await ledger.markUnknown(requestId, 'cancelled')
     }
+    for (const requestId of ['a', 'b']) await ledger.markUnknown(requestId, 'cancelled')
     const request = {
       requestId: 'a',
       responseId: 'generation-a',
@@ -184,7 +184,7 @@ it('keeps unknown reservations for unavailable or mismatched metadata and record
         reservedUsd: 0.01,
         priceSource: 'frozen',
       }),
-    ).toMatchObject({ ok: false, reason: 'over-budget' })
+    ).toMatchObject({ ok: false, reason: 'cost-unknown' })
     expect(
       (await ledger.entries()).every((e) => e.status === 'unknown' && e.reservedUsd === 0.5),
     ).toBe(true)

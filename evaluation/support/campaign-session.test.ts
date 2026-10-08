@@ -46,9 +46,11 @@ it('C02/C04 holds a live lease and accumulates visual and business phases after 
   await first.close()
   const next = await openCampaignSession(directory, '2')
   try {
-    await next.ledger.reserve(reservation('business', 'business-formal'))
-    await next.ledger.settle('business', 0.4)
-    expect((await next.ledger.spending()).accountedUsd).toBeCloseTo(1)
+    expect(await next.ledger.reserve(reservation('business', 'business-formal'))).toMatchObject({
+      ok: false,
+      reason: 'cost-unknown',
+    })
+    expect((await next.ledger.spending()).accountedUsd).toBeCloseTo(0.6)
     await expect(openCampaignSession(directory, '5')).rejects.toThrow('campaign-limit-immutable')
   } finally {
     await next.close()
@@ -123,7 +125,7 @@ it('C02 accumulates one account across five separate stage processes', async () 
     'business-diagnostic',
     'business-formal',
   ]) {
-    const code = `import {openCampaignSession} from ${JSON.stringify(moduleUrl)}; const s=await openCampaignSession(${JSON.stringify(directory)},'2'); await s.ledger.reserve({requestId:${JSON.stringify(phase)},runId:'test-run',phase:${JSON.stringify(phase)},model:'fixed',provider:'fixed',reservedUsd:0.3,priceSource:'test'}); await s.ledger.markUnknown(${JSON.stringify(phase)},'test-unknown'); await s.close();`
+    const code = `import {openCampaignSession} from ${JSON.stringify(moduleUrl)}; const s=await openCampaignSession(${JSON.stringify(directory)},'2'); await s.ledger.reserve({requestId:${JSON.stringify(phase)},runId:'test-run',phase:${JSON.stringify(phase)},model:'fixed',provider:'fixed',reservedUsd:0.3,priceSource:'test'}); await s.ledger.settle(${JSON.stringify(phase)},0.3); await s.close();`
     await promisify(execFile)(process.execPath, [
       '--import',
       'tsx',
@@ -134,7 +136,7 @@ it('C02 accumulates one account across five separate stage processes', async () 
   }
   const final = await openCampaignSession(directory, '2')
   try {
-    expect((await final.ledger.spending()).unknownReservedUsd).toBeCloseTo(1.5)
+    expect((await final.ledger.spending()).knownCostUsd).toBeCloseTo(1.5)
     expect(await final.ledger.entries()).toHaveLength(5)
   } finally {
     await final.close()

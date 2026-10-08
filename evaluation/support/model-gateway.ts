@@ -30,7 +30,15 @@ export interface GatewayLedger {
     provider: string
     reservedUsd: number
     priceSource: string
+    stopEpoch?: number
   }): Promise<{ ok: boolean; reason?: string }>
+  stopState(): Promise<{ epoch: number; unknownCount: number }>
+  watchStop(expectedEpoch: number, listener: (reason: string) => void): () => void
+  dispatch(
+    requestId: string,
+    expectedEpoch: number,
+    begin: () => boolean,
+  ): Promise<{ ok: boolean; reason?: string }>
   settle(requestId: string, actualUsd: number): Promise<void>
   markUnknown(requestId: string, reason: string): Promise<void>
   release(requestId: string, reason: string): Promise<void>
@@ -56,6 +64,14 @@ export async function startGateway(
     requests: any[]
   } | null = null
   const controllers = new Set<AbortController>()
+  const initialStop = await spending?.ledger?.stopState()
+  const stopEpoch = initialStop?.epoch ?? 0
+  let stopped: string | null = initialStop?.unknownCount ? 'cost-unknown' : null
+  const stop = (reason: string) => {
+    stopped ??= reason
+    for (const controller of controllers) controller.abort(new Error(stopped))
+  }
+  const unwatch = spending?.ledger?.watchStop(stopEpoch, stop)
   let accountedUsd = 0
   let reservedUsd = 0
   let knownCostUsd = 0
@@ -73,6 +89,7 @@ export async function startGateway(
     if ((!decisions && req.url !== '/v1/chat/completions') || req.method !== 'POST')
       return reply(404, 'Only chat completions and decisions permitted')
     const run = active
+    if (stopped) return reply(429, `validation-${stopped}`)
     if (!run || run.requests.length >= run.limit || Date.now() >= run.deadline)
       return reply(429, 'validation-budget-exhausted')
     let body: any
@@ -83,6 +100,7 @@ export async function startGateway(
     } catch {
       return reply(400, 'invalid JSON')
     }
+    if (stopped) return reply(429, `validation-${stopped}`)
     if (active !== run || run.requests.length >= run.limit || Date.now() >= run.deadline)
       return reply(429, 'validation-budget-exhausted')
     if (!(decisions ? [REVIEW_MODEL] : [AGENT_MODEL, VISION_MODEL]).includes(body.model))
@@ -135,13 +153,20 @@ export async function startGateway(
           provider: (body.provider?.only?.[0] as string | undefined) ?? 'unknown',
           reservedUsd: reservation,
           priceSource: 'gateway-estimate',
+          stopEpoch,
         })
       } catch {
+        stop('ledger-unavailable')
         return reply(503, 'validation-ledger-unavailable')
       }
-      if (!reserved.ok) return reply(429, `validation-${reserved.reason ?? 'spending-limit'}`)
+      if (!reserved.ok) {
+        if (reserved.reason === 'cost-unknown' || reserved.reason === 'campaign-stopped')
+          stop(reserved.reason)
+        return reply(429, `validation-${reserved.reason ?? 'spending-limit'}`)
+      }
     }
     if (
+      stopped ||
       active !== run ||
       run.requests.length >= run.limit ||
       Date.now() >= run.deadline ||
@@ -231,18 +256,50 @@ export async function startGateway(
         `${directory}/requests.jsonl`,
         redact(JSON.stringify({ event: 'request', ...record, body })) + '\n',
       )
-      sent = true
-      const upstream = await upstreamFetch(
-        decisions
-          ? 'https://openrouter.ai/api/alpha/decisions'
-          : 'https://openrouter.ai/api/v1/chat/completions',
-        {
-          method: 'POST',
-          headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' },
-          body: JSON.stringify(body),
-          signal: controller.signal,
-        },
-      )
+      let upstreamPromise: Promise<Response> | undefined
+      const beginDispatch = () => {
+        if (
+          stopped ||
+          active !== run ||
+          Date.now() >= run.deadline ||
+          res.destroyed ||
+          controller.signal.aborted
+        )
+          return false
+        // Synchronous initiation under the ledger write lock is the dispatch linearization point.
+        sent = true
+        record.dispatchedAt = new Date().toISOString()
+        upstreamPromise = upstreamFetch(
+          decisions
+            ? 'https://openrouter.ai/api/alpha/decisions'
+            : 'https://openrouter.ai/api/v1/chat/completions',
+          {
+            method: 'POST',
+            headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' },
+            body: JSON.stringify(body),
+            signal: controller.signal,
+          },
+        )
+        // Dispatch persistence may await I/O before the response is awaited. Observe an immediate
+        // transport rejection now, while preserving the original promise for normal accounting.
+        void upstreamPromise.catch(() => {})
+        return true
+      }
+      const admission = spending?.ledger
+        ? await spending.ledger.dispatch(requestId, stopEpoch, beginDispatch).catch((error) => {
+            stop('ledger-unavailable')
+            throw error
+          })
+        : { ok: beginDispatch() }
+      if (!admission.ok) {
+        record.status = 'not-sent'
+        record.rejection = admission.reason ?? stopped ?? 'window-closed'
+        if (admission.reason === 'cost-unknown' || admission.reason === 'campaign-stopped')
+          stop(admission.reason)
+        reply(429, `validation-${record.rejection}`)
+        return
+      }
+      const upstream = await upstreamPromise!
       record.firstByteMs = Date.now() - start
       record.httpStatus = upstream.status
       const chunks: Uint8Array[] = []
@@ -290,6 +347,7 @@ export async function startGateway(
         accountedUsd += sent ? cost! : 0
         knownCostUsd += sent ? cost! : 0
       } else {
+        stop('cost-unknown')
         accountedUsd += reservation
         unknownReservedUsd += reservation
         unknownCosts++
@@ -303,6 +361,7 @@ export async function startGateway(
           else await spending.ledger.markUnknown(requestId, 'usage-unavailable')
         }
       } catch (error) {
+        stop('ledger-unavailable')
         record.accountingError = String(error)
         await spending?.ledger?.markUnknown(requestId, 'settlement-error').catch(() => {})
       }
@@ -331,6 +390,7 @@ export async function startGateway(
     url: `http://127.0.0.1:${(server.address() as any).port}/v1`,
     token,
     begin(id: string, limit = 30, durationMs = 300000) {
+      if (stopped) throw Error(`validation-${stopped}`)
       if (active) throw Error('Previous validation run still active')
       active = {
         id,
@@ -348,6 +408,7 @@ export async function startGateway(
       return result?.requests ?? []
     },
     async close() {
+      unwatch?.()
       active = null
       for (const c of controllers) c.abort()
       const until = Date.now() + 5000

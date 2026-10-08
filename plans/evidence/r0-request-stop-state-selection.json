@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "fixedAt": "2026-10-08T06:38:57.613021+00:00",
+  "beforeAnyNewJevOutput": true,
+  "newJevOutputs": 0,
+  "sourceBatch": "data/r0-08acc95-resume/candidate/data/r0-url-campaign/r0-ui-diagnostic-08acc95-default3-01",
+  "sourceCandidate": "08acc95d7f67a1ac3cbcf3d9decc9add2f2907eb",
+  "r1Contract": {
+    "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/src/agent/decisions/exploration/contracts.ts",
+    "sha256": "79e3dbb1bf971c4eed62b9733c6c20c41d6b0a2ee6f83e419325bb1dfe7ce189",
+    "commit": "979b08fce16797295629a4580efe6d18bfb51b59",
+    "schema": "r1-exploration-input-1"
+  },
+  "states": [
+    {
+      "stateId": "S01",
+      "runId": "run-1b87f757-d3b7-434f-a471-0c4e946482e1",
+      "eventCutoffSeq": 53,
+      "cutoffEventId": "evt-73a2c8c7-5d54-40d4-82ee-dbd41f0d430d",
+      "at": "2026-10-08T05:45:39.393Z",
+      "sourcePrefixSha256": "70f86add67668f74b4a175174e5aa506f4ceba89b774989c987f8ecef8a4606c",
+      "purpose": "normal progress after initial public detail reads"
+    },
+    {
+      "stateId": "S02",
+      "runId": "run-1b87f757-d3b7-434f-a471-0c4e946482e1",
+      "eventCutoffSeq": 124,
+      "cutoffEventId": "evt-5aa2af19-7488-43eb-8012-04d209ee5199",
+      "at": "2026-10-08T05:46:44.502Z",
+      "sourcePrefixSha256": "d73fd6d0a25c784f268e27e086f6dd0de9ef15250eda2d74cef0cdb0da3d30e0",
+      "purpose": "local checks measured; navigation remains"
+    },
+    {
+      "stateId": "S03",
+      "runId": "run-2f9f51f3-a7f7-4f22-8f4d-6325de29c0ad",
+      "eventCutoffSeq": 61,
+      "cutoffEventId": "evt-0666d6c1-336e-49f9-95b2-87b78a04c6f6",
+      "at": "2026-10-08T05:47:54.626Z",
+      "sourcePrefixSha256": "8a748441deeca44d7f66fc152421f43a70f4fb37771638dd2336dd12b98ac049",
+      "purpose": "information gathering before first act"
+    },
+    {
+      "stateId": "S04",
+      "runId": "run-2f9f51f3-a7f7-4f22-8f4d-6325de29c0ad",
+      "eventCutoffSeq": 98,
+      "cutoffEventId": "evt-e661627c-cb75-496d-9773-3d89994e7169",
+      "at": "2026-10-08T05:48:26.864Z",
+      "sourcePrefixSha256": "cd5e619c3b5d48f625c7e3e63962c9c11c993374ec2a36d48f2d9d0f2324b8a8",
+      "purpose": "one fill performed; repeated reads"
+    },
+    {
+      "stateId": "S05",
+      "runId": "run-2f9f51f3-a7f7-4f22-8f4d-6325de29c0ad",
+      "eventCutoffSeq": 142,
+      "cutoffEventId": "evt-7b0a05f4-3ae8-4493-9126-fd90c375f765",
+      "at": "2026-10-08T05:49:58.444Z",
+      "sourcePrefixSha256": "986cddd39521c1bd5a9e7065b0bc0452a3e0621e621bdba98837d466b1aff69c",
+      "purpose": "two fills same control; apply and filter/link remain"
+    },
+    {
+      "stateId": "S06",
+      "runId": "run-2f9f51f3-a7f7-4f22-8f4d-6325de29c0ad",
+      "eventCutoffSeq": 179,
+      "cutoffEventId": "evt-ebe1c69d-5cb5-47d5-a96e-b265553725ff",
+      "at": "2026-10-08T05:50:24.927Z",
+      "sourcePrefixSha256": "6d48910781d145b4f55147c601e1949838fcf4e523ba3a5e8a71c7b6b1ae3ad5",
+      "purpose": "apply measured; filter/navigation pending; limited time"
+    },
+    {
+      "stateId": "S07",
+      "runId": "run-b512ca6c-b967-443b-825d-28503381c967",
+      "eventCutoffSeq": 78,
+      "cutoffEventId": "evt-3c300aa7-d786-4f85-84df-66988c25f45f",
+      "at": "2026-10-08T05:53:04.804Z",
+      "sourcePrefixSha256": "e118fa390a5da6d91e84015839cfee8739752b93acba67264d0c5b36a4bf12c6",
+      "purpose": "repeated readonly investigation; no dispatched action"
+    },
+    {
+      "stateId": "S08",
+      "runId": "run-b512ca6c-b967-443b-825d-28503381c967",
+      "eventCutoffSeq": 87,
+      "cutoffEventId": "evt-af6cd5ae-8f43-4448-822c-9034e93a3245",
+      "at": "2026-10-08T05:54:43.019Z",
+      "sourcePrefixSha256": "04f43f9e0c13181de96a256492c3c1b6efd52bf6e746626dc56da3b3d46c8807",
+      "purpose": "model timeout; cached prompt vs actual remaining budget"
+    }
+  ]
+}

@@ -30,7 +30,7 @@ it('sends the pinned provider as provider.only, and no constraint at all when un
         model: AGENT_MODEL,
         provider: 'Wafer',
         choices: [{ message: { role: 'assistant', content: 'ok' } }],
-        usage: { prompt_tokens: 1, completion_tokens: 1 },
+        usage: { prompt_tokens: 1, completion_tokens: 1, cost: 0 },
       })
     }) as typeof fetch,
     { limitUsd: 1, estimateCost: () => 0.001 },
