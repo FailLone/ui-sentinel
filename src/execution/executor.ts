@@ -940,7 +940,16 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       }
     }
     observeCount++
-    latest = await observePage(worker!.page, runId, evidenceMetadata)
+    latest = await observePage(
+      worker!.page,
+      runId,
+      evidenceMetadata,
+      getEnabledRules()
+        .flatMap((r) => r.observation?.imageTargets ?? [])
+        .filter((t) => t.pageUrl === worker!.page.url())
+        .map((t) => t.selector)
+        .filter((s, i, all) => all.indexOf(s) === i),
+    )
     latestA11y = await captureA11yTree(worker!.page)
     let after = optimized ? await readObservationVersion(worker!.page) : undefined
     if (before?.reusable && after?.reusable && before.key !== after.key) {
@@ -949,7 +958,16 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         evidenceRefs: latest.evidenceRefs,
       })
       before = after
-      latest = await observePage(worker!.page, runId, evidenceMetadata)
+      latest = await observePage(
+        worker!.page,
+        runId,
+        evidenceMetadata,
+        getEnabledRules()
+          .flatMap((r) => r.observation?.imageTargets ?? [])
+          .filter((t) => t.pageUrl === worker!.page.url())
+          .map((t) => t.selector)
+          .filter((s, i, all) => all.indexOf(s) === i),
+      )
       latestA11y = await captureA11yTree(worker!.page)
       after = await readObservationVersion(worker!.page)
       if (after.reusable && before.key !== after.key)
@@ -1197,7 +1215,11 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       tokenUsage: 'unavailable-until-reported',
     })
     guard()
-    worker = await launchBrowser({ viewport: run.spec.viewport, uiScan: !!uiScan })
+    worker = await launchBrowser({
+      viewport: run.spec.viewport,
+      uiScan: !!uiScan,
+      collectImageResources: getEnabledRules().some((r) => r.observation?.imageTargets.length),
+    })
     guard()
     const page = worker.page
     let mutationFailed = false

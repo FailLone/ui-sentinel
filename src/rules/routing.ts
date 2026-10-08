@@ -80,7 +80,10 @@ export function createRuleEvaluationCache() {
     ): Promise<{ result: RuleResult; reused: boolean }> {
       const metadata = rule.routing
       const reusable =
-        metadata?.version === '1' && metadata.execution === 'automatic' && !!context.factVersion
+        metadata?.version === '1' &&
+        metadata.execution === 'automatic' &&
+        metadata.cache !== 'never' &&
+        !!context.factVersion
       const key = reusable
         ? createHash('sha256')
             .update(

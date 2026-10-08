@@ -1,3 +1,4 @@
+import { installImageResourceCollector, readImagePaintFacts, imageResource } from './image-paint.ts'
 import type { EvidenceIntegrity } from '../shared/evidence-integrity.ts'
 import { profileOperation } from './profiling.ts'
 import { chromium, type Browser, type BrowserContext, type Page } from 'playwright'
@@ -14,6 +15,7 @@ export interface BrowserWorker {
 }
 
 export async function launchBrowser(options?: {
+  collectImageResources?: boolean
   headless?: boolean
   uiScan?: boolean
   viewport?: { width: number; height: number }
@@ -59,6 +61,7 @@ export async function launchBrowser(options?: {
   )
 
   const page = await context.newPage()
+  if (options?.collectImageResources) installImageResourceCollector(page)
 
   return {
     browser,
@@ -167,7 +170,11 @@ export async function observePage(
   page: Page,
   runId: string,
   evidenceMetadata: () => { evidenceIntegrity?: EvidenceIntegrity } = () => ({}),
+  imageSelectors: readonly string[] = [],
 ) {
+  const imageBefore = imageSelectors.length
+    ? await readImagePaintFacts(page, imageSelectors)
+    : undefined
   const screenshotPath = await saveEvidence(
     runId,
     'screenshot',
@@ -290,7 +297,41 @@ export async function observePage(
     }),
   )
   const metadata = evidenceMetadata()
-  const snapshot = { ...observation, screenshotPath, ...metadata }
+  const imageAfter = imageBefore ? await readImagePaintFacts(page, imageSelectors) : undefined
+  const imagePaint = imageAfter
+    ? await Promise.all(
+        imageAfter.map(async (fact, i) => {
+          const resource = fact.currentSrc ? await imageResource(page, fact.currentSrc) : undefined
+          const evidenceRef = resource
+            ? await saveEvidence(
+                runId,
+                'image-resource',
+                JSON.stringify({
+                  url: fact.currentSrc,
+                  sha256: resource.sha256,
+                  format: resource.format,
+                  encoding: 'base64',
+                  bytes: resource.bytes.toString('base64'),
+                }),
+                metadata,
+              )
+            : undefined
+          return {
+            ...fact,
+            stable: JSON.stringify(imageBefore![i]) === JSON.stringify(fact),
+            ...(resource && evidenceRef
+              ? { resource: { sha256: resource.sha256, format: resource.format, evidenceRef } }
+              : {}),
+          }
+        }),
+      )
+    : undefined
+  const snapshot = {
+    ...observation,
+    screenshotPath,
+    ...metadata,
+    ...(imagePaint ? { imagePaint } : {}),
+  }
   const snapshotRef = await saveEvidence(runId, 'snapshot', JSON.stringify(snapshot), metadata)
   return { snapshot, evidenceRefs: [screenshotPath, snapshotRef] }
 }

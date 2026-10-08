@@ -174,3 +174,39 @@ it('keeps select labels separate from DOM values and rejects ambiguous pre-actio
     await w.close()
   }
 })
+
+it('D010 maps descendant hits and pointer-transparent decoration without merging same-name actions', async () => {
+  const { createRun } = await import('./run-manager.ts')
+  const { observePage } = await import('./browser.ts')
+  const { rm } = await import('node:fs/promises')
+  const { id } = await createRun({
+    goal: 'Synthetic D010 counterexample',
+    environmentId: 'test',
+    entryUrl: 'about:blank',
+  })
+  const worker = await launchBrowser()
+  try {
+    await worker.page.setContent(`<style>
+      button{position:absolute;top:40px;width:160px;height:80px;padding:0}
+      button:first-of-type{left:40px}button:last-of-type{left:240px}
+      span{display:block;width:100%;height:100%}
+      aside{position:absolute;top:40px;left:240px;width:160px;height:80px;z-index:2}
+      .decoration{position:fixed;inset:0;z-index:3;pointer-events:none;background:#0001}
+    </style><button><span>Continue</span></button><button>Continue</button><aside></aside><div class="decoration"></div>`)
+    const { snapshot } = await observePage(worker.page, id)
+    expect(snapshot.elements[0]!.hitSamples.every((s) => s.relation === 'descendant')).toBe(true)
+    const result = await overlayBlockingRule.evaluate({ snapshot } as any)
+    expect(result.verdict).toBe('fail')
+    expect((result.details.blockedTargets as any[]).map((t) => t.selector)).toEqual([
+      snapshot.elements[1]!.selector,
+    ])
+    await worker.page.locator('aside').evaluate((node) => node.remove())
+    const healthy = await observePage(worker.page, id)
+    expect(
+      (await overlayBlockingRule.evaluate({ snapshot: healthy.snapshot } as any)).verdict,
+    ).toBe('pass')
+  } finally {
+    await worker.close()
+    await rm(`data/artifacts/${id}`, { recursive: true, force: true })
+  }
+})
