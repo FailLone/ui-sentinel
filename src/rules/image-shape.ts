@@ -17,6 +17,15 @@ export interface ImageShapeContract {
 export interface ImagePaintFact {
   readonly selector: string
   readonly matchCount: number
+  /** Shared complete-walk diagnostics; no nondeterministic timing enters paint identity. */
+  readonly visibilityScan?: {
+    readonly version: 'bounded-layers-1'
+    readonly complete: boolean
+    readonly visited: number
+    readonly rectangleReads: number
+    readonly candidates: number
+    readonly intersectionChecks: number
+  }
   readonly mutationEpoch?: number
   readonly documentId?: string
   readonly decoded?: boolean

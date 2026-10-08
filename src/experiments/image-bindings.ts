@@ -90,7 +90,8 @@ type Entry = {
 const digest = (value: string | Buffer) => createHash('sha256').update(value).digest('hex')
 const clone = <T>(value: T): T => structuredClone(value)
 function paintIdentity(fact: ImagePaintFact) {
-  const { resource, ...paint } = fact
+  // Scan effort depends on the observation target set; underlying paint/epoch checks remain exact.
+  const { resource, visibilityScan, ...paint } = fact
   return JSON.stringify({
     ...paint,
     resource: resource ? { sha256: resource.sha256, format: resource.format } : null,
