@@ -73,3 +73,7 @@ pnpm exec vitest run src/execution/executor.test.ts -t 'synthetic image candidat
 - [D010 原有/新增反例](../../src/execution/interaction-verification.test.ts)、[规则引擎](../../src/rules/engine.test.ts)：详见 D010 能力映射；仅增加子树命中/穿透装饰/同名目标不混淆的实际缺口。
 
 默认启用条件尚不具备：缺统一的人审合同录入/范围管理、真实站点外部验证、语义适用性识别及复杂绘制支持。保持候选及默认关闭，不自动合入 R0 或推送。
+
+## 第二轮：自动生成绑定事实
+
+新增 [独立候选绑定实验](image-binding-experiment.md)，自动生成上述合同的机器字段，并在人工补充语义依据后进行快照失效校验再消费检查器。该入口不改变本页绘制能力、规则 revision 或默认关闭状态，也不等于交付自动语义识别/完整审批后台。

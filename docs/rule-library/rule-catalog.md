@@ -33,3 +33,5 @@
 `UIK-D010` 与已有 `overlay-blocking` 2.1.0 概念关联，不代表新增注册项。现有 `response-time` 3.0.0 与 `business-outcome` 2.1.0 未被修改，也未由本材料增加阈值或业务判断。
 
 运行时 ID、支持范围及测试依据：[D004 限定实现](image-shape-candidate.md)、[D010 能力映射](rules/UIK-D010.md#能力映射2026-10-08)。广义条目均非完全实现。
+
+D004 第二轮新增 [候选绑定事实自动化](image-binding-experiment.md)，减少手填页面/资源/定位材料；保形依据仍由人提供，运行时版本与默认关闭状态不变。
