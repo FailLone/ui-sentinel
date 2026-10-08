@@ -1,0 +1,77 @@
+{
+  "version": "r1-jev-evidence-1",
+  "files": [
+    {
+      "path": "advice/S01.json",
+      "sha256": "fde8186dbf21aaaf7e3da6763b64d3ef66e5b894c2019a9a64beec694f9048dc"
+    },
+    {
+      "path": "advice/S02.json",
+      "sha256": "e4044f33717b67f247639c74d015ac63c204f1882ffb9af12ec6e594e2c2c87c"
+    },
+    {
+      "path": "advice/S03.json",
+      "sha256": "91dac450e7b76f804afec706b07ea77b05aba1a15ef60fd68d8c818c46828bfe"
+    },
+    {
+      "path": "advice/S04.json",
+      "sha256": "8753dc93e25f38015a94370deb6dba94e7f98335931ce30921c8b98f3a64e7d0"
+    },
+    {
+      "path": "advice/S05.json",
+      "sha256": "0af2cbae4ee81600254329b7d1ba41d4edc1b39d8b458dd54cb6c43aa597a480"
+    },
+    {
+      "path": "advice/S06.json",
+      "sha256": "ec6325d4fa3a1ffad753eff8922814f3a907fc45c2cd5fa0d5a34b976774e5e4"
+    },
+    {
+      "path": "advice/S07.json",
+      "sha256": "11b611ead0b53edab7e7f93e25734a66ff51a51f1690dd88177f3024605a6eb4"
+    },
+    {
+      "path": "advice/S08.json",
+      "sha256": "22347c892c9084c63c941e05faeca573331d30be38428e6cc248fcb7705474c4"
+    },
+    {
+      "path": "reference.json",
+      "sha256": "309b9d051e681f2efc2477aa070503580fc2fccee7566f9b4b2a904ce1f079b5"
+    },
+    {
+      "path": "report.json",
+      "sha256": "595fc0ffd81952a190c5cf3795d237d715f8f59c1eef6f84088abd53288f4e94"
+    },
+    {
+      "path": "shared-facts/S01.json",
+      "sha256": "f003232becce2bf9c56f60c9baa786e219ac59ea0b295dea3d0854fec2bebad2"
+    },
+    {
+      "path": "shared-facts/S02.json",
+      "sha256": "0403ae3e4e7b632a6551e08efb2d4acbe8173aa82ad5e2b6849029fea35fa564"
+    },
+    {
+      "path": "shared-facts/S03.json",
+      "sha256": "8fe4f731a67d9bc5d790304e8befda956195a798428a521d12e191e738e8c45a"
+    },
+    {
+      "path": "shared-facts/S04.json",
+      "sha256": "cc7d90f79a1a94cc88ba98c5a57768460d7224339061cd59ad6cd6f306de2ac9"
+    },
+    {
+      "path": "shared-facts/S05.json",
+      "sha256": "279c31569eb1cfd2576828347b8bc34f3004e7b12b8da157b4e80562f3f3ac15"
+    },
+    {
+      "path": "shared-facts/S06.json",
+      "sha256": "8d5493af97cfaf36b1872504c20a4c60fe82d6a47c96ed85f53961a50eaf8249"
+    },
+    {
+      "path": "shared-facts/S07.json",
+      "sha256": "1debc3333d94518332b8f3597b52f6e0f4470c135186f7d94628f00e1a9c1d4f"
+    },
+    {
+      "path": "shared-facts/S08.json",
+      "sha256": "309f568ce84e85c8a588504fd2098bd76f9544db92e67c7fbbab6a1f7678f231"
+    }
+  ]
+}

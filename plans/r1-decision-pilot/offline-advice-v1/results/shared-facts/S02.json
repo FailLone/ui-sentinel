@@ -1,0 +1,291 @@
+{
+  "version": "r1-offline-advice-1",
+  "mode": "offline-advice-only",
+  "stateId": "S02",
+  "provenance": {
+    "sourceSha": "08acc95d7f67a1ac3cbcf3d9decc9add2f2907eb",
+    "artifactSha256": "8a75d66b6e2a6259dc98e616056d36460fbd9c90fef355a5cac852c2b453cb90",
+    "stateRef": "source-public/public/S02.json",
+    "decisionCutoff": "seq:124@2026-10-08T05:46:44.502Z"
+  },
+  "task": {
+    "goal": "Inspect the catalog UI and its controls within the allowed scope. Report evidence-backed issues and anything left unverified.",
+    "localTask": "Product catalog\n\nChoose a sort order and apply it. Prices are numeric.\n\nSort \nPrice\nName\n Apply sort\n5 · Amber gadget\n12 · Cyan sprocket\n20 · Blue widget\nAbout this catalog\nRecorded selected checks and remaining budgets are in candidate.context; no general coverage promise.",
+    "revision": "url-scan-default-3"
+  },
+  "state": {
+    "pageId": "s5",
+    "url": "http://127.0.0.1:58126/catalog?category=books&sort=price",
+    "documentVersion": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "observationVersion": "observation:56d055a04473af0f55ffde0b51584883",
+    "relatedStateVersion": "prefix:d73fd6d0a25c784f268e27e086f6dd0d",
+    "cacheable": false
+  },
+  "observedAtCutoff": "2026-10-08T05:46:44.502Z",
+  "budget": {
+    "revision": "budget:d73fd6d0a25c784f268e27e086f6dd0d",
+    "remainingDecisions": 26,
+    "remainingActions": 18,
+    "remainingMs": 187021,
+    "maxRequestMs": 60000,
+    "remainingCostUsd": 17.96610725
+  },
+  "permissions": {
+    "session": "anonymous",
+    "businessWrites": "none",
+    "origin": "http://127.0.0.1:58126",
+    "scope": {
+      "maxPages": 3,
+      "maxDepth": 1
+    }
+  },
+  "registeredChecks": [
+    {
+      "itemId": "item-a22f3743-cf4e-410e-b160-f16659abac10",
+      "category": "investigation",
+      "selected": true,
+      "status": "verified"
+    },
+    {
+      "itemId": "item-b1194134-3be5-4b80-88bf-455fe9d441ca",
+      "category": "entry-observation",
+      "selected": true,
+      "status": "verified"
+    },
+    {
+      "itemId": "item-91e91ef0-5a18-40d9-ad9d-2caeebb6a1c3",
+      "category": "local-interaction",
+      "selected": true,
+      "status": "verified"
+    },
+    {
+      "itemId": "item-b444fc13-a8b0-4732-960d-3862a13b13e9",
+      "category": "local-interaction",
+      "selected": true,
+      "status": "verified"
+    },
+    {
+      "itemId": "item-e5f96194-f86c-44c9-aa06-7be74e8e65dc",
+      "category": "navigation",
+      "selected": true,
+      "status": "pending"
+    },
+    {
+      "itemId": "item-819d38a4-b060-42e7-8c81-d479d733be9c",
+      "category": "investigation",
+      "selected": true,
+      "status": "verified"
+    },
+    {
+      "itemId": "item-69e6a229-b80b-49cc-a285-75d0478f4dfd",
+      "category": "investigation",
+      "selected": true,
+      "status": "verified"
+    },
+    {
+      "itemId": "item-6a75a43e-e697-44ec-bcb9-99658873a626",
+      "category": "automatic-check",
+      "selected": true,
+      "status": "verified"
+    },
+    {
+      "itemId": "item-ec1fd056-592e-4124-8ad3-6bd5e16e422f",
+      "category": "entry-observation",
+      "selected": true,
+      "status": "verified"
+    },
+    {
+      "itemId": "item-6efb064e-4006-4734-9d10-2bb8df696819",
+      "category": "automatic-check",
+      "selected": true,
+      "status": "verified"
+    },
+    {
+      "itemId": "item-85df2a33-bc10-499e-abb6-d989b4b0f95f",
+      "category": "entry-observation",
+      "selected": true,
+      "status": "verified"
+    },
+    {
+      "itemId": "item-27c3a147-ee1c-484f-8c9b-956fc6162748",
+      "category": "automatic-check",
+      "selected": true,
+      "status": "verified"
+    },
+    {
+      "itemId": "item-453918f3-6ffe-4acf-a2df-a4af08d14e20",
+      "category": "entry-observation",
+      "selected": true,
+      "status": "verified"
+    },
+    {
+      "itemId": "item-effca3b7-3e18-4a4c-96c2-c1b2f686fd19",
+      "category": "local-interaction",
+      "selected": false,
+      "status": "pending"
+    },
+    {
+      "itemId": "item-3ef68b66-e519-4b7c-9427-13f3d528263b",
+      "category": "automatic-check",
+      "selected": true,
+      "status": "verified"
+    },
+    {
+      "itemId": "item-b5a979b4-9d92-4ca5-b266-43f6e1d9da5d",
+      "category": "entry-observation",
+      "selected": true,
+      "status": "verified"
+    },
+    {
+      "itemId": "item-8cfb8179-6f1d-45a5-a100-87eb6ca6834f",
+      "category": "automatic-check",
+      "selected": true,
+      "status": "verified"
+    }
+  ],
+  "priorOperations": [
+    {
+      "eventSeq": 41,
+      "tool": "page_inspect",
+      "args": {
+        "selector": "select, button, li, ul, option",
+        "offset": 0
+      },
+      "status": "unknown"
+    },
+    {
+      "eventSeq": 53,
+      "tool": "element_details",
+      "args": {
+        "refs": [
+          "e3",
+          "e4",
+          "e5"
+        ]
+      },
+      "status": "unknown"
+    },
+    {
+      "eventSeq": 53,
+      "tool": "exploration_update",
+      "args": {},
+      "status": "unknown"
+    },
+    {
+      "eventSeq": 88,
+      "tool": "page_act",
+      "args": {
+        "type": "click",
+        "ref": "e4",
+        "role": "button",
+        "name": "Apply sort",
+        "nth": null,
+        "selector": null,
+        "value": null,
+        "url": null,
+        "scrollY": null,
+        "verify": {
+          "selector": "html > body:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1)",
+          "condition": "text-contains",
+          "expected": "5"
+        }
+      },
+      "status": "completed"
+    },
+    {
+      "eventSeq": 124,
+      "tool": "page_act",
+      "args": {
+        "type": "fill",
+        "ref": "e13",
+        "role": "combobox",
+        "name": "Sort",
+        "nth": null,
+        "selector": null,
+        "value": "Name",
+        "url": null,
+        "scrollY": null,
+        "verify": {
+          "selector": "html > body:nth-of-type(1) > label:nth-of-type(1) > select:nth-of-type(1)",
+          "condition": "selected-label-equals",
+          "expected": "Name"
+        }
+      },
+      "status": "completed"
+    }
+  ],
+  "candidates": [
+    {
+      "candidateId": "item-e5f96194-f86c-44c9-aa06-7be74e8e65dc",
+      "targetKey": "item-e5f96194-f86c-44c9-aa06-7be74e8e65dc",
+      "text": "About this catalog",
+      "role": "link",
+      "observationVersion": "observation:56d055a04473af0f55ffde0b51584883",
+      "publicState": {
+        "visible": true,
+        "enabled": true,
+        "expanded": null,
+        "selected": null
+      },
+      "geometry": {
+        "x": 220,
+        "y": 503.875,
+        "width": 840,
+        "height": 18,
+        "inViewport": true
+      },
+      "obligation": {
+        "id": "item-e5f96194-f86c-44c9-aa06-7be74e8e65dc",
+        "category": "navigation",
+        "status": "pending",
+        "selected": true,
+        "recheckReason": null
+      },
+      "nativeAction": "click",
+      "sourceAllowedActions": [
+        "click",
+        "inspect"
+      ],
+      "priorExactTargetReads": [],
+      "observedHitTests": {
+        "sampleCount": 5,
+        "relations": {
+          "self": 5
+        }
+      },
+      "estimatedEffort": 1,
+      "executionFacts": {
+        "permission": "unknown",
+        "preconditions": "unknown",
+        "actionMs": null,
+        "actionCostUsd": null,
+        "bindingAuthorization": "unknown-until-live-validation",
+        "sourceCostUpperBoundUsd": "unknown"
+      },
+      "evidence": {
+        "publicPath": "source-public/public/S02.json",
+        "candidateId": "item-e5f96194-f86c-44c9-aa06-7be74e8e65dc",
+        "cutoff": 124,
+        "snapshotSha256": "56d055a04473af0f55ffde0b515848833cebb8bc354ae4de943976bd4d9f8972",
+        "ref": "e25"
+      }
+    }
+  ],
+  "excluded": [
+    {
+      "candidateId": "item-91e91ef0-5a18-40d9-ad9d-2caeebb6a1c3",
+      "reason": "completed-no-explicit-recheck"
+    },
+    {
+      "candidateId": "item-effca3b7-3e18-4a4c-96c2-c1b2f686fd19",
+      "reason": "outside-frozen-selected-checks"
+    }
+  ],
+  "limits": {
+    "noExecution": true,
+    "noCompletionClaim": true,
+    "knownEffectsNotPredicted": true,
+    "sourceBudgetIsHistoricalNotAuthorization": true,
+    "nativeFillNotMappedToInspect": true
+  }
+}

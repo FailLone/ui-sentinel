@@ -1,0 +1,274 @@
+{
+  "version": "r1-offline-advice-1",
+  "stateId": "S04",
+  "sharedPacketSha256": "3c80ea67508b43e6e00085205d8947763c7685567daca030df11e41a2f88affd",
+  "decision": "investigation-priority",
+  "reason": "public-facts-support-investigation-only",
+  "priorities": [
+    {
+      "candidateId": "item-4db05551-3b79-40c5-98bb-195f1bd301a5",
+      "text": "Filters",
+      "intent": "investigate-candidate",
+      "supportingFacts": [
+        {
+          "fact": "selected-obligation",
+          "value": {
+            "id": "item-4db05551-3b79-40c5-98bb-195f1bd301a5",
+            "category": "local-interaction",
+            "status": "pending",
+            "selected": true,
+            "recheckReason": null
+          },
+          "source": {
+            "publicPath": "source-public/public/S04.json",
+            "candidateId": "item-4db05551-3b79-40c5-98bb-195f1bd301a5",
+            "cutoff": 98,
+            "snapshotSha256": "0b7e1f395fcd14d06314db8401ac02663daf98120784922cb774631ba1fee055",
+            "ref": "e17"
+          }
+        },
+        {
+          "fact": "public-state",
+          "value": {
+            "visible": true,
+            "enabled": true,
+            "expanded": null,
+            "selected": null
+          },
+          "source": {
+            "publicPath": "source-public/public/S04.json",
+            "candidateId": "item-4db05551-3b79-40c5-98bb-195f1bd301a5",
+            "cutoff": 98,
+            "snapshotSha256": "0b7e1f395fcd14d06314db8401ac02663daf98120784922cb774631ba1fee055",
+            "ref": "e17"
+          }
+        },
+        {
+          "fact": "observed-hit-samples",
+          "value": {
+            "sampleCount": 5,
+            "relations": {
+              "self": 5
+            }
+          },
+          "source": {
+            "publicPath": "source-public/public/S04.json",
+            "candidateId": "item-4db05551-3b79-40c5-98bb-195f1bd301a5",
+            "cutoff": 98,
+            "snapshotSha256": "0b7e1f395fcd14d06314db8401ac02663daf98120784922cb774631ba1fee055",
+            "ref": "e17"
+          }
+        },
+        {
+          "fact": "prior-exact-target-reads",
+          "value": [],
+          "source": {
+            "publicPath": "source-public/public/S04.json",
+            "candidateId": "item-4db05551-3b79-40c5-98bb-195f1bd301a5",
+            "cutoff": 98,
+            "snapshotSha256": "0b7e1f395fcd14d06314db8401ac02663daf98120784922cb774631ba1fee055",
+            "ref": "e17"
+          }
+        }
+      ],
+      "investigationQuestion": "明确此未完成事项的局部状态、预期新增信息及可验证后置测量；避免没有新目的的再次读取。",
+      "unknowns": {
+        "permission": "unknown",
+        "preconditions": "unknown",
+        "actionMs": null,
+        "actionCostUsd": null,
+        "bindingAuthorization": "unknown-until-live-validation",
+        "sourceCostUpperBoundUsd": "unknown",
+        "actionEffect": "unknown",
+        "incrementalReadValue": "unknown"
+      },
+      "preExecutionChecks": [
+        "由执行器核对实时目标、权限、同源及副作用限制",
+        "确认动作前提和动作/时间/费用预算；未知值不能填yes或0",
+        "明确相对既有读取的新信息目标；无法说明则交回",
+        "绑定检查事项、后置测量与证据；未执行不计入验证覆盖"
+      ],
+      "completeExecutionPath": "unknown",
+      "directlyExecutable": false,
+      "verifiedProgress": false
+    },
+    {
+      "candidateId": "item-9db23f5c-24c4-40e1-a32d-db26fa4bc36e",
+      "text": "About this catalog",
+      "intent": "investigate-candidate",
+      "supportingFacts": [
+        {
+          "fact": "selected-obligation",
+          "value": {
+            "id": "item-9db23f5c-24c4-40e1-a32d-db26fa4bc36e",
+            "category": "navigation",
+            "status": "pending",
+            "selected": true,
+            "recheckReason": null
+          },
+          "source": {
+            "publicPath": "source-public/public/S04.json",
+            "candidateId": "item-9db23f5c-24c4-40e1-a32d-db26fa4bc36e",
+            "cutoff": 98,
+            "snapshotSha256": "0b7e1f395fcd14d06314db8401ac02663daf98120784922cb774631ba1fee055",
+            "ref": "e18"
+          }
+        },
+        {
+          "fact": "public-state",
+          "value": {
+            "visible": true,
+            "enabled": true,
+            "expanded": null,
+            "selected": null
+          },
+          "source": {
+            "publicPath": "source-public/public/S04.json",
+            "candidateId": "item-9db23f5c-24c4-40e1-a32d-db26fa4bc36e",
+            "cutoff": 98,
+            "snapshotSha256": "0b7e1f395fcd14d06314db8401ac02663daf98120784922cb774631ba1fee055",
+            "ref": "e18"
+          }
+        },
+        {
+          "fact": "observed-hit-samples",
+          "value": {
+            "sampleCount": 5,
+            "relations": {
+              "self": 5
+            }
+          },
+          "source": {
+            "publicPath": "source-public/public/S04.json",
+            "candidateId": "item-9db23f5c-24c4-40e1-a32d-db26fa4bc36e",
+            "cutoff": 98,
+            "snapshotSha256": "0b7e1f395fcd14d06314db8401ac02663daf98120784922cb774631ba1fee055",
+            "ref": "e18"
+          }
+        },
+        {
+          "fact": "prior-exact-target-reads",
+          "value": [],
+          "source": {
+            "publicPath": "source-public/public/S04.json",
+            "candidateId": "item-9db23f5c-24c4-40e1-a32d-db26fa4bc36e",
+            "cutoff": 98,
+            "snapshotSha256": "0b7e1f395fcd14d06314db8401ac02663daf98120784922cb774631ba1fee055",
+            "ref": "e18"
+          }
+        }
+      ],
+      "investigationQuestion": "明确此未完成事项的局部状态、预期新增信息及可验证后置测量；避免没有新目的的再次读取。",
+      "unknowns": {
+        "permission": "unknown",
+        "preconditions": "unknown",
+        "actionMs": null,
+        "actionCostUsd": null,
+        "bindingAuthorization": "unknown-until-live-validation",
+        "sourceCostUpperBoundUsd": "unknown",
+        "actionEffect": "unknown",
+        "incrementalReadValue": "unknown"
+      },
+      "preExecutionChecks": [
+        "由执行器核对实时目标、权限、同源及副作用限制",
+        "确认动作前提和动作/时间/费用预算；未知值不能填yes或0",
+        "明确相对既有读取的新信息目标；无法说明则交回",
+        "绑定检查事项、后置测量与证据；未执行不计入验证覆盖"
+      ],
+      "completeExecutionPath": "unknown",
+      "directlyExecutable": false,
+      "verifiedProgress": false
+    },
+    {
+      "candidateId": "item-aada2056-83e7-48a6-9d62-d18ebf85412b",
+      "text": "Apply sort",
+      "intent": "investigate-candidate",
+      "supportingFacts": [
+        {
+          "fact": "selected-obligation",
+          "value": {
+            "id": "item-aada2056-83e7-48a6-9d62-d18ebf85412b",
+            "category": "local-interaction",
+            "status": "pending",
+            "selected": true,
+            "recheckReason": null
+          },
+          "source": {
+            "publicPath": "source-public/public/S04.json",
+            "candidateId": "item-aada2056-83e7-48a6-9d62-d18ebf85412b",
+            "cutoff": 98,
+            "snapshotSha256": "0b7e1f395fcd14d06314db8401ac02663daf98120784922cb774631ba1fee055",
+            "ref": "e16"
+          }
+        },
+        {
+          "fact": "public-state",
+          "value": {
+            "visible": true,
+            "enabled": true,
+            "expanded": null,
+            "selected": null
+          },
+          "source": {
+            "publicPath": "source-public/public/S04.json",
+            "candidateId": "item-aada2056-83e7-48a6-9d62-d18ebf85412b",
+            "cutoff": 98,
+            "snapshotSha256": "0b7e1f395fcd14d06314db8401ac02663daf98120784922cb774631ba1fee055",
+            "ref": "e16"
+          }
+        },
+        {
+          "fact": "observed-hit-samples",
+          "value": {
+            "sampleCount": 5,
+            "relations": {
+              "self": 5
+            }
+          },
+          "source": {
+            "publicPath": "source-public/public/S04.json",
+            "candidateId": "item-aada2056-83e7-48a6-9d62-d18ebf85412b",
+            "cutoff": 98,
+            "snapshotSha256": "0b7e1f395fcd14d06314db8401ac02663daf98120784922cb774631ba1fee055",
+            "ref": "e16"
+          }
+        },
+        {
+          "fact": "prior-exact-target-reads",
+          "value": [],
+          "source": {
+            "publicPath": "source-public/public/S04.json",
+            "candidateId": "item-aada2056-83e7-48a6-9d62-d18ebf85412b",
+            "cutoff": 98,
+            "snapshotSha256": "0b7e1f395fcd14d06314db8401ac02663daf98120784922cb774631ba1fee055",
+            "ref": "e16"
+          }
+        }
+      ],
+      "investigationQuestion": "明确此未完成事项的局部状态、预期新增信息及可验证后置测量；避免没有新目的的再次读取。",
+      "unknowns": {
+        "permission": "unknown",
+        "preconditions": "unknown",
+        "actionMs": null,
+        "actionCostUsd": null,
+        "bindingAuthorization": "unknown-until-live-validation",
+        "sourceCostUpperBoundUsd": "unknown",
+        "actionEffect": "unknown",
+        "incrementalReadValue": "unknown"
+      },
+      "preExecutionChecks": [
+        "由执行器核对实时目标、权限、同源及副作用限制",
+        "确认动作前提和动作/时间/费用预算；未知值不能填yes或0",
+        "明确相对既有读取的新信息目标；无法说明则交回",
+        "绑定检查事项、后置测量与证据；未执行不计入验证覆盖"
+      ],
+      "completeExecutionPath": "unknown",
+      "directlyExecutable": false,
+      "verifiedProgress": false
+    }
+  ],
+  "selectedCandidateId": "item-4db05551-3b79-40c5-98bb-195f1bd301a5",
+  "completeExecutionPath": "unknown",
+  "verifiedProgress": false,
+  "jev": "not-run-reference-gate-pending"
+}
