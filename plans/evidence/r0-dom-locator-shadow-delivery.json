@@ -1,0 +1,711 @@
+{
+  "schemaVersion": 1,
+  "batchId": "r0-dom-locator-shadow-20261008-01",
+  "experiment": "single-factor DOM omitted receipt cursor shadow",
+  "outcome": "completed-6-requests-with-local-support-signal",
+  "r0Acceptance": "not-passed; unchanged",
+  "sourceCommit": "b69c0cfeaca1f677a00b4df9151400541390c9ad",
+  "DOMCandidate": "c1d41e13554a54f53118934cc5a62b8840610b23",
+  "requestStopCandidate": "b266089d8a46b0394e39220f66ac85260b4b19ef",
+  "authorization": {
+    "order": [
+      "A",
+      "B",
+      "B",
+      "A",
+      "A",
+      "B"
+    ],
+    "maximumModelRequests": 6,
+    "planned": 6,
+    "executed": 6,
+    "notRun": 0,
+    "validToolDecisions": 5,
+    "providerFailure": 1,
+    "batchLimitUsd": 0.25,
+    "sharedLimitUsd": 20,
+    "retries": 0,
+    "smokes": 0,
+    "timeoutMs": 60000,
+    "outputLimit": 4096,
+    "concurrency": 1,
+    "toolExecutions": 0,
+    "browserOrTestedPageRequests": 0,
+    "extraModelCalls": 0,
+    "automaticResume": false
+  },
+  "manifest": {
+    "path": "data/r0-dom-locator-shadow-20261008-01/manifest.json",
+    "bytes": 3663,
+    "sha256": "0051201866c80a2e40c0b733369b3b43be926a137d5f6b42d40bcc1025d4d40e"
+  },
+  "prices": {
+    "model": "deepseek/deepseek-v4.1-flash",
+    "provider": "Alibaba",
+    "canonicalSlug": "deepseek/deepseek-v4.1-flash-20260910",
+    "source": "https://openrouter.ai/api/v1/models/deepseek/deepseek-v4.1-flash/endpoints",
+    "quote": {
+      "prompt": "0.0000003",
+      "completion": "0.0000012",
+      "input_cache_read": "0.00000003",
+      "discount": 0,
+      "overrides": [
+        {
+          "utc_start": 0,
+          "utc_end": 1400,
+          "prompt": "0.0000003",
+          "completion": "0.0000012",
+          "input_cache_read": "0.00000003"
+        },
+        {
+          "utc_start": 1400,
+          "utc_end": 0,
+          "prompt": "0.00000015",
+          "completion": "0.0000006",
+          "input_cache_read": "0.000000015"
+        }
+      ]
+    },
+    "prompt": 3e-07,
+    "completion": 1.2e-06,
+    "checkedAt": "2026-10-08T08:27:38.859Z",
+    "supportedParameters": [
+      "reasoning",
+      "include_reasoning",
+      "max_tokens",
+      "temperature",
+      "top_p",
+      "seed",
+      "presence_penalty",
+      "response_format",
+      "top_k",
+      "frequency_penalty",
+      "stop",
+      "tools",
+      "tool_choice",
+      "reasoning_effort"
+    ]
+  },
+  "priceLookupReadOnlyGETs": 2,
+  "worstSixReservationUsd": 0.1255833,
+  "rows": [
+    {
+      "row": 1,
+      "variant": "A",
+      "status": "executed",
+      "requestId": "1c3bf1afbf2f072d90fc13a8",
+      "toolCalls": [],
+      "actualModel": "deepseek/deepseek-v4.1-flash",
+      "actualProvider": "Alibaba",
+      "httpStatus": 200,
+      "finishReason": "error",
+      "firstHeadersMs": 11524,
+      "firstStreamByteMs": 11985,
+      "firstResponseMs": 12062,
+      "firstToolMs": null,
+      "durationMs": 20338,
+      "usage": {
+        "prompt_tokens": 12804,
+        "completion_tokens": 684,
+        "total_tokens": 13488,
+        "cost": 0,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0,
+          "audio_tokens": 0,
+          "video_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.004662,
+          "upstream_inference_prompt_cost": 0.0038412,
+          "upstream_inference_completions_cost": 0.0008208
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 684,
+          "image_tokens": 0,
+          "audio_tokens": 0
+        }
+      },
+      "repeatFirstPage": false,
+      "usesDOMContinuation": false,
+      "retrievesOriginal": false,
+      "retrievesOriginalHistory": false
+    },
+    {
+      "row": 2,
+      "variant": "B",
+      "status": "executed",
+      "requestId": "d89039f3feed33b2c061314c",
+      "toolCalls": [
+        {
+          "index": 0,
+          "name": "tool_result_read",
+          "arguments": "{\"resultRef\": \"8.0\", \"offset\": 0}",
+          "id": "call_cfbbe925dd014d6d839bc9b2",
+          "args": {
+            "resultRef": "8.0",
+            "offset": 0
+          }
+        }
+      ],
+      "actualModel": "deepseek/deepseek-v4.1-flash",
+      "actualProvider": "Alibaba",
+      "httpStatus": 200,
+      "finishReason": "tool_calls",
+      "firstHeadersMs": 8802,
+      "firstStreamByteMs": 8803,
+      "firstResponseMs": 8803,
+      "firstToolMs": 16855,
+      "durationMs": 17129,
+      "usage": {
+        "prompt_tokens": 13877,
+        "completion_tokens": 406,
+        "total_tokens": 14283,
+        "cost": 0.00160902,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 11264,
+          "cache_write_tokens": 0,
+          "audio_tokens": 0,
+          "video_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.00160902,
+          "upstream_inference_prompt_cost": 0.00112182,
+          "upstream_inference_completions_cost": 0.0004872
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 348,
+          "image_tokens": 0,
+          "audio_tokens": 0
+        }
+      },
+      "repeatFirstPage": false,
+      "usesDOMContinuation": false,
+      "retrievesOriginal": true,
+      "retrievesOriginalHistory": false
+    },
+    {
+      "row": 3,
+      "variant": "B",
+      "status": "executed",
+      "requestId": "a95aa03e624525983b2b89cd",
+      "toolCalls": [
+        {
+          "index": 0,
+          "name": "tool_result_read",
+          "arguments": "{\"resultRef\": \"8.0\", \"offset\": 0}",
+          "id": "call_24988bfaa5c8416098197d4e",
+          "args": {
+            "resultRef": "8.0",
+            "offset": 0
+          }
+        }
+      ],
+      "actualModel": "deepseek/deepseek-v4.1-flash",
+      "actualProvider": "Alibaba",
+      "httpStatus": 200,
+      "finishReason": "tool_calls",
+      "firstHeadersMs": 10369,
+      "firstStreamByteMs": 10774,
+      "firstResponseMs": 13539,
+      "firstToolMs": 23988,
+      "durationMs": 23993,
+      "usage": {
+        "prompt_tokens": 13877,
+        "completion_tokens": 705,
+        "total_tokens": 14582,
+        "cost": 0.00127662,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 13824,
+          "cache_write_tokens": 0,
+          "audio_tokens": 0,
+          "video_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.00127662,
+          "upstream_inference_prompt_cost": 0.00043062,
+          "upstream_inference_completions_cost": 0.000846
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 647,
+          "image_tokens": 0,
+          "audio_tokens": 0
+        }
+      },
+      "repeatFirstPage": false,
+      "usesDOMContinuation": false,
+      "retrievesOriginal": true,
+      "retrievesOriginalHistory": false
+    },
+    {
+      "row": 4,
+      "variant": "A",
+      "status": "executed",
+      "requestId": "e79156a0ee54119f69e0eb01",
+      "toolCalls": [
+        {
+          "index": 0,
+          "name": "page_inspect",
+          "arguments": "{\"selector\": \"input, [role=\\\"dialog\\\"], [role=\\\"listbox\\\"], [role=\\\"checkbox\\\"], fieldset, legend, [aria-hidden], [hidden], div[id], section\", \"offset\": 0}",
+          "id": "call_0f05fd0f0ad64a19b0f348b7",
+          "args": {
+            "selector": "input, [role=\"dialog\"], [role=\"listbox\"], [role=\"checkbox\"], fieldset, legend, [aria-hidden], [hidden], div[id], section",
+            "offset": 0
+          }
+        }
+      ],
+      "actualModel": "deepseek/deepseek-v4.1-flash",
+      "actualProvider": "Alibaba",
+      "httpStatus": 200,
+      "finishReason": "tool_calls",
+      "firstHeadersMs": 8862,
+      "firstStreamByteMs": 8863,
+      "firstResponseMs": 8864,
+      "firstToolMs": 22515,
+      "durationMs": 23026,
+      "usage": {
+        "prompt_tokens": 13856,
+        "completion_tokens": 559,
+        "total_tokens": 14415,
+        "cost": 0.00123336,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 13312,
+          "cache_write_tokens": 0,
+          "audio_tokens": 0,
+          "video_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.00123336,
+          "upstream_inference_prompt_cost": 0.00056256,
+          "upstream_inference_completions_cost": 0.0006708
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 471,
+          "image_tokens": 0,
+          "audio_tokens": 0
+        }
+      },
+      "repeatFirstPage": false,
+      "usesDOMContinuation": false,
+      "retrievesOriginal": false,
+      "retrievesOriginalHistory": false
+    },
+    {
+      "row": 5,
+      "variant": "A",
+      "status": "executed",
+      "requestId": "de016a80a49c3c0f4b4537b6",
+      "toolCalls": [
+        {
+          "index": 0,
+          "name": "page_observe",
+          "arguments": "{}",
+          "id": "call_941eeb0873f643f19c22e870",
+          "args": {}
+        },
+        {
+          "index": 1,
+          "name": "page_inspect",
+          "arguments": "{\"selector\": \"body *\", \"offset\": 0}",
+          "id": "call_6e711daef4dd49d0a648179d",
+          "args": {
+            "selector": "body *",
+            "offset": 0
+          }
+        }
+      ],
+      "actualModel": "deepseek/deepseek-v4.1-flash",
+      "actualProvider": "Alibaba",
+      "httpStatus": 200,
+      "finishReason": "tool_calls",
+      "firstHeadersMs": 10391,
+      "firstStreamByteMs": 10914,
+      "firstResponseMs": 11252,
+      "firstToolMs": 36417,
+      "durationMs": 36591,
+      "usage": {
+        "prompt_tokens": 13856,
+        "completion_tokens": 1132,
+        "total_tokens": 14988,
+        "cost": 0.00192096,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 13312,
+          "cache_write_tokens": 0,
+          "audio_tokens": 0,
+          "video_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.00192096,
+          "upstream_inference_prompt_cost": 0.00056256,
+          "upstream_inference_completions_cost": 0.0013584
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 1062,
+          "image_tokens": 0,
+          "audio_tokens": 0
+        }
+      },
+      "repeatFirstPage": true,
+      "usesDOMContinuation": false,
+      "retrievesOriginal": false,
+      "retrievesOriginalHistory": false
+    },
+    {
+      "row": 6,
+      "variant": "B",
+      "status": "executed",
+      "requestId": "0a4d2531bf273ac56560a6fa",
+      "toolCalls": [
+        {
+          "index": 0,
+          "name": "tool_result_read",
+          "arguments": "{\"resultRef\": \"8.0\", \"offset\": 0}",
+          "id": "call_2e74fd2508fc437eb6e26b10",
+          "args": {
+            "resultRef": "8.0",
+            "offset": 0
+          }
+        }
+      ],
+      "actualModel": "deepseek/deepseek-v4.1-flash",
+      "actualProvider": "Alibaba",
+      "httpStatus": 200,
+      "finishReason": "tool_calls",
+      "firstHeadersMs": 10313,
+      "firstStreamByteMs": 10723,
+      "firstResponseMs": 16530,
+      "firstToolMs": 28208,
+      "durationMs": 28432,
+      "usage": {
+        "prompt_tokens": 13877,
+        "completion_tokens": 537,
+        "total_tokens": 14414,
+        "cost": 0.00176622,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 11264,
+          "cache_write_tokens": 0,
+          "audio_tokens": 0,
+          "video_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.00176622,
+          "upstream_inference_prompt_cost": 0.00112182,
+          "upstream_inference_completions_cost": 0.0006444
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 479,
+          "image_tokens": 0,
+          "audio_tokens": 0
+        }
+      },
+      "repeatFirstPage": false,
+      "usesDOMContinuation": false,
+      "retrievesOriginal": true,
+      "retrievesOriginalHistory": false
+    }
+  ],
+  "evaluation": {
+    "schemaVersion": 1,
+    "method": "Current agent read-only review of raw gateway SSE and frozen public inputs; no independent-agent blind-review claim",
+    "rows": [
+      {
+        "row": 1,
+        "variant": "A",
+        "kind": "provider-error-no-decision",
+        "toolParameterChecks": [],
+        "repeatFirstPage": false,
+        "usesLocator": false,
+        "directDOMOffset12": false,
+        "alternativePublicBasis": null,
+        "unjustifiedRepeat": null,
+        "checkedCompletion": false,
+        "unsupportedExpectedOutcomeAdded": false
+      },
+      {
+        "row": 2,
+        "variant": "B",
+        "kind": "retrieve-original-omitted-dom-receipt",
+        "toolParameterChecks": [
+          {
+            "name": "tool_result_read",
+            "args": {
+              "resultRef": "8.0",
+              "offset": 0
+            },
+            "parameterShape": "valid",
+            "toolExecuted": false,
+            "runtimeTargetValidity": "not executed / unknown"
+          }
+        ],
+        "repeatFirstPage": false,
+        "usesLocator": true,
+        "directDOMOffset12": false,
+        "alternativePublicBasis": null,
+        "unjustifiedRepeat": null,
+        "checkedCompletion": false,
+        "unsupportedExpectedOutcomeAdded": false
+      },
+      {
+        "row": 3,
+        "variant": "B",
+        "kind": "retrieve-original-omitted-dom-receipt",
+        "toolParameterChecks": [
+          {
+            "name": "tool_result_read",
+            "args": {
+              "resultRef": "8.0",
+              "offset": 0
+            },
+            "parameterShape": "valid",
+            "toolExecuted": false,
+            "runtimeTargetValidity": "not executed / unknown"
+          }
+        ],
+        "repeatFirstPage": false,
+        "usesLocator": true,
+        "directDOMOffset12": false,
+        "alternativePublicBasis": null,
+        "unjustifiedRepeat": null,
+        "checkedCompletion": false,
+        "unsupportedExpectedOutcomeAdded": false
+      },
+      {
+        "row": 4,
+        "variant": "A",
+        "kind": "reasonable-targeted-dom-information-gathering",
+        "toolParameterChecks": [
+          {
+            "name": "page_inspect",
+            "args": {
+              "selector": "input, [role=\"dialog\"], [role=\"listbox\"], [role=\"checkbox\"], fieldset, legend, [aria-hidden], [hidden], div[id], section",
+              "offset": 0
+            },
+            "parameterShape": "valid",
+            "toolExecuted": false,
+            "runtimeTargetValidity": "not executed / unknown"
+          }
+        ],
+        "repeatFirstPage": false,
+        "usesLocator": false,
+        "directDOMOffset12": false,
+        "alternativePublicBasis": "Filters remains pending and its postcondition is unknown; querying public form/hidden/section/ARIA structures is reasonable fact gathering. No discovered association is assumed.",
+        "unjustifiedRepeat": null,
+        "checkedCompletion": false,
+        "unsupportedExpectedOutcomeAdded": false
+      },
+      {
+        "row": 5,
+        "variant": "A",
+        "kind": "refresh-and-repeat-first-page",
+        "toolParameterChecks": [
+          {
+            "name": "page_observe",
+            "args": {},
+            "parameterShape": "valid",
+            "toolExecuted": false,
+            "runtimeTargetValidity": "not executed / unknown"
+          },
+          {
+            "name": "page_inspect",
+            "args": {
+              "selector": "body *",
+              "offset": 0
+            },
+            "parameterShape": "valid",
+            "toolExecuted": false,
+            "runtimeTargetValidity": "not executed / unknown"
+          }
+        ],
+        "repeatFirstPage": true,
+        "usesLocator": false,
+        "directDOMOffset12": false,
+        "alternativePublicBasis": null,
+        "unjustifiedRepeat": "unknown: refresh was proposed; no contemporaneous change requiring refresh was established. Occurrence is proven; absence of a reason is not.",
+        "checkedCompletion": false,
+        "unsupportedExpectedOutcomeAdded": false
+      },
+      {
+        "row": 6,
+        "variant": "B",
+        "kind": "retrieve-original-omitted-dom-receipt",
+        "toolParameterChecks": [
+          {
+            "name": "tool_result_read",
+            "args": {
+              "resultRef": "8.0",
+              "offset": 0
+            },
+            "parameterShape": "valid",
+            "toolExecuted": false,
+            "runtimeTargetValidity": "not executed / unknown"
+          }
+        ],
+        "repeatFirstPage": false,
+        "usesLocator": true,
+        "directDOMOffset12": false,
+        "alternativePublicBasis": null,
+        "unjustifiedRepeat": null,
+        "checkedCompletion": false,
+        "unsupportedExpectedOutcomeAdded": false
+      }
+    ],
+    "groups": {
+      "A": {
+        "planned": 3,
+        "executed": 3,
+        "decisions": 2,
+        "usesLocator": 0,
+        "repeatFirstPage": 1,
+        "directDOMOffset12": 0,
+        "costUsd": 0.00315432
+      },
+      "B": {
+        "planned": 3,
+        "executed": 3,
+        "decisions": 3,
+        "usesLocator": 3,
+        "repeatFirstPage": 0,
+        "directDOMOffset12": 0,
+        "costUsd": 0.00465186
+      }
+    },
+    "predefinedSupportCriterionMet": true,
+    "conclusion": "supported-local-diagnostic-signal",
+    "interpretation": "B3/3 retrieved original8.0; A0/3, first-page repeats A1/3 vs B0/3. Matches predeclared local criterion. No direct DOM offset12 or executed progress occurred.",
+    "limitations": [
+      "A1 provider502 failure retained: only2 valid A decisions versus3 B",
+      "A4 is a reasonable alternative, not a wrong decision",
+      "A5 repeat occurrence does not establish repetition without reason",
+      "visible prompt cache hits; no strict cold-start or pure latency causality",
+      "n=3 per group is diagnostic only; no stable success-rate estimate",
+      "tool argument legality does not establish completing a check"
+    ],
+    "uniqueNextQuestion": "Can the existing public DOM facts for the pending Filters obligation yield an executable operation and a defensible measured postcondition, rather than another whole-page refresh?",
+    "rawAudit": {
+      "requestCount": 6,
+      "variantOrderVerified": true,
+      "rawGatewayRecords": 6,
+      "wireInputsIdenticalToFrozenVariants": true,
+      "modelIdentityMatches": true,
+      "providerMatches": true,
+      "singleRequestSeqOne": true,
+      "dispatchRows": 6,
+      "toolExecutions": 0,
+      "browserExecutions": 0,
+      "actualCostUsd": 0.00780618,
+      "knownCostUsd": 2.11661055,
+      "remainingUsd": 17.88338945,
+      "effectiveUnknown": 0,
+      "held": 0,
+      "lease": 0,
+      "oldStagesUnchanged": true,
+      "oldRawUnknownPreserved": true,
+      "stopEvents": 0,
+      "r0Acceptance": "not-passed; unchanged",
+      "rawFeeNote": "row1 usage.cost=0 with provider error; upstream_inference_cost=0.004662 retained separately, not substituted for billed cost"
+    },
+    "toolExecutionCount": 0,
+    "browserCount": 0,
+    "additionalCallsAfterBatch": 0
+  },
+  "audit": {
+    "requestCount": 6,
+    "variantOrderVerified": true,
+    "rawGatewayRecords": 6,
+    "wireInputsIdenticalToFrozenVariants": true,
+    "modelIdentityMatches": true,
+    "providerMatches": true,
+    "singleRequestSeqOne": true,
+    "dispatchRows": 6,
+    "toolExecutions": 0,
+    "browserExecutions": 0,
+    "actualCostUsd": 0.00780618,
+    "knownCostUsd": 2.11661055,
+    "remainingUsd": 17.88338945,
+    "effectiveUnknown": 0,
+    "held": 0,
+    "lease": 0,
+    "oldStagesUnchanged": true,
+    "oldRawUnknownPreserved": true,
+    "stopEvents": 0,
+    "r0Acceptance": "not-passed; unchanged",
+    "rawFeeNote": "row1 usage.cost=0 with provider error; upstream_inference_cost=0.004662 retained separately, not substituted for billed cost",
+    "allPriorCampaignRowsPreserved": true,
+    "allPriorRequestRowsPreserved": 821,
+    "allPriorReconciliationsPreserved": true
+  },
+  "costs": {
+    "AUsd": 0.00315432,
+    "BUsd": 0.00465186,
+    "incrementalUsd": 0.00780618,
+    "sharedKnownUsd": 2.11661055,
+    "remainingUsd": 17.88338945,
+    "unknown": 0,
+    "held": 0,
+    "lease": 0,
+    "accounting": "original shared ledger, response usage.cost; upstream_inference_cost separately retained",
+    "billingDefinitionSource": "https://openrouter.ai/blog/insights/cost-vs-quality-tradeoff-framework-for-agent-models/"
+  },
+  "rawArchive": {
+    "path": "data/r0-dom-locator-shadow-20261008-01/dom-locator-shadow-evidence.tar.gz",
+    "bytes": 202357,
+    "sha256": "d20c1726dc08c151348949b8967ea1fe1caafc182a5f72b95880233f2c46133c"
+  },
+  "localDirectory": "data/r0-dom-locator-shadow-20261008-01",
+  "rawIdentities": [
+    {
+      "path": "data/r0-dom-locator-shadow-20261008-01/requests.jsonl",
+      "bytes": 323343,
+      "sha256": "784b00bbb284c73ce9ee47c2041324f471a290e195cdbacf740492bba704c9f7"
+    },
+    {
+      "path": "data/r0-dom-locator-shadow-20261008-01/responses.jsonl",
+      "bytes": 580352,
+      "sha256": "bb3886a3f28e88994982e60691d4c5fcb40bbd20b5f7604e56e18f34f933248d"
+    },
+    {
+      "path": "data/r0-dom-locator-shadow-20261008-01/ledger.jsonl",
+      "bytes": 6812,
+      "sha256": "0aa557099f6851313755978a3abc2811ded8e921d3f6870af3e8c3a95570795c"
+    },
+    {
+      "path": "data/r0-dom-locator-shadow-20261008-01/runner.ts",
+      "bytes": 11752,
+      "sha256": "c028764b494e40eb2a0369eb98afc19ee6adbafd58e61d372724ac6bcdf41d42"
+    },
+    {
+      "path": "data/r0-dom-locator-shadow-20261008-01/raw-audit.json",
+      "bytes": 827,
+      "sha256": "6e7788f0fab5b6d5bad551a05e33d6a58c136473c73f57a415e88c9c2db29981"
+    },
+    {
+      "path": "data/r0-dom-locator-shadow-20261008-01/campaign-ledger-final-snapshot.db",
+      "bytes": 286720,
+      "sha256": "a929f62d5849d80ecb8804e5120bab45adfa471ce77b7fdf4fdd06ebe627ffde"
+    }
+  ],
+  "evidenceReused": {
+    "DOMMemoryTests": 20,
+    "feeTests": 41,
+    "rerun": false,
+    "browserScenesRerun": false,
+    "R0AcceptanceRerun": false
+  },
+  "changedProductOrR1": false,
+  "continuedAfterBatch": false,
+  "nextQuestion": "Can the existing public DOM facts for the pending Filters obligation yield an executable operation and a defensible measured postcondition, rather than another whole-page refresh?",
+  "limitations": [
+    "A1 provider502 failure retained: only2 valid A decisions versus3 B",
+    "A4 is a reasonable alternative, not a wrong decision",
+    "A5 repeat occurrence does not establish repetition without reason",
+    "visible prompt cache hits; no strict cold-start or pure latency causality",
+    "n=3 per group is diagnostic only; no stable success-rate estimate",
+    "tool argument legality does not establish completing a check"
+  ]
+}
