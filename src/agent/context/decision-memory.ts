@@ -32,6 +32,32 @@ function projection(item: Record<string, unknown>, receiptRef: string) {
     receiptRef,
   }
 }
+/** DOM offsets count matched elements, not the JSON characters used by tool_result_read. */
+function domLocator(summary: ReturnType<typeof projection>, queryBudget = 256) {
+  if (summary.tool !== 'page_inspect') return {}
+  const args =
+    summary.args && typeof summary.args === 'object'
+      ? (summary.args as Record<string, unknown>)
+      : {}
+  const query: { selector?: string; offset?: number } = {}
+  const exactQuery = typeof args.selector === 'string' && bytes(args.selector) <= queryBudget
+  // Never truncate a CSS selector into another query, or guess a missing default.
+  if (exactQuery) query.selector = args.selector as string
+  if (Number.isSafeInteger(args.offset) && Number(args.offset) >= 0)
+    query.offset = Number(args.offset)
+  const data = summary as Record<string, unknown>
+  return {
+    ...(Object.keys(query).length ? { args: query } : {}),
+    ...(!exactQuery ? { queryOmitted: true } : {}),
+    ...(Number.isSafeInteger(data.total) && Number(data.total) >= 0
+      ? { total: Number(data.total) }
+      : {}),
+    ...(data.nextOffset === null ||
+    (Number.isSafeInteger(data.nextOffset) && Number(data.nextOffset) >= 0)
+      ? { nextOffset: data.nextOffset as number | null }
+      : {}),
+  }
+}
 function receipt(item: Record<string, unknown>, resultRef: string, budget: number) {
   const summary = projection(item, resultRef)
   if (bytes(summary) <= budget) return summary
@@ -57,6 +83,7 @@ function receipt(item: Record<string, unknown>, resultRef: string, budget: numbe
     hypothesisId: boundedText(summary.hypothesisId, 80),
     error: boundedText(summary.error, 80),
     nextStep: boundedText(summary.nextStep, 160),
+    ...domLocator(summary),
     hint: 'Payload exceeds this page. Use tool_result_read(resultRef) for the original result.',
   }
   return short
@@ -133,6 +160,7 @@ export function boundedHistoryPage(history: readonly HistoryEntry[], start: numb
       id: t.id && Buffer.byteLength(t.id) <= 100 ? t.id : undefined,
       verdict: t.verdict,
       validationStatus: t.validationStatus,
+      ...domLocator(t as ReturnType<typeof projection>, 80),
     }))
   }
   if (bytes(page) > 1800) throw new Error('history-page-budget-contract')
