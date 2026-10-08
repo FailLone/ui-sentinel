@@ -1,0 +1,525 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-08",
+  "status": "restricted-implementation-and-free-evidence-delivered",
+  "candidate": "b5dd38c4a8e9ad015a714fb38101f90e07913cfe",
+  "implementationCommits": [
+    "60e8f6f85b66d823ef4e6034f3d1aae1d38e4a1a",
+    "b5dd38c4a8e9ad015a714fb38101f90e07913cfe"
+  ],
+  "trees": {
+    "dist": "cbee9410c87103930223f572524ea12e3ef707b0a25d6535428ba4b40d5bc53d",
+    "src": "f3b450c664e81aee7e5cbf0b2ffc9fe6c8247c77d56e656881af141b81469b48",
+    "scripts": "78c06ca6342461bd49f8647cf308daae93b0784eb290224807291ce3dd9bcc37"
+  },
+  "runtime": {
+    "node": "v24.21.0",
+    "pnpm": "10.17.1",
+    "dependenciesReinstalled": false
+  },
+  "contractDifference": {
+    "privateOnlyRequirement": "overlay healthy scorer requires Filters opened; no runtime public required check declaration existed",
+    "solution": "Caller-owned explicit public requiredChecks -> hashed UI contract -> mandatory selected scope -> exact observed native node binding -> original action/measurement/proof/commit",
+    "goalMappingAuthority": "API caller/user; never page, model, private oracle or sample id",
+    "completeNaturalLanguageMappingProved": false,
+    "defaultLegacyAutomaticClosing": false,
+    "policyRevision": "url-scan-scope-2"
+  },
+  "freeVerification": {
+    "unitAndPersistence": {
+      "passed": 92,
+      "failed": 0,
+      "files": 7,
+      "log": "data/r0-required-scope-delivery/logs/targeted-final.log"
+    },
+    "apiSdkChromium": {
+      "passed": 9,
+      "failed": 0,
+      "finalBatch": "data/r0-required-scope/2026-10-08T01-51-50-089Z",
+      "rows": [
+        {
+          "mode": "invalid-public-source",
+          "passed": true,
+          "allocatedRuns": 0
+        },
+        {
+          "mode": "row4-closing",
+          "runId": "run-5600b7aa-b64a-4a7e-9df8-10c12bc18a5a",
+          "passed": true,
+          "status": "completed",
+          "actions": 3,
+          "modelCalls": 3,
+          "proofVerified": true,
+          "persistence": "verified"
+        },
+        {
+          "mode": "bulk-default-denied",
+          "runId": "run-80478667-8a01-4c88-bd2e-251592251ef8",
+          "passed": true,
+          "status": "completed",
+          "actions": 2,
+          "modelCalls": 3,
+          "proofVerified": true,
+          "persistence": "verified"
+        },
+        {
+          "mode": "filter-pending",
+          "runId": "run-07cd2b5c-ee6a-4104-af19-a8859ed27a39",
+          "passed": true,
+          "status": "completed",
+          "actions": 4,
+          "modelCalls": 5,
+          "proofVerified": true,
+          "persistence": "verified"
+        },
+        {
+          "mode": "unmapped",
+          "runId": "run-22937678-c9ef-44c2-9c92-f80f42a3bfb0",
+          "passed": true,
+          "status": "blocked",
+          "actions": 3,
+          "modelCalls": 5,
+          "proofVerified": true,
+          "persistence": "verified"
+        },
+        {
+          "mode": "optional-denied",
+          "runId": "run-9d0ab43c-fd1c-4f6d-9350-f0aeeedf4217",
+          "passed": true,
+          "status": "completed",
+          "actions": 3,
+          "modelCalls": 4,
+          "proofVerified": true,
+          "persistence": "verified"
+        },
+        {
+          "mode": "cancel-closing",
+          "runId": "run-67d2e5eb-3514-4a21-b9f1-b7b9bbb55653",
+          "passed": true,
+          "status": "cancelled",
+          "actions": 2,
+          "modelCalls": 3,
+          "proofVerified": false,
+          "persistence": "not-final"
+        },
+        {
+          "mode": "execution-fault",
+          "runId": "run-270aa139-1f2f-4512-a7e4-cb08158121fa",
+          "passed": true,
+          "status": "execution-error",
+          "actions": 3,
+          "modelCalls": 3,
+          "proofVerified": false,
+          "persistence": "not-final"
+        },
+        {
+          "mode": "real-blocker",
+          "runId": "run-ee171c34-929a-4ad5-a76e-cc7f234ebc55",
+          "passed": true,
+          "status": "blocked",
+          "actions": 0,
+          "modelCalls": 0,
+          "proofVerified": true,
+          "persistence": "verified"
+        }
+      ],
+      "scriptedLocalModel": true,
+      "realModelStabilityClaim": false,
+      "completeSingleBatchDenominator": true
+    },
+    "buildLog": "data/r0-required-scope-delivery/logs/build-authorized.log",
+    "audit": {
+      "candidate": "b5dd38c4a8e9ad015a714fb38101f90e07913cfe",
+      "batch": "data/r0-required-scope/2026-10-08T01-51-50-089Z",
+      "method": "Current agent: fresh SQLite mode=ro checks, exact report event/terminal comparison, all downloaded artifact bytes/SHA256/run ownership. Not a separate agent blind review.",
+      "artifactsVerified": 132,
+      "facts": [
+        {
+          "mode": "row4-closing",
+          "runId": "run-5600b7aa-b64a-4a7e-9df8-10c12bc18a5a",
+          "status": "completed",
+          "scope": "covered",
+          "findings": 0,
+          "contractHash": "0cd60c6fb36870ff54a1c5bc1a29b12d07d6c9f8b1bb79e45a385af8d1207fc7",
+          "requiredRegistry": [
+            {
+              "itemId": "item-bba9aa4b-dbc0-45b0-ac51-8984b21d2c99",
+              "selected": true,
+              "status": "verified",
+              "basis": "public-required:choose-name: Choose the public Name option"
+            },
+            {
+              "itemId": "item-509b2838-e10e-4357-b09c-7f8202a3fb5d",
+              "selected": true,
+              "status": "verified",
+              "basis": "public-required:apply-name: Apply the selected public sort"
+            },
+            {
+              "itemId": "item-348b066c-600c-4510-b5a8-deebb3c9930c",
+              "selected": true,
+              "status": "verified",
+              "basis": "public-required:catalog-info: Check the public catalog link"
+            }
+          ],
+          "closingSeqs": [
+            164
+          ],
+          "finishRejected": [],
+          "artifactsVerified": 18,
+          "rawDatabaseEventsAndTerminalMatch": true
+        },
+        {
+          "mode": "bulk-default-denied",
+          "runId": "run-80478667-8a01-4c88-bd2e-251592251ef8",
+          "status": "completed",
+          "scope": "covered",
+          "findings": 0,
+          "contractHash": "c3fc042f2e6cb1571edc50cf4aad9e24ab67458ec9e850ce59982d833bc42a97",
+          "requiredRegistry": [
+            {
+              "itemId": "item-a915aa4b-a9b9-4aae-a521-54d82ee76598",
+              "selected": true,
+              "status": "verified",
+              "basis": "public-required:catalog-info: Check the public catalog link"
+            }
+          ],
+          "closingSeqs": [
+            119
+          ],
+          "finishRejected": [],
+          "artifactsVerified": 12,
+          "rawDatabaseEventsAndTerminalMatch": true
+        },
+        {
+          "mode": "filter-pending",
+          "runId": "run-07cd2b5c-ee6a-4104-af19-a8859ed27a39",
+          "status": "completed",
+          "scope": "covered",
+          "findings": 0,
+          "contractHash": "7ca7284525f4879c33027318205f6e04e19349a41959f3481df9bfde96a293b9",
+          "requiredRegistry": [
+            {
+              "itemId": "item-4bbb5536-9756-4fe2-9372-7332f190d181",
+              "selected": true,
+              "status": "verified",
+              "basis": "public-required:choose-name: Choose the public Name option"
+            },
+            {
+              "itemId": "item-981a77ee-70cb-4adb-97dd-33962859de13",
+              "selected": true,
+              "status": "verified",
+              "basis": "public-required:apply-name: Apply the selected public sort"
+            },
+            {
+              "itemId": "item-f24fc09d-ebe5-405d-ae2c-79417a29f437",
+              "selected": true,
+              "status": "verified",
+              "basis": "public-required:catalog-info: Check the public catalog link"
+            },
+            {
+              "itemId": "item-65773d29-0916-4e9d-b596-e6d1bdc08220",
+              "selected": true,
+              "status": "verified",
+              "basis": "public-required:filter: Check the public Filters disclosure"
+            }
+          ],
+          "closingSeqs": [
+            264
+          ],
+          "finishRejected": [
+            {
+              "seq": 168,
+              "reason": "scope-incomplete",
+              "missingItems": [
+                "item-f24fc09d-ebe5-405d-ae2c-79417a29f437",
+                "item-65773d29-0916-4e9d-b596-e6d1bdc08220",
+                "item-66615347-aefe-4df5-b223-e5ad43e107b1",
+                "item-2f325c61-c2f6-466f-aaec-78f15448de37"
+              ]
+            }
+          ],
+          "artifactsVerified": 28,
+          "rawDatabaseEventsAndTerminalMatch": true
+        },
+        {
+          "mode": "unmapped",
+          "runId": "run-22937678-c9ef-44c2-9c92-f80f42a3bfb0",
+          "status": "blocked",
+          "scope": "partial",
+          "findings": 0,
+          "contractHash": "bd2c76df2af498c2148d7679eb22092e055948451fb471e1045e74e906d6c90b",
+          "requiredRegistry": [
+            {
+              "itemId": "item-4f3d2b2d-64a4-4f90-90a5-d4ff68cfd760",
+              "selected": true,
+              "status": "verified",
+              "basis": "public-required:choose-name: Choose the public Name option"
+            },
+            {
+              "itemId": "item-e7b3b82b-e6f0-4fd6-9edd-8dc8294ab268",
+              "selected": true,
+              "status": "verified",
+              "basis": "public-required:apply-name: Apply the selected public sort"
+            },
+            {
+              "itemId": "item-b441feac-1d97-4135-94ef-3cb263fd2cd7",
+              "selected": true,
+              "status": "verified",
+              "basis": "public-required:catalog-info: Check the public catalog link"
+            },
+            {
+              "itemId": "item-e9db8045-0105-4a59-9ac0-74e4c4ad5317",
+              "selected": true,
+              "status": "pending",
+              "basis": "public-required:filter: Check the public Filters disclosure"
+            }
+          ],
+          "closingSeqs": [],
+          "finishRejected": [
+            {
+              "seq": 184,
+              "reason": "scope-incomplete",
+              "missingItems": [
+                "item-e9db8045-0105-4a59-9ac0-74e4c4ad5317"
+              ]
+            }
+          ],
+          "artifactsVerified": 22,
+          "rawDatabaseEventsAndTerminalMatch": true
+        },
+        {
+          "mode": "optional-denied",
+          "runId": "run-9d0ab43c-fd1c-4f6d-9350-f0aeeedf4217",
+          "status": "completed",
+          "scope": "covered",
+          "findings": 0,
+          "contractHash": "abf380e4c3ab5c5aacb0500f5941ed3cf1d767bb02b8c673a1c5a50044069920",
+          "requiredRegistry": [
+            {
+              "itemId": "item-7e8d85f8-5e05-453a-bf98-de4017452bf1",
+              "selected": true,
+              "status": "verified",
+              "basis": "public-required:choose-name: Choose the public Name option"
+            },
+            {
+              "itemId": "item-f49a1255-6eec-430c-b92b-378eb7a4a2f2",
+              "selected": true,
+              "status": "verified",
+              "basis": "public-required:apply-name: Apply the selected public sort"
+            },
+            {
+              "itemId": "item-0009ae52-4796-47e8-bf05-436ceefc5747",
+              "selected": true,
+              "status": "verified",
+              "basis": "public-required:catalog-info: Check the public catalog link"
+            }
+          ],
+          "closingSeqs": [
+            198
+          ],
+          "finishRejected": [],
+          "artifactsVerified": 20,
+          "rawDatabaseEventsAndTerminalMatch": true
+        },
+        {
+          "mode": "cancel-closing",
+          "runId": "run-67d2e5eb-3514-4a21-b9f1-b7b9bbb55653",
+          "status": "cancelled",
+          "scope": "partial",
+          "findings": 0,
+          "contractHash": "abf380e4c3ab5c5aacb0500f5941ed3cf1d767bb02b8c673a1c5a50044069920",
+          "requiredRegistry": [
+            {
+              "itemId": "item-af5695ce-f5fa-4a03-a7a0-9ff8c973ad8b",
+              "selected": true,
+              "status": "verified",
+              "basis": "public-required:choose-name: Choose the public Name option"
+            },
+            {
+              "itemId": "item-23dc3e8b-91ed-4a51-a205-32cbdae76991",
+              "selected": true,
+              "status": "verified",
+              "basis": "public-required:apply-name: Apply the selected public sort"
+            },
+            {
+              "itemId": "item-b887feb5-1d46-4d8d-a3ab-0dcfddd80071",
+              "selected": true,
+              "status": "pending",
+              "basis": "public-required:catalog-info: Check the public catalog link"
+            }
+          ],
+          "closingSeqs": [],
+          "finishRejected": [],
+          "artifactsVerified": 14,
+          "rawDatabaseEventsAndTerminalMatch": true
+        },
+        {
+          "mode": "execution-fault",
+          "runId": "run-270aa139-1f2f-4512-a7e4-cb08158121fa",
+          "status": "execution-error",
+          "scope": "partial",
+          "findings": 0,
+          "contractHash": "abf380e4c3ab5c5aacb0500f5941ed3cf1d767bb02b8c673a1c5a50044069920",
+          "requiredRegistry": [
+            {
+              "itemId": "item-e1edee8e-fb8c-467a-bbbf-ec493f5a9151",
+              "selected": true,
+              "status": "verified",
+              "basis": "public-required:choose-name: Choose the public Name option"
+            },
+            {
+              "itemId": "item-e11165a0-749c-4347-8c89-c668908333d0",
+              "selected": true,
+              "status": "verified",
+              "basis": "public-required:apply-name: Apply the selected public sort"
+            },
+            {
+              "itemId": "item-dd2c7e03-04fc-42fc-9f77-b9cb36f2122f",
+              "selected": true,
+              "status": "pending",
+              "basis": "public-required:catalog-info: Check the public catalog link"
+            }
+          ],
+          "closingSeqs": [],
+          "finishRejected": [],
+          "artifactsVerified": 16,
+          "rawDatabaseEventsAndTerminalMatch": true
+        },
+        {
+          "mode": "real-blocker",
+          "runId": "run-ee171c34-929a-4ad5-a76e-cc7f234ebc55",
+          "status": "blocked",
+          "scope": "partial",
+          "findings": 0,
+          "contractHash": "a690ade3af7a92b1ba95f6ba13e0b7cb5ea2021a725852820dbbc4b2585ed709",
+          "requiredRegistry": [],
+          "closingSeqs": [],
+          "finishRejected": [],
+          "artifactsVerified": 2,
+          "rawDatabaseEventsAndTerminalMatch": true
+        }
+      ],
+      "passed": true,
+      "paidRequests": 0
+    },
+    "priorAttempts": [
+      {
+        "directory": "data/r0-required-scope/2026-10-08T00-57-05-172Z",
+        "authoritativeForFinalCandidate": false,
+        "role": "sandbox local-listen setup refusal before model/browser request"
+      },
+      {
+        "directory": "data/r0-required-scope/2026-10-08T00-58-11-757Z",
+        "authoritativeForFinalCandidate": false,
+        "role": "harness coverage field path error; raw reports retained, actual unmapped run was durable partial",
+        "recordedScenarios": 3
+      },
+      {
+        "directory": "data/r0-required-scope/2026-10-08T01-00-39-803Z",
+        "authoritativeForFinalCandidate": false,
+        "scenarios": 8,
+        "passed": true,
+        "role": "superseded free wiring run; not merged into final denominator"
+      },
+      {
+        "directory": "data/r0-required-scope/2026-10-08T01-48-28-274Z",
+        "authoritativeForFinalCandidate": false,
+        "scenarios": 9,
+        "passed": true,
+        "role": "superseded free wiring run; not merged into final denominator"
+      }
+    ]
+  },
+  "historicalEvidenceReuse": {
+    "actionContract": {
+      "candidate": "adc6b540b7c25c06cbcad7d3e8b657d480bec474",
+      "targetedTests": 57,
+      "businessBoundaryRegressions": 5,
+      "apiScenarios": 8,
+      "index": "plans/evidence/r0-action-contract-delivery.json",
+      "notCountedInNewBatch": true,
+      "unchangedImplementationPaths": [
+        "src/execution/action-input.ts",
+        "src/execution/tool-contract-repair.ts",
+        "src/execution/remaining-obligation-guidance.ts",
+        "src/execution/progress-detector.ts"
+      ]
+    },
+    "prefixReview": {
+      "index": "plans/evidence/r0-scope-finish-prefix-review.json",
+      "row4Cutoff": 176,
+      "row2Cutoff": 273,
+      "method": "Reuse current-agent prior read-only original DB/event-prefix/artifact hash audit; no historical finalization/terminal rewritten",
+      "historicalRowsNotPromoted": true
+    },
+    "paidAcceptance": {
+      "candidate": "adc6b54",
+      "diagnostic": "5/6; unchanged failed",
+      "formalUi": "0/15",
+      "businessDiagnostic": "0/5",
+      "businessFormal": "0/45"
+    }
+  },
+  "evidenceArchive": {
+    "path": "data/r0-required-scope-delivery/r0-required-scope-evidence.tar.gz",
+    "bytes": 8422778,
+    "sha256": "98b843b8687909ca1b02dd68dfd00f57e4c6714a72eb656461e50883c15ae41c",
+    "files": 546,
+    "allPackedBytesVerifiedAgainstOriginal": true,
+    "credentialsIncluded": false
+  },
+  "paid": {
+    "newRequests": 0,
+    "newCostUsd": "0",
+    "status": "paused-by-user",
+    "ledgerReadOnly": {
+      "readAt": "2026-10-08T01:51:51.115043+00:00",
+      "method": "SQLite mode=ro; no gateway/request/reconciliation writes",
+      "ledger": "data/r0-final-acceptance/2026-10-07/paid-ledger/campaign.db",
+      "campaignId": "0946f830-00b6-4f46-af69-79bd2166ef9d",
+      "databaseSha256": "6335ebfe8c5419ca1d0f70344a0a43c0f210900f8c9b69afee3214f407c965b3",
+      "statuses": {
+        "settled": 797
+      },
+      "knownCostUsd": "2.01891375",
+      "limitUsd": "20.0",
+      "remainingUsd": "17.98108625",
+      "unknownCount": 0,
+      "heldCount": 0,
+      "leaseCount": 0,
+      "newPaidCostUsd": "0"
+    },
+    "authorizationRestored": false,
+    "newPaidManifestCreated": false
+  },
+  "limits": [
+    "Explicit complete public declaration required; missing natural-language requirements cannot be inferred from private oracle",
+    "Workbench still submits legacy textual goal; public manifest/entry wiring must be completed and reviewed before any paid freeze",
+    "Only entry-page unique visible native candidate targets and existing bounded interaction predicates; no multi-step goal compiler",
+    "Original candidate cap 8, local controls cap 3/page, same-origin/page/depth/action/model/time limits remain",
+    "No trustworthy optional exploratory cost upper bound exists, so production conservatively refuses new optional branches",
+    "True cancel, execution fault and unknown write contracts unchanged; accepted existing business boundary evidence reused, no new business paid run",
+    "Free scripted wiring evidence does not prove real-model stability or R0 acceptance"
+  ],
+  "r0Passed": false,
+  "r1ScopeExpanded": false,
+  "roadmapMaintainerUpdate": "R0 remains not passed / paid acceptance paused; public required scope registration and automatic closing delivered as an opt-in API contract; source completeness and workbench/freezing public declaration alignment remain before paid resumption. Preserve main workspace roadmap edits.",
+  "references": [
+    {
+      "path": "plans/r0-required-scope-interface.md",
+      "sha256": "ba32599b86ec2e2c642fa2097c646944bd7854974442f0ea3f9a5bdf7d9549b5"
+    },
+    {
+      "path": "plans/evidence/r0-scope-finish-prefix-review.json",
+      "sha256": "474ff172404fc8a786c884ca5125b9cfbe9739ab922ac4c475430c1c226565bb"
+    },
+    {
+      "path": "plans/evidence/r0-action-contract-delivery.json",
+      "sha256": "bb7d7f3df23a89b0d46c5fb191b6c0bfb857354b21f90bd9758ded44d84ff752"
+    },
+    {
+      "path": "plans/evidence/r0-adc6b54-final-delivery.json",
+      "sha256": "9e95ba890ad112ae2ba284d9adda40d844df4612e39c550f8a438b7b938ad010"
+    }
+  ]
+}
