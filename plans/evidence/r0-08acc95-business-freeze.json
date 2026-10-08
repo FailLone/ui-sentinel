@@ -1,0 +1,504 @@
+{
+  "candidate": "08acc95d7f67a1ac3cbcf3d9decc9add2f2907eb",
+  "identity": {
+    "commit": "08acc95d7f67a1ac3cbcf3d9decc9add2f2907eb",
+    "buildHash": "5577c00044cddbda48ba2ee24fb849611ea6697ba053d2e3a855fd0415c352be",
+    "buildFiles": {
+      "arena/checkout/dist/assets/index-Cn9ikrP4.css": "a71c73e9641843195f11bb2820016a1f1b8f702c70344ca3aaaa4ca3094d72a3",
+      "arena/checkout/dist/assets/index-R3aC0kld.js": "5c919a9a7225f676f4e1c83ce10d06b2bb88942311263dc33ac032d1ffa4e858",
+      "arena/checkout/dist/index.html": "1060e333955d61d8ba95690aa33f46f937907223e5acd7e1ce2a27b32c422722",
+      "arena/export/dist/assets/index-BPykemcR.js": "a373777991983a3085fcfbca2fe6a1b3bc4daa7ebd5f615a06255e73ca952f52",
+      "arena/export/dist/assets/index-Bt7wR6p6.css": "507b1eee209dde07593e3a6be447243ec6d0da19ef2cfa975465623a6d3dfbe0",
+      "arena/export/dist/index.html": "d5a0ffa864ee93c121f0efcd48346de73c8699db7e020d1e8f61fd641536fe71",
+      "dist/arena-export/index.js": "286ca24da4d4e1bc5264a7263159388551e3bf90d42c90ccf8768e045df7c4a3",
+      "dist/arena/index.js": "d7e064decc61ce52a56c4b98c363dea4c4e5979d9fe262361264c3d516431559",
+      "dist/server/index.js": "8522b167f043da20e351ac55cfe2b8a570e8c1dd8b1e77a9a9d1bfcc96cdff5b",
+      "dist/web/assets/index-CXdperhR.css": "9d2e2d4160a738314d05456a16c35238f522e1f6a8b336acf04a1128158acd88",
+      "dist/web/assets/index-Czr9phAL.js": "ff2823235c77680f5a86b786c1959aae4a553443b61ced22e34621a2974f63c0",
+      "dist/web/index.html": "bc8d432d8abc51e5de5a7edd963f1d133d3fb3f53cd6367a0e7a30921e4c6ff3",
+      "evaluation/fixtures/approved-retry/approval-inherited.json": "919c15e25ef8a472935f0b52606b63af968086f935dedfbe16d327d2e1aceafb",
+      "evaluation/fixtures/approved-retry/approval.json": "1e756f9850ca5fc7222ac15d96f75950cc9c2028717d00d884da204d80575997",
+      "evaluation/fixtures/approved-retry/artifacts/3df823e7-01ee-4d52-b663-f1e0ee70b2d9.png": "d75adf634e8714d3188bcc63d58c0a62a35cca15a11686ada5500f39ffbeab65",
+      "evaluation/fixtures/approved-retry/artifacts/400f90cd-e3be-455d-98cc-0eb42b07fd79.json": "d6160fab9603a2670da9c8e811148e4fe7223171c3eeb40f69eecbc88a74b236",
+      "evaluation/fixtures/approved-retry/artifacts/6bc02ad4-83f6-4add-93c6-a76b954c7fa4.json": "e7a39ce42f1ae9080ef0bba2f2176a85bbad9441de16ac3351a3c164f076c6c2",
+      "evaluation/fixtures/approved-retry/artifacts/a0271a3f-aacc-4eb4-9b4c-96d4bcca2c15.png": "d75adf634e8714d3188bcc63d58c0a62a35cca15a11686ada5500f39ffbeab65",
+      "evaluation/fixtures/approved-retry/artifacts/ad31a52a-e09c-4f1f-a23b-9f157e324707.json": "7557df6e95478ec13bb2b775ccff31f5362dab12c7b0969a0359500e304ecfe0",
+      "evaluation/fixtures/approved-retry/healthy-counterexample.json": "295b129758c84df18e08ccc03868fe1b1ce44c39260b79c61b2bc739bbe78ec9",
+      "evaluation/fixtures/approved-retry/healthy-counterexample.png": "d787eda3887f58c8a2ca4af5d819cc596911a91f2302e3a4241c19325a455445",
+      "evaluation/fixtures/approved-retry/manifest.json": "182b5ff29ff165c5e1b5952150ccdad3221d064eeceda5b22ea2917f615d5b95",
+      "evaluation/fixtures/approved-retry/prepared.json": "5078c69247eb29a026386580b935ed16bc2b46791caef06639befed15b8b2006",
+      "evaluation/fixtures/approved-retry/README.md": "04516a878cbb46cc3e301fbe20f231d330739cd8e820419e9371241303b0b945",
+      "evaluation/fixtures/approved-retry/recheck-summary.json": "d28e0cd1d5dfe418c51d874281d9115eacec7d204a590c70ab995dab3294516c",
+      "evaluation/fixtures/approved-retry/records.json": "3a060ac85f293917a5b3c8d0a3007bd6423ea5ba42a5b5fdc6ce9e906f3a54f9",
+      "evaluation/fixtures/approved-retry/rule.json": "060a1cd814a3ed774c914a769254ec59793346facb3eeb668bb7bb7db834f790",
+      "evaluation/fixtures/approved-retry/source.json": "d536c024d9f56e75d14c9d65b6fb5190536f21ee25b16c3e3f7dc5833b41f8dd",
+      "evaluation/fixtures/blocker.ts": "737751f846e928949414ee4eb2e6e0f74b8b3e8c8dfa5b06c8668f0f357b893d",
+      "evaluation/fixtures/generated-programs/feedback.json": "266ffc58236cfc0039a937421828fe560dd4c7d8cff23bd49dfd6d8075f39b9f",
+      "evaluation/fixtures/generated-programs/layout.json": "caab4deeaacea3389d22c200372c73c67c69fbeb429ea17a515a47069679db85",
+      "evaluation/fixtures/generated-programs/menu.json": "a73ae1d67b9e97daf12526bb3a400a9d48eb4636bce1c8d83c90f2863b48cbe0",
+      "evaluation/fixtures/generated-programs/paired-controls/feedback.json": "d1edde5122be5b5ca816b620779d6ce2b9d0f5d6c80a2d15294229581232266d",
+      "evaluation/fixtures/generated-programs/paired-controls/layout.json": "8ac3b5f2e91e7ee94601c39a6a6e50ce5985eee626fca628c4ed06a7af1258f2",
+      "evaluation/fixtures/generated-programs/paired-controls/menu.json": "78dc1c9a94a4306d699a44e133b01ba3fd10f7c57c611bd842145c06f7a08da1",
+      "evaluation/fixtures/generated-programs/README.md": "f67b500f5c038476d340d04156497c3ba83d2833348525c2264202cfcc7eea32",
+      "evaluation/fixtures/investigation.ts": "fc283852975227fa5289025315a9d53d32151bba7b074f61aebed61212e7bb5c",
+      "evaluation/fixtures/recovery.ts": "229ea6d4f928d2f96455b76141c9339436764e4d20799431b1995d1f4e747ed9",
+      "evaluation/fixtures/visual-regression-1.json": "933e1dbe7fd361a4cce76c1cf6aa874b14c1fda59824c58dce3acf02d343fc28",
+      "evaluation/fixtures/visual-revision.json": "b411fe78ed122401c675aaf1cffe9beaeb2cd571d20201c398096a91f4b605dd",
+      "evaluation/fixtures/visual.ts": "228e8696c072796ad3009309f4a062ccdf68a955828f011215429f0dfe004a8a",
+      "evaluation/preflight/visual-smoke-score.ts": "dbd5fd1600d2399dd3103f113d51ef6b5b11742523ec82b2465b16081ff7d936",
+      "evaluation/private/answers.ts": "7c501deb49635e3e06aef68911a1e74056e3db57564de9a087720bf126f7f774",
+      "evaluation/private/blocker-holdout.ts": "9b9d2799636ae2ae6f714a0618a5fcfcbbb2f23d71de8864efe026bd3f76fe4f",
+      "evaluation/private/controller.ts": "651e4c474f3648fe3e85129386a0ef966043120b58ea8eaf56aeb46484fa1084",
+      "evaluation/private/evaluator.ts": "f7c0b3b5050178f7341669e6d26961a29021c2b8cc7c7290968cbaa02a403f06",
+      "evaluation/private/export/approval-source.ts": "5bbabfc0d1fbd9186eee8d00e30ab2c083a228a994dd746108a185fe6bd9e73c",
+      "evaluation/private/export/campaign.ts": "1cdaf218349479a30e5851a9a8a37eac7b2c3e90b5b57e865504fc20887cc164",
+      "evaluation/private/export/controller.ts": "e63b8ff501fa134a2d5756dcc0cb0a35f1bab3a6bdc226939d56f72ae2000745",
+      "evaluation/private/export/diagnostic-config.ts": "6ce62a07e6e7ee80b8c09b7a7efaffc1e07e77fe270d11b924356a46d4ed1b39",
+      "evaluation/private/export/diagnostic-sequencing.ts": "1d50564b9bbaedb78dd9544bc4189880164353e5f3bf69851fa05c5517c2289b",
+      "evaluation/private/export/expectations.ts": "d3002005dd140b8d483cae44cab4c538f0f7e0fd8991134b84af5b832311a3fc",
+      "evaluation/private/export/scorer.ts": "f90157078420517f326ae35d458c8e80c6aad729477b96fd2d8e4f8edf77aa62",
+      "evaluation/private/holdout.ts": "6927a1421fa821aa1596c67c95d3f785bcc97cae1d63a36edeb7b81521c4ef62",
+      "evaluation/private/learning.ts": "b39f839d76a1305d948a940a03a758a6e6ac451464db79ba156b101f7a179087",
+      "evaluation/private/program-score.ts": "4519e2be4796525d5ecfd9e941e5901388ae4f0d41d29ec3f6cd33449d54cc05",
+      "evaluation/private/recovery-protocol.ts": "341f50925722a68a1187e03119e1b125ae696b45568d6e4f3b735530328ae5a9",
+      "evaluation/private/suite.ts": "842de53c5e18fcc8ab15cd37c35c22ad247cfb0a358d5339850d62dedbe117fa",
+      "evaluation/private/url-scan/boundary-scorer.ts": "a34d9a91a6566603d36812bb965f5a70a49ce3a90373ec67d61c2ad1c7fb1b68",
+      "evaluation/private/url-scan/finding-target.ts": "04bed055fbe8b8e7e89cc55da1c4a4e3c021d66e254b512028e6cd9614d8adab",
+      "evaluation/private/url-scan/fixture.ts": "b09398ae27899f4592f8d623116e50c18a75a645425ff0838553a8e2d8421d83",
+      "evaluation/private/url-scan/healthy-behavior.ts": "98efe630a548c79e32cb43df268b7eec3cdb4b5a67dac0601061d04264c69ac1",
+      "evaluation/private/url-scan/replay.ts": "c7b6ed427a5200f6ab7b8bfea045d3f979d8942ac2a04e3c708f4404e29ecc8d",
+      "evaluation/private/url-scan/scorer.ts": "e2c1c7b108c5a2016aad0c201cef3bcc5033b2519f42c775eb1b43177845141b",
+      "evaluation/private/url-scan/truth.ts": "f345456d7be07cbaa254a745f79f7b2fadda5b64e25629b267d5170d018b4089",
+      "evaluation/private/visual-focus/evidence-checks.ts": "946dda311b02ee0c700e5a4f3b5620897c79b6a584f979361c7eab50c573d5c8",
+      "evaluation/private/visual-focus/scorer.ts": "d109959f861d322bce6f6d35a9799352f6d90bb287ef9f2391bb73f07deb8f49",
+      "evaluation/private/visual-focus/witness.ts": "336cd44596bb8aad7af189cc6bea6148192693b985f11eec674b542ed94ed64b",
+      "evaluation/support/approved-retry.ts": "18c956c2d0061c689dad13402af83aa653fcec1a29e9a1d8d5d9dc58227def14",
+      "evaluation/support/audit-compare.ts": "192593425fc0eb3397984bef5253d3b40b5a9ca90695fe09ae4c8c53a70f9397",
+      "evaluation/support/batch-timing.ts": "8fc8669b8b5926a9bf546df8571cabd550ab7a8939657102a89ef39875cb2128",
+      "evaluation/support/build-identity.ts": "78595f505ad07e7202bd4fc194d89f4adaf2123ed11f7748dc83735d1e140c5e",
+      "evaluation/support/business-stage.ts": "bf47c1ffc2cc80479b9e5dc5c29b18f8fb1f855a959d4ce3a97a2539f7b6b7e9",
+      "evaluation/support/campaign-evidence.ts": "8adc1ccc31a2044a1e46db07d6a7d36ac2d7cdf1068ccdb509de11f57331f74d",
+      "evaluation/support/campaign-ledger.ts": "42cbde424c26cf1232b79a1f462e88d4a9d67bcd214a3fe84727fc8686b4aeff",
+      "evaluation/support/campaign-session.ts": "5e8e66ba18e26c5bfcec65e3a54e2fbcf77d1f947cb9a2f05e9291ed185ff7b4",
+      "evaluation/support/cost-reconciliation.ts": "fc63cf2a34b7683ea874c4f557cbab6f75895a30205ac094e7966a4b3b099d5f",
+      "evaluation/support/evidence-protocol.ts": "3b1c29a185698c4da4668c4aa955a12cf7051e437a2fd512fd99dcb817ceb0a2",
+      "evaluation/support/execution-plan.ts": "7079b8b44808621e3bbcbc4eb6dc50e8e74e5affe47154e78437fb15acfc518b",
+      "evaluation/support/fixture-revision.ts": "7847a784ae9f20eca067b560eb62667f8d26c95c32b7188a90a2a0885ffbdfc9",
+      "evaluation/support/formal-source.ts": "4bac4231d87fa992b6b9b3091104b7a14560707ed02448a7f72a8a2fb1144a72",
+      "evaluation/support/freeze-identity.ts": "63cdf4d0d40e0135699b5b3994add212a2481a8c1d6ef12464db5f4b7b514edd",
+      "evaluation/support/gateway-evidence.ts": "e641c4c19c59ec2ac8b3d1dba54b0edd5008f1964f348b6ad39fe3ede8dfe0a0",
+      "evaluation/support/interrupt-guard.ts": "46f25738f6946ab2460823cafbac04e77505c3ed8999e65c849c161f7c08602e",
+      "evaluation/support/model-gateway.ts": "5e762f5940b959c5d5477112b53be21494433dec375046dae2f2bea4a14b05bd",
+      "evaluation/support/module-graph.ts": "167c18b965007a8a31288910fc80e5f71baf7be1657a7964e460b56f5fe17672",
+      "evaluation/support/png.ts": "568ff42a05b5ae4dd8af4b607ab77b33b5d382e936eb71e845cfc528acb5a7ba",
+      "evaluation/support/program-replay.ts": "eae2bfbdffb634565b196aea246201ff7acd4734202415c695c2bddd960820f2",
+      "evaluation/support/row-runner.ts": "eefa974721678a228afd616f2028f2d11676ea67dae344abc41d4a08102573c3",
+      "evaluation/support/runner-profile.ts": "2d8858af108ee107ab005a1581e19668735a7f871429361a466c70cc37d08765",
+      "evaluation/support/stage-seal.ts": "17bd508ff9363cf719b686a5858961753121be94d5bd24e17416c0e5b3304f85",
+      "pnpm-lock.yaml": "a83d99f740493e28ea5a0da4072cd87bf3b89f59e638970893cbc17ca6858701",
+      "scripts/build.ts": "3b4e7c907bfc45b5e5870205fbefcac3a2e1b902319c4e69374331aad019ac68",
+      "scripts/cli/arena-reset.ts": "2b3a015a4c0e76f495427207807b111f1a4150113ec944b16bb0f2be0df0f112",
+      "scripts/cli/evaluate.ts": "623651415b5ec34ee070406a3caba3f1456ea5638b32ada7c79a4fe89544acc6",
+      "scripts/cli/report-summary.ts": "6fa98b888f788cfc2a0a74dd45840a90675517e4ec9ab2eb78e6b5cec4790fe4",
+      "scripts/cli/report.ts": "f3a3c28a886c66e0181db62afe8d14e1b8c3eae6a8bc89451bcdc5dcae9e9965",
+      "scripts/cli/smoke-model.ts": "3174278a7f6e1fa6ad5efea4a598a0f22702a4083626103464b9b6095d8b2b69",
+      "scripts/dev.ts": "224f0175f86da96c8f4aa45f79c4be22ce3954205159f4c3fa752fa92227da1d",
+      "scripts/validation/acceptance.ts": "6903aa5a0b47a22eb7630e2cdee842dd928cabc1ae555da943ed3d5e1bce3096",
+      "scripts/validation/approved-retry.ts": "622479db8e56d54481185961faa8d8244f8e2b4a7275fc9fb633cb804ac602da",
+      "scripts/validation/business-diagnostic.ts": "32e30764c5e22fa159aec4ceacd83c1c101ece11634b1e69e144a3adf12bb374",
+      "scripts/validation/business-formal.ts": "6fabd5a4d7e308557f5f20c19b82e8ede8da2bcb191dd410782545b439d3d05c",
+      "scripts/validation/business.ts": "37ec0a98c5953c9c775077f2e2bf6cb551e365393f02304aa0fb7f83c0ded6f9",
+      "scripts/validation/cli-args.ts": "2604c87f894b2a223859afb2148eb8616bbdc8b3517824124f4bf93191e963ab",
+      "scripts/validation/investigation.ts": "05a25e6f9ffab01ff4bebe3f675dbb754c29abda47c95737596715ed573c2435",
+      "scripts/validation/learning.ts": "e9bb86b922eb8f1c461888cad29e10d373b529f1ad3b073d0a82ba2b7bd68ece",
+      "scripts/validation/persistence.ts": "c3a4b186849ff8e4760ceb6fd940b803b8bb39f0c074211ba8f9c0a189afea33",
+      "scripts/validation/program-replay.ts": "634d2521eb6c922b6e5d4fb2944b687b04dd912090e65501b4f6a7fe2fef2aac",
+      "scripts/validation/programs.ts": "baba74a62e32b01fdb0407776204ef811796ee43ed2273675509bf748301b41e",
+      "scripts/validation/r0-action-contract.ts": "0cdac8603c87e49634348b45290feda26b9d167a88b51160b46105ed6d24b359",
+      "scripts/validation/r0-cancel-order.ts": "d81f7c678006f1eea6f94c9563b13757dd22c22ffb151c9ebb89958c125119c0",
+      "scripts/validation/r0-continuity.ts": "9541e0e2bafb5949ad892278e1d7ad1a0f2cf367ce58834c2c91c9c6a9f1650b",
+      "scripts/validation/r0-default-entry.ts": "e6f6a4f6d0e92c35bdcfe8a4b00aa887460d66679190c3a2d64f980844f295b1",
+      "scripts/validation/r0-f12.ts": "da0e7ab1cf1a84408dba9883c25c442155d72140269b01c36eded55498d661ec",
+      "scripts/validation/r0-k123.ts": "acd32266f0ab81433be9cdbad9bb0aded27726c13c8de383b277afb29d05f5d1",
+      "scripts/validation/r0-remediation.ts": "c235e3d0672542a906444f67fe89fbb7b18c50bd578f4c00a60345b8a787c32e",
+      "scripts/validation/r0-required-scope.ts": "bbc68132819de6e2ca079fc73aeb5182ce76f5d78782c6aff63ade5e26f70d9c",
+      "scripts/validation/r0-state-contract-probe.ts": "1c863c5a1b2ba0b7e14d70c148c164232a6eb892cb1246be634b20d8cf39bb27",
+      "scripts/validation/reconcile-cost.ts": "b9d26f72a7e7886d0674396630d62b7f79718614120d1582daf034b466a773e5",
+      "scripts/validation/support/action-input-hook.mjs": "2ed8cb2e3a7683d2d5c404355ecd86ab859ae842c8f260fa4d159c8cbe2c39cc",
+      "scripts/validation/support/cancel-order-hook.mjs": "5a261ad718eeefa4bd6082c36e389147eabf32404fb0475478142f28cb923e35",
+      "scripts/validation/support/default-entry-workbench.ts": "c07da715f005a80845d3ce1f739a0bae6069a169eab93633cf8bd33e7e4cc6c0",
+      "scripts/validation/support/ui-probe-hook.mjs": "9d32bc6bbd8080bf2937e103591b7479999ddc5c6632acee6bdc72287c7dfbf3",
+      "scripts/validation/url-scan-campaign.ts": "4a0eb011ff069c7b4b71ffceaf86825a636e761973aa349bc1a6e7d312d02f76",
+      "scripts/validation/url-scan-freeze.ts": "135488b798cab9aaede86b3c8dd7b8a0c54f7c19cda6f2dd9c149d525d5f0b20",
+      "scripts/validation/url-scan-plan.ts": "10180651fea1b25777896f6b2266a505d50685d288b2b89a0edcfabd1bbe04e8",
+      "scripts/validation/url-scan-prices.ts": "a37d39f3e42317c1f564ef5b6682d8bfdbcf21a4b525646dc0ddb9ae79d83aa1",
+      "scripts/validation/url-scan.ts": "adcc901bfeb2fbafd19e1fa0cd2c2165f83edad7342284806734c74ccc86e284",
+      "scripts/validation/visual-focus-p2.ts": "59409df045c9266aa9bd67077532bf03e41ab88bcf89df231c4cae6ce97fe7fc",
+      "scripts/validation/visual-focus-runner.ts": "a95259ad0b16e0aea880789a247cceedc3091146b537dba50820d6375b1046da",
+      "scripts/validation/visual-focus.ts": "d87438ea3ae5d67da8f84f16cce91e3b00a12bea60ec25791f03f7d8cbe886af",
+      "scripts/validation/visual-stage.ts": "4a69132c0b15d582fdcb967cb8b596d67376fb608e3452f10a998117735d843e",
+      "scripts/verify-export-fixtures.ts": "0bd54caed044617224188284d265cf2d2fff0684de239618ebc6da0bfbd51409",
+      "scripts/verify-fixtures.ts": "0bee8589ed88706dac23717103e2a0d1dbc641d71222194aff6544309ce72ebd"
+    },
+    "featureProfile": {
+      "EXECUTION_VISUAL_DISCOVERY": "0",
+      "EXECUTION_ATOMIC_INVESTIGATION": "1",
+      "EXECUTION_BLOCKER_REVIEW": "1"
+    },
+    "models": {
+      "agent": "deepseek/deepseek-v4.1-flash",
+      "vision": "qwen/qwen3.7-plus",
+      "review": "typesafe/jev-1.13"
+    },
+    "providers": {
+      "ok": true,
+      "agent": "Alibaba",
+      "vision": "Alibaba",
+      "source": "baseline-default",
+      "reasonCodes": []
+    },
+    "budget": {
+      "seconds": 300,
+      "actions": 40,
+      "modelCalls": 30
+    }
+  },
+  "diagnostic": {
+    "tasks": [
+      "E0",
+      "E1",
+      "E2",
+      "E3",
+      "E4"
+    ],
+    "smokeMaxRequests": 6
+  },
+  "formal": {
+    "groups": [
+      {
+        "group": "A",
+        "cases": [
+          "E0",
+          "E1",
+          "E2",
+          "E3",
+          "E4"
+        ],
+        "repeats": 3,
+        "runs": 15,
+        "rules": "builtin-only",
+        "business": "export"
+      },
+      {
+        "group": "B",
+        "cases": [
+          "E1",
+          "E2"
+        ],
+        "repeats": 3,
+        "runs": 6,
+        "rules": "approved-imported",
+        "business": "export"
+      },
+      {
+        "group": "C",
+        "cases": [
+          "C0",
+          "C1",
+          "C2",
+          "C3",
+          "C4",
+          "C5"
+        ],
+        "repeats": 3,
+        "runs": 18,
+        "rules": "builtin-only",
+        "business": "checkout"
+      },
+      {
+        "group": "D",
+        "cases": [
+          "abnormal",
+          "healthy"
+        ],
+        "repeats": 3,
+        "runs": 6,
+        "rules": "approved-imported",
+        "business": "checkout"
+      }
+    ],
+    "rows": [
+      {
+        "group": "A",
+        "case": "E0",
+        "repeat": 1
+      },
+      {
+        "group": "A",
+        "case": "E0",
+        "repeat": 2
+      },
+      {
+        "group": "A",
+        "case": "E0",
+        "repeat": 3
+      },
+      {
+        "group": "A",
+        "case": "E1",
+        "repeat": 1
+      },
+      {
+        "group": "A",
+        "case": "E1",
+        "repeat": 2
+      },
+      {
+        "group": "A",
+        "case": "E1",
+        "repeat": 3
+      },
+      {
+        "group": "A",
+        "case": "E2",
+        "repeat": 1
+      },
+      {
+        "group": "A",
+        "case": "E2",
+        "repeat": 2
+      },
+      {
+        "group": "A",
+        "case": "E2",
+        "repeat": 3
+      },
+      {
+        "group": "A",
+        "case": "E3",
+        "repeat": 1
+      },
+      {
+        "group": "A",
+        "case": "E3",
+        "repeat": 2
+      },
+      {
+        "group": "A",
+        "case": "E3",
+        "repeat": 3
+      },
+      {
+        "group": "A",
+        "case": "E4",
+        "repeat": 1
+      },
+      {
+        "group": "A",
+        "case": "E4",
+        "repeat": 2
+      },
+      {
+        "group": "A",
+        "case": "E4",
+        "repeat": 3
+      },
+      {
+        "group": "B",
+        "case": "E1",
+        "repeat": 1
+      },
+      {
+        "group": "B",
+        "case": "E1",
+        "repeat": 2
+      },
+      {
+        "group": "B",
+        "case": "E1",
+        "repeat": 3
+      },
+      {
+        "group": "B",
+        "case": "E2",
+        "repeat": 1
+      },
+      {
+        "group": "B",
+        "case": "E2",
+        "repeat": 2
+      },
+      {
+        "group": "B",
+        "case": "E2",
+        "repeat": 3
+      },
+      {
+        "group": "C",
+        "case": "C0",
+        "repeat": 1
+      },
+      {
+        "group": "C",
+        "case": "C0",
+        "repeat": 2
+      },
+      {
+        "group": "C",
+        "case": "C0",
+        "repeat": 3
+      },
+      {
+        "group": "C",
+        "case": "C1",
+        "repeat": 1
+      },
+      {
+        "group": "C",
+        "case": "C1",
+        "repeat": 2
+      },
+      {
+        "group": "C",
+        "case": "C1",
+        "repeat": 3
+      },
+      {
+        "group": "C",
+        "case": "C2",
+        "repeat": 1
+      },
+      {
+        "group": "C",
+        "case": "C2",
+        "repeat": 2
+      },
+      {
+        "group": "C",
+        "case": "C2",
+        "repeat": 3
+      },
+      {
+        "group": "C",
+        "case": "C3",
+        "repeat": 1
+      },
+      {
+        "group": "C",
+        "case": "C3",
+        "repeat": 2
+      },
+      {
+        "group": "C",
+        "case": "C3",
+        "repeat": 3
+      },
+      {
+        "group": "C",
+        "case": "C4",
+        "repeat": 1
+      },
+      {
+        "group": "C",
+        "case": "C4",
+        "repeat": 2
+      },
+      {
+        "group": "C",
+        "case": "C4",
+        "repeat": 3
+      },
+      {
+        "group": "C",
+        "case": "C5",
+        "repeat": 1
+      },
+      {
+        "group": "C",
+        "case": "C5",
+        "repeat": 2
+      },
+      {
+        "group": "C",
+        "case": "C5",
+        "repeat": 3
+      },
+      {
+        "group": "D",
+        "case": "abnormal",
+        "repeat": 1
+      },
+      {
+        "group": "D",
+        "case": "abnormal",
+        "repeat": 2
+      },
+      {
+        "group": "D",
+        "case": "abnormal",
+        "repeat": 3
+      },
+      {
+        "group": "D",
+        "case": "healthy",
+        "repeat": 1
+      },
+      {
+        "group": "D",
+        "case": "healthy",
+        "repeat": 2
+      },
+      {
+        "group": "D",
+        "case": "healthy",
+        "repeat": 3
+      }
+    ],
+    "additionalSmoke": 0
+  },
+  "maxGatewayRequestsPerRun": 30,
+  "reviewReserveUsd": 0.001344,
+  "approvalSource": {
+    "sourceDirectory": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-08acc95-resume/candidate/data/fixtures/approved-retry",
+    "databaseHash": "3a36acbfb76bb86b039ce3234b9a7ffd1d96a7e014142dcf4e46bd527e3e812c",
+    "proposalId": "proposal-fc30e9bb-46bc-40ec-b88b-ff52f0565607",
+    "ruleRevision": "1",
+    "reviewedBy": "user",
+    "ruleConfig": {
+      "type": "transition",
+      "name": "retryable failure offers operable retry within configurable timeout",
+      "description": "When a retryable-failure occurs and business evidence establishes that retry is currently permitted, the retry control should become operable within the configured timeoutMs budget (observed business budget: 5000 ms). No incidental faulty UI state such as retrying-disabled is required; healthy recovery is also in scope. Intended reusable scope: retryable-failure occurrences for retry-category controls generally. Validated scope: the payment retry failure scenario only, plus an observed healthy counterexample where a retryable-failure transition reached an actionable retry control. A button label alone does not establish retry eligibility; cooldown, exhausted attempts, ongoing operations, or unmet prerequisites do not establish eligibility.",
+      "trigger": {
+        "eventType": "retryable-failure"
+      },
+      "expectation": {
+        "condition": "element-actionable",
+        "target": "Retry button",
+        "timeoutMs": 5000
+      },
+      "severity": "error"
+    },
+    "declarationHash": "f3ac227c94ea3c16471bbf00ee4e2f811d3b005600049520271979bf1792161e",
+    "declared": {
+      "id": "proposal-fc30e9bb-46bc-40ec-b88b-ff52f0565607",
+      "revision": "1",
+      "enabled": true,
+      "trigger": {
+        "eventType": "retryable-failure"
+      },
+      "expectation": {
+        "condition": "element-actionable",
+        "target": "Retry button",
+        "timeoutMs": 5000
+      }
+    }
+  },
+  "fixtureVerified": true,
+  "paid": false,
+  "authorization": "pending explicit resumption",
+  "campaignDirectory": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-final-acceptance/2026-10-07/paid-ledger",
+  "campaignId": "0946f830-00b6-4f46-af69-79bd2166ef9d",
+  "cumulativeCeilingUsd": 20,
+  "fixtureVerificationMethod": "Reuse previously accepted fixture validation; current Git fixture file hashes unchanged and current source approval DB/declaration read-only import matches",
+  "fixtureFilesCompared": 16
+}
