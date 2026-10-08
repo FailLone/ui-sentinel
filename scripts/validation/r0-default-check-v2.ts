@@ -511,13 +511,23 @@ try {
     await save(mode + '-report.json', report ?? { error: 'did not terminate' })
     if (!report?.uiScan) throw Error('missing report ' + mode)
     if (uiPage) {
-      await uiPage.waitForFunction(
-        (status: string) =>
-          document.body.innerText.includes('执行：' + status) ||
-          document.body.innerText.includes('执行： ' + status),
-        report.status,
-        { timeout: 15000 },
-      )
+      try {
+        await uiPage.waitForFunction(
+          (status: string) =>
+            new RegExp('执行：[\\s\\u00a0]*' + status).test(document.body.innerText),
+          report.status,
+          { timeout: 15000 },
+        )
+      } catch (error) {
+        await save(mode + '-ui-failure.json', {
+          runId,
+          errors: uiErrors,
+          text: await uiPage.locator('body').innerText(),
+        })
+        await uiPage.screenshot({ path: resolve(root, mode + '-ui-failure.png'), fullPage: true })
+        await uiBrowser.close()
+        throw error
+      }
       await uiPage.getByText('功能要求：', { exact: false }).waitFor({ timeout: 10000 })
       await uiPage.screenshot({ path: resolve(root, mode + '-report.png'), fullPage: true })
       await uiPage.locator('.ui-scan').screenshot({ path: resolve(root, mode + '-summary.png') })

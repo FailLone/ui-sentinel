@@ -1,6 +1,7 @@
 import { readFile, writeFile, mkdir } from 'node:fs/promises'
 import { resolve, join } from 'node:path'
 import { execFileSync } from 'node:child_process'
+import { defaultCheckArtifactIssues } from '../../src/inspection/check-artifacts.ts'
 import {
   auditUiDefaultChecksV2,
   UI_V2_PUBLIC_MATRIX,
@@ -27,6 +28,7 @@ const rows = JSON.parse(
 )
 const results: any[] = [],
   attacks: any[] = []
+const activeReportChecks: any[] = []
 const modes: { name: string; row: V2PublicRow }[] = [
   { name: 'neutral-change', row: UI_V2_PUBLIC_MATRIX[0]! },
   { name: 'neutral-no-change', row: UI_V2_PUBLIC_MATRIX[0]! },
@@ -49,6 +51,39 @@ for (const mode of modes) {
   results.push({ mode: mode.name, ...result })
   if (!result.accepted)
     throw Error('independent base rejection ' + mode.name + ':' + result.issues.join(','))
+  // Separate production-validator regression, using a REAL pre-generic publication window.
+  if (mode.row.kind === 'anomaly') {
+    const genericSeq = report.events.find(
+      (e: any) => e.type === 'interaction:generic-collected-v2',
+    )?.seq
+    const effectScope = report.events
+      .filter(
+        (e: any) =>
+          e.type === 'scope:item-updated' &&
+          e.payload.checks?.effects.some((r: any) => r.state === 'failed'),
+      )
+      .find((e: any) => e.seq < genericSeq)
+    if (!effectScope) throw Error('actual pre-generic effect publication window missing')
+    const prefix = report.events.filter((e: any) => e.seq <= effectScope.seq)
+    const run: any = {
+      id: report.runId,
+      spec: {
+        kind: 'ui-scan',
+        uiContract: { ...report.uiScan.contract, checkPolicy: report.uiScan.contract.checkPolicy },
+      },
+      status: 'running',
+    }
+    const audited = await defaultCheckArtifactIssues(
+      run,
+      prefix,
+      artifacts.map((a: any) => ({
+        ...a,
+        metadata: { evidenceIntegrity: { version: 1, status: 'clean', interventionIds: [] } },
+      })),
+    )
+    activeReportChecks.push({ mode: mode.name, cutoffSeq: effectScope.seq, issues: audited })
+    if (audited.length) throw Error('active report prematurely failed:' + audited.join(','))
+  }
   const item = (r: any) =>
     r.events
       .filter(
@@ -145,6 +180,7 @@ await writeFile(
       protocol: 'ui-default-checks-3',
       base: results,
       attacks,
+      activeReportChecks,
       newPaidCostUsd: 0,
       realModelCalls: 0,
       importsProductionVerifier: false,

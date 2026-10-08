@@ -250,7 +250,8 @@ export async function defaultCheckArtifactIssues(
           const body = await load(String(measured.payload.measurementRef), 'measurement')
           if (
             body.requirementHash !== req.requirementHash ||
-            body.actionId !== c.generic.actionId ||
+            body.actionId !== measured.actionId ||
+            (c.generic.actionId !== undefined && body.actionId !== c.generic.actionId) ||
             body.itemId !== item.itemId ||
             body.outcome !== req.state ||
             measured.payload.sha256 !== checkHash(body)
