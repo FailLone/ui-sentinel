@@ -1,0 +1,326 @@
+{
+  "version": "r1-decision-pilot-input-1",
+  "kind": "synthetic-wiring-only",
+  "states": [
+    {
+      "id": "synthetic_multi",
+      "provenance": {
+        "sourceSha": "0000000000000000000000000000000000000000",
+        "artifactSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stateRef": "synthetic-only",
+        "decisionCutoff": "before-synthetic-choice"
+      },
+      "input": {
+        "schemaVersion": "r1-exploration-input-1",
+        "requestId": "synthetic-multi",
+        "task": {
+          "goal": "检查示例页面的未完成局部事项",
+          "localTask": "选择下一项局部检查；不判断实际缺陷",
+          "revision": "task1"
+        },
+        "state": {
+          "pageId": "synthetic-page",
+          "url": "https://example.invalid/synthetic",
+          "documentVersion": "doc1",
+          "observationVersion": "obs1",
+          "relatedStateVersion": "state1",
+          "cacheable": false
+        },
+        "candidates": [
+          {
+            "id": "c0",
+            "targetKey": "synthetic-target-0",
+            "observationVersion": "obs1",
+            "text": "详情",
+            "role": "button",
+            "publicState": {
+              "visible": true,
+              "enabled": true,
+              "expanded": false,
+              "selected": null
+            },
+            "geometry": null,
+            "context": "纯合成接线样例，不是真实浏览器状态",
+            "allowedActions": [
+              "inspect"
+            ],
+            "estimatedCost": 0
+          },
+          {
+            "id": "c1",
+            "targetKey": "synthetic-target-1",
+            "observationVersion": "obs1",
+            "text": "菜单",
+            "role": "button",
+            "publicState": {
+              "visible": true,
+              "enabled": true,
+              "expanded": false,
+              "selected": null
+            },
+            "geometry": null,
+            "context": "纯合成接线样例，不是真实浏览器状态",
+            "allowedActions": [
+              "inspect"
+            ],
+            "estimatedCost": 1
+          }
+        ],
+        "history": [],
+        "scope": {
+          "revision": "scope1",
+          "executableCandidateIds": [
+            "c0",
+            "c1"
+          ]
+        },
+        "budget": {
+          "revision": "budget1",
+          "remainingDecisions": 8,
+          "remainingActions": 8,
+          "remainingMs": 10000,
+          "maxRequestMs": 1000,
+          "remainingCostUsd": 0.25
+        },
+        "limits": {
+          "maxCandidates": 32,
+          "maxInputBytes": 32768,
+          "maxHistory": 32
+        }
+      },
+      "criticalInformationMissing": false,
+      "facts": [
+        {
+          "candidateId": "c0",
+          "obligationId": "check0",
+          "obligation": "pending",
+          "required": true,
+          "permission": "yes",
+          "preconditions": "yes",
+          "action": "inspect",
+          "estimatedMs": 1,
+          "estimatedActionCostUsd": 0,
+          "lastCheckedState": null,
+          "recheckReason": null,
+          "evidenceRef": "synthetic-fact"
+        },
+        {
+          "candidateId": "c1",
+          "obligationId": "check1",
+          "obligation": "pending",
+          "required": true,
+          "permission": "yes",
+          "preconditions": "yes",
+          "action": "inspect",
+          "estimatedMs": 1,
+          "estimatedActionCostUsd": 0,
+          "lastCheckedState": null,
+          "recheckReason": null,
+          "evidenceRef": "synthetic-fact"
+        }
+      ]
+    },
+    {
+      "id": "synthetic_single",
+      "provenance": {
+        "sourceSha": "0000000000000000000000000000000000000000",
+        "artifactSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stateRef": "synthetic-only",
+        "decisionCutoff": "before-synthetic-choice"
+      },
+      "input": {
+        "schemaVersion": "r1-exploration-input-1",
+        "requestId": "synthetic_single",
+        "task": {
+          "goal": "检查示例页面的未完成局部事项",
+          "localTask": "选择下一项局部检查；不判断实际缺陷",
+          "revision": "task1"
+        },
+        "state": {
+          "pageId": "synthetic-page",
+          "url": "https://example.invalid/synthetic",
+          "documentVersion": "doc1",
+          "observationVersion": "obs1",
+          "relatedStateVersion": "state1",
+          "cacheable": false
+        },
+        "candidates": [
+          {
+            "id": "c0",
+            "targetKey": "synthetic-target-0",
+            "observationVersion": "obs1",
+            "text": "详情",
+            "role": "button",
+            "publicState": {
+              "visible": true,
+              "enabled": true,
+              "expanded": false,
+              "selected": null
+            },
+            "geometry": null,
+            "context": "纯合成接线样例，不是真实浏览器状态",
+            "allowedActions": [
+              "inspect"
+            ],
+            "estimatedCost": 0
+          }
+        ],
+        "history": [],
+        "scope": {
+          "revision": "scope1",
+          "executableCandidateIds": [
+            "c0"
+          ]
+        },
+        "budget": {
+          "revision": "budget1",
+          "remainingDecisions": 8,
+          "remainingActions": 8,
+          "remainingMs": 10000,
+          "maxRequestMs": 1000,
+          "remainingCostUsd": 0.25
+        },
+        "limits": {
+          "maxCandidates": 32,
+          "maxInputBytes": 32768,
+          "maxHistory": 32
+        }
+      },
+      "criticalInformationMissing": false,
+      "facts": [
+        {
+          "candidateId": "c0",
+          "obligationId": "check0",
+          "obligation": "pending",
+          "required": true,
+          "permission": "yes",
+          "preconditions": "yes",
+          "action": "inspect",
+          "estimatedMs": 1,
+          "estimatedActionCostUsd": 0,
+          "lastCheckedState": null,
+          "recheckReason": null,
+          "evidenceRef": "synthetic-fact"
+        }
+      ]
+    },
+    {
+      "id": "synthetic_missing",
+      "provenance": {
+        "sourceSha": "0000000000000000000000000000000000000000",
+        "artifactSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+        "stateRef": "synthetic-only",
+        "decisionCutoff": "before-synthetic-choice"
+      },
+      "input": {
+        "schemaVersion": "r1-exploration-input-1",
+        "requestId": "synthetic_missing",
+        "task": {
+          "goal": "检查示例页面的未完成局部事项",
+          "localTask": "选择下一项局部检查；不判断实际缺陷",
+          "revision": "task1"
+        },
+        "state": {
+          "pageId": "synthetic-page",
+          "url": "https://example.invalid/synthetic",
+          "documentVersion": "doc1",
+          "observationVersion": "obs1",
+          "relatedStateVersion": "state1",
+          "cacheable": false
+        },
+        "candidates": [
+          {
+            "id": "c0",
+            "targetKey": "synthetic-target-0",
+            "observationVersion": "obs1",
+            "text": "详情",
+            "role": "button",
+            "publicState": {
+              "visible": true,
+              "enabled": true,
+              "expanded": false,
+              "selected": null
+            },
+            "geometry": null,
+            "context": "纯合成接线样例，不是真实浏览器状态",
+            "allowedActions": [
+              "inspect"
+            ],
+            "estimatedCost": 0
+          },
+          {
+            "id": "c1",
+            "targetKey": "synthetic-target-1",
+            "observationVersion": "obs1",
+            "text": "菜单",
+            "role": "button",
+            "publicState": {
+              "visible": true,
+              "enabled": true,
+              "expanded": false,
+              "selected": null
+            },
+            "geometry": null,
+            "context": "纯合成接线样例，不是真实浏览器状态",
+            "allowedActions": [
+              "inspect"
+            ],
+            "estimatedCost": 1
+          }
+        ],
+        "history": [],
+        "scope": {
+          "revision": "scope1",
+          "executableCandidateIds": [
+            "c0",
+            "c1"
+          ]
+        },
+        "budget": {
+          "revision": "budget1",
+          "remainingDecisions": 8,
+          "remainingActions": 8,
+          "remainingMs": 10000,
+          "maxRequestMs": 1000,
+          "remainingCostUsd": 0.25
+        },
+        "limits": {
+          "maxCandidates": 32,
+          "maxInputBytes": 32768,
+          "maxHistory": 32
+        }
+      },
+      "criticalInformationMissing": true,
+      "facts": [
+        {
+          "candidateId": "c0",
+          "obligationId": "check0",
+          "obligation": "pending",
+          "required": true,
+          "permission": "yes",
+          "preconditions": "yes",
+          "action": "inspect",
+          "estimatedMs": 1,
+          "estimatedActionCostUsd": 0,
+          "lastCheckedState": null,
+          "recheckReason": null,
+          "evidenceRef": "synthetic-fact"
+        },
+        {
+          "candidateId": "c1",
+          "obligationId": "check1",
+          "obligation": "pending",
+          "required": true,
+          "permission": "yes",
+          "preconditions": "yes",
+          "action": "inspect",
+          "estimatedMs": 1,
+          "estimatedActionCostUsd": 0,
+          "lastCheckedState": null,
+          "recheckReason": null,
+          "evidenceRef": "synthetic-fact"
+        }
+      ]
+    }
+  ]
+}

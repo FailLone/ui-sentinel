@@ -5,7 +5,7 @@ const digest = z.string().regex(/^[a-f0-9]{64}$/)
 export const configSchema = z
   .object({
     version: z.literal('r1-jev-campaign-1'),
-    phase: z.enum(['smoke', 'development', 'holdout']),
+    phase: z.enum(['smoke', 'development', 'holdout', 'decision-pilot']),
     profile: profileSchema,
     dataset: z.string().min(1),
     datasetSha256: digest,
@@ -27,6 +27,7 @@ export const configSchema = z
   .superRefine((c, ctx) => {
     const cap = {
       smoke: [6, 0.25, 300000],
+      'decision-pilot': [8, 0.125, 150000],
       development: [24, 0.75, 600000],
       holdout: [128, 4, 2400000],
     }[c.phase]

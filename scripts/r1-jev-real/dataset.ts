@@ -22,9 +22,9 @@ export function loadDataset(root: string, config: CampaignConfig) {
   const data = datasetSchema.parse(JSON.parse(body.toString('utf8')))
   if (data.split !== (config.phase === 'holdout' ? 'holdout' : 'development'))
     throw new Error('dataset-split')
-  const expected = { smoke: 6, development: 24, holdout: 64 }[config.phase]
+  const expected = { smoke: 6, development: 24, holdout: 64, 'decision-pilot': null }[config.phase]
   if (
-    data.cases.length !== expected ||
+    (expected === null ? data.cases.length > 8 : data.cases.length !== expected) ||
     data.cases.length * config.repetitions > config.limits.maxAttempts
   )
     throw new Error('dataset-count')
