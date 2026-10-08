@@ -1,3 +1,4 @@
+import { UI_DEFAULT_SCOPE_REVISION } from '../../src/inspection/contract.ts'
 import 'dotenv/config'
 import { startUrlScanFixture } from '../../evaluation/private/url-scan/fixture.ts'
 import { replayUrlSample } from '../../evaluation/private/url-scan/replay.ts'
@@ -130,8 +131,8 @@ if (options.mode === 'freeze') {
     ),
     fixtureHash: identity.fixtureHash,
     scorerHash: identity.scorerHash,
-    policyRevision: 'url-scan-1',
-    promptRevision: 'ui-goal-policy-1',
+    policyRevision: UI_DEFAULT_SCOPE_REVISION,
+    promptRevision: 'ui-default-sampling-2',
     // The matrix comes from the sample set itself, not from a second list here: a hard-coded
     // default could silently plan a batch that omits a sample the truth defines, and the two would
     // drift apart with nothing to catch it.

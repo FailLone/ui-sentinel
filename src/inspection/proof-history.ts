@@ -1,3 +1,4 @@
+import { samplingHistoryIssues } from './sampling-history.ts'
 import { verifyInspectionProof, proofDigest, type InspectionProof } from './completion.ts'
 import { projectInspectionScope } from './scope.ts'
 import { verifyUiContractSnapshot } from './contract.ts'
@@ -62,6 +63,15 @@ function inspectHistory(
   )
   const scope = projectInspectionScope(history)
   const snapshot = scope.snapshot()
+  if (run.spec.uiContract?.samplingPolicy)
+    issues.push(
+      ...samplingHistoryIssues(
+        history,
+        snapshot,
+        run.spec.uiContract.samplingPolicy,
+        proof.claim === 'scope-covered',
+      ),
+    )
   if (events.some((e) => e.seq > accepted.seq && e.type.startsWith('scope:')))
     issues.push('scope-after-finish')
   if (

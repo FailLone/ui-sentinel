@@ -1,3 +1,4 @@
+import type { UiSamplingPolicy } from '../shared/ui-sampling-policy.ts'
 import type { RequiredCheck } from '../inspection/contract.ts'
 import { canonical } from '../inspection/completion.ts'
 import {
@@ -53,6 +54,7 @@ export interface InspectionHostOptions {
   readonly entryUrl: string
   readonly goal: string
   readonly requiredChecks?: readonly RequiredCheck[]
+  readonly samplingPolicy?: UiSamplingPolicy
   /** The current snapshot id, so an item names the observation it belongs to. */
   readonly currentSnapshotId: () => string | undefined
   readonly currentUrl: () => string
@@ -69,6 +71,7 @@ export interface RecordObservationInput {
   readonly evidenceRefs: readonly string[]
   readonly candidateDetail: string
   readonly candidateCategories: readonly InspectionCategory[]
+  readonly clean?: boolean
   readonly candidateItems?: readonly {
     ref: string
     description: string
@@ -115,6 +118,26 @@ export function createInspectionHost(options: InspectionHostOptions) {
   const recordedBindings = new Set<string>()
   /** Ids of the ledger events this run actually persisted, in order. */
   const scopeEventIds: string[] = []
+  type Sample = {
+    url: string
+    itemId: string
+    pool: readonly string[]
+    count: number
+    refs: readonly string[]
+  }
+  const localSamples = new Map<string, Sample>()
+  let navigationSample: Sample | undefined
+  const samplingBootstrap = options.samplingPolicy
+    ? scope.createItem({
+        category: 'investigation',
+        pageId: 'contract',
+        stateId: 'contract',
+        url: options.entryUrl,
+        observationVersion: 'contract',
+        basis: 'default-sampling:entry-registration',
+        targetSource: 'executor',
+      }).itemId
+    : undefined
   /** How many of the ledger's own events have already been written; the rest are pending. */
   let persistedCount = 0
 
@@ -214,6 +237,10 @@ export function createInspectionHost(options: InspectionHostOptions) {
     // an interaction" apart from "the agent said the page offered one".
     const offered = input.candidateItems ?? []
     const bounded = offered.slice(0, MAX_CANDIDATE_ITEMS)
+    // Preserve the existing required navigation opportunity inside the same eight-candidate cap.
+    const link = offered.find((c) => c.category === 'navigation')
+    if (options.samplingPolicy && link && !bounded.some((c) => c.category === 'navigation'))
+      bounded[bounded.length - 1] = link
     candidates = bounded.map((candidate) => {
       const previous = items().find((item) => item.itemId === candidate.continuedItemId)
       const continued =
@@ -240,6 +267,81 @@ export function createInspectionHost(options: InspectionHostOptions) {
     })
     offeredBySnapshot.set(identity().pageId, candidates)
     await persist()
+    if (options.samplingPolicy && input.clean !== false && input.evidenceRefs.length) {
+      const url = input.url
+      if (!localSamples.has(url)) {
+        const pool = candidates
+          .filter((c) => c.category === 'local-interaction')
+          .map((c) => c.itemId)
+        const count = Math.min(options.samplingPolicy.localSamplesPerVisitedPage, pool.length)
+        const item = create({
+          category: 'investigation',
+          basis: `default-sampling:local:${url}`,
+          targetSource: 'executor',
+        })
+        const sample = { url, itemId: item.itemId, pool, count, refs: [...input.evidenceRefs] }
+        localSamples.set(url, sample)
+        await persist()
+        await options.appendEvent(
+          'scope:sampling-frozen',
+          {
+            ...sample,
+            policy: options.samplingPolicy,
+            snapshotId: identity().pageId,
+            candidates: candidates.map((c) => ({ ...c })),
+            truncated: Math.max(0, offered.length - bounded.length),
+          },
+          { evidenceRefs: [...input.evidenceRefs] },
+        )
+        if (
+          samplingBootstrap &&
+          scope.snapshot().items.find((i) => i.itemId === samplingBootstrap)?.status === 'pending'
+        )
+          scope.resolveItem(samplingBootstrap, {
+            status: 'verified',
+            evidenceRefs: input.evidenceRefs,
+            eventIds: [],
+            detail: 'Public default policy registered from the first clean observed candidate pool',
+          })
+        if (!count)
+          scope.resolveItem(item.itemId, {
+            status: 'excluded',
+            reasonCode: 'not-applicable-fact',
+            evidenceRefs: input.evidenceRefs,
+            eventIds: [],
+            detail: 'First observed candidate pool contains no public local control',
+          })
+        else if (pool.length <= count)
+          await selectItems(
+            pool.map((itemId) => ({
+              itemId,
+              basis: 'public default policy: all local candidates within limit',
+            })),
+          )
+      }
+      if (!navigationSample && candidates.some((c) => c.category === 'navigation')) {
+        const pool = candidates.filter((c) => c.category === 'navigation').map((c) => c.itemId)
+        const item = create({
+          category: 'investigation',
+          basis: 'default-sampling:navigation',
+          targetSource: 'executor',
+        })
+        navigationSample = {
+          url,
+          itemId: item.itemId,
+          pool,
+          count: 1,
+          refs: [...input.evidenceRefs],
+        }
+        await persist()
+        await options.appendEvent(
+          'scope:sampling-navigation-frozen',
+          { ...navigationSample, snapshotId: identity().pageId },
+          { evidenceRefs: [...input.evidenceRefs] },
+        )
+      }
+      await settleSamplingRegistration()
+    }
     for (const candidate of candidates) {
       for (const requirement of required) {
         if (
@@ -251,9 +353,10 @@ export function createInspectionHost(options: InspectionHostOptions) {
         if (items().find((i) => i.itemId === requirement.itemId)?.status !== 'pending') continue
         // A departed/replaced selected target cannot be erased or replaced by a new identity.
         if (requirement.boundItemId && requirement.boundItemId !== candidate.itemId) continue
-        await selectItems([
-          { itemId: candidate.itemId, basis: `public-required:${requirement.check.id}` },
-        ])
+        await selectItems(
+          [{ itemId: candidate.itemId, basis: `public-required:${requirement.check.id}` }],
+          true,
+        )
         requirement.boundItemId = candidate.itemId
         await options.appendEvent('scope:required-bound', {
           requiredId: requirement.check.id,
@@ -546,7 +649,57 @@ export function createInspectionHost(options: InspectionHostOptions) {
    * An empty update is explicitly inert rather than a clear: the obligation belongs to the executor,
    * and a model that never calls this tool still has to answer for the sampling the plan requires.
    */
-  async function selectItems(entries: readonly { itemId: string; basis: string }[]) {
+  async function settleSamplingRegistration() {
+    for (const sample of [
+      ...localSamples.values(),
+      ...(navigationSample ? [navigationSample] : []),
+    ]) {
+      const selected = sample.pool.filter((id) =>
+        items().some((i) => i.itemId === id && i.selected),
+      )
+      const item = items().find((i) => i.itemId === sample.itemId)!
+      if (item.status === 'pending' && selected.length === sample.count && sample.count > 0)
+        scope.resolveItem(item.itemId, {
+          status: 'verified',
+          evidenceRefs: sample.refs,
+          eventIds: [],
+          detail: `Frozen public sample selected: ${selected.join(',')}; target effects remain separate selected obligations`,
+        })
+    }
+    await persist()
+  }
+  function selectionAllowed(itemId: string) {
+    if (!options.samplingPolicy) return true
+    if (items().some((i) => i.itemId === itemId && i.selected)) return true
+    const sample = [...localSamples.values(), ...(navigationSample ? [navigationSample] : [])].find(
+      (s) => s.pool.includes(itemId),
+    )
+    return (
+      !!sample &&
+      sample.pool.filter((id) => items().some((i) => i.itemId === id && i.selected)).length <
+        sample.count
+    )
+  }
+  async function selectItems(
+    entries: readonly { itemId: string; basis: string }[],
+    advanced = false,
+  ) {
+    if (options.samplingPolicy) {
+      for (const entry of entries)
+        if (!advanced && !selectionAllowed(entry.itemId))
+          throw Error('default-sampling-frozen: new target is optional; no selection applied')
+      for (const sample of [
+        ...localSamples.values(),
+        ...(navigationSample ? [navigationSample] : []),
+      ]) {
+        const total = new Set([
+          ...sample.pool.filter((id) => items().some((i) => i.itemId === id && i.selected)),
+          ...entries.filter((e) => sample.pool.includes(e.itemId)).map((e) => e.itemId),
+        ])
+        if (total.size > sample.count)
+          throw Error('default-sampling-frozen: batch exceeds frozen sample; no selection applied')
+      }
+    }
     for (const entry of entries) {
       const item = items().find((i) => i.itemId === entry.itemId)
       if (
@@ -556,9 +709,10 @@ export function createInspectionHost(options: InspectionHostOptions) {
         sampledKeys(item.url).size >= 3
       )
         throw Error('local-interaction-sampling-cap')
-      scope.selectItem(entry.itemId, entry.basis)
+      if (!options.samplingPolicy || !item?.selected) scope.selectItem(entry.itemId, entry.basis)
     }
     scope.syncSelection(entries)
+    await settleSamplingRegistration()
     await persist()
     return entries.map((entry) => scope.snapshot().items.find((i) => i.itemId === entry.itemId)!)
   }
@@ -571,6 +725,11 @@ export function createInspectionHost(options: InspectionHostOptions) {
     )
   function assertMayNavigate(destination: string) {
     const current = options.currentUrl()
+    const sample = localSamples.get(current)
+    if (sample && items().find((i) => i.itemId === sample.itemId)?.status === 'pending')
+      throw Error(
+        'default-sampling-selection-pending: select the frozen local sample before navigation',
+      )
     normalizePageUrl(destination) // Validate the navigation target without changing route identity.
     const pending = items().filter(
       (item) =>
@@ -620,6 +779,14 @@ export function createInspectionHost(options: InspectionHostOptions) {
       throw new Error(
         `Cannot exclude an item without a frozen-boundary reason (${EXCLUSION_REASONS.join(', ')}).`,
       )
+    if (
+      options.samplingPolicy &&
+      items().some((i) => i.itemId === itemId && i.selected) &&
+      [...localSamples.values(), ...(navigationSample ? [navigationSample] : [])].some((s) =>
+        s.pool.includes(itemId),
+      )
+    )
+      throw Error('default-sampling-selected-obligation-cannot-be-excluded')
     const item = scope.resolveItem(itemId, {
       status: 'excluded',
       reasonCode: reason,
@@ -668,6 +835,18 @@ export function createInspectionHost(options: InspectionHostOptions) {
           registered[0]!.status !== 'excluded'
         )
       }),
+    defaultSampling: () => ({
+      policy: options.samplingPolicy,
+      pages: [...localSamples.values()],
+      navigation: navigationSample,
+    }),
+    assertSamplingSelectionReady: () => {
+      const sample = localSamples.get(options.currentUrl())
+      if (sample && items().find((i) => i.itemId === sample.itemId)?.status === 'pending')
+        return 'default-sampling-selection-pending: select the full frozen local sample before dispatch; no action dispatched'
+      return undefined
+    },
+    selectionAllowed,
     requiredChecks: () =>
       required.map((r) => ({ ...r.check, itemId: r.itemId, boundItemId: r.boundItemId })),
     requiredActionError: (
@@ -696,6 +875,7 @@ export function createInspectionHost(options: InspectionHostOptions) {
       const candidate = offeredBySnapshot.get(snapshotId)?.find((c) => c.ref === ref)
       const item = candidate && items().find((i) => i.itemId === candidate.itemId)
       if (item?.selected) return true
+      if (options.samplingPolicy) return !!candidate && selectionAllowed(candidate.itemId)
       // Original default sampling is mandatory, not an optional extension.
       return scope
         .completionGaps()

@@ -1,3 +1,6 @@
+import { UI_SAMPLING_POLICY } from '../../src/shared/ui-sampling-policy.ts'
+import { UI_DEFAULT_SCOPE_REVISION } from '../../src/inspection/contract.ts'
+import { proofDigest } from '../../src/inspection/completion.ts'
 import { execFileSync, spawn } from 'node:child_process'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
@@ -12,7 +15,7 @@ import {
   startUrlScanFixture,
   URL_SCAN_HOLDOUT_LAYOUT,
 } from '../../evaluation/private/url-scan/fixture.ts'
-import { verifyHealthyBehavior } from '../../evaluation/private/url-scan/healthy-behavior.ts'
+import { verifyDefaultHealthyBehavior } from '../../evaluation/private/url-scan/healthy-behavior.ts'
 import { replayUrlSample } from '../../evaluation/private/url-scan/replay.ts'
 import { verifiesSortFinding } from '../../evaluation/private/url-scan/finding-target.ts'
 import { urlScanTruth } from '../../evaluation/private/url-scan/truth.ts'
@@ -38,6 +41,9 @@ export function urlScanConfiguration(input: {
     prices: input.prices,
     stage: input.stage,
     urlScan: true,
+    samplingPolicy: UI_SAMPLING_POLICY,
+    samplingPolicyHash: proofDigest(UI_SAMPLING_POLICY),
+    acceptanceProtocol: 'ui-default-sampling-2',
     fixtureLayout: URL_SCAN_HOLDOUT_LAYOUT,
     viewport: { width: 1280, height: 768 },
     scope: { maxPages: 3, maxDepth: 1 },
@@ -60,11 +66,17 @@ export function urlScanConfiguration(input: {
 }
 
 export function assertFrozenConfiguration(config: any) {
+  const expected = urlScanConfiguration(config ?? {})
+  if (!config?.samplingPolicy) {
+    delete (expected as any).samplingPolicy
+    delete (expected as any).samplingPolicyHash
+    delete (expected as any).acceptanceProtocol
+  }
   if (
     !['diagnostic', 'formal'].includes(config?.stage) ||
     !config.providers?.agent ||
     !config.providers?.vision ||
-    !isDeepStrictEqual(config, urlScanConfiguration(config))
+    !isDeepStrictEqual(config, expected)
   )
     throw Error('frozen-configuration-mismatch')
 }
@@ -157,6 +169,13 @@ export async function runUrlCampaign(
   const approval = testOnly?.approval ?? JSON.parse(await readFile(approvalPath!, 'utf8'))
   assertUrlCampaignApproval(manifest, batch, mode, approval)
   if (!testOnly) await checkCampaignFreeze(manifest)
+  if (
+    !manifest.configuration.samplingPolicy ||
+    manifest.policyRevision !== UI_DEFAULT_SCOPE_REVISION
+  )
+    throw Error(
+      'historical-protocol-cannot-run-new-default: preserve results and freeze a new protocol',
+    )
   if (mode === 'formal') {
     const diagnostic = JSON.parse(
       await readFile(resolve(approval.diagnosticDirectory ?? '', 'summary.json'), 'utf8'),
@@ -401,7 +420,8 @@ export async function runUrlCampaign(
           const snapshots = Object.values(saved.artifacts)
             .filter((a) => a.exists && a.type === 'snapshot')
             .map((a) => a.data as any)
-          const agentBehaviorVerified = verifyHealthyBehavior({
+          const agentBehaviorVerified = verifyDefaultHealthyBehavior({
+            report,
             entryUrl,
             overlay: truth.sampleId.startsWith('overlay-'),
             requests,

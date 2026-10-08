@@ -1,3 +1,4 @@
+import { UI_SAMPLING_DESCRIPTION } from '../shared/ui-sampling-policy.ts'
 import type { UiScanReport } from '../server/reports/ui-scan-report.ts'
 import { artifactUrl } from './state.ts'
 
@@ -36,6 +37,7 @@ function Coverage({ report }: { report: UiScanReport }) {
         边界：匿名会话 · 不提交业务操作 · 仅支持 GET 型数据 · 有界采样（最多{' '}
         {report.contract.scope.maxPages} 页，深度 {report.contract.scope.maxDepth}）
       </p>
+      {report.contract.samplingPolicy && <p>{UI_SAMPLING_DESCRIPTION}</p>}
       <p>
         入口：
         <code>{report.contract.entryUrl}</code>
@@ -53,8 +55,10 @@ function Coverage({ report }: { report: UiScanReport }) {
       </p>
       {covered ? (
         <p>
-          在已验证范围内未发现问题。这只是在本次已验证的条目和页面范围内成立，不代表整站合格，也不代表
-          未检查的功能正常。
+          {inspection.counts.failed > 0
+            ? '已完成范围内的检查并记录缺陷，见问题与反馈。'
+            : '在已验证范围内未发现问题。'}
+          这只是在本次已验证的条目和页面范围内成立，不代表整站合格，也不代表 未检查的功能正常。
         </p>
       ) : (
         inspection.coverage === 'partial' && (
@@ -87,6 +91,12 @@ function Items({ report }: { report: UiScanReport }) {
           {candidates.categories.join('、') || '无'}
         </p>
       )}
+      {report.inspection.sampling?.map((frame) => (
+        <p key={frame.url}>
+          冻结范围：{frame.url} · 必需 {frame.required} · 已登记 {frame.selected.length} · 未采样{' '}
+          {frame.notChecked.length} · 截断 {frame.truncated}（未采样和截断均不代表通过）
+        </p>
+      ))}
       <table>
         <thead>
           <tr>
@@ -103,7 +113,7 @@ function Items({ report }: { report: UiScanReport }) {
               <td>{item.itemId}</td>
               <td>{item.category}</td>
               <td>
-                {item.status}
+                {!item.selected ? '未检查（未纳入本轮范围）' : item.status}
                 {item.reasonCode ? ` · ${item.reasonCode}` : ''}
               </td>
               <td>{item.basis}</td>

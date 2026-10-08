@@ -305,6 +305,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         entryUrl: uiScan.entryUrl,
         goal: uiScan.goal,
         requiredChecks: uiScan.requiredChecks,
+        samplingPolicy: uiScan.samplingPolicy,
         currentSnapshotId: () => latestSlim?.snapshotId,
         currentUrl: () => latest?.snapshot.url ?? uiScan.entryUrl,
         currentObservationVersion: () => observationVersion?.key,
@@ -513,7 +514,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
   }
   let closeCoveredUiScope: () => Promise<boolean> = async () => false
   let closing = false
-  const explicitScope = uiScan?.requiredChecks !== undefined
+  const explicitScope = !!uiScan?.samplingPolicy || uiScan?.requiredChecks !== undefined
   async function refuseOptionalScope(target: string) {
     guard()
     const remaining = {
@@ -1136,7 +1137,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     }
     const requiredIds = new Map<string, string[]>()
     if (explicitScope && pageUrl === uiScan!.entryUrl) {
-      for (const check of uiScan!.requiredChecks!) {
+      for (const check of uiScan!.requiredChecks ?? []) {
         const target = worker!.page.locator(check.selector)
         if ((await target.count().catch(() => 0)) !== 1) continue
         const actual = await target.elementHandle().catch(() => null)
@@ -1158,6 +1159,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     const categories = [...new Set(offered.map((o) => o.category))]
     await inspection.recordObservation({
       url: pageUrl,
+      clean: cleanEvidenceIntegrity(latest.snapshot.evidenceIntegrity) && integrity.epoch() === 0,
       // Both refs, so a covered claim cites a readable snapshot and a screenshot rather than the
       // fact that a page happened to load (plan 6.2.1).
       evidenceRefs: [...latest.evidenceRefs],
@@ -2088,6 +2090,14 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         }
       }
       if (inspection && explicitScope) {
+        const selectionError = inspection.assertSamplingSelectionReady()
+        if (selectionError)
+          return {
+            error: true,
+            message: selectionError,
+            validationErrors: { errors: [selectionError] },
+            dispatched: false,
+          }
         const requiredError = inspection.requiredActionError(actingRef, actionSnapshotPage, input)
         if (requiredError)
           return {
@@ -3800,6 +3810,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
                   )
                 )
                   return refuseOptionalScope(entry.itemId)
+                if (uiScan?.samplingPolicy) continue
                 const slot = `${candidate.category}:${candidate.category === 'local-interaction' ? item!.url : ''}`
                 if (defaultSlots.has(slot)) return refuseOptionalScope(entry.itemId)
                 defaultSlots.add(slot)
@@ -4166,6 +4177,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
               inspectionScope: {
                 candidates: inspection.candidateItems(),
                 requiredChecks: inspection.requiredChecks(),
+                defaultSampling: inspection.defaultSampling(),
                 recentChecks: [...uiActionChecks.keys()].slice(-6).map(uiActionReceipt),
                 counts: inspection.snapshot().counts,
                 outstanding: inspection.completionGaps().map((gap) => ({

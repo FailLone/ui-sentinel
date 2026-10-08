@@ -1,3 +1,8 @@
+import {
+  UI_SAMPLING_POLICY,
+  validSamplingPolicy,
+  type UiSamplingPolicy,
+} from '../shared/ui-sampling-policy.ts'
 import { createHash } from 'node:crypto'
 import { z } from 'zod'
 import { classifyHost, isPrivateAddress, parseEntryUrl, type EntryUrlReason } from './url.ts'
@@ -19,6 +24,7 @@ import { UI_DEFAULT_GOAL } from '../shared/ui-goal.ts'
 export const UI_CONTRACT_SCHEMA_VERSION = '1' as const
 export const UI_POLICY_REVISION = 'url-scan-1' as const
 export const UI_REQUIRED_SCOPE_REVISION = 'url-scan-scope-2' as const
+export const UI_DEFAULT_SCOPE_REVISION = 'url-scan-default-3' as const
 
 /** Plan 1.1: at most three unique routed pages, at most one level from the entry. */
 export const UI_MAX_PAGES = 3
@@ -162,7 +168,11 @@ export type UiScanRequest = z.infer<typeof uiScanRequestSchema>
 
 export interface UiContractSnapshot {
   readonly schemaVersion: typeof UI_CONTRACT_SCHEMA_VERSION
-  readonly policyRevision: typeof UI_POLICY_REVISION | typeof UI_REQUIRED_SCOPE_REVISION
+  readonly policyRevision:
+    | typeof UI_POLICY_REVISION
+    | typeof UI_REQUIRED_SCOPE_REVISION
+    | typeof UI_DEFAULT_SCOPE_REVISION
+  readonly samplingPolicy?: UiSamplingPolicy
   /** The address as submitted, including path, query order and fragment. */
   readonly entryUrl: string
   readonly origin: string
@@ -170,7 +180,7 @@ export interface UiContractSnapshot {
   readonly requestedUrl: string
   readonly goal: string
   readonly goalSource: 'user' | 'default'
-  /** Presence declares the caller's complete public goal mapping, in addition to default sampling. */
+  /** Advanced additive public checks; historical scope-2 snapshots retain their original meaning. */
   readonly requiredChecks?: readonly RequiredCheck[]
   readonly session: 'anonymous'
   readonly scope: { readonly maxPages: number; readonly maxDepth: number }
@@ -247,6 +257,7 @@ export function buildUiContractSnapshot(input: {
   goal?: string
   goalSource?: 'user' | 'default'
   requiredChecks?: readonly RequiredCheck[]
+  samplingPolicy?: UiSamplingPolicy
   scope: UiContractSnapshot['scope']
   access: UiContractSnapshot['access']
   budget: UiContractSnapshot['budget']
@@ -254,8 +265,12 @@ export function buildUiContractSnapshot(input: {
   const goal = input.goal?.trim() ? input.goal.trim() : UI_DEFAULT_GOAL
   const body = {
     schemaVersion: UI_CONTRACT_SCHEMA_VERSION,
-    policyRevision:
-      input.requiredChecks === undefined ? UI_POLICY_REVISION : UI_REQUIRED_SCOPE_REVISION,
+    policyRevision: input.samplingPolicy
+      ? UI_DEFAULT_SCOPE_REVISION
+      : input.requiredChecks === undefined
+        ? UI_POLICY_REVISION
+        : UI_REQUIRED_SCOPE_REVISION,
+    ...(input.samplingPolicy ? { samplingPolicy: { ...input.samplingPolicy } } : {}),
     entryUrl: input.entryUrl,
     requestedUrl: input.requestedUrl ?? input.entryUrl,
     origin: input.origin,
@@ -283,6 +298,14 @@ export function buildUiContractSnapshot(input: {
 
 export function verifyUiContractSnapshot(snapshot: UiContractSnapshot): boolean {
   if (!snapshot || typeof snapshot !== 'object') return false
+  if (
+    snapshot.samplingPolicy !== undefined &&
+    (!validSamplingPolicy(snapshot.samplingPolicy) ||
+      snapshot.policyRevision !== UI_DEFAULT_SCOPE_REVISION)
+  )
+    return false
+  if (snapshot.policyRevision === UI_DEFAULT_SCOPE_REVISION && !snapshot.samplingPolicy)
+    return false
   const { hash, ...body } = snapshot
   if (typeof hash !== 'string') return false
   const expected = createHash('sha256').update(canonical(body)).digest('hex')
@@ -362,6 +385,7 @@ export function resolveUiScanContract(
       origin: url.origin,
       goal: data.goal,
       requiredChecks: data.requiredChecks,
+      samplingPolicy: UI_SAMPLING_POLICY,
       scope,
       access,
       budget,

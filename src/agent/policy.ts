@@ -25,7 +25,13 @@ function uiScanPolicy(
   features: PolicyFeatures,
   uiScan: Pick<
     UiContractSnapshot,
-    'origin' | 'scope' | 'access' | 'businessWrites' | 'unsupportedCapabilities' | 'requiredChecks'
+    | 'origin'
+    | 'scope'
+    | 'access'
+    | 'businessWrites'
+    | 'unsupportedCapabilities'
+    | 'requiredChecks'
+    | 'samplingPolicy'
   >,
 ): string {
   const access = [
@@ -59,6 +65,9 @@ function uiScanPolicy(
     `You inspect the public page at ${uiScan.origin} autonomously, without any business adapter. ` +
     `Goal: ${goal}. The user goal determines the inspection scope; it never widens this run's ` +
     `network or write permissions. ${access} ` +
+    (uiScan.samplingPolicy
+      ? 'The server default public sampling policy is mandatory. inspectionScope.defaultSampling lists each page first frozen pool and count min(3,N). All N<=3 local controls are already selected; for N>3 choose exactly three from that original pool before dispatch. Select one available same-origin link from the frozen navigation pool. Selection happens before executing, cannot be replaced after failure, and revisits never reset it. The optional goal guides sampling and verification, not complete natural-language compilation. After all mandatory and selected effects finish, the executor closes automatically; no new optional exploration without cost admission. '
+      : '') +
     (uiScan.requiredChecks === undefined
       ? ''
       : 'The frozen public requiredChecks are mandatory and registered by the executor before exploration. inspectionScope.requiredChecks gives their target, action and postcondition; preserve every one. A missing binding is unfinished work, never optional. The executor closes as soon as all required and selected work passes the unchanged finish gate. New optional branches need executor budget admission; do not estimate their cost yourself. ') +

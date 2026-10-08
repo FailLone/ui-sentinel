@@ -1,3 +1,4 @@
+import { samplingFrames } from '../../inspection/sampling-history.ts'
 import { verifyUiContractSnapshot, type UiContractSnapshot } from '../../inspection/contract.ts'
 import { inspectionHistoryIssues } from '../../inspection/proof-history.ts'
 import { resolveRunKind } from '../../inspection/run-kind.ts'
@@ -35,6 +36,7 @@ export interface UiScanReport {
     readonly goal: string
     readonly goalSource: 'user' | 'default'
     readonly requiredChecks?: UiContractSnapshot['requiredChecks']
+    readonly samplingPolicy?: UiContractSnapshot['samplingPolicy']
     readonly session: 'anonymous'
     readonly scope: { readonly maxPages: number; readonly maxDepth: number }
     readonly access: {
@@ -48,6 +50,7 @@ export interface UiScanReport {
     readonly policyRevision: string
   }
   readonly inspection: {
+    readonly sampling?: ReturnType<typeof samplingFrames>
     readonly coverage: UiCoverage
     readonly counts: ReturnType<ReturnType<typeof projectInspectionScope>['snapshot']>['counts']
     readonly items: readonly {
@@ -141,6 +144,7 @@ export function uiScanSummary(
       goal: contract.goal,
       goalSource: contract.goalSource,
       ...(contract.requiredChecks === undefined ? {} : { requiredChecks: contract.requiredChecks }),
+      ...(contract.samplingPolicy ? { samplingPolicy: contract.samplingPolicy } : {}),
       session: contract.session,
       scope: contract.scope,
       access: contract.access,
@@ -151,6 +155,7 @@ export function uiScanSummary(
       policyRevision: contract.policyRevision,
     },
     inspection: {
+      ...(contract.samplingPolicy ? { sampling: samplingFrames(events, snapshot) } : {}),
       coverage,
       counts: snapshot.counts,
       items: snapshot.items.map((item) => ({
