@@ -147,7 +147,11 @@ async function installUiBoundary(
         })
       return
     }
-    if (decision.reasonCode === 'transport-error' || decision.reasonCode === 'execution-stopped')
+    if (
+      decision.reasonCode === 'transport-error' ||
+      decision.reasonCode === 'execution-stopped' ||
+      decision.reasonCode === 'resolution-failed'
+    )
       executionFailure ??= new Error(`ui-network-${decision.reasonCode}`)
     if (decision.allow && !decision.truncated) {
       let origin = 'unparseable'
@@ -214,6 +218,7 @@ async function installUiBoundary(
   await deps.appendEvent('network:policy', {
     policyRevision: policy.policyRevision,
     contractHash: contract.hash,
+    dnsMode: config.urlScan.dns.mode,
     entryOrigin: policy.entryOrigin,
     resourceOrigins: contract.access.resourceOrigins,
     dataOrigins: contract.access.dataOrigins,

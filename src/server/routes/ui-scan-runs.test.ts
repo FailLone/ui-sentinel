@@ -252,3 +252,14 @@ describe('U01: admission is gated by the mode flag, not by the caller', () => {
     }
   })
 })
+
+it('rejects deployment DNS configuration supplied by a scan request', async () => {
+  for (const injected of [
+    { dnsMode: 'doh' },
+    { resolver: { endpoint: 'https://attacker.invalid' } },
+    { urlScan: { dns: { mode: 'doh' } } },
+  ]) {
+    const response = await post({ kind: 'ui-scan', entryUrl: UI_ENTRY, ...injected })
+    expect(response.status).toBe(400)
+  }
+})
