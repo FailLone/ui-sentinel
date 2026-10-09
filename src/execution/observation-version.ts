@@ -6,6 +6,7 @@ export interface ObservationVersion {
   key: string
   reusable: boolean
   reason: string
+  planning?: { documentId: string; relatedState: string; targetKeys: Record<string, string> }
 }
 
 /** Local validation data never enters the model context. Dynamic surfaces conservatively opt out. */
@@ -20,104 +21,160 @@ export async function readCompletionVersion(page: Page): Promise<ObservationVers
   return readVersion(page, true)
 }
 
-async function readVersion(page: Page, nativeChoices: boolean): Promise<ObservationVersion> {
+/** Fresh action binding for bounded native text inputs; never used to enable observation caching. */
+export async function readExplorationVersion(
+  page: Page,
+  selectors: readonly string[],
+): Promise<ObservationVersion> {
+  return readVersion(page, 'exploration', [...selectors].slice(0, 32))
+}
+async function readVersion(
+  page: Page,
+  nativeChoices: boolean | 'exploration',
+  selectors: string[] = [],
+): Promise<ObservationVersion> {
   const state = await profileOperation('validation', () =>
-    page.evaluate((nativeChoices) => {
-      const host = window as typeof window & {
-        __sentinelObservation?: {
-          document: Document
-          id: string
-          ids: WeakMap<Element, number>
-          nextId: number
+    page.evaluate(
+      ({ nativeChoices, selectors }) => {
+        const host = window as typeof window & {
+          __sentinelObservation?: {
+            document: Document
+            id: string
+            ids: WeakMap<Element, number>
+            nextId: number
+          }
         }
-      }
-      if (!host.__sentinelObservation || host.__sentinelObservation.document !== document)
-        host.__sentinelObservation = {
-          document,
-          id: Math.random().toString(36),
-          ids: new WeakMap(),
-          nextId: 1,
-        }
-      const store = host.__sentinelObservation
-      const nodes = Array.from(document.querySelectorAll('*'))
-      const dynamic =
-        nodes.length > 600 ||
-        document.readyState !== 'complete' ||
-        document.fonts.status !== 'loaded' ||
-        !!document.querySelector(
-          'canvas,video,audio,iframe,object,embed,img,svg,textarea,select,[contenteditable],li,summary,' +
-            (nativeChoices ? 'input:not([type="radio"]):not([type="checkbox"])' : 'input'),
-        ) ||
-        document.getAnimations().some((a) => a.playState === 'running' || a.pending)
-      if (dynamic) return { reusable: false, reason: 'dynamic-or-large-document', value: '' }
-      let unsupported = false
-      const values = nodes.map((el) => {
-        if (!store.ids.has(el)) store.ids.set(el, store.nextId++)
-        const style = getComputedStyle(el)
-        const rect = el.getBoundingClientRect()
-        const pseudo = ['::before', '::after'].map((p) => getComputedStyle(el, p).content)
-        if (
-          el.shadowRoot ||
-          el.tagName.includes('-') ||
-          style.backgroundImage !== 'none' ||
-          pseudo.some((p) => !['none', 'normal', '""'].includes(p))
+        if (!host.__sentinelObservation || host.__sentinelObservation.document !== document)
+          host.__sentinelObservation = {
+            document,
+            id: Math.random().toString(36),
+            ids: new WeakMap(),
+            nextId: 1,
+          }
+        const store = host.__sentinelObservation
+        const nodes = Array.from(document.querySelectorAll('*'))
+        const dynamic =
+          nodes.length > 600 ||
+          document.readyState !== 'complete' ||
+          document.fonts.status !== 'loaded' ||
+          !!document.querySelector(
+            'canvas,video,audio,iframe,object,embed,img,svg,select,[contenteditable],li,summary,' +
+              (nativeChoices === 'exploration'
+                ? 'input[type]:not([type="text"]):not([type="search"]):not([type="number"])'
+                : 'textarea,' +
+                  (nativeChoices ? 'input:not([type="radio"]):not([type="checkbox"])' : 'input')),
+          ) ||
+          document.getAnimations().some((a) => a.playState === 'running' || a.pending)
+        if (dynamic) return { reusable: false, reason: 'dynamic-or-large-document', value: '' }
+        let unsupported = false
+        const values = nodes.map((el) => {
+          if (!store.ids.has(el)) store.ids.set(el, store.nextId++)
+          const style = getComputedStyle(el)
+          const rect = el.getBoundingClientRect()
+          const pseudo = ['::before', '::after'].map((p) => getComputedStyle(el, p).content)
+          if (
+            el.shadowRoot ||
+            el.tagName.includes('-') ||
+            style.backgroundImage !== 'none' ||
+            pseudo.some((p) => !['none', 'normal', '""'].includes(p))
+          )
+            unsupported = true
+          const interactive = el.matches('button,a,input,select,textarea,[role="button"]')
+          const hit = interactive
+            ? [
+                [0.5, 0.5],
+                [0.2, 0.2],
+                [0.8, 0.2],
+                [0.2, 0.8],
+                [0.8, 0.8],
+              ].map(([x, y]) => {
+                const node = document.elementFromPoint(
+                  rect.x + rect.width * x!,
+                  rect.y + rect.height * y!,
+                )
+                if (node && !store.ids.has(node)) store.ids.set(node, store.nextId++)
+                return node ? store.ids.get(node) : null
+              })
+            : []
+          return [
+            store.ids.get(el),
+            el.tagName,
+            Array.from(el.attributes, (a) => [a.name, a.value]),
+            rect.x,
+            rect.y,
+            rect.width,
+            rect.height,
+            Array.from(style, (p) => style.getPropertyValue(p)),
+            'value' in el ? el.value : null,
+            'checked' in el ? el.checked : null,
+            'indeterminate' in el ? el.indeterminate : null,
+            el.scrollTop,
+            el.scrollLeft,
+            hit,
+          ]
+        })
+        const targetKeys = Object.fromEntries(
+          selectors.flatMap((selector) => {
+            try {
+              const matches = document.querySelectorAll(selector)
+              return matches.length === 1 && store.ids.has(matches[0])
+                ? [[selector, `${store.id}:${store.ids.get(matches[0])}`]]
+                : []
+            } catch {
+              return []
+            }
+          }),
         )
-          unsupported = true
-        const interactive = el.matches('button,a,input,select,textarea,[role="button"]')
-        const hit = interactive
-          ? [
-              [0.5, 0.5],
-              [0.2, 0.2],
-              [0.8, 0.2],
-              [0.2, 0.8],
-              [0.8, 0.8],
-            ].map(([x, y]) => {
-              const node = document.elementFromPoint(
-                rect.x + rect.width * x!,
-                rect.y + rect.height * y!,
-              )
-              if (node && !store.ids.has(node)) store.ids.set(node, store.nextId++)
-              return node ? store.ids.get(node) : null
-            })
-          : []
-        return [
-          store.ids.get(el),
-          el.tagName,
-          Array.from(el.attributes, (a) => [a.name, a.value]),
-          rect.x,
-          rect.y,
-          rect.width,
-          rect.height,
-          Array.from(style, (p) => style.getPropertyValue(p)),
-          'value' in el ? el.value : null,
-          'checked' in el ? el.checked : null,
-          'indeterminate' in el ? el.indeterminate : null,
-          el.scrollTop,
-          el.scrollLeft,
-          hit,
-        ]
-      })
-      return {
-        reusable: !unsupported,
-        reason: unsupported
-          ? 'untracked-visual-surface'
-          : 'same-document-layout-style-and-hit-facts',
-        value: JSON.stringify([
-          store.id,
-          location.href,
-          document.title,
-          innerWidth,
-          innerHeight,
-          scrollX,
-          scrollY,
-          document.body.innerText,
-          document.activeElement ? store.ids.get(document.activeElement) : null,
-          values,
-        ]),
-      }
-    }, nativeChoices),
+        return {
+          ...(nativeChoices === 'exploration'
+            ? {
+                planning: {
+                  documentId: store.id,
+                  targetKeys,
+                  relatedState: JSON.stringify([
+                    location.href,
+                    document.body.innerText,
+                    nodes
+                      .filter((n) => n.matches('button,a,input,textarea,[role]'))
+                      .map((n) => [
+                        n.tagName,
+                        Array.from(n.attributes, (a) => [a.name, a.value]),
+                        'value' in n ? n.value : null,
+                      ]),
+                  ]),
+                },
+              }
+            : {}),
+          reusable: !unsupported,
+          reason: unsupported
+            ? 'untracked-visual-surface'
+            : 'same-document-layout-style-and-hit-facts',
+          value: JSON.stringify([
+            store.id,
+            location.href,
+            document.title,
+            innerWidth,
+            innerHeight,
+            scrollX,
+            scrollY,
+            document.body.innerText,
+            document.activeElement ? store.ids.get(document.activeElement) : null,
+            values,
+          ]),
+        }
+      },
+      { nativeChoices, selectors },
+    ),
   )
   return {
+    ...(state.planning
+      ? {
+          planning: {
+            ...state.planning,
+            relatedState: createHash('sha256').update(state.planning.relatedState).digest('hex'),
+          },
+        }
+      : {}),
     key: createHash('sha256').update(state.value).digest('hex'),
     reusable: state.reusable,
     reason: state.reason,

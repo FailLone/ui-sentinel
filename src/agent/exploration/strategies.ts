@@ -12,7 +12,7 @@ export type StrategyId =
   | 'state-switch'
   | 'recovery'
 export type StrategyPlanStep =
-  | { readonly targetKey: string; readonly action: PublicAction }
+  | { readonly targetKey: string; readonly action: Exclude<PublicAction, 'fill'> }
   | {
       readonly targetKey: string
       readonly action: 'fill'
@@ -119,6 +119,7 @@ export function assessStrategies(
   const attemptEntries = frontier.available.filter((e) => e.attemptsInCurrentState > 0)
   const repeats = eligible.filter(
     (e) =>
+      e.allowedActions[0] !== 'fill' &&
       e.attemptsInCurrentState > 0 &&
       e.attemptsInCurrentState < 2 &&
       options.repeatReasons[e.candidateId],
@@ -209,7 +210,10 @@ export function assessStrategies(
       attemptEntries.length > 0,
       repeats
         .slice(0, maxActions)
-        .map((e) => ({ targetKey: e.targetKey!, action: e.allowedActions[0] })),
+        .map((e) => ({
+          targetKey: e.targetKey!,
+          action: e.allowedActions[0] as Exclude<PublicAction, 'fill'>,
+        })),
       'before-and-after',
       'requires explicit repeat reason; at most two attempts in this state',
     ),
@@ -277,12 +281,16 @@ export function planCounterexampleInvestigation(
             c.targetKey !== null &&
             c.targetKey !== claim.targetKey &&
             c.role === original.role &&
+            c.allowedActions[0] !== 'fill' &&
             ineligibility(facts, c) === null,
         )
       : []
   const steps = available
     .slice(0, Math.min(STRATEGY_MAX_ACTIONS, b.remainingActions))
-    .map((c) => ({ targetKey: c.targetKey!, action: c.allowedActions[0] }))
+    .map((c) => ({
+      targetKey: c.targetKey!,
+      action: c.allowedActions[0] as Exclude<PublicAction, 'fill'>,
+    }))
   if (steps.length)
     return {
       kind: 'compare-healthy',

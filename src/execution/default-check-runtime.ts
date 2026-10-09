@@ -68,6 +68,9 @@ export async function readPublicCheckPage(
           'aria-controls',
           'aria-describedby',
           'aria-expanded',
+          'aria-selected',
+          'aria-pressed',
+          'maxlength',
         ].flatMap((k) => (n.hasAttribute(k) ? [[k, n.getAttribute(k)!.slice(0, 1000)]] : [])),
       )
       const labels =
@@ -450,8 +453,38 @@ export function createDefaultCheckRuntime(host: {
   async function generic(original: Original) {
     await assertOriginal(original)
     const checks = structuredClone(current(original.itemId)!.checks!)
+    const sourceInput = original.before.page.nodes.find(
+      (n) => n.selector === original.sourceSelector || n.path === original.sourceSelector,
+    )
+    const maximum = Number(sourceInput?.attributes.maxlength)
+    const boundary =
+      host.contract.exploration &&
+      original.action.type === 'fill' &&
+      ['input', 'textarea'].includes(sourceInput?.tag ?? '') &&
+      sourceInput?.attributes.maxlength !== undefined &&
+      Number.isInteger(maximum) &&
+      maximum >= 0 &&
+      maximum <= 256 &&
+      original.action.value?.length === maximum + 1
+    const nativeConstraint = boundary
+      ? {
+          kind: 'maxlength',
+          maximum,
+          requestedLength: original.action.value!.length,
+          values: original.after.map(
+            (s) =>
+              s.page.nodes.find(
+                (n) => n.selector === original.sourceSelector || n.path === original.sourceSelector,
+              )?.value ?? null,
+          ),
+          sourceRefs: original.before.refs,
+        }
+      : undefined
     const native =
       original.action.type !== 'fill' ||
+      (!!nativeConstraint &&
+        nativeConstraint.values.length === 2 &&
+        nativeConstraint.values.every((v) => v === original.action.value!.slice(0, maximum))) ||
       original.after[0]?.page.nodes.some(
         (n) =>
           (n.selector === original.sourceSelector || n.path === original.sourceSelector) &&
@@ -471,6 +504,7 @@ export function createDefaultCheckRuntime(host: {
         : 'no-change-observed'
       : 'indeterminate'
     const body = {
+      ...(nativeConstraint ? { nativeConstraint } : {}),
       revision: 'generic-interaction-2',
       contractHash: host.contract.hash,
       itemId: original.itemId,
@@ -832,15 +866,13 @@ export function createDefaultCheckRuntime(host: {
       return measure(original, req, selector, 'read-only-recovery')
     },
     available() {
-      return [...originals.values()]
-        .slice(-6)
-        .map((o) => ({
-          checkRef: o.checkRef,
-          itemId: o.itemId,
-          actionId: o.actionId,
-          attemptsRemaining: Math.max(0, 2 - o.attempts),
-          requirements: summary(current(o.itemId)!.checks!).effects,
-        }))
+      return [...originals.values()].slice(-6).map((o) => ({
+        checkRef: o.checkRef,
+        itemId: o.itemId,
+        actionId: o.actionId,
+        attemptsRemaining: Math.max(0, 2 - o.attempts),
+        requirements: summary(current(o.itemId)!.checks!).effects,
+      }))
     },
     async dispose() {
       await Promise.allSettled(

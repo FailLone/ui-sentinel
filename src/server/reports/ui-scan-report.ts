@@ -1,3 +1,4 @@
+import { r1Report } from './r1-report.ts'
 import { summary as checkSummary } from '../../execution/default-check-runtime.ts'
 import type { ItemChecks } from '../../inspection/check-contract.ts'
 import { samplingFrames } from '../../inspection/sampling-history.ts'
@@ -26,6 +27,7 @@ import type { Run, RunEvent } from '../../shared/types.ts'
 export type UiCoverage = 'covered' | 'partial' | 'not-started'
 
 export interface UiScanReport {
+  readonly exploration?: ReturnType<typeof r1Report>
   readonly reportRevision?: 'ui-check-report-2'
   readonly checkCounts?: {
     effectUnspecifiedCount: number
@@ -147,6 +149,9 @@ export function uiScanSummary(
     }))
 
   return {
+    ...(contract.exploration
+      ? { exploration: r1Report(run, events, snapshot.items, readable) }
+      : {}),
     ...(contract.checkPolicy
       ? {
           reportRevision: 'ui-check-report-2' as const,

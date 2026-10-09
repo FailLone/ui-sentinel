@@ -21,7 +21,7 @@ const COVERAGE_LABEL: Record<UiScanReport['inspection']['coverage'], string> = {
   'not-started': '未开始检查',
 }
 
-function Coverage({ report }: { report: UiScanReport }) {
+function Coverage({ report, runId }: { report: UiScanReport; runId: string }) {
   const { inspection } = report
   // A covered verdict is only shown as covered when the proof behind it verifies. The report already
   // refuses to compute `covered` on an unverified proof, and this is the belt to that braces: the
@@ -51,6 +51,57 @@ function Coverage({ report }: { report: UiScanReport }) {
         边界：匿名会话 · 不提交业务操作 · 仅支持 GET 型数据 · 有界采样（最多{' '}
         {report.contract.scope.maxPages} 页，深度 {report.contract.scope.maxDepth}）
       </p>
+      {report.exploration && (
+        <section aria-label="R1 路径与检查">
+          <h3>R1 路径与检查</h3>
+          <p>
+            观察到 {report.exploration.visitedStates.length} 个状态 · 实际动作{' '}
+            {report.exploration.attempts.filter((a) => a.visited).length} 次 · 有原始测量的路径{' '}
+            {report.exploration.paths.filter((p) => p.measured).length}{' '}
+            条。访问不代表验证；有测量也不代表所有效果通过。
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th>目标</th>
+                <th>动作</th>
+                <th>原事项测量</th>
+              </tr>
+            </thead>
+            <tbody>
+              {report.exploration.attempts.map((a) => (
+                <tr key={a.actionId}>
+                  <td>{a.label}</td>
+                  <td>{a.action}</td>
+                  <td>
+                    {a.measurement === 'verified'
+                      ? '已测量'
+                      : a.measurement === 'failed'
+                        ? '已证违反'
+                        : '未验证'}
+                    {a.evidenceRefs.map((ref) => (
+                      <a key={ref} href={artifactUrl(runId, ref)}>
+                        {' '}
+                        证据
+                      </a>
+                    ))}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {report.exploration.handoffs.map((h) => (
+            <p key={h.eventId}>交回原因：{h.reason}</p>
+          ))}
+          <p>
+            未纳入检查 {report.exploration.omittedItemIds.length}{' '}
+            项；原事项及未完成原因见下表。模型调用 {report.exploration.usage.totalModelCalls}{' '}
+            次，其中 Jev {report.exploration.usage.jevCalls} 次；Jev已知费用 USD
+            {report.exploration.usage.jevKnownUsd}
+            {report.exploration.usage.jevUnknown ? '，仍有未知费用' : ''}。
+          </p>
+        </section>
+      )}
       {report.contract.samplingPolicy && (
         <p>
           {report.reportRevision === 'ui-check-report-2'
@@ -209,7 +260,7 @@ export function UiScanReportSection({ report, runId }: { report: UiScanReport; r
   return (
     <section>
       <h2>网址 UI 检查</h2>
-      <Coverage report={report} />
+      <Coverage report={report} runId={runId} />
       <Gaps report={report} />
       <Interventions report={report} />
       <details open={report.inspection.coverage !== 'covered'}>

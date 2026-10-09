@@ -1,3 +1,4 @@
+import { explorationRevisitIntent, type ExplorationPolicy } from '../shared/r1-policy.ts'
 import { emptyChecks, parsePublicRelation } from '../inspection/check-contract.ts'
 import type { UiSamplingPolicy } from '../shared/ui-sampling-policy.ts'
 import type { RequiredCheck } from '../inspection/contract.ts'
@@ -56,6 +57,7 @@ export interface InspectionHostOptions {
   readonly goal: string
   readonly requiredChecks?: readonly RequiredCheck[]
   readonly checkPolicy?: unknown
+  readonly exploration?: ExplorationPolicy
   readonly samplingPolicy?: UiSamplingPolicy
   /** The current snapshot id, so an item names the observation it belongs to. */
   readonly currentSnapshotId: () => string | undefined
@@ -113,7 +115,11 @@ export function createInspectionHost(options: InspectionHostOptions) {
     }).itemId,
     boundItemId: undefined as string | undefined,
   }))
-  const goalRelation = options.checkPolicy ? parsePublicRelation(options.goal) : null
+  const goalRelation = options.checkPolicy
+    ? options.exploration && explorationRevisitIntent(options.goal)
+      ? { focus: true, sync: false, name: undefined }
+      : parsePublicRelation(options.goal)
+    : null
   const goalReview =
     options.checkPolicy && (!goalRelation || goalRelation.name)
       ? scope.createItem({

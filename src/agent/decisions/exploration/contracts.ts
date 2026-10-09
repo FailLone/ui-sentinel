@@ -15,7 +15,7 @@ export const HARD_LIMITS = {
 } as const
 
 /** First release enumerates only these public actions. `inspect` is advise-only and never executes. */
-export const publicActions = ['click', 'inspect'] as const
+export const publicActions = ['click', 'inspect', 'fill', 'navigate'] as const
 
 /** Refresh effects are not mutually exclusive; any combination may be observed for one action. */
 export const actualEffects = ['expanded', 'content-changed', 'navigated'] as const

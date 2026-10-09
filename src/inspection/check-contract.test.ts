@@ -1,3 +1,4 @@
+import { freezeExploration } from '../shared/r1-policy.ts'
 import { expect, it } from 'vitest'
 import { buildUiContractSnapshot, verifyUiContractSnapshot } from './contract.ts'
 import {
@@ -323,4 +324,26 @@ it('F11/F12 proof4 refuses missing facets or incomplete collection and retains p
     },
   ]
   expect(inspectionHistoryIssues(run, events)).toContain('inspection-cancelled')
+})
+
+it('R1 exact revisit intent is a focus only when opted in; mixed effect text stays unresolved', () => {
+  const goal = '检查公开控件后刷新页面'
+  const r1 = buildUiContractSnapshot({
+    ...contract(goal),
+    exploration: freezeExploration({ mode: 'program', jev: false }),
+  })
+  const examine = (c: typeof r1) =>
+    reviewPublicSources({ contract: c, page, control, refs: ['source'], required: [] })
+  expect(examine(r1).sourceReview.state).toBe('sealed')
+  expect(examine(r1).effects).toEqual([])
+  expect(review(goal).sourceReview.state).toBe('unresolved')
+  expect(
+    examine(
+      buildUiContractSnapshot({
+        ...r1,
+        goal: goal + '，并确保付款成功',
+        requestedGoal: goal + '，并确保付款成功',
+      }),
+    ).sourceReview.state,
+  ).toBe('unresolved')
 })

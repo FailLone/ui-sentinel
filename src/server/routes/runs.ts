@@ -1,3 +1,4 @@
+import { productJevConfiguration } from '../../agent/exploration/integration/product-jev.ts'
 import { buildReport } from '../reports/run-report.ts'
 import { terminalRunStatuses as terminals } from '../../execution/run-status.ts'
 import { Hono } from 'hono'
@@ -59,6 +60,7 @@ const inputSchema = z
 const uiScanBodySchema = z
   .object({
     kind: z.literal('ui-scan'),
+    exploration: uiScanRequestSchema.shape.exploration,
     requiredChecks: uiScanRequestSchema.shape.requiredChecks,
     entryUrl: z.string().min(1).max(4096),
     goal: z.string().trim().max(2000).optional(),
@@ -239,6 +241,15 @@ async function createUiScanRun(c: Context, raw: unknown) {
   if (!parsed.success)
     return c.json({ error: 'invalid-request', details: parsed.error.issues }, 400)
   const body = parsed.data
+  if (body.exploration?.jev && !productJevConfiguration())
+    return c.json(
+      {
+        error: 'r1-jev-unavailable',
+        message:
+          'Jev scoring requires explicit server configuration and an existing approved cost account; program exploration is available without Jev.',
+      },
+      400,
+    )
   // The contract resolver is a pure synchronous decision, so the one impure step - asking the system
   // resolver - happens here and is handed to it as a lookup table. A name the resolver cannot answer
   // yields `null`, which is "no positive evidence of a private address" rather than "private": the

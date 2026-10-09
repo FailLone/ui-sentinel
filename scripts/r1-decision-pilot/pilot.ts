@@ -70,7 +70,11 @@ export const exportSchema = z
   .strict()
 export type State = z.infer<typeof stateSchema>
 export type Choice =
-  | { kind: 'candidate'; candidateId: string; action: 'click' | 'inspect' }
+  | {
+      kind: 'candidate'
+      candidateId: string
+      action: import('../../src/agent/decisions/exploration/contracts.ts').PublicAction
+    }
   | { kind: 'handoff'; reason: string }
   | { kind: 'unmapped' }
 export const stateKey = (input: ExplorationInput) =>

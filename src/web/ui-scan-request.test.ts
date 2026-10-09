@@ -93,3 +93,16 @@ describe('U20: the workbench warns about a visibly wrong address before sending'
     expect(uiScanClientHint('http://127.0.0.1:5055/')).toBeNull()
   })
 })
+
+it('workbench omits R1 by default and Jev requires both explicit toggles', () => {
+  expect(
+    buildUiScanRequest({ entryUrl: 'https://example.org/', jev: true }).exploration,
+  ).toBeUndefined()
+  expect(
+    buildUiScanRequest({ entryUrl: 'https://example.org/', exploration: true }).exploration,
+  ).toEqual({ mode: 'program', jev: false })
+  expect(
+    buildUiScanRequest({ entryUrl: 'https://example.org/', exploration: true, jev: true })
+      .exploration,
+  ).toEqual({ mode: 'program', jev: true })
+})

@@ -1,4 +1,9 @@
 import {
+  createProductJevScore,
+  productJevConfiguration,
+} from '../agent/exploration/integration/product-jev.ts'
+import { createProductHost } from '../agent/exploration/integration/product-host.ts'
+import {
   createExperimentalHost,
   experimentalScopeExpansionEnabled,
 } from './experimental-decision-host.ts'
@@ -56,6 +61,7 @@ import { createRuleEvaluationCache, ruleCatalog } from '../rules/routing.ts'
 import type { RuleContext } from '../rules/types.ts'
 import {
   readObservationVersion,
+  readExplorationVersion,
   readCompletionVersion,
   sameObservationVersion,
   type ObservationVersion,
@@ -272,6 +278,9 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
   })
   if (!prepared) return
   const { run, legacyUnversioned, runKind, uiScan, businessRuntime, active } = prepared
+  let productHost: ReturnType<typeof createProductHost> | undefined
+  let productHandedOff = false
+  let productNavigationProposal: string | undefined
   const signal = active.abortController.signal
   const startedAt = Date.now(),
     budget = run.spec.budget
@@ -322,6 +331,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         requiredChecks: uiScan.requiredChecks,
         samplingPolicy: uiScan.samplingPolicy,
         checkPolicy: uiScan.checkPolicy,
+        exploration: uiScan.exploration,
         currentSnapshotId: () => latestSlim?.snapshotId,
         currentUrl: () => latest?.snapshot.url ?? uiScan.entryUrl,
         currentObservationVersion: () => observationVersion?.key,
@@ -446,6 +456,26 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     | import('./investigation/program.ts').InvestigationProgram['exploration']
     | null = null
   const candidateBindings = new Map<string, import('playwright').ElementHandle<Element>>()
+  const productControlStates = new Map<string, string>()
+  const controlState = (e: SlimSnapshot['elements'][number]) =>
+    checkHash([
+      e.text,
+      e.attributes['aria-expanded'],
+      e.attributes['aria-selected'],
+      e.attributes['aria-pressed'],
+      e.attributes.value,
+      e.attributes['data-state'],
+    ])
+  const productLocalCount = (url: string) =>
+    inspection
+      ?.snapshot()
+      .items.filter((i) => i.url === url && i.selected && i.category === 'local-interaction')
+      .length ?? 0
+  const productMayExtend = (c: { itemId: string; category: string }) =>
+    !!uiScan?.exploration &&
+    !productHandedOff &&
+    c.category === 'local-interaction' &&
+    productLocalCount(worker!.page.url()) < uiScan.exploration.maxLocalChecksPerPage
   let activeAction: {
     actionId: string
     type: string
@@ -455,6 +485,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     beforeRefs: readonly string[]
     snapshotPage: string
     navigated: boolean
+    revisitDocument?: string
     landedUrls: readonly string[]
     settled: boolean
     verify?: InteractionVerification
@@ -882,7 +913,11 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       fresh &&
       !pending.actionError &&
       pending.navigated &&
-      landedAt !== pending.beforeUrl &&
+      (landedAt !== pending.beforeUrl ||
+        (pending.revisitDocument &&
+          pending.landedUrls.includes(landedAt) &&
+          (await readExplorationVersion(worker!.page, [])).planning?.documentId !==
+            pending.revisitDocument)) &&
       integrity.epoch() === 0
     const outcome = measurement?.outcome ?? (navigated ? 'verified' : 'unverified')
     const reasonCode = pending.actionError
@@ -1276,7 +1311,17 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
               .evaluate((node, current) => node.isConnected && node === current, handle)
               .catch(() => false))
           ) {
-            continuedItems.set(candidate.ref, previous.itemId)
+            const previousItem = inspection
+              .snapshot()
+              .items.find((i) => i.itemId === previous.itemId)
+            const element = latestSlim.elements.find((e) => e.ref === candidate.ref)!
+            const changed =
+              uiScan?.exploration &&
+              previousItem?.checks &&
+              ['verified', 'failed'].includes(previousItem.status) &&
+              productControlStates.get(previous.itemId) !== controlState(element)
+            // A related public control state gets a NEW obligation. Never erase a prior measurement.
+            if (!changed) continuedItems.set(candidate.ref, previous.itemId)
             break
           }
         }
@@ -1321,6 +1366,12 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         requiredCheckIds: requiredIds.get(candidate.ref),
       })),
     })
+    if (uiScan?.exploration)
+      for (const candidate of inspection.candidateItems()) {
+        const element = latestSlim.elements.find((e) => e.ref === candidate.ref)
+        if (element && !productControlStates.has(candidate.itemId))
+          productControlStates.set(candidate.itemId, controlState(element))
+      }
     if (checkRuntime)
       await checkRuntime.reviewSelected(
         inspection!
@@ -2397,7 +2448,34 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
                   .snapshot()
                   .items.some((i) => i.itemId === r.itemId && i.status === 'pending'),
             )
+        let boundedRevisit = false
         if (
+          productHost &&
+          !productHandedOff &&
+          input.type === 'navigate' &&
+          input.url === productNavigationProposal &&
+          (visitedPages.includes(input.url!) || input.url === page.url()) &&
+          inspection.completionGaps().length === 0
+        ) {
+          const admission = admitOptionalScope({
+            remaining: {
+              actions: budget.maxActions - usage.actions,
+              modelCalls: budget.maxModelCalls - usage.modelCalls,
+              timeMs: budget.totalTimeoutMs - (Date.now() - startedAt),
+            },
+            requiredBound: { actions: 0, modelCalls: 0, timeMs: 0 },
+            extensionBound: { actions: 1, modelCalls: 0, timeMs: 4 * config.budget.toolTimeoutMs },
+            closingReserve: {
+              actions: 0,
+              modelCalls: 2,
+              timeMs: Math.min(60000, budget.totalTimeoutMs * 0.2),
+            },
+          })
+          boundedRevisit = admission.admitted
+          await appendEvent(runId, 'r1:revisit-admission', { url: input.url, ...admission })
+        }
+        if (
+          !boundedRevisit &&
           !returningForRequired &&
           !inspection.isRequiredTarget(actingRef, actionSnapshotPage, category)
         )
@@ -2633,6 +2711,9 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         beforeRefs,
         snapshotPage: actionSnapshotPage,
         navigated: ourNavigation,
+        ...(productNavigationProposal && input.type === 'navigate'
+          ? { revisitDocument: (await readExplorationVersion(page, [])).planning?.documentId }
+          : {}),
         landedUrls: [],
         settled: false,
         ...(input.verify ? { verify: input.verify } : {}),
@@ -2921,6 +3002,20 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       await persistUsage()
       const probeMeasurement = activeAction?.probe
       await observe()
+      if (
+        productHost &&
+        inspection!.candidateItems().some((c) => {
+          const item = inspection!.snapshot().items.find((i) => i.itemId === c.itemId)
+          const e = latestSlim!.elements.find((e) => e.ref === c.ref)
+          return (
+            item?.checks &&
+            ['verified', 'failed'].includes(item.status) &&
+            e &&
+            productControlStates.get(item.itemId) !== controlState(e)
+          )
+        })
+      )
+        await observe()
       return {
         action: input,
         status: 'completed',
@@ -3144,6 +3239,8 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       })
     }
     closeCoveredUiScope = async () => {
+      // The product planner receives final measurements before handing completion to the same gate.
+      if (productHost && !productHandedOff) return false
       // Optional experiment window only: let the normal selection tool admit newly observed controls.
       // The completion function, ledger and budget admission are unchanged.
       if (
@@ -4393,11 +4490,11 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
                   )
                 ) {
                   const extension =
-                    experimentalScopeExpansionEnabled() &&
+                    (experimentalScopeExpansionEnabled() || productMayExtend(candidate)) &&
                     candidate.category === 'local-interaction' &&
                     input.selectItems?.length === 1 &&
                     inspection.completionGaps().length === 0 &&
-                    experimentalAdmissions.size < 1
+                    (productHost ? productMayExtend(candidate) : experimentalAdmissions.size < 1)
                       ? admitOptionalScope({
                           remaining: {
                             actions: budget.maxActions - usage.actions,
@@ -4424,7 +4521,13 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
                   await appendEvent(runId, 'r1:scope-admitted', {
                     itemId: entry.itemId,
                     ...extension,
-                    policy: 'one-local-extension-1',
+                    policy: uiScan?.exploration?.revision ?? 'one-local-extension-1',
+                    ...(productHost
+                      ? {
+                          localCheckCap: uiScan!.exploration!.maxLocalChecksPerPage,
+                          previousLocalChecks: productLocalCount(page.url()),
+                        }
+                      : {}),
                   })
                 }
                 if (uiScan?.samplingPolicy) continue
@@ -4515,7 +4618,33 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     let guidanceExhausted = false
     const reviewedStates = new Set<string>()
     const refreshedReviewVersions = new Set<string>()
-    const experiment = uiScan ? createExperimentalHost(runId) : undefined
+    if (uiScan?.exploration) {
+      const configuration = uiScan.exploration.jev ? productJevConfiguration() : undefined
+      if (uiScan.exploration.jev && !configuration) throw Error('r1-jev-unavailable')
+      productHost = createProductHost(
+        uiScan.exploration,
+        configuration
+          ? {
+              score: createProductJevScore({
+                configuration,
+                runId,
+                timeRemaining: () => budget.totalTimeoutMs - (Date.now() - startedAt),
+                async countCall() {
+                  guard()
+                  countModel()
+                  modelUsageAvailable = false
+                  await persistUsage()
+                },
+                save: (kind, body) => saveEvidence(runId, kind, body, evidenceMetadata(), guard),
+                async emit(payload, refs) {
+                  await appendEvent(runId, 'r1:score', payload, { evidenceRefs: refs })
+                },
+              }),
+            }
+          : {},
+      )
+    }
+    const experiment = productHost ?? (uiScan ? createExperimentalHost(runId) : undefined)
     let experimentHandedOff = false
     let experimentalHandoff: unknown
     const agent = new Agent({
@@ -5058,10 +5187,38 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       }
       if (experiment && !experimentHandedOff) {
         guard()
-        const version = await readObservationVersion(page)
+        if (productHost) {
+          const sample = inspection!.defaultSampling().pages.find((s) => s.url === page.url())
+          const selected = inspection!
+            .snapshot()
+            .items.filter((i) => i.selected)
+            .map((i) => i.itemId)
+          Object.assign(agentInput, {
+            r1: {
+              observation: latestSlim,
+              selectedIds: selected,
+              selectableIds: inspection!
+                .candidateItems()
+                .filter((c) => inspection!.selectionAllowed(c.itemId) || productMayExtend(c))
+                .map((c) => c.itemId),
+              initialSelectionIds:
+                sample && sample.pool.filter((id) => selected.includes(id)).length < sample.count
+                  ? sample.pool.slice(0, sample.count).filter((id) => !selected.includes(id))
+                  : [],
+            },
+          })
+        }
+        const planningVersion = () =>
+          productHost
+            ? readExplorationVersion(
+                page,
+                latestSlim!.elements.map((e) => e.selector),
+              )
+            : readObservationVersion(page)
+        const version = await planningVersion()
         const decision = await experiment.decide(structuredClone(agentInput), { signal, version })
         guard()
-        const after = await readObservationVersion(page)
+        const after = await planningVersion()
         if (
           decision.kind === 'tool' &&
           (!version.reusable ||
@@ -5074,6 +5231,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
             publicInput: agentInput,
           }
           experimentHandedOff = true
+          productHandedOff = true
           await appendEvent(runId, 'r1:handoff', { handoff: experimentalHandoff })
           await observe()
           continue
@@ -5081,7 +5239,23 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         if (decision.kind === 'handoff') {
           experimentalHandoff = decision
           experimentHandedOff = true
+          productHandedOff = true
           await appendEvent(runId, 'r1:handoff', decision)
+          if (
+            productHost &&
+            [
+              'budget-insufficient',
+              'program-step-limit',
+              'action-not-measured-or-refused',
+            ].includes(decision.reason)
+          ) {
+            await inspection!.recordGap({
+              reasonCode: decision.reason,
+              detail:
+                'R1 exploration stopped at its frozen budget; remaining public branches were not checked.',
+            })
+          }
+          if (productHost && (await closeCoveredUiScope())) break
           Object.assign(agentInput, { explorationHandoff: decision })
         } else {
           const allowed = ['page_act', 'page_inspect', 'interaction_verify', 'exploration_update']
@@ -5097,12 +5271,40 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           const result = await executeProgramTool(
             signal,
             Math.min(30000, budget.totalTimeoutMs - (Date.now() - startedAt)),
-            async () => tool.execute!(parsed as never, {} as never),
+            async () => {
+              productNavigationProposal =
+                productHost && decision.tool === 'page_act' && decision.args.type === 'navigate'
+                  ? String(decision.args.url)
+                  : undefined
+              try {
+                return await tool.execute!(parsed as never, {} as never)
+              } finally {
+                productNavigationProposal = undefined
+              }
+            },
           )
           guard()
           const toolResults = [{ toolName: decision.tool, args: decision.args, result }]
           history.push({ text: '', toolResults: JSON.stringify(toolResults) })
           await appendEvent(runId, 'r1:step', { toolResults })
+          if (productHost) {
+            const projection = productHost.recordOutcome(
+              {
+                decision,
+                result,
+                observation: latestSlim!,
+                checks: inspection!
+                  .snapshot()
+                  .items.filter((i) => i.checks)
+                  .map((i) => ({ itemId: i.itemId, checks: i.checks! })),
+                evidenceRefs: [...latest!.evidenceRefs],
+              },
+              await planningVersion(),
+            )
+            await appendEvent(runId, 'r1:progress', projection as Record<string, unknown>, {
+              evidenceRefs: latest!.evidenceRefs,
+            })
+          }
           await persistUsage()
           continue
         }

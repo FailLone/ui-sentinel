@@ -8,8 +8,9 @@ function walk(dir: string): string[] {
   )
 }
 
+// S3 pure modules are the roots; S4 integration is a consumer and cannot be imported back.
 const plannerSources = () =>
-  walk('src/agent/exploration').filter((p) => p.endsWith('.ts') && !p.endsWith('.test.ts'))
+  walk('src/agent/exploration').filter((p) => p.endsWith('.ts') && !p.endsWith('.test.ts') && !p.includes('/integration/'))
 
 const importGraph = (entries: string[]) => {
   const seen = new Set<string>()
@@ -44,6 +45,7 @@ describe('exploration planner boundaries', () => {
     for (const file of seen) {
       const modulePath = relative(process.cwd(), file).split('\\').join('/')
       expect(modulePath).not.toMatch(/^src\/agent\/decisions\/jev-provider\//)
+      expect(modulePath).not.toMatch(/^src\/agent\/exploration\/integration\//)
       expect(modulePath).not.toMatch(/^scripts\//)
       expect(modulePath).not.toMatch(/^evaluation\//)
       expect(modulePath).not.toMatch(/^arena\//)
