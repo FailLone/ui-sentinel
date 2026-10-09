@@ -46,3 +46,11 @@ Focused checks:
 pnpm typecheck
 pnpm exec vitest run src/execution/check-tasks src/execution/network/shared-budget.test.ts src/execution/network/session.test.ts src/execution/network/session-dns.test.ts src/execution/network/boundary-dns.test.ts src/execution/browser.test.ts src/execution/run-queue.test.ts src/server/reports/run-report-ui.test.ts src/web/ui-scan-report.test.ts src/execution/completion-integrity.test.ts
 ```
+
+Pinned committed popup compatibility (separate from the ordinary product API proof):
+
+```sh
+node --import tsx scripts/validation/parallel-popup-compat.ts
+```
+
+This uses commit `b25748e7d20faeb8ce934b2d63d9f692ca35f55a`, real popup runtime/collector, and already-visible dialogs only. It does not enable action or Jev delegation in production.

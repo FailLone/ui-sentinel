@@ -1,3 +1,4 @@
+import { popupCheckResult } from './popup-adapter.ts'
 import { describe, it, expect, beforeAll, afterAll } from 'vitest'
 import { writeFile, rm } from 'node:fs/promises'
 import { resolve } from 'node:path'
@@ -86,6 +87,54 @@ describe('child evidence integrity', () => {
     ).rows[0]
     await writeFile(String(row.file_path), 'changed')
     await expect(checkEvidence(a, [ref])).rejects.toThrow('bytes-mismatch')
+  })
+  it('popup handoff or an absent original receipt cannot be promoted', async () => {
+    const a = task()
+    const state = {
+      status: 'handoff' as const,
+      reason: 'popup-action-budget',
+      missing: ['original action unavailable'],
+      evidenceRefs: [],
+    }
+    const result = await popupCheckResult(a, state, async () => {
+      throw Error('must not bind')
+    })
+    expect(result.status).toBe('unverified')
+    expect(result.unchecked).toEqual(state.missing)
+    expect(
+      (
+        await popupCheckResult(a, { ...state, status: 'measured' }, async () => {
+          throw Error('must not bind')
+        })
+      ).status,
+    ).toBe('unverified')
+  })
+  it('popup mapping requires child-owned original measurement and retains defects', async () => {
+    const a = task()
+    const state = {
+      status: 'measured' as const,
+      reason: 'clipped',
+      missing: [],
+      evidenceRefs: ['raw'],
+      receiptRef: 'raw',
+      measurement: { verdict: 'fail' as const, reason: 'clipped' },
+    }
+    const receipt = {
+      measurementId: 'raw',
+      childTaskId: a.childTaskId,
+      taskHash: a.taskHash,
+      measuredAt: Date.now(),
+      verified: true,
+      evidenceRefs: ['raw'],
+      value: state.measurement,
+    }
+    expect((await popupCheckResult(a, state, async () => receipt)).status).toBe('defect')
+    await expect(
+      popupCheckResult(a, state, async () => ({ ...receipt, childTaskId: 'other' })),
+    ).rejects.toThrow('unbound')
+    await expect(
+      popupCheckResult(a, state, async () => ({ ...receipt, measuredAt: a.deadlineAt + 1 })),
+    ).rejects.toThrow('unbound')
   })
   it('projects a refused submission as unfinished work, not corrupted history', () => {
     const a = task()

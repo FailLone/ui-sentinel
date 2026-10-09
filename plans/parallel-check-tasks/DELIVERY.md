@@ -8,7 +8,7 @@ Mastra 1.67.0 的本地 SDK 有 `agents`、delegation start/complete、bail 和�
 
 免费验证通过：
 
-- TypeScript 检查；12 个相关测试文件、76 项测试。
+- TypeScript 检查；宿主 12 个相关测试文件、76 项测试，另增 2 项弹窗适配反例测试（该证据测试文件 5 项全部通过）。
 - 真实编译服务、普通 `/api/runs`、免费本地脚本模型主动调用四个 Mastra 工具、实际 Chromium。
 - 两个子任务执行重叠 **455 ms**；两边分别读到 `visits=1;width=320` 与 `visits=1;width=640`，证据 ID/内容/所有者互不串用。
 - 父取消、单子任务失败、请求/字节和检查额度竞争、过期/迟到结果、伪造或失效证据、准备失败清理、关闭互不干扰、必查未完成不能假 covered、默认顶层串行。
@@ -16,6 +16,6 @@ Mastra 1.67.0 的本地 SDK 有 `agents`、delegation start/complete、bail 和�
 
 可审阅证据：[summary.json](evidence/summary.json)、[生命周期事件](evidence/lifecycle-events.json)、[原始测量](evidence/child-0-check-measurement.json)、[320px 截图](evidence/child-0-screenshot.png)、[640px 截图](evidence/child-1-screenshot.png)。[manifest.json](evidence/manifest.json) 记录源代码提交与文件摘要。各案例投影明确保留父任务原有未检查项；完成子测量并不表示整个 UI 扫描通过。
 
-**真实弹窗适配未完成。** 对方最后可依赖 HEAD 仍为规划提交 `d0fab01`；仅只读其 PROGRESS 中的 `createPopupRuntime(deps)` 与 `popupCollector(page)` 说明，没有消费未提交代码。当前生产 handler 是匿名入口 URL 的只读元素测量，不支持前置动作重放、登录、写入、付费 Jev 或完整页面状态克隆。任务中的父 action/item 提示只作上下文；当前回执保留真实 measurement ID，绝不把提示伪装为在子页面上执行过的 action/item。
+**弹窗只读兼容性已复验，普通入口动作/Jev 并发整合未完成。** 交付前对方发布 `b25748e7d20faeb8ce934b2d63d9f692ca35f55a`；新增复验脚本从该提交提取并校验原 runtime/collector 源码，在本工作区临时目录编译加载，没有消费未提交文件或复制语义实现。两子 Context 中已显示弹窗分别得到原模块的越界/通过结论，原截图、双样本和测量回执经公共适配器回传；动作预算交接仍返回 unverified。证据见 [popup-compat/summary.json](popup-compat/summary.json)。当前生产 handler 是匿名入口 URL 的只读元素测量，不支持前置动作重放、登录、写入、付费 Jev 或完整页面状态克隆。任务中的父 action/item 提示只作上下文；当前回执保留真实 measurement ID，绝不把提示伪装为在子页面上执行过的 action/item。
 
-合入顺序与共享补丁：先合新 `check-tasks`、`shared-budget` 模块；弹窗分支提交后独立合入其模块；人工协调 `executor.ts`、`completion-integrity.ts`、报告和工作台的小接点，保留两方新增逻辑。另有原 `browser.ts` 的异常安全/幂等关闭及 `network/boundary.ts`、`session.ts` 的可选共享预算和收窄范围。没有修改 `run-queue.ts` 或 HTTP 请求契约。再以已提交弹窗 runtime 增加原动作/原事项/Jev 适配，并把父动作/模型分派检查与 held quota 接通，做一次小型免费浏览器复验。不能直接取消当前零动作/零模型配额限制来宣称完成整合。
+合入顺序与共享补丁：先合新 `check-tasks`、`shared-budget` 模块；弹窗分支提交后独立合入其模块；人工协调 `executor.ts`、`completion-integrity.ts`、报告和工作台的小接点，保留两方新增逻辑。另有原 `browser.ts` 的异常安全/幂等关闭及 `network/boundary.ts`、`session.ts` 的可选共享预算和收窄范围。没有修改 `run-queue.ts` 或 HTTP 请求契约。已有 `popup-adapter.ts` 结果适配和 `parallel-popup-compat.ts` 固定提交兼容性探针；再以已提交弹窗 runtime 增加原动作/原事项/Jev 生产适配，并把父动作/模型分派检查与 held quota 接通，做一次小型免费浏览器复验。不能直接取消当前零动作/零模型配额限制来宣称完成整合。
