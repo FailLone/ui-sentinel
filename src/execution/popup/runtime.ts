@@ -10,6 +10,7 @@ import type { PopupFacts, PopupMeasurement } from './geometry.ts'
 export type PopupFrame = {
   binding: string
   version?: string
+  actionEpoch?: number
   url: string
   reusable: boolean
   evidenceRefs: string[]
@@ -127,11 +128,12 @@ export function createPopupRuntime(deps: {
     const screenshotRef = await deps.screenshot()
     const result = await deps.measure(target.id, target)
     deps.guard()
-    const last = state.attempts.at(-1)
+    const last = lastBefore ? state.attempts.at(-1) : undefined
     const receipt = {
       revision: 'popup-receipt-1',
       taskId: deps.taskId,
       contractHash: deps.contractHash,
+      bindingKind: last?.actionId ? 'original-action-result' : 'observed-current-native-panel',
       actionId: last?.actionId ?? null,
       itemId: last?.itemId ?? null,
       before: lastBefore ?? frame,
@@ -191,13 +193,24 @@ export function createPopupRuntime(deps: {
         panelIds: frame.panels.map((p) => p.id),
       }
       state.status = 'active'
+      // Main Agent actions after handoff cannot be attributed to an older child action.
+      // Preserve those attempts, invalidate only their target association, and require a fresh read.
+      if (
+        lastBefore?.actionEpoch !== undefined &&
+        frame.actionEpoch !== undefined &&
+        frame.actionEpoch !== lastBefore.actionEpoch + (state.attempts.at(-1)?.actionId ? 1 : 0)
+      ) {
+        lastBefore = undefined
+        state.missing = ['original-action-association-invalidated-by-intervening-action']
+        return await handoff('popup-action-lineage-changed')
+      }
       // Deterministic target binding when exactly one actual new native/public dialog exists.
       const previous = new Set(lastBefore?.panels.filter((p) => p.visible).map((p) => p.id) ?? [])
       const panels = frame.panels.filter((p) => p.visible && !previous.has(p.id))
       const explicit = panels.filter((p) => p.kind !== 'custom')
       if (explicit.length === 1 && panels.filter((p) => p.kind !== 'custom').length === 1)
         return await measure(explicit[0]!, frame)
-      if (panels.length && state.attempts.at(-1)?.actionId) {
+      if (panels.length && lastBefore && state.attempts.at(-1)?.actionId) {
         state.missing = ['which-actual-new-panel-is-the-action-result']
         const choice = await question(
           'target',

@@ -150,3 +150,23 @@ it('a semantic custom target is still measured; ambiguity and unsupported layout
   expect(x.deps.decide.mock.calls.map((c) => c[0].stage)).toEqual(['entry', 'target'])
   expect(x.deps.settle).not.toHaveBeenCalled()
 })
+
+it('invalidates old action lineage after main-Agent actions, then can observe a native panel without attributing it to the old action', async () => {
+  const x = setup()
+  x.set({ actionEpoch: 0 })
+  x.deps.act.mockImplementationOnce(async () => {
+    x.set({ binding: 'wrong-result', actionEpoch: 1 })
+    return { status: 'completed', actionId: 'old-action', evidenceRefs: ['old'] }
+  })
+  const r = createPopupRuntime(x.deps)
+  await r.step()
+  await r.step()
+  x.set({ binding: 'main-agent-result', actionEpoch: 2, panels: [x.panel] })
+  expect((await r.step()).reason).toBe('popup-action-lineage-changed')
+  expect(x.deps.measure).not.toHaveBeenCalled()
+  expect((await r.step('refresh')).measurement?.verdict).toBe('pass')
+  const receipt = JSON.parse(x.deps.save.mock.calls.find((c) => c[0] === 'popup-measurement')![1])
+  expect(receipt.actionId).toBeNull()
+  expect(receipt.bindingKind).toBe('observed-current-native-panel')
+  expect(r.snapshot().attempts[0]?.actionId).toBe('old-action')
+})

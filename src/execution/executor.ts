@@ -3691,6 +3691,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         return {
           binding: popupHash({ version: version.key, entries, panels: panels.facts }),
           version: version.key,
+          actionEpoch: usage.actions,
           url: page.url(),
           reusable: version.reusable && panels.complete,
           entries,
