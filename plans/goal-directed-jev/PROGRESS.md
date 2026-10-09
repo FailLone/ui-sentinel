@@ -17,8 +17,8 @@
 - `src/execution/popup/runtime.ts:createPopupRuntime(deps)` 是唯一生命周期入口。`step('continue'|'refresh')` 推进一步；`snapshot()` 返回目标、原 item/action、有效回执位置、缺失事实、尝试、决策/读取消耗以及测量结果。依赖输入包含 `taskId/contractHash/goal/signal/guard/remaining/frame/decide/act/measure/screenshot/seal/save/emit/settle`。不创建浏览器、Context、队列、账户或全局运行。
 - `src/execution/popup/geometry.ts:popupCollector(page)` 只使用调用者的 Page，并持有有限目标 ElementHandle；拥有这些句柄并提供 dispose，不关闭调用者 Page。runtime 的 act/measure/save 均由原执行上下文提供。
 - `src/agent/popup/contract.ts` 为语义提问/有限候选契约；`provider.ts` 为可选真实 Jev 传输。生产模型调用通过原上下文 countCall；原 run 总取消和预算仍为上限。进程内 fixed provider 仅用于免费产品集成测试。
-- 共享接点集中：`inspection/contract.ts` 请求及冻结策略；`shared/config.ts` 单开关；`server/routes/runs.ts` 准入；`executor.ts` 原动作适配、工具和主循环前置步进；`inspection/check-artifacts.ts` 历史复核；`server/reports/ui-scan-report.ts` 与工作台两处展示。并发框架应在此模块提交后包装依赖，不复制 runtime 或创建第二个浏览器循环。各自独立分支提交后再整合共享接点；不读取或合入对方未提交代码。
+- 共享接点集中：`inspection/contract.ts` 请求及冻结策略、`inspection/check-contract.ts` 显式弹窗关注目标的来源登记；`shared/config.ts` 单开关；`server/routes/runs.ts` 准入；`executor.ts` 原动作适配、工具和主循环前置步进；`inspection/check-artifacts.ts` 历史复核；`server/reports/ui-scan-report.ts` 与工作台两处展示。并发框架应在此模块提交后包装依赖，不复制 runtime 或创建第二个浏览器循环。各自独立分支提交后再整合共享接点；不读取或合入对方未提交代码。
 
 ## 实现状态
 
-产品接线、原节点派发复查、几何与截图封存、持久证据重算、可重入 Agent 工具已完成。八场景真实 Chromium 免费产品验证及重启恢复通过；不支持/歧义/错误预测/预算不足没有被写成健康，原采样义务未被核销。新增真实收费调用为零；启动/API/支持范围见 USAGE.md，独立的一次真实验证提案见 REAL-VALIDATION.md。最终提交与证据索引将在 RESULT.md 封存。
+产品接线、原节点派发复查、几何与截图封存、持久证据重算、可重入 Agent 工具已完成。八个行为场景加明确中文目标 API 共九行真实 Chromium 免费产品验证及重启恢复通过；不支持/歧义/错误预测/预算不足没有被写成健康，原采样义务未被核销。新增真实收费调用为零；启动/API/支持范围见 USAGE.md，独立的一次真实验证提案见 REAL-VALIDATION.md。最终提交与证据索引将在 RESULT.md 封存。

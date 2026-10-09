@@ -35,7 +35,7 @@ curl http://localhost:4111/api/runs/RUN_ID
 curl http://localhost:4111/api/runs/RUN_ID/report
 ```
 
-`report.uiScan.popupCheck` 是子任务结论，`report.uiScan.inspection.coverage` 是整任务覆盖。两者独立：已测弹窗可能通过，但剩余默认控件、用户必查或未闭合要求仍使整任务为 partial。免费夹具里的主 Agent 被固定为如实收尾，因此八行全部为 blocked/partial，这是保存原覆盖义务的结果。
+`report.uiScan.popupCheck` 是子任务结论，`report.uiScan.inspection.coverage` 是整任务覆盖。两者独立：已测弹窗可能通过，但剩余默认控件、用户必查或未闭合要求仍使整任务为 partial。免费夹具里的主 Agent 被固定为如实收尾，因此九行全部为 blocked/partial，这是保存原覆盖义务的结果。
 
 # 支持范围
 
@@ -62,7 +62,8 @@ node --import tsx scripts/popup-product/validate.ts
 node node_modules/vitest/vitest.mjs run \
   src/execution/popup src/agent/popup src/shared/popup-policy.test.ts \
   src/inspection/popup-artifacts.test.ts \
-  src/inspection/contract.test.ts src/web/ui-scan-request.test.ts \
+  src/inspection/contract.test.ts src/inspection/check-contract.test.ts \
+  src/web/ui-scan-request.test.ts \
   src/web/ui-scan-report.test.ts src/server/routes/health.test.ts \
   src/server/routes/ui-scan-runs.test.ts src/execution/inspection-host.test.ts \
   src/agent/exploration/integration/product-jev.test.ts
