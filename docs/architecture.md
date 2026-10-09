@@ -1,6 +1,6 @@
 # 当前架构与职责
 
-2026-10-09。R0阶段交付完成，可支持R1离线工作；真实模型稳定性与正式验收待完成。实现范围见 [R0最终交付](r0-delivery.md)，演进方向见 [Roadmap](product-roadmap.md)。
+2026-10-09。R0阶段交付完成；R1本期程序优先探索已通过28项真实验收并合入main。实现范围见 [R0阶段交付](r0-delivery.md)和[R1最终交付](r1-delivery.md)，演进方向见 [Roadmap](product-roadmap.md)。R0历史正式验收缺口继续保留。
 
 UI Sentinel 是绑定loopback的受信单机服务，采用TypeScript、Mastra Core、Playwright、Midscene/Qwen、Hono、libSQL和React。工作台与API同端口；队列串行，关闭工作台不取消任务。没有多用户认证、远程Worker、分布式调度或第二套浏览器Agent循环。
 
@@ -8,7 +8,11 @@ UI Sentinel 是绑定loopback的受信单机服务，采用TypeScript、Mastra C
 flowchart LR
   UI[React工作台] --> API[Hono HTTP / SSE]
   API --> Queue[串行队列与取消]
-  Queue --> Agent[Mastra Agent]
+  Queue --> Planner[可选R1程序规划器]
+  Planner --> Tools
+  Planner -->|有界交回| Agent[Mastra Agent]
+  Queue --> Agent
+  Planner -. 显式启用且优先级未定 .-> Jev[Jev评分]
   Agent --> Tools[执行器与有类型工具]
   Tools --> Browser[Playwright / 可选视觉定位]
   Tools --> Rules[规则 / 调查程序 / 路径]
@@ -52,11 +56,17 @@ Agent只能选择已登记事项并提出调查，执行器掌握权限、目标
 
 covered需要全部必需义务有据结算，允许含已证缺陷；未完成效果、来源或generic保留partial。取消、执行故障、干预和证据失配优先否决完整完成。未知写入不自动重放；重启未完成任务中断并保留隔离。历史持久异常尚未定位，不能把这些机制描述成已证明无故障的可靠性保证，见[已知问题](known-issues.md)。
 
-## R1接入与未来边界
+## R1程序优先探索
 
-main提供[固定六状态公开包](../plans/r0-r1-dependency-v2/README.md)和只读提取工具；R1消费代码仍在独立分支。候选、选中身份、两维待办、公开DOM/规则及原check/action回执可支持离线调查排序；实时权限/节点/费用unknown不自动阻断建议，但禁止直接派发声明。程序和未来Jev必须读同一完整事实及候选，历史选择/评价另存。
+普通工作台的“R1有界探索”及API `exploration: { mode: "program", jev: false }` 显式启用运行级冻结策略；省略时保持原扫描路径。`src/agent/exploration` 管理公开状态、候选前沿、路径、去重、公平性及策略；`integration/product-host.ts` 提议原工具调用，执行器继续掌握实际权限、动作预算、测量、取消与完成门，没有第二套通过账本。
 
-当前没有自主通用状态遍历、任意资料自动理解或R1默认执行接线。详细实现分别见[执行层](execution-engine.md)、[可组合调查](composable-investigations.md)、[规则](rules-and-rule-library.md)和[评估](arena-and-evaluation.md)。
+每页最多3项本地控件或相关状态、24个程序步骤、2次返回/刷新额度。支持有限原生文本输入的公开maxlength边界；返回/刷新限明确公开目标与已观察同源URL，不等于恢复登录会话或浏览器历史栈。状态更新创建新义务并保留原测量；恢复不能重放副作用。公开目标/结果歧义交回后仅允许只读调查与partial收尾，唯一CSS定位不代表语义消歧。
+
+报告把规划路径连接到原action、item及可读证据，分别展示已访问、已测量、遗漏和交回原因，历史报告使用同一持久投影。主模型单请求默认60秒，仍取实际剩余运行期限；验收不再单独使用15秒期限。
+
+Jev默认关闭，需请求和服务端共同显式启用、已有批准费用账户及实时权限复查。只在有限多候选优先级尚未确定时参与评分，不覆盖执行器准入、公平性与安全限制。当前28项验收使用program且Jev为0，证明本期产品行为，不证明Jev收益；后续收益研究独立开展。固定六状态包和旧离线研究仍保留，不能以离线建议替代实时执行证据。
+
+目前仍不提供任意网站全状态遍历、任意资料自动理解或任意业务副作用操作。详细实现见[执行层](execution-engine.md)、[可组合调查](composable-investigations.md)、[规则](rules-and-rule-library.md)、[评估](arena-and-evaluation.md)及[R1交付](r1-delivery.md)。
 
 ## 普通网址扫描的规则与 DNS 接线
 
