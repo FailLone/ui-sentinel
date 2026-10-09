@@ -1,0 +1,65 @@
+{
+  "version": "r1-v2-small-batch-proposal-1",
+  "status": "not-authorized-not-runnable",
+  "sourceCommit": "a0a15375fdae0aa27e72dfaffd1fec6340541a2b",
+  "referenceFreezeCommit": "d25ce9e8a2e2fcebdf71c0625e9561f381a10223",
+  "mode": "offline-advice-only",
+  "requestCount": {
+    "min": 0,
+    "max": 1
+  },
+  "requests": [
+    {
+      "stateId": "V03",
+      "path": "evidence/baseline/V03.request.json",
+      "sha256": "7c9a62a1fa5207edc90c3bf11a03f4dad8e781c575ed861f68a4db3f92fbb428",
+      "bytes": 28525,
+      "questions": 7,
+      "candidateScores": 6,
+      "readinessQuestions": 1,
+      "timeoutMs": 60000,
+      "retries": 0,
+      "quoteUsd": null
+    }
+  ],
+  "questionLimitVerified": false,
+  "billingBoundVerified": false,
+  "totalBudgetUsd": null,
+  "authorization": null,
+  "localMaxWireBytes": 32768,
+  "localMaxQuestions": 65,
+  "priceObservation": {
+    "date": "2026-10-09",
+    "source": "https://openrouter.ai/typesafe/jev-1.13",
+    "inputUsdPerMillionTokens": 0.042,
+    "outputUsdPerMillionTokens": 0,
+    "contextTokens": 64000,
+    "billingUnitAndFailureBoundConfirmed": false
+  },
+  "blockedBy": [
+    "confirmed seven-question acceptance/limit",
+    "billing accounting for shared state and questions plus error/cancel reservation bound",
+    "v2 raw-response mapping, full-state hash and readiness validation via existing R1 durable campaign path",
+    "new exact authorization for frozen request and amount"
+  ],
+  "notBlockedBy": [
+    "unrelated R0 persistence failure",
+    "unrelated cancel diagnostic tail mismatch",
+    "all R0 business acceptance finishing"
+  ],
+  "reuse": "first/only request doubles as compatibility check; do not automatically add old six smoke requests or USD0.25 authorization",
+  "stop": [
+    "model/provider/candidate/state mismatch",
+    "invalid response or timeout/cancel",
+    "usage.cost absent or unknown; hold reservation and stop; never infer zero"
+  ],
+  "objective": [
+    "protocol/identity/structure",
+    "legal investigation suggestion or handoff",
+    "obligation relevance; ties accepted"
+  ],
+  "notAnObjective": [
+    "ranking superiority without discriminating reference",
+    "execution progress or total scan savings"
+  ]
+}

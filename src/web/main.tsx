@@ -249,6 +249,8 @@ function App() {
   // The mode the form is building. `business` is the default so an operator who never touches the
   // selector gets exactly the behaviour they had before; `ui-scan` is chosen explicitly.
   const [mode, setMode] = useState<'business' | 'ui-scan'>('business')
+  const [exploration, setExploration] = useState(false)
+  const [jev, setJev] = useState(false)
   const [entryUrl, setEntryUrl] = useState('')
   const [uiGoal, setUiGoal] = useState(UI_DEFAULT_GOAL)
   const [maxPages, setMaxPages] = useState(3)
@@ -354,6 +356,8 @@ function App() {
         const result = await api<{ runId: string }>(
           '/api/runs',
           buildUiScanRequest({
+            exploration,
+            jev,
             entryUrl,
             goal: uiGoal,
             maxPages,
@@ -443,6 +447,25 @@ function App() {
               <textarea value={uiGoal} onChange={(e) => setUiGoal(e.target.value)} />
               <small>{UI_SAMPLING_DESCRIPTION}</small>
             </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={exploration}
+                onChange={(e) => setExploration(e.target.checked)}
+              />
+              R1 有界探索（程序优先，复杂情况交回 Agent）
+            </label>
+            {exploration && (
+              <>
+                <p>
+                  每页最多检查三个本地控件或相关状态；后续路径仍受原动作、时间及权限限制。访问不等于验证。
+                </p>
+                <label>
+                  <input type="checkbox" checked={jev} onChange={(e) => setJev(e.target.checked)} />
+                  仅在优先级仍有歧义时使用 Jev 评分（需服务端配置，会产生模型用量）
+                </label>
+              </>
+            )}
             <label>
               <input
                 type="checkbox"

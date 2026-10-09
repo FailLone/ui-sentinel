@@ -1,0 +1,8 @@
+{
+  "schemaVersion": "r1-stub-reply-1",
+  "kind": "handoff",
+  "reasonCode": "requires-agent-investigation",
+  "model": "stub/jev-exploration-1",
+  "provider": "stub",
+  "usage": null
+}

@@ -1,0 +1,74 @@
+{
+  "version": "r1-one-frame-proposal-1",
+  "authorization": "not-granted",
+  "sourceSha": "6acae6edd91ffebd020ff3dd90174bbb3d7a30b4",
+  "freezeHash": "6244d47af1e4e2e68de86b0e4518e656060b76e4ca2626af400aa90cbd4bb7cc",
+  "endpoint": "https://openrouter.ai/api/alpha/decisions",
+  "requestModel": "typesafe/jev-1.13",
+  "expectedResponseModel": "typesafe/jev-1.13-20260917",
+  "expectedProvider": "TypeSafe",
+  "allowFallbacks": false,
+  "sample": "semantic first scoring frame from frozen-jev-fixed, run-168fffb3-a8b3-489f-b0a3-823208ceb4f4",
+  "files": {
+    "frame": "frame.json",
+    "wire": "request.json",
+    "freeze": "freeze.json"
+  },
+  "requests": [
+    {
+      "id": "semantic-frame-1",
+      "candidates": 2,
+      "questions": 5,
+      "wireBytes": 12171,
+      "packetHash": "4a021c13e6616defc20d3467743260752e012d3070a797b506ce950cccd6d390",
+      "wireHash": "924a0c684fd9a956d6a3c74c754b63931d4f148cb340aa6240325ed5f34dd698",
+      "maxAttempts": 1,
+      "maxRetries": 0,
+      "timeoutMs": 15000,
+      "reservationUsd": 0.003
+    }
+  ],
+  "totalReservationUsd": 0.003,
+  "exactTokenCount": null,
+  "basis": "Published accepted request envelope 64000 input tokens * USD 0.042 / 1000000 = 0.002688; rounded up to 0.003. Output tokens free. Not an unconditional billing SLA.",
+  "maxContextTokens": 64000,
+  "statePlusLongestQuestionTokens": 32000,
+  "questionLimit": "Local cap 7; this request 5. Official fan-out supports multiple questions; no claim of published hard numeric maximum.",
+  "compatibilityPass": [
+    "one actual raw response",
+    "expected model/provider and all 5 answer keys/types valid",
+    "candidate and full-state digests match",
+    "readiness recomputed from raw response",
+    "finite known usage.cost <= 0.003",
+    "dispatch/reserve/settle attempt IDs match"
+  ],
+  "qualityAfterCompatibility": "Reuse same response as one descriptive public-goal ranking observation. Reveal has explicit required effect; Other also remains selected generic obligation. Tie is not a protocol failure; no sample-wide quality claim.",
+  "stop": [
+    "Always stop after first attempt",
+    "Unknown cost keeps reservation and prevents another request",
+    "Timeout/cancel/error/stale/raw invalid => handoff, no retry",
+    "Known overrun => stop and record real cost",
+    "Model version mismatch => stop, no silent expectedModel update"
+  ],
+  "realExecutionsThisBatch": 0,
+  "realBrowserActionsInProposedCall": 0,
+  "officialSourcesCheckedOn": "2026-10-09",
+  "officialSources": [
+    {
+      "url": "https://docs.typesafe.ai/models",
+      "supports": "Price, 64k total request, 32k state plus longest question, state ingested once"
+    },
+    {
+      "url": "https://docs.typesafe.ai/patterns/fan-out",
+      "supports": "Multiple questions in one call"
+    },
+    {
+      "url": "https://openrouter.ai/typesafe/jev-1.13",
+      "supports": "Gateway model name, 64k context, USD 0.042/M input and free output"
+    },
+    {
+      "url": "https://openrouter.ai/docs/api/api-reference/alphadecisions/submit-a-decisions-request",
+      "supports": "Gateway endpoint, model/state/questions and structured response/usage"
+    }
+  ]
+}

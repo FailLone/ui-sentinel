@@ -1,0 +1,7 @@
+{
+  "schemaVersion": "r1-evaluator-case-1",
+  "scenario": "tabs",
+  "expectedStatus": "ranked",
+  "reason": "保留两个候选身份；排序不能把 selected 当完成证明。",
+  "checks": []
+}

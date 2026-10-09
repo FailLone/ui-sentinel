@@ -1,4 +1,10 @@
 import {
+  explorationRequestSchema,
+  freezeExploration,
+  validExploration,
+  type ExplorationPolicy,
+} from '../shared/r1-policy.ts'
+import {
   UI_SAMPLING_POLICY,
   UI_SAMPLING_POLICY_V2,
   UI_CHECK_POLICY,
@@ -134,6 +140,7 @@ const requiredChecksInput = z
 export const uiScanRequestSchema = z
   .object({
     kind: z.literal('ui-scan'),
+    exploration: explorationRequestSchema.optional(),
     entryUrl: z.string().min(1).max(4096),
     goal: z.string().max(UI_GOAL_MAX_LENGTH).optional(),
     requiredChecks: requiredChecksInput.optional(),
@@ -172,6 +179,7 @@ export const uiScanRequestSchema = z
 export type UiScanRequest = z.infer<typeof uiScanRequestSchema>
 
 export interface UiContractSnapshot {
+  readonly exploration?: ExplorationPolicy
   readonly schemaVersion: typeof UI_CONTRACT_SCHEMA_VERSION
   readonly policyRevision:
     | typeof UI_POLICY_REVISION
@@ -267,6 +275,7 @@ export function buildUiContractSnapshot(input: {
   goalSource?: 'user' | 'default'
   requiredChecks?: readonly RequiredCheck[]
   samplingPolicy?: UiSamplingPolicy
+  exploration?: ExplorationPolicy
   scope: UiContractSnapshot['scope']
   access: UiContractSnapshot['access']
   budget: UiContractSnapshot['budget']
@@ -274,6 +283,7 @@ export function buildUiContractSnapshot(input: {
   const goal = input.goal?.trim() ? input.goal.trim() : UI_DEFAULT_GOAL
   const body = {
     schemaVersion: UI_CONTRACT_SCHEMA_VERSION,
+    ...(input.exploration ? { exploration: structuredClone(input.exploration) } : {}),
     policyRevision: input.samplingPolicy
       ? input.samplingPolicy.revision === 'bounded-ui-sampling-2'
         ? UI_CHECK_SCOPE_REVISION
@@ -344,6 +354,7 @@ export function verifyUiContractSnapshot(snapshot: UiContractSnapshot): boolean 
     snapshot.samplingPolicy?.revision === 'bounded-ui-sampling-2'
   )
     return false
+  if (snapshot.exploration !== undefined && !validExploration(snapshot.exploration)) return false
   const { hash, ...body } = snapshot
   if (typeof hash !== 'string') return false
   const expected = createHash('sha256').update(canonical(body)).digest('hex')
@@ -424,6 +435,7 @@ export function resolveUiScanContract(
       goal: data.goal,
       requiredChecks: data.requiredChecks,
       samplingPolicy: UI_SAMPLING_POLICY_V2,
+      ...(data.exploration ? { exploration: freezeExploration(data.exploration) } : {}),
       requestedGoal: typeof (request as any)?.goal === 'string' ? (request as any).goal : '',
       scope,
       access,

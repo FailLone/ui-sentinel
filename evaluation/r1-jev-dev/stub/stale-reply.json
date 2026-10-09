@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "r1-stub-reply-1",
+  "kind": "scenario",
+  "operation": "resolve-after-current-state-change",
+  "change": {
+    "observationVersion": "obs-2"
+  },
+  "usage": {
+    "costUsd": null
+  }
+}

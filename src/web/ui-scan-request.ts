@@ -8,6 +8,8 @@
  */
 
 export interface UiScanFormInput {
+  readonly exploration?: boolean
+  readonly jev?: boolean
   readonly entryUrl: string
   readonly goal?: string
   readonly maxPages?: number
@@ -63,6 +65,7 @@ export function buildUiScanRequest(input: UiScanFormInput): Record<string, unkno
   }
   return {
     kind: 'ui-scan',
+    ...(input.exploration ? { exploration: { mode: 'program', jev: input.jev === true } } : {}),
     entryUrl: input.entryUrl.trim(),
     ...(goal ? { goal } : {}),
     ...(Object.keys(scope).length ? { scope } : {}),

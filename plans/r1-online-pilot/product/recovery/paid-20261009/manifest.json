@@ -1,0 +1,518 @@
+{
+  "version": "r1-product-acceptance-2",
+  "sourceSha": "98f7854472c3df9e3baa913ab3e74f97d8cff3c7",
+  "integratedMainSha": "48b02b3fbfe7e5d95189a0d813480761b123ff6b",
+  "entry": "src/server/index.ts; ordinary POST /api/runs; frozen exploration program opt-in, Jev off",
+  "policy": {
+    "runs": 28,
+    "mainRequests": 224,
+    "jevRequests": 0,
+    "maxCostUsd": 14.112,
+    "windowMs": 5400000,
+    "actions": 6,
+    "modelCalls": 8,
+    "totalTimeoutMs": 180000,
+    "toolMs": 5000,
+    "modelMs": 15000
+  },
+  "mainModel": "deepseek/deepseek-v4.1-flash",
+  "provider": "Wafer",
+  "maxOutputTokens": 4096,
+  "retries": 0,
+  "vision": false,
+  "jev": false,
+  "priceSourceSha": "30d91e85280db22e902b772e4a0a429d3136f5c261aa57376e45e387d5edc6f4",
+  "continuation": {
+    "version": "r1-product-failure-continuation-1",
+    "sourceManifestHash": "41eb23e34527461bae8bc50e6d0b28ae53d94bb584d8d167b7eddecedbfcf510",
+    "sourceCampaignId": "68594301-1db8-4ff9-9f67-a60d72dc67f7",
+    "sourceRow": "C10-1",
+    "sourceStoppedReason": "persistence-or-false-covered",
+    "previousKnownActualUsd": 0.00502455,
+    "inheritedUnknownReservedUsd": 0.053,
+    "inheritedUnknownCount": 1,
+    "originalFailure": {
+      "version": "r1-explicit-unknown-continuation-1",
+      "sourceManifestHash": "9f73f0d6e3140b2d891d043441053bb75579550d58fdbf850a081c0bdc56ba75",
+      "sourceCampaignId": "2063928d-77c8-46ab-8b09-5811fc52e03e",
+      "sourceRequestId": "0ddb03d5250db453759b72ee",
+      "sourceStopEpoch": 1,
+      "knownActualUsd": 0,
+      "unknownReservedUsd": 0.053,
+      "unknownCount": 1,
+      "heldReservedUsd": 0,
+      "canonicalClaims": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-online-claims",
+      "pins": [
+        {
+          "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-online-runtime/artifacts/r1-online-pilot/authorized-batch-1/account/campaign.db",
+          "sha256": "e78f2588e8d163155c639d65c2f19ccdd127cc1342b327e11604b04457645936"
+        },
+        {
+          "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-online-claims/9f73f0d6e3140b2d891d043441053bb75579550d58fdbf850a081c0bdc56ba75.claim",
+          "sha256": "f1743a4d1952fd712c87a76388d5da820a8c44b3daccf2dda0d7c680d32a639b"
+        },
+        {
+          "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-online-claims/9f73f0d6e3140b2d891d043441053bb75579550d58fdbf850a081c0bdc56ba75.execution-lock",
+          "sha256": "4865494226f9b1456c91966d85b2fdea5dfad5b5a004b79ead37379986cac937"
+        }
+      ],
+      "preserveOldUnknownAndStop": true,
+      "stopOnAnyNewUnknown": true
+    },
+    "pins": [
+      {
+        "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/data/r1-product/runtime-ddf1dd9/data/r1-product/authorized-acceptance/account/campaign.db",
+        "sha256": "9cd6d5a68d5bec046145cdc0a6b39c27736b9efa8b45abb0ba2a161004ef770c"
+      },
+      {
+        "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/data/r1-product/runtime-ddf1dd9/data/r1-product/authorized-acceptance/account/campaign-id.json",
+        "sha256": "4059f7c7de6b8e9df1f7611095f4f0c1acfac3cd67f35900c07590da2107ed46"
+      },
+      {
+        "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/data/r1-product/runtime-ddf1dd9/data/r1-product/authorized-acceptance/accounting.json",
+        "sha256": "e56a93413e2decaec793253c787dd6dfb4ed9ab9d918aa3363218c56bd7cb14d"
+      },
+      {
+        "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/data/r1-product/runtime-ddf1dd9/data/r1-product/authorized-acceptance/stop.json",
+        "sha256": "96bbf3e2aa2adef1f1a9a7def6f15376a2fa7eeb8b28ebb99bdedfd46f9ca31f"
+      },
+      {
+        "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/data/r1-product/runtime-ddf1dd9/data/r1-product/authorized-acceptance/manifest.json",
+        "sha256": "1a89755d397a87f62be87499b74cc1e18127f747b18a3c84cc942471f8a4fdcb"
+      },
+      {
+        "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/data/r1-product/runtime-ddf1dd9/data/r1-product/authorized-acceptance/results.json",
+        "sha256": "ac2933c85c5c69952866d87066ca00d375f95bd3269495ead7220e9fd493f81c"
+      },
+      {
+        "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-online-claims/continued-0ddb03d5250db453759b72ee.claim",
+        "sha256": "0944f222ae97e63f5a4ea25fb45dee60d0930d386621b0f456daebd60d3c3df1"
+      }
+    ],
+    "acceptance": {
+      "policy": "r1-product-failure-continuation-1",
+      "sourceManifestHash": "41eb23e34527461bae8bc50e6d0b28ae53d94bb584d8d167b7eddecedbfcf510",
+      "sourceCampaignId": "68594301-1db8-4ff9-9f67-a60d72dc67f7",
+      "sourceDbSha256": "9cd6d5a68d5bec046145cdc0a6b39c27736b9efa8b45abb0ba2a161004ef770c",
+      "previousKnownActualUsd": 0.00502455,
+      "acceptUnsettledRiskUsd": 0.053,
+      "maxCombinedAccountedUsd": 14.17002455,
+      "bothPriorBatchesRemainStopped": true,
+      "stopOnAnyNewUnknown": true
+    }
+  },
+  "fixtures": [
+    {
+      "id": "menu-healthy",
+      "htmlHash": "68a0e9e9e9b08b05a94d8d9484b7c27be4317fc02d41c59726ff7aaa844bf9ab",
+      "goal": null
+    },
+    {
+      "id": "layout-pair",
+      "htmlHash": "b5ee27e329d4ddeeb128a6bb2aa00d9810e47de0ec8644cfafccab86b41abfb8",
+      "goal": null
+    },
+    {
+      "id": "three-step-defect",
+      "htmlHash": "929fb36f94282c9d536ec845ed37f4b83347ce21a8319b6a043f48e00fe2a7f9",
+      "goal": null
+    },
+    {
+      "id": "three-step-healthy",
+      "htmlHash": "04aae203419539a0b921b40813de36990f32cc569493e8d1ed1802e952db1b77",
+      "goal": null
+    },
+    {
+      "id": "view-context",
+      "htmlHash": "53fa53972a0255db5d34e6e286faf30a1fd6e87a1c6f605addc94af77649a552",
+      "goal": "Inspect \"Read panel\"."
+    },
+    {
+      "id": "view-context-healthy",
+      "htmlHash": "f952fab9b86ca1b960cbf20064c5f9d667fcdabaa39e12e164ac9855ec309056",
+      "goal": "Inspect \"Read panel\"."
+    },
+    {
+      "id": "state-cycle",
+      "htmlHash": "bf0f282bf560d0cbca204aa26b849c4608662e8a968a1a8f18c9e3ab8fce6db8",
+      "goal": null
+    },
+    {
+      "id": "fairness",
+      "htmlHash": "16e9ca072c0d8d0e75118d2a3367cf627ce535dda46367f91b25751dff827b99",
+      "goal": "Inspect \"Primary\"."
+    },
+    {
+      "id": "repeat-defect",
+      "htmlHash": "f748c8cb1f54790c6bda030cfcc02faa8fa64fa8770ed25c5064c9e838f470c2",
+      "goal": null
+    },
+    {
+      "id": "tabs-defect",
+      "htmlHash": "94744c6bca49a49349b19c20234429bb9d0d4de963a52f201f2922240f9c8384",
+      "goal": null
+    },
+    {
+      "id": "boundary-input",
+      "htmlHash": "66df8e03ce8e4828d2774a83b835af70b1f6eb498c3b826cae6c90660f1d867e",
+      "goal": null
+    },
+    {
+      "id": "ambiguous",
+      "htmlHash": "b67d3b4d48271cd5a4130d915a44ed72091430cece3d6abbfbec3f3d39bb16db",
+      "goal": null
+    },
+    {
+      "id": "recovery",
+      "htmlHash": "c1de6414f6062c31f2f050502a043752367414991d795af5661b8fcc1fbe1bb6",
+      "goal": null
+    },
+    {
+      "id": "refresh-unbindable",
+      "htmlHash": "5b39ecaabd9c7085c9da5656ab60ba6ed1c014d9b504e2582410a6e4b3837a05",
+      "goal": null
+    },
+    {
+      "id": "refresh",
+      "htmlHash": "d5c9d228159b5cb72220a2bd725d6af63a051c1c9bffd2c0993fa43812b606e0",
+      "goal": "Refresh the page after inspecting its public controls."
+    },
+    {
+      "id": "return-start",
+      "htmlHash": "b5e172931a7596e9f7e06459184c1c86eb37b6b5f59a30db256086727a51cdda",
+      "goal": "Return to the previous page after visiting details."
+    },
+    {
+      "id": "return-end",
+      "htmlHash": "b32be7c605540945ef09f4c3b8503a88ebda8e6bbbdaab65d0a9bdf9573d4e22",
+      "goal": null
+    },
+    {
+      "id": "budget",
+      "htmlHash": "929fb36f94282c9d536ec845ed37f4b83347ce21a8319b6a043f48e00fe2a7f9",
+      "goal": null
+    }
+  ],
+  "rows": [
+    {
+      "id": "C10-1",
+      "caseId": "C10",
+      "scenario": "ambiguous",
+      "repetition": 1,
+      "mode": "program",
+      "maxAgentRequests": 8,
+      "maxJevRequests": 0,
+      "reserveUsd": 0.504,
+      "maxActions": 6
+    },
+    {
+      "id": "C10-2",
+      "caseId": "C10",
+      "scenario": "ambiguous",
+      "repetition": 2,
+      "mode": "program",
+      "maxAgentRequests": 8,
+      "maxJevRequests": 0,
+      "reserveUsd": 0.504,
+      "maxActions": 6
+    },
+    {
+      "id": "C01-1",
+      "caseId": "C01",
+      "scenario": "menu-healthy",
+      "repetition": 1,
+      "mode": "program",
+      "maxAgentRequests": 8,
+      "maxJevRequests": 0,
+      "reserveUsd": 0.504,
+      "maxActions": 6
+    },
+    {
+      "id": "C01-2",
+      "caseId": "C01",
+      "scenario": "menu-healthy",
+      "repetition": 2,
+      "mode": "program",
+      "maxAgentRequests": 8,
+      "maxJevRequests": 0,
+      "reserveUsd": 0.504,
+      "maxActions": 6
+    },
+    {
+      "id": "C02-1",
+      "caseId": "C02",
+      "scenario": "tabs-defect",
+      "repetition": 1,
+      "mode": "program",
+      "maxAgentRequests": 8,
+      "maxJevRequests": 0,
+      "reserveUsd": 0.504,
+      "maxActions": 6
+    },
+    {
+      "id": "C02-2",
+      "caseId": "C02",
+      "scenario": "tabs-defect",
+      "repetition": 2,
+      "mode": "program",
+      "maxAgentRequests": 8,
+      "maxJevRequests": 0,
+      "reserveUsd": 0.504,
+      "maxActions": 6
+    },
+    {
+      "id": "C03-1",
+      "caseId": "C03",
+      "scenario": "boundary-input",
+      "repetition": 1,
+      "mode": "program",
+      "maxAgentRequests": 8,
+      "maxJevRequests": 0,
+      "reserveUsd": 0.504,
+      "maxActions": 6
+    },
+    {
+      "id": "C03-2",
+      "caseId": "C03",
+      "scenario": "boundary-input",
+      "repetition": 2,
+      "mode": "program",
+      "maxAgentRequests": 8,
+      "maxJevRequests": 0,
+      "reserveUsd": 0.504,
+      "maxActions": 6
+    },
+    {
+      "id": "C04a-1",
+      "caseId": "C04a",
+      "scenario": "refresh",
+      "repetition": 1,
+      "mode": "program",
+      "maxAgentRequests": 8,
+      "maxJevRequests": 0,
+      "reserveUsd": 0.504,
+      "maxActions": 6
+    },
+    {
+      "id": "C04a-2",
+      "caseId": "C04a",
+      "scenario": "refresh",
+      "repetition": 2,
+      "mode": "program",
+      "maxAgentRequests": 8,
+      "maxJevRequests": 0,
+      "reserveUsd": 0.504,
+      "maxActions": 6
+    },
+    {
+      "id": "C04b-1",
+      "caseId": "C04b",
+      "scenario": "return-start",
+      "repetition": 1,
+      "mode": "program",
+      "maxAgentRequests": 8,
+      "maxJevRequests": 0,
+      "reserveUsd": 0.504,
+      "maxActions": 6
+    },
+    {
+      "id": "C04b-2",
+      "caseId": "C04b",
+      "scenario": "return-start",
+      "repetition": 2,
+      "mode": "program",
+      "maxAgentRequests": 8,
+      "maxJevRequests": 0,
+      "reserveUsd": 0.504,
+      "maxActions": 6
+    },
+    {
+      "id": "C04c-1",
+      "caseId": "C04c",
+      "scenario": "view-context-healthy",
+      "repetition": 1,
+      "mode": "program",
+      "maxAgentRequests": 8,
+      "maxJevRequests": 0,
+      "reserveUsd": 0.504,
+      "maxActions": 6
+    },
+    {
+      "id": "C04c-2",
+      "caseId": "C04c",
+      "scenario": "view-context-healthy",
+      "repetition": 2,
+      "mode": "program",
+      "maxAgentRequests": 8,
+      "maxJevRequests": 0,
+      "reserveUsd": 0.504,
+      "maxActions": 6
+    },
+    {
+      "id": "C05-1",
+      "caseId": "C05",
+      "scenario": "three-step-defect",
+      "repetition": 1,
+      "mode": "program",
+      "maxAgentRequests": 8,
+      "maxJevRequests": 0,
+      "reserveUsd": 0.504,
+      "maxActions": 6
+    },
+    {
+      "id": "C05-2",
+      "caseId": "C05",
+      "scenario": "three-step-defect",
+      "repetition": 2,
+      "mode": "program",
+      "maxAgentRequests": 8,
+      "maxJevRequests": 0,
+      "reserveUsd": 0.504,
+      "maxActions": 6
+    },
+    {
+      "id": "C06-1",
+      "caseId": "C06",
+      "scenario": "three-step-healthy",
+      "repetition": 1,
+      "mode": "program",
+      "maxAgentRequests": 8,
+      "maxJevRequests": 0,
+      "reserveUsd": 0.504,
+      "maxActions": 6
+    },
+    {
+      "id": "C06-2",
+      "caseId": "C06",
+      "scenario": "three-step-healthy",
+      "repetition": 2,
+      "mode": "program",
+      "maxAgentRequests": 8,
+      "maxJevRequests": 0,
+      "reserveUsd": 0.504,
+      "maxActions": 6
+    },
+    {
+      "id": "C07-1",
+      "caseId": "C07",
+      "scenario": "fairness",
+      "repetition": 1,
+      "mode": "program",
+      "maxAgentRequests": 8,
+      "maxJevRequests": 0,
+      "reserveUsd": 0.504,
+      "maxActions": 6
+    },
+    {
+      "id": "C07-2",
+      "caseId": "C07",
+      "scenario": "fairness",
+      "repetition": 2,
+      "mode": "program",
+      "maxAgentRequests": 8,
+      "maxJevRequests": 0,
+      "reserveUsd": 0.504,
+      "maxActions": 6
+    },
+    {
+      "id": "C08-1",
+      "caseId": "C08",
+      "scenario": "layout-pair",
+      "repetition": 1,
+      "mode": "program",
+      "maxAgentRequests": 8,
+      "maxJevRequests": 0,
+      "reserveUsd": 0.504,
+      "maxActions": 6
+    },
+    {
+      "id": "C08-2",
+      "caseId": "C08",
+      "scenario": "layout-pair",
+      "repetition": 2,
+      "mode": "program",
+      "maxAgentRequests": 8,
+      "maxJevRequests": 0,
+      "reserveUsd": 0.504,
+      "maxActions": 6
+    },
+    {
+      "id": "C09-1",
+      "caseId": "C09",
+      "scenario": "repeat-defect",
+      "repetition": 1,
+      "mode": "program",
+      "maxAgentRequests": 8,
+      "maxJevRequests": 0,
+      "reserveUsd": 0.504,
+      "maxActions": 6
+    },
+    {
+      "id": "C09-2",
+      "caseId": "C09",
+      "scenario": "repeat-defect",
+      "repetition": 2,
+      "mode": "program",
+      "maxAgentRequests": 8,
+      "maxJevRequests": 0,
+      "reserveUsd": 0.504,
+      "maxActions": 6
+    },
+    {
+      "id": "C11-1",
+      "caseId": "C11",
+      "scenario": "recovery",
+      "repetition": 1,
+      "mode": "program",
+      "maxAgentRequests": 8,
+      "maxJevRequests": 0,
+      "reserveUsd": 0.504,
+      "maxActions": 6
+    },
+    {
+      "id": "C11-2",
+      "caseId": "C11",
+      "scenario": "recovery",
+      "repetition": 2,
+      "mode": "program",
+      "maxAgentRequests": 8,
+      "maxJevRequests": 0,
+      "reserveUsd": 0.504,
+      "maxActions": 6
+    },
+    {
+      "id": "C12-1",
+      "caseId": "C12",
+      "scenario": "budget",
+      "repetition": 1,
+      "mode": "program",
+      "maxAgentRequests": 8,
+      "maxJevRequests": 0,
+      "reserveUsd": 0.504,
+      "maxActions": 1
+    },
+    {
+      "id": "C12-2",
+      "caseId": "C12",
+      "scenario": "budget",
+      "repetition": 2,
+      "mode": "program",
+      "maxAgentRequests": 8,
+      "maxJevRequests": 0,
+      "reserveUsd": 0.504,
+      "maxActions": 1
+    }
+  ],
+  "smoke": "C10-1; first ordinary bounded Agent handoff doubles as provider compatibility check; no extra probe",
+  "stop": [
+    "transport-error",
+    "safety",
+    "dirty-evidence",
+    "persistence",
+    "false-covered",
+    "new-unknown",
+    "cost-overrun",
+    "changed-old-lineage"
+  ],
+  "quality": "Retain partials and failures without tuning, reruns or model changes. Both repetitions must meet the predeclared product evidence checks. No Jev benefit or A/B/C statistics claim."
+}

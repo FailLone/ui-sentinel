@@ -89,3 +89,35 @@ it('does not certify animations, canvas, or navigation as unchanged', async () =
     await worker.close()
   }
 })
+
+it('R1 separates semantic cycle state from node identity and invalidates replacement and new documents', async () => {
+  const { readExplorationVersion } = await import('./observation-version.ts')
+  const worker = await launchBrowser()
+  try {
+    await worker.page.setContent(
+      '<button aria-pressed="false">Toggle</button><input maxlength="3">',
+    )
+    const a = await readExplorationVersion(worker.page, ['button', 'input'])
+    expect(a.reusable).toBe(true)
+    expect((await readObservationVersion(worker.page)).reusable).toBe(false)
+    await worker.page.locator('button').evaluate((el) => el.setAttribute('aria-pressed', 'true'))
+    const b = await readExplorationVersion(worker.page, ['button', 'input'])
+    expect(b.planning!.relatedState).not.toBe(a.planning!.relatedState)
+    await worker.page.locator('button').evaluate((el) => el.setAttribute('aria-pressed', 'false'))
+    const c = await readExplorationVersion(worker.page, ['button', 'input'])
+    expect(c.planning!.relatedState).toBe(a.planning!.relatedState)
+    expect(c.planning!.targetKeys.button).toBe(a.planning!.targetKeys.button)
+    await worker.page.locator('button').evaluate((el) => el.replaceWith(el.cloneNode(true)))
+    const d = await readExplorationVersion(worker.page, ['button', 'input'])
+    expect(d.planning!.targetKeys.button).not.toBe(a.planning!.targetKeys.button)
+    expect(d.key).not.toBe(c.key)
+    await worker.page.goto('about:blank')
+    await worker.page.setContent(
+      '<button aria-pressed="false">Toggle</button><input maxlength="3">',
+    )
+    const e = await readExplorationVersion(worker.page, ['button', 'input'])
+    expect(e.planning!.documentId).not.toBe(a.planning!.documentId)
+  } finally {
+    await worker.close()
+  }
+})

@@ -1,0 +1,191 @@
+{
+  "version": "r1-online-pilot-3",
+  "sourceSha": "26bd797b7075dc3589f3a648b2aa124f1a34d263",
+  "baseSha": "aa35a9544d11dd57b85d7efcc4088dc8538977cc",
+  "policy": {
+    "revision": "r1-online-pilot-3",
+    "candidateSource": "original-executor-selected-local-public-frame",
+    "actions": 6,
+    "modelCalls": 8,
+    "totalTimeoutMs": 180000,
+    "toolMs": 5000,
+    "modelMs": 15000,
+    "retries": 0,
+    "maxCandidates": 3,
+    "maxQuestions": 7,
+    "maxFrameBytes": 32768,
+    "maxAgentBytes": 131072,
+    "jevConfidence": 0.5,
+    "confidenceMeaning": "pre-registered exploratory abstention, not calibrated",
+    "agent": {
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "maxOutputTokens": 4096,
+      "contextTokens": 1048576,
+      "inputPerTokenUsd": 5.5e-8,
+      "outputPerTokenUsd": 0.0000012,
+      "reserveUsd": 0.063,
+      "perRunRequests": 8,
+      "batchRequests": 72
+    },
+    "jev": {
+      "model": "typesafe/jev-1.13",
+      "expectedModel": "typesafe/jev-1.13-20260917",
+      "provider": "TypeSafe",
+      "reserveUsd": 0.003,
+      "perRunRequests": 2,
+      "batchRequests": 6
+    },
+    "vision": {
+      "enabled": false,
+      "perRunRequests": 0,
+      "batchRequests": 0,
+      "reservationUsd": 0
+    },
+    "batchMaxRequests": 78,
+    "batchMaxUsd": 4.554,
+    "batchWindowMs": 1800000,
+    "noFallback": true,
+    "scopeExpansion": "existing-one-local-extension-1"
+  },
+  "continuation": {
+    "version": "r1-explicit-unknown-continuation-1",
+    "sourceManifestHash": "9f73f0d6e3140b2d891d043441053bb75579550d58fdbf850a081c0bdc56ba75",
+    "sourceCampaignId": "2063928d-77c8-46ab-8b09-5811fc52e03e",
+    "sourceRequestId": "0ddb03d5250db453759b72ee",
+    "sourceStopEpoch": 1,
+    "knownActualUsd": 0,
+    "unknownReservedUsd": 0.053,
+    "unknownCount": 1,
+    "heldReservedUsd": 0,
+    "canonicalClaims": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-online-claims",
+    "pins": [
+      {
+        "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-online-runtime/artifacts/r1-online-pilot/authorized-batch-1/account/campaign.db",
+        "sha256": "e78f2588e8d163155c639d65c2f19ccdd127cc1342b327e11604b04457645936"
+      },
+      {
+        "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-online-claims/9f73f0d6e3140b2d891d043441053bb75579550d58fdbf850a081c0bdc56ba75.claim",
+        "sha256": "f1743a4d1952fd712c87a76388d5da820a8c44b3daccf2dda0d7c680d32a639b"
+      },
+      {
+        "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-online-claims/9f73f0d6e3140b2d891d043441053bb75579550d58fdbf850a081c0bdc56ba75.execution-lock",
+        "sha256": "4865494226f9b1456c91966d85b2fdea5dfad5b5a004b79ead37379986cac937"
+      }
+    ],
+    "preserveOldUnknownAndStop": true,
+    "stopOnAnyNewUnknown": true,
+    "acceptance": {
+      "policy": "r1-explicit-unknown-continuation-1",
+      "sourceManifestHash": "9f73f0d6e3140b2d891d043441053bb75579550d58fdbf850a081c0bdc56ba75",
+      "sourceRequestId": "0ddb03d5250db453759b72ee",
+      "sourceDbSha256": "e78f2588e8d163155c639d65c2f19ccdd127cc1342b327e11604b04457645936",
+      "acceptUnsettledRiskUsd": 0.053,
+      "maxCombinedAccountedUsd": 4.607,
+      "oldBatchRemainsStopped": true,
+      "stopOnAnyNewUnknown": true
+    }
+  },
+  "priceSourceSha": "30d91e85280db22e902b772e4a0a429d3136f5c261aa57376e45e387d5edc6f4",
+  "fixtures": [
+    {
+      "id": "semantic",
+      "htmlHash": "892398655445c1d1cc6878c5874497e92d11165510e375b7949392b9890efd67",
+      "goal": "After clicking \"Reveal\", show text \"Ready\"."
+    },
+    {
+      "id": "ambiguity",
+      "htmlHash": "515e7cea0017240c281ee74d6d2b2476ebde273bed15f485e87eb8d0df01b3f9",
+      "goal": null
+    },
+    {
+      "id": "expanded",
+      "htmlHash": "29e25e725f4599061d997d38dd80b8da1ecbc1d2fc276137f0f6ed62b3f6f625",
+      "goal": null
+    }
+  ],
+  "rows": [
+    {
+      "id": "semantic-agent",
+      "scenario": "semantic",
+      "mode": "agent",
+      "maxAgentRequests": 8,
+      "maxJevRequests": 0,
+      "reserveUsd": 0.504
+    },
+    {
+      "id": "semantic-program",
+      "scenario": "semantic",
+      "mode": "program",
+      "maxAgentRequests": 8,
+      "maxJevRequests": 0,
+      "reserveUsd": 0.504
+    },
+    {
+      "id": "semantic-jev",
+      "scenario": "semantic",
+      "mode": "jev",
+      "maxAgentRequests": 8,
+      "maxJevRequests": 2,
+      "reserveUsd": 0.51
+    },
+    {
+      "id": "ambiguity-agent",
+      "scenario": "ambiguity",
+      "mode": "agent",
+      "maxAgentRequests": 8,
+      "maxJevRequests": 0,
+      "reserveUsd": 0.504
+    },
+    {
+      "id": "ambiguity-program",
+      "scenario": "ambiguity",
+      "mode": "program",
+      "maxAgentRequests": 8,
+      "maxJevRequests": 0,
+      "reserveUsd": 0.504
+    },
+    {
+      "id": "ambiguity-jev",
+      "scenario": "ambiguity",
+      "mode": "jev",
+      "maxAgentRequests": 8,
+      "maxJevRequests": 2,
+      "reserveUsd": 0.51
+    },
+    {
+      "id": "expanded-agent",
+      "scenario": "expanded",
+      "mode": "agent",
+      "maxAgentRequests": 8,
+      "maxJevRequests": 0,
+      "reserveUsd": 0.504
+    },
+    {
+      "id": "expanded-program",
+      "scenario": "expanded",
+      "mode": "program",
+      "maxAgentRequests": 8,
+      "maxJevRequests": 0,
+      "reserveUsd": 0.504
+    },
+    {
+      "id": "expanded-jev",
+      "scenario": "expanded",
+      "mode": "jev",
+      "maxAgentRequests": 8,
+      "maxJevRequests": 2,
+      "reserveUsd": 0.51
+    }
+  ],
+  "smoke": "semantic-agent",
+  "stop": [
+    "safety",
+    "persistence",
+    "unknown-cost",
+    "overrun",
+    "false-success",
+    "transport-error"
+  ],
+  "quality": "Finish pre-registered rows; retain ties, partials and no-advantage results; no tuning or added runs."
+}

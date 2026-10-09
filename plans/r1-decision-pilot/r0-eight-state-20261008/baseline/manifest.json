@@ -1,0 +1,25 @@
+{
+  "version": "r1-jev-evidence-1",
+  "files": [
+    {
+      "path": "baseline.json",
+      "sha256": "e236a43edebf348e149a92af838e05f996c2b0c53babc192f2a6d42d1e0fba20"
+    },
+    {
+      "path": "evaluation/labels.json",
+      "sha256": "3a3d36a3bcce7a1825bf73885d5eee1d026f6d41931982e323610a182dc9f7f7"
+    },
+    {
+      "path": "evaluation/program-vs-history.json",
+      "sha256": "9a6b21e118c6e5367ca2fc44cbc64e10584e52e13e07271f26784c89548a5afb"
+    },
+    {
+      "path": "public-input.json",
+      "sha256": "70e04d18b4040172413003652be7740480a9e6281d85ed2ca0c88b887c2706db"
+    },
+    {
+      "path": "request-list.json",
+      "sha256": "f2354b483a2f23b9117108fe093f8a01de09567bc46bd251530f46a5294eb828"
+    }
+  ]
+}

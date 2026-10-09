@@ -1,0 +1,9 @@
+{
+  "schemaVersion": "r1-evaluator-case-1",
+  "scenario": "same-text-context",
+  "expectedStatus": "ranked",
+  "reason": "同文案仍为两个候选，不按文本合并。",
+  "checks": [
+    "both-identities-preserved"
+  ]
+}

@@ -1,3 +1,4 @@
+import { explorationRevisitIntent, type ExplorationPolicy } from '../shared/r1-policy.ts'
 import { emptyChecks, parsePublicRelation } from '../inspection/check-contract.ts'
 import type { UiSamplingPolicy } from '../shared/ui-sampling-policy.ts'
 import type { RequiredCheck } from '../inspection/contract.ts'
@@ -56,6 +57,7 @@ export interface InspectionHostOptions {
   readonly goal: string
   readonly requiredChecks?: readonly RequiredCheck[]
   readonly checkPolicy?: unknown
+  readonly exploration?: ExplorationPolicy
   readonly samplingPolicy?: UiSamplingPolicy
   /** The current snapshot id, so an item names the observation it belongs to. */
   readonly currentSnapshotId: () => string | undefined
@@ -113,7 +115,11 @@ export function createInspectionHost(options: InspectionHostOptions) {
     }).itemId,
     boundItemId: undefined as string | undefined,
   }))
-  const goalRelation = options.checkPolicy ? parsePublicRelation(options.goal) : null
+  const goalRelation = options.checkPolicy
+    ? options.exploration && explorationRevisitIntent(options.goal)
+      ? { focus: true, sync: false, name: undefined }
+      : parsePublicRelation(options.goal)
+    : null
   const goalReview =
     options.checkPolicy && (!goalRelation || goalRelation.name)
       ? scope.createItem({
@@ -134,6 +140,26 @@ export function createInspectionHost(options: InspectionHostOptions) {
       eventIds: [],
       detail:
         'The nonempty goal is outside the finite public source/focus grammar; fulfillment is not claimed',
+    })
+  const revisitIntent = options.exploration && explorationRevisitIntent(options.goal)
+  const revisitItem = revisitIntent
+    ? scope.createItem({
+        category: 'investigation',
+        pageId: 'contract',
+        stateId: 'contract',
+        url: options.entryUrl,
+        observationVersion: 'contract',
+        basis: `R1 requested ${revisitIntent}: requires a fresh navigation measurement`,
+        targetSource: 'executor',
+      })
+    : undefined
+  if (revisitItem)
+    scope.resolveItem(revisitItem.itemId, {
+      status: 'unverified',
+      reasonCode: 'r1-revisit-pending',
+      evidenceRefs: [],
+      eventIds: [],
+      detail: 'The requested revisit has not been measured',
     })
   let candidates: readonly CandidateItem[] = []
   /** Candidate refs from each observation, so an action's ref resolves against the snapshot it named. */
@@ -1000,6 +1026,29 @@ export function createInspectionHost(options: InspectionHostOptions) {
         )
     },
     recordGap,
+    /** Executor-only settlement after an actual bounded revisit; never exposed as an agent tool. */
+    async settleRevisit(actionId: string, navigationItemId: string) {
+      const measured = items().find((i) => i.itemId === navigationItemId)
+      if (
+        !revisitItem ||
+        !measured ||
+        measured.category !== 'navigation' ||
+        measured.status !== 'verified' ||
+        measured.evidenceRefs.length === 0
+      )
+        throw Error('r1-revisit-measurement-required')
+      scope.resolveItem(revisitItem.itemId, {
+        status: 'verified',
+        reasonCode: 'r1-revisit-observed',
+        evidenceRefs: measured.evidenceRefs,
+        eventIds: measured.eventIds,
+        detail: `Original navigation ${navigationItemId}, action ${actionId}; observed URL/document only, no history/session restoration assertion`,
+      })
+      await persist()
+    },
+    revisitPending: () =>
+      !!revisitItem &&
+      items().some((i) => i.itemId === revisitItem.itemId && i.status !== 'verified'),
     selectItems,
     excludeItem,
     leavePage,

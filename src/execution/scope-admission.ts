@@ -31,3 +31,16 @@ export function admitOptionalScope(input: {
     needed,
   }
 }
+
+/** Pure-program selection spends bounded tool work, not hypothetical Agent turns.
+ * A later handoff must use the unchanged closing reserve and live run limits.
+ * Jev/Agent extensions retain the conservative four-model bound.
+ */
+export function localExtensionBound(input: {
+  programOnly: boolean
+  toolMs: number
+  modelMs: number
+}): WorkBound {
+  const modelCalls = input.programOnly ? 0 : 4
+  return { actions: 1, modelCalls, timeMs: 4 * input.toolMs + modelCalls * input.modelMs }
+}

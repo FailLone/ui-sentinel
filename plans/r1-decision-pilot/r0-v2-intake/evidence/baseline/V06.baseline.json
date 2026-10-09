@@ -1,0 +1,59 @@
+{
+  "version": "r1-offline-advice-v2-intake-1",
+  "stateId": "V06",
+  "packetSha256": "2dc91f7024f6cd7b5a61134d2b40e9a79edafcc197a501eacbd5942d59628a97",
+  "choice": {
+    "kind": "advice",
+    "candidateId": "item-50d6f321-8754-4b11-830e-742b27f32004",
+    "intent": "investigate-candidate"
+  },
+  "tiedPriorityGroups": [
+    [
+      "item-50d6f321-8754-4b11-830e-742b27f32004"
+    ]
+  ],
+  "stableTieBreak": "candidate-id; not evidence of superiority",
+  "suggestions": [
+    {
+      "candidateId": "item-50d6f321-8754-4b11-830e-742b27f32004",
+      "text": "Reveal",
+      "publicSupport": [
+        "resolve-public-source",
+        "effect:requirement:58c4e76c1a87ef8efb28c209"
+      ],
+      "supportRef": "public/V06.json#registeredChecks",
+      "nativeAction": "click",
+      "priorGeneric": {
+        "state": "collected",
+        "actionId": "c381d935-f46b-4f22-b4e0-8d0b29334408",
+        "checkRef": "32431d05-9cd4-4f67-a1d1-224c9aa795be",
+        "receiptRef": "f1d5a24d-e75a-47e7-bce6-a76a96400a90.json",
+        "feedback": "change-observed",
+        "evidenceRefs": [
+          "a5859f03-8a14-4f47-81bd-6228625e8578.png",
+          "0c960f43-e5f5-4b29-9608-a171c714c099.json",
+          "dcb0322a-c128-462c-8385-675ac954d61f.png",
+          "ce6a2630-035c-4118-bb6b-50acb8c5b949.json",
+          "9ce46216-ec7f-4b26-992b-73b1b8879937.png",
+          "c3dd4c3f-ed33-4270-9177-5b308d75fd35.json",
+          "f1d5a24d-e75a-47e7-bce6-a76a96400a90.json"
+        ],
+        "eventIds": [
+          "evt-3aa7e4ee-c702-4f90-ad22-40ede747fde4"
+        ]
+      },
+      "missingInformation": [
+        "live node connection/permission/safety and current budget require executor validation",
+        "remainingMs is recorded request estimate, not a proven wall-clock lower bound",
+        "future dollar quote/remaining authorization unknown; local stub zero cost grants none",
+        "visible/enabled and absent blockedPoints do not prove click authorization",
+        "checkInteractions.requirements is frozen action data; current states are in inspectionScope.checks",
+        "no comparative preference truth or outcome prediction is supplied"
+      ]
+    }
+  ],
+  "priorityReasonableness": "evaluate-separately-with-frozen-reference",
+  "executionPath": "unknown",
+  "directlyExecutable": false,
+  "verifiedProgress": false
+}

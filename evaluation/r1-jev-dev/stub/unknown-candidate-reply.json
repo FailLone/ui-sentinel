@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "r1-stub-reply-1",
+  "kind": "scores",
+  "binding": "bind-to-current-request-in-test-transport",
+  "model": "stub/jev-exploration-1",
+  "provider": "stub",
+  "scores": [
+    {
+      "candidateId": "not-present",
+      "relevance": 1,
+      "informationGain": 1,
+      "uncertainty": 0
+    }
+  ],
+  "usage": null
+}

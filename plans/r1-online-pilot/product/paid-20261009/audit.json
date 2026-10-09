@@ -1,0 +1,362 @@
+{
+  "sourceSha": "ddf1dd943f238dc71c2d3e4e6ef327e1ba44c2db",
+  "manifestHash": "41eb23e34527461bae8bc50e6d0b28ae53d94bb584d8d167b7eddecedbfcf510",
+  "fullRealAcceptancePassed": false,
+  "rows": [
+    {
+      "row": "C10-1",
+      "scenario": "ambiguous",
+      "result": "failed",
+      "reason": "public-ambiguity-handoff-bypassed; false covered",
+      "actual": {
+        "row": "C10-1",
+        "runId": "run-7559584a-2d96-4c6f-9a81-97de243fd6bd",
+        "status": "completed",
+        "actions": 2,
+        "modelRequests": 4,
+        "jevRequests": 0,
+        "evaluation": {
+          "version": "r1-product-evaluation-1",
+          "passed": false,
+          "integrity": true,
+          "falseCovered": true,
+          "issues": [
+            "unexpected-terminal-status",
+            "expected-bounded-actions"
+          ],
+          "scope": "Synthetic public fixtures; no Jev quality or statistical benefit inference"
+        }
+      }
+    },
+    {
+      "row": "C10-2",
+      "scenario": "ambiguous",
+      "result": "not-run",
+      "reason": "batch stopped after C10-1 hard failure",
+      "actual": null
+    },
+    {
+      "row": "C01-1",
+      "scenario": "menu-healthy",
+      "result": "not-run",
+      "reason": "batch stopped after C10-1 hard failure",
+      "actual": null
+    },
+    {
+      "row": "C01-2",
+      "scenario": "menu-healthy",
+      "result": "not-run",
+      "reason": "batch stopped after C10-1 hard failure",
+      "actual": null
+    },
+    {
+      "row": "C02-1",
+      "scenario": "tabs-defect",
+      "result": "not-run",
+      "reason": "batch stopped after C10-1 hard failure",
+      "actual": null
+    },
+    {
+      "row": "C02-2",
+      "scenario": "tabs-defect",
+      "result": "not-run",
+      "reason": "batch stopped after C10-1 hard failure",
+      "actual": null
+    },
+    {
+      "row": "C03-1",
+      "scenario": "boundary-input",
+      "result": "not-run",
+      "reason": "batch stopped after C10-1 hard failure",
+      "actual": null
+    },
+    {
+      "row": "C03-2",
+      "scenario": "boundary-input",
+      "result": "not-run",
+      "reason": "batch stopped after C10-1 hard failure",
+      "actual": null
+    },
+    {
+      "row": "C04a-1",
+      "scenario": "refresh",
+      "result": "not-run",
+      "reason": "batch stopped after C10-1 hard failure",
+      "actual": null
+    },
+    {
+      "row": "C04a-2",
+      "scenario": "refresh",
+      "result": "not-run",
+      "reason": "batch stopped after C10-1 hard failure",
+      "actual": null
+    },
+    {
+      "row": "C04b-1",
+      "scenario": "return-start",
+      "result": "not-run",
+      "reason": "batch stopped after C10-1 hard failure",
+      "actual": null
+    },
+    {
+      "row": "C04b-2",
+      "scenario": "return-start",
+      "result": "not-run",
+      "reason": "batch stopped after C10-1 hard failure",
+      "actual": null
+    },
+    {
+      "row": "C04c-1",
+      "scenario": "view-context-healthy",
+      "result": "not-run",
+      "reason": "batch stopped after C10-1 hard failure",
+      "actual": null
+    },
+    {
+      "row": "C04c-2",
+      "scenario": "view-context-healthy",
+      "result": "not-run",
+      "reason": "batch stopped after C10-1 hard failure",
+      "actual": null
+    },
+    {
+      "row": "C05-1",
+      "scenario": "three-step-defect",
+      "result": "not-run",
+      "reason": "batch stopped after C10-1 hard failure",
+      "actual": null
+    },
+    {
+      "row": "C05-2",
+      "scenario": "three-step-defect",
+      "result": "not-run",
+      "reason": "batch stopped after C10-1 hard failure",
+      "actual": null
+    },
+    {
+      "row": "C06-1",
+      "scenario": "three-step-healthy",
+      "result": "not-run",
+      "reason": "batch stopped after C10-1 hard failure",
+      "actual": null
+    },
+    {
+      "row": "C06-2",
+      "scenario": "three-step-healthy",
+      "result": "not-run",
+      "reason": "batch stopped after C10-1 hard failure",
+      "actual": null
+    },
+    {
+      "row": "C07-1",
+      "scenario": "fairness",
+      "result": "not-run",
+      "reason": "batch stopped after C10-1 hard failure",
+      "actual": null
+    },
+    {
+      "row": "C07-2",
+      "scenario": "fairness",
+      "result": "not-run",
+      "reason": "batch stopped after C10-1 hard failure",
+      "actual": null
+    },
+    {
+      "row": "C08-1",
+      "scenario": "layout-pair",
+      "result": "not-run",
+      "reason": "batch stopped after C10-1 hard failure",
+      "actual": null
+    },
+    {
+      "row": "C08-2",
+      "scenario": "layout-pair",
+      "result": "not-run",
+      "reason": "batch stopped after C10-1 hard failure",
+      "actual": null
+    },
+    {
+      "row": "C09-1",
+      "scenario": "repeat-defect",
+      "result": "not-run",
+      "reason": "batch stopped after C10-1 hard failure",
+      "actual": null
+    },
+    {
+      "row": "C09-2",
+      "scenario": "repeat-defect",
+      "result": "not-run",
+      "reason": "batch stopped after C10-1 hard failure",
+      "actual": null
+    },
+    {
+      "row": "C11-1",
+      "scenario": "recovery",
+      "result": "not-run",
+      "reason": "batch stopped after C10-1 hard failure",
+      "actual": null
+    },
+    {
+      "row": "C11-2",
+      "scenario": "recovery",
+      "result": "not-run",
+      "reason": "batch stopped after C10-1 hard failure",
+      "actual": null
+    },
+    {
+      "row": "C12-1",
+      "scenario": "budget",
+      "result": "not-run",
+      "reason": "batch stopped after C10-1 hard failure",
+      "actual": null
+    },
+    {
+      "row": "C12-2",
+      "scenario": "budget",
+      "result": "not-run",
+      "reason": "batch stopped after C10-1 hard failure",
+      "actual": null
+    }
+  ],
+  "paidRows": 1,
+  "notRunRows": 27,
+  "actualActions": 2,
+  "agentRequests": 4,
+  "jevRequests": 0,
+  "newKnownUsageCostUsd": 0.00502455,
+  "newUnknownCount": 0,
+  "oldUnknownUsd": 0.053,
+  "combinedAccountedUsd": 0.05802455,
+  "includingSeparateHistoricalSettledUsd": 0.058275374,
+  "actualTotalUsd": null,
+  "usageNotIndependentInvoice": true,
+  "requests": [
+    {
+      "requestId": "4aadea1a659132e211feff6c",
+      "httpStatus": 200,
+      "model": "deepseek/deepseek-v4.1-flash",
+      "responseId": "gen-1791553228-p7EeRbLoV60sAV8C4GP9",
+      "usage": {
+        "prompt_tokens": 14455,
+        "completion_tokens": 642,
+        "total_tokens": 15097,
+        "cost": 0.001420875,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0,
+          "audio_tokens": 0,
+          "video_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.001420875,
+          "upstream_inference_prompt_cost": 0.000650475,
+          "upstream_inference_completions_cost": 0.0007704
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 627,
+          "image_tokens": 0,
+          "audio_tokens": 0
+        }
+      },
+      "status": "success"
+    },
+    {
+      "requestId": "d50661293b74b10c255082a2",
+      "httpStatus": 200,
+      "model": "deepseek/deepseek-v4.1-flash",
+      "responseId": "gen-1791553236-d1HZlHgwAlfyBdQ1708h",
+      "usage": {
+        "prompt_tokens": 13918,
+        "completion_tokens": 184,
+        "total_tokens": 14102,
+        "cost": 0.00084711,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0,
+          "audio_tokens": 0,
+          "video_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.00084711,
+          "upstream_inference_prompt_cost": 0.00062631,
+          "upstream_inference_completions_cost": 0.0002208
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 162,
+          "image_tokens": 0,
+          "audio_tokens": 0
+        }
+      },
+      "status": "success"
+    },
+    {
+      "requestId": "9ecb82666dfb73f5bbef47b3",
+      "httpStatus": 200,
+      "model": "deepseek/deepseek-v4.1-flash",
+      "responseId": "gen-1791553239-15caLYISRs1opEp7qVuT",
+      "usage": {
+        "prompt_tokens": 14108,
+        "completion_tokens": 634,
+        "total_tokens": 14742,
+        "cost": 0.00139566,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0,
+          "audio_tokens": 0,
+          "video_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.00139566,
+          "upstream_inference_prompt_cost": 0.00063486,
+          "upstream_inference_completions_cost": 0.0007608
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 443,
+          "image_tokens": 0,
+          "audio_tokens": 0
+        }
+      },
+      "status": "success"
+    },
+    {
+      "requestId": "898ed528b35f684e7234668e",
+      "httpStatus": 200,
+      "model": "deepseek/deepseek-v4.1-flash",
+      "responseId": "gen-1791553248-Fwwkxm84th8bOAEjxu89",
+      "usage": {
+        "prompt_tokens": 15309,
+        "completion_tokens": 560,
+        "total_tokens": 15869,
+        "cost": 0.001360905,
+        "is_byok": false,
+        "prompt_tokens_details": {
+          "cached_tokens": 0,
+          "cache_write_tokens": 0,
+          "audio_tokens": 0,
+          "video_tokens": 0
+        },
+        "cost_details": {
+          "upstream_inference_cost": 0.001360905,
+          "upstream_inference_prompt_cost": 0.000688905,
+          "upstream_inference_completions_cost": 0.000672
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 338,
+          "image_tokens": 0,
+          "audio_tokens": 0
+        }
+      },
+      "status": "success"
+    }
+  ],
+  "originalArtifactsVerified": 60,
+  "old41Unchanged": true,
+  "oldContinuationClaimConsumed": true,
+  "recoveryClaimAbsent": true,
+  "rootCause": "Public ambiguity was only a planner handoff; the executor permitted Agent investigation_run actions by unique CSS selector, and no permanent original inspection gap prevented covered.",
+  "fixedProductScope": "Ambiguous public target/result handoff is now read-only for the remainder of this bounded run; both page_act and investigation_run use the same pre-dispatch gate. An original permanent gap prevents false covered.",
+  "paidBatchNeverRerun": true
+}

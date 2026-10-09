@@ -33,3 +33,29 @@ it('unknown or invalid bounds never buy optional scope', () => {
     }).admitted,
   ).toBe(false)
 })
+
+it('pure program extension uses tool time while retaining closing reserve and every hard dimension', async () => {
+  const { localExtensionBound } = await import('./scope-admission.ts')
+  const input = {
+    remaining: { actions: 1, modelCalls: 2, timeMs: 56000 },
+    requiredBound: { actions: 0, modelCalls: 0, timeMs: 0 },
+    extensionBound: localExtensionBound({ programOnly: true, toolMs: 5000, modelMs: 60000 }),
+    closingReserve: { actions: 0, modelCalls: 2, timeMs: 36000 },
+  }
+  expect(input.extensionBound).toEqual({ actions: 1, modelCalls: 0, timeMs: 20000 })
+  expect(admitOptionalScope(input).admitted).toBe(true)
+  for (const key of ['actions', 'modelCalls', 'timeMs'] as const)
+    expect(
+      admitOptionalScope({
+        ...input,
+        remaining: { ...input.remaining, [key]: input.remaining[key] - 1 },
+      }).admitted,
+    ).toBe(false)
+  expect(
+    admitOptionalScope({
+      ...input,
+      remaining: { actions: 6, modelCalls: 8, timeMs: 180000 },
+      extensionBound: localExtensionBound({ programOnly: false, toolMs: 5000, modelMs: 60000 }),
+    }).admitted,
+  ).toBe(false)
+})

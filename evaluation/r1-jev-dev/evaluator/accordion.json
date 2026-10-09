@@ -1,0 +1,7 @@
+{
+  "schemaVersion": "r1-evaluator-case-1",
+  "scenario": "accordion",
+  "expectedStatus": "ranked",
+  "reason": "折叠状态仅是公开事实，建议不证明展开成功。",
+  "checks": []
+}

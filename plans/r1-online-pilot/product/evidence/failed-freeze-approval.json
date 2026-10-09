@@ -1,0 +1,18 @@
+{
+  "approvedBy": "",
+  "approvalReference": "",
+  "manifestHash": "57b8ede978fb58ce20e6e92c88a0f60fd04c913cc4b1e40ca0be7df24f9b9873",
+  "maxRuns": 28,
+  "maxCostUsd": 14.112,
+  "riskAcceptance": {
+    "policy": "r1-explicit-unknown-continuation-1",
+    "sourceManifestHash": "9f73f0d6e3140b2d891d043441053bb75579550d58fdbf850a081c0bdc56ba75",
+    "sourceRequestId": "0ddb03d5250db453759b72ee",
+    "sourceDbSha256": "e78f2588e8d163155c639d65c2f19ccdd127cc1342b327e11604b04457645936",
+    "acceptUnsettledRiskUsd": 0.053,
+    "maxCombinedAccountedUsd": 4.607,
+    "oldBatchRemainsStopped": true,
+    "stopOnAnyNewUnknown": true
+  },
+  "expiresAt": null
+}

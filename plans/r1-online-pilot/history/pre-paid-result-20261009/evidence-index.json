@@ -1,0 +1,350 @@
+{
+  "version": "r1-product-delivery-1",
+  "checkedAt": "2026-10-09T11:00:10.009416+00:00",
+  "entry": "plans/r1-online-pilot/README.md",
+  "status": "authorized-preparing-real-product-acceptance",
+  "sourceSha": "ddf1dd943f238dc71c2d3e4e6ef327e1ba44c2db",
+  "integratedMainSha": "48b02b3fbfe7e5d95189a0d813480761b123ff6b",
+  "mergeSha": "3cabb048b1d98609ec25d16756364b2f1b58761b",
+  "manifestHash": "41eb23e34527461bae8bc50e6d0b28ae53d94bb584d8d167b7eddecedbfcf510",
+  "manifest": {
+    "path": "plans/r1-online-pilot/product/manifest.proposed.json",
+    "bytes": 12747,
+    "sha256": "1a89755d397a87f62be87499b74cc1e18127f747b18a3c84cc942471f8a4fdcb"
+  },
+  "approvalDraft": {
+    "path": "plans/r1-online-pilot/product/approval.draft.json",
+    "bytes": 656,
+    "sha256": "1933127b6190a8d421c80f0332705ed0dde0420b2263bbea8a7748ee681cfebb"
+  },
+  "realAcceptanceApproved": true,
+  "newRealCalls": 0,
+  "newJevCalls": 0,
+  "paidProposal": {
+    "runs": 28,
+    "maxMainCalls": 224,
+    "maxJevCalls": 0,
+    "maxNewCostUsd": 14.112,
+    "oldUnsettledReserveUsd": 0.053,
+    "maxCombinedAccountedUsd": 14.165,
+    "historicalSeparateSettledUsd": 0.000250824,
+    "withHistoricalSettledAccountedUsd": 14.165250824,
+    "oldUnknownIsNotInvoiceCap": true,
+    "maxWindowMs": 5400000
+  },
+  "freeResults": {
+    "uniqueBrowserCases": 17,
+    "completed": 13,
+    "blocked": 4,
+    "actions": 31,
+    "fixedProviderCalls": 4,
+    "distinctLatestPassingTests": 232,
+    "finalBuildPassed": true,
+    "offlineAcceptanceSubcasesPassed": 14,
+    "offlineAcceptanceArtifactsVerified": 800,
+    "exactFinalShaFullBrowserRerun": false,
+    "results": "product/evidence/product-results.json"
+  },
+  "history": {
+    "oldSourceSha": "1e78ea6dea5098944b5d53d6cbe4630c3b53c246",
+    "oldNineManifestHash": "6428f1ecc473922766f598cc390b052d2a5d4a3f7eae370a72027c77eaa72197",
+    "oldFailedManifestHash": "9f73f0d6e3140b2d891d043441053bb75579550d58fdbf850a081c0bdc56ba75",
+    "oldEvidenceUnchanged": 41,
+    "oldRuntimeUnchanged": true,
+    "canonicalContinuationClaimAbsent": true,
+    "original72AndIndependentScoringOutstanding": true,
+    "archivedEntry": "history/pre-product-20261009/README.md",
+    "historicalRelativePaths": "Resolve archived verbatim entry paths in their original plans/r1-online-pilot context; archive content is not rewritten."
+  },
+  "evidence": [
+    {
+      "path": "plans/r1-online-pilot/product/evidence/acceptance-free-final.log",
+      "bytes": 666,
+      "sha256": "8a5b4013783082a6805f81e3aced3cc108703291f99eb8634d32618dd0e1abae",
+      "interpretation": "pass; normal runner two free rows only"
+    },
+    {
+      "path": "plans/r1-online-pilot/product/evidence/acceptance-free.log",
+      "bytes": 666,
+      "sha256": "307749aa13f2ddb3f8ed4465bd11b5b0ce3c0b2da90bdbcf6d461e26de64b205",
+      "interpretation": "See unified README for scope and provenance; not an additional acceptance run."
+    },
+    {
+      "path": "plans/r1-online-pilot/product/evidence/affected-tests.log",
+      "bytes": 232,
+      "sha256": "ade1b9387c315b1c0d969d4f9eab720c3e21286b9b4bef6c890cba0f470903b4",
+      "interpretation": "See unified README for scope and provenance; not an additional acceptance run."
+    },
+    {
+      "path": "plans/r1-online-pilot/product/evidence/approval-rejection-candidate.log",
+      "bytes": 699,
+      "sha256": "cde9aba514b4df9d6e5f1e24fbeae86f3b8682fe7afe9de3e23296b7e46059d8",
+      "interpretation": "expected rejection at exact final candidate; no output/claim"
+    },
+    {
+      "path": "plans/r1-online-pilot/product/evidence/approval-rejection-final.log",
+      "bytes": 699,
+      "sha256": "cde9aba514b4df9d6e5f1e24fbeae86f3b8682fe7afe9de3e23296b7e46059d8",
+      "interpretation": "See unified README for scope and provenance; not an additional acceptance run."
+    },
+    {
+      "path": "plans/r1-online-pilot/product/evidence/approval-rejection.log",
+      "bytes": 793,
+      "sha256": "431aee17831ec8f23bfd652dd665c964f29b902c130424d10e40c98db3804569",
+      "interpretation": "See unified README for scope and provenance; not an additional acceptance run."
+    },
+    {
+      "path": "plans/r1-online-pilot/product/evidence/audit-candidate.ts.txt",
+      "bytes": 1560,
+      "sha256": "2821047fa04baa144f4149d53961fe989d0acbe533237041db7257d0b2a402be",
+      "interpretation": "Archived source of the audit executed from data/r1-product/checks; relative imports apply there. Text snapshot, not an executable repository entry."
+    },
+    {
+      "path": "plans/r1-online-pilot/product/evidence/boundaries-recheck.log",
+      "bytes": 231,
+      "sha256": "712fdd8010e91af093f28d99c74741ed7ea35794b52a297fb57e39fc707e05c8",
+      "interpretation": "pass; affected boundary tests after correction"
+    },
+    {
+      "path": "plans/r1-online-pilot/product/evidence/boundary-final-tests.log",
+      "bytes": 229,
+      "sha256": "ab3c2d4bad3512298326712f001582bcc1066b0d4e2ffb27e1f106ef1240a667",
+      "interpretation": "pass; 5 tests, includes one new numeric maxlength guard test"
+    },
+    {
+      "path": "plans/r1-online-pilot/product/evidence/candidate-build.log",
+      "bytes": 1334,
+      "sha256": "89af5eef0d34b04da8bda4cf4bf28e65e27a9542cf3d268364b6e358e383c0b0",
+      "interpretation": "pass; final source full build/typecheck"
+    },
+    {
+      "path": "plans/r1-online-pilot/product/evidence/candidate-source-files.json",
+      "bytes": 21674,
+      "sha256": "9ddb79add0698b8dab88233ecddcf58ecf48a44c07bace97d883b526bca13d5e",
+      "interpretation": "See unified README for scope and provenance; not an additional acceptance run."
+    },
+    {
+      "path": "plans/r1-online-pilot/product/evidence/current-price.json",
+      "bytes": 2611,
+      "sha256": "afdef79b1dc51ce5dba9bff7774dc96e886c52742975714558d4334e06662968",
+      "interpretation": "See unified README for scope and provenance; not an additional acceptance run."
+    },
+    {
+      "path": "plans/r1-online-pilot/product/evidence/failed-freeze-approval.json",
+      "bytes": 655,
+      "sha256": "b803f8bfd11215752b31004eafb848c00ae5224a137b6e369181ec2e53198969",
+      "interpretation": "failed first freeze draft; never approved"
+    },
+    {
+      "path": "plans/r1-online-pilot/product/evidence/failed-freeze-manifest.json",
+      "bytes": 5753,
+      "sha256": "3a4dc09af1bed6a7e47e49af02518c6d7e24f93c619a092f324e86068382615b",
+      "interpretation": "failed first freeze output caused by historical import side effect; not current manifest"
+    },
+    {
+      "path": "plans/r1-online-pilot/product/evidence/final-boundary-view-browser.log",
+      "bytes": 1814,
+      "sha256": "610e06ff7ead1ec6bf88d13b7cda577d51f1d79e1e9f1cb383edd76a031acc88",
+      "interpretation": "pass; final affected boundary/healthy-view/defect-view scenarios"
+    },
+    {
+      "path": "plans/r1-online-pilot/product/evidence/final-build.log",
+      "bytes": 1334,
+      "sha256": "1a8e3f3ce7c5c34ee9e865adbad0b40bfcd8347a131e86179ee675f8809243cd",
+      "interpretation": "See unified README for scope and provenance; not an additional acceptance run."
+    },
+    {
+      "path": "plans/r1-online-pilot/product/evidence/final-targeted-tests.log",
+      "bytes": 1540,
+      "sha256": "5ca33f82113f5ffdd59e593b9873bb68053cf42470b3fa0a08705de34aa81a36",
+      "interpretation": "historical initial result 230 pass / 1 failing test fixture"
+    },
+    {
+      "path": "plans/r1-online-pilot/product/evidence/freeze-final.log",
+      "bytes": 304,
+      "sha256": "dce04d16f30834f33798839b766973c18f2320954b828d4f234370b6c893e109",
+      "interpretation": "current source and manifest identity"
+    },
+    {
+      "path": "plans/r1-online-pilot/product/evidence/frozen-browser.log",
+      "bytes": 7289,
+      "sha256": "d964571e845faff1f9d1c8614c390928b0c3fbc0fbbc7884eb183ac1a27a143e",
+      "interpretation": "pass; main 16-scenario suite at26bd797"
+    },
+    {
+      "path": "plans/r1-online-pilot/product/evidence/healthy-view-browser.log",
+      "bytes": 1330,
+      "sha256": "868c6bb28d2dd9de4ced9e59d4842647800686772e0c6eb0e4165a25ed51f582",
+      "interpretation": "historical failed unchanged-result fixture; superseded by final-boundary-view-browser"
+    },
+    {
+      "path": "plans/r1-online-pilot/product/evidence/inspection-host-recheck.log",
+      "bytes": 231,
+      "sha256": "896d245a43a2938161ced5a6b2f5c3d22660c499dfb5ffb79c94379748d22b99",
+      "interpretation": "pass; 24 tests, supersedes missing-reasonCode test fixture failure"
+    },
+    {
+      "path": "plans/r1-online-pilot/product/evidence/integrated-browser.log",
+      "bytes": 6474,
+      "sha256": "f747fa6326d79f79c9fcc6582ccf9aedbe73a1172b08b649cb498be0603aa611",
+      "interpretation": "See unified README for scope and provenance; not an additional acceptance run."
+    },
+    {
+      "path": "plans/r1-online-pilot/product/evidence/interim-9dfb-approval.draft.json",
+      "bytes": 656,
+      "sha256": "d2a09f8e4ec696e6067e36000857efb4bd62fab22bb69e34c9cd9b0e25efe23e",
+      "interpretation": "superseded empty draft; not current approval"
+    },
+    {
+      "path": "plans/r1-online-pilot/product/evidence/interim-9dfb-manifest.proposed.json",
+      "bytes": 12556,
+      "sha256": "aaae16082f0b8e11ff66efa4a0ce75b89f36f5613efbaa2d46a2db344bb62ea9",
+      "interpretation": "superseded unapproved proposal; not current identity"
+    },
+    {
+      "path": "plans/r1-online-pilot/product/evidence/main-integration.json",
+      "bytes": 2223,
+      "sha256": "20b802d3b29a7aa1891197a162e375a8658cd8a03495737147a2c060e72ca5b6",
+      "interpretation": "See unified README for scope and provenance; not an additional acceptance run."
+    },
+    {
+      "path": "plans/r1-online-pilot/product/evidence/new-runner-tests.log",
+      "bytes": 230,
+      "sha256": "f1088265ab626a0d9aef0806cabb8870147b0f26cfcb2ba9e51be84b10f135db",
+      "interpretation": "See unified README for scope and provenance; not an additional acceptance run."
+    },
+    {
+      "path": "plans/r1-online-pilot/product/evidence/offline-candidate-evaluation.json",
+      "bytes": 10747,
+      "sha256": "0158ceeea2f88a763a8cb392dd2b75a453465ed74ea123b8c1d0d3484c7bc9eb",
+      "interpretation": "See unified README for scope and provenance; not an additional acceptance run."
+    },
+    {
+      "path": "plans/r1-online-pilot/product/evidence/pre-merge-tests.log",
+      "bytes": 12726,
+      "sha256": "2e56a6ff4af9c1fb15e34b1f10c2451d5592e1bb1954ba0f8694de6faf75dd5d",
+      "interpretation": "historical 182 pass / 3 pure-module boundary test failures; fixed root and explicit dependency guard"
+    },
+    {
+      "path": "plans/r1-online-pilot/product/evidence/preservation.json",
+      "bytes": 11661,
+      "sha256": "a5d1215cb51c7ee56319f4cb0d17a8ba68ca8bcb15f9ff046723e3aa688e7b96",
+      "interpretation": "See unified README for scope and provenance; not an additional acceptance run."
+    },
+    {
+      "path": "plans/r1-online-pilot/product/evidence/product-results.json",
+      "bytes": 23866,
+      "sha256": "5400f7a07a54c2eaf8debaf96b732521e2e455a9f2219ae88ba0a04f566a1472",
+      "interpretation": "See unified README for scope and provenance; not an additional acceptance run."
+    },
+    {
+      "path": "plans/r1-online-pilot/product/evidence/raw-local-files.json",
+      "bytes": 305955,
+      "sha256": "d866afa07e5330c5d62739330cb44dcb9734d3d86dfaf895b7c9d63cf0fec2a7",
+      "interpretation": "See unified README for scope and provenance; not an additional acceptance run."
+    },
+    {
+      "path": "plans/r1-online-pilot/product/evidence/revisit-obligation-browser.log",
+      "bytes": 1724,
+      "sha256": "5e3ff98a0d2dbd59a96d1eabd290e9ca0359ee4bc0a9da98fd3584d7de8f85f7",
+      "interpretation": "See unified README for scope and provenance; not an additional acceptance run."
+    },
+    {
+      "path": "plans/r1-online-pilot/product/evidence/typecheck-candidate.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "interpretation": "See unified README for scope and provenance; not an additional acceptance run."
+    },
+    {
+      "path": "plans/r1-online-pilot/product/evidence/typecheck-final.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "interpretation": "See unified README for scope and provenance; not an additional acceptance run."
+    },
+    {
+      "path": "plans/r1-online-pilot/product/evidence/typecheck.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "interpretation": "See unified README for scope and provenance; not an additional acceptance run."
+    },
+    {
+      "path": "plans/r1-online-pilot/product/evidence/view-context-browser.log",
+      "bytes": 1808,
+      "sha256": "77297bf0b932642ce7a7fe8261facff0314068d2e657eb757f89acb56de45ef3",
+      "interpretation": "See unified README for scope and provenance; not an additional acceptance run."
+    },
+    {
+      "path": "plans/r1-online-pilot/product/evidence/workbench-history.png",
+      "bytes": 66905,
+      "sha256": "a837358945a20287be3e1087aba1a77cd5632c6274662d8d845e50bf9896e505",
+      "interpretation": "See unified README for scope and provenance; not an additional acceptance run."
+    }
+  ],
+  "archivedFiles": [
+    {
+      "path": "plans/r1-online-pilot/history/pre-product-20261009/CURRENT-TASK.md",
+      "bytes": 2084,
+      "sha256": "0e5ea33d4cf82807a92345b7df9a34821cd3da6bbd64138cdfcef18b7177fca9"
+    },
+    {
+      "path": "plans/r1-online-pilot/history/pre-product-20261009/README.md",
+      "bytes": 14032,
+      "sha256": "937ae717a5a1bf71462c237b5007b0afd6ddc7ecef54590de0fbe8bbd987599a"
+    },
+    {
+      "path": "plans/r1-online-pilot/history/pre-product-20261009/evidence-index.json",
+      "bytes": 20274,
+      "sha256": "2868749d87777a7b3f55e635c2e375cf3c966725a5bc411756ac1ef16565b0c5"
+    },
+    {
+      "path": "plans/r1-online-pilot/history/pre-scope-20261009/CURRENT-TASK.md",
+      "bytes": 2551,
+      "sha256": "c717052ae64fd0e498d4d661d8fd5513105c63fc03eea535688fcf95a97adb06"
+    },
+    {
+      "path": "plans/r1-online-pilot/history/pre-scope-20261009/README.md",
+      "bytes": 15070,
+      "sha256": "fdc42af8a7c6c19a2f107abdfb5250c665dadbeb38ed4aec8f699bed141fc9db"
+    },
+    {
+      "path": "plans/r1-online-pilot/history/pre-scope-20261009/evidence-index.json",
+      "bytes": 14042,
+      "sha256": "f64f9483bc7f7b29e0e0d748f064bdeac8c56337510ca6350d91826ce5e85033"
+    },
+    {
+      "path": "plans/r1-online-pilot/history/pre-scope-20261009/r1-completion-plan.md",
+      "bytes": 26473,
+      "sha256": "b80cb7c9a074829ec35e662205ee1705873b76215ad46dfded84845d860e76cf"
+    }
+  ],
+  "localRawEvidence": "product/evidence/raw-local-files.json",
+  "localRawEvidencePortable": false,
+  "scopeDecision": {
+    "date": "2026-10-09",
+    "sourceThreadId": "01a1116d-7621-7962-b4fe-5f904b5fbf13",
+    "userDirection": "安排R1的工作，最好能一把结束",
+    "selectedMode": "program",
+    "jevDefault": false,
+    "currentExit": "28-run real product acceptance and bounded product capabilities; maintainer review/merge",
+    "deferredNotCompleted": [
+      "S1 broader six-state validation",
+      "S2 independent scoring/calibration",
+      "S5 72-run A/B/C benefit comparison"
+    ],
+    "deferredExperimentsBlockCurrentExit": false,
+    "scopeDecisionItselfIsNotFeeApproval": true
+  },
+  "consistencyReview": {
+    "reviewedAt": "2026-10-09T13:38:44.402798+00:00",
+    "sourceAndManifestUnchanged": true,
+    "existingEvidenceHashesVerified": true,
+    "old41HashesVerified": true,
+    "reusedBuildAndTests": true,
+    "newTestsOrExperiments": false,
+    "authorizationBeforeQuoteCredentialsClaimVerifiedInRunner": true,
+    "accurateCommand": "scripts/r1-product/acceptance.ts --run OUTPUT MANIFEST APPROVAL CANONICAL_CLAIMS"
+  },
+  "authorizationRecord": "product/authorization-record.json",
+  "approval": "product/approval.authorized.json",
+  "expiresAt": "2026-10-10T13:35:00Z"
+}

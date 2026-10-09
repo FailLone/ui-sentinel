@@ -1,0 +1,446 @@
+{
+  "schemaVersion": "r1-dev-fixtures-1",
+  "origin": "new synthetic developer examples authored for this plan; no R0 data",
+  "cases": [
+    {
+      "scenario": "menu",
+      "files": [
+        {
+          "role": "public",
+          "path": "evaluation/r1-jev-dev/public/menu.json",
+          "sha256": "0ca309333b73a9cb002ffc5059a1e452bddee6ae37ac4a282817e54a38ddb434"
+        },
+        {
+          "role": "evaluator",
+          "path": "evaluation/r1-jev-dev/evaluator/menu.json",
+          "sha256": "8b5e2dbef25d0bc54bfc11b104b54af5f3e2344616fbf9599b33d62fa65a7ff2"
+        },
+        {
+          "role": "stub",
+          "path": "evaluation/r1-jev-dev/stub/menu.json",
+          "sha256": "f16bf1c5de122cef843a288e4fd216e8674bb4eee8d313cb948c704d525c4623"
+        }
+      ]
+    },
+    {
+      "scenario": "accordion",
+      "files": [
+        {
+          "role": "public",
+          "path": "evaluation/r1-jev-dev/public/accordion.json",
+          "sha256": "da0be281c3b03c141f67e1624a84b81df94d1a8324c40b86a231d87628534567"
+        },
+        {
+          "role": "evaluator",
+          "path": "evaluation/r1-jev-dev/evaluator/accordion.json",
+          "sha256": "0bcc662cff267fea399aebe6a8f49e767fa32938e1c9006424f99d196e6223a5"
+        },
+        {
+          "role": "stub",
+          "path": "evaluation/r1-jev-dev/stub/accordion.json",
+          "sha256": "f16bf1c5de122cef843a288e4fd216e8674bb4eee8d313cb948c704d525c4623"
+        }
+      ]
+    },
+    {
+      "scenario": "tabs",
+      "files": [
+        {
+          "role": "public",
+          "path": "evaluation/r1-jev-dev/public/tabs.json",
+          "sha256": "a8d49681d5744d2458cf4cd23924dc370178c70c9556525ca0b9c484f1ddee50"
+        },
+        {
+          "role": "evaluator",
+          "path": "evaluation/r1-jev-dev/evaluator/tabs.json",
+          "sha256": "a6cc992c7b4d3c99a0bde48b4cb2f6f03cdb35ae00168d5d06aedb059337206a"
+        },
+        {
+          "role": "stub",
+          "path": "evaluation/r1-jev-dev/stub/tabs.json",
+          "sha256": "be7e91c27a7b3ee54421518d59df053c92433a2073555aeba1e1ad8c72384026"
+        }
+      ]
+    },
+    {
+      "scenario": "same-text-context",
+      "files": [
+        {
+          "role": "public",
+          "path": "evaluation/r1-jev-dev/public/same-text-context.json",
+          "sha256": "90be5f0ef35a662041c7677b76b316b668a37fe07581beae41dd417d820e4fec"
+        },
+        {
+          "role": "evaluator",
+          "path": "evaluation/r1-jev-dev/evaluator/same-text-context.json",
+          "sha256": "afbc9aaf5dda6549326c654cc43c35f44d37b2bdacdc0d3d839ae65fba1af29d"
+        },
+        {
+          "role": "stub",
+          "path": "evaluation/r1-jev-dev/stub/same-text-context.json",
+          "sha256": "be7e91c27a7b3ee54421518d59df053c92433a2073555aeba1e1ad8c72384026"
+        }
+      ]
+    },
+    {
+      "scenario": "combined-effects",
+      "files": [
+        {
+          "role": "public",
+          "path": "evaluation/r1-jev-dev/public/combined-effects.json",
+          "sha256": "479b857642cf50cee6444bd46a8209a6a4fa2d7ef118228142a6eab9af371871"
+        },
+        {
+          "role": "evaluator",
+          "path": "evaluation/r1-jev-dev/evaluator/combined-effects.json",
+          "sha256": "68336b6543fd172062bdc53b2535e9765455d660928e7fc271a746cf14117bd9"
+        },
+        {
+          "role": "stub",
+          "path": "evaluation/r1-jev-dev/stub/combined-effects.json",
+          "sha256": "f16bf1c5de122cef843a288e4fd216e8674bb4eee8d313cb948c704d525c4623"
+        }
+      ]
+    },
+    {
+      "scenario": "revisit-new-state",
+      "files": [
+        {
+          "role": "public",
+          "path": "evaluation/r1-jev-dev/public/revisit-new-state.json",
+          "sha256": "1ae8c3161dd751c439b350f9f8efb16c2c2dea215240827c67b1f3bff9685f3b"
+        },
+        {
+          "role": "evaluator",
+          "path": "evaluation/r1-jev-dev/evaluator/revisit-new-state.json",
+          "sha256": "aa69bd932816edb6e2f2d92da0cfa1f402e911014df70ac3293f915e0d60aa81"
+        },
+        {
+          "role": "stub",
+          "path": "evaluation/r1-jev-dev/stub/revisit-new-state.json",
+          "sha256": "f16bf1c5de122cef843a288e4fd216e8674bb4eee8d313cb948c704d525c4623"
+        }
+      ]
+    },
+    {
+      "scenario": "repeat-same-state",
+      "files": [
+        {
+          "role": "public",
+          "path": "evaluation/r1-jev-dev/public/repeat-same-state.json",
+          "sha256": "e54b225643fccba18710258db626b4fafc6b4fe2b90cfaf053d89cc9a1a7c950"
+        },
+        {
+          "role": "evaluator",
+          "path": "evaluation/r1-jev-dev/evaluator/repeat-same-state.json",
+          "sha256": "3027d1184717ced0eb6da6977782d2c1f185464dbf5ad344ddf0b1f4b16ad7ab"
+        },
+        {
+          "role": "stub",
+          "path": "evaluation/r1-jev-dev/stub/repeat-same-state.json",
+          "sha256": "be7e91c27a7b3ee54421518d59df053c92433a2073555aeba1e1ad8c72384026"
+        }
+      ]
+    },
+    {
+      "scenario": "empty-candidates",
+      "files": [
+        {
+          "role": "public",
+          "path": "evaluation/r1-jev-dev/public/empty-candidates.json",
+          "sha256": "4b6e724d94e189b548ee3897173c85cf9af0e2d4ab5685b9e0de5b448703e642"
+        },
+        {
+          "role": "evaluator",
+          "path": "evaluation/r1-jev-dev/evaluator/empty-candidates.json",
+          "sha256": "7aa2b7346a3581da1dbc4c1e67197320603eb0904edbe67d75b4c6ee8049be39"
+        },
+        {
+          "role": "stub",
+          "path": "evaluation/r1-jev-dev/stub/empty-candidates.json",
+          "sha256": "74695c6746608fb0cc63f6e7e8bb44df41bf5f288091f0dfa16dc2054d8ef8e3"
+        }
+      ]
+    },
+    {
+      "scenario": "ambiguous-binding",
+      "files": [
+        {
+          "role": "public",
+          "path": "evaluation/r1-jev-dev/public/ambiguous-binding.json",
+          "sha256": "7a0d48db4583115ebb2b85490abf0d8018e2c65a7df045cdcd6dc18d07dae9e6"
+        },
+        {
+          "role": "evaluator",
+          "path": "evaluation/r1-jev-dev/evaluator/ambiguous-binding.json",
+          "sha256": "513f415a94354746abb5a5946b2b3fb73eefd542beb88bab7ebea8d647c08718"
+        },
+        {
+          "role": "stub",
+          "path": "evaluation/r1-jev-dev/stub/ambiguous-binding.json",
+          "sha256": "74695c6746608fb0cc63f6e7e8bb44df41bf5f288091f0dfa16dc2054d8ef8e3"
+        }
+      ]
+    },
+    {
+      "scenario": "stale-input",
+      "files": [
+        {
+          "role": "public",
+          "path": "evaluation/r1-jev-dev/public/stale-input.json",
+          "sha256": "76f971599dd3a42bbdcc4d7c9dfcd84b131a92edd38b6214f351cfc9146daaee"
+        },
+        {
+          "role": "evaluator",
+          "path": "evaluation/r1-jev-dev/evaluator/stale-input.json",
+          "sha256": "2459002d82ce230011daff975b709680cd2b35dcdf1aa8a864ce69875b4e3e57"
+        },
+        {
+          "role": "stub",
+          "path": "evaluation/r1-jev-dev/stub/stale-input.json",
+          "sha256": "f16bf1c5de122cef843a288e4fd216e8674bb4eee8d313cb948c704d525c4623"
+        }
+      ]
+    },
+    {
+      "scenario": "disabled",
+      "files": [
+        {
+          "role": "public",
+          "path": "evaluation/r1-jev-dev/public/disabled.json",
+          "sha256": "110f5dc1b81337dd83f3dafe7684977e4ddadce6053586f1c9f4c98366d453b5"
+        },
+        {
+          "role": "evaluator",
+          "path": "evaluation/r1-jev-dev/evaluator/disabled.json",
+          "sha256": "dfa83c94dec580de739e68b362b5e376738fe2f69ac8c853bf3a62e54a61826c"
+        },
+        {
+          "role": "stub",
+          "path": "evaluation/r1-jev-dev/stub/disabled.json",
+          "sha256": "74695c6746608fb0cc63f6e7e8bb44df41bf5f288091f0dfa16dc2054d8ef8e3"
+        }
+      ]
+    },
+    {
+      "scenario": "continuous-steps",
+      "files": [
+        {
+          "role": "public",
+          "path": "evaluation/r1-jev-dev/public/continuous-steps.json",
+          "sha256": "7a036dc0934ddf948628832b8c89e10aa43d52d8241e7c6f7dbe2bcd001564af"
+        },
+        {
+          "role": "evaluator",
+          "path": "evaluation/r1-jev-dev/evaluator/continuous-steps.json",
+          "sha256": "935fb22e5e18c21e1f39dd5aa0de89457ec452dd3bac4e1a1bae3265d68c623e"
+        },
+        {
+          "role": "stub",
+          "path": "evaluation/r1-jev-dev/stub/continuous-steps.json",
+          "sha256": "f16bf1c5de122cef843a288e4fd216e8674bb4eee8d313cb948c704d525c4623"
+        }
+      ]
+    },
+    {
+      "scenario": "agent-investigation",
+      "files": [
+        {
+          "role": "public",
+          "path": "evaluation/r1-jev-dev/public/agent-investigation.json",
+          "sha256": "c9c1b170656bdda3010d1ea14bc9958d27683385da67d900fc95cc03656b8361"
+        },
+        {
+          "role": "evaluator",
+          "path": "evaluation/r1-jev-dev/evaluator/agent-investigation.json",
+          "sha256": "38db1b396e183b9a7fd66da80f1851ad8fe3171f8aea22daace06e6864dc283f"
+        },
+        {
+          "role": "stub",
+          "path": "evaluation/r1-jev-dev/stub/agent-investigation.json",
+          "sha256": "c9e223bf26f283dc47a47a9d68892b11aa6e97275e4b8367be50515ecd2a3fc2"
+        }
+      ]
+    },
+    {
+      "scenario": "page-injection",
+      "files": [
+        {
+          "role": "public",
+          "path": "evaluation/r1-jev-dev/public/page-injection.json",
+          "sha256": "5f9da981595c90b6da8a70107632cbaf3490d017d03ed25f2fd6db02aca7c672"
+        },
+        {
+          "role": "evaluator",
+          "path": "evaluation/r1-jev-dev/evaluator/page-injection.json",
+          "sha256": "dc6f1d536ffcaea082624b7d3fd0a2abf3e4c05dabbd76399ac82b59b0d8792e"
+        },
+        {
+          "role": "stub",
+          "path": "evaluation/r1-jev-dev/stub/page-injection.json",
+          "sha256": "f16bf1c5de122cef843a288e4fd216e8674bb4eee8d313cb948c704d525c4623"
+        }
+      ]
+    },
+    {
+      "scenario": "missing-candidate-reply",
+      "files": [
+        {
+          "role": "public",
+          "path": "evaluation/r1-jev-dev/public/missing-candidate-reply.json",
+          "sha256": "2a1f6b108e89774905a0b61983242d6d792b382a02b9be350a8694c315ac80fd"
+        },
+        {
+          "role": "evaluator",
+          "path": "evaluation/r1-jev-dev/evaluator/missing-candidate-reply.json",
+          "sha256": "66a59fff929080fe5ecf1cc1da2e076acf78b054667560d731db6f09bc9fc1fa"
+        },
+        {
+          "role": "stub",
+          "path": "evaluation/r1-jev-dev/stub/missing-candidate-reply.json",
+          "sha256": "1ae519f59626edc89f035731bb1bacc25dcef974cedb5faa0ef3fa78e8395272"
+        }
+      ]
+    },
+    {
+      "scenario": "unknown-candidate-reply",
+      "files": [
+        {
+          "role": "public",
+          "path": "evaluation/r1-jev-dev/public/unknown-candidate-reply.json",
+          "sha256": "2a1f6b108e89774905a0b61983242d6d792b382a02b9be350a8694c315ac80fd"
+        },
+        {
+          "role": "evaluator",
+          "path": "evaluation/r1-jev-dev/evaluator/unknown-candidate-reply.json",
+          "sha256": "cbef023ee7af373a0f0643e6852c407b6528630423830e1c3eca8c6922fd6dba"
+        },
+        {
+          "role": "stub",
+          "path": "evaluation/r1-jev-dev/stub/unknown-candidate-reply.json",
+          "sha256": "b8ba01b46f41a1c32686c7e242aa788c803603cdf20761d230b5c595edbc37ef"
+        }
+      ]
+    },
+    {
+      "scenario": "stale-reply",
+      "files": [
+        {
+          "role": "public",
+          "path": "evaluation/r1-jev-dev/public/stale-reply.json",
+          "sha256": "2a1f6b108e89774905a0b61983242d6d792b382a02b9be350a8694c315ac80fd"
+        },
+        {
+          "role": "evaluator",
+          "path": "evaluation/r1-jev-dev/evaluator/stale-reply.json",
+          "sha256": "5437ff8d6d7fdf3bca17fe597497b8737a61bc29bf6b0cbe438e0a4e9a6f2aa9"
+        },
+        {
+          "role": "stub",
+          "path": "evaluation/r1-jev-dev/stub/stale-reply.json",
+          "sha256": "da9ef5a1ff1c2868a74c9a4bf456206ea91dc62f43716390a8ac9744a86377fc"
+        }
+      ]
+    },
+    {
+      "scenario": "budget-empty",
+      "files": [
+        {
+          "role": "public",
+          "path": "evaluation/r1-jev-dev/public/budget-empty.json",
+          "sha256": "7c91258c255e15941dd5947d807c1d399b298dc3798f1c1cb57d432deb1c52b3"
+        },
+        {
+          "role": "evaluator",
+          "path": "evaluation/r1-jev-dev/evaluator/budget-empty.json",
+          "sha256": "b5dfa0c9013b9629386c9b8ef71675d408e5473c41bcec66e50a945405fd4e7d"
+        },
+        {
+          "role": "stub",
+          "path": "evaluation/r1-jev-dev/stub/budget-empty.json",
+          "sha256": "f16bf1c5de122cef843a288e4fd216e8674bb4eee8d313cb948c704d525c4623"
+        }
+      ]
+    },
+    {
+      "scenario": "low-score-fairness",
+      "files": [
+        {
+          "role": "public",
+          "path": "evaluation/r1-jev-dev/public/low-score-fairness.json",
+          "sha256": "9c91ee0591aa5da1b3a2bf71f7fd23844a82724a8e5254285096606764f6b8d3"
+        },
+        {
+          "role": "evaluator",
+          "path": "evaluation/r1-jev-dev/evaluator/low-score-fairness.json",
+          "sha256": "46011cbffd4445ffdfef5ed0e8e5290cdf5eb2f5fbe81392d844e9f4abc58a9d"
+        },
+        {
+          "role": "stub",
+          "path": "evaluation/r1-jev-dev/stub/low-score-fairness.json",
+          "sha256": "3c42d4774f0bae6ea989498d9b7351c1890b92ab1a4acce60fb9a111d90d02a5"
+        }
+      ]
+    },
+    {
+      "scenario": "geometry-not-defect",
+      "files": [
+        {
+          "role": "public",
+          "path": "evaluation/r1-jev-dev/public/geometry-not-defect.json",
+          "sha256": "ee8a6409b54f25557576b59a51e39711891fd7ed13fb38071b73c6da57135b27"
+        },
+        {
+          "role": "evaluator",
+          "path": "evaluation/r1-jev-dev/evaluator/geometry-not-defect.json",
+          "sha256": "1dfe9272ee2b02f8df4e3acaf9ce663ab38443bc013c2adaccedb5ffff15ec08"
+        },
+        {
+          "role": "stub",
+          "path": "evaluation/r1-jev-dev/stub/geometry-not-defect.json",
+          "sha256": "be7e91c27a7b3ee54421518d59df053c92433a2073555aeba1e1ad8c72384026"
+        }
+      ]
+    },
+    {
+      "scenario": "uncacheable",
+      "files": [
+        {
+          "role": "public",
+          "path": "evaluation/r1-jev-dev/public/uncacheable.json",
+          "sha256": "d68237e17fd0498d58f697a19120ba8da3d74862674f0a75c0dac7a1b2ffaeae"
+        },
+        {
+          "role": "evaluator",
+          "path": "evaluation/r1-jev-dev/evaluator/uncacheable.json",
+          "sha256": "7a9feeeb4d3e21a518514d8395a2bc38f924ac56ea51867dcd1fa9f039a4267c"
+        },
+        {
+          "role": "stub",
+          "path": "evaluation/r1-jev-dev/stub/uncacheable.json",
+          "sha256": "f16bf1c5de122cef843a288e4fd216e8674bb4eee8d313cb948c704d525c4623"
+        }
+      ]
+    },
+    {
+      "scenario": "duplicate-input-id",
+      "files": [
+        {
+          "role": "public",
+          "path": "evaluation/r1-jev-dev/public/duplicate-input-id.json",
+          "sha256": "7ef0ef000a196de932012065c77b12c0fbcc6bdb684661bc07ff3ad62e2ef7b5"
+        },
+        {
+          "role": "evaluator",
+          "path": "evaluation/r1-jev-dev/evaluator/duplicate-input-id.json",
+          "sha256": "80c7489df329dde40a2e49f494dd6821a1d6413cb997f4e62fce8423cf83c97f"
+        },
+        {
+          "role": "stub",
+          "path": "evaluation/r1-jev-dev/stub/duplicate-input-id.json",
+          "sha256": "c6db99720a882e85c61d69ed0c9e98367cfe8d1226ff2095e305b31b42ec7261"
+        }
+      ]
+    }
+  ]
+}

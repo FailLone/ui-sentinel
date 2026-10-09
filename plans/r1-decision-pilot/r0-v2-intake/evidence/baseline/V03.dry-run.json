@@ -1,0 +1,39 @@
+{
+  "disposition": "dry-run-only",
+  "request": {
+    "wireSha256": "7c9a62a1fa5207edc90c3bf11a03f4dad8e781c575ed861f68a4db3f92fbb428",
+    "bytes": 28525,
+    "questionCount": 7,
+    "mapping": {
+      "c0_relevance": {
+        "candidateId": "item-9e4cea0f-9acc-405b-91f2-66fc75f421de",
+        "dimension": "relevance"
+      },
+      "c0_informationGain": {
+        "candidateId": "item-9e4cea0f-9acc-405b-91f2-66fc75f421de",
+        "dimension": "informationGain"
+      },
+      "c1_relevance": {
+        "candidateId": "item-3384edb5-d7a8-45b8-8a97-ddd799a291a0",
+        "dimension": "relevance"
+      },
+      "c1_informationGain": {
+        "candidateId": "item-3384edb5-d7a8-45b8-8a97-ddd799a291a0",
+        "dimension": "informationGain"
+      },
+      "c2_relevance": {
+        "candidateId": "item-033a20ec-9c58-488f-ac3d-bf1612519380",
+        "dimension": "relevance"
+      },
+      "c2_informationGain": {
+        "candidateId": "item-033a20ec-9c58-488f-ac3d-bf1612519380",
+        "dimension": "informationGain"
+      }
+    },
+    "packetSha256": "438842a4dad7d6145b0b63fd807a9aabf5dcbc5437e3c38c4b48bf3e54e718f5",
+    "httpRequests": 0,
+    "quoteUsd": null,
+    "questionLimitVerified": false,
+    "billingBoundVerified": false
+  }
+}

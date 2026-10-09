@@ -1,0 +1,507 @@
+{
+  "checkedAt": "2026-10-09T08:45:36.974Z",
+  "failure": {
+    "fields": {
+      "model": "deepseek/deepseek-v4.1-flash",
+      "tool_choice": "required",
+      "stream": true,
+      "stream_options": {
+        "include_usage": true
+      },
+      "max_tokens": 4096,
+      "reasoning": {
+        "effort": "low"
+      },
+      "provider": {
+        "allow_fallbacks": false,
+        "require_parameters": true,
+        "only": [
+          "Wafer"
+        ]
+      }
+    },
+    "wireBytes": 40719,
+    "wireHash": "ff003c650b1f55787934e4d8043cdc6c821bb4d464debfaf2bcf649d9e9d9631",
+    "messageRoles": [
+      "system",
+      "user"
+    ],
+    "messages": [
+      {
+        "role": "system",
+        "contentType": "string",
+        "contentChars": 5190,
+        "contentBytes": 5190,
+        "fields": [
+          "role",
+          "content"
+        ],
+        "hash": "f4d28f4e2a274fe6e7de8fd49cf53d952457f929ee49f7b2d5b196eaee7aac9e"
+      },
+      {
+        "role": "user",
+        "contentType": "string",
+        "contentChars": 8470,
+        "contentBytes": 8470,
+        "fields": [
+          "role",
+          "content"
+        ],
+        "hash": "3cc3c08fdee94980325152b37dd61720cf61d6f798f51109a0fd937c45456e4d"
+      }
+    ],
+    "assistantToolCalls": 0,
+    "toolResults": 0,
+    "tools": [
+      {
+        "name": "interaction_verify",
+        "type": "function",
+        "strict": "absent",
+        "schemaValidDraft7": true,
+        "schemaHash": "cb470acdb09c666d38e18cc9023b071c2b911f0b5a7580073932ba87f9ae174e",
+        "features": {
+          "$schema": 1,
+          "x-optional": 1,
+          "anyOf": 3
+        }
+      },
+      {
+        "name": "page_inspect",
+        "type": "function",
+        "strict": "absent",
+        "schemaValidDraft7": true,
+        "schemaHash": "7ed85c1d0fe45ff60b5382e86099d34ae3b25623d93137bc7d59c07064810852",
+        "features": {
+          "$schema": 1,
+          "x-optional": 1,
+          "anyOf": 2,
+          "default": 4
+        }
+      },
+      {
+        "name": "investigation_run",
+        "type": "function",
+        "strict": "absent",
+        "schemaValidDraft7": true,
+        "schemaHash": "755c299cca5b35c66f48d37359c908837c71f55e8731838c8bf48baaaacf627c",
+        "features": {
+          "$schema": 1,
+          "x-optional": 4,
+          "anyOf": 11,
+          "oneOf": 1
+        }
+      },
+      {
+        "name": "investigation_check",
+        "type": "function",
+        "strict": "absent",
+        "schemaValidDraft7": true,
+        "schemaHash": "894a6961d5089d5dfd7c0170b5abacc7d49bb24786070ef21126e3abc03b1bdf",
+        "features": {
+          "$schema": 1,
+          "x-optional": 1,
+          "anyOf": 2,
+          "default": 2
+        }
+      },
+      {
+        "name": "rules_search",
+        "type": "function",
+        "strict": "absent",
+        "schemaValidDraft7": true,
+        "schemaHash": "7482c6e2d731b1f407ab15c619bc87cdca9ff7274a4d652612f9167d97a39f89",
+        "features": {
+          "$schema": 1
+        }
+      },
+      {
+        "name": "rule_details",
+        "type": "function",
+        "strict": "absent",
+        "schemaValidDraft7": true,
+        "schemaHash": "abec9f334f23ed7009a0eab9d156cf05d2d0873a0f586ee1baada18fbc4fb5ce",
+        "features": {
+          "$schema": 1
+        }
+      },
+      {
+        "name": "history_read",
+        "type": "function",
+        "strict": "absent",
+        "schemaValidDraft7": true,
+        "schemaHash": "b2b60c6be14f044f310a560e4ed2e80332ee45df64831f3c886e7cb1780d89ed",
+        "features": {
+          "$schema": 1,
+          "x-optional": 1,
+          "anyOf": 1,
+          "default": 2
+        }
+      },
+      {
+        "name": "tool_result_read",
+        "type": "function",
+        "strict": "absent",
+        "schemaValidDraft7": true,
+        "schemaHash": "01b4d50f0220b8e4d89d13a3aa5b3d24b6321e61aa5c02c8856a34a6bc764883",
+        "features": {
+          "$schema": 1,
+          "x-optional": 1,
+          "anyOf": 1,
+          "default": 2
+        }
+      },
+      {
+        "name": "page_observe",
+        "type": "function",
+        "strict": "absent",
+        "schemaValidDraft7": true,
+        "schemaHash": "bf3552e2774a68296e4355171923b9fc3d195c6cba827548b7c7ad35982d3f9d",
+        "features": {
+          "$schema": 1
+        }
+      },
+      {
+        "name": "checks_run",
+        "type": "function",
+        "strict": "absent",
+        "schemaValidDraft7": true,
+        "schemaHash": "bf3552e2774a68296e4355171923b9fc3d195c6cba827548b7c7ad35982d3f9d",
+        "features": {
+          "$schema": 1
+        }
+      },
+      {
+        "name": "element_details",
+        "type": "function",
+        "strict": "absent",
+        "schemaValidDraft7": true,
+        "schemaHash": "a0627302de7ee703d55ddba4fd1ac82adbc4d6b9e138236c0c0d03551835f441",
+        "features": {
+          "$schema": 1
+        }
+      },
+      {
+        "name": "page_act",
+        "type": "function",
+        "strict": "absent",
+        "schemaValidDraft7": true,
+        "schemaHash": "7f8d15a3f85f4d968f6985e0d72f239d3a0305f474c0b9ed77489d6dad2ea6a6",
+        "features": {
+          "$schema": 1,
+          "x-optional": 2,
+          "anyOf": 12
+        }
+      },
+      {
+        "name": "hypotheses_record",
+        "type": "function",
+        "strict": "absent",
+        "schemaValidDraft7": true,
+        "schemaHash": "d38079c6faac837bb475c8cbf5fc688b8abf415e45e1be0f8d3023a373babbb4",
+        "features": {
+          "$schema": 1,
+          "x-optional": 1,
+          "anyOf": 1,
+          "default": 2
+        }
+      },
+      {
+        "name": "rule_check",
+        "type": "function",
+        "strict": "absent",
+        "schemaValidDraft7": true,
+        "schemaHash": "8460a3af34d57f261a4bae63de3f44cabe5b2d1890a96a34889c8739161e31a4",
+        "features": {
+          "$schema": 1,
+          "x-optional": 1,
+          "anyOf": 1
+        }
+      },
+      {
+        "name": "exploration_update",
+        "type": "function",
+        "strict": "absent",
+        "schemaValidDraft7": true,
+        "schemaHash": "cf2c2afd9480b9f6ebd8ff98ce42f1e4b2dffbf0e23e0c9e85c5702bbf0d8e7f",
+        "features": {
+          "$schema": 1,
+          "x-optional": 2,
+          "anyOf": 4,
+          "additionalItems": 1,
+          "tupleItems": 1
+        }
+      },
+      {
+        "name": "run_finish",
+        "type": "function",
+        "strict": "absent",
+        "schemaValidDraft7": true,
+        "schemaHash": "e7c80d2a05ea8db12931beeefa3d8d1bdfc1d3da9b93cfd58086e9e8a2cd30b5",
+        "features": {
+          "$schema": 1
+        }
+      }
+    ]
+  },
+  "success": {
+    "fields": {
+      "model": "deepseek/deepseek-v4.1-flash",
+      "tool_choice": "required",
+      "stream": true,
+      "stream_options": {
+        "include_usage": true
+      },
+      "max_tokens": 4096,
+      "reasoning": {
+        "effort": "low"
+      },
+      "provider": {
+        "allow_fallbacks": false,
+        "require_parameters": true,
+        "only": [
+          "Wafer"
+        ]
+      }
+    },
+    "wireBytes": 25523,
+    "wireHash": "99af9ae13f24605ca378dae48a8ac1f6bd0dd7fb8401f7e6f9e69a90a4d10ff8",
+    "messageRoles": [
+      "system",
+      "user"
+    ],
+    "messages": [
+      {
+        "role": "system",
+        "contentType": "string",
+        "contentChars": 6738,
+        "contentBytes": 6738,
+        "fields": [
+          "role",
+          "content"
+        ],
+        "hash": "d29d2aa853e76036a3c5052790d9bfc0406d07d21505935a9474ea68afe2f221"
+      },
+      {
+        "role": "user",
+        "contentType": "string",
+        "contentChars": 5577,
+        "contentBytes": 5595,
+        "fields": [
+          "role",
+          "content"
+        ],
+        "hash": "ac94fd48a76ef8675014667c3b3de0b1faffab6a7c49c3a106d7c55814c8cc72"
+      }
+    ],
+    "assistantToolCalls": 0,
+    "toolResults": 0,
+    "tools": [
+      {
+        "name": "investigation_check",
+        "type": "function",
+        "strict": "absent",
+        "schemaValidDraft7": true,
+        "schemaHash": "33139a30a6bd7437730a83f114c52fb734272446778c6e3469b668e226edfebf",
+        "features": {
+          "$schema": 1,
+          "x-optional": 1,
+          "anyOf": 1,
+          "default": 2
+        }
+      },
+      {
+        "name": "journey_run",
+        "type": "function",
+        "strict": "absent",
+        "schemaValidDraft7": true,
+        "schemaHash": "fca8ef5b62779cc9796b9c89b4b665999e6e6659e73e05051e70384ccc123f5e",
+        "features": {
+          "$schema": 1
+        }
+      },
+      {
+        "name": "rules_search",
+        "type": "function",
+        "strict": "absent",
+        "schemaValidDraft7": true,
+        "schemaHash": "7482c6e2d731b1f407ab15c619bc87cdca9ff7274a4d652612f9167d97a39f89",
+        "features": {
+          "$schema": 1
+        }
+      },
+      {
+        "name": "rule_details",
+        "type": "function",
+        "strict": "absent",
+        "schemaValidDraft7": true,
+        "schemaHash": "abec9f334f23ed7009a0eab9d156cf05d2d0873a0f586ee1baada18fbc4fb5ce",
+        "features": {
+          "$schema": 1
+        }
+      },
+      {
+        "name": "history_read",
+        "type": "function",
+        "strict": "absent",
+        "schemaValidDraft7": true,
+        "schemaHash": "b2b60c6be14f044f310a560e4ed2e80332ee45df64831f3c886e7cb1780d89ed",
+        "features": {
+          "$schema": 1,
+          "x-optional": 1,
+          "anyOf": 1,
+          "default": 2
+        }
+      },
+      {
+        "name": "tool_result_read",
+        "type": "function",
+        "strict": "absent",
+        "schemaValidDraft7": true,
+        "schemaHash": "01b4d50f0220b8e4d89d13a3aa5b3d24b6321e61aa5c02c8856a34a6bc764883",
+        "features": {
+          "$schema": 1,
+          "x-optional": 1,
+          "anyOf": 1,
+          "default": 2
+        }
+      },
+      {
+        "name": "page_observe",
+        "type": "function",
+        "strict": "absent",
+        "schemaValidDraft7": true,
+        "schemaHash": "bf3552e2774a68296e4355171923b9fc3d195c6cba827548b7c7ad35982d3f9d",
+        "features": {
+          "$schema": 1
+        }
+      },
+      {
+        "name": "checks_run",
+        "type": "function",
+        "strict": "absent",
+        "schemaValidDraft7": true,
+        "schemaHash": "bf3552e2774a68296e4355171923b9fc3d195c6cba827548b7c7ad35982d3f9d",
+        "features": {
+          "$schema": 1
+        }
+      },
+      {
+        "name": "element_details",
+        "type": "function",
+        "strict": "absent",
+        "schemaValidDraft7": true,
+        "schemaHash": "a0627302de7ee703d55ddba4fd1ac82adbc4d6b9e138236c0c0d03551835f441",
+        "features": {
+          "$schema": 1
+        }
+      },
+      {
+        "name": "page_act",
+        "type": "function",
+        "strict": "absent",
+        "schemaValidDraft7": true,
+        "schemaHash": "978ba14345fef6b25a7317de97097b76335da000f0348702d30e5ea77b7b1aa1",
+        "features": {
+          "$schema": 1,
+          "x-optional": 1,
+          "anyOf": 8
+        }
+      },
+      {
+        "name": "hypotheses_record",
+        "type": "function",
+        "strict": "absent",
+        "schemaValidDraft7": true,
+        "schemaHash": "0316c33c61858efa76ccb96fa8755d01990a3e6c50e8b78cfe6bbb05ccd65e32",
+        "features": {
+          "$schema": 1,
+          "x-optional": 1,
+          "anyOf": 1,
+          "default": 2
+        }
+      },
+      {
+        "name": "rule_check",
+        "type": "function",
+        "strict": "absent",
+        "schemaValidDraft7": true,
+        "schemaHash": "cd409a6fdbc55a44dd7e555c8d86d190cdb3fe76105818dd80e41a54db869af9",
+        "features": {
+          "$schema": 1
+        }
+      },
+      {
+        "name": "exploration_update",
+        "type": "function",
+        "strict": "absent",
+        "schemaValidDraft7": true,
+        "schemaHash": "e422872fb4ed10b612b801e324184df37dbd0092813e5efc51835653379c9c86",
+        "features": {
+          "$schema": 1
+        }
+      },
+      {
+        "name": "run_finish",
+        "type": "function",
+        "strict": "absent",
+        "schemaValidDraft7": true,
+        "schemaHash": "ae8b3523864f2e5cce6ec6cbf3d63c5b0f8abb9bd639408aa4c63d80ea967ef5",
+        "features": {
+          "$schema": 1
+        }
+      }
+    ]
+  },
+  "nonMessageToolFieldsIdentical": true,
+  "toolSchemaDifferencePaths": [
+    "/toolsByName/interaction_verify",
+    "/toolsByName/page_inspect",
+    "/toolsByName/investigation_run",
+    "/toolsByName/investigation_check/parameters/properties/trigger/enum",
+    "/toolsByName/investigation_check/parameters/properties/evidenceRefs",
+    "/toolsByName/investigation_check/parameters/required",
+    "/toolsByName/investigation_check/parameters/x-optional",
+    "/toolsByName/page_act/description",
+    "/toolsByName/page_act/parameters/properties/requirementId",
+    "/toolsByName/page_act/parameters/properties/verify",
+    "/toolsByName/page_act/parameters/properties/ref",
+    "/toolsByName/page_act/parameters/properties/nth/description",
+    "/toolsByName/page_act/parameters/properties/nth/anyOf",
+    "/toolsByName/page_act/parameters/properties/value/description",
+    "/toolsByName/page_act/parameters/properties/url/description",
+    "/toolsByName/page_act/parameters/properties/scrollY/description",
+    "/toolsByName/page_act/parameters/required",
+    "/toolsByName/page_act/parameters/x-optional",
+    "/toolsByName/hypotheses_record/parameters/properties/trigger/anyOf",
+    "/toolsByName/rule_check/description",
+    "/toolsByName/rule_check/parameters/properties/evidenceRefs",
+    "/toolsByName/rule_check/parameters/required",
+    "/toolsByName/rule_check/parameters/x-optional",
+    "/toolsByName/exploration_update/description",
+    "/toolsByName/exploration_update/parameters/properties/sourceCandidates",
+    "/toolsByName/exploration_update/parameters/properties/unexploredBranches/items/properties/trigger/enum",
+    "/toolsByName/exploration_update/parameters/properties/selectItems",
+    "/toolsByName/exploration_update/parameters/properties/recordGap",
+    "/toolsByName/exploration_update/parameters/required",
+    "/toolsByName/exploration_update/parameters/x-optional",
+    "/toolsByName/run_finish/description",
+    "/toolsByName/run_finish/parameters/properties/reason/description",
+    "/toolsByName/journey_run"
+  ],
+  "wireBinding": {
+    "requestId": "0ddb03d5250db453759b72ee",
+    "parentRun": "run-70e34b02-2d84-4498-b133-15405529861b",
+    "manifestHash": "9f73f0d6e3140b2d891d043441053bb75579550d58fdbf850a081c0bdc56ba75",
+    "url": "https://openrouter.ai/api/v1/chat/completions",
+    "wireHash": "ff003c650b1f55787934e4d8043cdc6c821bb4d464debfaf2bcf649d9e9d9631",
+    "matched": true
+  },
+  "limits": {
+    "bytes": 131072,
+    "actualBytes": 40719,
+    "maxTokens": 4096,
+    "context": 1048576,
+    "tokenizerMeasured": false
+  },
+  "interpretation": "Draft7 validity and routing metadata do not prove Wafer-specific schema/combination acceptance; no assistant/tool history exists to mismatch."
+}

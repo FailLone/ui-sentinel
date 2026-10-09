@@ -1,0 +1,9 @@
+{
+  "schemaVersion": "r1-evaluator-case-1",
+  "scenario": "budget-empty",
+  "expectedStatus": "handoff",
+  "reason": "剩余额度0不发送、不命中成功建议。",
+  "checks": [
+    "zero-transmissions"
+  ]
+}

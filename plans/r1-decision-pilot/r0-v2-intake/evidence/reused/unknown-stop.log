@@ -1,0 +1,9 @@
+
+ RUN  v5.0.1 /Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 10 skipped (11)
+   Start at  14:51:36
+   Duration  767ms (tests 61%, transform 27%, import 12%)
+

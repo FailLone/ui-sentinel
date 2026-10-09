@@ -1,0 +1,161 @@
+{
+  "localRoot": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007",
+  "portable": false,
+  "files": [
+    {
+      "path": "data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/C10-1/empty.env",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/C10-1/evidence/38006c32-fe4e-47e1-a40a-f5b9dd732fc8.json",
+      "bytes": 3315,
+      "sha256": "967ba18c01fe9dfc9ada412ee236523045f076ec81833c7f8293f576adf37c61"
+    },
+    {
+      "path": "data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/C10-1/evidence/457a5016-4ac0-49ae-bcde-f3c01a2e7ea0.json",
+      "bytes": 473,
+      "sha256": "7450c3c31055219f16fa9ba0c8f4445b272211ab8737a5b0a89adbb64df6856e"
+    },
+    {
+      "path": "data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/C10-1/evidence/4d78eccc-8fbb-4e81-ab4f-a1ce47a922ac.json",
+      "bytes": 3925,
+      "sha256": "0d038ee05fe8c061a9604dd64d510ab59f820d19a35805f1a6cf40d3fe19dbce"
+    },
+    {
+      "path": "data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/C10-1/evidence/64164204-73a3-4808-8a24-09a14c4c59a4.json",
+      "bytes": 3700,
+      "sha256": "ce0ed4569ad9f21f25c428498001541f1c8a5d222d35cf7575ee8859ca9c15f9"
+    },
+    {
+      "path": "data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/C10-1/evidence/9d8aaea8-d427-4f95-b566-8fa29315ec67.png",
+      "bytes": 12861,
+      "sha256": "4741fc2a142787c24bb7c17c472368d98f6347e11203756c4eb5071be8973e5c"
+    },
+    {
+      "path": "data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/C10-1/evidence/a7acbe09-a5bc-437c-8182-d96f6e7eca61.json",
+      "bytes": 1201,
+      "sha256": "b0cf3e03037922e3532f7e8f53b3a177e1940befeaec3194df1fbf96d79c5c7d"
+    },
+    {
+      "path": "data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/C10-1/evidence/f2e53891-3e14-46ad-b1dd-3a5d21142cc5.png",
+      "bytes": 12861,
+      "sha256": "4741fc2a142787c24bb7c17c472368d98f6347e11203756c4eb5071be8973e5c"
+    },
+    {
+      "path": "data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/C10-1/evidence/f8075908-7d8a-49f9-9db6-aa3446a5888e.json",
+      "bytes": 2946,
+      "sha256": "114488fd0315af976fc9f342d49b80bf99e0ff636cfc9d8644a4f5f5cbd02eea"
+    },
+    {
+      "path": "data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/C10-1/evidence-index.json",
+      "bytes": 1314,
+      "sha256": "0970f8c22dc42a155f6624f9f5294c0826e711195dda09bc8042dbb51f6a4bfd"
+    },
+    {
+      "path": "data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/C10-1/report.json",
+      "bytes": 131285,
+      "sha256": "9be7f693626fd79ff351c6574dec2a2ed40807c0f536a28cd240dccaf385dc0d"
+    },
+    {
+      "path": "data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/C10-1/request.json",
+      "bytes": 231,
+      "sha256": "7abc6d7834278dd1d6739c02948cdde881adfae2e35594837e9f25237dd51b6e"
+    },
+    {
+      "path": "data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/C10-1/run-binding.json",
+      "bytes": 199,
+      "sha256": "679b11acc21c6714c20f64af2157f48e4e2b79e4834f9552b51429e9274fa46a"
+    },
+    {
+      "path": "data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/C10-1/runs.db",
+      "bytes": 131072,
+      "sha256": "a7558a8f3ecfb64bc7cd091309728ef37d7e85721fcc0a5844839fe6cd7f2de9"
+    },
+    {
+      "path": "data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/C10-1/server.log",
+      "bytes": 367,
+      "sha256": "e9ccdfb1aa70e1989b7b4001d0f6deb511164c3f011fbaba391cd8b0e33a9025"
+    },
+    {
+      "path": "data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/account/campaign-id.json",
+      "bytes": 53,
+      "sha256": "d605cd24e876c9e2ad3d63b9a7177efd4ecb3cf6323e62c534b159085adeeeb3"
+    },
+    {
+      "path": "data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/account/campaign.db",
+      "bytes": 65536,
+      "sha256": "1f660d8b85d723b664efdca29db892ab90bbd4cc3627a5a9682bce0580a0f7b1"
+    },
+    {
+      "path": "data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/accounting.json",
+      "bytes": 5107,
+      "sha256": "b1b45f128407d26640651a1f003161952fbb4395c3db898982a4055187f9bab8"
+    },
+    {
+      "path": "data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/approval.json",
+      "bytes": 1030,
+      "sha256": "bfa19fcbc66bbfb0abc135f47e42c87fc5a9849a3ffabb0cb304eaa38ba8a402"
+    },
+    {
+      "path": "data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/bindings.jsonl",
+      "bytes": 25713,
+      "sha256": "e78847ad585f77af79b02c2c78e167013c2f7fe7c1b2bf5b9209e8c6f3102564"
+    },
+    {
+      "path": "data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/failure.json",
+      "bytes": 64,
+      "sha256": "59653907086b9b08577070568b99bdfe6cbabe96b38d80a073e8822c1ec14f2e"
+    },
+    {
+      "path": "data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/fixture-requests.json",
+      "bytes": 57,
+      "sha256": "cb3e136746e79d571605f73692ac87c798f0a8e93a60750b67412da60e720c39"
+    },
+    {
+      "path": "data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/ledger.jsonl",
+      "bytes": 527,
+      "sha256": "c5e76c88011034f1e897cef669d7b3e4ab82191654e50dd0188730ed1a1c9d33"
+    },
+    {
+      "path": "data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/manifest.json",
+      "bytes": 15217,
+      "sha256": "7dc1a0a2c0a41aed632c655a01116b44d5287bda7cbb399bbfb9a757dcd84783"
+    },
+    {
+      "path": "data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/price-check.json",
+      "bytes": 2612,
+      "sha256": "32c216038e24a4997b0b3969b5473a64c34e1c5d5fb4e28310ab7580ec515a60"
+    },
+    {
+      "path": "data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/requests.jsonl",
+      "bytes": 51100,
+      "sha256": "491059ec990a6dd9707300e308cda2cd3149b8378dd623286e702f6bc2262774"
+    },
+    {
+      "path": "data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/responses.jsonl",
+      "bytes": 113,
+      "sha256": "3e752278195f30d61d6170ab9e0c8cbddc887d97a43bdf2e2077059ce2e18f20"
+    },
+    {
+      "path": "data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/results.json",
+      "bytes": 537,
+      "sha256": "b877d964998e3baec07a4a46d036c474bdbe1780eeff9d121479384a3ebef436"
+    },
+    {
+      "path": "data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/server.mjs",
+      "bytes": 1005728,
+      "sha256": "72cda9d6e67be587bf60852fd59a859cdac13946bcce29255f90223f4561aaa9"
+    },
+    {
+      "path": "data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/stop.json",
+      "bytes": 143,
+      "sha256": "fba1642e7df38b15a2e37bfd09fd8b6d76fa2eea7c1786312449a1684302a1f9"
+    },
+    {
+      "path": "data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/summary.json",
+      "bytes": 262,
+      "sha256": "324e4bd4e90c3cade60041285920edc20c7cd5e05b777e6736a09cf0c6c37c80"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+vite v6.4.3 building for production...
+transforming...
+✓ 34 modules transformed.
+rendering chunks...
+computing gzip size...
+../../dist/web/index.html                   0.36 kB │ gzip:  0.26 kB
+../../dist/web/assets/index-CXdperhR.css    1.84 kB │ gzip:  0.81 kB
+../../dist/web/assets/index-CDutE5PD.js   260.89 kB │ gzip: 84.32 kB
+✓ built in 500ms
+/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/data/r1-product/2026-10-09T14-15-17-156Z
+{"name":"three-step-defect","runId":"run-f1915976-190f-417a-996a-18b08a10e6bc","status":"completed","actions":3,"modelCalls":0,"checks":{"effectUnspecifiedCount":2,"requiredEffectPendingCount":0,"genericIncompleteCount":0,"requiredEffectVerifiedCount":0,"requiredEffectFailedCount":1,"sourceUnresolvedCount":0},"handoffs":["insufficient-information:no safe untried target or explicitly bounded repeat remains"],"progress":{"attempts":3,"paths":[3]}}
+{"name":"three-step-healthy","runId":"run-176d5891-2b56-4ca0-9e9d-5a9c4d2822f9","status":"completed","actions":3,"modelCalls":0,"checks":{"effectUnspecifiedCount":2,"requiredEffectPendingCount":0,"genericIncompleteCount":0,"requiredEffectVerifiedCount":1,"requiredEffectFailedCount":0,"sourceUnresolvedCount":0},"handoffs":["insufficient-information:no safe untried target or explicitly bounded repeat remains"],"progress":{"attempts":3,"paths":[3]}}
+{"name":"fairness","runId":"run-39ac5c96-db8f-496b-898f-f5b1eba91a1e","status":"completed","actions":3,"modelCalls":0,"checks":{"effectUnspecifiedCount":0,"requiredEffectPendingCount":0,"genericIncompleteCount":0,"requiredEffectVerifiedCount":1,"requiredEffectFailedCount":2,"sourceUnresolvedCount":0},"handoffs":["insufficient-information:no safe untried target or explicitly bounded repeat remains"],"progress":{"attempts":3,"paths":[3]}}
+{"name":"budget","runId":"run-1d0415f8-322b-4f44-b53b-eaa8a7248e24","status":"blocked","actions":1,"modelCalls":1,"checks":{"effectUnspecifiedCount":1,"requiredEffectPendingCount":0,"genericIncompleteCount":0,"requiredEffectVerifiedCount":0,"requiredEffectFailedCount":0,"sourceUnresolvedCount":0},"handoffs":["budget-insufficient"],"progress":{"attempts":1,"paths":[1]}}

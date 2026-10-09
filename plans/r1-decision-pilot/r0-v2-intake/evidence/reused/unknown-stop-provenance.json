@@ -1,0 +1,31 @@
+{
+  "sourceSha": "19bd35742442d340438b035938a9b4be13770fa2",
+  "versions": {
+    "node": "v24.21.0",
+    "pnpm": "10.17.1"
+  },
+  "cwdMapping": {
+    "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007": "repository-root"
+  },
+  "command": {
+    "name": "unknown-stop",
+    "argv": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "--config",
+      "plans/r1-jev-real/vitest.config.ts",
+      "scripts/r1-jev-real/tooling.test.ts",
+      "-t",
+      "unknown fees stop the complete campaign after one dispatch"
+    ],
+    "exitCode": 0,
+    "elapsedSeconds": 1.251,
+    "log": "unknown-stop.log"
+  },
+  "logSha256": "3d371e362907469614474eacbc1f2e0af47ea4f7cba41e4699f561bb6c3b8024",
+  "reusedNotRerun": true,
+  "scope": "R1 independent campaign only; not proof of this v2 compiler being integrated into its paid execution path",
+  "runnerUnchangedSinceEvidence": true
+}

@@ -205,3 +205,37 @@ describe('buildUiContractSnapshot', () => {
     expect(verifyUiContractSnapshot({ ...snapshot, hash: 'deadbeef' })).toBe(false)
   })
 })
+
+it('R1 is an explicit frozen opt-in; caller cannot widen program limits or silently enable Jev', () => {
+  const legacy = resolveUiScanContract(
+    { kind: 'ui-scan', entryUrl: 'https://example.org/' },
+    { reachableOrigins: [] },
+  )
+  const enabled = resolveUiScanContract(
+    { kind: 'ui-scan', entryUrl: 'https://example.org/', exploration: { mode: 'program' } },
+    { reachableOrigins: [] },
+  )
+  expect(legacy.kind).toBe('resolved')
+  expect(enabled.kind).toBe('resolved')
+  if (legacy.kind !== 'resolved' || enabled.kind !== 'resolved') return
+  expect(legacy.contract.exploration).toBeUndefined()
+  expect(enabled.contract.exploration).toMatchObject({
+    mode: 'program',
+    jev: false,
+    maxLocalChecksPerPage: 3,
+    maxJevCalls: 2,
+  })
+  expect(
+    uiScanRequestSchema.safeParse({
+      kind: 'ui-scan',
+      entryUrl: 'https://example.org/',
+      exploration: { mode: 'program', maxLocalChecksPerPage: 99 },
+    }).success,
+  ).toBe(false)
+  expect(
+    verifyUiContractSnapshot({
+      ...enabled.contract,
+      exploration: { ...enabled.contract.exploration!, jev: true },
+    }),
+  ).toBe(false)
+})

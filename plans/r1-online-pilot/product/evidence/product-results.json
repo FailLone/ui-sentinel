@@ -1,0 +1,462 @@
+{
+  "candidateSourceSha": "ddf1dd943f238dc71c2d3e4e6ef327e1ba44c2db",
+  "uniqueCases": 17,
+  "completed": 13,
+  "blocked": 4,
+  "actions": 31,
+  "fixedProviderCalls": 4,
+  "realCalls": 0,
+  "jevCalls": 0,
+  "cases": [
+    {
+      "scenario": "ambiguous",
+      "report": "data/r1-product/2026-10-09T10-44-06-535Z/ambiguous-report.json",
+      "evidenceIndex": "data/r1-product/2026-10-09T10-44-06-535Z/ambiguous-evidence-index.json",
+      "status": "blocked",
+      "usage": {
+        "actions": 0,
+        "modelCalls": 1,
+        "elapsedMs": 646,
+        "modelInputTokens": 10,
+        "modelOutputTokens": 10
+      },
+      "checks": {
+        "effectUnspecifiedCount": 2,
+        "requiredEffectPendingCount": 0,
+        "genericIncompleteCount": 2,
+        "requiredEffectVerifiedCount": 0,
+        "requiredEffectFailedCount": 0,
+        "sourceUnresolvedCount": 0
+      },
+      "supportedFindings": 0,
+      "artifactCount": 14,
+      "allArtifactsVerified": true,
+      "D004Disabled": true
+    },
+    {
+      "scenario": "boundary-input",
+      "report": "data/r1-product/2026-10-09T10-50-44-484Z/boundary-input-report.json",
+      "evidenceIndex": "data/r1-product/2026-10-09T10-50-44-484Z/boundary-input-evidence-index.json",
+      "status": "completed",
+      "usage": {
+        "actions": 1,
+        "modelCalls": 0,
+        "elapsedMs": 1866,
+        "modelInputTokens": null,
+        "modelOutputTokens": null
+      },
+      "checks": {
+        "effectUnspecifiedCount": 1,
+        "requiredEffectPendingCount": 0,
+        "genericIncompleteCount": 0,
+        "requiredEffectVerifiedCount": 0,
+        "requiredEffectFailedCount": 0,
+        "sourceUnresolvedCount": 0
+      },
+      "supportedFindings": 0,
+      "artifactCount": 33,
+      "allArtifactsVerified": true,
+      "D004Disabled": true
+    },
+    {
+      "scenario": "budget",
+      "report": "data/r1-product/2026-10-09T10-44-06-535Z/budget-report.json",
+      "evidenceIndex": "data/r1-product/2026-10-09T10-44-06-535Z/budget-evidence-index.json",
+      "status": "blocked",
+      "usage": {
+        "actions": 1,
+        "modelCalls": 1,
+        "elapsedMs": 2083,
+        "modelInputTokens": 10,
+        "modelOutputTokens": 10
+      },
+      "checks": {
+        "effectUnspecifiedCount": 1,
+        "requiredEffectPendingCount": 0,
+        "genericIncompleteCount": 0,
+        "requiredEffectVerifiedCount": 0,
+        "requiredEffectFailedCount": 0,
+        "sourceUnresolvedCount": 0
+      },
+      "supportedFindings": 0,
+      "artifactCount": 41,
+      "allArtifactsVerified": true,
+      "D004Disabled": true
+    },
+    {
+      "scenario": "fairness",
+      "report": "data/r1-product/2026-10-09T10-44-06-535Z/fairness-report.json",
+      "evidenceIndex": "data/r1-product/2026-10-09T10-44-06-535Z/fairness-evidence-index.json",
+      "status": "completed",
+      "usage": {
+        "actions": 3,
+        "modelCalls": 0,
+        "elapsedMs": 5199,
+        "modelInputTokens": null,
+        "modelOutputTokens": null
+      },
+      "checks": {
+        "effectUnspecifiedCount": 0,
+        "requiredEffectPendingCount": 0,
+        "genericIncompleteCount": 0,
+        "requiredEffectVerifiedCount": 1,
+        "requiredEffectFailedCount": 2,
+        "sourceUnresolvedCount": 0
+      },
+      "supportedFindings": 2,
+      "artifactCount": 84,
+      "allArtifactsVerified": true,
+      "D004Disabled": true
+    },
+    {
+      "scenario": "layout-pair",
+      "report": "data/r1-product/2026-10-09T10-44-06-535Z/layout-pair-report.json",
+      "evidenceIndex": "data/r1-product/2026-10-09T10-44-06-535Z/layout-pair-evidence-index.json",
+      "status": "completed",
+      "usage": {
+        "actions": 2,
+        "modelCalls": 0,
+        "elapsedMs": 3832,
+        "modelInputTokens": null,
+        "modelOutputTokens": null
+      },
+      "checks": {
+        "effectUnspecifiedCount": 2,
+        "requiredEffectPendingCount": 0,
+        "genericIncompleteCount": 0,
+        "requiredEffectVerifiedCount": 0,
+        "requiredEffectFailedCount": 0,
+        "sourceUnresolvedCount": 0
+      },
+      "supportedFindings": 1,
+      "artifactCount": 58,
+      "allArtifactsVerified": true,
+      "D004Disabled": true
+    },
+    {
+      "scenario": "menu-healthy",
+      "report": "data/r1-product/2026-10-09T10-44-06-535Z/menu-healthy-report.json",
+      "evidenceIndex": "data/r1-product/2026-10-09T10-44-06-535Z/menu-healthy-evidence-index.json",
+      "status": "completed",
+      "usage": {
+        "actions": 1,
+        "modelCalls": 0,
+        "elapsedMs": 2063,
+        "modelInputTokens": null,
+        "modelOutputTokens": null
+      },
+      "checks": {
+        "effectUnspecifiedCount": 0,
+        "requiredEffectPendingCount": 0,
+        "genericIncompleteCount": 0,
+        "requiredEffectVerifiedCount": 1,
+        "requiredEffectFailedCount": 0,
+        "sourceUnresolvedCount": 0
+      },
+      "supportedFindings": 0,
+      "artifactCount": 37,
+      "allArtifactsVerified": true,
+      "D004Disabled": true
+    },
+    {
+      "scenario": "recovery",
+      "report": "data/r1-product/2026-10-09T10-44-06-535Z/recovery-report.json",
+      "evidenceIndex": "data/r1-product/2026-10-09T10-44-06-535Z/recovery-evidence-index.json",
+      "status": "blocked",
+      "usage": {
+        "actions": 1,
+        "modelCalls": 1,
+        "elapsedMs": 2239,
+        "modelInputTokens": 10,
+        "modelOutputTokens": 10
+      },
+      "checks": {
+        "effectUnspecifiedCount": 0,
+        "requiredEffectPendingCount": 1,
+        "genericIncompleteCount": 0,
+        "requiredEffectVerifiedCount": 0,
+        "requiredEffectFailedCount": 0,
+        "sourceUnresolvedCount": 0
+      },
+      "supportedFindings": 0,
+      "artifactCount": 44,
+      "allArtifactsVerified": true,
+      "D004Disabled": true
+    },
+    {
+      "scenario": "refresh",
+      "report": "data/r1-product/2026-10-09T10-44-06-535Z/refresh-report.json",
+      "evidenceIndex": "data/r1-product/2026-10-09T10-44-06-535Z/refresh-evidence-index.json",
+      "status": "completed",
+      "usage": {
+        "actions": 3,
+        "modelCalls": 0,
+        "elapsedMs": 3771,
+        "modelInputTokens": null,
+        "modelOutputTokens": null
+      },
+      "checks": {
+        "effectUnspecifiedCount": 2,
+        "requiredEffectPendingCount": 0,
+        "genericIncompleteCount": 0,
+        "requiredEffectVerifiedCount": 0,
+        "requiredEffectFailedCount": 0,
+        "sourceUnresolvedCount": 0
+      },
+      "supportedFindings": 0,
+      "artifactCount": 70,
+      "allArtifactsVerified": true,
+      "D004Disabled": true
+    },
+    {
+      "scenario": "refresh-unbindable",
+      "report": "data/r1-product/2026-10-09T10-44-06-535Z/refresh-unbindable-report.json",
+      "evidenceIndex": "data/r1-product/2026-10-09T10-44-06-535Z/refresh-unbindable-evidence-index.json",
+      "status": "blocked",
+      "usage": {
+        "actions": 0,
+        "modelCalls": 1,
+        "elapsedMs": 488,
+        "modelInputTokens": 10,
+        "modelOutputTokens": 10
+      },
+      "checks": {
+        "effectUnspecifiedCount": 0,
+        "requiredEffectPendingCount": 0,
+        "genericIncompleteCount": 0,
+        "requiredEffectVerifiedCount": 0,
+        "requiredEffectFailedCount": 0,
+        "sourceUnresolvedCount": 0
+      },
+      "supportedFindings": 0,
+      "artifactCount": 14,
+      "allArtifactsVerified": true,
+      "D004Disabled": true
+    },
+    {
+      "scenario": "repeat-defect",
+      "report": "data/r1-product/2026-10-09T10-44-06-535Z/repeat-defect-report.json",
+      "evidenceIndex": "data/r1-product/2026-10-09T10-44-06-535Z/repeat-defect-evidence-index.json",
+      "status": "completed",
+      "usage": {
+        "actions": 2,
+        "modelCalls": 0,
+        "elapsedMs": 3881,
+        "modelInputTokens": null,
+        "modelOutputTokens": null
+      },
+      "checks": {
+        "effectUnspecifiedCount": 0,
+        "requiredEffectPendingCount": 0,
+        "genericIncompleteCount": 0,
+        "requiredEffectVerifiedCount": 1,
+        "requiredEffectFailedCount": 1,
+        "sourceUnresolvedCount": 0
+      },
+      "supportedFindings": 1,
+      "artifactCount": 75,
+      "allArtifactsVerified": true,
+      "D004Disabled": true
+    },
+    {
+      "scenario": "return-start",
+      "report": "data/r1-product/2026-10-09T10-44-06-535Z/return-start-report.json",
+      "evidenceIndex": "data/r1-product/2026-10-09T10-44-06-535Z/return-start-evidence-index.json",
+      "status": "completed",
+      "usage": {
+        "actions": 2,
+        "modelCalls": 0,
+        "elapsedMs": 950,
+        "modelInputTokens": null,
+        "modelOutputTokens": null
+      },
+      "checks": {
+        "effectUnspecifiedCount": 0,
+        "requiredEffectPendingCount": 0,
+        "genericIncompleteCount": 0,
+        "requiredEffectVerifiedCount": 0,
+        "requiredEffectFailedCount": 0,
+        "sourceUnresolvedCount": 0
+      },
+      "supportedFindings": 0,
+      "artifactCount": 28,
+      "allArtifactsVerified": true,
+      "D004Disabled": true
+    },
+    {
+      "scenario": "state-cycle",
+      "report": "data/r1-product/2026-10-09T10-44-06-535Z/state-cycle-report.json",
+      "evidenceIndex": "data/r1-product/2026-10-09T10-44-06-535Z/state-cycle-evidence-index.json",
+      "status": "completed",
+      "usage": {
+        "actions": 2,
+        "modelCalls": 0,
+        "elapsedMs": 3880,
+        "modelInputTokens": null,
+        "modelOutputTokens": null
+      },
+      "checks": {
+        "effectUnspecifiedCount": 2,
+        "requiredEffectPendingCount": 0,
+        "genericIncompleteCount": 0,
+        "requiredEffectVerifiedCount": 0,
+        "requiredEffectFailedCount": 0,
+        "sourceUnresolvedCount": 0
+      },
+      "supportedFindings": 0,
+      "artifactCount": 76,
+      "allArtifactsVerified": true,
+      "D004Disabled": true
+    },
+    {
+      "scenario": "tabs-defect",
+      "report": "data/r1-product/2026-10-09T10-44-06-535Z/tabs-defect-report.json",
+      "evidenceIndex": "data/r1-product/2026-10-09T10-44-06-535Z/tabs-defect-evidence-index.json",
+      "status": "completed",
+      "usage": {
+        "actions": 1,
+        "modelCalls": 0,
+        "elapsedMs": 2046,
+        "modelInputTokens": null,
+        "modelOutputTokens": null
+      },
+      "checks": {
+        "effectUnspecifiedCount": 0,
+        "requiredEffectPendingCount": 0,
+        "genericIncompleteCount": 0,
+        "requiredEffectVerifiedCount": 0,
+        "requiredEffectFailedCount": 1,
+        "sourceUnresolvedCount": 0
+      },
+      "supportedFindings": 1,
+      "artifactCount": 37,
+      "allArtifactsVerified": true,
+      "D004Disabled": true
+    },
+    {
+      "scenario": "three-step-defect",
+      "report": "data/r1-product/2026-10-09T10-44-06-535Z/three-step-defect-report.json",
+      "evidenceIndex": "data/r1-product/2026-10-09T10-44-06-535Z/three-step-defect-evidence-index.json",
+      "status": "completed",
+      "usage": {
+        "actions": 3,
+        "modelCalls": 0,
+        "elapsedMs": 5296,
+        "modelInputTokens": null,
+        "modelOutputTokens": null
+      },
+      "checks": {
+        "effectUnspecifiedCount": 2,
+        "requiredEffectPendingCount": 0,
+        "genericIncompleteCount": 0,
+        "requiredEffectVerifiedCount": 0,
+        "requiredEffectFailedCount": 1,
+        "sourceUnresolvedCount": 0
+      },
+      "supportedFindings": 1,
+      "artifactCount": 95,
+      "allArtifactsVerified": true,
+      "D004Disabled": true
+    },
+    {
+      "scenario": "three-step-healthy",
+      "report": "data/r1-product/2026-10-09T10-44-06-535Z/three-step-healthy-report.json",
+      "evidenceIndex": "data/r1-product/2026-10-09T10-44-06-535Z/three-step-healthy-evidence-index.json",
+      "status": "completed",
+      "usage": {
+        "actions": 3,
+        "modelCalls": 0,
+        "elapsedMs": 5423,
+        "modelInputTokens": null,
+        "modelOutputTokens": null
+      },
+      "checks": {
+        "effectUnspecifiedCount": 2,
+        "requiredEffectPendingCount": 0,
+        "genericIncompleteCount": 0,
+        "requiredEffectVerifiedCount": 1,
+        "requiredEffectFailedCount": 0,
+        "sourceUnresolvedCount": 0
+      },
+      "supportedFindings": 0,
+      "artifactCount": 95,
+      "allArtifactsVerified": true,
+      "D004Disabled": true
+    },
+    {
+      "scenario": "view-context",
+      "report": "data/r1-product/2026-10-09T10-50-44-484Z/view-context-report.json",
+      "evidenceIndex": "data/r1-product/2026-10-09T10-50-44-484Z/view-context-evidence-index.json",
+      "status": "completed",
+      "usage": {
+        "actions": 3,
+        "modelCalls": 0,
+        "elapsedMs": 5092,
+        "modelInputTokens": null,
+        "modelOutputTokens": null
+      },
+      "checks": {
+        "effectUnspecifiedCount": 1,
+        "requiredEffectPendingCount": 0,
+        "genericIncompleteCount": 0,
+        "requiredEffectVerifiedCount": 1,
+        "requiredEffectFailedCount": 1,
+        "sourceUnresolvedCount": 0
+      },
+      "supportedFindings": 1,
+      "artifactCount": 89,
+      "allArtifactsVerified": true,
+      "D004Disabled": true
+    },
+    {
+      "scenario": "view-context-healthy",
+      "report": "data/r1-product/2026-10-09T10-50-44-484Z/view-context-healthy-report.json",
+      "evidenceIndex": "data/r1-product/2026-10-09T10-50-44-484Z/view-context-healthy-evidence-index.json",
+      "status": "completed",
+      "usage": {
+        "actions": 3,
+        "modelCalls": 0,
+        "elapsedMs": 5445,
+        "modelInputTokens": null,
+        "modelOutputTokens": null
+      },
+      "checks": {
+        "effectUnspecifiedCount": 1,
+        "requiredEffectPendingCount": 0,
+        "genericIncompleteCount": 0,
+        "requiredEffectVerifiedCount": 2,
+        "requiredEffectFailedCount": 0,
+        "sourceUnresolvedCount": 0
+      },
+      "supportedFindings": 0,
+      "artifactCount": 89,
+      "allArtifactsVerified": true,
+      "D004Disabled": true
+    }
+  ],
+  "provenance": [
+    {
+      "directory": "data/r1-product/2026-10-09T10-44-06-535Z",
+      "identity": {
+        "sourceSha": "26bd797b7075dc3589f3a648b2aa124f1a34d263",
+        "diff": "",
+        "provider": "local-fixed-partial-only",
+        "realCalls": 0
+      }
+    },
+    {
+      "directory": "data/r1-product/2026-10-09T10-50-44-484Z",
+      "identity": {
+        "sourceSha": "575bfbcbb1c4593d27d4b2d7723d0927ccb90147",
+        "diff": "diff --git a/scripts/r1-product/evaluate.ts b/scripts/r1-product/evaluate.ts\nindex fd454f0..cd348d5 100644\n--- a/scripts/r1-product/evaluate.ts\n+++ b/scripts/r1-product/evaluate.ts\n@@ -10,6 +10,7 @@ export function evaluateProduct(report: any, scenario: string, readable: Readonl\n     'boundary-input': 1,\n     refresh: 3,\n     'view-context': 3,\n+    'view-context-healthy':3,\n     'return-start': 2,\n     'three-step-defect': 3,\n     'three-step-healthy': 3,\n@@ -76,6 +77,7 @@ export function evaluateProduct(report: any, scenario: string, readable: Readonl\n     new Set(exp?.visitedStates.map((s: string) => JSON.parse(s)[1])).size < 2\n   )\n     issues.push('new-document-rebinding')\n+  if(scenario==='view-context-healthy'&&checks?.requiredEffectVerifiedCount!==2)issues.push('healthy-view-recheck')\n   if (scenario === 'recovery' && checks?.requiredEffectPendingCount !== 1)\n     issues.push('original-unresolved-effect-lost')\n   if (partial && !exp?.handoffs.length) issues.push('missing-handoff')\ndiff --git a/scripts/r1-product/fixtures.ts b/scripts/r1-product/fixtures.ts\nindex 12c2dce..16265ba 100644\n--- a/scripts/r1-product/fixtures.ts\n+++ b/scripts/r1-product/fixtures.ts\n@@ -7,7 +7,8 @@ export const fixtures = {\n     .replace('>Next</button>', '>Scrollable action name</button>'),\n   'three-step-defect': sequence('Wrong'),\n   'three-step-healthy': sequence('Ready'),\n-  'view-context': `<p>Synchronously after clicking \"Read panel\", show text \"Ready\".</p><button onclick=\"document.querySelector('#result').textContent=document.querySelector('#view').getAttribute('aria-pressed')==='true'?'Wrong':'Ready'\">Read panel</button><button id=\"view\" aria-pressed=\"false\" onclick=\"this.setAttribute('aria-pressed','true');this.disabled=true\">Switch public view</button><section id=\"result\" role=\"region\"></section>`,\n+  'view-context': `<p>Synchronously after clicking \"Read panel\", show text \"Ready\".</p><button onclick=\"document.querySelector('#result').textContent=document.querySelector('#view').getAttribute('aria-pressed')==='true'?'Wrong':'Ready'\">Read panel</button><button id=\"view\" aria-pressed=\"false\" onclick=\"this.setAttribute('aria-pressed','true');this.disabled=true;document.querySelector('#result').textContent=''\">Switch public view</button><section id=\"result\" role=\"region\"></section>`,\n+  'view-context-healthy': `<p>Synchronously after clicking \"Read panel\", show text \"Ready\".</p><button onclick=\"document.querySelector('#result').textContent=document.querySelector('#view').getAttribute('aria-pressed')==='true'?'Ready':'Ready'\">Read panel</button><button id=\"view\" aria-pressed=\"false\" onclick=\"this.setAttribute('aria-pressed','true');this.disabled=true;document.querySelector('#result').textContent=''\">Switch public view</button><section id=\"result\" role=\"region\"></section>`,\n   'state-cycle': `<button id=\"switch\" aria-pressed=\"false\" onclick=\"this.setAttribute('aria-pressed',this.getAttribute('aria-pressed')==='true'?'false':'true');document.querySelector('#state').textContent=this.getAttribute('aria-pressed')\">Toggle view</button><p id=\"state\">false</p>`,\n   fairness: `<p>Synchronously after clicking \"Primary\", show text \"Ready\".</p><p>Synchronously after clicking \"Secondary\", show text \"Ready\".</p><p>Synchronously after clicking \"Quiet control\", show text \"Ready\".</p><button onclick=\"document.querySelector('#result').textContent='Wrong'\">Primary</button><button onclick=\"document.querySelector('#result').textContent='Ready'\">Secondary</button><button onclick=\"document.querySelector('#result').textContent='Unexpected'\">Quiet control</button><section id=\"result\" role=\"region\"></section>`,\n   'repeat-defect': `<p>Synchronously after clicking \"Switch view\", show text \"Ready\".</p><button aria-pressed=\"false\" onclick=\"this.setAttribute('aria-pressed',this.getAttribute('aria-pressed')==='true'?'false':'true');document.querySelector('#result').textContent=this.getAttribute('aria-pressed')==='true'?'Ready':'Wrong'\">Switch view</button><section id=\"result\" role=\"region\"></section>`,\ndiff --git a/scripts/r1-product/manifest.ts b/scripts/r1-product/manifest.ts\nindex a30e0f8..eff72f3 100644\n--- a/scripts/r1-product/manifest.ts\n+++ b/scripts/r1-product/manifest.ts\n@@ -10,7 +10,7 @@ export const CASES = [\n   ['C03', 'boundary-input'],\n   ['C04a', 'refresh'],\n   ['C04b', 'return-start'],\n-  ['C04c', 'view-context'],\n+  ['C04c', 'view-context-healthy'],\n   ['C05', 'three-step-defect'],\n   ['C06', 'three-step-healthy'],\n   ['C07', 'fairness'],\n@@ -33,7 +33,7 @@ export const LIMITS = {\n   modelMs: 15000,\n } as const\n export function goal(scenario: string) {\n-  return scenario === 'view-context'\n+  return (scenario === 'view-context'||scenario==='view-context-healthy')\n     ? 'Inspect \"Read panel\".'\n     : scenario === 'fairness'\n       ? 'Inspect \"Primary\".'\ndiff --git a/scripts/r1-product/validate.ts b/scripts/r1-product/validate.ts\nindex 13be2a1..a55f718 100644\n--- a/scripts/r1-product/validate.ts\n+++ b/scripts/r1-product/validate.ts\n@@ -169,7 +169,7 @@ try {\n           entryUrl: origin + pathFor(name),\n           exploration: { mode: 'program', jev: false },\n           ...(name === 'budget' ? { budget: { maxActions: 1 } } : {}),\n-          ...(name === 'view-context'\n+          ...((name === 'view-context'||name==='view-context-healthy')\n             ? { goal: 'Inspect \"Read panel\".' }\n             : name === 'fairness'\n               ? { goal: 'Inspect \"Primary\".' }\n@@ -250,6 +250,7 @@ try {\n       'three-step-healthy': 3,\n       'state-cycle': 2,\n       'view-context': 3,\n+      'view-context-healthy':3,\n       fairness: 3,\n       'boundary-input': 1,\n       ambiguous: 0,\n@@ -292,6 +293,7 @@ try {\n         exploration.attempts.map((a: any) => a.label),\n         ['Primary', 'Secondary', 'Quiet control'],\n       )\n+    if(name==='view-context-healthy')assert.equal(checks.requiredEffectVerifiedCount,2)\n     if (name === 'repeat-defect') assert.equal(checks.requiredEffectVerifiedCount, 1)\n     if (name === 'three-step-healthy' || name === 'menu-healthy')\n       assert.equal(checks.requiredEffectVerifiedCount, 1)\ndiff --git a/src/agent/exploration/integration/product-host.test.ts b/src/agent/exploration/integration/product-host.test.ts\nindex 8b6ed85..db1b22d 100644\n--- a/src/agent/exploration/integration/product-host.test.ts\n+++ b/src/agent/exploration/integration/product-host.test.ts\n@@ -134,3 +134,12 @@ it('a proposed action is never visited or verified until the executor returns it\n     reason: 'action-not-measured-or-refused',\n   })\n })\n+\n+\n+it('a numeric maxlength is not a supported native boundary; a text maxlength gives a concrete max+1 probe',async()=>{\n+ const raw:any=input();raw.inspectionScope.candidates.pop();raw.inspectionScope.checks.pop();raw.observation.elements.pop()\n+ raw.observation.elements[0].tag='input';raw.observation.elements[0].attributes={type:'number',maxlength:'3'}\n+ expect(await createProductHost({...policy,jev:false}).decide(raw,context())).toMatchObject({kind:'handoff',reason:'public-input-constraint-unavailable'})\n+ raw.observation.elements[0].attributes.type='text'\n+ expect(await createProductHost({...policy,jev:false}).decide(raw,context())).toMatchObject({kind:'tool',tool:'page_act',args:{type:'fill',value:'xxxx'}})\n+})\ndiff --git a/src/agent/exploration/integration/product-host.ts b/src/agent/exploration/integration/product-host.ts\nindex 2553375..ba8f207 100644\n--- a/src/agent/exploration/integration/product-host.ts\n+++ b/src/agent/exploration/integration/product-host.ts\n@@ -332,6 +332,7 @@ export function createProductHost(\n         const e = raw.observation.elements.find((e: any) => e.ref === JSON.parse(c.context).ref),\n           n = Number(e.attributes.maxlength)\n         return c.role === 'textbox' &&\n+          (e.tag==='textarea' || e.tag==='input' && ['text','search'].includes(e.attributes.type || 'text')) &&\n           e.attributes.maxlength !== undefined &&\n           Number.isInteger(n) &&\n           n >= 0 &&\ndiff --git a/src/execution/default-check-runtime.ts b/src/execution/default-check-runtime.ts\nindex 667998f..f4d5c5e 100644\n--- a/src/execution/default-check-runtime.ts\n+++ b/src/execution/default-check-runtime.ts\n@@ -460,7 +460,7 @@ export function createDefaultCheckRuntime(host: {\n     const boundary =\n       host.contract.exploration &&\n       original.action.type === 'fill' &&\n-      ['input', 'textarea'].includes(sourceInput?.tag ?? '') &&\n+      (sourceInput?.tag==='textarea' || sourceInput?.tag==='input' && ['text','search'].includes(sourceInput.attributes.type || 'text')) &&\n       sourceInput?.attributes.maxlength !== undefined &&\n       Number.isInteger(maximum) &&\n       maximum >= 0 &&\n",
+        "provider": "local-fixed-partial-only",
+        "realCalls": 0
+      }
+    }
+  ],
+  "limitations": [
+    "Not an exact-final-SHA full rerun: main suite source26bd797; late focused runtime guard and healthy-view fixture carried in recorded diff at575bfbc, committed ddf1dd9. Final source build and offline evaluator passed.",
+    "Synthetic public pages and fixed partial-only model; no real provider compatibility or Jev benefit demonstrated.",
+    "C03 native max-length receipt is not functional-effect verification; C08 scrolling unknown retained."
+  ]
+}

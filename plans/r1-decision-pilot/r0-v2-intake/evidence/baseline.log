@@ -1,0 +1,148 @@
+{
+  "output": "plans/r1-decision-pilot/r0-v2-intake/evidence/baseline",
+  "denominators": {
+    "states": 6,
+    "adviceStates": 5,
+    "multiCandidateStates": 1,
+    "discriminatingPreferenceReferences": 0,
+    "executionPathsProven": 0
+  },
+  "rows": [
+    {
+      "stateId": "V01",
+      "observed": 1,
+      "eligible": 1,
+      "choice": {
+        "kind": "advice",
+        "candidateId": "item-7dcf4768-55aa-4d44-a1a5-4b6b7bb79e3d",
+        "intent": "investigate-candidate"
+      },
+      "ties": [
+        [
+          "item-7dcf4768-55aa-4d44-a1a5-4b6b7bb79e3d"
+        ]
+      ],
+      "executionPath": "unknown",
+      "verifiedProgress": false,
+      "dryRun": "single-without-model",
+      "questions": 0,
+      "obligationRelevance": "supported-development-reference",
+      "rankingSuperiority": "unknown",
+      "completeExecutionPath": "unknown",
+      "referenceStatus": "development-only; public facts reviewed before baseline; not independent blind review"
+    },
+    {
+      "stateId": "V02",
+      "observed": 5,
+      "eligible": 0,
+      "choice": {
+        "kind": "handoff",
+        "reason": "no-selected-open-investigation"
+      },
+      "ties": [],
+      "executionPath": "unknown",
+      "verifiedProgress": false,
+      "dryRun": "handoff-without-model",
+      "questions": 0,
+      "obligationRelevance": "supported-development-reference",
+      "rankingSuperiority": "unknown",
+      "completeExecutionPath": "unknown",
+      "referenceStatus": "development-only; public facts reviewed before baseline; not independent blind review"
+    },
+    {
+      "stateId": "V03",
+      "observed": 5,
+      "eligible": 3,
+      "choice": {
+        "kind": "advice",
+        "candidateId": "item-033a20ec-9c58-488f-ac3d-bf1612519380",
+        "intent": "investigate-candidate"
+      },
+      "ties": [
+        [
+          "item-033a20ec-9c58-488f-ac3d-bf1612519380",
+          "item-3384edb5-d7a8-45b8-8a97-ddd799a291a0",
+          "item-9e4cea0f-9acc-405b-91f2-66fc75f421de"
+        ]
+      ],
+      "executionPath": "unknown",
+      "verifiedProgress": false,
+      "dryRun": "dry-run-only",
+      "questions": 7,
+      "obligationRelevance": "supported-development-reference",
+      "rankingSuperiority": "unknown",
+      "completeExecutionPath": "unknown",
+      "referenceStatus": "development-only; public facts reviewed before baseline; not independent blind review"
+    },
+    {
+      "stateId": "V04",
+      "observed": 3,
+      "eligible": 1,
+      "choice": {
+        "kind": "advice",
+        "candidateId": "item-183bce7f-e123-40f5-9922-8d5d61a99fd7",
+        "intent": "investigate-candidate"
+      },
+      "ties": [
+        [
+          "item-183bce7f-e123-40f5-9922-8d5d61a99fd7"
+        ]
+      ],
+      "executionPath": "unknown",
+      "verifiedProgress": false,
+      "dryRun": "single-without-model",
+      "questions": 0,
+      "obligationRelevance": "supported-development-reference",
+      "rankingSuperiority": "unknown",
+      "completeExecutionPath": "unknown",
+      "referenceStatus": "development-only; public facts reviewed before baseline; not independent blind review"
+    },
+    {
+      "stateId": "V05",
+      "observed": 1,
+      "eligible": 1,
+      "choice": {
+        "kind": "advice",
+        "candidateId": "item-bea1f6fc-4a89-41ee-8f3c-db991a3007d5",
+        "intent": "investigate-candidate"
+      },
+      "ties": [
+        [
+          "item-bea1f6fc-4a89-41ee-8f3c-db991a3007d5"
+        ]
+      ],
+      "executionPath": "unknown",
+      "verifiedProgress": false,
+      "dryRun": "single-without-model",
+      "questions": 0,
+      "obligationRelevance": "supported-development-reference",
+      "rankingSuperiority": "unknown",
+      "completeExecutionPath": "unknown",
+      "referenceStatus": "development-only; public facts reviewed before baseline; not independent blind review"
+    },
+    {
+      "stateId": "V06",
+      "observed": 1,
+      "eligible": 1,
+      "choice": {
+        "kind": "advice",
+        "candidateId": "item-50d6f321-8754-4b11-830e-742b27f32004",
+        "intent": "investigate-candidate"
+      },
+      "ties": [
+        [
+          "item-50d6f321-8754-4b11-830e-742b27f32004"
+        ]
+      ],
+      "executionPath": "unknown",
+      "verifiedProgress": false,
+      "dryRun": "single-without-model",
+      "questions": 0,
+      "obligationRelevance": "supported-development-reference",
+      "rankingSuperiority": "unknown",
+      "completeExecutionPath": "unknown",
+      "referenceStatus": "development-only; public facts reviewed before baseline; not independent blind review"
+    }
+  ],
+  "httpRequests": 0
+}

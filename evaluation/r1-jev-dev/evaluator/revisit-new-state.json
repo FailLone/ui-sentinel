@@ -1,0 +1,9 @@
+{
+  "schemaVersion": "r1-evaluator-case-1",
+  "scenario": "revisit-new-state",
+  "expectedStatus": "ranked",
+  "reason": "同 target 新状态可以重查；不是永久排除。",
+  "checks": [
+    "untried-in-current-state"
+  ]
+}

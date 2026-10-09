@@ -1,0 +1,86 @@
+{
+  "version": "r1-decision-pilot-labels-1",
+  "inputSha256": "8eb05f395159b054264350b4f24329f693a0e6dfd7335247f61950df5076068e",
+  "review": "development-only",
+  "reviewer": "synthetic-wiring-fixture",
+  "frozenAt": "2026-10-08T00:00:00Z",
+  "cases": [
+    {
+      "id": "synthetic_multi",
+      "historicalChoice": {
+        "kind": "unmapped"
+      },
+      "acceptableChoices": [
+        {
+          "kind": "candidate",
+          "candidateId": "c0",
+          "action": "inspect"
+        },
+        {
+          "kind": "candidate",
+          "candidateId": "c1",
+          "action": "inspect"
+        }
+      ],
+      "advancesObligation": [
+        {
+          "candidateId": "c0",
+          "action": "inspect"
+        },
+        {
+          "candidateId": "c1",
+          "action": "inspect"
+        }
+      ],
+      "unjustifiedRepeat": [],
+      "missingPrerequisite": false,
+      "handoffRequired": false,
+      "acceptedHandoffReasons": [],
+      "rationale": "合成开发标签，仅检查接线；无历史 Agent 或模型质量含义。"
+    },
+    {
+      "id": "synthetic_single",
+      "historicalChoice": {
+        "kind": "unmapped"
+      },
+      "acceptableChoices": [
+        {
+          "kind": "candidate",
+          "candidateId": "c0",
+          "action": "inspect"
+        }
+      ],
+      "advancesObligation": [
+        {
+          "candidateId": "c0",
+          "action": "inspect"
+        }
+      ],
+      "unjustifiedRepeat": [],
+      "missingPrerequisite": false,
+      "handoffRequired": false,
+      "acceptedHandoffReasons": [],
+      "rationale": "合成开发标签，仅检查接线；无历史 Agent 或模型质量含义。"
+    },
+    {
+      "id": "synthetic_missing",
+      "historicalChoice": {
+        "kind": "unmapped"
+      },
+      "acceptableChoices": [
+        {
+          "kind": "handoff",
+          "reason": "insufficient-information"
+        }
+      ],
+      "advancesObligation": [],
+      "unjustifiedRepeat": [],
+      "missingPrerequisite": true,
+      "handoffRequired": true,
+      "acceptedHandoffReasons": [
+        "insufficient-information"
+      ],
+      "rationale": "合成开发标签，仅检查接线；无历史 Agent 或模型质量含义。"
+    }
+  ]
+}

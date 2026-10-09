@@ -1,0 +1,1270 @@
+{
+  "checkedAt": "2026-10-09T14:44:24.531469+00:00",
+  "sourceSha": "e3de7cb890803c69e89e2ef8b91986e392901fc4",
+  "manifestHash": "e6b587f476d4a8ea92a0cf72b4aea1bbdb471979a1ba325d2099c4cefec7fc85",
+  "fullRealAcceptancePassed": true,
+  "rows": [
+    {
+      "row": "C10-1",
+      "scenario": "ambiguous",
+      "result": "passed",
+      "actual": {
+        "row": "C10-1",
+        "runId": "run-1e9c1748-d356-4338-b57a-1beab8be6953",
+        "status": "blocked",
+        "actions": 0,
+        "modelRequests": 6,
+        "jevRequests": 0,
+        "evaluation": {
+          "version": "r1-product-evaluation-1",
+          "passed": true,
+          "integrity": true,
+          "falseCovered": false,
+          "issues": [],
+          "scope": "Synthetic public fixtures; no Jev quality or statistical benefit inference"
+        }
+      },
+      "elapsedMs": 144489,
+      "checks": {
+        "effectUnspecifiedCount": 2,
+        "requiredEffectPendingCount": 0,
+        "genericIncompleteCount": 2,
+        "requiredEffectVerifiedCount": 0,
+        "requiredEffectFailedCount": 0,
+        "sourceUnresolvedCount": 0
+      },
+      "report": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C10-1/report.json",
+        "bytes": 390883,
+        "sha256": "0ebc1f1f4c3573b6b57b3242b943ba4495d285ab71c3dfd4d6bf49a89be978d9"
+      },
+      "evidenceIndex": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C10-1/evidence-index.json",
+        "bytes": 3935,
+        "sha256": "4eebe7039aaaadacea9a275d81c958a43ef139d89111c027eaf4406fcd3e782f"
+      },
+      "readableArtifactsVerified": 24
+    },
+    {
+      "row": "C10-2",
+      "scenario": "ambiguous",
+      "result": "passed",
+      "actual": {
+        "row": "C10-2",
+        "runId": "run-d911ed5e-af91-4a1a-9fb6-530fc266457a",
+        "status": "blocked",
+        "actions": 0,
+        "modelRequests": 6,
+        "jevRequests": 0,
+        "evaluation": {
+          "version": "r1-product-evaluation-1",
+          "passed": true,
+          "integrity": true,
+          "falseCovered": false,
+          "issues": [],
+          "scope": "Synthetic public fixtures; no Jev quality or statistical benefit inference"
+        }
+      },
+      "elapsedMs": 81732,
+      "checks": {
+        "effectUnspecifiedCount": 2,
+        "requiredEffectPendingCount": 0,
+        "genericIncompleteCount": 2,
+        "requiredEffectVerifiedCount": 0,
+        "requiredEffectFailedCount": 0,
+        "sourceUnresolvedCount": 0
+      },
+      "report": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C10-2/report.json",
+        "bytes": 519535,
+        "sha256": "b1d97692fc9c42b88e1fc17fb5647b051599552090d604ce69d852003dcca86f"
+      },
+      "evidenceIndex": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C10-2/evidence-index.json",
+        "bytes": 5901,
+        "sha256": "ad760301932a49b07f85cca58dd890ccc42d2fe1c8343a882e1efd9d864b330b"
+      },
+      "readableArtifactsVerified": 36
+    },
+    {
+      "row": "C01-1",
+      "scenario": "menu-healthy",
+      "result": "passed",
+      "actual": {
+        "row": "C01-1",
+        "runId": "run-8a0884ac-72d8-4a04-bbd8-0bda115a9832",
+        "status": "completed",
+        "actions": 1,
+        "modelRequests": 0,
+        "jevRequests": 0,
+        "evaluation": {
+          "version": "r1-product-evaluation-1",
+          "passed": true,
+          "integrity": true,
+          "falseCovered": false,
+          "issues": [],
+          "scope": "Synthetic public fixtures; no Jev quality or statistical benefit inference"
+        }
+      },
+      "elapsedMs": 2046,
+      "checks": {
+        "effectUnspecifiedCount": 0,
+        "requiredEffectPendingCount": 0,
+        "genericIncompleteCount": 0,
+        "requiredEffectVerifiedCount": 1,
+        "requiredEffectFailedCount": 0,
+        "sourceUnresolvedCount": 0
+      },
+      "report": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C01-1/report.json",
+        "bytes": 358857,
+        "sha256": "8c80dbd002b8e5c593836ef4973f7925f6d3c9d37e4cf22b42324a3a6db13174"
+      },
+      "evidenceIndex": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C01-1/evidence-index.json",
+        "bytes": 6066,
+        "sha256": "67cbc926d4241bf6f46c53224484308d1ba1e6d0fe792cf1e01b6e2427fb01e2"
+      },
+      "readableArtifactsVerified": 37
+    },
+    {
+      "row": "C01-2",
+      "scenario": "menu-healthy",
+      "result": "passed",
+      "actual": {
+        "row": "C01-2",
+        "runId": "run-5c9b2849-d581-4403-a7dc-a53e731d39e8",
+        "status": "completed",
+        "actions": 1,
+        "modelRequests": 0,
+        "jevRequests": 0,
+        "evaluation": {
+          "version": "r1-product-evaluation-1",
+          "passed": true,
+          "integrity": true,
+          "falseCovered": false,
+          "issues": [],
+          "scope": "Synthetic public fixtures; no Jev quality or statistical benefit inference"
+        }
+      },
+      "elapsedMs": 2073,
+      "checks": {
+        "effectUnspecifiedCount": 0,
+        "requiredEffectPendingCount": 0,
+        "genericIncompleteCount": 0,
+        "requiredEffectVerifiedCount": 1,
+        "requiredEffectFailedCount": 0,
+        "sourceUnresolvedCount": 0
+      },
+      "report": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C01-2/report.json",
+        "bytes": 358739,
+        "sha256": "68677a740c6688bf6ba1b4dd4a9d97d08505679e38b91404bb7f472fb8eb0f72"
+      },
+      "evidenceIndex": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C01-2/evidence-index.json",
+        "bytes": 6066,
+        "sha256": "7246b1e8fb4f0109ed72499efbb0aed8ffc44c07c6bc2565209600461012145e"
+      },
+      "readableArtifactsVerified": 37
+    },
+    {
+      "row": "C02-1",
+      "scenario": "tabs-defect",
+      "result": "passed",
+      "actual": {
+        "row": "C02-1",
+        "runId": "run-8f579665-5852-4804-9aff-7cf80cf1e1e5",
+        "status": "completed",
+        "actions": 1,
+        "modelRequests": 0,
+        "jevRequests": 0,
+        "evaluation": {
+          "version": "r1-product-evaluation-1",
+          "passed": true,
+          "integrity": true,
+          "falseCovered": false,
+          "issues": [],
+          "scope": "Synthetic public fixtures; no Jev quality or statistical benefit inference"
+        }
+      },
+      "elapsedMs": 2033,
+      "checks": {
+        "effectUnspecifiedCount": 0,
+        "requiredEffectPendingCount": 0,
+        "genericIncompleteCount": 0,
+        "requiredEffectVerifiedCount": 0,
+        "requiredEffectFailedCount": 1,
+        "sourceUnresolvedCount": 0
+      },
+      "report": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C02-1/report.json",
+        "bytes": 363032,
+        "sha256": "544af6a6995a6af434f1927908830e78f73e7c9ad5b049ecb58eaffa09c8000d"
+      },
+      "evidenceIndex": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C02-1/evidence-index.json",
+        "bytes": 6066,
+        "sha256": "c6d468dbd2abf925b5f4b6c9c2caa68d4c9590f879c2301ddae1b51789a0ddf8"
+      },
+      "readableArtifactsVerified": 37
+    },
+    {
+      "row": "C02-2",
+      "scenario": "tabs-defect",
+      "result": "passed",
+      "actual": {
+        "row": "C02-2",
+        "runId": "run-c3428648-3df9-4fc0-a4f6-a161911efb04",
+        "status": "completed",
+        "actions": 1,
+        "modelRequests": 0,
+        "jevRequests": 0,
+        "evaluation": {
+          "version": "r1-product-evaluation-1",
+          "passed": true,
+          "integrity": true,
+          "falseCovered": false,
+          "issues": [],
+          "scope": "Synthetic public fixtures; no Jev quality or statistical benefit inference"
+        }
+      },
+      "elapsedMs": 1991,
+      "checks": {
+        "effectUnspecifiedCount": 0,
+        "requiredEffectPendingCount": 0,
+        "genericIncompleteCount": 0,
+        "requiredEffectVerifiedCount": 0,
+        "requiredEffectFailedCount": 1,
+        "sourceUnresolvedCount": 0
+      },
+      "report": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C02-2/report.json",
+        "bytes": 363043,
+        "sha256": "163437a99198d942780c3a0331771775262e9ab9d48a215c50d347fea858de42"
+      },
+      "evidenceIndex": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C02-2/evidence-index.json",
+        "bytes": 6066,
+        "sha256": "071c6e09246a1061669beb496999e37b5e771139c4944e13a4d0cdcd1f5aca35"
+      },
+      "readableArtifactsVerified": 37
+    },
+    {
+      "row": "C03-1",
+      "scenario": "boundary-input",
+      "result": "passed",
+      "actual": {
+        "row": "C03-1",
+        "runId": "run-bed500d4-0152-42fe-a2ed-b7af5f4fc047",
+        "status": "completed",
+        "actions": 1,
+        "modelRequests": 0,
+        "jevRequests": 0,
+        "evaluation": {
+          "version": "r1-product-evaluation-1",
+          "passed": true,
+          "integrity": true,
+          "falseCovered": false,
+          "issues": [],
+          "scope": "Synthetic public fixtures; no Jev quality or statistical benefit inference"
+        }
+      },
+      "elapsedMs": 1923,
+      "checks": {
+        "effectUnspecifiedCount": 1,
+        "requiredEffectPendingCount": 0,
+        "genericIncompleteCount": 0,
+        "requiredEffectVerifiedCount": 0,
+        "requiredEffectFailedCount": 0,
+        "sourceUnresolvedCount": 0
+      },
+      "report": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C03-1/report.json",
+        "bytes": 298028,
+        "sha256": "369086dd9bbf0c4352a7cf5dbb7d6ee5b555cd8e59c75d5a78215fbea6731d88"
+      },
+      "evidenceIndex": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C03-1/evidence-index.json",
+        "bytes": 5411,
+        "sha256": "b4a679dcbaf11f08cd789f69b45a02168ccc407b76bbcc3eee69a816ced036ab"
+      },
+      "readableArtifactsVerified": 33
+    },
+    {
+      "row": "C03-2",
+      "scenario": "boundary-input",
+      "result": "passed",
+      "actual": {
+        "row": "C03-2",
+        "runId": "run-d9e998db-85bd-456c-b01c-e2e90df7a037",
+        "status": "completed",
+        "actions": 1,
+        "modelRequests": 0,
+        "jevRequests": 0,
+        "evaluation": {
+          "version": "r1-product-evaluation-1",
+          "passed": true,
+          "integrity": true,
+          "falseCovered": false,
+          "issues": [],
+          "scope": "Synthetic public fixtures; no Jev quality or statistical benefit inference"
+        }
+      },
+      "elapsedMs": 1930,
+      "checks": {
+        "effectUnspecifiedCount": 1,
+        "requiredEffectPendingCount": 0,
+        "genericIncompleteCount": 0,
+        "requiredEffectVerifiedCount": 0,
+        "requiredEffectFailedCount": 0,
+        "sourceUnresolvedCount": 0
+      },
+      "report": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C03-2/report.json",
+        "bytes": 298067,
+        "sha256": "1eed3bf50c9b76c1afd8dacd5f58ee24bd6fd8fc4a86e2ed644273aeb30ece84"
+      },
+      "evidenceIndex": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C03-2/evidence-index.json",
+        "bytes": 5411,
+        "sha256": "1b0049d512812997a64303875d4c28c8e94b542906790645679f01f9f2ab5505"
+      },
+      "readableArtifactsVerified": 33
+    },
+    {
+      "row": "C04a-1",
+      "scenario": "refresh",
+      "result": "passed",
+      "actual": {
+        "row": "C04a-1",
+        "runId": "run-eaf1937a-54b8-4f55-a0f6-0c7918f59e74",
+        "status": "completed",
+        "actions": 3,
+        "modelRequests": 0,
+        "jevRequests": 0,
+        "evaluation": {
+          "version": "r1-product-evaluation-1",
+          "passed": true,
+          "integrity": true,
+          "falseCovered": false,
+          "issues": [],
+          "scope": "Synthetic public fixtures; no Jev quality or statistical benefit inference"
+        }
+      },
+      "elapsedMs": 3731,
+      "checks": {
+        "effectUnspecifiedCount": 2,
+        "requiredEffectPendingCount": 0,
+        "genericIncompleteCount": 0,
+        "requiredEffectVerifiedCount": 0,
+        "requiredEffectFailedCount": 0,
+        "sourceUnresolvedCount": 0
+      },
+      "report": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C04a-1/report.json",
+        "bytes": 733475,
+        "sha256": "5be2b38966985592b788ad8b4d473a7124cfc3a1694e0e1018de57eea45b73d6"
+      },
+      "evidenceIndex": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C04a-1/evidence-index.json",
+        "bytes": 11449,
+        "sha256": "420ff47426216a930299a4c7564e039e6781c534f7d8ad41c8da21657470e51b"
+      },
+      "readableArtifactsVerified": 70
+    },
+    {
+      "row": "C04a-2",
+      "scenario": "refresh",
+      "result": "passed",
+      "actual": {
+        "row": "C04a-2",
+        "runId": "run-a85b487a-37f0-499a-bca7-181795973315",
+        "status": "completed",
+        "actions": 3,
+        "modelRequests": 0,
+        "jevRequests": 0,
+        "evaluation": {
+          "version": "r1-product-evaluation-1",
+          "passed": true,
+          "integrity": true,
+          "falseCovered": false,
+          "issues": [],
+          "scope": "Synthetic public fixtures; no Jev quality or statistical benefit inference"
+        }
+      },
+      "elapsedMs": 3729,
+      "checks": {
+        "effectUnspecifiedCount": 2,
+        "requiredEffectPendingCount": 0,
+        "genericIncompleteCount": 0,
+        "requiredEffectVerifiedCount": 0,
+        "requiredEffectFailedCount": 0,
+        "sourceUnresolvedCount": 0
+      },
+      "report": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C04a-2/report.json",
+        "bytes": 733341,
+        "sha256": "679da5847e0e1d4d88c5da220bf5baa742842128d00950333e7f57abcf992df9"
+      },
+      "evidenceIndex": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C04a-2/evidence-index.json",
+        "bytes": 11449,
+        "sha256": "4fcc1c0ffcd708ef2795288e4743b32c92d45309f824195d1ad02441433bdd1c"
+      },
+      "readableArtifactsVerified": 70
+    },
+    {
+      "row": "C04b-1",
+      "scenario": "return-start",
+      "result": "passed",
+      "actual": {
+        "row": "C04b-1",
+        "runId": "run-e2995b64-2b13-4011-a79d-90a6e0f4a7d1",
+        "status": "completed",
+        "actions": 2,
+        "modelRequests": 0,
+        "jevRequests": 0,
+        "evaluation": {
+          "version": "r1-product-evaluation-1",
+          "passed": true,
+          "integrity": true,
+          "falseCovered": false,
+          "issues": [],
+          "scope": "Synthetic public fixtures; no Jev quality or statistical benefit inference"
+        }
+      },
+      "elapsedMs": 1001,
+      "checks": {
+        "effectUnspecifiedCount": 0,
+        "requiredEffectPendingCount": 0,
+        "genericIncompleteCount": 0,
+        "requiredEffectVerifiedCount": 0,
+        "requiredEffectFailedCount": 0,
+        "sourceUnresolvedCount": 0
+      },
+      "report": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C04b-1/report.json",
+        "bytes": 370703,
+        "sha256": "5a0e34da57d3cb9453e8305f2aab1cf8b55ef6ba4bffa02baf1eafaf52d36c31"
+      },
+      "evidenceIndex": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C04b-1/evidence-index.json",
+        "bytes": 4583,
+        "sha256": "00b8715aaced3105e09cb92178faf092092d54d557b602bae36cd4bb14c9c6ce"
+      },
+      "readableArtifactsVerified": 28
+    },
+    {
+      "row": "C04b-2",
+      "scenario": "return-start",
+      "result": "passed",
+      "actual": {
+        "row": "C04b-2",
+        "runId": "run-bc3e50e1-891c-4228-bfd4-6202573c69d2",
+        "status": "completed",
+        "actions": 2,
+        "modelRequests": 0,
+        "jevRequests": 0,
+        "evaluation": {
+          "version": "r1-product-evaluation-1",
+          "passed": true,
+          "integrity": true,
+          "falseCovered": false,
+          "issues": [],
+          "scope": "Synthetic public fixtures; no Jev quality or statistical benefit inference"
+        }
+      },
+      "elapsedMs": 1001,
+      "checks": {
+        "effectUnspecifiedCount": 0,
+        "requiredEffectPendingCount": 0,
+        "genericIncompleteCount": 0,
+        "requiredEffectVerifiedCount": 0,
+        "requiredEffectFailedCount": 0,
+        "sourceUnresolvedCount": 0
+      },
+      "report": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C04b-2/report.json",
+        "bytes": 370766,
+        "sha256": "9cd32b4d2d56b11d2a12c07f20002982c650fbe9ae451de60c25ad945fa977ce"
+      },
+      "evidenceIndex": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C04b-2/evidence-index.json",
+        "bytes": 4583,
+        "sha256": "70a112827cbc12d4c8ff35d500132887f403fdc46ac9171a63a5ed4def4b2d3c"
+      },
+      "readableArtifactsVerified": 28
+    },
+    {
+      "row": "C04c-1",
+      "scenario": "view-context-healthy",
+      "result": "passed",
+      "actual": {
+        "row": "C04c-1",
+        "runId": "run-ca66b860-44ef-4427-bce5-c7893c8ea4eb",
+        "status": "completed",
+        "actions": 3,
+        "modelRequests": 0,
+        "jevRequests": 0,
+        "evaluation": {
+          "version": "r1-product-evaluation-1",
+          "passed": true,
+          "integrity": true,
+          "falseCovered": false,
+          "issues": [],
+          "scope": "Synthetic public fixtures; no Jev quality or statistical benefit inference"
+        }
+      },
+      "elapsedMs": 5133,
+      "checks": {
+        "effectUnspecifiedCount": 1,
+        "requiredEffectPendingCount": 0,
+        "genericIncompleteCount": 0,
+        "requiredEffectVerifiedCount": 2,
+        "requiredEffectFailedCount": 0,
+        "sourceUnresolvedCount": 0
+      },
+      "report": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C04c-1/report.json",
+        "bytes": 1031351,
+        "sha256": "394a2c3588696ecf33d6eab446c7094305850b89a4a9c6b6760bb36057ce5099"
+      },
+      "evidenceIndex": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C04c-1/evidence-index.json",
+        "bytes": 14588,
+        "sha256": "426a6e93f427f755d32e474ab3790336896782948a7d255c1d344686853fd74f"
+      },
+      "readableArtifactsVerified": 89
+    },
+    {
+      "row": "C04c-2",
+      "scenario": "view-context-healthy",
+      "result": "passed",
+      "actual": {
+        "row": "C04c-2",
+        "runId": "run-85444527-bb84-4c62-8d44-e45c2834a3bc",
+        "status": "completed",
+        "actions": 3,
+        "modelRequests": 0,
+        "jevRequests": 0,
+        "evaluation": {
+          "version": "r1-product-evaluation-1",
+          "passed": true,
+          "integrity": true,
+          "falseCovered": false,
+          "issues": [],
+          "scope": "Synthetic public fixtures; no Jev quality or statistical benefit inference"
+        }
+      },
+      "elapsedMs": 5071,
+      "checks": {
+        "effectUnspecifiedCount": 1,
+        "requiredEffectPendingCount": 0,
+        "genericIncompleteCount": 0,
+        "requiredEffectVerifiedCount": 2,
+        "requiredEffectFailedCount": 0,
+        "sourceUnresolvedCount": 0
+      },
+      "report": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C04c-2/report.json",
+        "bytes": 1031158,
+        "sha256": "759b3ea4f0bd4c3c9679cca02d61a826e5ef1c3523f44b611e0c67259ba9912d"
+      },
+      "evidenceIndex": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C04c-2/evidence-index.json",
+        "bytes": 14588,
+        "sha256": "6d7b4735c9292869fada9d32cc93947fc8481960ff7cbafef4f7a3da6d380570"
+      },
+      "readableArtifactsVerified": 89
+    },
+    {
+      "row": "C05-1",
+      "scenario": "three-step-defect",
+      "result": "passed",
+      "actual": {
+        "row": "C05-1",
+        "runId": "run-66e5bd46-d837-42be-8426-d11f18098ee9",
+        "status": "completed",
+        "actions": 3,
+        "modelRequests": 0,
+        "jevRequests": 0,
+        "evaluation": {
+          "version": "r1-product-evaluation-1",
+          "passed": true,
+          "integrity": true,
+          "falseCovered": false,
+          "issues": [],
+          "scope": "Synthetic public fixtures; no Jev quality or statistical benefit inference"
+        }
+      },
+      "elapsedMs": 5221,
+      "checks": {
+        "effectUnspecifiedCount": 2,
+        "requiredEffectPendingCount": 0,
+        "genericIncompleteCount": 0,
+        "requiredEffectVerifiedCount": 0,
+        "requiredEffectFailedCount": 1,
+        "sourceUnresolvedCount": 0
+      },
+      "report": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C05-1/report.json",
+        "bytes": 1198757,
+        "sha256": "2c2d5439458c1b0a4828d094e3326c7928d47d884dd2f71883fd15995ec06686"
+      },
+      "evidenceIndex": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C05-1/evidence-index.json",
+        "bytes": 15572,
+        "sha256": "6616157670e7b59588f8d6049552036efd9b44c47b1feaf779dec7ab78ecc858"
+      },
+      "readableArtifactsVerified": 95
+    },
+    {
+      "row": "C05-2",
+      "scenario": "three-step-defect",
+      "result": "passed",
+      "actual": {
+        "row": "C05-2",
+        "runId": "run-256d9b51-31aa-4566-bed7-a99d40bcf2d9",
+        "status": "completed",
+        "actions": 3,
+        "modelRequests": 0,
+        "jevRequests": 0,
+        "evaluation": {
+          "version": "r1-product-evaluation-1",
+          "passed": true,
+          "integrity": true,
+          "falseCovered": false,
+          "issues": [],
+          "scope": "Synthetic public fixtures; no Jev quality or statistical benefit inference"
+        }
+      },
+      "elapsedMs": 5321,
+      "checks": {
+        "effectUnspecifiedCount": 2,
+        "requiredEffectPendingCount": 0,
+        "genericIncompleteCount": 0,
+        "requiredEffectVerifiedCount": 0,
+        "requiredEffectFailedCount": 1,
+        "sourceUnresolvedCount": 0
+      },
+      "report": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C05-2/report.json",
+        "bytes": 1198569,
+        "sha256": "db4d16a6534e134cf12088d51954958fed898196eaad3b7305f3a3d335aaf52d"
+      },
+      "evidenceIndex": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C05-2/evidence-index.json",
+        "bytes": 15572,
+        "sha256": "7fc5fcad8ba97a6dff58c3a2609f433b1273b4a36b5c3d9bbc12c2b9b693480a"
+      },
+      "readableArtifactsVerified": 95
+    },
+    {
+      "row": "C06-1",
+      "scenario": "three-step-healthy",
+      "result": "passed",
+      "actual": {
+        "row": "C06-1",
+        "runId": "run-f1f2a78e-0dcf-474e-b922-1943a7b58255",
+        "status": "completed",
+        "actions": 3,
+        "modelRequests": 0,
+        "jevRequests": 0,
+        "evaluation": {
+          "version": "r1-product-evaluation-1",
+          "passed": true,
+          "integrity": true,
+          "falseCovered": false,
+          "issues": [],
+          "scope": "Synthetic public fixtures; no Jev quality or statistical benefit inference"
+        }
+      },
+      "elapsedMs": 5280,
+      "checks": {
+        "effectUnspecifiedCount": 2,
+        "requiredEffectPendingCount": 0,
+        "genericIncompleteCount": 0,
+        "requiredEffectVerifiedCount": 1,
+        "requiredEffectFailedCount": 0,
+        "sourceUnresolvedCount": 0
+      },
+      "report": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C06-1/report.json",
+        "bytes": 1194974,
+        "sha256": "f5651ead72e975fae394f76aa0bbf0eac2bd3fbc8e5c11ff8167496f24260fa2"
+      },
+      "evidenceIndex": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C06-1/evidence-index.json",
+        "bytes": 15572,
+        "sha256": "031554ed4cbbf1c579f5494a19ad7df988b0501434d41653522ec586c48aa8b9"
+      },
+      "readableArtifactsVerified": 95
+    },
+    {
+      "row": "C06-2",
+      "scenario": "three-step-healthy",
+      "result": "passed",
+      "actual": {
+        "row": "C06-2",
+        "runId": "run-5b59dada-e3f8-4147-8f64-4df50d880ddc",
+        "status": "completed",
+        "actions": 3,
+        "modelRequests": 0,
+        "jevRequests": 0,
+        "evaluation": {
+          "version": "r1-product-evaluation-1",
+          "passed": true,
+          "integrity": true,
+          "falseCovered": false,
+          "issues": [],
+          "scope": "Synthetic public fixtures; no Jev quality or statistical benefit inference"
+        }
+      },
+      "elapsedMs": 5259,
+      "checks": {
+        "effectUnspecifiedCount": 2,
+        "requiredEffectPendingCount": 0,
+        "genericIncompleteCount": 0,
+        "requiredEffectVerifiedCount": 1,
+        "requiredEffectFailedCount": 0,
+        "sourceUnresolvedCount": 0
+      },
+      "report": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C06-2/report.json",
+        "bytes": 1195273,
+        "sha256": "bdd71b2403c0381d888ba0000791be2c704104612f6a901d7edef0309ce9ffa8"
+      },
+      "evidenceIndex": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C06-2/evidence-index.json",
+        "bytes": 15572,
+        "sha256": "edc0d85eb6ea2c3bf6c3d43066efdc5ae712759985938bde69b846a6e6030ee9"
+      },
+      "readableArtifactsVerified": 95
+    },
+    {
+      "row": "C07-1",
+      "scenario": "fairness",
+      "result": "passed",
+      "actual": {
+        "row": "C07-1",
+        "runId": "run-2bd07885-03cb-43ef-b6a4-c303969939ae",
+        "status": "completed",
+        "actions": 3,
+        "modelRequests": 0,
+        "jevRequests": 0,
+        "evaluation": {
+          "version": "r1-product-evaluation-1",
+          "passed": true,
+          "integrity": true,
+          "falseCovered": false,
+          "issues": [],
+          "scope": "Synthetic public fixtures; no Jev quality or statistical benefit inference"
+        }
+      },
+      "elapsedMs": 5228,
+      "checks": {
+        "effectUnspecifiedCount": 0,
+        "requiredEffectPendingCount": 0,
+        "genericIncompleteCount": 0,
+        "requiredEffectVerifiedCount": 1,
+        "requiredEffectFailedCount": 2,
+        "sourceUnresolvedCount": 0
+      },
+      "report": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C07-1/report.json",
+        "bytes": 1051744,
+        "sha256": "39d8e32a73f6473cf99a33930dd468ff286ff06a0dd735dee49a77662c52dfb0"
+      },
+      "evidenceIndex": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C07-1/evidence-index.json",
+        "bytes": 13767,
+        "sha256": "85b12936969834c282e844f81d2aa8b7c413f7fc5da685898808f63099f44eac"
+      },
+      "readableArtifactsVerified": 84
+    },
+    {
+      "row": "C07-2",
+      "scenario": "fairness",
+      "result": "passed",
+      "actual": {
+        "row": "C07-2",
+        "runId": "run-a94cd93f-c74c-450e-9ea3-28ee54d64cce",
+        "status": "completed",
+        "actions": 3,
+        "modelRequests": 0,
+        "jevRequests": 0,
+        "evaluation": {
+          "version": "r1-product-evaluation-1",
+          "passed": true,
+          "integrity": true,
+          "falseCovered": false,
+          "issues": [],
+          "scope": "Synthetic public fixtures; no Jev quality or statistical benefit inference"
+        }
+      },
+      "elapsedMs": 5169,
+      "checks": {
+        "effectUnspecifiedCount": 0,
+        "requiredEffectPendingCount": 0,
+        "genericIncompleteCount": 0,
+        "requiredEffectVerifiedCount": 1,
+        "requiredEffectFailedCount": 2,
+        "sourceUnresolvedCount": 0
+      },
+      "report": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C07-2/report.json",
+        "bytes": 1051265,
+        "sha256": "d0b9337f615c947a937993254d42815f46bbdae1053d31fc27ad5e700cc748f0"
+      },
+      "evidenceIndex": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C07-2/evidence-index.json",
+        "bytes": 13767,
+        "sha256": "e73c00a21a5964566239f3d23dfc29253e55d95222a8091eb68421f76bc022a8"
+      },
+      "readableArtifactsVerified": 84
+    },
+    {
+      "row": "C08-1",
+      "scenario": "layout-pair",
+      "result": "passed",
+      "actual": {
+        "row": "C08-1",
+        "runId": "run-aae37c65-57e6-4b6b-bccc-a9bcd4a5f2b6",
+        "status": "completed",
+        "actions": 2,
+        "modelRequests": 0,
+        "jevRequests": 0,
+        "evaluation": {
+          "version": "r1-product-evaluation-1",
+          "passed": true,
+          "integrity": true,
+          "falseCovered": false,
+          "issues": [],
+          "scope": "Synthetic public fixtures; no Jev quality or statistical benefit inference"
+        }
+      },
+      "elapsedMs": 3871,
+      "checks": {
+        "effectUnspecifiedCount": 2,
+        "requiredEffectPendingCount": 0,
+        "genericIncompleteCount": 0,
+        "requiredEffectVerifiedCount": 0,
+        "requiredEffectFailedCount": 0,
+        "sourceUnresolvedCount": 0
+      },
+      "report": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C08-1/report.json",
+        "bytes": 611450,
+        "sha256": "0a331e51fe70605874e7df0ec9461204dc6fb94ad7cf78501541e65d6f357432"
+      },
+      "evidenceIndex": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C08-1/evidence-index.json",
+        "bytes": 9490,
+        "sha256": "a14dd76a9580e11337e20a326df630d368a80d06ea43957a29eeda2f3927c663"
+      },
+      "readableArtifactsVerified": 58
+    },
+    {
+      "row": "C08-2",
+      "scenario": "layout-pair",
+      "result": "passed",
+      "actual": {
+        "row": "C08-2",
+        "runId": "run-75b4ea77-ee1b-4468-a1cb-052e6b73aef0",
+        "status": "completed",
+        "actions": 2,
+        "modelRequests": 0,
+        "jevRequests": 0,
+        "evaluation": {
+          "version": "r1-product-evaluation-1",
+          "passed": true,
+          "integrity": true,
+          "falseCovered": false,
+          "issues": [],
+          "scope": "Synthetic public fixtures; no Jev quality or statistical benefit inference"
+        }
+      },
+      "elapsedMs": 3920,
+      "checks": {
+        "effectUnspecifiedCount": 2,
+        "requiredEffectPendingCount": 0,
+        "genericIncompleteCount": 0,
+        "requiredEffectVerifiedCount": 0,
+        "requiredEffectFailedCount": 0,
+        "sourceUnresolvedCount": 0
+      },
+      "report": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C08-2/report.json",
+        "bytes": 611402,
+        "sha256": "4657ca14e48bfd95d05000e787fc7c6c0ad8b14fe166f34caad5e395d95c4a89"
+      },
+      "evidenceIndex": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C08-2/evidence-index.json",
+        "bytes": 9490,
+        "sha256": "97353c8d9250a48a06aa274ae9d95050f9914a41736c9ec1b8cd05c78a00d20d"
+      },
+      "readableArtifactsVerified": 58
+    },
+    {
+      "row": "C09-1",
+      "scenario": "repeat-defect",
+      "result": "passed",
+      "actual": {
+        "row": "C09-1",
+        "runId": "run-187f6bbb-596f-4629-9f4d-1f7b8ee3bdb1",
+        "status": "completed",
+        "actions": 2,
+        "modelRequests": 0,
+        "jevRequests": 0,
+        "evaluation": {
+          "version": "r1-product-evaluation-1",
+          "passed": true,
+          "integrity": true,
+          "falseCovered": false,
+          "issues": [],
+          "scope": "Synthetic public fixtures; no Jev quality or statistical benefit inference"
+        }
+      },
+      "elapsedMs": 3826,
+      "checks": {
+        "effectUnspecifiedCount": 0,
+        "requiredEffectPendingCount": 0,
+        "genericIncompleteCount": 0,
+        "requiredEffectVerifiedCount": 1,
+        "requiredEffectFailedCount": 1,
+        "sourceUnresolvedCount": 0
+      },
+      "report": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C09-1/report.json",
+        "bytes": 805073,
+        "sha256": "653bad8c30aee9f047ebc17425b93d745e4ff53d6dfcc2851ceb2a47381e73cc"
+      },
+      "evidenceIndex": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C09-1/evidence-index.json",
+        "bytes": 12292,
+        "sha256": "1482bba357a991e0094083922d19176f7e557bfdbc466126f7859d3733272ed2"
+      },
+      "readableArtifactsVerified": 75
+    },
+    {
+      "row": "C09-2",
+      "scenario": "repeat-defect",
+      "result": "passed",
+      "actual": {
+        "row": "C09-2",
+        "runId": "run-c4857e4f-7013-45e7-8de9-bd4e1da0aa32",
+        "status": "completed",
+        "actions": 2,
+        "modelRequests": 0,
+        "jevRequests": 0,
+        "evaluation": {
+          "version": "r1-product-evaluation-1",
+          "passed": true,
+          "integrity": true,
+          "falseCovered": false,
+          "issues": [],
+          "scope": "Synthetic public fixtures; no Jev quality or statistical benefit inference"
+        }
+      },
+      "elapsedMs": 3772,
+      "checks": {
+        "effectUnspecifiedCount": 0,
+        "requiredEffectPendingCount": 0,
+        "genericIncompleteCount": 0,
+        "requiredEffectVerifiedCount": 1,
+        "requiredEffectFailedCount": 1,
+        "sourceUnresolvedCount": 0
+      },
+      "report": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C09-2/report.json",
+        "bytes": 805281,
+        "sha256": "224fe79b72ab729d1d214aaaa7b9ad8af4c23dec44788d4894f94c56c235ffaa"
+      },
+      "evidenceIndex": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C09-2/evidence-index.json",
+        "bytes": 12292,
+        "sha256": "decedc9d3a14afb77940ffa0f66e032d3a7dd42e6f7891b7d00fc5bdd449d624"
+      },
+      "readableArtifactsVerified": 75
+    },
+    {
+      "row": "C11-1",
+      "scenario": "recovery",
+      "result": "passed",
+      "actual": {
+        "row": "C11-1",
+        "runId": "run-f158e794-3f06-4352-b066-6d2a7b3beab8",
+        "status": "blocked",
+        "actions": 1,
+        "modelRequests": 6,
+        "jevRequests": 0,
+        "evaluation": {
+          "version": "r1-product-evaluation-1",
+          "passed": true,
+          "integrity": true,
+          "falseCovered": false,
+          "issues": [],
+          "scope": "Synthetic public fixtures; no Jev quality or statistical benefit inference"
+        }
+      },
+      "elapsedMs": 141564,
+      "checks": {
+        "effectUnspecifiedCount": 0,
+        "requiredEffectPendingCount": 1,
+        "genericIncompleteCount": 0,
+        "requiredEffectVerifiedCount": 0,
+        "requiredEffectFailedCount": 0,
+        "sourceUnresolvedCount": 0
+      },
+      "report": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C11-1/report.json",
+        "bytes": 569656,
+        "sha256": "b0f3c135b108553cb67b25614f4e0e080e30cc0abc1ab7853bb9e086bcfb7cba"
+      },
+      "evidenceIndex": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C11-1/evidence-index.json",
+        "bytes": 9007,
+        "sha256": "8422cafdef23d6f72353b20e978312010d3bb1909dd72356d3831c57a2ab8cbf"
+      },
+      "readableArtifactsVerified": 55
+    },
+    {
+      "row": "C11-2",
+      "scenario": "recovery",
+      "result": "passed",
+      "actual": {
+        "row": "C11-2",
+        "runId": "run-823d8cb7-f8a1-4844-9a0b-8695496faf45",
+        "status": "blocked",
+        "actions": 1,
+        "modelRequests": 4,
+        "jevRequests": 0,
+        "evaluation": {
+          "version": "r1-product-evaluation-1",
+          "passed": true,
+          "integrity": true,
+          "falseCovered": false,
+          "issues": [],
+          "scope": "Synthetic public fixtures; no Jev quality or statistical benefit inference"
+        }
+      },
+      "elapsedMs": 51254,
+      "checks": {
+        "effectUnspecifiedCount": 0,
+        "requiredEffectPendingCount": 1,
+        "genericIncompleteCount": 0,
+        "requiredEffectVerifiedCount": 0,
+        "requiredEffectFailedCount": 0,
+        "sourceUnresolvedCount": 0
+      },
+      "report": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C11-2/report.json",
+        "bytes": 542260,
+        "sha256": "cb518aa835fea9d7b3f14bb40a4fe9e6c16e5d7cc6fe63c4d8af2c3221a507c4"
+      },
+      "evidenceIndex": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C11-2/evidence-index.json",
+        "bytes": 9007,
+        "sha256": "e7d813952f9f241a49957cbbd23ce4a0cb7324f623dd67873e9b8c464159f4e3"
+      },
+      "readableArtifactsVerified": 55
+    },
+    {
+      "row": "C12-1",
+      "scenario": "budget",
+      "result": "passed",
+      "actual": {
+        "row": "C12-1",
+        "runId": "run-7dfe6a77-1d20-4a94-97a9-73e07b6aafc9",
+        "status": "blocked",
+        "actions": 1,
+        "modelRequests": 4,
+        "jevRequests": 0,
+        "evaluation": {
+          "version": "r1-product-evaluation-1",
+          "passed": true,
+          "integrity": true,
+          "falseCovered": false,
+          "issues": [],
+          "scope": "Synthetic public fixtures; no Jev quality or statistical benefit inference"
+        }
+      },
+      "elapsedMs": 71709,
+      "checks": {
+        "effectUnspecifiedCount": 1,
+        "requiredEffectPendingCount": 0,
+        "genericIncompleteCount": 0,
+        "requiredEffectVerifiedCount": 0,
+        "requiredEffectFailedCount": 0,
+        "sourceUnresolvedCount": 0
+      },
+      "report": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C12-1/report.json",
+        "bytes": 702430,
+        "sha256": "a37b036cb38c7c63813b782c0234371529d1213ac1b128445566d53f778c0c95"
+      },
+      "evidenceIndex": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C12-1/evidence-index.json",
+        "bytes": 9834,
+        "sha256": "cbeb01c0b17ceb821ec33cfc9b517909ad1372ce7a4f7d9e37ec0f2a12767e32"
+      },
+      "readableArtifactsVerified": 60
+    },
+    {
+      "row": "C12-2",
+      "scenario": "budget",
+      "result": "passed",
+      "actual": {
+        "row": "C12-2",
+        "runId": "run-0a07b34a-8129-4e4f-abec-c4176a55d529",
+        "status": "blocked",
+        "actions": 1,
+        "modelRequests": 4,
+        "jevRequests": 0,
+        "evaluation": {
+          "version": "r1-product-evaluation-1",
+          "passed": true,
+          "integrity": true,
+          "falseCovered": false,
+          "issues": [],
+          "scope": "Synthetic public fixtures; no Jev quality or statistical benefit inference"
+        }
+      },
+      "elapsedMs": 46309,
+      "checks": {
+        "effectUnspecifiedCount": 1,
+        "requiredEffectPendingCount": 0,
+        "genericIncompleteCount": 0,
+        "requiredEffectVerifiedCount": 0,
+        "requiredEffectFailedCount": 0,
+        "sourceUnresolvedCount": 0
+      },
+      "report": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C12-2/report.json",
+        "bytes": 722411,
+        "sha256": "517a7da51571e1d409e09ea45347d0c8cc438e8ac3124c99e0e94df1e89c79a8"
+      },
+      "evidenceIndex": {
+        "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/C12-2/evidence-index.json",
+        "bytes": 9999,
+        "sha256": "9987f6e21cba7c5f5310c1d55d7687792bd5ffdcdeea572d13c1f5580f50e581"
+      },
+      "readableArtifactsVerified": 61
+    }
+  ],
+  "completedRows": 28,
+  "notRunRows": 0,
+  "actions": 52,
+  "agentRequests": 30,
+  "jevRequests": 0,
+  "visionRequests": 0,
+  "allRequestsSettled": true,
+  "newKnownUsageCostUsd": 0.061762584,
+  "newUnknownCount": 0,
+  "newHeldReservedUsd": 0,
+  "combinedKnownUsageCostUsd": 0.066787134,
+  "inheritedUnknownReservedUsd": 0.116,
+  "inheritedUnknownCount": 2,
+  "combinedAccountedUsd": 0.182787134,
+  "includingSeparateSettledFrameAccountedUsd": 0.183037958,
+  "actualTotalUsd": null,
+  "usageCostIsNotIndependentInvoice": true,
+  "artifactsVerified": 1693,
+  "oldEvidenceUnchanged": 41,
+  "priorPins": [
+    {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-online-runtime/artifacts/r1-online-pilot/authorized-batch-1/account/campaign.db",
+      "sha256": "e78f2588e8d163155c639d65c2f19ccdd127cc1342b327e11604b04457645936"
+    },
+    {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-online-claims/9f73f0d6e3140b2d891d043441053bb75579550d58fdbf850a081c0bdc56ba75.claim",
+      "sha256": "f1743a4d1952fd712c87a76388d5da820a8c44b3daccf2dda0d7c680d32a639b"
+    },
+    {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-online-claims/9f73f0d6e3140b2d891d043441053bb75579550d58fdbf850a081c0bdc56ba75.execution-lock",
+      "sha256": "4865494226f9b1456c91966d85b2fdea5dfad5b5a004b79ead37379986cac937"
+    },
+    {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/account/campaign.db",
+      "sha256": "1f660d8b85d723b664efdca29db892ab90bbd4cc3627a5a9682bce0580a0f7b1"
+    },
+    {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/account/campaign-id.json",
+      "sha256": "d605cd24e876c9e2ad3d63b9a7177efd4ecb3cf6323e62c534b159085adeeeb3"
+    },
+    {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/accounting.json",
+      "sha256": "b1b45f128407d26640651a1f003161952fbb4395c3db898982a4055187f9bab8"
+    },
+    {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/stop.json",
+      "sha256": "fba1642e7df38b15a2e37bfd09fd8b6d76fa2eea7c1786312449a1684302a1f9"
+    },
+    {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/manifest.json",
+      "sha256": "7dc1a0a2c0a41aed632c655a01116b44d5287bda7cbb399bbfb9a757dcd84783"
+    },
+    {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/results.json",
+      "sha256": "b877d964998e3baec07a4a46d036c474bdbe1780eeff9d121479384a3ebef436"
+    },
+    {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-online-claims/continued-product-41eb23e34527461bae8bc50e6d0b28ae53d94bb584d8d167b7eddecedbfcf510.claim",
+      "sha256": "867f4711a91001c74330d12e54067cd598bc2e03c0c7f865515968e080f31fd7"
+    },
+    {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/data/r1-product/runtime-ddf1dd9/data/r1-product/authorized-acceptance/account/campaign.db",
+      "sha256": "9cd6d5a68d5bec046145cdc0a6b39c27736b9efa8b45abb0ba2a161004ef770c"
+    },
+    {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/data/r1-product/runtime-ddf1dd9/data/r1-product/authorized-acceptance/account/campaign-id.json",
+      "sha256": "4059f7c7de6b8e9df1f7611095f4f0c1acfac3cd67f35900c07590da2107ed46"
+    },
+    {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/data/r1-product/runtime-ddf1dd9/data/r1-product/authorized-acceptance/accounting.json",
+      "sha256": "e56a93413e2decaec793253c787dd6dfb4ed9ab9d918aa3363218c56bd7cb14d"
+    },
+    {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/data/r1-product/runtime-ddf1dd9/data/r1-product/authorized-acceptance/stop.json",
+      "sha256": "96bbf3e2aa2adef1f1a9a7def6f15376a2fa7eeb8b28ebb99bdedfd46f9ca31f"
+    },
+    {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/data/r1-product/runtime-ddf1dd9/data/r1-product/authorized-acceptance/manifest.json",
+      "sha256": "1a89755d397a87f62be87499b74cc1e18127f747b18a3c84cc942471f8a4fdcb"
+    },
+    {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/data/r1-product/runtime-ddf1dd9/data/r1-product/authorized-acceptance/results.json",
+      "sha256": "ac2933c85c5c69952866d87066ca00d375f95bd3269495ead7220e9fd493f81c"
+    },
+    {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-online-claims/continued-0ddb03d5250db453759b72ee.claim",
+      "sha256": "0944f222ae97e63f5a4ea25fb45dee60d0930d386621b0f456daebd60d3c3df1"
+    }
+  ],
+  "newClaim": {
+    "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-online-claims/continued-product-f7fa8326db127c1821cc038e50f65e5c02bd68989cb36ba42fa95e05a3e6abc9.claim",
+    "bytes": 5162,
+    "sha256": "74981eda6a6eac28172357fdffd761c7c75ffb91db0b16a3e20fcc4af2099cd9"
+  },
+  "newCampaignDb": {
+    "path": "data/r1-product/runtime-e3de7cb/data/r1-product/authorized-deadline60/account/campaign.db",
+    "bytes": 73728,
+    "sha256": "773a76d3af065ba3e605c4610fa049c2ca0fd5be023774db803e296483dfdf39"
+  },
+  "campaignId": "ea3dcd12-f03e-450a-8c3d-25c950d41463",
+  "sourceTrackedClean": true,
+  "responseTimingBodyHashesMatch": true,
+  "successfulRequestsOver15s": 14,
+  "longestResponseCompleteMs": 52645,
+  "runtime": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/data/r1-product/runtime-e3de7cb",
+  "sourceMainComparison": {
+    "integratedMainSha": "48b02b3fbfe7e5d95189a0d813480761b123ff6b",
+    "reviewMainSha": "16cf9fdaf534c3e6a59f6ee9b03e3bb5887aa558",
+    "subsequentMainChanges": "docs/product-roadmap.md only; not merged or edited here",
+    "stat": "main-diff-stat.txt"
+  },
+  "historicalFailuresRemainFailures": true,
+  "noRetryOrExtraPaidRun": true,
+  "scope": "Frozen public fixtures in normal product/API with real provider when Agent handoff is required; no Jev quality or general website coverage claim"
+}

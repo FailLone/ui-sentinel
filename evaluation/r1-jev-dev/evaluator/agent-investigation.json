@@ -1,0 +1,7 @@
+{
+  "schemaVersion": "r1-evaluator-case-1",
+  "scenario": "agent-investigation",
+  "expectedStatus": "handoff",
+  "reason": "复杂语义和新调查程序交回主 Agent；替身仅验证交回接线。",
+  "checks": []
+}

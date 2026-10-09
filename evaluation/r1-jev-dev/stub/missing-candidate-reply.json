@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "r1-stub-reply-1",
+  "kind": "scores",
+  "binding": "bind-to-current-request-in-test-transport",
+  "model": "stub/jev-exploration-1",
+  "provider": "stub",
+  "scores": [],
+  "usage": {
+    "inputTokens": 9,
+    "outputTokens": 1,
+    "costUsd": null
+  }
+}

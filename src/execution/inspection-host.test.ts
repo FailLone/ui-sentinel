@@ -1,3 +1,5 @@
+import { freezeExploration } from '../shared/r1-policy.ts'
+import { UI_CHECK_POLICY } from '../shared/ui-sampling-policy.ts'
 import { describe, expect, it } from 'vitest'
 import { createInspectionHost } from './inspection-host.ts'
 import type { RunEvent } from '../shared/types.ts'
@@ -601,4 +603,34 @@ it('separates pending plans from final gaps without clearing historical obligati
   await h.selectItems([])
   expect(h.snapshot().items.find((i) => i.itemId === gap.itemId)?.status).toBe('unverified')
   expect(h.completionGaps().some((g) => g.itemId === gap.itemId)).toBe(true)
+})
+
+it('R1 requested revisit remains an original obligation until a measured navigation settles it', async () => {
+  const { host: h } = host({
+    goal: '检查公开控件后刷新页面',
+    checkPolicy: UI_CHECK_POLICY,
+    exploration: freezeExploration({ mode: 'program', jev: false }),
+  })
+  expect(h.revisitPending()).toBe(true)
+  expect(h.completionGaps().some((g) => g.reasonCode === 'r1-revisit-pending')).toBe(true)
+  await expect(h.settleRevisit('invented', 'absent')).rejects.toThrow('measurement-required')
+  const item = await h.recordNavigation({
+    url: 'https://shop.example.org/catalog',
+    from: 'https://shop.example.org/catalog',
+    outcome: 'unverified',
+    reasonCode: 'postcondition-not-verified',
+    evidenceRefs: ['fresh'],
+  })
+  await expect(h.settleRevisit('a1', item!.itemId)).rejects.toThrow('measurement-required')
+  const measured = await h.recordNavigation({
+    url: 'https://shop.example.org/catalog',
+    from: 'https://shop.example.org/catalog',
+    outcome: 'verified',
+    evidenceRefs: ['fresh-new-document'],
+  })
+  await h.settleRevisit('a2', measured!.itemId)
+  expect(h.revisitPending()).toBe(false)
+  expect(
+    h.snapshot().items.find((i) => i.reasonCode === 'r1-revisit-observed')?.evidenceRefs,
+  ).toEqual(['fresh-new-document'])
 })

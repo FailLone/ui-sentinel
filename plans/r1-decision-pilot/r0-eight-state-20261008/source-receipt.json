@@ -1,0 +1,172 @@
+{
+  "verifiedAt": "2026-10-08T07:11:46.951122+00:00",
+  "archiveSha256": "e132b79f829bf6eea862f44d602e61945ff8002f42e1ded946f2ad3f14f1e682",
+  "sourceCandidate": "08acc95d7f67a1ac3cbcf3d9decc9add2f2907eb",
+  "contractSha256": "79e3dbb1bf971c4eed62b9733c6c20c41d6b0a2ee6f83e419325bb1dfe7ce189",
+  "selectionSha256": "22dd943276919734ec8cb888513f436d3b5be7a29d4e2e4e1105fc87aeb70b6b",
+  "ledgerSha256": "ece8176fdcfacaeda45cfc7b16294c6ccd6a4a3c71c311043b159afb78799072",
+  "sourceExporterSha256": "55cb2141bd81ea5a32e505d1ec94edd7be2a0429c2d3176d554509f8b90972e6",
+  "files": [
+    {
+      "path": "plans/evidence/r0-public-decision-states/README.md",
+      "sha256": "1c7538ecaa0759c509debeaa5734df306c5bf63beafa9937661e645437f55551"
+    },
+    {
+      "path": "plans/evidence/r0-public-decision-states/index.json",
+      "sha256": "648bdfb1f605d765356125a0d7fd0c5538d78a22bb1fabe5285844c5ddc311c0"
+    },
+    {
+      "path": "plans/evidence/r0-request-stop-state-selection.json",
+      "sha256": "22dd943276919734ec8cb888513f436d3b5be7a29d4e2e4e1105fc87aeb70b6b"
+    },
+    {
+      "path": "plans/evidence/r0-public-decision-states/inputs/S01.json",
+      "sha256": "34fbd335bf2d0a4067e8090cd22590054a7c594ae7cb4b2b077bd8e39697d887"
+    },
+    {
+      "path": "plans/evidence/r0-public-decision-states/inputs/S02.json",
+      "sha256": "66621659f3114819f269ac03ae92ec61eb0bcb1d88cdc614b8a7b7fb01034123"
+    },
+    {
+      "path": "plans/evidence/r0-public-decision-states/inputs/S03.json",
+      "sha256": "46a4a09ad87a9395c731bde146a00e208bddca78fd69bcea853dd87b041f4249"
+    },
+    {
+      "path": "plans/evidence/r0-public-decision-states/inputs/S04.json",
+      "sha256": "86afb122fcdd7770a39ded08ff526c21d85f4946cef8f04e39583b7557e50414"
+    },
+    {
+      "path": "plans/evidence/r0-public-decision-states/inputs/S05.json",
+      "sha256": "a4278049eeee0258a6c80a436635aa7f180d7356478c7e7e96c83caccf950d5b"
+    },
+    {
+      "path": "plans/evidence/r0-public-decision-states/inputs/S06.json",
+      "sha256": "6300b1e7112742253f08f7beb8482ac611bd0fdb4747ef6a89cdf7d094cc1425"
+    },
+    {
+      "path": "plans/evidence/r0-public-decision-states/inputs/S07.json",
+      "sha256": "683d20dd3feea791b91617ce7082c0ad0cd745d02683c9d57ac8e3a5b3061c56"
+    },
+    {
+      "path": "plans/evidence/r0-public-decision-states/inputs/S08.json",
+      "sha256": "727f08bc98ebbbbe1bc49f09d325eefde05defa70d83029a52b8fe7789652906"
+    },
+    {
+      "path": "plans/evidence/r0-public-decision-states/public/S01.json",
+      "sha256": "89d47daf34bcc1e800b0e200c5798156bf68384a1ae494da7ae07dd4dea914fe"
+    },
+    {
+      "path": "plans/evidence/r0-public-decision-states/public/S02.json",
+      "sha256": "8a75d66b6e2a6259dc98e616056d36460fbd9c90fef355a5cac852c2b453cb90"
+    },
+    {
+      "path": "plans/evidence/r0-public-decision-states/public/S03.json",
+      "sha256": "d20aa017703113113144494a7878e4231e9812bde5e8340cdcef22e7a54761cb"
+    },
+    {
+      "path": "plans/evidence/r0-public-decision-states/public/S04.json",
+      "sha256": "5c2c72328dac0df2a8c7c75d98b5fb270c597e0c31d6a75c223157c2ff37a53b"
+    },
+    {
+      "path": "plans/evidence/r0-public-decision-states/public/S05.json",
+      "sha256": "52a7d82e472f86dd2493e18c137cda47f75ffbe6bbbd306ae9759f79ac38995a"
+    },
+    {
+      "path": "plans/evidence/r0-public-decision-states/public/S06.json",
+      "sha256": "73ff132bf4485bcd51153b97bdf6c84fc777ff09a324da090abea275994da72c"
+    },
+    {
+      "path": "plans/evidence/r0-public-decision-states/public/S07.json",
+      "sha256": "41b3f87fafcdf234c77a59b4a377468abfdeaad983b3effca06f6635eb0d7d90"
+    },
+    {
+      "path": "plans/evidence/r0-public-decision-states/public/S08.json",
+      "sha256": "3abedf7fe2ff66653edb4f9b945cfa43b5f15794a3d1626962b267f618905860"
+    }
+  ],
+  "states": [
+    {
+      "stateId": "S01",
+      "eventCutoffSeq": 53,
+      "cutoff": "2026-10-08T05:45:39.393Z",
+      "sourcePrefixSha256": "70f86add67668f74b4a175174e5aa506f4ceba89b774989c987f8ecef8a4606c",
+      "databaseSha256": "01552154ea4aea2c7ff7b6114b6917f0dd76c452011bb5e11c0c2bbff9777fde",
+      "snapshotSha256": "b704e67661dba3276cdb7e5dd1895020c7db6a04fc3c16a9703bab17f7afac8a",
+      "prefixRows": 54,
+      "verified": true
+    },
+    {
+      "stateId": "S02",
+      "eventCutoffSeq": 124,
+      "cutoff": "2026-10-08T05:46:44.502Z",
+      "sourcePrefixSha256": "d73fd6d0a25c784f268e27e086f6dd0de9ef15250eda2d74cef0cdb0da3d30e0",
+      "databaseSha256": "01552154ea4aea2c7ff7b6114b6917f0dd76c452011bb5e11c0c2bbff9777fde",
+      "snapshotSha256": "56d055a04473af0f55ffde0b515848833cebb8bc354ae4de943976bd4d9f8972",
+      "prefixRows": 125,
+      "verified": true
+    },
+    {
+      "stateId": "S03",
+      "eventCutoffSeq": 61,
+      "cutoff": "2026-10-08T05:47:54.626Z",
+      "sourcePrefixSha256": "8a748441deeca44d7f66fc152421f43a70f4fb37771638dd2336dd12b98ac049",
+      "databaseSha256": "78301451c55956f2aafae94b223f3bbdd4022a89944d8473a87ff7e6369fecb4",
+      "snapshotSha256": "16727b182a8e25c17d93b04f079b54ab64f5c6786882bdfbd02f81aceff1b02a",
+      "prefixRows": 62,
+      "verified": true
+    },
+    {
+      "stateId": "S04",
+      "eventCutoffSeq": 98,
+      "cutoff": "2026-10-08T05:48:26.864Z",
+      "sourcePrefixSha256": "cd5e619c3b5d48f625c7e3e63962c9c11c993374ec2a36d48f2d9d0f2324b8a8",
+      "databaseSha256": "78301451c55956f2aafae94b223f3bbdd4022a89944d8473a87ff7e6369fecb4",
+      "snapshotSha256": "0b7e1f395fcd14d06314db8401ac02663daf98120784922cb774631ba1fee055",
+      "prefixRows": 99,
+      "verified": true
+    },
+    {
+      "stateId": "S05",
+      "eventCutoffSeq": 142,
+      "cutoff": "2026-10-08T05:49:58.444Z",
+      "sourcePrefixSha256": "986cddd39521c1bd5a9e7065b0bc0452a3e0621e621bdba98837d466b1aff69c",
+      "databaseSha256": "78301451c55956f2aafae94b223f3bbdd4022a89944d8473a87ff7e6369fecb4",
+      "snapshotSha256": "324d4fb8ab4741d343c570a6c957310075ce28d57889d7a31e57da9daf6f83ac",
+      "prefixRows": 143,
+      "verified": true
+    },
+    {
+      "stateId": "S06",
+      "eventCutoffSeq": 179,
+      "cutoff": "2026-10-08T05:50:24.927Z",
+      "sourcePrefixSha256": "6d48910781d145b4f55147c601e1949838fcf4e523ba3a5e8a71c7b6b1ae3ad5",
+      "databaseSha256": "78301451c55956f2aafae94b223f3bbdd4022a89944d8473a87ff7e6369fecb4",
+      "snapshotSha256": "22e3925fc159e9e77f296379ec35b99f218bbbd458d2ef0f3e7ea5ba0cf6a7cb",
+      "prefixRows": 180,
+      "verified": true
+    },
+    {
+      "stateId": "S07",
+      "eventCutoffSeq": 78,
+      "cutoff": "2026-10-08T05:53:04.804Z",
+      "sourcePrefixSha256": "e118fa390a5da6d91e84015839cfee8739752b93acba67264d0c5b36a4bf12c6",
+      "databaseSha256": "54ac0362add81355c72591b03621d9fe1573b3c575de07f5a8ecc6cdd84b6d78",
+      "snapshotSha256": "9abaa4b0db747aea4bf79125ec360c3a781dd4649d1452dcac7bdcb6bdae604a",
+      "prefixRows": 79,
+      "verified": true
+    },
+    {
+      "stateId": "S08",
+      "eventCutoffSeq": 87,
+      "cutoff": "2026-10-08T05:54:43.019Z",
+      "sourcePrefixSha256": "04f43f9e0c13181de96a256492c3c1b6efd52bf6e746626dc56da3b3d46c8807",
+      "databaseSha256": "54ac0362add81355c72591b03621d9fe1573b3c575de07f5a8ecc6cdd84b6d78",
+      "snapshotSha256": "9abaa4b0db747aea4bf79125ec360c3a781dd4649d1452dcac7bdcb6bdae604a",
+      "prefixRows": 88,
+      "verified": true
+    }
+  ],
+  "evaluationRead": false,
+  "networkRequests": 0,
+  "limitation": "Raw archives are checked read-only locally; not copied. Public package alone supports internal hashes, not independent reproduction of raw-source audit."
+}

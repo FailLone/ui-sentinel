@@ -1,0 +1,7 @@
+{
+  "schemaVersion": "r1-evaluator-case-1",
+  "scenario": "geometry-not-defect",
+  "expectedStatus": "ranked",
+  "reason": "视口外是测量线索，调用方只允许 inspect；不得推断缺陷或永久丢弃。",
+  "checks": []
+}

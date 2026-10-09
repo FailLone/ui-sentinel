@@ -1,0 +1,21 @@
+[
+  {
+    "row": "C10-1",
+    "runId": "run-054c1a38-2d55-4ca4-bb10-fbce3c36ad65",
+    "status": "cancelled",
+    "actions": 0,
+    "modelRequests": 1,
+    "jevRequests": 0,
+    "evaluation": {
+      "version": "r1-product-evaluation-1",
+      "passed": false,
+      "integrity": false,
+      "falseCovered": false,
+      "issues": [
+        "original-persistence-or-measurement-chain",
+        "unexpected-terminal-status"
+      ],
+      "scope": "Synthetic public fixtures; no Jev quality or statistical benefit inference"
+    }
+  }
+]

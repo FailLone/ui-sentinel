@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "r1-exploration-input-1",
+  "requestId": "request-1",
+  "task": {
+    "goal": "检查帮助文档页面的局部导航与内容切换",
+    "localTask": "选择一个尚未检查的可执行局部控件",
+    "revision": "task-1"
+  },
+  "state": {
+    "pageId": "page-docs",
+    "url": "https://guide.invalid/help",
+    "documentVersion": "doc-1",
+    "observationVersion": "obs-1",
+    "relatedStateVersion": "state-1",
+    "cacheable": true
+  },
+  "candidates": [],
+  "history": [],
+  "scope": {
+    "revision": "scope-1",
+    "executableCandidateIds": []
+  },
+  "budget": {
+    "revision": "budget-1",
+    "remainingDecisions": 8,
+    "remainingActions": 8,
+    "remainingMs": 5000,
+    "maxRequestMs": 1000,
+    "remainingCostUsd": null
+  },
+  "limits": {
+    "maxCandidates": 32,
+    "maxInputBytes": 32768,
+    "maxHistory": 32
+  }
+}

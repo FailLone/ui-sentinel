@@ -1,0 +1,9 @@
+{
+  "schemaVersion": "r1-evaluator-case-1",
+  "scenario": "low-score-fairness",
+  "expectedStatus": "ranked",
+  "reason": "c1 低分仍保留队列，在足够调度预算下获得机会；不足时保留未检查。",
+  "checks": [
+    "fairness-sequence-required"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "at": "2026-10-08T07:13:34.343Z",
+  "labelsSha256": "3a3d36a3bcce7a1825bf73885d5eee1d026f6d41931982e323610a182dc9f7f7",
+  "mappedPublicSha256": "70e04d18b4040172413003652be7740480a9e6281d85ed2ca0c88b887c2706db",
+  "archiveSha256": "e132b79f829bf6eea862f44d602e61945ff8002f42e1ded946f2ad3f14f1e682",
+  "sourceBaseline": "0b4755798c557777b3c85b1ef959792156baa7b5",
+  "historicalEvaluationOpened": false,
+  "baselineExecuted": false,
+  "realJevOutputs": 0,
+  "humanReferenceStatus": "not supplied; development reference frozen only",
+  "rules": [
+    "Do not equate safe handoff with obligation progress.",
+    "Do not map fill, broad selector reads or missing original choices to candidate inspect.",
+    "Do not treat prefix or observation counter changes alone as relevant state changes.",
+    "Only count exact current candidate ref plus click as direct mapped historical choice; multi-call sets preserved.",
+    "Metric denominators separate admission consistency, candidate selection, original-choice mapping, and real executed progress."
+  ]
+}

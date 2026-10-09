@@ -1,0 +1,145 @@
+{
+  "schemaVersion": "r1-exploration-input-1",
+  "requestId": "S08",
+  "task": {
+    "goal": "Inspect the catalog UI and its controls within the allowed scope. Report evidence-backed issues and anything left unverified.",
+    "localTask": "Product catalog\n\nChoose a sort order and apply it. Prices are numeric.\n\nSort \nPrice\nName\n Apply sort\n20 · Blue widget\n5 · Amber gadget\n12 · Cyan sprocket\nFilters\nAbout this catalog\nRecorded selected checks and remaining budgets are in candidate.context; no general coverage promise.",
+    "revision": "url-scan-default-3"
+  },
+  "state": {
+    "pageId": "s2",
+    "url": "http://127.0.0.1:58226/overlay?category=books",
+    "documentVersion": "unknown",
+    "observationVersion": "observation:9abaa4b0db747aea4bf79125ec360c3a",
+    "relatedStateVersion": "prefix:04f43f9e0c13181de96a256492c3c1b6",
+    "cacheable": false
+  },
+  "candidates": [
+    {
+      "id": "item-9245d6f9-1fdd-40da-8e16-affbcc6fa8af",
+      "targetKey": "item-9245d6f9-1fdd-40da-8e16-affbcc6fa8af",
+      "observationVersion": "observation:9abaa4b0db747aea4bf79125ec360c3a",
+      "text": "PriceName",
+      "role": "combobox",
+      "publicState": {
+        "visible": true,
+        "enabled": true,
+        "expanded": null,
+        "selected": null
+      },
+      "geometry": {
+        "x": 261.796875,
+        "y": 217.875,
+        "width": 81,
+        "height": 44,
+        "inViewport": true
+      },
+      "context": "{\"category\":\"local-interaction\",\"selected\":true,\"status\":\"pending\",\"ref\":\"e9\",\"snapshotId\":\"s2\",\"nativeAction\":\"fill\",\"selectedChecks\":[{\"itemId\":\"item-114b4307-fc89-406d-9ec5-8aa33cca650e\",\"category\":\"investigation\",\"status\":\"verified\"},{\"itemId\":\"item-fed745ad-2f14-4dac-834a-2473908cb4a9\",\"category\":\"entry-observation\",\"status\":\"verified\"},{\"itemId\":\"item-9245d6f9-1fdd-40da-8e16-affbcc6fa8af\",\"category\":\"local-interaction\",\"status\":\"pending\"},{\"itemId\":\"item-e739fb19-aa7e-44cf-af1c-7de6a0fc9219\",\"category\":\"local-interaction\",\"status\":\"pending\"},{\"itemId\":\"item-b366131a-776f-4b2d-92fb-d644194fcac4\",\"category\":\"local-interaction\",\"status\":\"pending\"},{\"itemId\":\"item-be5c317e-849f-4e4c-8950-66cd3643d24f\",\"category\":\"investigation\",\"status\":\"verified\"},{\"itemId\":\"item-b264cc1f-7f67-43e8-a021-fd097ec5a17c\",\"category\":\"investigation\",\"status\":\"pending\"},{\"itemId\":\"item-b5b3efe3-3424-4560-8408-fe13f1dfb7cf\",\"category\":\"automatic-check\",\"status\":\"failed\"},{\"itemId\":\"item-c93de06f-be19-4102-a924-65792b920fe0\",\"category\":\"entry-observation\",\"status\":\"verified\"},{\"itemId\":\"item-060faf7a-d1a5-4bfa-92b8-f2a84dd1c5e1\",\"category\":\"automatic-check\",\"status\":\"failed\"}],\"remainingBudget\":{\"remainingActions\":20,\"remainingDecisions\":24,\"remainingMs\":88593,\"maxRequestMs\":60000,\"remainingCostUsd\":17.88384599},\"operations\":[],\"bindingAuthorization\":\"unknown-until-live-validation\",\"estimatedCostUnit\":\"one-atomic-tool-call-effort\",\"costUpperBoundUsd\":\"unknown\",\"fillNotRepresentableInR1PublicActions\":true,\"permissions\":{\"session\":\"anonymous\",\"origin\":\"http://127.0.0.1:58226\",\"scope\":{\"maxPages\":3,\"maxDepth\":1},\"businessWrites\":\"none\"},\"readToolCounts\":{\"page_observe\":1,\"page_inspect\":5,\"element_details\":1,\"rules_search\":1},\"nativeTargetRepeats\":[],\"observedHitTests\":{\"sampleCount\":5,\"relations\":{\"self\":5}}}",
+      "allowedActions": [
+        "inspect"
+      ],
+      "estimatedCost": 1
+    },
+    {
+      "id": "item-e739fb19-aa7e-44cf-af1c-7de6a0fc9219",
+      "targetKey": "item-e739fb19-aa7e-44cf-af1c-7de6a0fc9219",
+      "observationVersion": "observation:9abaa4b0db747aea4bf79125ec360c3a",
+      "text": "Apply sort",
+      "role": "button",
+      "publicState": {
+        "visible": true,
+        "enabled": true,
+        "expanded": null,
+        "selected": null
+      },
+      "geometry": {
+        "x": 363.25,
+        "y": 218.875,
+        "width": 87.28125,
+        "height": 43,
+        "inViewport": true
+      },
+      "context": "{\"category\":\"local-interaction\",\"selected\":true,\"status\":\"pending\",\"ref\":\"e10\",\"snapshotId\":\"s2\",\"nativeAction\":\"click\",\"selectedChecks\":[{\"itemId\":\"item-114b4307-fc89-406d-9ec5-8aa33cca650e\",\"category\":\"investigation\",\"status\":\"verified\"},{\"itemId\":\"item-fed745ad-2f14-4dac-834a-2473908cb4a9\",\"category\":\"entry-observation\",\"status\":\"verified\"},{\"itemId\":\"item-9245d6f9-1fdd-40da-8e16-affbcc6fa8af\",\"category\":\"local-interaction\",\"status\":\"pending\"},{\"itemId\":\"item-e739fb19-aa7e-44cf-af1c-7de6a0fc9219\",\"category\":\"local-interaction\",\"status\":\"pending\"},{\"itemId\":\"item-b366131a-776f-4b2d-92fb-d644194fcac4\",\"category\":\"local-interaction\",\"status\":\"pending\"},{\"itemId\":\"item-be5c317e-849f-4e4c-8950-66cd3643d24f\",\"category\":\"investigation\",\"status\":\"verified\"},{\"itemId\":\"item-b264cc1f-7f67-43e8-a021-fd097ec5a17c\",\"category\":\"investigation\",\"status\":\"pending\"},{\"itemId\":\"item-b5b3efe3-3424-4560-8408-fe13f1dfb7cf\",\"category\":\"automatic-check\",\"status\":\"failed\"},{\"itemId\":\"item-c93de06f-be19-4102-a924-65792b920fe0\",\"category\":\"entry-observation\",\"status\":\"verified\"},{\"itemId\":\"item-060faf7a-d1a5-4bfa-92b8-f2a84dd1c5e1\",\"category\":\"automatic-check\",\"status\":\"failed\"}],\"remainingBudget\":{\"remainingActions\":20,\"remainingDecisions\":24,\"remainingMs\":88593,\"maxRequestMs\":60000,\"remainingCostUsd\":17.88384599},\"operations\":[],\"bindingAuthorization\":\"unknown-until-live-validation\",\"estimatedCostUnit\":\"one-atomic-tool-call-effort\",\"costUpperBoundUsd\":\"unknown\",\"fillNotRepresentableInR1PublicActions\":false,\"permissions\":{\"session\":\"anonymous\",\"origin\":\"http://127.0.0.1:58226\",\"scope\":{\"maxPages\":3,\"maxDepth\":1},\"businessWrites\":\"none\"},\"readToolCounts\":{\"page_observe\":1,\"page_inspect\":5,\"element_details\":1,\"rules_search\":1},\"nativeTargetRepeats\":[],\"observedHitTests\":{\"sampleCount\":5,\"relations\":{\"self\":5}}}",
+      "allowedActions": [
+        "click",
+        "inspect"
+      ],
+      "estimatedCost": 1
+    },
+    {
+      "id": "item-b366131a-776f-4b2d-92fb-d644194fcac4",
+      "targetKey": "item-b366131a-776f-4b2d-92fb-d644194fcac4",
+      "observationVersion": "observation:9abaa4b0db747aea4bf79125ec360c3a",
+      "text": "Filters",
+      "role": "button",
+      "publicState": {
+        "visible": true,
+        "enabled": true,
+        "expanded": null,
+        "selected": null
+      },
+      "geometry": {
+        "x": 228,
+        "y": 507.875,
+        "width": 64.296875,
+        "height": 43,
+        "inViewport": true
+      },
+      "context": "{\"category\":\"local-interaction\",\"selected\":true,\"status\":\"pending\",\"ref\":\"e11\",\"snapshotId\":\"s2\",\"nativeAction\":\"click\",\"selectedChecks\":[{\"itemId\":\"item-114b4307-fc89-406d-9ec5-8aa33cca650e\",\"category\":\"investigation\",\"status\":\"verified\"},{\"itemId\":\"item-fed745ad-2f14-4dac-834a-2473908cb4a9\",\"category\":\"entry-observation\",\"status\":\"verified\"},{\"itemId\":\"item-9245d6f9-1fdd-40da-8e16-affbcc6fa8af\",\"category\":\"local-interaction\",\"status\":\"pending\"},{\"itemId\":\"item-e739fb19-aa7e-44cf-af1c-7de6a0fc9219\",\"category\":\"local-interaction\",\"status\":\"pending\"},{\"itemId\":\"item-b366131a-776f-4b2d-92fb-d644194fcac4\",\"category\":\"local-interaction\",\"status\":\"pending\"},{\"itemId\":\"item-be5c317e-849f-4e4c-8950-66cd3643d24f\",\"category\":\"investigation\",\"status\":\"verified\"},{\"itemId\":\"item-b264cc1f-7f67-43e8-a021-fd097ec5a17c\",\"category\":\"investigation\",\"status\":\"pending\"},{\"itemId\":\"item-b5b3efe3-3424-4560-8408-fe13f1dfb7cf\",\"category\":\"automatic-check\",\"status\":\"failed\"},{\"itemId\":\"item-c93de06f-be19-4102-a924-65792b920fe0\",\"category\":\"entry-observation\",\"status\":\"verified\"},{\"itemId\":\"item-060faf7a-d1a5-4bfa-92b8-f2a84dd1c5e1\",\"category\":\"automatic-check\",\"status\":\"failed\"}],\"remainingBudget\":{\"remainingActions\":20,\"remainingDecisions\":24,\"remainingMs\":88593,\"maxRequestMs\":60000,\"remainingCostUsd\":17.88384599},\"operations\":[],\"bindingAuthorization\":\"unknown-until-live-validation\",\"estimatedCostUnit\":\"one-atomic-tool-call-effort\",\"costUpperBoundUsd\":\"unknown\",\"fillNotRepresentableInR1PublicActions\":false,\"permissions\":{\"session\":\"anonymous\",\"origin\":\"http://127.0.0.1:58226\",\"scope\":{\"maxPages\":3,\"maxDepth\":1},\"businessWrites\":\"none\"},\"readToolCounts\":{\"page_observe\":1,\"page_inspect\":5,\"element_details\":1,\"rules_search\":1},\"nativeTargetRepeats\":[],\"observedHitTests\":{\"sampleCount\":5,\"relations\":{\"unrelated\":5}}}",
+      "allowedActions": [
+        "click",
+        "inspect"
+      ],
+      "estimatedCost": 1
+    },
+    {
+      "id": "item-23f1219b-5af9-4b84-ad35-c54306a7931d",
+      "targetKey": "item-23f1219b-5af9-4b84-ad35-c54306a7931d",
+      "observationVersion": "observation:9abaa4b0db747aea4bf79125ec360c3a",
+      "text": "About this catalog",
+      "role": "link",
+      "publicState": {
+        "visible": true,
+        "enabled": true,
+        "expanded": null,
+        "selected": null
+      },
+      "geometry": {
+        "x": 220,
+        "y": 578.875,
+        "width": 840,
+        "height": 18,
+        "inViewport": true
+      },
+      "context": "{\"category\":\"navigation\",\"selected\":false,\"status\":\"pending\",\"ref\":\"e12\",\"snapshotId\":\"s2\",\"nativeAction\":\"click\",\"selectedChecks\":[{\"itemId\":\"item-114b4307-fc89-406d-9ec5-8aa33cca650e\",\"category\":\"investigation\",\"status\":\"verified\"},{\"itemId\":\"item-fed745ad-2f14-4dac-834a-2473908cb4a9\",\"category\":\"entry-observation\",\"status\":\"verified\"},{\"itemId\":\"item-9245d6f9-1fdd-40da-8e16-affbcc6fa8af\",\"category\":\"local-interaction\",\"status\":\"pending\"},{\"itemId\":\"item-e739fb19-aa7e-44cf-af1c-7de6a0fc9219\",\"category\":\"local-interaction\",\"status\":\"pending\"},{\"itemId\":\"item-b366131a-776f-4b2d-92fb-d644194fcac4\",\"category\":\"local-interaction\",\"status\":\"pending\"},{\"itemId\":\"item-be5c317e-849f-4e4c-8950-66cd3643d24f\",\"category\":\"investigation\",\"status\":\"verified\"},{\"itemId\":\"item-b264cc1f-7f67-43e8-a021-fd097ec5a17c\",\"category\":\"investigation\",\"status\":\"pending\"},{\"itemId\":\"item-b5b3efe3-3424-4560-8408-fe13f1dfb7cf\",\"category\":\"automatic-check\",\"status\":\"failed\"},{\"itemId\":\"item-c93de06f-be19-4102-a924-65792b920fe0\",\"category\":\"entry-observation\",\"status\":\"verified\"},{\"itemId\":\"item-060faf7a-d1a5-4bfa-92b8-f2a84dd1c5e1\",\"category\":\"automatic-check\",\"status\":\"failed\"}],\"remainingBudget\":{\"remainingActions\":20,\"remainingDecisions\":24,\"remainingMs\":88593,\"maxRequestMs\":60000,\"remainingCostUsd\":17.88384599},\"operations\":[],\"bindingAuthorization\":\"unknown-until-live-validation\",\"estimatedCostUnit\":\"one-atomic-tool-call-effort\",\"costUpperBoundUsd\":\"unknown\",\"fillNotRepresentableInR1PublicActions\":false,\"permissions\":{\"session\":\"anonymous\",\"origin\":\"http://127.0.0.1:58226\",\"scope\":{\"maxPages\":3,\"maxDepth\":1},\"businessWrites\":\"none\"},\"readToolCounts\":{\"page_observe\":1,\"page_inspect\":5,\"element_details\":1,\"rules_search\":1},\"nativeTargetRepeats\":[],\"observedHitTests\":{\"sampleCount\":5,\"relations\":{\"self\":5}}}",
+      "allowedActions": [
+        "click",
+        "inspect"
+      ],
+      "estimatedCost": 1
+    }
+  ],
+  "history": [],
+  "scope": {
+    "revision": "scope:04f43f9e0c13181de96a256492c3c1b6",
+    "executableCandidateIds": [
+      "item-9245d6f9-1fdd-40da-8e16-affbcc6fa8af",
+      "item-e739fb19-aa7e-44cf-af1c-7de6a0fc9219",
+      "item-b366131a-776f-4b2d-92fb-d644194fcac4",
+      "item-23f1219b-5af9-4b84-ad35-c54306a7931d"
+    ]
+  },
+  "budget": {
+    "revision": "budget:04f43f9e0c13181de96a256492c3c1b6",
+    "remainingActions": 20,
+    "remainingDecisions": 24,
+    "remainingMs": 88593,
+    "maxRequestMs": 60000,
+    "remainingCostUsd": 17.88384599
+  },
+  "limits": {
+    "maxCandidates": 32,
+    "maxInputBytes": 32768,
+    "maxHistory": 32
+  }
+}

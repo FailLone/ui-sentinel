@@ -1,0 +1,58 @@
+{
+  "version": "r1-offline-advice-v2-intake-1",
+  "stateId": "V05",
+  "packetSha256": "51eada1dced87c6f347c01bfcfd0dd6c31ecb6f38c1ca8237f98d37f9537c64d",
+  "choice": {
+    "kind": "advice",
+    "candidateId": "item-bea1f6fc-4a89-41ee-8f3c-db991a3007d5",
+    "intent": "investigate-candidate"
+  },
+  "tiedPriorityGroups": [
+    [
+      "item-bea1f6fc-4a89-41ee-8f3c-db991a3007d5"
+    ]
+  ],
+  "stableTieBreak": "candidate-id; not evidence of superiority",
+  "suggestions": [
+    {
+      "candidateId": "item-bea1f6fc-4a89-41ee-8f3c-db991a3007d5",
+      "text": "Reveal",
+      "publicSupport": [
+        "effect:requirement:b074326c8fc5510f0de57be9"
+      ],
+      "supportRef": "public/V05.json#registeredChecks",
+      "nativeAction": "click",
+      "priorGeneric": {
+        "state": "collected",
+        "actionId": "81465fb9-d630-4448-9751-1a2f59bb659f",
+        "checkRef": "2966a10d-9fcb-411a-8076-b35ef3ce558d",
+        "receiptRef": "9e10330c-2bdd-48bd-b3ac-510184435483.json",
+        "feedback": "no-change-observed",
+        "evidenceRefs": [
+          "d6713976-8580-4f2d-857f-6ebb3154ac9b.png",
+          "f22c65a4-0603-4f60-9471-af50e06e4385.json",
+          "3d24a4b4-b5c4-4e33-8b0c-fed04a020783.png",
+          "9c19c9e8-aac2-47d6-b03b-c063fafd6166.json",
+          "7ec7d4d7-f142-4e65-8144-0345f3b3717d.png",
+          "e239dcc3-6a6a-4be8-b24a-5358cc06b167.json",
+          "9e10330c-2bdd-48bd-b3ac-510184435483.json"
+        ],
+        "eventIds": [
+          "evt-930e0740-4bdc-42ab-b46e-4acca98cf56e"
+        ]
+      },
+      "missingInformation": [
+        "live node connection/permission/safety and current budget require executor validation",
+        "remainingMs is recorded request estimate, not a proven wall-clock lower bound",
+        "future dollar quote/remaining authorization unknown; local stub zero cost grants none",
+        "visible/enabled and absent blockedPoints do not prove click authorization",
+        "checkInteractions.requirements is frozen action data; current states are in inspectionScope.checks",
+        "no comparative preference truth or outcome prediction is supplied"
+      ]
+    }
+  ],
+  "priorityReasonableness": "evaluate-separately-with-frozen-reference",
+  "executionPath": "unknown",
+  "directlyExecutable": false,
+  "verifiedProgress": false
+}

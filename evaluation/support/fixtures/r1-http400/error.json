@@ -1,0 +1,13 @@
+{
+  "error": {
+    "message": "Provider returned error",
+    "code": 400,
+    "metadata": {
+      "raw": "{\"error\":{\"message\":\"The model request was rejected. Check the request and try again.\",\"type\":\"invalid_request_error\",\"param\":null,\"code\":\"model_request_rejected\",\"model\":\"DeepSeek-V4.1-Flash\",\"request_id\":\"a0d1d4a1a35a\"}}",
+      "provider_name": "Wafer",
+      "is_byok": false,
+      "provider_error_code": "model_request_rejected"
+    }
+  },
+  "user_id": "[redacted-provider-user-id]"
+}

@@ -1,0 +1,145 @@
+{
+  "review": "development-only",
+  "labelsSha256": "59d61fcc604d3936e1eed5d74e7789293e23213a5c70f86199c52eee03ab5cb6",
+  "frozenAt": "2026-10-08T07:13:34.343Z",
+  "scope": "static-choice-only",
+  "jev": "not-run",
+  "states": [
+    {
+      "id": "S01",
+      "historical": {
+        "acceptable": null,
+        "advancesObligation": null,
+        "unjustifiedRepeat": null,
+        "recognizesMissingPrerequisites": null,
+        "correctHandoff": null
+      },
+      "program": {
+        "acceptable": true,
+        "advancesObligation": false,
+        "unjustifiedRepeat": false,
+        "recognizesMissingPrerequisites": true,
+        "correctHandoff": true
+      }
+    },
+    {
+      "id": "S02",
+      "historical": {
+        "acceptable": null,
+        "advancesObligation": null,
+        "unjustifiedRepeat": null,
+        "recognizesMissingPrerequisites": null,
+        "correctHandoff": null
+      },
+      "program": {
+        "acceptable": true,
+        "advancesObligation": false,
+        "unjustifiedRepeat": false,
+        "recognizesMissingPrerequisites": true,
+        "correctHandoff": true
+      }
+    },
+    {
+      "id": "S03",
+      "historical": {
+        "acceptable": null,
+        "advancesObligation": null,
+        "unjustifiedRepeat": null,
+        "recognizesMissingPrerequisites": null,
+        "correctHandoff": null
+      },
+      "program": {
+        "acceptable": true,
+        "advancesObligation": false,
+        "unjustifiedRepeat": false,
+        "recognizesMissingPrerequisites": true,
+        "correctHandoff": true
+      }
+    },
+    {
+      "id": "S04",
+      "historical": {
+        "acceptable": null,
+        "advancesObligation": null,
+        "unjustifiedRepeat": null,
+        "recognizesMissingPrerequisites": null,
+        "correctHandoff": null
+      },
+      "program": {
+        "acceptable": true,
+        "advancesObligation": false,
+        "unjustifiedRepeat": false,
+        "recognizesMissingPrerequisites": true,
+        "correctHandoff": true
+      }
+    },
+    {
+      "id": "S05",
+      "historical": {
+        "acceptable": null,
+        "advancesObligation": null,
+        "unjustifiedRepeat": null,
+        "recognizesMissingPrerequisites": null,
+        "correctHandoff": null
+      },
+      "program": {
+        "acceptable": true,
+        "advancesObligation": false,
+        "unjustifiedRepeat": false,
+        "recognizesMissingPrerequisites": true,
+        "correctHandoff": true
+      }
+    },
+    {
+      "id": "S06",
+      "historical": {
+        "acceptable": null,
+        "advancesObligation": null,
+        "unjustifiedRepeat": null,
+        "recognizesMissingPrerequisites": null,
+        "correctHandoff": null
+      },
+      "program": {
+        "acceptable": true,
+        "advancesObligation": false,
+        "unjustifiedRepeat": false,
+        "recognizesMissingPrerequisites": true,
+        "correctHandoff": true
+      }
+    },
+    {
+      "id": "S07",
+      "historical": {
+        "acceptable": null,
+        "advancesObligation": null,
+        "unjustifiedRepeat": null,
+        "recognizesMissingPrerequisites": null,
+        "correctHandoff": null
+      },
+      "program": {
+        "acceptable": true,
+        "advancesObligation": false,
+        "unjustifiedRepeat": false,
+        "recognizesMissingPrerequisites": true,
+        "correctHandoff": true
+      }
+    },
+    {
+      "id": "S08",
+      "historical": {
+        "acceptable": null,
+        "advancesObligation": null,
+        "unjustifiedRepeat": null,
+        "recognizesMissingPrerequisites": null,
+        "correctHandoff": null
+      },
+      "program": {
+        "acceptable": true,
+        "advancesObligation": false,
+        "unjustifiedRepeat": false,
+        "recognizesMissingPrerequisites": true,
+        "correctHandoff": true
+      }
+    }
+  ]
+}

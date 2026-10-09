@@ -1,0 +1,53 @@
+from pathlib import Path
+from decimal import Decimal
+from urllib.parse import quote
+import json, hashlib, shutil, subprocess, re, datetime
+root=Path.cwd(); runtime=root/'data/r1-product/runtime-e3de7cb'; base=runtime/'data/r1-product'; raw=base/'authorized-deadline60'; out=root/'plans/r1-online-pilot/product/deadline60/paid-20261009';out.mkdir(exist_ok=True)
+def read(p):return json.loads(p.read_text())
+def lines(p):return [json.loads(x) for x in p.read_text().splitlines() if x]
+def sha(p):return hashlib.sha256(p.read_bytes()).hexdigest()
+def meta(p):return {'path':str(p.relative_to(root)) if p.is_relative_to(root) else str(p),'bytes':p.stat().st_size,'sha256':sha(p)}
+def save(name,d):(out/name).write_text(json.dumps(d,ensure_ascii=False,indent=2)+'\n')
+m=read(raw/'manifest.json');summary=read(raw/'summary.json');results=read(raw/'results.json');acct=read(raw/'accounting.json');ledger=lines(raw/'ledger.jsonl');timings=lines(raw/'upstream-timing.jsonl');requests=lines(raw/'requests.jsonl');responses=lines(raw/'responses.jsonl')
+assert summary['fullRealAcceptancePassed'] and len(results)==28 and all(x['evaluation']['passed'] for x in results)
+assert subprocess.check_output(['git','rev-parse','HEAD'],cwd=runtime,text=True).strip()==summary['sourceSha']
+assert not subprocess.check_output(['git','status','--porcelain','--untracked-files=no'],cwd=runtime,text=True).strip()
+assert len(ledger)==len(timings)==len(acct['entries'])==30
+assert all(x['status']=='success' and x['provider']=='Wafer' and x['httpStatus']==200 and x['transportComplete'] and x['responseId'] for x in ledger)
+assert all(x['outcome']=='validated' and x['abortedMs'] is None for x in timings)
+entries={e['requestId']:e for e in acct['entries']}
+cost=sum((Decimal(str(x['usage']['cost'])) for x in ledger),Decimal(0))
+for x in ledger:
+ e=entries[x['requestId']];assert e['status']=='settled' and Decimal(str(e['actualUsd']))==Decimal(str(x['usage']['cost']))
+assert round(acct['spending']['knownCostUsd'],9)==float(cost)
+assert acct['spending']['unknownCount']==acct['spending']['heldReservedUsd']==0 and not acct['status']['stopped']
+for t in timings:
+ q=next(x for x in requests if x['run']=='product-row:'+t['row'] and x['seq']==t['sequence'])
+ body=json.dumps(q['body'],ensure_ascii=False,separators=(',',':')).encode();assert hashlib.sha256(body).hexdigest()==t['requestBodySha256']
+rows=[];artifact_count=0
+for row,result in zip(m['rows'],results):
+ assert row['id']==result['row'];d=raw/row['id'];report=read(d/'report.json');evidence=read(d/'evidence-index.json')
+ for a in evidence:
+  f=d/'evidence'/quote(a['id'],safe="~()*!.'-_");assert f.stat().st_size==a['bytes'] and sha(f)==a['sha256'];artifact_count+=1
+ assert report['persistence']['status']=='verified' and report['uiScan']['proofVerified'] and result['jevRequests']==0
+ assert report['usage']['elapsedMs']<=180000 and result['modelRequests']<=8 and result['actions']<=row['maxActions']
+ rows.append({'row':row['id'],'scenario':row['scenario'],'result':'passed','actual':result,'elapsedMs':report['usage']['elapsedMs'],'checks':report['uiScan']['checkCounts'],'report':meta(d/'report.json'),'evidenceIndex':meta(d/'evidence-index.json'),'readableArtifactsVerified':len(evidence)})
+old=read(root/'plans/r1-online-pilot/product/evidence/preservation.json')['oldEvidence']
+for x in old:assert sha(Path(x['path']))==x['sha256']
+pins=read(root/'data/r1-product/deadline60-pins.json')
+for pin in pins:assert sha(Path(pin['path']))==pin['sha256']
+assert len(pins)==17
+claim=Path('/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-online-claims/continued-product-f7fa8326db127c1821cc038e50f65e5c02bd68989cb36ba42fa95e05a3e6abc9.claim')
+assert read(claim)['manifestHash']==summary['manifestHash']
+assert not (raw/'account/campaign.db-wal').exists()
+for name in ['summary.json','manifest.json','approval.json','price-check.json','results.json','accounting.json','ledger.jsonl','upstream-timing.jsonl','fixture-requests.json']:
+ shutil.copy2(raw/name,out/name)
+for name in ['launch.json','preparatory-price.json','runner.log']:shutil.copy2(base/name,out/name)
+shutil.copy2(root/'data/r1-product/deadline60-runtime-install.log',out/'runtime-install.log')
+save('request-summary.json',[{'requestId':x['requestId'],'row':x['run'].removeprefix('product-row:'),'sequence':x['seq'],'responseId':x['responseId'],'status':x['status'],'model':x['actualModel'],'provider':x['provider'],'usageCostUsd':x['usage']['cost'],'durationMs':x['durationMs']} for x in ledger])
+save('raw-local-files.json',{'portable':False,'runtime':str(runtime),'files':[meta(p) for p in sorted(raw.rglob('*')) if p.is_file()]})
+main=subprocess.check_output(['git','rev-parse','main'],text=True).strip()
+diff=subprocess.check_output(['git','diff','--stat',main,summary['sourceSha']],text=True)
+(out/'main-diff-stat.txt').write_text(diff)
+save('audit.json',{'checkedAt':datetime.datetime.now(datetime.timezone.utc).isoformat(),'sourceSha':summary['sourceSha'],'manifestHash':summary['manifestHash'],'fullRealAcceptancePassed':True,'rows':rows,'completedRows':28,'notRunRows':0,'actions':sum(r['actions'] for r in results),'agentRequests':30,'jevRequests':0,'visionRequests':0,'allRequestsSettled':True,'newKnownUsageCostUsd':float(cost),'newUnknownCount':0,'newHeldReservedUsd':0,'combinedKnownUsageCostUsd':float(cost+Decimal('.00502455')),'inheritedUnknownReservedUsd':.116,'inheritedUnknownCount':2,'combinedAccountedUsd':float(cost+Decimal('.00502455')+Decimal('.116')),'includingSeparateSettledFrameAccountedUsd':float(cost+Decimal('.00502455')+Decimal('.116')+Decimal('.000250824')),'actualTotalUsd':None,'usageCostIsNotIndependentInvoice':True,'artifactsVerified':artifact_count,'oldEvidenceUnchanged':len(old),'priorPins':pins,'newClaim':meta(claim),'newCampaignDb':meta(raw/'account/campaign.db'),'campaignId':read(raw/'account/campaign-id.json')['campaignId'],'sourceTrackedClean':True,'responseTimingBodyHashesMatch':True,'successfulRequestsOver15s':sum(t['responseCompleteMs']>15000 for t in timings),'longestResponseCompleteMs':max(t['responseCompleteMs'] for t in timings),'runtime':str(runtime),'sourceMainComparison':{'integratedMainSha':'48b02b3fbfe7e5d95189a0d813480761b123ff6b','reviewMainSha':main,'subsequentMainChanges':'docs/product-roadmap.md only; not merged or edited here','stat':'main-diff-stat.txt'},'historicalFailuresRemainFailures':True,'noRetryOrExtraPaidRun':True,'scope':'Frozen public fixtures in normal product/API with real provider when Agent handoff is required; no Jev quality or general website coverage claim'})
+print(json.dumps({'passed':28,'actions':sum(r['actions'] for r in results),'requests':30,'usageCostUsd':str(cost),'artifactsVerified':artifact_count,'oldEvidenceVerified':len(old),'priorPins':len(pins),'maxRowMs':max(r['elapsedMs'] for r in rows),'over15sRequests':sum(t['responseCompleteMs']>15000 for t in timings),'longestResponseMs':max(t['responseCompleteMs'] for t in timings)}))

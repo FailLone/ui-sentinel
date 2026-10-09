@@ -1,0 +1,135 @@
+[
+  {
+    "mode": "virtual-clock",
+    "case": "45s-success",
+    "timing": {
+      "row": "C10-1",
+      "sequence": 1,
+      "requestBodySha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "startedAt": "2026-10-09T14:17:36.678Z",
+      "headersMs": 100,
+      "firstByteMs": 1000,
+      "firstEventMs": 20000,
+      "responseCompleteMs": 45000,
+      "validationEndMs": 45000,
+      "releaseMs": 45000,
+      "abortedMs": null,
+      "finishedMs": 45000,
+      "httpStatus": 200,
+      "upstreamBytes": 255,
+      "dataEvents": 2,
+      "outcome": "validated",
+      "boundary": "full-validation-before-release"
+    }
+  },
+  {
+    "mode": "virtual-clock",
+    "case": "model-request-timeout",
+    "timing": {
+      "row": "C10-1",
+      "sequence": 1,
+      "requestBodySha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "startedAt": "2026-10-09T14:17:36.689Z",
+      "headersMs": 100,
+      "firstByteMs": 1000,
+      "firstEventMs": 20000,
+      "responseCompleteMs": null,
+      "validationEndMs": null,
+      "releaseMs": null,
+      "abortedMs": 60000,
+      "finishedMs": 60000,
+      "httpStatus": 200,
+      "upstreamBytes": 96,
+      "dataEvents": 1,
+      "outcome": "aborted",
+      "boundary": "full-validation-before-release"
+    }
+  },
+  {
+    "mode": "virtual-clock",
+    "case": "budget-exhausted",
+    "timing": {
+      "row": "C10-1",
+      "sequence": 1,
+      "requestBodySha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "startedAt": "2026-10-09T14:17:36.691Z",
+      "headersMs": 100,
+      "firstByteMs": 1000,
+      "firstEventMs": 20000,
+      "responseCompleteMs": null,
+      "validationEndMs": null,
+      "releaseMs": null,
+      "abortedMs": 25000,
+      "finishedMs": 25000,
+      "httpStatus": 200,
+      "upstreamBytes": 96,
+      "dataEvents": 1,
+      "outcome": "aborted",
+      "boundary": "full-validation-before-release"
+    }
+  },
+  {
+    "mode": "local-gateway-synthetic-no-real-model",
+    "case": "cancel",
+    "timing": {
+      "row": "C10-1",
+      "sequence": 1,
+      "requestBodySha256": "73bd9d80387f7fc8495eb2027cbae909443109c6dabc5a43d319edb1d5904069",
+      "startedAt": "2026-10-09T14:17:36.739Z",
+      "headersMs": 8,
+      "firstByteMs": 8,
+      "firstEventMs": 8,
+      "responseCompleteMs": null,
+      "validationEndMs": null,
+      "releaseMs": null,
+      "abortedMs": 25,
+      "finishedMs": 31,
+      "httpStatus": 200,
+      "upstreamBytes": 80,
+      "dataEvents": 1,
+      "outcome": "aborted",
+      "boundary": "full-validation-before-release"
+    },
+    "spending": {
+      "limitUsd": 14.112,
+      "knownCostUsd": 0,
+      "unknownReservedUsd": 0.063,
+      "heldReservedUsd": 0,
+      "accountedUsd": 0.063,
+      "unknownCount": 1,
+      "exceeded": false
+    }
+  },
+  {
+    "mode": "local-gateway-synthetic-no-real-model",
+    "case": "success",
+    "timing": {
+      "row": "C10-1",
+      "sequence": 1,
+      "requestBodySha256": "73bd9d80387f7fc8495eb2027cbae909443109c6dabc5a43d319edb1d5904069",
+      "startedAt": "2026-10-09T14:17:36.813Z",
+      "headersMs": 6,
+      "firstByteMs": 6,
+      "firstEventMs": 6,
+      "responseCompleteMs": 6,
+      "validationEndMs": 6,
+      "releaseMs": 6,
+      "abortedMs": null,
+      "finishedMs": 6,
+      "httpStatus": 200,
+      "upstreamBytes": 239,
+      "dataEvents": 2,
+      "outcome": "validated",
+      "boundary": "full-validation-before-release"
+    },
+    "spending": {
+      "limitUsd": 14.112,
+      "knownCostUsd": 0.001,
+      "unknownReservedUsd": 0,
+      "heldReservedUsd": 0,
+      "accountedUsd": 0.001,
+      "unknownCount": 0,
+      "exceeded": false
+    }
+  }
+]
