@@ -1,9 +1,9 @@
 {
-  "version": "r1-online-pilot-evidence-2",
+  "version": "r1-online-pilot-evidence-3",
   "pathBase": "repository-root",
   "runtimeSourceSha": "de54a7ee7c141e719f212852e774b304162cd3dc",
   "manifestHash": "9f73f0d6e3140b2d891d043441053bb75579550d58fdbf850a081c0bdc56ba75",
-  "authorizationStatus": "NOT_AUTHORIZED; three finite gaps closed; awaiting explicit one-time authorization for this exact manifest",
+  "authorizationStatus": "AUTHORIZED ONCE AND CONSUMED; stopped after first Agent HTTP400; no retry or resume",
   "limits": {
     "runs": 9,
     "agentRequests": 72,
@@ -5398,7 +5398,7 @@
       "identityBasis": "final-18 ran before candidate commit on its recorded source contents; logs lack embedded source SHA; historical logs have no exact identity claim"
     }
   ],
-  "newPaidCalls": 0,
+  "newPaidCalls": 1,
   "newBrowserRunsDuringCloseout": 0,
   "freeStageRunCount": 8,
   "distinctScenarios": 3,
@@ -5413,15 +5413,261 @@
     "218_to_de54": "Only strict quote/startup gate, shared expiry cancellation notification and measurement event v2 semantics changed. Fixture/selected candidate/permission/action/check/evidence and ledger storage unchanged. Narrow 103 tests cover new seams; old 8 runs keep original identities, no new browser run."
   },
   "unresolved": [
-    "Explicit one-time approval and private credential at authorized runtime absent",
-    "Fresh official price/provider availability must pass at runtime",
-    "Real dynamic protocol, Agent handoff and three-arm quality still untested; not R1 stage completion"
+    "One actual request cost unknown: usage missing, USD0.053 retained",
+    "Wafer model_request_rejected does not identify the rejected parameter",
+    "Remaining 8 rows not run; no three-arm quality comparison or Jev evaluation",
+    "Cancelled report persistence is not-final; no R1 stage completion"
   ],
   "absolutePathMapping": {
     "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007": "repository-root"
   },
   "omitted": "node_modules, mutable runs.db/account DB, duplicated data trees, browser profiles and credentials; exported accounting/ledger/report evidence retained, DB not required for declared claims",
   "files": [
+    {
+      "path": "artifacts/r1-online-pilot/authorized-batch-1/account/campaign-id.json",
+      "sha256": "8f7b4188fde9dd73ce35d77efc3ed500dc96401a5a0cdd9d4ea01171fc9b895a",
+      "sourceSha256": "8f7b4188fde9dd73ce35d77efc3ed500dc96401a5a0cdd9d4ea01171fc9b895a",
+      "bytes": 53,
+      "purpose": "authoritative closed shared account"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/authorized-batch-1/account/campaign.db",
+      "sha256": "e78f2588e8d163155c639d65c2f19ccdd127cc1342b327e11604b04457645936",
+      "sourceSha256": "e78f2588e8d163155c639d65c2f19ccdd127cc1342b327e11604b04457645936",
+      "bytes": 65536,
+      "purpose": "authoritative closed shared account"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/authorized-batch-1/accounting.json",
+      "sha256": "0a47c7c8b859d1700a99fa52b8295c72a17a9e5b6a6509f641d6764cbc36d0dc",
+      "sourceSha256": "0a47c7c8b859d1700a99fa52b8295c72a17a9e5b6a6509f641d6764cbc36d0dc",
+      "bytes": 796,
+      "purpose": "original runner output; sanitized account identifier if present"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/authorized-batch-1/approval.json",
+      "sha256": "02e7b9819a544f17b7a174995aeaaefa786bdddda1b7dbed9a33f238c5c592b4",
+      "sourceSha256": "02e7b9819a544f17b7a174995aeaaefa786bdddda1b7dbed9a33f238c5c592b4",
+      "bytes": 1117,
+      "purpose": "original runner output; sanitized account identifier if present"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/authorized-batch-1/authorization-claim.json",
+      "sha256": "f1743a4d1952fd712c87a76388d5da820a8c44b3daccf2dda0d7c680d32a639b",
+      "sourceSha256": "f1743a4d1952fd712c87a76388d5da820a8c44b3daccf2dda0d7c680d32a639b",
+      "bytes": 1269,
+      "purpose": "consumed one-time authorization claim; do not use copy to replay"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/authorized-batch-1/bindings.jsonl",
+      "sha256": "41e9d658486a75d0b4e3b9df72474797478b494de4ef44365ba47f903cef48f6",
+      "sourceSha256": "41e9d658486a75d0b4e3b9df72474797478b494de4ef44365ba47f903cef48f6",
+      "bytes": 15792,
+      "purpose": "original runner output; sanitized account identifier if present"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/authorized-batch-1/failure.json",
+      "sha256": "59653907086b9b08577070568b99bdfe6cbabe96b38d80a073e8822c1ec14f2e",
+      "sourceSha256": "59653907086b9b08577070568b99bdfe6cbabe96b38d80a073e8822c1ec14f2e",
+      "bytes": 64,
+      "purpose": "original runner output; sanitized account identifier if present"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/authorized-batch-1/fixture-requests.json",
+      "sha256": "26ef2024cac3e6d2741f177c10940b4a6bca6d88f2ccea10cf8291b483d289f5",
+      "sourceSha256": "26ef2024cac3e6d2741f177c10940b4a6bca6d88f2ccea10cf8291b483d289f5",
+      "bytes": 78,
+      "purpose": "original runner output; sanitized account identifier if present"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/authorized-batch-1/identity.json",
+      "sha256": "5a97b9b8a489ef020da776c3851c3e14727cb16ffe8063da1d461081912d1a4a",
+      "sourceSha256": "5a97b9b8a489ef020da776c3851c3e14727cb16ffe8063da1d461081912d1a4a",
+      "bytes": 292,
+      "purpose": "original runner output; sanitized account identifier if present"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/authorized-batch-1/launch.mjs",
+      "sha256": "a35a5e4efb715a18b9fad6a850087bb575688c546e65b60af00199dc6a1f1f16",
+      "sourceSha256": "a35a5e4efb715a18b9fad6a850087bb575688c546e65b60af00199dc6a1f1f16",
+      "bytes": 1604,
+      "purpose": "credential-loading launcher source; no credential values"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/authorized-batch-1/ledger.jsonl",
+      "sha256": "d30ed128a763487b7c0f78f27f3ed794df51a240180df576d8898f9319a1ab8d",
+      "sourceSha256": "df802f8178c126b101ea07bd778c208f112ff0c95088b76e8dae362b2baa38f9",
+      "bytes": 1076,
+      "purpose": "original runner output; sanitized account identifier if present"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/authorized-batch-1/manifest.json",
+      "sha256": "3c85a4c38510f7b3d0336d849e837ca88a816d90aec09e11c1d65b02923b0de6",
+      "sourceSha256": "3c85a4c38510f7b3d0336d849e837ca88a816d90aec09e11c1d65b02923b0de6",
+      "bytes": 3915,
+      "purpose": "original runner output; sanitized account identifier if present"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/authorized-batch-1/preflight/environment.json",
+      "sha256": "5fe0620da4eed952070caa197458d3935bd1d136954aa9275d227fbc9d566c7b",
+      "sourceSha256": "5fe0620da4eed952070caa197458d3935bd1d136954aa9275d227fbc9d566c7b",
+      "bytes": 564,
+      "purpose": "original setup/startup or execution record"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/authorized-batch-1/preflight/install.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "sourceSha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes": 2,
+      "purpose": "original setup/startup or execution record"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/authorized-batch-1/preflight/install.log",
+      "sha256": "b3905502acf4315f4ee0d04e7b58d7c4b7f3c1c19b571cf3f406fcb4ada6c046",
+      "sourceSha256": "b3905502acf4315f4ee0d04e7b58d7c4b7f3c1c19b571cf3f406fcb4ada6c046",
+      "bytes": 1823,
+      "purpose": "original setup/startup or execution record"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/authorized-batch-1/preflight/launch.json",
+      "sha256": "8d0c3516a904228672fa7e8012036afe62099f0151ad9cc9958334f3979f3fce",
+      "sourceSha256": "8d0c3516a904228672fa7e8012036afe62099f0151ad9cc9958334f3979f3fce",
+      "bytes": 548,
+      "purpose": "original setup/startup or execution record"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/authorized-batch-1/preflight/preparatory-quote.json",
+      "sha256": "cd169785994bb5c5d417627fed0cb83a8dfe469f19d5532f83b55194368e7928",
+      "sourceSha256": "cd169785994bb5c5d417627fed0cb83a8dfe469f19d5532f83b55194368e7928",
+      "bytes": 2612,
+      "purpose": "original setup/startup or execution record"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/authorized-batch-1/preflight/runner.exit",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "sourceSha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "bytes": 2,
+      "purpose": "original setup/startup or execution record"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/authorized-batch-1/preflight/runner.log",
+      "sha256": "5e7d86afc088aad85490f638b5fbf9355f884fcc05b32a6804e58dd6308c10d1",
+      "sourceSha256": "5e7d86afc088aad85490f638b5fbf9355f884fcc05b32a6804e58dd6308c10d1",
+      "bytes": 914,
+      "purpose": "original setup/startup or execution record"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/authorized-batch-1/price-check.json",
+      "sha256": "936de10648dbbfa500862f0ecd69ad5660df9ea5909e9ee63b775be595161ad7",
+      "sourceSha256": "936de10648dbbfa500862f0ecd69ad5660df9ea5909e9ee63b775be595161ad7",
+      "bytes": 2612,
+      "purpose": "original runner output; sanitized account identifier if present"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/authorized-batch-1/requests.jsonl",
+      "sha256": "689f2769132ab9eb1bebe78dcd2bb40dc1e42cec75521c9088096e7c86b6a0de",
+      "sourceSha256": "689f2769132ab9eb1bebe78dcd2bb40dc1e42cec75521c9088096e7c86b6a0de",
+      "bytes": 41168,
+      "purpose": "original runner output; sanitized account identifier if present"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/authorized-batch-1/responses.jsonl",
+      "sha256": "223c348bee401814b9224ca89acb1c99a87b93a1b78faca0ce397a929a32bab7",
+      "sourceSha256": "223c348bee401814b9224ca89acb1c99a87b93a1b78faca0ce397a929a32bab7",
+      "bytes": 135,
+      "purpose": "original runner output; sanitized account identifier if present"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/authorized-batch-1/result-summary.json",
+      "sha256": "091e06fca7bc71b646ba5f8d442bcd222a3ed800555d43480b74d195513c3a7b",
+      "sourceSha256": "091e06fca7bc71b646ba5f8d442bcd222a3ed800555d43480b74d195513c3a7b",
+      "bytes": 210,
+      "purpose": "original runner output; sanitized account identifier if present"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/authorized-batch-1/results.json",
+      "sha256": "f0eefb0a5deac6ed3a6ab0e1954c75bb9a3a0274896dd84af9d9cea34f029b3c",
+      "sourceSha256": "f0eefb0a5deac6ed3a6ab0e1954c75bb9a3a0274896dd84af9d9cea34f029b3c",
+      "bytes": 1169,
+      "purpose": "original runner output; sanitized account identifier if present"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/authorized-batch-1/semantic-agent/evaluation.json",
+      "sha256": "989e92820a9a056b2b67a56d8dc5fcad64e8f2517d77e13a01aaa6783ad6cab0",
+      "sourceSha256": "989e92820a9a056b2b67a56d8dc5fcad64e8f2517d77e13a01aaa6783ad6cab0",
+      "bytes": 1082,
+      "purpose": "attempted row report/evidence/build"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/authorized-batch-1/semantic-agent/evidence-index.json",
+      "sha256": "4bbab89897ef7063b2b85816784c97cad8903cac52c084f97630ac12d848948d",
+      "sourceSha256": "4bbab89897ef7063b2b85816784c97cad8903cac52c084f97630ac12d848948d",
+      "bytes": 981,
+      "purpose": "attempted row report/evidence/build"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/authorized-batch-1/semantic-agent/evidence/4ab36528-eb2a-44f6-9418-ebf3e1a232e5.png",
+      "sha256": "3d718288bdfccb5cf3a205bb563724224d33f91e8c2ae5db4d51b01347c4f0f8",
+      "sourceSha256": "3d718288bdfccb5cf3a205bb563724224d33f91e8c2ae5db4d51b01347c4f0f8",
+      "bytes": 14035,
+      "purpose": "referenced raw local page evidence"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/authorized-batch-1/semantic-agent/evidence/c60df1ef-60cf-4d36-a6e8-4c0bf76f772c.json",
+      "sha256": "7fa15c7da091c35c263e4556bba399ead6e6537b4447f4c3dfabfebc9f227c47",
+      "sourceSha256": "7fa15c7da091c35c263e4556bba399ead6e6537b4447f4c3dfabfebc9f227c47",
+      "bytes": 4836,
+      "purpose": "referenced raw local page evidence"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/authorized-batch-1/semantic-agent/evidence/dfac8e1b-f10e-4668-9920-b2444de21a4a.json",
+      "sha256": "659e26f69915e72a15947204970934b3663de490a23780a1c6b70dba7aa5a3a9",
+      "sourceSha256": "659e26f69915e72a15947204970934b3663de490a23780a1c6b70dba7aa5a3a9",
+      "bytes": 1627,
+      "purpose": "referenced raw local page evidence"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/authorized-batch-1/semantic-agent/evidence/ebec3249-31ef-4ecc-b24b-b15e8c072591.png",
+      "sha256": "3d718288bdfccb5cf3a205bb563724224d33f91e8c2ae5db4d51b01347c4f0f8",
+      "sourceSha256": "3d718288bdfccb5cf3a205bb563724224d33f91e8c2ae5db4d51b01347c4f0f8",
+      "bytes": 14035,
+      "purpose": "referenced raw local page evidence"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/authorized-batch-1/semantic-agent/report.json",
+      "sha256": "47465cf5a1b3d8cdee6be5cb870025982cea3884d7d52a7e76ed7dc51b39168b",
+      "sourceSha256": "47465cf5a1b3d8cdee6be5cb870025982cea3884d7d52a7e76ed7dc51b39168b",
+      "bytes": 76364,
+      "purpose": "attempted row report/evidence/build"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/authorized-batch-1/semantic-agent/server.log",
+      "sha256": "4f4c760120ef3a8c846b98f6dcc93f46d4252cef681fc7a33c2df836ce39540f",
+      "sourceSha256": "8e237d975d099fad2219f7f57d19320c0e6a419a755064e4c6fe02f6da8b226d",
+      "bytes": 3642,
+      "purpose": "attempted row report/evidence/build"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/authorized-batch-1/semantic-agent/server.mjs",
+      "sha256": "f756bee070e6348bac8fb6da6ddaf446340b2a95b79feeb182a3e780e017268b",
+      "sourceSha256": "f756bee070e6348bac8fb6da6ddaf446340b2a95b79feeb182a3e780e017268b",
+      "bytes": 799794,
+      "purpose": "attempted row report/evidence/build"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/authorized-batch-1/semantic-agent/server.mjs.map",
+      "sha256": "251d092750883e8bd92e48b97b5d8dd77ae84b9ccc703fc2edfd341500f6a2d4",
+      "sourceSha256": "251d092750883e8bd92e48b97b5d8dd77ae84b9ccc703fc2edfd341500f6a2d4",
+      "bytes": 1568536,
+      "purpose": "attempted row report/evidence/build"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/authorized-batch-1/stop.json",
+      "sha256": "147061670b8db7bd99140ba4ee61c078a28b8ef86f5cf2b9b76a051c11c6d5d5",
+      "sourceSha256": "147061670b8db7bd99140ba4ee61c078a28b8ef86f5cf2b9b76a051c11c6d5d5",
+      "bytes": 160,
+      "purpose": "original runner output; sanitized account identifier if present"
+    },
     {
       "path": "artifacts/r1-online-pilot/closeout/index-evidence.py",
       "sha256": "e51e3b9471f257a1d12c702b276e0d40eed73d1460a592827c0c76dcaea991fb",
@@ -7542,15 +7788,15 @@
     },
     {
       "path": "plans/r1-online-pilot/CURRENT-TASK.md",
-      "sha256": "ac3ddc081621e0a1328c701886a3f6a7b82f06682de4226df4978421a4caef5a",
-      "bytes": 4100,
-      "purpose": "current delivery contract, scope or proposed manifest"
+      "sha256": "938cd93bb3eac9b745a85c3dbd4850d7bc1f0e0973308ba798bab06188f37321",
+      "bytes": 6902,
+      "purpose": "current authorized batch status/results or prior delivery context"
     },
     {
       "path": "plans/r1-online-pilot/README.md",
-      "sha256": "ab81767cce6b06368e12d2d32cff5ec0bae3896732777172ace93115e9224b22",
-      "bytes": 17553,
-      "purpose": "current delivery contract, scope or proposed manifest"
+      "sha256": "bd4daefcd3ed7a9f1db08704d45d67b5429882e91bcee8de6a449c82a53afced",
+      "bytes": 18493,
+      "purpose": "current authorized batch status/results or prior delivery context"
     },
     {
       "path": "plans/r1-online-pilot/history/v1/CURRENT-TASK.md",
@@ -7589,6 +7835,24 @@
       "purpose": "current delivery contract, scope or proposed manifest"
     },
     {
+      "path": "plans/r1-online-pilot/paid/RESULT.md",
+      "sha256": "7121ed3d2a045b7271f9013d719710443b6d0293beb341bcccfb5d2ecacc6651",
+      "bytes": 5735,
+      "purpose": "current authorized batch status/results or prior delivery context"
+    },
+    {
+      "path": "plans/r1-online-pilot/paid/evidence-index.json",
+      "sha256": "45fea55afd03652c53630b0858436e4be1783ba477f9dc970fec255ede2153c3",
+      "bytes": 17517,
+      "purpose": "current authorized batch status/results or prior delivery context"
+    },
+    {
+      "path": "plans/r1-online-pilot/paid/result.json",
+      "sha256": "4c38c1480f929bcdf265b4f0ca4781da9ae6c34ee89c83a761d3e18d78e177c1",
+      "bytes": 9642,
+      "purpose": "current authorized batch status/results or prior delivery context"
+    },
+    {
       "path": "plans/r1-online-pilot/price-source.json",
       "sha256": "5cf76ede8fab9dd8bf7b23a1278602d8011fa909f20eabf367ebecb4f8499431",
       "bytes": 2942,
@@ -7596,12 +7860,12 @@
     },
     {
       "path": "plans/r1-roadmap-status-update.md",
-      "sha256": "213ff4d6ca1856183961ef9fb586ce3d3be0e726f3740e3040c0bb5e92d99dc3",
-      "bytes": 11075,
-      "purpose": "current roadmap suggestion; no main roadmap mutation"
+      "sha256": "692d5dfbb3fc270384e1d267f3cdb458500a54b0be40d13e88b85fdf6e70409f",
+      "bytes": 11922,
+      "purpose": "current authorized batch status/results or prior delivery context"
     }
   ],
-  "previousDeliverySha": "bc41f9009c4c125ff27d70344935c8eb5fd1e588",
+  "previousDeliverySha": "d63352c79aec5ff24e0f91bd75730052850075e7",
   "gapClosure": {
     "sourceSha": "de54a7ee7c141e719f212852e774b304162cd3dc",
     "manifestHash": "9f73f0d6e3140b2d891d043441053bb75579550d58fdbf850a081c0bdc56ba75",
@@ -7911,5 +8175,20 @@
     "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/plans/r1-online-pilot/manifest.proposed.json": "plans/r1-online-pilot/history/v1/manifest.proposed.json",
     "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/plans/r1-online-pilot/evidence-index.json": "plans/r1-online-pilot/history/v1/evidence-index.json"
   },
-  "deliveryMaterialsCommit": "4cfe85c7902ed8773c349bf7eb36f0dd6c9d7eca"
+  "authorizedExecution": {
+    "result": "plans/r1-online-pilot/paid/result.json",
+    "report": "plans/r1-online-pilot/paid/RESULT.md",
+    "evidenceIndex": "plans/r1-online-pilot/paid/evidence-index.json",
+    "attemptedRuns": 1,
+    "notRun": 8,
+    "agentRequests": 1,
+    "jevRequests": 0,
+    "actualTotalCostUsd": null,
+    "unknownCount": 1,
+    "unknownReserveUsd": 0.053,
+    "heldUsd": 0,
+    "claimConsumed": true,
+    "sourceSha": "de54a7ee7c141e719f212852e774b304162cd3dc",
+    "manifestHash": "9f73f0d6e3140b2d891d043441053bb75579550d58fdbf850a081c0bdc56ba75"
+  }
 }
