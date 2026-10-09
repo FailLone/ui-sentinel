@@ -1,11 +1,13 @@
-# 当前任务：R1 正常产品接入（开发中）
+# 当前任务：R1 产品候选已冻结，待一次真实验收授权
 
-2026-10-09。最新用户指令已经明确范围：继续原R1产品能力，将现有planNext/assessStrategies、状态/路径/公平性接入实际宿主，完成有限多步、公开边界输入、状态变化后重查及有界交回。通过原工作台/API显式启用，Jev默认关闭；原执行器、检查账本、网络/权限、规则和报告继续是唯一运行链。无需等待付费批准即可持续开发和必要免费验证。
+2026-10-09。普通工作台/API 的显式 R1 program 接入、状态/路径/公平性、多步/边界/重查/有界交回、原始测量报告已完成工程交付。最终工程候选 `ddf1dd943f238dc71c2d3e4e6ef327e1ba44c2db`，已合入维护者 main `48b02b3fbfe7e5d95189a0d813480761b123ff6b`；后继只保存文档/证据。统一入口为 [README](README.md)，身份/摘要为 [evidence-index](evidence-index.json)。不另开诊断轮次或范围澄清。
 
-工作区 `/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007`，分支codex/r1-jev-closeout；本轮起点55b40b3。未发现适用AGENTS.md。只修改本分支；不操作维护者main/Roadmap或规则Agent工作区，不派发其他Agent、不发消息、不push。保留已整合main da7adc8的DNS、D005/R005和D004默认关闭，不开发D001/D002算法。
+只在 `/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007` 的 `codex/r1-jev-closeout` 开发。没有修改其他工作区，没有派发 Agent、发消息、push 或将 R1 合并回 main。Roadmap/规则文档变更仅来自维护者授权的 main 合入。
 
-顺序：接入领域调度与真实状态/测量回执 → 合法有界多步和状态重绑定 → 原API/工作台开关及持久报告 → 选择有区分度的免费浏览器/执行器验证 → 新提交候选、C01–C12逐项状态及一次具体真实验收提案。新增错误继续修复和定向复验，不以中间失败结案，不机械重跑旧矩阵。
+免费验证：17 不同浏览器场景（13 completed / 4 预期 blocked）、31 原动作、4 固定模型响应、真实/Jev 调用0；232 不同定向测试最新结果通过。主套件26bd797 + 后续受影响路径定向复验具有各自来源记录，非最终 SHA 全矩阵重跑。最终工程源码完整 build/typecheck、14 子项离线 evaluator 和800附件核对通过；21个 main 增量文件除 executor 接点外逐字节一致。详细边界、失败修正及日志见统一入口。
 
-原冻结源码1e78ea6dea5098944b5d53d6cbe4630c3b53c246、manifest6428f1ecc473922766f598cc390b052d2a5d4a3f7eae370a72027c77eaa72197、隔离运行区及既有失败账本保持原样。USD0.053仍unknown；旧DB/claim/锁/stop epoch不变。旧九行/新USD4.554恢复提案尚未批准；72轮和更大评分未获执行授权。本轮没有真实模型调用许可，免费验证使用明确固定服务且不读取真实密钥。
+唯一待决：精确 product manifest `41eb23e34527461bae8bc50e6d0b28ae53d94bb584d8d167b7eddecedbfcf510` 的28轮普通产品验收（C01–C12各两次，C04三子项），program模式、Jev关闭；最多224 Agent，新增USD14.112，旧unknown USD0.053仍保留，关联记账USD14.165，90分钟。拟批准后24小时有效；首条C10-1兼容探针已包含，400/新unknown等立即停批，无自动重试、调参、补跑。空草案在最终源码已被实际CLI拒绝，未建输出/账户/claim。
 
-本轮出口是可从普通产品入口使用的R1候选、必要免费证据及集中真实验收授权请求，不是完整R1已通过。较早12类/72轮承诺保留，九行只是局部恢复验证；最终对新代码提出最小充分范围并公开相对旧计划的差异。旧统一交付README记录上一候选，完成工程后在同一入口更新，不另开诊断轮次。
+批准后才能建立新的隔离runtime，固定ddf1dd9，依据批准原文生成签署/有效期并执行。不能使用文档后继HEAD，也不能复用旧1e78runtime/旧manifest身份。执行后回到同一README/index交付28行、费用及原测量结果。
+
+旧1e78ea6 runtime tracked clean；旧九行manifest6428f1e、原41份失败材料/DB/claim/锁摘要均未变，stop epoch1与unknown保持，canonical续验claim不存在。旧九行USD4.554提案仍未批准；原72轮A/B/C与S1/S2承诺未取消、未执行，本28轮不能替代，完整R1仍未验收完成。无真实供应商恢复或Jev收益结论。现在只缺具体费用及旧unknown风险授权，不缺开发范围决定。
