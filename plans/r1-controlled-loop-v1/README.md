@@ -1,8 +1,23 @@
 # R1 受控执行闭环：本批统一交付
 
-本批限定免费闭环已实现并有实际浏览器证据：程序读取当轮页面候选，经原工具入口执行、测量、更新原检查账本，再继续或有界交回。六个本地场景三组共18轮，加1个取消反例。模型均为明确固定替身；没有真实模型调用、默认启用、push或合入main。**不宣称真实Jev收益或R1阶段验收完成。**
+限定免费闭环批已实现并有实际浏览器证据：程序读取当轮页面候选，经原工具入口执行、测量、更新原检查账本，再继续或有界交回。六个本地场景三组共18轮，加1个取消反例，该批模型均为明确固定替身。随后单独授权的一次真实请求结果如下。没有默认启用、push或合入main。**不宣称真实Jev收益或R1阶段验收完成。**
 
 本文件是本批唯一交付入口。旧8状态离线建议与零分母结果是历史证据，本批不改写、不用它们替代执行闭环结论。
+
+## 2026-10-09：唯一真实请求已执行并停止
+
+用户经维护会话对“1请求、5问题、预留US$0.003”回复“好”，授权转达及24小时执行窗口已记录；该窗口由维护者指定，不冒称用户原话包含有效期。原冻结源码/请求未改，干净隔离checkout固定`6acae6e`，从`187c3e1`原字节复制输入。凭据仅从已有本机配置私密传给CLI子进程，未复制.env或输出密钥；未作额外凭据探针。
+
+**本条真实协议兼容性通过**：2026-10-09 05:52:25–05:52:26 UTC，现有frame-cli唯一派发返回HTTP200，`typesafe/jev-1.13-20260917` / `TypeSafe`，5题完整。全frame、候选映射、wire、attempt与持久账本一致，从原始响应重新运行normalizeResponse，与保存回执一致。请求attempt=`88d0b618-00f2-4733-b502-9f593ff5768a`，provider响应ID=`gen-dec-1791525146-gkzNmoxdJdgOrusgGrbd`。
+
+- 实际usage：输入5972、输出125 tokens；服务报告 **US$0.000250824**，与5972×0.042/M一致。已结算pending=0、reserved=0、overrun=false；原预留0.003。未用差额0.002749176不是追加调用授权。
+- readiness原答`scoreable`，概率0.90、confidence 0.85；重算回执为scores。既有readiness阈值0仅诊断用，未经过质量校准。
+- 同一公开frame上，纯程序顺序Other→Reveal；Jev评分后顺序Reveal→Other。归一化relevance/informationGain分别为Other约0.210/0.333、Reveal约0.963/0.740。这是单状态描述性结果，符合公开目标对Reveal的点名，**不是检查推进或排序收益证明**；Other仍有generic义务，不能永久丢弃。未执行任何新浏览器操作。
+- 真实请求1、重试0、补调用0、主模型调用0。持久claim已消耗，保留在原R1工作区共享授权目录及证据副本；隔离checkout通过同一目录避免新工作区重置授权。
+
+[机器结果](paid/real-result.json)与总索引`realExecution`对应；原始响应在`artifacts/r1-controlled-loop-v1/real-semantic-frame-1/campaign/response.json`的`responseText`中，账本、prepared/dispatch、claim、授权、命令及离线重算脚本均列入总索引。实际命令退出0，离线审核退出0。未补跑免费测试或浏览器批次，未恢复其他付费批。
+
+本次到此停止。真实收益尚未验证；本条通过不等于所有服务场景验证、评分实验或完整R1完成。
 
 ## 源码与身份
 
@@ -71,19 +86,19 @@ python3 scripts/r1-controlled-loop/index-evidence.py
 
 核对19报告及相同构建、配置、动作/回执/附件、取消、恢复和固定Jev费用账本，退出0。原验证日志未内嵌argv/SHA，索引对此明示；复现命令按已运行测试选择恢复，退出码来自当时工具完成记录。运行报告lockHash=unavailable，索引补的是Git锁文件摘要，不冒称当时安装证明。运行版本Node24.21.0、Playwright1.63.0、Mastra1.67.0；已有pnpm10.17.1环境。未新增依赖。
 
-**仍缺的能力证据**：真实协议、真实评分、真实Agent三组执行；成功恢复；更广泛产品场景与独立质量参照。固定策略与少量合成fixture不证明自主调查、泛化发现、误报漏报率、覆盖收益或生产性能。本批没有额外未运行场景被记为通过。
+**仍缺的能力证据**：真实服务更多场景、正式评分实验、真实Agent三组执行；成功恢复；更广泛产品场景与独立质量参照。单条真实兼容及少量固定fixture不证明自主调查、泛化发现、误报漏报率、覆盖收益或生产性能。未运行场景不记为通过。
 
-## 真实入口与一次待授权方案
+## 真实入口与已消耗的一次授权方案（原冻结记录保留）
 
 真实full-frame路径是R1独立费用入口，**不经过R0主模型request-stop入口**，不借用R0停止结论。已复用R1持久campaign ledger及审计HTTP：dispatch前fsync reserve；响应attempt/digest核对；从原始JSON重算readiness和scores；账单unknown保留0.003预留并停止，取消/过期/错误不能生成迟到有效建议。定向测试的unknown与abort均验证pending=1、第二次decide不再fetch；其余涵盖原始readiness、缺键、过期、超限不截断、未授权不读密钥。固定浏览器Jev那一次的prepared/dispatch/raw response/ledger均在索引内，真实HTTP=false。
 
-已冻结 [具体小批方案](paid/proposal.json)、[完整frame](paid/frame.json)、[准确wire](paid/request.json)、[源码/请求冻结](paid/freeze.json)。只复用本批semantic第一次评分状态，不重复旧六次兼容试跑：**1请求、5问题、12171字节、15秒、0重试、禁fallback，总预留USD 0.003**。本次只执行`--freeze`，HTTP0；没有授权文件，没有读取真实key。
+已冻结 [具体小批方案](paid/proposal.json)、[完整frame](paid/frame.json)、[准确wire](paid/request.json)、[源码/请求冻结](paid/freeze.json)。只复用本批semantic第一次评分状态，不重复旧六次兼容试跑：**1请求、5问题、12171字节、15秒、0重试、禁fallback，总预留USD 0.003**。免费交付时只执行`--freeze`、HTTP0；其后新增授权和实际执行记录见本页顶部。proposal原来的not-granted/0执行字段是原冻结提案快照，不改写历史，当前状态以real-result为准。
 
 2026-10-09核对官方依据：[TypeSafe模型说明](https://docs.typesafe.ai/models)给出64k总请求、32k state+最长问题、输入USD0.042/M及输出免费；[多问题说明](https://docs.typesafe.ai/patterns/fan-out)支持一请求多问，未宣称官方硬问题数上限；[OpenRouter价格](https://openrouter.ai/typesafe/jev-1.13)一致，[Decisions协议](https://openrouter.ai/docs/api/api-reference/alphadecisions/submit-a-decisions-request)支持现有endpoint和结构。按公开接受请求上界64000×0.042/1e6=0.002688，向上预留0.003。精确token数未知；这是按公开单价/上下文的合理预留，不是供应商异常扣款的绝对保证。超收如实记overrun并停止，不填零。真实模型/供应商版本及完整5题仍须实测，不能修改verified标记放行。
 
-授权需明确：仅此freeze hash `6244d47af1e4e2e68de86b0e4518e656060b76e4ca2626af400aa90cbd4bb7cc`、1次、0.003美元、批准人/授权出处/有效期。批准后才制作`approval.json`（字段`approvedBy`、`approvalReference`、`freezeHash`、`expiresAt`）；不要把本文件当授权。
+原授权要求：仅此freeze hash `6244d47af1e4e2e68de86b0e4518e656060b76e4ca2626af400aa90cbd4bb7cc`、1次、0.003美元、批准人/授权出处/有效期。已收到对应授权并执行，approval与claim完整保留；不得使用本文件或原有效期再次派发。
 
-后续真正执行应在干净隔离checkout **6acae6e完整SHA** 中安装锁定依赖，从本次文档提交取`paid/`到未跟踪的本地输入目录，再运行：
+以下保留执行方式供审计，**本次已执行，不再运行**：在干净隔离checkout **6acae6e完整SHA** 中离线安装锁定依赖，从187c3e1取`paid/`到未跟踪的本地输入目录，私密加载key后调用：
 
 ```sh
 # 仅在收到上述对应授权后；R1_JEV_API_KEY由本机私密环境提供，不写入文件/日志
@@ -105,7 +120,7 @@ CLI核对源码、packet、wire和授权摘要后才读key；固定claim目录�
 | 完成声明 | 本批状态 |
 | --- | --- |
 | 免费开发完成 | **本批限定受控闭环完成**，18轮同构建执行+取消反例、定向免费验证有证据 |
-| 真实协议验证完成 | 否；准确一请求方案已准备，待对应授权 |
+| 真实协议验证完成 | 本条冻结frame兼容性通过；不扩大为全部服务场景通过 |
 | 评分实验完成 | 否；固定评分只验接线，真实收益未知 |
 | 探索闭环完成 | **最小受控local闭环已证明**；不等于通用产品探索/成功恢复全部完成 |
 | R1阶段验收完成 | 否；真实三组、产品出口及独立质量证据仍缺 |

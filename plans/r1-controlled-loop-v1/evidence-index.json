@@ -1821,6 +1821,196 @@
       ]
     }
   ],
+  "realExecution": {
+    "version": "r1-real-frame-audit-1",
+    "auditedAt": "2026-10-09T05:53:30.184Z",
+    "sourceSha": "6acae6edd91ffebd020ff3dd90174bbb3d7a30b4",
+    "inputCommit": "187c3e1efb011447cf2c996462c3998113753053",
+    "authorizationFreezeHash": "6244d47af1e4e2e68de86b0e4518e656060b76e4ca2626af400aa90cbd4bb7cc",
+    "authorizationConsumed": true,
+    "claim": "authorization.claim",
+    "attemptId": "88d0b618-00f2-4733-b502-9f593ff5768a",
+    "providerResponseId": "gen-dec-1791525146-gkzNmoxdJdgOrusgGrbd",
+    "packetHash": "4a021c13e6616defc20d3467743260752e012d3070a797b506ce950cccd6d390",
+    "wireHash": "924a0c684fd9a956d6a3c74c754b63931d4f148cb340aa6240325ed5f34dd698",
+    "requestDigest": "784d5c94e5d6ab41741c5af6c204f0b289277e242237b6e7659b809746385c28",
+    "rawResponseSha256": "7fd53aeb98b1b9d2666ab5449dada1db1fd520116d302d82f5319fc0b6e3ae61",
+    "protocol": "passed-for-this-one-frozen-frame",
+    "httpStatus": 200,
+    "model": "typesafe/jev-1.13-20260917",
+    "provider": "TypeSafe",
+    "questions": [
+      {
+        "key": "c0_relevance",
+        "candidateId": "item-a16d894f-982a-493b-813a-5ef248fd97ac",
+        "dimension": "relevance",
+        "text": "Other",
+        "answer": {
+          "type": "score",
+          "score": 0.62,
+          "legend": {
+            "0": "Clearly unrelated to the current inspection goal.",
+            "1": "Weakly related peripheral content.",
+            "2": "Supports a local check relevant to the goal.",
+            "3": "Directly serves the stated local inspection task."
+          },
+          "probabilities": {
+            "0": 0.57,
+            "1": 0.29,
+            "2": 0.08,
+            "3": 0.06
+          },
+          "confidence": 0.37
+        }
+      },
+      {
+        "key": "c0_informationGain",
+        "candidateId": "item-a16d894f-982a-493b-813a-5ef248fd97ac",
+        "dimension": "informationGain",
+        "text": "Other",
+        "answer": {
+          "type": "score",
+          "score": 1.01,
+          "legend": {
+            "0": "Already covered in the current related state, with no evidence of new information.",
+            "1": "Likely repetitive, or only weak public evidence of new information.",
+            "2": "Concrete public context supports inspecting a previously unobserved local state.",
+            "3": "Explicit public evidence supports a previously unobserved state needed for the local task."
+          },
+          "probabilities": {
+            "0": 0.19,
+            "1": 0.64,
+            "2": 0.15,
+            "3": 0.02
+          },
+          "confidence": 0.62
+        }
+      },
+      {
+        "key": "c1_relevance",
+        "candidateId": "item-e46c7238-7f6f-4aff-b681-6bf1e70638a8",
+        "dimension": "relevance",
+        "text": "Reveal",
+        "answer": {
+          "type": "score",
+          "score": 2.88,
+          "legend": {
+            "0": "Clearly unrelated to the current inspection goal.",
+            "1": "Weakly related peripheral content.",
+            "2": "Supports a local check relevant to the goal.",
+            "3": "Directly serves the stated local inspection task."
+          },
+          "probabilities": {
+            "0": 0.01,
+            "1": 0,
+            "2": 0.08,
+            "3": 0.91
+          },
+          "confidence": 0.89
+        }
+      },
+      {
+        "key": "c1_informationGain",
+        "candidateId": "item-e46c7238-7f6f-4aff-b681-6bf1e70638a8",
+        "dimension": "informationGain",
+        "text": "Reveal",
+        "answer": {
+          "type": "score",
+          "score": 2.24,
+          "legend": {
+            "0": "Already covered in the current related state, with no evidence of new information.",
+            "1": "Likely repetitive, or only weak public evidence of new information.",
+            "2": "Concrete public context supports inspecting a previously unobserved local state.",
+            "3": "Explicit public evidence supports a previously unobserved state needed for the local task."
+          },
+          "probabilities": {
+            "0": 0.13,
+            "1": 0.08,
+            "2": 0.23,
+            "3": 0.5599999999999999
+          },
+          "confidence": 0.22
+        }
+      }
+    ],
+    "readiness": {
+      "raw": {
+        "type": "choice",
+        "choice": "scoreable",
+        "probabilities": {
+          "scoreable": 0.9,
+          "insufficient-information": 0.08,
+          "requires-agent-investigation": 0.02
+        },
+        "confidence": 0.85
+      },
+      "recomputedReceiptKind": "scores",
+      "configuredConfidenceThreshold": 0,
+      "thresholdCalibrated": false
+    },
+    "fullStateAndCandidateBinding": true,
+    "rawReceiptRecomputed": true,
+    "ledgerChainAndDispatchBinding": true,
+    "normalizedScores": [
+      {
+        "candidateId": "item-a16d894f-982a-493b-813a-5ef248fd97ac",
+        "relevance": 0.21000000000000005,
+        "informationGain": 0.3333333333333333,
+        "uncertainty": 0.7575983215352784,
+        "text": "Other"
+      },
+      {
+        "candidateId": "item-e46c7238-7f6f-4aff-b681-6bf1e70638a8",
+        "relevance": 0.9633333333333334,
+        "informationGain": 0.7399999999999999,
+        "uncertainty": 0.8151305100855057,
+        "text": "Reveal"
+      }
+    ],
+    "programOrder": [
+      {
+        "id": "item-a16d894f-982a-493b-813a-5ef248fd97ac",
+        "text": "Other"
+      },
+      {
+        "id": "item-e46c7238-7f6f-4aff-b681-6bf1e70638a8",
+        "text": "Reveal"
+      }
+    ],
+    "jevOrder": [
+      {
+        "id": "item-e46c7238-7f6f-4aff-b681-6bf1e70638a8",
+        "text": "Reveal"
+      },
+      {
+        "id": "item-a16d894f-982a-493b-813a-5ef248fd97ac",
+        "text": "Other"
+      }
+    ],
+    "usage": {
+      "input_tokens": 5972,
+      "output_tokens": 125,
+      "cost": 0.000250824
+    },
+    "budget": {
+      "approvedReservationUsd": 0.003,
+      "actualCostUsd": 0.000250824,
+      "unresolvedReservedUsd": 0,
+      "pending": 0,
+      "overrun": false,
+      "unusedUsd": 0.002749176,
+      "unusedBudgetIsNotNewAuthorization": true
+    },
+    "realRequests": 1,
+    "retries": 0,
+    "followupRequests": 0,
+    "browserActions": 0,
+    "mainModelCalls": 0,
+    "elapsedCommandMs": 1448,
+    "interpretation": "Reveal ranks ahead of Other on this archived public frame. No action was executed; no quality rate, actual coverage or savings established. Readiness threshold 0 is diagnostic, not calibrated. One observation only.",
+    "realBenefit": "not-validated",
+    "stop": "single authorization consumed; no additional requests"
+  },
   "validation": [
     {
       "log": "artifacts/r1-controlled-loop-v1/targeted-final.log",
@@ -1866,7 +2056,8 @@
     }
   ],
   "pathMapping": {
-    "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007": "repository-root"
+    "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007": "repository-root",
+    "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-frame-20261009": "isolated runtime checkout at 6acae6e; real-semantic-frame-1/commands.json maps retained files"
   },
   "audit": {
     "command": [
@@ -1881,7 +2072,7 @@
     "Six small synthetic local fixtures, one run per arm; fixed decisions in Agent and Jev arms.",
     "identity scenarioCount/arms are constants; actual reports determine run counts.",
     "Runtime lockHash was unavailable. Lock hash supplied from Git after the run, not claimed as runtime attestation.",
-    "No proof of successful recovery, real Jev compatibility, ranking benefit, real Agent autonomy, cost saving or full R1 acceptance.",
+    "Free runs do not prove successful recovery, real Jev compatibility, ranking benefit, real Agent autonomy, cost saving or full R1 acceptance. A separate realExecution record, if present, covers only its one authorized frozen request.",
     "The artifact tree is local ignored evidence. Transfer indexed files with repository; no original database required."
   ],
   "files": [
@@ -5438,6 +5629,162 @@
       "purpose": "retained earlier outcome; excluded from comparison"
     },
     {
+      "path": "artifacts/r1-controlled-loop-v1/real-semantic-frame-1/approval.json",
+      "sha256": "fe38808c571bc29afa764375602ddf7f0d2ced6f6c5f89b7d3da47a8c841d37c",
+      "bytes": 1441,
+      "purpose": "authorized one-request real compatibility evidence"
+    },
+    {
+      "path": "artifacts/r1-controlled-loop-v1/real-semantic-frame-1/audit-response.ts",
+      "sha256": "ff5b549791deb39654149e26ada90e629ff0f951fe2ec1a51ff20d79c8c12c2b",
+      "bytes": 6108,
+      "purpose": "authorized one-request real compatibility evidence"
+    },
+    {
+      "path": "artifacts/r1-controlled-loop-v1/real-semantic-frame-1/audit.json",
+      "sha256": "35d30c739bd4f8d8137db5e564a8a443bd1b6237ba4fb1c3e2e7d42d53cfac8f",
+      "bytes": 6179,
+      "purpose": "authorized one-request real compatibility evidence"
+    },
+    {
+      "path": "artifacts/r1-controlled-loop-v1/real-semantic-frame-1/authorization.claim",
+      "sha256": "504d7b41067c601f26011467a571d1084a8717450086425648b3d119b35f16ad",
+      "bytes": 362,
+      "purpose": "authorized one-request real compatibility evidence"
+    },
+    {
+      "path": "artifacts/r1-controlled-loop-v1/real-semantic-frame-1/campaign/dispatch.json",
+      "sha256": "5dca2bbbd660c25f1c7fb87385b6965e819ecc21ec369e38a68c91a768a31d22",
+      "bytes": 252,
+      "purpose": "authorized one-request real compatibility evidence"
+    },
+    {
+      "path": "artifacts/r1-controlled-loop-v1/real-semantic-frame-1/campaign/frame.json",
+      "sha256": "51cb7b919d0637a8ccbf8bedcd396c40a7780e4298225a81f84eaae800eaa207",
+      "bytes": 12378,
+      "purpose": "authorized one-request real compatibility evidence"
+    },
+    {
+      "path": "artifacts/r1-controlled-loop-v1/real-semantic-frame-1/campaign/ledger.jsonl",
+      "sha256": "b6d0c64818dc937d8f427b59f3c0b2093e83f9a6579fd3fcc25103657cda24f9",
+      "bytes": 777,
+      "purpose": "authorized one-request real compatibility evidence"
+    },
+    {
+      "path": "artifacts/r1-controlled-loop-v1/real-semantic-frame-1/campaign/manifest.json",
+      "sha256": "379edb11f0db31eed2a40c27cc595f14a94e57d06ca52a1bc101b24a35d61c8c",
+      "bytes": 937,
+      "purpose": "authorized one-request real compatibility evidence"
+    },
+    {
+      "path": "artifacts/r1-controlled-loop-v1/real-semantic-frame-1/campaign/prepared.json",
+      "sha256": "d251a303894a6ed8bcd5a60d349e87efc48f17cd5c0ce29dd51ba63dfa2aa88e",
+      "bytes": 13991,
+      "purpose": "authorized one-request real compatibility evidence"
+    },
+    {
+      "path": "artifacts/r1-controlled-loop-v1/real-semantic-frame-1/campaign/request.json",
+      "sha256": "c2f9bdc0d6704967766e29523dadad7f76499345653144b30cd094429664c4ff",
+      "bytes": 18190,
+      "purpose": "authorized one-request real compatibility evidence"
+    },
+    {
+      "path": "artifacts/r1-controlled-loop-v1/real-semantic-frame-1/campaign/response.json",
+      "sha256": "89d592b753f17e6ac3919a5aa8da72444948642297de56481685d84e48bccba6",
+      "bytes": 3438,
+      "purpose": "authorized one-request real compatibility evidence"
+    },
+    {
+      "path": "artifacts/r1-controlled-loop-v1/real-semantic-frame-1/campaign/summary.json",
+      "sha256": "472c52c50d762743cec7ee1a82a40d0ce3ce77455f6a9bffd269848e5d1b2b25",
+      "bytes": 283,
+      "purpose": "authorized one-request real compatibility evidence"
+    },
+    {
+      "path": "artifacts/r1-controlled-loop-v1/real-semantic-frame-1/command.json",
+      "sha256": "a2474f3dc4cb5499b8434fedb3a2209ecfede253ba35dd2a89796f63880261c0",
+      "bytes": 537,
+      "purpose": "authorized one-request real compatibility evidence"
+    },
+    {
+      "path": "artifacts/r1-controlled-loop-v1/real-semantic-frame-1/commands.json",
+      "sha256": "925c5ee16a960b056285133bf3c58b6c204910fd87411fe3ab72899881d6fc4b",
+      "bytes": 1097,
+      "purpose": "authorized one-request real compatibility evidence"
+    },
+    {
+      "path": "artifacts/r1-controlled-loop-v1/real-semantic-frame-1/compiled-preflight.json",
+      "sha256": "5ccbe16a66eaf0decd2b3d473a5f11b06c660df86af8695584a28312dbe2342c",
+      "bytes": 1290,
+      "purpose": "authorized one-request real compatibility evidence"
+    },
+    {
+      "path": "artifacts/r1-controlled-loop-v1/real-semantic-frame-1/frame.json",
+      "sha256": "51cb7b919d0637a8ccbf8bedcd396c40a7780e4298225a81f84eaae800eaa207",
+      "bytes": 12378,
+      "purpose": "authorized one-request real compatibility evidence"
+    },
+    {
+      "path": "artifacts/r1-controlled-loop-v1/real-semantic-frame-1/freeze.json",
+      "sha256": "ea7fbe8e34b192232ec6c33cd3461ecca4ae685aada579fe40035d87d68b2573",
+      "bytes": 251,
+      "purpose": "authorized one-request real compatibility evidence"
+    },
+    {
+      "path": "artifacts/r1-controlled-loop-v1/real-semantic-frame-1/install.log",
+      "sha256": "2c60ea857147ee824a246e097d07d8331a5e7b37d6ff335c09ce1c8da1aa79f3",
+      "bytes": 933,
+      "purpose": "authorized one-request real compatibility evidence"
+    },
+    {
+      "path": "artifacts/r1-controlled-loop-v1/real-semantic-frame-1/preflight.json",
+      "sha256": "4a16f8593389d73b9e1f01f9f9dd0c1d28185282a68c765d559266667da771d5",
+      "bytes": 2500,
+      "purpose": "authorized one-request real compatibility evidence"
+    },
+    {
+      "path": "artifacts/r1-controlled-loop-v1/real-semantic-frame-1/preflight.ts",
+      "sha256": "b75623f9a85c98ca54e4d4eaf090ebc0959091fa138c4222f8c5b1eab67162b0",
+      "bytes": 2186,
+      "purpose": "authorized one-request real compatibility evidence"
+    },
+    {
+      "path": "artifacts/r1-controlled-loop-v1/real-semantic-frame-1/proposal.json",
+      "sha256": "3249dd0d3c8b9131b603b5cdfdf629bc7a43c597277da0acb0348b2eed0d52a4",
+      "bytes": 3163,
+      "purpose": "authorized one-request real compatibility evidence"
+    },
+    {
+      "path": "artifacts/r1-controlled-loop-v1/real-semantic-frame-1/redaction-check.json",
+      "sha256": "b455f9af4ac872fedd0c024d38bb50b8f684879b4d5a7dc0e0c26c5e4caec566",
+      "bytes": 182,
+      "purpose": "authorized one-request real compatibility evidence"
+    },
+    {
+      "path": "artifacts/r1-controlled-loop-v1/real-semantic-frame-1/request.json",
+      "sha256": "924a0c684fd9a956d6a3c74c754b63931d4f148cb340aa6240325ed5f34dd698",
+      "bytes": 12171,
+      "purpose": "authorized one-request real compatibility evidence"
+    },
+    {
+      "path": "artifacts/r1-controlled-loop-v1/real-semantic-frame-1/run-once.mjs",
+      "sha256": "06600b0fd886c6b3cceb3b4bc725cfa2da801cff6683753aa6d315ab269135c7",
+      "bytes": 1822,
+      "purpose": "authorized one-request real compatibility evidence"
+    },
+    {
+      "path": "artifacts/r1-controlled-loop-v1/real-semantic-frame-1/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "purpose": "authorized one-request real compatibility evidence"
+    },
+    {
+      "path": "artifacts/r1-controlled-loop-v1/real-semantic-frame-1/stdout.log",
+      "sha256": "f30ff3d413514ed96c11464624e5992ee146423d759dbb7e445f9c0a6ee0913a",
+      "bytes": 278,
+      "purpose": "authorized one-request real compatibility evidence"
+    },
+    {
       "path": "artifacts/r1-controlled-loop-v1/targeted-final.log",
       "sha256": "bfcb5e77d01104786196c73ddd86433159e8ad6f1d5f3702e4f6343a45d47027",
       "bytes": 232,
@@ -5463,8 +5810,8 @@
     },
     {
       "path": "plans/r1-controlled-loop-v1/README.md",
-      "sha256": "bb7bb6add2e6b7704164f1a1b0a542fe4381f7cc3d1bfbbf9fd764262801a95d",
-      "bytes": 13720,
+      "sha256": "edea676504736a28474b65452c44245bd0af99675f5bf94973f4edf380b1843c",
+      "bytes": 16391,
       "purpose": "source / test / environment binding"
     },
     {
@@ -5483,6 +5830,12 @@
       "path": "plans/r1-controlled-loop-v1/paid/proposal.json",
       "sha256": "3249dd0d3c8b9131b603b5cdfdf629bc7a43c597277da0acb0348b2eed0d52a4",
       "bytes": 3163,
+      "purpose": "pending authorization input; no real HTTP"
+    },
+    {
+      "path": "plans/r1-controlled-loop-v1/paid/real-result.json",
+      "sha256": "35d30c739bd4f8d8137db5e564a8a443bd1b6237ba4fb1c3e2e7d42d53cfac8f",
+      "bytes": 6179,
       "purpose": "pending authorization input; no real HTTP"
     },
     {
@@ -5505,8 +5858,8 @@
     },
     {
       "path": "scripts/r1-controlled-loop/index-evidence.py",
-      "sha256": "0102eab9cdc0b29805dfc3debf1532ee6db5b3582625e39e48d938dba0ed159f",
-      "bytes": 15602,
+      "sha256": "1483b2d33581f81bece6fbddc34ee17441f5568547091d2516afe3382dc560b1",
+      "bytes": 16504,
       "purpose": "source / test / environment binding"
     },
     {

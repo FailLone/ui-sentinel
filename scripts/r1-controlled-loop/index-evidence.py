@@ -225,20 +225,35 @@ for path in ['scripts/r1-controlled-loop/fixtures.ts', 'scripts/r1-controlled-lo
              'plans/r1-controlled-loop-v1/README.md', 'plans/r1-controlled-loop-v1/CONTRACT.md',
              'scripts/r1-jev-real/frame-campaign.test.ts', 'src/agent/exploration/integration/host.test.ts']:
     track(ROOT / path, 'source / test / environment binding')
+real_execution = None
+real_root = BASE / 'real-semantic-frame-1'
+if (real_root / 'audit.json').exists():
+    real_execution = read(real_root / 'audit.json')
+    assert real_execution['realRequests'] == 1
+    assert real_execution['sourceSha'] == SOURCE
+    assert real_execution['budget']['pending'] == 0
+    assert real_execution['authorizationConsumed'] is True
+    assert read(real_root / 'command.json')['exitCode'] == 0
+    for f in real_root.rglob('*'):
+        if f.is_file():
+            track(f, 'authorized one-request real compatibility evidence')
 output = {
     'version': 'r1-controlled-loop-evidence-1', 'runtimeSourceSha': SOURCE,
     'comparisonRows': rows, 'builds': builds, 'earlierExcluded': earlier,
+    'realExecution': real_execution,
     'validation': [{'log': str((BASE / name).relative_to(ROOT)), 'reproductionCommand': argv,
                     'result': result, 'exitCode': 0, 'sourceSha': SOURCE,
                     'provenance': 'prior tool completion plus raw log; original logs do not embed argv/source SHA; commands reconstructed from selected tests'}
                    for name, argv, result in validation],
-    'pathMapping': {str(ROOT): 'repository-root'},
+    'pathMapping': {str(ROOT): 'repository-root',
+                    '/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-frame-20261009':
+                    'isolated runtime checkout at 6acae6e; real-semantic-frame-1/commands.json maps retained files'},
     'audit': {'command': ['python3', 'scripts/r1-controlled-loop/index-evidence.py'],
               'browserRuns': 0, 'modelCalls': 0, 'checks': 'source-map/Git; same binary; config equality; report/artifact/receipt bindings; actual action sequence; bounded recovery; cancellation; fixed campaign ledger'},
     'limitations': ['Six small synthetic local fixtures, one run per arm; fixed decisions in Agent and Jev arms.',
                     'identity scenarioCount/arms are constants; actual reports determine run counts.',
                     'Runtime lockHash was unavailable. Lock hash supplied from Git after the run, not claimed as runtime attestation.',
-                    'No proof of successful recovery, real Jev compatibility, ranking benefit, real Agent autonomy, cost saving or full R1 acceptance.',
+                    'Free runs do not prove successful recovery, real Jev compatibility, ranking benefit, real Agent autonomy, cost saving or full R1 acceptance. A separate realExecution record, if present, covers only its one authorized frozen request.',
                     'The artifact tree is local ignored evidence. Transfer indexed files with repository; no original database required.'],
     'files': sorted(files.values(), key=lambda f: f['path']),
 }
