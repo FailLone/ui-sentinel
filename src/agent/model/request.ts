@@ -347,3 +347,29 @@ export async function executeModelRequest(
   }
   throw new Error('budget-exhausted')
 }
+
+/** A bounded program step uses the same tool-attempt context, without a model request or retry. */
+export async function executeProgramTool<T>(
+  signal: AbortSignal,
+  remainingMs: number,
+  operation: () => Promise<T>,
+): Promise<T> {
+  signal.throwIfAborted()
+  if (remainingMs <= 0) throw new Error('budget-exhausted')
+  const controller = new AbortController()
+  const combined = AbortSignal.any([signal, controller.signal])
+  const timer = setTimeout(() => controller.abort(new Error('program-step-timeout')), remainingMs)
+  const context: AttemptContext = {
+    id: 'program-' + randomUUID(),
+    signal: combined,
+    active: true,
+    toolsStarted: false,
+    responseReceived() {},
+  }
+  try {
+    return await attempts.run(context, () => abortable(combined, Promise.resolve().then(operation)))
+  } finally {
+    context.active = false
+    clearTimeout(timer)
+  }
+}

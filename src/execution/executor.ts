@@ -1,3 +1,4 @@
+import { createExperimentalHost } from './experimental-decision-host.ts'
 import { checkHash } from '../inspection/check-contract.ts'
 import { createDefaultCheckRuntime, summary as checkSummary } from './default-check-runtime.ts'
 import { admitOptionalScope } from './scope-admission.ts'
@@ -154,7 +155,12 @@ import { createElementStore } from './element-store.ts'
 import type { SlimSnapshot } from './observation-slim.ts'
 import { createStaleDetector } from './stale-detector.ts'
 import { extractToolSummary, type HistoryEntry } from '../agent/context/compact-history.ts'
-import { executeModelRequest, guardModelAttempt, beginAttemptTool } from '../agent/model/request.ts'
+import {
+  executeModelRequest,
+  executeProgramTool,
+  guardModelAttempt,
+  beginAttemptTool,
+} from '../agent/model/request.ts'
 import { collectUiBlockers } from '../inspection/blocker-evidence.ts'
 import { createTaskState } from './task-state.ts'
 import {
@@ -4403,6 +4409,9 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     let guidanceExhausted = false
     const reviewedStates = new Set<string>()
     const refreshedReviewVersions = new Set<string>()
+    const experiment = uiScan ? createExperimentalHost(runId) : undefined
+    let experimentHandedOff = false
+    let experimentalHandoff: unknown
     const agent = new Agent({
       id: 'ui-explorer',
       name: 'UI explorer',
@@ -4593,6 +4602,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         return true
       })
       const agentInput = {
+        ...(experimentalHandoff ? { explorationHandoff: experimentalHandoff } : {}),
         ...(uiScan
           ? {
               recoverableInteractions: interactionRecovery.available(),
@@ -4937,6 +4947,57 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           // The reviewer is not another exploration step and does not increment no-progress streaks.
           // Rebuild after the network wait so the full Agent receives current page facts.
           await observe()
+          continue
+        }
+      }
+      if (experiment && !experimentHandedOff) {
+        guard()
+        const version = await readObservationVersion(page)
+        const decision = await experiment.decide(structuredClone(agentInput), { signal, version })
+        guard()
+        const after = await readObservationVersion(page)
+        if (
+          decision.kind === 'tool' &&
+          (!version.reusable ||
+            !sameObservationVersion(version, after) ||
+            decision.binding !== version.key)
+        ) {
+          experimentalHandoff = {
+            reason: 'stale-or-unverifiable-state',
+            decision,
+            publicInput: agentInput,
+          }
+          experimentHandedOff = true
+          await appendEvent(runId, 'r1:handoff', { handoff: experimentalHandoff })
+          await observe()
+          continue
+        }
+        if (decision.kind === 'handoff') {
+          experimentalHandoff = decision
+          experimentHandedOff = true
+          await appendEvent(runId, 'r1:handoff', decision)
+          Object.assign(agentInput, { explorationHandoff: decision })
+        } else {
+          const allowed = ['page_act', 'page_inspect', 'interaction_verify', 'exploration_update']
+          if (!allowed.includes(decision.tool) || !activeTools.includes(decision.tool))
+            throw new Error('experimental-tool-not-allowed')
+          const tool = tools[decision.tool as keyof typeof tools]!
+          const validated = await tool.inputSchema!['~standard'].validate(decision.args)
+          if (validated.issues) throw new Error('experimental-tool-input-invalid')
+          const parsed = validated.value
+          attemptTools = 0
+          attemptReads = 0
+          await appendEvent(runId, 'r1:decision', decision)
+          const result = await executeProgramTool(
+            signal,
+            Math.min(30000, budget.totalTimeoutMs - (Date.now() - startedAt)),
+            async () => tool.execute!(parsed as never, {} as never),
+          )
+          guard()
+          const toolResults = [{ toolName: decision.tool, args: decision.args, result }]
+          history.push({ text: '', toolResults: JSON.stringify(toolResults) })
+          await appendEvent(runId, 'r1:step', { toolResults })
+          await persistUsage()
           continue
         }
       }
