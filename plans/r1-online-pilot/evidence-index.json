@@ -7542,8 +7542,8 @@
     },
     {
       "path": "plans/r1-online-pilot/CURRENT-TASK.md",
-      "sha256": "05e7259b5825a59979d02cb619e2b69d0118397c677ab8333d478befbdbdd459",
-      "bytes": 3817,
+      "sha256": "ac3ddc081621e0a1328c701886a3f6a7b82f06682de4226df4978421a4caef5a",
+      "bytes": 4100,
       "purpose": "current delivery contract, scope or proposed manifest"
     },
     {
@@ -7910,5 +7910,6 @@
     "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/plans/r1-online-pilot/README.md": "plans/r1-online-pilot/history/v1/README.md",
     "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/plans/r1-online-pilot/manifest.proposed.json": "plans/r1-online-pilot/history/v1/manifest.proposed.json",
     "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/plans/r1-online-pilot/evidence-index.json": "plans/r1-online-pilot/history/v1/evidence-index.json"
-  }
+  },
+  "deliveryMaterialsCommit": "4cfe85c7902ed8773c349bf7eb36f0dd6c9d7eca"
 }
