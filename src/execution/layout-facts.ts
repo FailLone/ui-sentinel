@@ -76,14 +76,12 @@ export async function readLayoutFacts(page: Page) {
     const recoveryIssues: string[] = []
     const resourceEntries = performance.getEntriesByType('resource') as PerformanceResourceTiming[]
     if (resourceEntries.length > 512) recoveryIssues.push('resource-history-budget')
-    const resourceEpoch = resourceEntries
-      .slice(0, 512)
-      .map((r) => ({
-        name: r.name.slice(0, 4096),
-        start: r.startTime,
-        end: r.responseEnd,
-        type: r.initiatorType,
-      }))
+    const resourceEpoch = resourceEntries.slice(0, 512).map((r) => ({
+      name: r.name.slice(0, 4096),
+      start: r.startTime,
+      end: r.responseEnd,
+      type: r.initiatorType,
+    }))
     if (
       nodes.some(
         (e) =>
