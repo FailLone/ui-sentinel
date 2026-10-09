@@ -1,19 +1,6 @@
 # R1 正常产品候选与统一验收入口
 
-2026-10-09。**首个真实批次在 C10-1 发现歧义交回后仍可动作、最终假 covered 的产品硬失败，已立即停批；其余27行未运行。本期R1尚未验收完成。** 该缺陷已在同一任务免费修复并定向复验，修复候选为 `98f7854472c3df9e3baa913ab3e74f97d8cff3c7`。本期仍选择program、Jev关闭；S1/S2和72轮收益实验后置，不作为结案阻塞。当前需要文末精确修复候选的续验授权，原授权明确禁止自动补跑。
-
-## 已执行结果、费用与修复
-
-原批准绑定 `ddf1dd9` / manifest `41eb23e34527461bae8bc50e6d0b28ae53d94bb584d8d167b7eddecedbfcf510`。2026-10-09 21:40（北京时间）通过正常API实际运行 C10-1：4次Wafer Agent请求均HTTP200、有真实usage和response ID，Jev/视觉0。真实兼容请求已成功，但不能据此断言历史400根因。程序检测同名歧义并交回后，Agent先观察/读取详情，再通过investigation_run的唯一CSS目标分别点击两个Open按钮；实际2动作、最终completed/covered，不符合冻结的0动作/合法交回要求。原测量链存在并不使这一完成结论合法。验收器标记falseCovered并停止，未发生付费重试或补跑。
-
-[28行逐项与审计](product/paid-20261009/audit.json)：C10-1失败，其余27行全部因首行硬失败未运行，**不计为通过、也不计为模型质量失败**。[原批汇总](product/paid-20261009/summary.json)的fullRealAcceptancePassed=false；这是原批最终事实，之后的免费修复不回写原批。
-
-四份供应商usage.cost相加为 **USD0.00502455**，与新账户4条settled记录逐条一致；无新unknown/held。账本priceSource字段为gateway-estimate，但此次金额直接核对了供应商usage.cost，不冒称独立正式账单。加旧unknown USD0.053，关联记账 **USD0.05802455**；另加历史已结frame USD0.000250824为USD0.058275374，总实际账单仍未知。原41份失败材料/原DB/claim/锁摘要不变；本次已合法消耗原一次性continuation claim，新产品批账户保持停止，不能重复使用旧批准、claim或换账户绕停。
-
-根因是planner handoff没有约束原执行器，也没有记录持久缺口。修复在公共performAction入口拒绝本运行的歧义后动作，覆盖page_act及investigation_run；同时记录原检查账本的永久缺口。此有限版本在公开目标/结果歧义交回后只允许只读调查和partial收尾，唯一选择器不视为已消歧；不新增自动恢复动作权限。
-
-[修复核对](product/recovery/evidence/audit.json)：本地替身主动尝试直接点击和investigation点击，两次均到达共享拒绝门，实际0动作、原歧义缺口保留、blocked；三步健康、恢复失败、预算不足三条相邻路径定向复验通过。11项受影响测试及完整build/typecheck通过；首轮新增测试类型注解错误的日志保留。另一次runner免费自检漏传行筛选，误启动较大范围，发现后停止：21行判定通过、C08-2因人工停止执行错误、6行未运行；这是额外工程执行失误记录，**不是完整通过或付费证据，不并入必要回归覆盖数**，未使用真实凭据或canonical claim。没有因此再重跑套件。
-
+2026-10-09。**普通工作台/API 的 R1 工程接入和必要免费验证已完成；真实供应商兼容性及本期付费产品验收尚未完成。** 本期选择显式启用 program 模式、Jev 默认关闭；旧 S1 更广状态验证、S2 独立评分/校准和 S5 72 轮收益对照已正式后置，不再作为本期结案前置。已收到文末精确范围的费用及旧unknown风险批准，正按授权执行；无需再次确认范围或逐行许可。
 
 [机器索引](evidence-index.json)记录源码、逐项结果及证据摘要；[当前任务](CURRENT-TASK.md)维护交接状态。原入口已原样归档到 [pre-product-20261009](history/pre-product-20261009/README.md)，旧失败、旧候选及旧九行 manifest 没有覆盖。2026-10-09 维护者转达用户认可的本期范围裁定，已同步[当前完成计划](../r1-completion-plan.md)；裁定前文档原样保留在 [pre-scope-20261009](history/pre-scope-20261009/README.md)。范围认可不构成费用或未知风险批准。
 
@@ -21,15 +8,14 @@
 
 | 项目 | 当前值 |
 | --- | --- |
-| 修复候选源码 | `98f7854472c3df9e3baa913ab3e74f97d8cff3c7` |
-| 已停止的真实批次源码 | `ddf1dd943f238dc71c2d3e4e6ef327e1ba44c2db` |
+| 最终工程源码 | `ddf1dd943f238dc71c2d3e4e6ef327e1ba44c2db` |
 | 已整合 main | `48b02b3fbfe7e5d95189a0d813480761b123ff6b`，合并提交 `3cabb048b1d98609ec25d16756364b2f1b58761b` |
 | 本地分支/工作区 | `codex/r1-jev-closeout` / `/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007` |
-| 已停止批次 manifest | [product/manifest.proposed.json](product/manifest.proposed.json) |
-| 已停止批次 manifest 对象摘要 | `41eb23e34527461bae8bc50e6d0b28ae53d94bb584d8d167b7eddecedbfcf510`（JSON.stringify 对象摘要；文件字节摘要另见索引） |
-| 原付费授权状态 | 已执行并因硬失败停止，不能再用；[授权原文/来源](product/authorization-record.json)、[正式批准文件](product/approval.authorized.json)；有效至北京时间2026-10-10 21:35，空草案保留为历史拒绝证据 |
+| 新产品 manifest | [product/manifest.proposed.json](product/manifest.proposed.json) |
+| 新 manifest 对象摘要 | `41eb23e34527461bae8bc50e6d0b28ae53d94bb584d8d167b7eddecedbfcf510`（JSON.stringify 对象摘要；文件字节摘要另见索引） |
+| 付费授权状态 | 已批准；[授权原文/来源](product/authorization-record.json)、[正式批准文件](product/approval.authorized.json)；有效至北京时间2026-10-10 21:35，空草案保留为历史拒绝证据 |
 
-原ddf1dd9运行区和证据保持原样；修复为新的98f7854候选。后继文档提交不替代各批精确源码绑定。只将 main 接收到 R1 分支，没有 push 或将 R1 合并回 main。D001/D002 交付和其文档更新均来自维护者 main；此次 main 增量除 executor 的 R1 接点外，21 个文件与 main 逐字节一致，见 [整合核对](product/evidence/main-integration.json)。DNS、D005/R005、新规则观察/报告接线保留，D004 默认关闭；未重跑 R0 或全规则矩阵。
+后继提交只归档文档和证据；运行时必须仍精确绑定上述工程源码。只将 main 接收到 R1 分支，没有 push 或将 R1 合并回 main。D001/D002 交付和其文档更新均来自维护者 main；此次 main 增量除 executor 的 R1 接点外，21 个文件与 main 逐字节一致，见 [整合核对](product/evidence/main-integration.json)。DNS、D005/R005、新规则观察/报告接线保留，D004 默认关闭；未重跑 R0 或全规则矩阵。
 
 在原工作台选择“网址 UI 检查”，勾选“R1 有界探索”即可使用。普通 `POST /api/runs` 示例：
 
@@ -84,15 +70,15 @@ Jev 另需请求 opt-in 和部署显式配置 `EXECUTION_R1_JEV=1`、`R1_JEV_ACC
 
 旧冻结 runtime `/Users/xietian/.codex/worktrees/r1-recovery/ui-sentinel` 仍在 `1e78ea6dea5098944b5d53d6cbe4630c3b53c246`、tracked clean。旧根 [九行 manifest](manifest.proposed.json) 对象摘要仍为 `6428f1ecc473922766f598cc390b052d2a5d4a3f7eae370a72027c77eaa72197`，其 USD4.554/合计4.607 提案未批准，也未被本次另行执行。新产品身份绝不能套用旧 runtime。
 
-[保存核对](product/evidence/preservation.json)重新验证原 41 份证据（含 canonical DB、claim、execution-lock）逐字节不变，该核对时续验claim尚不存在；本次真实批准后已合法创建并消耗，当前状态见付费审计。没有对账写入、供应商消息、伪造 generation ID 或将未知费用记零。较早已结算的独立 Jev frame USD0.000250824 另列，不混入未知批次。
+[保存核对](product/evidence/preservation.json)重新验证原 41 份证据（含 canonical DB、claim、execution-lock）逐字节不变，续验 claim 仍不存在。没有对账写入、供应商消息、伪造 generation ID 或将未知费用记零。较早已结算的独立 Jev frame USD0.000250824 另列，不混入未知批次。
 
 按 2026-10-09 正式范围裁定，旧 S1 六状态、更广状态验证、S2 独立评分/校准和 S5 A/B/C 12×3×2=72 轮收益比较均列为后续优化，尚未完成，不再阻止本期结案。已有适配器、代码和历史证据保留。当前缺少 Jev 收益依据，因此本期选用 program、Jev 关闭；这不表示 Jev 已证明无收益。
 
 本期出口为：普通入口可用的有界程序优先探索、原动作/测量/报告/历史链成立，以及当前 28 轮真实产品验收满足既定健康、异常、合法交回和证据要求。28 轮逐项达标、费用/unknown 如实核对且没有产品硬阻塞时，可交付“本期 R1 产品出口完成，建议维护者审阅合入”；不再等待旧评分实验。仍不得宣称所有历史实验完成。维护者负责最终审阅及合入 main，本任务不 push/merge。
 
-## 已停止批次的原授权范围（历史）
+## 已批准的一次真实验收范围
 
-该次授权对象为原ddf1dd9源码、已停止产品manifest和 [固定 evaluator](../../scripts/r1-product/evaluate.ts)。C01–C12 各两次，C04 返回、刷新、健康公开视图各独立运行，共 **28 行**。逐行 scenario、目标、fixture HTML hash、次数和预算已冻结；不从不同模式中挑赢家。C10-1 排首位，其普通 Agent 交回请求同时作为真实供应商兼容性检查，不另收费探针。
+授权对象为上表精确源码、新产品 manifest 和 [固定 evaluator](../../scripts/r1-product/evaluate.ts)。C01–C12 各两次，C04 返回、刷新、健康公开视图各独立运行，共 **28 行**。逐行 scenario、目标、fixture HTML hash、次数和预算已冻结；不从不同模式中挑赢家。C10-1 排首位，其普通 Agent 交回请求同时作为真实供应商兼容性检查，不另收费探针。
 
 | 范围 | 次数/最坏预留 |
 | --- | ---: |
@@ -111,36 +97,23 @@ USD0.053 是未结预留，**并非已确认账单或其最终上限**。批准�
 
 正式 runner 只接受精确 manifest、署名/授权引用/未过期时间、maxRuns=28、maxCostUsd=14.112 和完全匹配的 riskAcceptance。空草案已在最终源码的真实 CLI 上被拒绝，拒绝发生在报价/凭据/claim/账户/输出创建前。一次性 `continued-0ddb03d5250db453759b72ee.claim` 位于 canonical 目录，exclusive 创建；换输出/manifest/工作区不能重复接受同一失败。每次 reserve/dispatch 前复核旧来源，原账户保持停止；新账户持久记录新批次并在合计记账永久带入旧 unknown。
 
-原隔离运行区为 `data/r1-product/runtime-ddf1dd9/`，已在此执行正式批次，保持detached ddf1dd9及原数据。首次启动辅助文件相对导入路径错误在凭据/claim之前修正，失败日志保留；之后只有上述一次真实批次。准确CLI模式仍为 `scripts/r1-product/acceptance.ts --run OUTPUT MANIFEST APPROVAL CANONICAL_CLAIMS`，旧runtime不得使用新manifest，旧source也不得消费新批准。
-
-## 修复候选的一次续验提案（尚未批准）
-
-新源码 **`98f7854472c3df9e3baa913ab3e74f97d8cff3c7`**；[新manifest](product/recovery/manifest.proposed.json)对象摘要 **`f7fa8326db127c1821cc038e50f65e5c02bd68989cb36ba42fa95e05a3e6abc9`**。fixture、产品判定器、阈值、28个既定行及每行预算保持不变；只变更歧义执行约束、必要回归与显式续验费用归属。
-
-为完成本期原定的两次逐项产品证据，最小剩余执行为：**C10-1修复复验1行 + 原未运行27行，共28行**。C10-2仍是首次运行，其余26行也未曾真实运行；没有追加场景或收益实验。新批单独报告，不能与旧失败拼成原批全部通过。
-
-| 项目 | 新申请上限 |
-| --- | ---: |
-| 每行 / 全部 | 8次Agent、6动作（C12为1）、180秒；28行/224次Agent |
-| 失败C10-1复验 | 1行，最多USD0.504 |
-| 原未运行27行 | 最多USD13.608 |
-| 后续新请求合计 | **USD14.112** |
-| 加已花USD0.00502455及旧unknown USD0.053 | **USD14.17002455**关联记账上限 |
-| 另加已结历史frame | USD14.170275374 |
-| Jev / 视觉 / 自动重试 / 补跑 | 0 / 0 / 0 / 0 |
-| 整批 / 授权有效期 | 90分钟 / 拟新批准后24小时 |
-
-这是对新源码与新关联账本的具体授权申请，不能因为原USD14.112未花完而自动继续。原unknown仍不是最终账单保证，已花费用永久计入新合计。当前报价依据复用原批启动前的[公开核对](product/paid-20261009/price-check.json)，启动前仍重新校验上限；模型/provider/参数与原冻结不变。
-
-新[批准草案](product/recovery/approval.draft.json)故意为空；精确当前CLI已分别拒绝空草案和原批准，均在报价/凭据/输出/新claim前退出。新续验门固定原始未知批次及本次失败产品批的DB、manifest、stop、accounting、results和已消耗claim摘要；只读preflight已通过。新一次性 `continued-product-41eb23e34527461bae8bc50e6d0b28ae53d94bb584d8d167b7eddecedbfcf510.claim` 尚不存在；只有对新manifest和累计金额的明确批准后才能创建。新门不清除旧unknown、不解封旧账户、不删改任何旧claim；任何来源/WAL/晚到费用变化或新unknown仍停止。
-
-批准后在同一任务：准备新的98f7854隔离运行区、离线锁定依赖，将新manifest与据真实授权原文生成的approval放入data，注入现有私密凭据；执行正常产品runner：
+批准后准备**新的隔离运行区**，checkout 精确 `ddf1dd9`、离线安装锁定依赖，复制本次 manifest 和根据真实授权原文生成的 approval；旧 1e78 runtime 保持原样。注入现有 `R1_ONLINE_API_KEY`（不复制 .env 或输出凭据），在新运行区执行：
 
 ```sh
 node_modules/.bin/tsx scripts/r1-product/acceptance.ts --run \
-  data/r1-product/authorized-recovery \
-  data/r1-product/recovery-manifest.json data/r1-product/recovery-approval.json \
+  data/r1-product/authorized-acceptance \
+  data/r1-product/manifest.json data/r1-product/approval.json \
   /Users/xietian/Documents/ChatGPT/ui-sentinel-r1-online-claims
 ```
 
-不逐行询问；首行兼容检查已含在内。硬失败立即停批；先免费定位/修复和定向验证，未获另行授权不新增付费。执行后在本README/index形成唯一结论：本期出口逐项、每行及未运行原因、真实费用/unknown、program采用/Jev关闭、剩余限制、最终SHA及相对main差异。全部本期出口达标则交维护者审阅合入，不再等待后置评分实验；当前不能宣称本期完成。
+源码脏或 HEAD 不匹配会拒绝；不能在文档后继 HEAD 上绕过身份检查。该 runner 构建并启动正常 `src/server/index.ts`，通过普通 API 创建运行；预注册 campaign 行 ID 和 API 实际 runId 在 run-binding.json 显式关联，不伪造原 action ID。结束后在本入口更新 28 行结果、未运行原因、原测量和费用；任何扩大范围、重新冻结或新增收费须有对应授权。当前进入隔离运行准备；实际结果将在同一入口更新，尚未宣称通过。
+
+## 批准后在同一任务连续完成
+
+1. 将用户对精确 28 轮/金额/旧 unknown 风险的明确批准原文和时间作为 approvalReference，设置批准后 24 小时有效期；核对源码、manifest、只读旧来源及报价，使用新的隔离运行区。没有明确批准，保持本节未执行，不读取真实调用凭据用于派发、不创建收费 claim。
+2. 按上述一次命令执行已冻结批次；首行兼容检查包含在 28 行内，之后无需逐行询问。保留原始请求/响应、行与 runId 绑定、账本、动作/测量、附件及未运行原因。严格执行既有停止条件和无自动重试/补跑约定。
+3. 在同一任务核对所有 28 行：健康误报、预注册异常、原始证据完整性、C10–C12 缺口及权限/预算/持久化；从原回执重算已知费用，unknown 单列。固定替身成功不能代替真实结果，completed 不能代替这些条件。
+4. 失败时先分类并完成有依据的免费修复和受影响定向验证，不以诊断报告代替收尾。保留原失败，不用局部补跑拼成原批全通过。若确需新增收费复验或改变冻结身份，只提出最小受影响范围、预算和所需授权；当前 28 轮授权不自动覆盖这些调用，也不能清除或绕过已消费的 claim。
+5. 产品出口达标则在本 README/index 形成唯一最终结论：本期出口逐项、28 行及未运行原因、真实费用/unknown、program 采用/Jev 关闭、剩余限制、最终 SHA 和相对已整合 main 的允许差异，交维护者审阅合入。硬失败则明确具体阻塞；不因“一把结束”降低标准，不再用后置评分/收益实验拖延结案。
+
+本次免费收口仅修订计划/状态/索引并复核既有文件身份、证据与执行顺序，没有新实验、免费整套重跑、真实调用或收费 claim。

@@ -1,24 +1,24 @@
 {
   "version": "r1-product-delivery-1",
-  "checkedAt": "2026-10-09T13:53:23.089767+00:00",
+  "checkedAt": "2026-10-09T11:00:10.009416+00:00",
   "entry": "plans/r1-online-pilot/README.md",
-  "status": "paid-hard-failure-repaired-awaiting-specific-recovery-approval",
-  "sourceSha": "98f7854472c3df9e3baa913ab3e74f97d8cff3c7",
+  "status": "authorized-preparing-real-product-acceptance",
+  "sourceSha": "ddf1dd943f238dc71c2d3e4e6ef327e1ba44c2db",
   "integratedMainSha": "48b02b3fbfe7e5d95189a0d813480761b123ff6b",
   "mergeSha": "3cabb048b1d98609ec25d16756364b2f1b58761b",
-  "manifestHash": "f7fa8326db127c1821cc038e50f65e5c02bd68989cb36ba42fa95e05a3e6abc9",
+  "manifestHash": "41eb23e34527461bae8bc50e6d0b28ae53d94bb584d8d167b7eddecedbfcf510",
   "manifest": {
-    "path": "plans/r1-online-pilot/product/recovery/manifest.proposed.json",
-    "bytes": 15217,
-    "sha256": "7dc1a0a2c0a41aed632c655a01116b44d5287bda7cbb399bbfb9a757dcd84783"
+    "path": "plans/r1-online-pilot/product/manifest.proposed.json",
+    "bytes": 12747,
+    "sha256": "1a89755d397a87f62be87499b74cc1e18127f747b18a3c84cc942471f8a4fdcb"
   },
   "approvalDraft": {
-    "path": "plans/r1-online-pilot/product/recovery/approval.draft.json",
-    "bytes": 722,
-    "sha256": "0a39489ea4e104072870a63e829f8f2a1308aae285019db5b8ad774e7ed3fc1e"
+    "path": "plans/r1-online-pilot/product/approval.draft.json",
+    "bytes": 656,
+    "sha256": "1933127b6190a8d421c80f0332705ed0dde0420b2263bbea8a7748ee681cfebb"
   },
-  "realAcceptanceApproved": false,
-  "newRealCalls": 4,
+  "realAcceptanceApproved": true,
+  "newRealCalls": 0,
   "newJevCalls": 0,
   "paidProposal": {
     "runs": 28,
@@ -26,14 +26,11 @@
     "maxJevCalls": 0,
     "maxNewCostUsd": 14.112,
     "oldUnsettledReserveUsd": 0.053,
-    "maxCombinedAccountedUsd": 14.17002455,
+    "maxCombinedAccountedUsd": 14.165,
     "historicalSeparateSettledUsd": 0.000250824,
-    "withHistoricalSettledAccountedUsd": 14.170275374,
+    "withHistoricalSettledAccountedUsd": 14.165250824,
     "oldUnknownIsNotInvoiceCap": true,
-    "maxWindowMs": 5400000,
-    "previousProductKnownUsageCostUsd": 0.00502455,
-    "failedRowToRevalidate": 1,
-    "previouslyUnrunRows": 27
+    "maxWindowMs": 5400000
   },
   "freeResults": {
     "uniqueBrowserCases": 17,
@@ -54,12 +51,10 @@
     "oldFailedManifestHash": "9f73f0d6e3140b2d891d043441053bb75579550d58fdbf850a081c0bdc56ba75",
     "oldEvidenceUnchanged": 41,
     "oldRuntimeUnchanged": true,
-    "canonicalContinuationClaimAbsent": false,
+    "canonicalContinuationClaimAbsent": true,
     "original72AndIndependentScoringOutstanding": true,
     "archivedEntry": "history/pre-product-20261009/README.md",
-    "historicalRelativePaths": "Resolve archived verbatim entry paths in their original plans/r1-online-pilot context; archive content is not rewritten.",
-    "canonicalContinuationClaimConsumedByAuthorizedProductBatch": true,
-    "nextProductContinuationClaimAbsent": true
+    "historicalRelativePaths": "Resolve archived verbatim entry paths in their original plans/r1-online-pilot context; archive content is not rewritten."
   },
   "evidence": [
     {
@@ -283,186 +278,6 @@
       "bytes": 66905,
       "sha256": "a837358945a20287be3e1087aba1a77cd5632c6274662d8d845e50bf9896e505",
       "interpretation": "See unified README for scope and provenance; not an additional acceptance run."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/paid-20261009/accounting.json",
-      "bytes": 3816,
-      "sha256": "e56a93413e2decaec793253c787dd6dfb4ed9ab9d918aa3363218c56bd7cb14d",
-      "interpretation": "Original stopped paid batch; failure retained, not passed."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/paid-20261009/approval.json",
-      "bytes": 935,
-      "sha256": "e81f1248a4ed564df08d9e525d427fded6bbb85b423aa580c0826b8f23f11c7a",
-      "interpretation": "Original stopped paid batch; failure retained, not passed."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/paid-20261009/audit.json",
-      "bytes": 10283,
-      "sha256": "420604259cb698380677a0883033e69af3c30cb0aeb6a05d1979a7a822a099ba",
-      "interpretation": "Original stopped paid batch; failure retained, not passed."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/paid-20261009/failure.json",
-      "bytes": 64,
-      "sha256": "59653907086b9b08577070568b99bdfe6cbabe96b38d80a073e8822c1ec14f2e",
-      "interpretation": "Original stopped paid batch; failure retained, not passed."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/paid-20261009/launch-attempt-1.log",
-      "bytes": 1949,
-      "sha256": "e88a85885024d796f86edbc6586fb432ce8a534977e0544724488ff79f242c9e",
-      "interpretation": "Original stopped paid batch; failure retained, not passed."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/paid-20261009/launch.json",
-      "bytes": 650,
-      "sha256": "8b87d30e46234aac4d9ccf41369b1dd6b9a2932d61034e1f5b96221f0439a71e",
-      "interpretation": "Original stopped paid batch; failure retained, not passed."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/paid-20261009/manifest.json",
-      "bytes": 12747,
-      "sha256": "1a89755d397a87f62be87499b74cc1e18127f747b18a3c84cc942471f8a4fdcb",
-      "interpretation": "Original stopped paid batch; failure retained, not passed."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/paid-20261009/preparatory-price.json",
-      "bytes": 2612,
-      "sha256": "3faa897bad77469e6e25875621f0ecbb84deceac7c4fa3d4e0a85dc816e2e835",
-      "interpretation": "Original stopped paid batch; failure retained, not passed."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/paid-20261009/price-check.json",
-      "bytes": 2612,
-      "sha256": "042ae0ab5c40542ff0dc91421eb9cc26d4d2908496dce5a315cc0210631cce62",
-      "interpretation": "Original stopped paid batch; failure retained, not passed."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/paid-20261009/raw-local-files.json",
-      "bytes": 20852,
-      "sha256": "00c0e7de38a820e262ae6a7a25ff32e8768e9ad2341b7c97d781d8fdfaa005b2",
-      "interpretation": "Original stopped paid batch; failure retained, not passed."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/paid-20261009/results.json",
-      "bytes": 518,
-      "sha256": "ac2933c85c5c69952866d87066ca00d375f95bd3269495ead7220e9fd493f81c",
-      "interpretation": "Original stopped paid batch; failure retained, not passed."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/paid-20261009/runner.log",
-      "bytes": 389,
-      "sha256": "5b895c8bf48a9f8ccf095cc57049f2bc90d9921e793ab9d47f32e340d3446de9",
-      "interpretation": "Original stopped paid batch; failure retained, not passed."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/paid-20261009/runtime-install.log",
-      "bytes": 1868,
-      "sha256": "66390c8301d554d56ab012e36cb5d7d6f33cf17b16d728da5acb94032e640245",
-      "interpretation": "Original stopped paid batch; failure retained, not passed."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/paid-20261009/stop.json",
-      "bytes": 156,
-      "sha256": "96bbf3e2aa2adef1f1a9a7def6f15376a2fa7eeb8b28ebb99bdedfd46f9ca31f",
-      "interpretation": "Original stopped paid batch; failure retained, not passed."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/paid-20261009/summary.json",
-      "bytes": 262,
-      "sha256": "d60c69419274bd64d29e77c7bac5e25b9a44fbe6cb077c3c2c09dd0db760da02",
-      "interpretation": "Original stopped paid batch; failure retained, not passed."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/recovery/evidence/audit.json",
-      "bytes": 3241,
-      "sha256": "549585ebe15a7850786801d50d76081ff5d227189ae345a37cddcc40152b2d9e",
-      "interpretation": "Recovery evidence; see recovery audit for focused passes, type repair and interrupted extra free-run provenance."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/recovery/evidence/paid-fix-adjacent-browser.log",
-      "bytes": 1667,
-      "sha256": "32fc2bcef16698043976e1b5443bfe1773b6caaef23504607f5474313a23e2a5",
-      "interpretation": "Recovery evidence; see recovery audit for focused passes, type repair and interrupted extra free-run provenance."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/recovery/evidence/paid-fix-ambiguity-browser.log",
-      "bytes": 826,
-      "sha256": "0fa34e6a6f5720ac5259a0e593837124fc187ac65b3fa18ef8a1d0aa54c67678",
-      "interpretation": "Recovery evidence; see recovery audit for focused passes, type repair and interrupted extra free-run provenance."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/recovery/evidence/paid-fix-build-first-type-error.log",
-      "bytes": 1365,
-      "sha256": "30592d2e7530090c870bd4ad98d7728103c7c74e3dd1ac9e840a2daac61ccce9",
-      "interpretation": "Recovery evidence; see recovery audit for focused passes, type repair and interrupted extra free-run provenance."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/recovery/evidence/paid-fix-build.log",
-      "bytes": 1334,
-      "sha256": "3f3187f78afedd7936920f6879b2076d5fc3353ab3314daff045565a91584e44",
-      "interpretation": "Recovery evidence; see recovery audit for focused passes, type repair and interrupted extra free-run provenance."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/recovery/evidence/paid-fix-draft-rejection.log",
-      "bytes": 699,
-      "sha256": "cde9aba514b4df9d6e5f1e24fbeae86f3b8682fe7afe9de3e23296b7e46059d8",
-      "interpretation": "Recovery evidence; see recovery audit for focused passes, type repair and interrupted extra free-run provenance."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/recovery/evidence/paid-fix-freeze.log",
-      "bytes": 304,
-      "sha256": "f537f9a459d0a2b595e22df7a428599edb7728e8367261d87bca81879310b7ca",
-      "interpretation": "Recovery evidence; see recovery audit for focused passes, type repair and interrupted extra free-run provenance."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/recovery/evidence/paid-fix-old-approval-rejection.log",
-      "bytes": 699,
-      "sha256": "cde9aba514b4df9d6e5f1e24fbeae86f3b8682fe7afe9de3e23296b7e46059d8",
-      "interpretation": "Recovery evidence; see recovery audit for focused passes, type repair and interrupted extra free-run provenance."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/recovery/evidence/paid-fix-readonly-preflight.log",
-      "bytes": 77,
-      "sha256": "e4591816e202822e77ecf31c476851d5eee976e2967a335259811140bf9b0790",
-      "interpretation": "Recovery evidence; see recovery audit for focused passes, type repair and interrupted extra free-run provenance."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/recovery/evidence/paid-fix-runner-free.log",
-      "bytes": 7482,
-      "sha256": "7ed2dc4840ac62d01caf64b58ce8781807591b34dce53b2c460d2a3a75225dd8",
-      "interpretation": "Recovery evidence; see recovery audit for focused passes, type repair and interrupted extra free-run provenance."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/recovery/evidence/paid-fix-targeted-tests.log",
-      "bytes": 231,
-      "sha256": "8ae1a445bcf16c4f3eeaea2f6313f354225a63dc5ea9f97322226d622cc58c0c",
-      "interpretation": "Recovery evidence; see recovery audit for focused passes, type repair and interrupted extra free-run provenance."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/recovery/evidence/raw-local-files.json",
-      "bytes": 369471,
-      "sha256": "c31aadce86db1a1e67872d6720eceba9b685b942ac10a4c8aab235077319cc98",
-      "interpretation": "Recovery evidence; see recovery audit for focused passes, type repair and interrupted extra free-run provenance."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/approval.authorized.json",
-      "bytes": 935,
-      "sha256": "e81f1248a4ed564df08d9e525d427fded6bbb85b423aa580c0826b8f23f11c7a",
-      "interpretation": "Human authorization for stopped original batch only, not the proposed recovery."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/authorization-record.json",
-      "bytes": 1126,
-      "sha256": "54970a88d8e88a4d9a7c3bdb8fd0e899c2fb6f26b2edc5877502df853708b4bd",
-      "interpretation": "Human authorization for stopped original batch only, not the proposed recovery."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/recovery/evidence/candidate-source-files.json",
-      "bytes": 25811,
-      "sha256": "ed4a35c9a5b980c965b7662a4ea4ca50dd24b509a57c0f9dad54ad80e27607ef",
-      "interpretation": "Current recovery candidate source hashes and new fix delta; maintainer review/merge still pending."
     }
   ],
   "archivedFiles": [
@@ -500,26 +315,6 @@
       "path": "plans/r1-online-pilot/history/pre-scope-20261009/r1-completion-plan.md",
       "bytes": 26473,
       "sha256": "b80cb7c9a074829ec35e662205ee1705873b76215ad46dfded84845d860e76cf"
-    },
-    {
-      "path": "plans/r1-online-pilot/history/pre-paid-result-20261009/CURRENT-TASK.md",
-      "bytes": 3902,
-      "sha256": "dc4b54f875c667afd5ef657ec444a5e55ec624c28e3dfc2ff55077e091eb90cb"
-    },
-    {
-      "path": "plans/r1-online-pilot/history/pre-paid-result-20261009/README.md",
-      "bytes": 18105,
-      "sha256": "684e89e9d9fb5876943351f7d6770b7cd2f821afb895198452e32e2861c47714"
-    },
-    {
-      "path": "plans/r1-online-pilot/history/pre-paid-result-20261009/evidence-index.json",
-      "bytes": 16041,
-      "sha256": "1b71919226dc1bf291f5f730b57a11886852d3e9ca8e7f3bbb8454e18eb0c2c2"
-    },
-    {
-      "path": "plans/r1-online-pilot/history/pre-paid-result-20261009/r1-completion-plan.md",
-      "bytes": 8958,
-      "sha256": "61f1187ab62ccf6c6c641a05337afacc39dc6839bcf2dd4bdb6d93bb01d57196"
     }
   ],
   "localRawEvidence": "product/evidence/raw-local-files.json",
@@ -550,35 +345,6 @@
     "accurateCommand": "scripts/r1-product/acceptance.ts --run OUTPUT MANIFEST APPROVAL CANONICAL_CLAIMS"
   },
   "authorizationRecord": "product/authorization-record.json",
-  "paidOriginal": {
-    "sourceSha": "ddf1dd943f238dc71c2d3e4e6ef327e1ba44c2db",
-    "manifestHash": "41eb23e34527461bae8bc50e6d0b28ae53d94bb584d8d167b7eddecedbfcf510",
-    "approved": true,
-    "authorization": "product/authorization-record.json",
-    "status": "stopped-hard-failure",
-    "paidRows": 1,
-    "notRunRows": 27,
-    "fullRealAcceptancePassed": false,
-    "audit": "product/paid-20261009/audit.json",
-    "knownUsageCostUsd": 0.00502455,
-    "newUnknownCount": 0,
-    "combinedAccountedUsd": 0.05802455,
-    "actualTotalUsd": null,
-    "runtime": "data/r1-product/runtime-ddf1dd9",
-    "preserveRuntimeAndClosedAccount": true
-  },
-  "recoveryVerification": {
-    "audit": "product/recovery/evidence/audit.json",
-    "focusedBrowserCases": 4,
-    "ambiguousActionsRefused": 2,
-    "ambiguousActionsDispatched": 0,
-    "affectedTests": 11,
-    "buildPassed": true,
-    "browserExecutorDiffByteIdenticalToCandidate": true,
-    "fixturesRowsEvaluatorUnchanged": true,
-    "oldAndEmptyApprovalsRejected": true,
-    "readonlyPinsPreflightPassed": true,
-    "noRealRequestsAfterStop": true,
-    "unintendedBroadFreeRunInterruptedAndNotCountedAsFullPass": true
-  }
+  "approval": "product/approval.authorized.json",
+  "expiresAt": "2026-10-10T13:35:00Z"
 }

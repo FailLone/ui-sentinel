@@ -1,0 +1,101 @@
+{
+  "sourceSha": "98f7854472c3df9e3baa913ab3e74f97d8cff3c7",
+  "regressions": [
+    {
+      "scenario": "ambiguous",
+      "report": {
+        "path": "data/r1-product/2026-10-09T13-43-30-268Z/ambiguous-report.json",
+        "bytes": 269536,
+        "sha256": "72d912e82415fc7a54b37288e74a8d90dd702ac42d2164cf93d78cb03dfd7bc6"
+      },
+      "status": "blocked",
+      "usage": {
+        "actions": 0,
+        "modelCalls": 3,
+        "elapsedMs": 704,
+        "modelInputTokens": 30,
+        "modelOutputTokens": 30
+      },
+      "refusedActions": 2,
+      "originalGapReasons": [
+        "v2-mandatory-checks-incomplete",
+        "v2-mandatory-checks-incomplete",
+        "ambiguous-public-target"
+      ]
+    },
+    {
+      "scenario": "three-step-healthy",
+      "report": {
+        "path": "data/r1-product/2026-10-09T13-44-33-115Z/three-step-healthy-report.json",
+        "bytes": 1194946,
+        "sha256": "0932e2359806a672e782686314fc2f94039f704a90fa7e995cc2469389bcd59d"
+      },
+      "status": "completed",
+      "usage": {
+        "actions": 3,
+        "modelCalls": 0,
+        "elapsedMs": 5388,
+        "modelInputTokens": null,
+        "modelOutputTokens": null
+      },
+      "refusedActions": 0,
+      "originalGapReasons": []
+    },
+    {
+      "scenario": "recovery",
+      "report": {
+        "path": "data/r1-product/2026-10-09T13-44-33-115Z/recovery-report.json",
+        "bytes": 420171,
+        "sha256": "12f3be4f196f233376cb5a0fb4c3d225fdc9b65daa377b81aea8957487e4c0d6"
+      },
+      "status": "blocked",
+      "usage": {
+        "actions": 1,
+        "modelCalls": 1,
+        "elapsedMs": 2122,
+        "modelInputTokens": 10,
+        "modelOutputTokens": 10
+      },
+      "refusedActions": 0,
+      "originalGapReasons": [
+        "v2-mandatory-checks-incomplete"
+      ]
+    },
+    {
+      "scenario": "budget",
+      "report": {
+        "path": "data/r1-product/2026-10-09T13-44-33-115Z/budget-report.json",
+        "bytes": 463114,
+        "sha256": "e46470b78143f45289aa10c9b0a10d64e2b6939c2de14363df279eb57f0e26e1"
+      },
+      "status": "blocked",
+      "usage": {
+        "actions": 1,
+        "modelCalls": 1,
+        "elapsedMs": 2053,
+        "modelInputTokens": 10,
+        "modelOutputTokens": 10
+      },
+      "refusedActions": 0,
+      "originalGapReasons": [
+        "budget-insufficient"
+      ]
+    }
+  ],
+  "targetedTestsPassed": 11,
+  "fullBuildPassed": true,
+  "draftAndOldApprovalRejectedBeforeOutput": true,
+  "readonlyLineagePreflightPassed": true,
+  "newRealCallsAfterStop": 0,
+  "unintendedBroadFreeRun": {
+    "summary": {
+      "sourceSha": "98f7854472c3df9e3baa913ab3e74f97d8cff3c7",
+      "manifestHash": "f7fa8326db127c1821cc038e50f65e5c02bd68989cb36ba42fa95e05a3e6abc9",
+      "completedRows": 22,
+      "fullRealAcceptancePassed": false,
+      "realModels": false,
+      "oldNineAnd72Replaced": false
+    },
+    "explanation": "The --free command omitted its row filter and began more rows than intended. Stopped its child server after detection; 21 row checks passed and C08-2 was interrupted, 6 not run. This is not a full pass, not paid evidence and not counted as required regression coverage. No real keys or canonical claim used. Logs and raw results retained."
+  }
+}

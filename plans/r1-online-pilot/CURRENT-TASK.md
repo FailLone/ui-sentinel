@@ -1,15 +1,17 @@
-# 当前任务：R1 产品候选已冻结，已获授权，执行真实产品验收
+# 当前任务：真实批次硬失败已修复，待精确续验授权
 
-2026-10-09。普通工作台/API 的显式 R1 program 接入、状态/路径/公平性、多步/边界/重查/有界交回、原始测量报告已完成工程交付。最终工程候选 `ddf1dd943f238dc71c2d3e4e6ef327e1ba44c2db`，已合入维护者 main `48b02b3fbfe7e5d95189a0d813480761b123ff6b`；后继只保存文档/证据。统一入口为 [README](README.md)，身份/摘要为 [evidence-index](evidence-index.json)。按2026-10-09正式范围裁定，在本任务完成授权后的运行、核对、必要免费修复和最终交付，不拆成反复交接；无需再裁定开发范围。
+2026-10-09。按用户认可的本期program产品出口持续在同一任务收尾，S1/S2及72轮收益对照已后置，不再阻塞本期；Jev默认关闭。唯一结论维护于 [README](README.md) 与 [机器索引](evidence-index.json)，范围见 [完成计划](../r1-completion-plan.md)。不另起诊断交接，不扩展产品需求。
 
-只在 `/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007` 的 `codex/r1-jev-closeout` 开发。没有修改其他工作区，没有派发 Agent、发消息、push 或将 R1 合并回 main。Roadmap/规则文档变更仅来自维护者授权的 main 合入。
+明确人类批准已取得并执行：原源码ddf1dd943f238dc71c2d3e4e6ef327e1ba44c2db、manifest41eb23e34527461bae8bc50e6d0b28ae53d94bb584d8d167b7eddecedbfcf510、28轮、新USD14.112及旧USD0.053风险。授权原文及来源见product/authorization-record.json。2026-10-09北京时间21:40，首行C10-1的4次Wafer请求均HTTP200，但歧义交回后Agent通过investigation_run执行2动作并被报告为covered。验收器发现硬失败后停批，其余27行未运行；fullRealAcceptancePassed=false。无收费重试/补跑。
 
-免费验证：17 不同浏览器场景（13 completed / 4 预期 blocked）、31 原动作、4 固定模型响应、真实/Jev 调用0；232 不同定向测试最新结果通过。主套件26bd797 + 后续受影响路径定向复验具有各自来源记录，非最终 SHA 全矩阵重跑。最终工程源码完整 build/typecheck、14 子项离线 evaluator 和800附件核对通过；21个 main 增量文件除 executor 接点外逐字节一致。详细边界、失败修正及日志见统一入口。
+本批供应商usage已知费用USD0.00502455，无新unknown或held；旧unknown USD0.053不变，关联记账USD0.05802455，另已结frame USD0.000250824单列，总实际费用仍未知。原41份失败文件/DB/claim/锁摘要不变；原continuation claim已经合法消耗，原新旧账户均保持停止。旧1e78runtime及本次ddf1dd9隔离runtime保持原身份和数据，不能拿去运行修复manifest。
 
-已于北京时间2026-10-09 21:36:56收到维护者转发的直接人类批准“批准本次验收及旧未知费用风险”；原文/来源存于 product/authorization-record.json，保守有效期至2026-10-10 21:35。精确授权对象：精确 product manifest `41eb23e34527461bae8bc50e6d0b28ae53d94bb584d8d167b7eddecedbfcf510` 的28轮普通产品验收（C01–C12各两次，C04三子项），program模式、Jev关闭；最多224 Agent，新增USD14.112，旧unknown USD0.053仍保留，关联记账USD14.165，90分钟。有效期采用2026-10-10T13:35:00Z；首条C10-1兼容探针已包含，400/新unknown等立即停批，无自动重试、调参、补跑。空草案在最终源码已被实际CLI拒绝，未建输出/账户/claim。
+已在本任务完成免费修复：源码98f7854472c3df9e3baa913ab3e74f97d8cff3c7，歧义交回后整个有限运行只允许只读调查/partial收尾；公共performAction门覆盖page_act和investigation_run，原账本永久缺口防止假covered。恶意动作替身两个入口均被拒绝，实际0动作/blocked；三步健康、恢复失败、预算不足3条相邻路径通过。11项受影响测试及完整build/typecheck通过。原17场景/232测试仍按旧来源复用，未升级成修复版本全量结果。一次免费runner自检漏行筛选而超出计划，已停止并完整记录21通过/1人工中断/6未运行，不算产品全量通过。
 
-现按已取得的明确授权建立新的隔离runtime，固定ddf1dd9，依据批准原文生成签署/有效期并执行。不能使用文档后继HEAD，也不能复用旧1e78runtime/旧manifest身份。执行后在同一README/index交付28行、费用及原测量结果。若失败，先在本任务完成有依据的免费修复和定向验证；无自动收费重试/补跑，额外收费只请求最小受影响范围及预算。不得绕过一次性claim或把局部补跑拼成原批全通过。
+新续验提案：修复候选98f7854，product/recovery/manifest.proposed.json对象hash f7fa8326db127c1821cc038e50f65e5c02bd68989cb36ba42fa95e05a3e6abc9。失败C10-1复验1行＋原未运行27行，共28行，原fixture/evaluator/阈值/行预算不变。最多224 Agent，新请求上限USD14.112；计入已花USD0.00502455和旧unknown USD0.053后，关联记账上限USD14.17002455；90分钟，拟新批准后24小时，Jev/视觉/自动重试/补跑0。
 
-旧1e78ea6 runtime tracked clean；旧九行manifest6428f1e、原41份失败材料/DB/claim/锁摘要均未变，stop epoch1与unknown保持，canonical续验claim不存在。旧九行USD4.554提案仍未批准；旧S1更广状态验证、S2独立评分/校准和S5 72轮A/B/C已正式后置为后续优化，尚未完成，代码/证据保留；不再是本期R1结案前置。本期选择program、Jev关闭，理由为缺少收益依据，而非已证明Jev无收益。28轮真实产品验收达标、费用/unknown核对及明确限制后，即形成可合入候选和本期完成建议，由维护者审阅合入；本任务不push/merge。若有硬失败则如实列出产品阻塞，不降标准。当前仍未完成真实产品验收；费用及风险批准现已单独取得，不再重复请求。正在准备隔离runtime并核对既有冻结身份，未产生实际结果前不写已通过。
+当前缺的是对上述修复源码与累计金额的明确续验批准，不是重复询问已批准的原批。原批准明确无自动补跑，未用额度不授权新SHA。空草案及旧批准已被真实CLI拒绝，未建新输出/账户/claim；新只读来源预检通过。新门固定两次旧批次及已消耗claim摘要，一次性新product continuation claim尚不存在；不清unknown、不解封旧账户、不绕停。
 
-范围裁定前的README、CURRENT-TASK、机器索引和原完成计划原样归档在 [pre-scope-20261009](history/pre-scope-20261009/)。计划总入口仍为 [r1-completion-plan](../r1-completion-plan.md)，最终结果只在当前README/index集中维护。
+批准后在同一任务按README准确命令于新98f7854隔离runtime执行，原始逐行/费用/缺口全部保留。若硬失败继续先免费定位修复，额外付费须另行最小范围授权，局部补验不能拼成原批全通过。本期出口满足后给出最终可合入候选，由维护者审阅合入；不再因后置实验延长。当前未达本期真实验收出口。
+
+仅修改 /Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007 的codex/r1-jev-closeout及获准的新隔离runtime；已整合main48b02b3，未追随仅Roadmap文档的22eb132改变冻结身份。无其他会话消息、Agent派发、push或main合并，无其他工作区/Roadmap编辑。
