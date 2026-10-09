@@ -15,6 +15,8 @@
 
 ## 文件与维护入口
 
+- [D001/D002 普通扫描交付](rules-clipping-overlap-delivery.md)：本批限定裁切/重叠实现、当前验证和整合入口。
+
 - [main 整合交接](rules-main-integration-handoff.md)：完整分支依赖、自检、证据范围及整合/回退步骤；[当前唯一任务入口](rules-scan-integration-current-task.md)已完成并停止。
 
 - [D005/R005 普通网址扫描接入](rules-scan-integration.md)：已随 `5e3255b` 合入main，已开启的ui-scan默认参与，工作台直接展示；代码合入不代表部署服务已重启。其余19条知识仍待实现，D004继续默认关闭，D010复用既有能力。

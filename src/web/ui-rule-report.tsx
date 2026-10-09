@@ -68,6 +68,59 @@ export function UiRuleReportSection({
                   {Math.round(b.timing.sharedObservationMs)}{' '}
                   ms，含截图、原DOM及新增图片事实；未做基线差分）
                 </p>
+                {b.layout && (
+                  <section aria-label="裁切与重叠检查">
+                    <h3>裁切与重叠检查</h3>
+                    <p>
+                      已枚举目标 {b.layout.totalObserved} · 省略 {b.layout.omitted} · 枚举
+                      {b.layout.enumerationComplete ? '完成' : '截断（总数未知）'}
+                      。只测限定原生文字；范围外不表示健康。
+                    </p>
+                    {b.layout.results.map((result) => (
+                      <article key={result.ruleId}>
+                        <h4>
+                          {result.ruleId === 'control-text-clipping'
+                            ? 'D001：文字字形裁切'
+                            : 'D002：共同操作组文字重叠'}
+                        </h4>
+                        <p>
+                          本项结论：
+                          {result.verdict === 'fail'
+                            ? '存在已测缺陷（其他目标仍可能未知）'
+                            : label(result.verdict)}
+                        </p>
+                        {result.rows.map((row) => (
+                          <div key={row.selector}>
+                            <strong>
+                              {row.text || row.selector}：
+                              {row.verdict === 'fail' ? '已确认局部绘制破坏' : label(row.verdict)}
+                            </strong>
+                            <p>{layoutReason(row.reason)}</p>
+                            <small>
+                              {row.selector} · 依据：{row.basis}
+                            </small>
+                            {row.pixels && (
+                              <p>
+                                参考字形墨迹 {row.pixels.ink} 像素；可见 {row.pixels.visibleInk}
+                                ；裁掉 {row.pixels.clippedInk}；兄弟控件覆盖 {row.pixels.coveredInk}
+                                。像素计数仅属于本次限定测量。
+                              </p>
+                            )}
+                            {!!row.relatedRuleIds.length && (
+                              <p>
+                                关联检查：{row.relatedRuleIds.join('、')}
+                                ；绘制破坏和指针拦截为不同事实，不相互替代。
+                              </p>
+                            )}
+                            {!!row.relatedSelectors.length && (
+                              <p>相交对象：{row.relatedSelectors.join('、')}</p>
+                            )}
+                          </div>
+                        ))}
+                      </article>
+                    ))}
+                  </section>
+                )}
                 <h3>原生控件文字检查</h3>
                 <p>
                   目标 {b.controls.total} · 已测 {b.controls.enumerated} · 未知 {b.controls.unknown}{' '}
@@ -138,4 +191,28 @@ export function UiRuleReportSection({
       })}
     </section>
   )
+}
+
+function layoutReason(value: string) {
+  const meanings: Record<string, string> = {
+    'complete-native-label-ink-observed': '同次截图与参考字形一致，已测控件名称完整呈现。',
+    'native-label-glyphs-cut-by-nonscrollable-vertical-clip':
+      '不可滚动的垂直裁切边界切过名称字形，截图确认边界内墨迹保留、边界外墨迹丢失。此结论仅针对当前原生控件的唯一文字表达。',
+    'coexisting-action-label-ink-observed': '公开共同操作组中的控件文字墨迹实际可见。',
+    'coexisting-sibling-background-erases-action-label-ink':
+      '共同操作组中后绘制的独立兄弟控件，以实色背景盖掉该名称的部分字形；同次截图与覆盖模型一致。',
+    'coexistence-not-established': '没有取得本项支持的公开共同操作组依据，不能把矩形相交判为缺陷。',
+    'observation-changed': '页面、节点或相关事实变化，旧证据不能用于当前结论。',
+    'layout-evidence-missing-or-changed': '本次布局证据缺失或摘要变化，结论不可消费。',
+    'scripted-recovery-unmeasured':
+      '页面存在脚本行为，尚未确认是否有恢复全文或关闭浮层的路径；像素缺失不能直接升级为缺陷。',
+    'state-dependent-recovery-unmeasured':
+      '样式包含交互状态，可能在悬停或焦点状态恢复内容；当前未确认。',
+    'disabled-or-inert': '当前明确禁用或不可交互，本项不适用。',
+    'modal-background': '正常模态背景，本项不适用。',
+  }
+  return value
+    .split('; ')
+    .map((code) => meanings[code] ?? `当前绘制、替代入口或测量条件未确认（${code}）`)
+    .join('；')
 }

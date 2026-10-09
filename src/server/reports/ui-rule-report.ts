@@ -51,7 +51,10 @@ export async function projectUiRuleReports(
           for (const ref of body.evidenceRefs) {
             const p = paths.get(ref)
             if (!p) throw Error('关联证据缺失')
-            await readFile(p)
+            const linked = await readFile(p)
+            const expected = body.layout?.evidenceDigests?.[ref]
+            if (expected && createHash('sha256').update(linked).digest('hex') !== expected)
+              throw Error('布局关联证据摘要不匹配')
           }
           return { ...base, available: true, body }
         } catch (error) {

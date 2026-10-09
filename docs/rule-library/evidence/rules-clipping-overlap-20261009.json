@@ -1,0 +1,2183 @@
+{
+  "version": "rules-clipping-overlap-delivery-1",
+  "date": "2026-10-09",
+  "branch": "codex/rules-clipping-overlap",
+  "baseCommit": "280bcd54ebe36f3d22f8e1c06fa47c14f79516cd",
+  "implementationCommit": "4983896226b4f977d8dc153e630283e98c46ac7e",
+  "sourceIdentity": [
+    {
+      "path": "evaluation/fixtures/control-layout.ts",
+      "bytes": 1763,
+      "sha256": "2eedac0e53e37276b98e2379237d4c2b5d3aa1286f9596f2ba30e5890ba02f42"
+    },
+    {
+      "path": "scripts/validation/rules-clipping-overlap.ts",
+      "bytes": 11365,
+      "sha256": "6f6b56427d30493ce977140b3197678c1a2136f3d27f966466f3c8b0e6f19669"
+    },
+    {
+      "path": "src/execution/executor.ts",
+      "bytes": 230554,
+      "sha256": "aa80564eb4b311d2a1b5d61cf4eb3b656ff9f9fd91a574c416a7c092a6a6bdc1"
+    },
+    {
+      "path": "src/execution/layout-facts.test.ts",
+      "bytes": 10796,
+      "sha256": "ed7f7849bdce630174b60854da6918eb73572ade628910468fce9eb0da06eea7"
+    },
+    {
+      "path": "src/execution/layout-facts.ts",
+      "bytes": 22216,
+      "sha256": "bef4fa8cf01bb000b739a1224f4c809be943d590c4967c98ccf1a43ac721396d"
+    },
+    {
+      "path": "src/execution/layout-observation.test.ts",
+      "bytes": 6349,
+      "sha256": "1ecdf6288e0c98fb4bb66a39deccbaa17534b5f9503cb9810ef50ab20b884ecd"
+    },
+    {
+      "path": "src/execution/ui-rule-observation.ts",
+      "bytes": 14176,
+      "sha256": "a82de2e9f204073ae31f6e430083c6d133a12a3e5cf790f4a7da82b9ce116b26"
+    },
+    {
+      "path": "src/rules/builtin/control-layout.ts",
+      "bytes": 8310,
+      "sha256": "4c991542363793e356cf7b5aa776605f41befe81cdb3948ce14613cd1cf3ddd8"
+    },
+    {
+      "path": "src/server/reports/ui-rule-report.ts",
+      "bytes": 2596,
+      "sha256": "8f4fc97bd4946cea0a7b8e0e1f3ea7259e359129dae43b10f746a62a713c2b3a"
+    },
+    {
+      "path": "src/web/ui-rule-report.tsx",
+      "bytes": 11293,
+      "sha256": "d607524f12c27ba9dd8017e841606d38270492fab849d6327894c24c47265fda"
+    }
+  ],
+  "buildIdentity": [
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/server.mjs",
+      "bytes": 862140,
+      "sha256": "de336dc6114453905dc8c6c9e30462cbb73ec8e92e1cbc2cbfb4b0db9f68022c"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/server.mjs.map",
+      "bytes": 1686242,
+      "sha256": "84ff2def7c97a094435af6ce990e6ae90c6fd7b4eb999f6147c19d28ec6ab387"
+    },
+    {
+      "path": "dist/server/index.js",
+      "bytes": 862138,
+      "sha256": "d54c02bac106c6afca88a9c05e579bb608cd3c00e0c4a4b1eba22361096df720"
+    },
+    {
+      "path": "dist/server/index.js.map",
+      "bytes": 1685828,
+      "sha256": "4a732e10b77971be152b54addd53520785bf37300e5c0fa191e420173b0600a7"
+    },
+    {
+      "path": "dist/web/assets/index-CXdperhR.css",
+      "bytes": 1840,
+      "sha256": "9d2e2d4160a738314d05456a16c35238f522e1f6a8b336acf04a1128158acd88"
+    },
+    {
+      "path": "dist/web/assets/index-jsizsBR7.js",
+      "bytes": 257580,
+      "sha256": "77a968eba18bde7cb5b7f65448045afb9dc90c36bad13f79de6ed362587414df"
+    },
+    {
+      "path": "dist/web/index.html",
+      "bytes": 356,
+      "sha256": "62ec41f1191226c4888c88bd5a5a966cca2054b2e1493e3bea8ed1c5479ab26d"
+    }
+  ],
+  "validation": {
+    "directed": "11 passed in 3 files; directed-final.log",
+    "directedIdentityNote": "Final directed run covered final collector, rules, adapter and history code. Afterwards only executor summary text was expanded to name all rule verdicts; final product run covers that committed implementation. No rule algorithm changed.",
+    "typecheckExit": 0,
+    "fullBuildExit": 0,
+    "productCases": 4,
+    "productAssertionsPassed": true,
+    "completeScanPasses": 0,
+    "realModelCalls": 0,
+    "publicVisits": 0,
+    "fixtureBusinessWrites": 0,
+    "uiErrors": [],
+    "node": "24.21.0",
+    "dependencyInstall": "frozen-lockfile offline; 0 downloaded; initial install shell Node25 emitted engine warning, validations/builds explicitly used supported Node24",
+    "priorMatricesRerun": false,
+    "formatCheck": "10 changed code files checked successfully after the whitespace-only wrap correction"
+  },
+  "product": [
+    {
+      "mode": "workbench",
+      "runId": "run-5f8bb6fc-cf34-4dd7-8911-36fda7109721",
+      "status": "blocked",
+      "stopReason": "blocked",
+      "providerTurns": 1,
+      "elapsedMs": 1372.734167,
+      "observations": [
+        {
+          "timing": {
+            "sharedObservationMs": 19.514666999999918,
+            "prepareMs": 8.587333000000172,
+            "completeMs": 141.67554199999995,
+            "evaluateMs": 6.303209000000152,
+            "addedMs": 156.56762500000013
+          },
+          "controls": {
+            "total": 2,
+            "enumerated": 2,
+            "unknown": 2,
+            "omitted": 0
+          },
+          "images": {
+            "total": 0,
+            "unknown": 0
+          },
+          "layout": {
+            "results": [
+              {
+                "ruleId": "control-text-clipping",
+                "verdict": "fail",
+                "rows": [
+                  {
+                    "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(1)",
+                    "text": "Review invoice",
+                    "verdict": "fail",
+                    "reason": "native-label-glyphs-cut-by-nonscrollable-vertical-clip",
+                    "basis": "sole-visible-native-action-text; local presentation only",
+                    "relatedSelectors": [],
+                    "relatedRuleIds": [],
+                    "pixels": {
+                      "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(1)",
+                      "ink": 843,
+                      "visibleInk": 346,
+                      "clippedInk": 497,
+                      "coveredInk": 0,
+                      "mismatch": 0,
+                      "overlapMismatch": 592
+                    }
+                  },
+                  {
+                    "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(2)",
+                    "text": "Next",
+                    "verdict": "pass",
+                    "reason": "complete-native-label-ink-observed",
+                    "basis": "sole-visible-native-action-text; local presentation only",
+                    "relatedSelectors": [],
+                    "relatedRuleIds": [],
+                    "pixels": {
+                      "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(2)",
+                      "ink": 285,
+                      "visibleInk": 285,
+                      "clippedInk": 0,
+                      "coveredInk": 0,
+                      "mismatch": 0,
+                      "overlapMismatch": 0
+                    }
+                  }
+                ]
+              },
+              {
+                "ruleId": "control-text-overlap",
+                "verdict": "unknown",
+                "rows": [
+                  {
+                    "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(1)",
+                    "text": "Review invoice",
+                    "verdict": "unknown",
+                    "reason": "clipping-must-be-resolved-separately",
+                    "basis": "native-navigation-members",
+                    "relatedSelectors": [],
+                    "relatedRuleIds": [
+                      "control-text-clipping"
+                    ],
+                    "pixels": {
+                      "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(1)",
+                      "ink": 843,
+                      "visibleInk": 346,
+                      "clippedInk": 497,
+                      "coveredInk": 0,
+                      "mismatch": 0,
+                      "overlapMismatch": 592
+                    }
+                  },
+                  {
+                    "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(2)",
+                    "text": "Next",
+                    "verdict": "pass",
+                    "reason": "coexisting-action-label-ink-observed",
+                    "basis": "native-navigation-members",
+                    "relatedSelectors": [],
+                    "relatedRuleIds": [],
+                    "pixels": {
+                      "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(2)",
+                      "ink": 285,
+                      "visibleInk": 285,
+                      "clippedInk": 0,
+                      "coveredInk": 0,
+                      "mismatch": 0,
+                      "overlapMismatch": 0
+                    }
+                  }
+                ]
+              }
+            ],
+            "totalObserved": 2,
+            "omitted": 0,
+            "enumerationComplete": true,
+            "evidenceDigests": {
+              "10e39c20-6516-4147-b22e-a218f35cbaa1.png": "745c9319ad75438f174af79696650caa6e919373511bfcfbdf4dd9fc18209ca3",
+              "55eb5938-529e-46fc-86e8-31550c972ee9.png": "cc61cc5c98955164d5e022dacaaecfa39254b5b0f02a98e85a778f3c8c35c1ae",
+              "83339ba5-74c7-4641-8168-fd5c13e4e6be.json": "ff82a9c444ad3a184e9b2833371067d3293145f258fc6cfc89b990766a0b5d81"
+            }
+          }
+        },
+        {
+          "timing": {
+            "sharedObservationMs": 20.470874999999978,
+            "prepareMs": 3.6991659999998774,
+            "completeMs": 142.98349999999982,
+            "evaluateMs": 6.227124999999887,
+            "addedMs": 152.91074899999967
+          },
+          "controls": {
+            "total": 2,
+            "enumerated": 2,
+            "unknown": 2,
+            "omitted": 0
+          },
+          "images": {
+            "total": 0,
+            "unknown": 0
+          },
+          "layout": {
+            "results": [
+              {
+                "ruleId": "control-text-clipping",
+                "verdict": "fail",
+                "rows": [
+                  {
+                    "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(1)",
+                    "text": "Review invoice",
+                    "verdict": "fail",
+                    "reason": "native-label-glyphs-cut-by-nonscrollable-vertical-clip",
+                    "basis": "sole-visible-native-action-text; local presentation only",
+                    "relatedSelectors": [],
+                    "relatedRuleIds": [],
+                    "pixels": {
+                      "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(1)",
+                      "ink": 843,
+                      "visibleInk": 346,
+                      "clippedInk": 497,
+                      "coveredInk": 0,
+                      "mismatch": 0,
+                      "overlapMismatch": 592
+                    }
+                  },
+                  {
+                    "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(2)",
+                    "text": "Next",
+                    "verdict": "pass",
+                    "reason": "complete-native-label-ink-observed",
+                    "basis": "sole-visible-native-action-text; local presentation only",
+                    "relatedSelectors": [],
+                    "relatedRuleIds": [],
+                    "pixels": {
+                      "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(2)",
+                      "ink": 285,
+                      "visibleInk": 285,
+                      "clippedInk": 0,
+                      "coveredInk": 0,
+                      "mismatch": 0,
+                      "overlapMismatch": 0
+                    }
+                  }
+                ]
+              },
+              {
+                "ruleId": "control-text-overlap",
+                "verdict": "unknown",
+                "rows": [
+                  {
+                    "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(1)",
+                    "text": "Review invoice",
+                    "verdict": "unknown",
+                    "reason": "clipping-must-be-resolved-separately",
+                    "basis": "native-navigation-members",
+                    "relatedSelectors": [],
+                    "relatedRuleIds": [
+                      "control-text-clipping"
+                    ],
+                    "pixels": {
+                      "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(1)",
+                      "ink": 843,
+                      "visibleInk": 346,
+                      "clippedInk": 497,
+                      "coveredInk": 0,
+                      "mismatch": 0,
+                      "overlapMismatch": 592
+                    }
+                  },
+                  {
+                    "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(2)",
+                    "text": "Next",
+                    "verdict": "pass",
+                    "reason": "coexisting-action-label-ink-observed",
+                    "basis": "native-navigation-members",
+                    "relatedSelectors": [],
+                    "relatedRuleIds": [],
+                    "pixels": {
+                      "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(2)",
+                      "ink": 285,
+                      "visibleInk": 285,
+                      "clippedInk": 0,
+                      "coveredInk": 0,
+                      "mismatch": 0,
+                      "overlapMismatch": 0
+                    }
+                  }
+                ]
+              }
+            ],
+            "totalObserved": 2,
+            "omitted": 0,
+            "enumerationComplete": true,
+            "evidenceDigests": {
+              "ad48eb0b-0da8-465e-830c-8701087a7a11.png": "745c9319ad75438f174af79696650caa6e919373511bfcfbdf4dd9fc18209ca3",
+              "8e976fe0-6ec5-4281-ac03-563f330c3cfb.png": "cc61cc5c98955164d5e022dacaaecfa39254b5b0f02a98e85a778f3c8c35c1ae",
+              "d1004092-32ac-4a99-8105-8af9450894bc.json": "a916708eda62757576f971ebac8bf8cd201a36202c1900d1fc9659f7edd78308"
+            }
+          }
+        }
+      ],
+      "evaluations": [
+        {
+          "ruleId": "control-text-clipping",
+          "verdict": "fail"
+        },
+        {
+          "ruleId": "control-text-overlap",
+          "verdict": "unknown"
+        },
+        {
+          "ruleId": "control-text-clipping",
+          "verdict": "fail"
+        },
+        {
+          "ruleId": "control-text-overlap",
+          "verdict": "unknown"
+        }
+      ]
+    },
+    {
+      "mode": "overlap",
+      "runId": "run-d3b93eb0-fe45-477f-8cca-dd05fcaec9a7",
+      "status": "blocked",
+      "stopReason": "blocked",
+      "providerTurns": 1,
+      "elapsedMs": 1057.0562079999995,
+      "observations": [
+        {
+          "timing": {
+            "sharedObservationMs": 22.13754199999994,
+            "prepareMs": 7.255541999999878,
+            "completeMs": 140.8613330000003,
+            "evaluateMs": 6.018833000000086,
+            "addedMs": 154.13658299999997
+          },
+          "controls": {
+            "total": 2,
+            "enumerated": 2,
+            "unknown": 2,
+            "omitted": 0
+          },
+          "images": {
+            "total": 0,
+            "unknown": 0
+          },
+          "layout": {
+            "results": [
+              {
+                "ruleId": "control-text-clipping",
+                "verdict": "unknown",
+                "rows": [
+                  {
+                    "selector": "html > body:nth-of-type(1) > fieldset:nth-of-type(1) > button:nth-of-type(1)",
+                    "text": "Archive receipt",
+                    "verdict": "unknown",
+                    "reason": "intersecting-paint-needs-overlap-review",
+                    "basis": "sole-visible-native-action-text; local presentation only",
+                    "relatedSelectors": [
+                      "html > body:nth-of-type(1) > fieldset:nth-of-type(1) > button:nth-of-type(2)"
+                    ],
+                    "relatedRuleIds": [
+                      "control-text-overlap"
+                    ],
+                    "pixels": {
+                      "selector": "html > body:nth-of-type(1) > fieldset:nth-of-type(1) > button:nth-of-type(1)",
+                      "ink": 828,
+                      "visibleInk": 522,
+                      "clippedInk": 0,
+                      "coveredInk": 306,
+                      "mismatch": 363,
+                      "overlapMismatch": 0
+                    }
+                  },
+                  {
+                    "selector": "html > body:nth-of-type(1) > fieldset:nth-of-type(1) > button:nth-of-type(2)",
+                    "text": "Later",
+                    "verdict": "pass",
+                    "reason": "complete-native-label-ink-observed",
+                    "basis": "sole-visible-native-action-text; local presentation only",
+                    "relatedSelectors": [],
+                    "relatedRuleIds": [
+                      "overlay-blocking"
+                    ],
+                    "pixels": {
+                      "selector": "html > body:nth-of-type(1) > fieldset:nth-of-type(1) > button:nth-of-type(2)",
+                      "ink": 291,
+                      "visibleInk": 291,
+                      "clippedInk": 0,
+                      "coveredInk": 0,
+                      "mismatch": 0,
+                      "overlapMismatch": 0
+                    }
+                  }
+                ]
+              },
+              {
+                "ruleId": "control-text-overlap",
+                "verdict": "fail",
+                "rows": [
+                  {
+                    "selector": "html > body:nth-of-type(1) > fieldset:nth-of-type(1) > button:nth-of-type(1)",
+                    "text": "Archive receipt",
+                    "verdict": "fail",
+                    "reason": "coexisting-sibling-background-erases-action-label-ink",
+                    "basis": "native-fieldset-actions",
+                    "relatedSelectors": [
+                      "html > body:nth-of-type(1) > fieldset:nth-of-type(1) > button:nth-of-type(2)"
+                    ],
+                    "relatedRuleIds": [],
+                    "pixels": {
+                      "selector": "html > body:nth-of-type(1) > fieldset:nth-of-type(1) > button:nth-of-type(1)",
+                      "ink": 828,
+                      "visibleInk": 522,
+                      "clippedInk": 0,
+                      "coveredInk": 306,
+                      "mismatch": 363,
+                      "overlapMismatch": 0
+                    }
+                  },
+                  {
+                    "selector": "html > body:nth-of-type(1) > fieldset:nth-of-type(1) > button:nth-of-type(2)",
+                    "text": "Later",
+                    "verdict": "pass",
+                    "reason": "coexisting-action-label-ink-observed",
+                    "basis": "native-fieldset-actions",
+                    "relatedSelectors": [],
+                    "relatedRuleIds": [
+                      "overlay-blocking"
+                    ],
+                    "pixels": {
+                      "selector": "html > body:nth-of-type(1) > fieldset:nth-of-type(1) > button:nth-of-type(2)",
+                      "ink": 291,
+                      "visibleInk": 291,
+                      "clippedInk": 0,
+                      "coveredInk": 0,
+                      "mismatch": 0,
+                      "overlapMismatch": 0
+                    }
+                  }
+                ]
+              }
+            ],
+            "totalObserved": 2,
+            "omitted": 0,
+            "enumerationComplete": true,
+            "evidenceDigests": {
+              "bdd9e61f-35fe-45f7-aa36-34e011c9300a.png": "e39198b7ccde8583bf123b00fa37e1d6f62ee78c515729ee965c7dd14da79d47",
+              "f02d71c1-0795-4a02-879c-f556d48b8271.png": "05b940e6d1391cc9fdd3f5c1281a13b49f96167e91189d9ba92e7ee0b2483efa",
+              "b70a91f5-dd95-445a-845c-a7473340662c.json": "fa27197e9072e2ac633dc5804ed38eee060cec5a3781a76d17e4e67db984c101"
+            }
+          }
+        },
+        {
+          "timing": {
+            "sharedObservationMs": 18.311291999999867,
+            "prepareMs": 3.6572500000002037,
+            "completeMs": 147.15025000000014,
+            "evaluateMs": 6.169416999999612,
+            "addedMs": 156.97783400000026
+          },
+          "controls": {
+            "total": 2,
+            "enumerated": 2,
+            "unknown": 2,
+            "omitted": 0
+          },
+          "images": {
+            "total": 0,
+            "unknown": 0
+          },
+          "layout": {
+            "results": [
+              {
+                "ruleId": "control-text-clipping",
+                "verdict": "unknown",
+                "rows": [
+                  {
+                    "selector": "html > body:nth-of-type(1) > fieldset:nth-of-type(1) > button:nth-of-type(1)",
+                    "text": "Archive receipt",
+                    "verdict": "unknown",
+                    "reason": "intersecting-paint-needs-overlap-review",
+                    "basis": "sole-visible-native-action-text; local presentation only",
+                    "relatedSelectors": [
+                      "html > body:nth-of-type(1) > fieldset:nth-of-type(1) > button:nth-of-type(2)"
+                    ],
+                    "relatedRuleIds": [
+                      "control-text-overlap"
+                    ],
+                    "pixels": {
+                      "selector": "html > body:nth-of-type(1) > fieldset:nth-of-type(1) > button:nth-of-type(1)",
+                      "ink": 828,
+                      "visibleInk": 522,
+                      "clippedInk": 0,
+                      "coveredInk": 306,
+                      "mismatch": 363,
+                      "overlapMismatch": 0
+                    }
+                  },
+                  {
+                    "selector": "html > body:nth-of-type(1) > fieldset:nth-of-type(1) > button:nth-of-type(2)",
+                    "text": "Later",
+                    "verdict": "pass",
+                    "reason": "complete-native-label-ink-observed",
+                    "basis": "sole-visible-native-action-text; local presentation only",
+                    "relatedSelectors": [],
+                    "relatedRuleIds": [
+                      "overlay-blocking"
+                    ],
+                    "pixels": {
+                      "selector": "html > body:nth-of-type(1) > fieldset:nth-of-type(1) > button:nth-of-type(2)",
+                      "ink": 291,
+                      "visibleInk": 291,
+                      "clippedInk": 0,
+                      "coveredInk": 0,
+                      "mismatch": 0,
+                      "overlapMismatch": 0
+                    }
+                  }
+                ]
+              },
+              {
+                "ruleId": "control-text-overlap",
+                "verdict": "fail",
+                "rows": [
+                  {
+                    "selector": "html > body:nth-of-type(1) > fieldset:nth-of-type(1) > button:nth-of-type(1)",
+                    "text": "Archive receipt",
+                    "verdict": "fail",
+                    "reason": "coexisting-sibling-background-erases-action-label-ink",
+                    "basis": "native-fieldset-actions",
+                    "relatedSelectors": [
+                      "html > body:nth-of-type(1) > fieldset:nth-of-type(1) > button:nth-of-type(2)"
+                    ],
+                    "relatedRuleIds": [],
+                    "pixels": {
+                      "selector": "html > body:nth-of-type(1) > fieldset:nth-of-type(1) > button:nth-of-type(1)",
+                      "ink": 828,
+                      "visibleInk": 522,
+                      "clippedInk": 0,
+                      "coveredInk": 306,
+                      "mismatch": 363,
+                      "overlapMismatch": 0
+                    }
+                  },
+                  {
+                    "selector": "html > body:nth-of-type(1) > fieldset:nth-of-type(1) > button:nth-of-type(2)",
+                    "text": "Later",
+                    "verdict": "pass",
+                    "reason": "coexisting-action-label-ink-observed",
+                    "basis": "native-fieldset-actions",
+                    "relatedSelectors": [],
+                    "relatedRuleIds": [
+                      "overlay-blocking"
+                    ],
+                    "pixels": {
+                      "selector": "html > body:nth-of-type(1) > fieldset:nth-of-type(1) > button:nth-of-type(2)",
+                      "ink": 291,
+                      "visibleInk": 291,
+                      "clippedInk": 0,
+                      "coveredInk": 0,
+                      "mismatch": 0,
+                      "overlapMismatch": 0
+                    }
+                  }
+                ]
+              }
+            ],
+            "totalObserved": 2,
+            "omitted": 0,
+            "enumerationComplete": true,
+            "evidenceDigests": {
+              "cfce7f88-9372-4e03-bd7d-357fd4735ccf.png": "e39198b7ccde8583bf123b00fa37e1d6f62ee78c515729ee965c7dd14da79d47",
+              "a64ecd0b-b064-4859-aca7-bc33a12014a5.png": "05b940e6d1391cc9fdd3f5c1281a13b49f96167e91189d9ba92e7ee0b2483efa",
+              "c3685f4f-ac1d-4ead-b909-142ae012fb5b.json": "41db5daab28a150fa0fc6eace8ac1fbdd327dd1ecb7ea8c025900eeb2c2bb964"
+            }
+          }
+        }
+      ],
+      "evaluations": [
+        {
+          "ruleId": "control-text-clipping",
+          "verdict": "unknown"
+        },
+        {
+          "ruleId": "control-text-overlap",
+          "verdict": "fail"
+        },
+        {
+          "ruleId": "control-text-clipping",
+          "verdict": "unknown"
+        },
+        {
+          "ruleId": "control-text-overlap",
+          "verdict": "fail"
+        }
+      ]
+    },
+    {
+      "mode": "healthy",
+      "runId": "run-590f58ff-eb91-441d-9859-b96d16c30922",
+      "status": "blocked",
+      "stopReason": "blocked",
+      "providerTurns": 1,
+      "elapsedMs": 776.1525000000001,
+      "observations": [
+        {
+          "timing": {
+            "sharedObservationMs": 23.338584000000083,
+            "prepareMs": 6.648125000000164,
+            "completeMs": 133.09291699999994,
+            "evaluateMs": 5.519749999999931,
+            "addedMs": 145.26225000000022
+          },
+          "controls": {
+            "total": 2,
+            "enumerated": 2,
+            "unknown": 0,
+            "omitted": 0
+          },
+          "images": {
+            "total": 0,
+            "unknown": 0
+          },
+          "layout": {
+            "results": [
+              {
+                "ruleId": "control-text-clipping",
+                "verdict": "pass",
+                "rows": [
+                  {
+                    "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(1)",
+                    "text": "Review invoice",
+                    "verdict": "pass",
+                    "reason": "complete-native-label-ink-observed",
+                    "basis": "sole-visible-native-action-text; local presentation only",
+                    "relatedSelectors": [],
+                    "relatedRuleIds": [],
+                    "pixels": {
+                      "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(1)",
+                      "ink": 843,
+                      "visibleInk": 843,
+                      "clippedInk": 0,
+                      "coveredInk": 0,
+                      "mismatch": 0,
+                      "overlapMismatch": 0
+                    }
+                  },
+                  {
+                    "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(2)",
+                    "text": "Next",
+                    "verdict": "pass",
+                    "reason": "complete-native-label-ink-observed",
+                    "basis": "sole-visible-native-action-text; local presentation only",
+                    "relatedSelectors": [],
+                    "relatedRuleIds": [],
+                    "pixels": {
+                      "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(2)",
+                      "ink": 285,
+                      "visibleInk": 285,
+                      "clippedInk": 0,
+                      "coveredInk": 0,
+                      "mismatch": 0,
+                      "overlapMismatch": 0
+                    }
+                  }
+                ]
+              },
+              {
+                "ruleId": "control-text-overlap",
+                "verdict": "pass",
+                "rows": [
+                  {
+                    "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(1)",
+                    "text": "Review invoice",
+                    "verdict": "pass",
+                    "reason": "coexisting-action-label-ink-observed",
+                    "basis": "native-navigation-members",
+                    "relatedSelectors": [],
+                    "relatedRuleIds": [],
+                    "pixels": {
+                      "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(1)",
+                      "ink": 843,
+                      "visibleInk": 843,
+                      "clippedInk": 0,
+                      "coveredInk": 0,
+                      "mismatch": 0,
+                      "overlapMismatch": 0
+                    }
+                  },
+                  {
+                    "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(2)",
+                    "text": "Next",
+                    "verdict": "pass",
+                    "reason": "coexisting-action-label-ink-observed",
+                    "basis": "native-navigation-members",
+                    "relatedSelectors": [],
+                    "relatedRuleIds": [],
+                    "pixels": {
+                      "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(2)",
+                      "ink": 285,
+                      "visibleInk": 285,
+                      "clippedInk": 0,
+                      "coveredInk": 0,
+                      "mismatch": 0,
+                      "overlapMismatch": 0
+                    }
+                  }
+                ]
+              }
+            ],
+            "totalObserved": 2,
+            "omitted": 0,
+            "enumerationComplete": true,
+            "evidenceDigests": {
+              "c9a9c04b-2026-4e34-a972-ebf3e422d27a.png": "b69d3ce41b2ee6f829a0208de45ccf78df3dc1508d56b4f79d76448dc4444ec9",
+              "31ec7852-aa63-41a2-b376-ca29040dfde7.png": "cc61cc5c98955164d5e022dacaaecfa39254b5b0f02a98e85a778f3c8c35c1ae",
+              "4153d2d4-f6b5-453c-a3c9-410046e5de0e.json": "76c065b8774252eda99948e09465640072e3d76d61cd95a24d39afda4e6c95f0"
+            }
+          }
+        },
+        {
+          "timing": {
+            "sharedObservationMs": 20.702584000000115,
+            "prepareMs": 3.3459170000000995,
+            "completeMs": 121.00091600000042,
+            "evaluateMs": 5.105207999999948,
+            "addedMs": 129.45245800000066
+          },
+          "controls": {
+            "total": 2,
+            "enumerated": 2,
+            "unknown": 0,
+            "omitted": 0
+          },
+          "images": {
+            "total": 0,
+            "unknown": 0
+          },
+          "layout": {
+            "results": [
+              {
+                "ruleId": "control-text-clipping",
+                "verdict": "pass",
+                "rows": [
+                  {
+                    "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(1)",
+                    "text": "Review invoice",
+                    "verdict": "pass",
+                    "reason": "complete-native-label-ink-observed",
+                    "basis": "sole-visible-native-action-text; local presentation only",
+                    "relatedSelectors": [],
+                    "relatedRuleIds": [],
+                    "pixels": {
+                      "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(1)",
+                      "ink": 843,
+                      "visibleInk": 843,
+                      "clippedInk": 0,
+                      "coveredInk": 0,
+                      "mismatch": 0,
+                      "overlapMismatch": 0
+                    }
+                  },
+                  {
+                    "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(2)",
+                    "text": "Next",
+                    "verdict": "pass",
+                    "reason": "complete-native-label-ink-observed",
+                    "basis": "sole-visible-native-action-text; local presentation only",
+                    "relatedSelectors": [],
+                    "relatedRuleIds": [],
+                    "pixels": {
+                      "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(2)",
+                      "ink": 285,
+                      "visibleInk": 285,
+                      "clippedInk": 0,
+                      "coveredInk": 0,
+                      "mismatch": 0,
+                      "overlapMismatch": 0
+                    }
+                  }
+                ]
+              },
+              {
+                "ruleId": "control-text-overlap",
+                "verdict": "pass",
+                "rows": [
+                  {
+                    "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(1)",
+                    "text": "Review invoice",
+                    "verdict": "pass",
+                    "reason": "coexisting-action-label-ink-observed",
+                    "basis": "native-navigation-members",
+                    "relatedSelectors": [],
+                    "relatedRuleIds": [],
+                    "pixels": {
+                      "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(1)",
+                      "ink": 843,
+                      "visibleInk": 843,
+                      "clippedInk": 0,
+                      "coveredInk": 0,
+                      "mismatch": 0,
+                      "overlapMismatch": 0
+                    }
+                  },
+                  {
+                    "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(2)",
+                    "text": "Next",
+                    "verdict": "pass",
+                    "reason": "coexisting-action-label-ink-observed",
+                    "basis": "native-navigation-members",
+                    "relatedSelectors": [],
+                    "relatedRuleIds": [],
+                    "pixels": {
+                      "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(2)",
+                      "ink": 285,
+                      "visibleInk": 285,
+                      "clippedInk": 0,
+                      "coveredInk": 0,
+                      "mismatch": 0,
+                      "overlapMismatch": 0
+                    }
+                  }
+                ]
+              }
+            ],
+            "totalObserved": 2,
+            "omitted": 0,
+            "enumerationComplete": true,
+            "evidenceDigests": {
+              "6af88450-73ec-428e-892b-ceb8a12ac829.png": "b69d3ce41b2ee6f829a0208de45ccf78df3dc1508d56b4f79d76448dc4444ec9",
+              "6af959b1-2938-4b00-a4c5-add2bd4cc873.png": "cc61cc5c98955164d5e022dacaaecfa39254b5b0f02a98e85a778f3c8c35c1ae",
+              "8d040767-4be0-4250-a032-2aa2bce0aa96.json": "ed922f90dbedd0f704836cede89f11e7cbfb1724761b3cd5c8168c4aeed572e2"
+            }
+          }
+        }
+      ],
+      "evaluations": [
+        {
+          "ruleId": "control-text-clipping",
+          "verdict": "pass"
+        },
+        {
+          "ruleId": "control-text-overlap",
+          "verdict": "pass"
+        },
+        {
+          "ruleId": "control-text-clipping",
+          "verdict": "pass"
+        },
+        {
+          "ruleId": "control-text-overlap",
+          "verdict": "pass"
+        }
+      ]
+    },
+    {
+      "mode": "existing",
+      "runId": "run-92cf5774-f875-4ffd-85ea-3512d2c6346c",
+      "status": "blocked",
+      "stopReason": "blocked",
+      "providerTurns": 1,
+      "elapsedMs": 792.1305419999999,
+      "observations": [
+        {
+          "timing": {
+            "sharedObservationMs": 27.182165999999597,
+            "prepareMs": 8.359208000000763,
+            "completeMs": 128.96904200000063,
+            "evaluateMs": 6.669082999999773,
+            "addedMs": 143.99775000000136
+          },
+          "controls": {
+            "total": 3,
+            "enumerated": 3,
+            "unknown": 0,
+            "omitted": 0
+          },
+          "images": {
+            "total": 1,
+            "unknown": 0
+          },
+          "layout": {
+            "results": [
+              {
+                "ruleId": "control-text-clipping",
+                "verdict": "unknown",
+                "rows": [
+                  {
+                    "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(1)",
+                    "text": "Review invoice",
+                    "verdict": "pass",
+                    "reason": "complete-native-label-ink-observed",
+                    "basis": "sole-visible-native-action-text; local presentation only",
+                    "relatedSelectors": [],
+                    "relatedRuleIds": [],
+                    "pixels": {
+                      "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(1)",
+                      "ink": 843,
+                      "visibleInk": 843,
+                      "clippedInk": 0,
+                      "coveredInk": 0,
+                      "mismatch": 0,
+                      "overlapMismatch": 0
+                    }
+                  },
+                  {
+                    "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(2)",
+                    "text": "Next",
+                    "verdict": "pass",
+                    "reason": "complete-native-label-ink-observed",
+                    "basis": "sole-visible-native-action-text; local presentation only",
+                    "relatedSelectors": [],
+                    "relatedRuleIds": [],
+                    "pixels": {
+                      "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(2)",
+                      "ink": 285,
+                      "visibleInk": 285,
+                      "clippedInk": 0,
+                      "coveredInk": 0,
+                      "mismatch": 0,
+                      "overlapMismatch": 0
+                    }
+                  },
+                  {
+                    "selector": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+                    "text": "Continue order",
+                    "verdict": "unknown",
+                    "reason": "unsupported-flat-colors",
+                    "basis": "sole-visible-native-action-text; local presentation only",
+                    "relatedSelectors": [],
+                    "relatedRuleIds": []
+                  }
+                ]
+              },
+              {
+                "ruleId": "control-text-overlap",
+                "verdict": "unknown",
+                "rows": [
+                  {
+                    "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(1)",
+                    "text": "Review invoice",
+                    "verdict": "pass",
+                    "reason": "coexisting-action-label-ink-observed",
+                    "basis": "native-navigation-members",
+                    "relatedSelectors": [],
+                    "relatedRuleIds": [],
+                    "pixels": {
+                      "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(1)",
+                      "ink": 843,
+                      "visibleInk": 843,
+                      "clippedInk": 0,
+                      "coveredInk": 0,
+                      "mismatch": 0,
+                      "overlapMismatch": 0
+                    }
+                  },
+                  {
+                    "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(2)",
+                    "text": "Next",
+                    "verdict": "pass",
+                    "reason": "coexisting-action-label-ink-observed",
+                    "basis": "native-navigation-members",
+                    "relatedSelectors": [],
+                    "relatedRuleIds": [],
+                    "pixels": {
+                      "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(2)",
+                      "ink": 285,
+                      "visibleInk": 285,
+                      "clippedInk": 0,
+                      "coveredInk": 0,
+                      "mismatch": 0,
+                      "overlapMismatch": 0
+                    }
+                  },
+                  {
+                    "selector": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+                    "text": "Continue order",
+                    "verdict": "unknown",
+                    "reason": "unsupported-flat-colors",
+                    "basis": "coexistence-not-established",
+                    "relatedSelectors": [],
+                    "relatedRuleIds": []
+                  }
+                ]
+              }
+            ],
+            "totalObserved": 3,
+            "omitted": 0,
+            "enumerationComplete": true,
+            "evidenceDigests": {
+              "8fa57df0-99bd-4bd7-9023-125ce5dd8377.png": "c94c5d136fa482723864d99291f8fcd308fc98a7ce8c5aeadb123480f8aa569a",
+              "4a450cf6-9184-45e4-be2e-715f84d1740b.png": "cc61cc5c98955164d5e022dacaaecfa39254b5b0f02a98e85a778f3c8c35c1ae",
+              "b6064c80-f0b4-4e4c-a93d-4c2c170ac514.json": "7d93e4cec1d63fb8f37413db01b2f973847a86ac11ed5be1f97998ab951f76af"
+            }
+          }
+        },
+        {
+          "timing": {
+            "sharedObservationMs": 21.98937500000011,
+            "prepareMs": 4.381250000000364,
+            "completeMs": 127.06504099999984,
+            "evaluateMs": 7.2769170000001395,
+            "addedMs": 138.72374899999977
+          },
+          "controls": {
+            "total": 3,
+            "enumerated": 3,
+            "unknown": 0,
+            "omitted": 0
+          },
+          "images": {
+            "total": 1,
+            "unknown": 0
+          },
+          "layout": {
+            "results": [
+              {
+                "ruleId": "control-text-clipping",
+                "verdict": "unknown",
+                "rows": [
+                  {
+                    "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(1)",
+                    "text": "Review invoice",
+                    "verdict": "pass",
+                    "reason": "complete-native-label-ink-observed",
+                    "basis": "sole-visible-native-action-text; local presentation only",
+                    "relatedSelectors": [],
+                    "relatedRuleIds": [],
+                    "pixels": {
+                      "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(1)",
+                      "ink": 843,
+                      "visibleInk": 843,
+                      "clippedInk": 0,
+                      "coveredInk": 0,
+                      "mismatch": 0,
+                      "overlapMismatch": 0
+                    }
+                  },
+                  {
+                    "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(2)",
+                    "text": "Next",
+                    "verdict": "pass",
+                    "reason": "complete-native-label-ink-observed",
+                    "basis": "sole-visible-native-action-text; local presentation only",
+                    "relatedSelectors": [],
+                    "relatedRuleIds": [],
+                    "pixels": {
+                      "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(2)",
+                      "ink": 285,
+                      "visibleInk": 285,
+                      "clippedInk": 0,
+                      "coveredInk": 0,
+                      "mismatch": 0,
+                      "overlapMismatch": 0
+                    }
+                  },
+                  {
+                    "selector": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+                    "text": "Continue order",
+                    "verdict": "unknown",
+                    "reason": "unsupported-flat-colors",
+                    "basis": "sole-visible-native-action-text; local presentation only",
+                    "relatedSelectors": [],
+                    "relatedRuleIds": []
+                  }
+                ]
+              },
+              {
+                "ruleId": "control-text-overlap",
+                "verdict": "unknown",
+                "rows": [
+                  {
+                    "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(1)",
+                    "text": "Review invoice",
+                    "verdict": "pass",
+                    "reason": "coexisting-action-label-ink-observed",
+                    "basis": "native-navigation-members",
+                    "relatedSelectors": [],
+                    "relatedRuleIds": [],
+                    "pixels": {
+                      "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(1)",
+                      "ink": 843,
+                      "visibleInk": 843,
+                      "clippedInk": 0,
+                      "coveredInk": 0,
+                      "mismatch": 0,
+                      "overlapMismatch": 0
+                    }
+                  },
+                  {
+                    "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(2)",
+                    "text": "Next",
+                    "verdict": "pass",
+                    "reason": "coexisting-action-label-ink-observed",
+                    "basis": "native-navigation-members",
+                    "relatedSelectors": [],
+                    "relatedRuleIds": [],
+                    "pixels": {
+                      "selector": "html > body:nth-of-type(1) > nav:nth-of-type(1) > button:nth-of-type(2)",
+                      "ink": 285,
+                      "visibleInk": 285,
+                      "clippedInk": 0,
+                      "coveredInk": 0,
+                      "mismatch": 0,
+                      "overlapMismatch": 0
+                    }
+                  },
+                  {
+                    "selector": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+                    "text": "Continue order",
+                    "verdict": "unknown",
+                    "reason": "unsupported-flat-colors",
+                    "basis": "coexistence-not-established",
+                    "relatedSelectors": [],
+                    "relatedRuleIds": []
+                  }
+                ]
+              }
+            ],
+            "totalObserved": 3,
+            "omitted": 0,
+            "enumerationComplete": true,
+            "evidenceDigests": {
+              "7640ab5c-b0f6-433b-a342-049e5f0e6fbf.png": "c94c5d136fa482723864d99291f8fcd308fc98a7ce8c5aeadb123480f8aa569a",
+              "b1582180-93c1-468a-9fb0-a7f08f5dde0d.png": "cc61cc5c98955164d5e022dacaaecfa39254b5b0f02a98e85a778f3c8c35c1ae",
+              "ba56e435-6358-4bdb-8402-2aa3a8554a75.json": "7aec7fd1254448d46dde18b11ee2e27e437f7ef667336bb8c5c37dcc34cd572c"
+            }
+          }
+        }
+      ],
+      "evaluations": [
+        {
+          "ruleId": "control-text-clipping",
+          "verdict": "unknown"
+        },
+        {
+          "ruleId": "control-text-overlap",
+          "verdict": "unknown"
+        },
+        {
+          "ruleId": "control-text-clipping",
+          "verdict": "unknown"
+        },
+        {
+          "ruleId": "control-text-overlap",
+          "verdict": "unknown"
+        }
+      ]
+    }
+  ],
+  "reportChecks": [
+    {
+      "mode": "workbench",
+      "runId": "run-5f8bb6fc-cf34-4dd7-8911-36fda7109721",
+      "status": "blocked",
+      "findings": [
+        {
+          "ruleId": "control-text-clipping",
+          "validationStatus": "supported"
+        }
+      ],
+      "allUiMaterialsAvailable": true,
+      "report": {
+        "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/workbench-report.json",
+        "bytes": 245466,
+        "sha256": "07732cb6dc55937c9259ad7a0d641219187cd2d9701881a50163ea422279a8b7"
+      }
+    },
+    {
+      "mode": "overlap",
+      "runId": "run-d3b93eb0-fe45-477f-8cca-dd05fcaec9a7",
+      "status": "blocked",
+      "findings": [
+        {
+          "ruleId": "control-text-overlap",
+          "validationStatus": "supported"
+        }
+      ],
+      "allUiMaterialsAvailable": true,
+      "report": {
+        "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/overlap-report.json",
+        "bytes": 256901,
+        "sha256": "0a056f7a5caaf6f70683cd5cbfd131c4892ef08e8f4a372f56e76928d006b911"
+      }
+    },
+    {
+      "mode": "healthy",
+      "runId": "run-590f58ff-eb91-441d-9859-b96d16c30922",
+      "status": "blocked",
+      "findings": [],
+      "allUiMaterialsAvailable": true,
+      "report": {
+        "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/healthy-report.json",
+        "bytes": 232381,
+        "sha256": "8e1683550e8858dfe2939bddc8534cc2af146770d4d23714443d89a2f9ee8378"
+      }
+    },
+    {
+      "mode": "existing",
+      "runId": "run-92cf5774-f875-4ffd-85ea-3512d2c6346c",
+      "status": "blocked",
+      "findings": [
+        {
+          "ruleId": "control-text-disappearance",
+          "validationStatus": "supported"
+        }
+      ],
+      "allUiMaterialsAvailable": true,
+      "report": {
+        "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/existing-report.json",
+        "bytes": 321900,
+        "sha256": "5cb82c300b6d68bd7f3a1cc388d77c8e516560fb66e8410bd85cae30479d35a3"
+      }
+    }
+  ],
+  "screenshot": {
+    "path": "docs/rule-library/evidence/rules-clipping-overlap-workbench-20261009.png",
+    "bytes": 339393,
+    "sha256": "25dcfc3978b01090c471b1e86539bd84f9d9a3f2a6e29a8d87dc8a959c94b768"
+  },
+  "artifactBase": ".",
+  "localSourceRoot": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel",
+  "finalProductDirectory": "data/control-layout-product/2026-10-09T09-51-56-846Z",
+  "finalDirectedCaptureDirectory": "data/control-layout-tests/2026-10-09T09-48-18-085Z",
+  "localFiles": [
+    {
+      "path": "data/artifacts/run-590f58ff-eb91-441d-9859-b96d16c30922/25fa9803-22d5-460c-92f8-5428fd05c0b8.png",
+      "bytes": 8296,
+      "sha256": "b69d3ce41b2ee6f829a0208de45ccf78df3dc1508d56b4f79d76448dc4444ec9"
+    },
+    {
+      "path": "data/artifacts/run-590f58ff-eb91-441d-9859-b96d16c30922/31ec7852-aa63-41a2-b376-ca29040dfde7.png",
+      "bytes": 4478,
+      "sha256": "cc61cc5c98955164d5e022dacaaecfa39254b5b0f02a98e85a778f3c8c35c1ae"
+    },
+    {
+      "path": "data/artifacts/run-590f58ff-eb91-441d-9859-b96d16c30922/4153d2d4-f6b5-453c-a3c9-410046e5de0e.json",
+      "bytes": 3345,
+      "sha256": "76c065b8774252eda99948e09465640072e3d76d61cd95a24d39afda4e6c95f0"
+    },
+    {
+      "path": "data/artifacts/run-590f58ff-eb91-441d-9859-b96d16c30922/48e7dc0c-447d-4982-a383-37905239c49a.json",
+      "bytes": 1227,
+      "sha256": "ac90517ee7c82ef43b085b016d29f59d85e8986945b077a99e7024ce5042f0bb"
+    },
+    {
+      "path": "data/artifacts/run-590f58ff-eb91-441d-9859-b96d16c30922/4cfdbc8e-8ed2-4560-b4e3-b57aa6847d12.json",
+      "bytes": 2571,
+      "sha256": "ac0ebcb0ccf985b7335dcb47569ea8a468dad7cd327c5fbd1e87c1dc7f1d5092"
+    },
+    {
+      "path": "data/artifacts/run-590f58ff-eb91-441d-9859-b96d16c30922/5213a9e7-4284-40d5-a728-487ae166ccd1.json",
+      "bytes": 3621,
+      "sha256": "6d680d126a5d265c2f0a5216ca0707dc2b2a6d96d76904869ff050c65db91d64"
+    },
+    {
+      "path": "data/artifacts/run-590f58ff-eb91-441d-9859-b96d16c30922/599f70c4-0c87-4c10-8c86-ae772fc50354.json",
+      "bytes": 4369,
+      "sha256": "3c70c1559d74de7f04e91368d2ceceac30c71f908dbf5956bee34f280e42db0f"
+    },
+    {
+      "path": "data/artifacts/run-590f58ff-eb91-441d-9859-b96d16c30922/5aee4825-f957-40eb-8a9f-67bb72510cec.json",
+      "bytes": 473,
+      "sha256": "86f2ea6059d2d5c7d1f04b179fdf23aa89d3beb6f8716ef10ef651cc0da854fa"
+    },
+    {
+      "path": "data/artifacts/run-590f58ff-eb91-441d-9859-b96d16c30922/6af88450-73ec-428e-892b-ceb8a12ac829.png",
+      "bytes": 8296,
+      "sha256": "b69d3ce41b2ee6f829a0208de45ccf78df3dc1508d56b4f79d76448dc4444ec9"
+    },
+    {
+      "path": "data/artifacts/run-590f58ff-eb91-441d-9859-b96d16c30922/6af959b1-2938-4b00-a4c5-add2bd4cc873.png",
+      "bytes": 4478,
+      "sha256": "cc61cc5c98955164d5e022dacaaecfa39254b5b0f02a98e85a778f3c8c35c1ae"
+    },
+    {
+      "path": "data/artifacts/run-590f58ff-eb91-441d-9859-b96d16c30922/776cb5cb-bafa-4e94-9f7b-a93f6c95c688.json",
+      "bytes": 4369,
+      "sha256": "26e5b2fb12c63b9e00aa04955e4ae3106c13521e1af6b7cdf66df6ab4823b622"
+    },
+    {
+      "path": "data/artifacts/run-590f58ff-eb91-441d-9859-b96d16c30922/86307ff8-b617-4368-8ba2-2182ddbadbe1.json",
+      "bytes": 3620,
+      "sha256": "dede03fa1a80b948df96d06d153db0efbc1b282cc7a4d473d4ece0818591b494"
+    },
+    {
+      "path": "data/artifacts/run-590f58ff-eb91-441d-9859-b96d16c30922/8d040767-4be0-4250-a032-2aa2bce0aa96.json",
+      "bytes": 3345,
+      "sha256": "ed922f90dbedd0f704836cede89f11e7cbfb1724761b3cd5c8168c4aeed572e2"
+    },
+    {
+      "path": "data/artifacts/run-590f58ff-eb91-441d-9859-b96d16c30922/a8b15f8f-c6f5-4f55-a6d4-7c8b7af0e27e.json",
+      "bytes": 2571,
+      "sha256": "d0240e7638f5504c0eb0d04b4aa4237a00152bea0308496eb804d231e6ce4340"
+    },
+    {
+      "path": "data/artifacts/run-590f58ff-eb91-441d-9859-b96d16c30922/c9a9c04b-2026-4e34-a972-ebf3e422d27a.png",
+      "bytes": 8296,
+      "sha256": "b69d3ce41b2ee6f829a0208de45ccf78df3dc1508d56b4f79d76448dc4444ec9"
+    },
+    {
+      "path": "data/artifacts/run-590f58ff-eb91-441d-9859-b96d16c30922/d9b39725-f25b-4e22-86c1-f2fa854b86f8.json",
+      "bytes": 473,
+      "sha256": "93b58326dcccd13148f5c90cb838684d822c9852c6d603b56fdc22d34664c9e4"
+    },
+    {
+      "path": "data/artifacts/run-5f8bb6fc-cf34-4dd7-8911-36fda7109721/10e39c20-6516-4147-b22e-a218f35cbaa1.png",
+      "bytes": 6988,
+      "sha256": "745c9319ad75438f174af79696650caa6e919373511bfcfbdf4dd9fc18209ca3"
+    },
+    {
+      "path": "data/artifacts/run-5f8bb6fc-cf34-4dd7-8911-36fda7109721/4fd011b0-ffdd-4b6a-9a92-e3753c687669.json",
+      "bytes": 3766,
+      "sha256": "e3fd8f139bd19e905eab3d506947d804dc19f406d387efc889d2dec00b2f835f"
+    },
+    {
+      "path": "data/artifacts/run-5f8bb6fc-cf34-4dd7-8911-36fda7109721/52633f6a-0657-440c-aba1-88f8d78cedf2.json",
+      "bytes": 2579,
+      "sha256": "1dd10090e457936a67ba56834815eacabde11304d9a5c5b91def56d81730e74a"
+    },
+    {
+      "path": "data/artifacts/run-5f8bb6fc-cf34-4dd7-8911-36fda7109721/54c8b383-0067-42e8-bbd2-f7e337d4ed6d.json",
+      "bytes": 473,
+      "sha256": "a103cc67cc2d5f83cd2f6801268df069058b2a3a15f2b9fe52a6a42c7274ae70"
+    },
+    {
+      "path": "data/artifacts/run-5f8bb6fc-cf34-4dd7-8911-36fda7109721/555eb324-a0bc-4075-8084-82ae9c685cf8.json",
+      "bytes": 2579,
+      "sha256": "a47a60de793ca8d4f404040f131154d82bf182f2425eec1d17fd098bce154408"
+    },
+    {
+      "path": "data/artifacts/run-5f8bb6fc-cf34-4dd7-8911-36fda7109721/55eb5938-529e-46fc-86e8-31550c972ee9.png",
+      "bytes": 4478,
+      "sha256": "cc61cc5c98955164d5e022dacaaecfa39254b5b0f02a98e85a778f3c8c35c1ae"
+    },
+    {
+      "path": "data/artifacts/run-5f8bb6fc-cf34-4dd7-8911-36fda7109721/737e8bb1-2fc8-45f1-b42e-59ca179c75c0.json",
+      "bytes": 473,
+      "sha256": "eaac363a98babd891bde188761fa3999586e6a35049fe36808c77849a50f6e39"
+    },
+    {
+      "path": "data/artifacts/run-5f8bb6fc-cf34-4dd7-8911-36fda7109721/83339ba5-74c7-4641-8168-fd5c13e4e6be.json",
+      "bytes": 3689,
+      "sha256": "ff82a9c444ad3a184e9b2833371067d3293145f258fc6cfc89b990766a0b5d81"
+    },
+    {
+      "path": "data/artifacts/run-5f8bb6fc-cf34-4dd7-8911-36fda7109721/8e976fe0-6ec5-4281-ac03-563f330c3cfb.png",
+      "bytes": 4478,
+      "sha256": "cc61cc5c98955164d5e022dacaaecfa39254b5b0f02a98e85a778f3c8c35c1ae"
+    },
+    {
+      "path": "data/artifacts/run-5f8bb6fc-cf34-4dd7-8911-36fda7109721/ad48eb0b-0da8-465e-830c-8701087a7a11.png",
+      "bytes": 6988,
+      "sha256": "745c9319ad75438f174af79696650caa6e919373511bfcfbdf4dd9fc18209ca3"
+    },
+    {
+      "path": "data/artifacts/run-5f8bb6fc-cf34-4dd7-8911-36fda7109721/d1004092-32ac-4a99-8105-8af9450894bc.json",
+      "bytes": 3689,
+      "sha256": "a916708eda62757576f971ebac8bf8cd201a36202c1900d1fc9659f7edd78308"
+    },
+    {
+      "path": "data/artifacts/run-5f8bb6fc-cf34-4dd7-8911-36fda7109721/dbf97258-8de4-4345-a056-3cde1f876732.json",
+      "bytes": 3765,
+      "sha256": "e6cd5d6578112bed62497c76d885aaf69b893ab6c2ff8094590f984395bd7bad"
+    },
+    {
+      "path": "data/artifacts/run-5f8bb6fc-cf34-4dd7-8911-36fda7109721/dc224e31-d441-499f-a3e4-5d3db266ca63.png",
+      "bytes": 6988,
+      "sha256": "745c9319ad75438f174af79696650caa6e919373511bfcfbdf4dd9fc18209ca3"
+    },
+    {
+      "path": "data/artifacts/run-5f8bb6fc-cf34-4dd7-8911-36fda7109721/e4836b20-320e-4180-ab1a-282f589a151b.json",
+      "bytes": 4693,
+      "sha256": "7ff08b6aa27749c5382a77e3da1f9140ac07e46b2353305429f5888dad59780b"
+    },
+    {
+      "path": "data/artifacts/run-5f8bb6fc-cf34-4dd7-8911-36fda7109721/efa81d73-923b-4540-868f-2b39b09068b5.json",
+      "bytes": 1227,
+      "sha256": "d21638c86165e7cf75726f07da84f0fb3b5f044dee662064519c988e457478b7"
+    },
+    {
+      "path": "data/artifacts/run-5f8bb6fc-cf34-4dd7-8911-36fda7109721/f022d6b9-e9f6-4fe5-a28d-21631b29b10c.json",
+      "bytes": 4693,
+      "sha256": "fb8fb8948122ed60cb7cc3da17aac34dd78cc592d275485a7af68b378dc780f6"
+    },
+    {
+      "path": "data/artifacts/run-92cf5774-f875-4ffd-85ea-3512d2c6346c/145a7421-8b81-4e31-95e5-083cd819e510.json",
+      "bytes": 4598,
+      "sha256": "833fa6f0c1d2e34ec7934f4d63e4f397914eada10ebb847a8393227667df81b2"
+    },
+    {
+      "path": "data/artifacts/run-92cf5774-f875-4ffd-85ea-3512d2c6346c/4a450cf6-9184-45e4-be2e-715f84d1740b.png",
+      "bytes": 4478,
+      "sha256": "cc61cc5c98955164d5e022dacaaecfa39254b5b0f02a98e85a778f3c8c35c1ae"
+    },
+    {
+      "path": "data/artifacts/run-92cf5774-f875-4ffd-85ea-3512d2c6346c/65a0f2e0-f932-4347-b940-1bf13e3d96f4.json",
+      "bytes": 4210,
+      "sha256": "b248e70d6375ffb027c7849006bfe495547b1d4d09284cd5a0fcbed971bba16a"
+    },
+    {
+      "path": "data/artifacts/run-92cf5774-f875-4ffd-85ea-3512d2c6346c/68c91240-9c89-4b08-9154-deebf24b392e.json",
+      "bytes": 7546,
+      "sha256": "f53ccf5492038401e8ef3e810202ef00370f88783ea5860f7508b3f905b64527"
+    },
+    {
+      "path": "data/artifacts/run-92cf5774-f875-4ffd-85ea-3512d2c6346c/7640ab5c-b0f6-433b-a342-049e5f0e6fbf.png",
+      "bytes": 10812,
+      "sha256": "c94c5d136fa482723864d99291f8fcd308fc98a7ce8c5aeadb123480f8aa569a"
+    },
+    {
+      "path": "data/artifacts/run-92cf5774-f875-4ffd-85ea-3512d2c6346c/7724b353-9d0d-43bd-b084-945970e593f7.png",
+      "bytes": 10812,
+      "sha256": "c94c5d136fa482723864d99291f8fcd308fc98a7ce8c5aeadb123480f8aa569a"
+    },
+    {
+      "path": "data/artifacts/run-92cf5774-f875-4ffd-85ea-3512d2c6346c/8f192df7-ae35-4197-a469-5294ba653e76.json",
+      "bytes": 2964,
+      "sha256": "fe24ecb86a4a31021ae265b3f96d3e6e943d187ef2b08114522dfdc8085208fd"
+    },
+    {
+      "path": "data/artifacts/run-92cf5774-f875-4ffd-85ea-3512d2c6346c/8fa57df0-99bd-4bd7-9023-125ce5dd8377.png",
+      "bytes": 10812,
+      "sha256": "c94c5d136fa482723864d99291f8fcd308fc98a7ce8c5aeadb123480f8aa569a"
+    },
+    {
+      "path": "data/artifacts/run-92cf5774-f875-4ffd-85ea-3512d2c6346c/90994207-5a73-4cea-aabd-84a7ff837dfc.json",
+      "bytes": 7546,
+      "sha256": "05d08dd4b8c0eb22cf52199180744ab9f973b279a970a88b33af895745b13744"
+    },
+    {
+      "path": "data/artifacts/run-92cf5774-f875-4ffd-85ea-3512d2c6346c/b1582180-93c1-468a-9fb0-a7f08f5dde0d.png",
+      "bytes": 4478,
+      "sha256": "cc61cc5c98955164d5e022dacaaecfa39254b5b0f02a98e85a778f3c8c35c1ae"
+    },
+    {
+      "path": "data/artifacts/run-92cf5774-f875-4ffd-85ea-3512d2c6346c/b6064c80-f0b4-4e4c-a93d-4c2c170ac514.json",
+      "bytes": 4693,
+      "sha256": "7d93e4cec1d63fb8f37413db01b2f973847a86ac11ed5be1f97998ab951f76af"
+    },
+    {
+      "path": "data/artifacts/run-92cf5774-f875-4ffd-85ea-3512d2c6346c/ba56e435-6358-4bdb-8402-2aa3a8554a75.json",
+      "bytes": 4693,
+      "sha256": "7aec7fd1254448d46dde18b11ee2e27e437f7ef667336bb8c5c37dcc34cd572c"
+    },
+    {
+      "path": "data/artifacts/run-92cf5774-f875-4ffd-85ea-3512d2c6346c/c4891566-09aa-4675-ac23-14290b5db0f0.json",
+      "bytes": 2555,
+      "sha256": "76239b90f8549dd604b6a4cfe1cadd5e5ab6594025d29b0c7d32c577befb49f5"
+    },
+    {
+      "path": "data/artifacts/run-92cf5774-f875-4ffd-85ea-3512d2c6346c/ced4f6d4-5b6e-4c5e-a090-10c7e1ad500d.json",
+      "bytes": 4598,
+      "sha256": "9dce6e93c245b1c1a6c272602510f6558868ffd5660f64792f9ef7819f1ec886"
+    },
+    {
+      "path": "data/artifacts/run-92cf5774-f875-4ffd-85ea-3512d2c6346c/f5ae16c0-7fae-4aa8-ae84-51cb5740ba5f.json",
+      "bytes": 4210,
+      "sha256": "fc7c585304e1951f57ce1f8be0133af9cfeea1de8aa7d45b89dd5a4b370601df"
+    },
+    {
+      "path": "data/artifacts/run-92cf5774-f875-4ffd-85ea-3512d2c6346c/f916a79c-8647-42c2-b086-f742cc0e780a.json",
+      "bytes": 2964,
+      "sha256": "cc48364e2a2df71b1ec634ebac5f5fae9550a0220e20020dbfaa8553df34ac36"
+    },
+    {
+      "path": "data/artifacts/run-d3b93eb0-fe45-477f-8cca-dd05fcaec9a7/10476f85-3625-4982-aa2f-d408ed46d24e.json",
+      "bytes": 1280,
+      "sha256": "f92f9b3f02bb91b3888950e632f62e36fe508193a1d8942979e36931a3dee159"
+    },
+    {
+      "path": "data/artifacts/run-d3b93eb0-fe45-477f-8cca-dd05fcaec9a7/379bcdc0-06ba-4668-8e4c-dba86cece03c.json",
+      "bytes": 3898,
+      "sha256": "5617e0aa8446c1148d3dbfba0699b6db792d212cf6256b6ac524088e443d43be"
+    },
+    {
+      "path": "data/artifacts/run-d3b93eb0-fe45-477f-8cca-dd05fcaec9a7/398ce8e4-1410-4553-9c2b-cc5f16a12ef0.json",
+      "bytes": 473,
+      "sha256": "d16f54624793a2b431561129954aa409d51dc65cb5c820b3412aca58d02e746a"
+    },
+    {
+      "path": "data/artifacts/run-d3b93eb0-fe45-477f-8cca-dd05fcaec9a7/45814bc7-b891-4061-b631-5bab193305f0.json",
+      "bytes": 3901,
+      "sha256": "789db607b37c213cebe4897703778ef50dd27777898978554359f9626d01de86"
+    },
+    {
+      "path": "data/artifacts/run-d3b93eb0-fe45-477f-8cca-dd05fcaec9a7/7178179d-08c0-4f1e-84c4-b9e26bc2c254.json",
+      "bytes": 4545,
+      "sha256": "aaebab0ba1536a71feaa23c54907ecf97da310363a9347f1bc0b550d0aaefe1a"
+    },
+    {
+      "path": "data/artifacts/run-d3b93eb0-fe45-477f-8cca-dd05fcaec9a7/a64ecd0b-b064-4859-aca7-bc33a12014a5.png",
+      "bytes": 4116,
+      "sha256": "05b940e6d1391cc9fdd3f5c1281a13b49f96167e91189d9ba92e7ee0b2483efa"
+    },
+    {
+      "path": "data/artifacts/run-d3b93eb0-fe45-477f-8cca-dd05fcaec9a7/b70a91f5-dd95-445a-845c-a7473340662c.json",
+      "bytes": 3719,
+      "sha256": "fa27197e9072e2ac633dc5804ed38eee060cec5a3781a76d17e4e67db984c101"
+    },
+    {
+      "path": "data/artifacts/run-d3b93eb0-fe45-477f-8cca-dd05fcaec9a7/bdd9e61f-35fe-45f7-aa36-34e011c9300a.png",
+      "bytes": 7348,
+      "sha256": "e39198b7ccde8583bf123b00fa37e1d6f62ee78c515729ee965c7dd14da79d47"
+    },
+    {
+      "path": "data/artifacts/run-d3b93eb0-fe45-477f-8cca-dd05fcaec9a7/c3685f4f-ac1d-4ead-b909-142ae012fb5b.json",
+      "bytes": 3719,
+      "sha256": "41db5daab28a150fa0fc6eace8ac1fbdd327dd1ecb7ea8c025900eeb2c2bb964"
+    },
+    {
+      "path": "data/artifacts/run-d3b93eb0-fe45-477f-8cca-dd05fcaec9a7/cfce7f88-9372-4e03-bd7d-357fd4735ccf.png",
+      "bytes": 7348,
+      "sha256": "e39198b7ccde8583bf123b00fa37e1d6f62ee78c515729ee965c7dd14da79d47"
+    },
+    {
+      "path": "data/artifacts/run-d3b93eb0-fe45-477f-8cca-dd05fcaec9a7/d0b0383d-18a2-4a7c-a337-c766d095d408.json",
+      "bytes": 4545,
+      "sha256": "3b41e9014bff728db37d3b44c02cf2ff56e89467cd4958ed82a072b36a79d815"
+    },
+    {
+      "path": "data/artifacts/run-d3b93eb0-fe45-477f-8cca-dd05fcaec9a7/e159891b-08d5-4f04-b89c-e0e981a20b23.json",
+      "bytes": 473,
+      "sha256": "b081ddfbdeb22a345c5996972c91d8b92ece930a624bec6b0355e4807ed9863e"
+    },
+    {
+      "path": "data/artifacts/run-d3b93eb0-fe45-477f-8cca-dd05fcaec9a7/e9215b36-93e9-4c42-a7ae-2c4311ce59b1.json",
+      "bytes": 2607,
+      "sha256": "ab7f24e58e30044429424f1e43bd4eb678c049c1057502c03b281de1b8ba196e"
+    },
+    {
+      "path": "data/artifacts/run-d3b93eb0-fe45-477f-8cca-dd05fcaec9a7/f02d71c1-0795-4a02-879c-f556d48b8271.png",
+      "bytes": 4116,
+      "sha256": "05b940e6d1391cc9fdd3f5c1281a13b49f96167e91189d9ba92e7ee0b2483efa"
+    },
+    {
+      "path": "data/artifacts/run-d3b93eb0-fe45-477f-8cca-dd05fcaec9a7/f3e5903b-1e16-4c62-a22e-4143bab37b18.png",
+      "bytes": 7348,
+      "sha256": "e39198b7ccde8583bf123b00fa37e1d6f62ee78c515729ee965c7dd14da79d47"
+    },
+    {
+      "path": "data/artifacts/run-d3b93eb0-fe45-477f-8cca-dd05fcaec9a7/f607bb97-4149-4407-8767-af98e3ed1f22.json",
+      "bytes": 2607,
+      "sha256": "9a9bc63fc6233bf183c91c493189a96b02110ad8915ee698b02e8b521f4e141e"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/existing-report.json",
+      "bytes": 321900,
+      "sha256": "5cb82c300b6d68bd7f3a1cc388d77c8e516560fb66e8410bd85cae30479d35a3"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/fixture-requests.json",
+      "bytes": 358,
+      "sha256": "e3979443a6d9f6c978eff8400d9fe1945186399f40fa4215ab836a0ed1069990"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/healthy-report.json",
+      "bytes": 232381,
+      "sha256": "8e1683550e8858dfe2939bddc8534cc2af146770d4d23714443d89a2f9ee8378"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/overlap-report.json",
+      "bytes": 256901,
+      "sha256": "0a056f7a5caaf6f70683cd5cbfd131c4892ef08e8f4a372f56e76928d006b911"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/overlap-rules.png",
+      "bytes": 378697,
+      "sha256": "5c9efb6496f8bd934052d268c64807b7373fc6292c38272091eedb4c2a52827b"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/provider-packets.json",
+      "bytes": 59200,
+      "sha256": "eaa22ce50af974d12b5649436db5fcc009bc90d5e555005ddd7546e189f60d00"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/results.json",
+      "bytes": 44563,
+      "sha256": "7cbcf3a8ae9d01d0b8b75cc57b90df7b88b3b2eee82db6f99d6fd6e60f60bba2"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-590f58ff-eb91-441d-9859-b96d16c30922-31ec7852-aa63-41a2-b376-ca29040dfde7.png",
+      "bytes": 4478,
+      "sha256": "cc61cc5c98955164d5e022dacaaecfa39254b5b0f02a98e85a778f3c8c35c1ae"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-590f58ff-eb91-441d-9859-b96d16c30922-4153d2d4-f6b5-453c-a3c9-410046e5de0e.json",
+      "bytes": 3345,
+      "sha256": "76c065b8774252eda99948e09465640072e3d76d61cd95a24d39afda4e6c95f0"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-590f58ff-eb91-441d-9859-b96d16c30922-4cfdbc8e-8ed2-4560-b4e3-b57aa6847d12.json",
+      "bytes": 2571,
+      "sha256": "ac0ebcb0ccf985b7335dcb47569ea8a468dad7cd327c5fbd1e87c1dc7f1d5092"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-590f58ff-eb91-441d-9859-b96d16c30922-599f70c4-0c87-4c10-8c86-ae772fc50354.json",
+      "bytes": 4369,
+      "sha256": "3c70c1559d74de7f04e91368d2ceceac30c71f908dbf5956bee34f280e42db0f"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-590f58ff-eb91-441d-9859-b96d16c30922-5aee4825-f957-40eb-8a9f-67bb72510cec.json",
+      "bytes": 473,
+      "sha256": "86f2ea6059d2d5c7d1f04b179fdf23aa89d3beb6f8716ef10ef651cc0da854fa"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-590f58ff-eb91-441d-9859-b96d16c30922-6af88450-73ec-428e-892b-ceb8a12ac829.png",
+      "bytes": 8296,
+      "sha256": "b69d3ce41b2ee6f829a0208de45ccf78df3dc1508d56b4f79d76448dc4444ec9"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-590f58ff-eb91-441d-9859-b96d16c30922-6af959b1-2938-4b00-a4c5-add2bd4cc873.png",
+      "bytes": 4478,
+      "sha256": "cc61cc5c98955164d5e022dacaaecfa39254b5b0f02a98e85a778f3c8c35c1ae"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-590f58ff-eb91-441d-9859-b96d16c30922-776cb5cb-bafa-4e94-9f7b-a93f6c95c688.json",
+      "bytes": 4369,
+      "sha256": "26e5b2fb12c63b9e00aa04955e4ae3106c13521e1af6b7cdf66df6ab4823b622"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-590f58ff-eb91-441d-9859-b96d16c30922-8d040767-4be0-4250-a032-2aa2bce0aa96.json",
+      "bytes": 3345,
+      "sha256": "ed922f90dbedd0f704836cede89f11e7cbfb1724761b3cd5c8168c4aeed572e2"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-590f58ff-eb91-441d-9859-b96d16c30922-a8b15f8f-c6f5-4f55-a6d4-7c8b7af0e27e.json",
+      "bytes": 2571,
+      "sha256": "d0240e7638f5504c0eb0d04b4aa4237a00152bea0308496eb804d231e6ce4340"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-590f58ff-eb91-441d-9859-b96d16c30922-c9a9c04b-2026-4e34-a972-ebf3e422d27a.png",
+      "bytes": 8296,
+      "sha256": "b69d3ce41b2ee6f829a0208de45ccf78df3dc1508d56b4f79d76448dc4444ec9"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-590f58ff-eb91-441d-9859-b96d16c30922-d9b39725-f25b-4e22-86c1-f2fa854b86f8.json",
+      "bytes": 473,
+      "sha256": "93b58326dcccd13148f5c90cb838684d822c9852c6d603b56fdc22d34664c9e4"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-5f8bb6fc-cf34-4dd7-8911-36fda7109721-10e39c20-6516-4147-b22e-a218f35cbaa1.png",
+      "bytes": 6988,
+      "sha256": "745c9319ad75438f174af79696650caa6e919373511bfcfbdf4dd9fc18209ca3"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-5f8bb6fc-cf34-4dd7-8911-36fda7109721-52633f6a-0657-440c-aba1-88f8d78cedf2.json",
+      "bytes": 2579,
+      "sha256": "1dd10090e457936a67ba56834815eacabde11304d9a5c5b91def56d81730e74a"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-5f8bb6fc-cf34-4dd7-8911-36fda7109721-54c8b383-0067-42e8-bbd2-f7e337d4ed6d.json",
+      "bytes": 473,
+      "sha256": "a103cc67cc2d5f83cd2f6801268df069058b2a3a15f2b9fe52a6a42c7274ae70"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-5f8bb6fc-cf34-4dd7-8911-36fda7109721-555eb324-a0bc-4075-8084-82ae9c685cf8.json",
+      "bytes": 2579,
+      "sha256": "a47a60de793ca8d4f404040f131154d82bf182f2425eec1d17fd098bce154408"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-5f8bb6fc-cf34-4dd7-8911-36fda7109721-55eb5938-529e-46fc-86e8-31550c972ee9.png",
+      "bytes": 4478,
+      "sha256": "cc61cc5c98955164d5e022dacaaecfa39254b5b0f02a98e85a778f3c8c35c1ae"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-5f8bb6fc-cf34-4dd7-8911-36fda7109721-737e8bb1-2fc8-45f1-b42e-59ca179c75c0.json",
+      "bytes": 473,
+      "sha256": "eaac363a98babd891bde188761fa3999586e6a35049fe36808c77849a50f6e39"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-5f8bb6fc-cf34-4dd7-8911-36fda7109721-83339ba5-74c7-4641-8168-fd5c13e4e6be.json",
+      "bytes": 3689,
+      "sha256": "ff82a9c444ad3a184e9b2833371067d3293145f258fc6cfc89b990766a0b5d81"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-5f8bb6fc-cf34-4dd7-8911-36fda7109721-8e976fe0-6ec5-4281-ac03-563f330c3cfb.png",
+      "bytes": 4478,
+      "sha256": "cc61cc5c98955164d5e022dacaaecfa39254b5b0f02a98e85a778f3c8c35c1ae"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-5f8bb6fc-cf34-4dd7-8911-36fda7109721-ad48eb0b-0da8-465e-830c-8701087a7a11.png",
+      "bytes": 6988,
+      "sha256": "745c9319ad75438f174af79696650caa6e919373511bfcfbdf4dd9fc18209ca3"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-5f8bb6fc-cf34-4dd7-8911-36fda7109721-d1004092-32ac-4a99-8105-8af9450894bc.json",
+      "bytes": 3689,
+      "sha256": "a916708eda62757576f971ebac8bf8cd201a36202c1900d1fc9659f7edd78308"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-5f8bb6fc-cf34-4dd7-8911-36fda7109721-e4836b20-320e-4180-ab1a-282f589a151b.json",
+      "bytes": 4693,
+      "sha256": "7ff08b6aa27749c5382a77e3da1f9140ac07e46b2353305429f5888dad59780b"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-5f8bb6fc-cf34-4dd7-8911-36fda7109721-f022d6b9-e9f6-4fe5-a28d-21631b29b10c.json",
+      "bytes": 4693,
+      "sha256": "fb8fb8948122ed60cb7cc3da17aac34dd78cc592d275485a7af68b378dc780f6"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-92cf5774-f875-4ffd-85ea-3512d2c6346c-4a450cf6-9184-45e4-be2e-715f84d1740b.png",
+      "bytes": 4478,
+      "sha256": "cc61cc5c98955164d5e022dacaaecfa39254b5b0f02a98e85a778f3c8c35c1ae"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-92cf5774-f875-4ffd-85ea-3512d2c6346c-65a0f2e0-f932-4347-b940-1bf13e3d96f4.json",
+      "bytes": 4210,
+      "sha256": "b248e70d6375ffb027c7849006bfe495547b1d4d09284cd5a0fcbed971bba16a"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-92cf5774-f875-4ffd-85ea-3512d2c6346c-68c91240-9c89-4b08-9154-deebf24b392e.json",
+      "bytes": 7546,
+      "sha256": "f53ccf5492038401e8ef3e810202ef00370f88783ea5860f7508b3f905b64527"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-92cf5774-f875-4ffd-85ea-3512d2c6346c-7640ab5c-b0f6-433b-a342-049e5f0e6fbf.png",
+      "bytes": 10812,
+      "sha256": "c94c5d136fa482723864d99291f8fcd308fc98a7ce8c5aeadb123480f8aa569a"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-92cf5774-f875-4ffd-85ea-3512d2c6346c-8f192df7-ae35-4197-a469-5294ba653e76.json",
+      "bytes": 2964,
+      "sha256": "fe24ecb86a4a31021ae265b3f96d3e6e943d187ef2b08114522dfdc8085208fd"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-92cf5774-f875-4ffd-85ea-3512d2c6346c-8fa57df0-99bd-4bd7-9023-125ce5dd8377.png",
+      "bytes": 10812,
+      "sha256": "c94c5d136fa482723864d99291f8fcd308fc98a7ce8c5aeadb123480f8aa569a"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-92cf5774-f875-4ffd-85ea-3512d2c6346c-90994207-5a73-4cea-aabd-84a7ff837dfc.json",
+      "bytes": 7546,
+      "sha256": "05d08dd4b8c0eb22cf52199180744ab9f973b279a970a88b33af895745b13744"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-92cf5774-f875-4ffd-85ea-3512d2c6346c-b1582180-93c1-468a-9fb0-a7f08f5dde0d.png",
+      "bytes": 4478,
+      "sha256": "cc61cc5c98955164d5e022dacaaecfa39254b5b0f02a98e85a778f3c8c35c1ae"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-92cf5774-f875-4ffd-85ea-3512d2c6346c-b6064c80-f0b4-4e4c-a93d-4c2c170ac514.json",
+      "bytes": 4693,
+      "sha256": "7d93e4cec1d63fb8f37413db01b2f973847a86ac11ed5be1f97998ab951f76af"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-92cf5774-f875-4ffd-85ea-3512d2c6346c-ba56e435-6358-4bdb-8402-2aa3a8554a75.json",
+      "bytes": 4693,
+      "sha256": "7aec7fd1254448d46dde18b11ee2e27e437f7ef667336bb8c5c37dcc34cd572c"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-92cf5774-f875-4ffd-85ea-3512d2c6346c-f5ae16c0-7fae-4aa8-ae84-51cb5740ba5f.json",
+      "bytes": 4210,
+      "sha256": "fc7c585304e1951f57ce1f8be0133af9cfeea1de8aa7d45b89dd5a4b370601df"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-92cf5774-f875-4ffd-85ea-3512d2c6346c-f916a79c-8647-42c2-b086-f742cc0e780a.json",
+      "bytes": 2964,
+      "sha256": "cc48364e2a2df71b1ec634ebac5f5fae9550a0220e20020dbfaa8553df34ac36"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-d3b93eb0-fe45-477f-8cca-dd05fcaec9a7-398ce8e4-1410-4553-9c2b-cc5f16a12ef0.json",
+      "bytes": 473,
+      "sha256": "d16f54624793a2b431561129954aa409d51dc65cb5c820b3412aca58d02e746a"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-d3b93eb0-fe45-477f-8cca-dd05fcaec9a7-7178179d-08c0-4f1e-84c4-b9e26bc2c254.json",
+      "bytes": 4545,
+      "sha256": "aaebab0ba1536a71feaa23c54907ecf97da310363a9347f1bc0b550d0aaefe1a"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-d3b93eb0-fe45-477f-8cca-dd05fcaec9a7-a64ecd0b-b064-4859-aca7-bc33a12014a5.png",
+      "bytes": 4116,
+      "sha256": "05b940e6d1391cc9fdd3f5c1281a13b49f96167e91189d9ba92e7ee0b2483efa"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-d3b93eb0-fe45-477f-8cca-dd05fcaec9a7-b70a91f5-dd95-445a-845c-a7473340662c.json",
+      "bytes": 3719,
+      "sha256": "fa27197e9072e2ac633dc5804ed38eee060cec5a3781a76d17e4e67db984c101"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-d3b93eb0-fe45-477f-8cca-dd05fcaec9a7-bdd9e61f-35fe-45f7-aa36-34e011c9300a.png",
+      "bytes": 7348,
+      "sha256": "e39198b7ccde8583bf123b00fa37e1d6f62ee78c515729ee965c7dd14da79d47"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-d3b93eb0-fe45-477f-8cca-dd05fcaec9a7-c3685f4f-ac1d-4ead-b909-142ae012fb5b.json",
+      "bytes": 3719,
+      "sha256": "41db5daab28a150fa0fc6eace8ac1fbdd327dd1ecb7ea8c025900eeb2c2bb964"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-d3b93eb0-fe45-477f-8cca-dd05fcaec9a7-cfce7f88-9372-4e03-bd7d-357fd4735ccf.png",
+      "bytes": 7348,
+      "sha256": "e39198b7ccde8583bf123b00fa37e1d6f62ee78c515729ee965c7dd14da79d47"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-d3b93eb0-fe45-477f-8cca-dd05fcaec9a7-d0b0383d-18a2-4a7c-a337-c766d095d408.json",
+      "bytes": 4545,
+      "sha256": "3b41e9014bff728db37d3b44c02cf2ff56e89467cd4958ed82a072b36a79d815"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-d3b93eb0-fe45-477f-8cca-dd05fcaec9a7-e159891b-08d5-4f04-b89c-e0e981a20b23.json",
+      "bytes": 473,
+      "sha256": "b081ddfbdeb22a345c5996972c91d8b92ece930a624bec6b0355e4807ed9863e"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-d3b93eb0-fe45-477f-8cca-dd05fcaec9a7-e9215b36-93e9-4c42-a7ae-2c4311ce59b1.json",
+      "bytes": 2607,
+      "sha256": "ab7f24e58e30044429424f1e43bd4eb678c049c1057502c03b281de1b8ba196e"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-d3b93eb0-fe45-477f-8cca-dd05fcaec9a7-f02d71c1-0795-4a02-879c-f556d48b8271.png",
+      "bytes": 4116,
+      "sha256": "05b940e6d1391cc9fdd3f5c1281a13b49f96167e91189d9ba92e7ee0b2483efa"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/run-d3b93eb0-fe45-477f-8cca-dd05fcaec9a7-f607bb97-4149-4407-8767-af98e3ed1f22.json",
+      "bytes": 2607,
+      "sha256": "9a9bc63fc6233bf183c91c493189a96b02110ad8915ee698b02e8b521f4e141e"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/runs.db",
+      "bytes": 618496,
+      "sha256": "eba79da33d92031b1b2c314a183a86cf1c7d8b63615b7de76eb06c530bb5ec6b"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/server.log",
+      "bytes": 243,
+      "sha256": "bb27909432135dc455a169a88de50f56bb39be03b66d1a6393b6ae2a81d28f9a"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/server.mjs",
+      "bytes": 862140,
+      "sha256": "de336dc6114453905dc8c6c9e30462cbb73ec8e92e1cbc2cbfb4b0db9f68022c"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/server.mjs.map",
+      "bytes": 1686242,
+      "sha256": "84ff2def7c97a094435af6ce990e6ae90c6fd7b4eb999f6147c19d28ec6ab387"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/workbench-report.json",
+      "bytes": 245466,
+      "sha256": "07732cb6dc55937c9259ad7a0d641219187cd2d9701881a50163ea422279a8b7"
+    },
+    {
+      "path": "data/control-layout-product/2026-10-09T09-51-56-846Z/workbench-rules.png",
+      "bytes": 339393,
+      "sha256": "25dcfc3978b01090c471b1e86539bd84f9d9a3f2a6e29a8d87dc8a959c94b768"
+    },
+    {
+      "path": "data/control-layout-tests/2026-10-09T09-48-18-085Z/alternative-reference.png",
+      "bytes": 1447,
+      "sha256": "2a70cfdc07f531029e5f1210fd8b60b34c9138f57feeccd474871e3af02b4a9f"
+    },
+    {
+      "path": "data/control-layout-tests/2026-10-09T09-48-18-085Z/alternative.json",
+      "bytes": 7526,
+      "sha256": "f095b835d6e2cbceb7daa160a52c35554e95b359c91dfcc36c73470e58cac14d"
+    },
+    {
+      "path": "data/control-layout-tests/2026-10-09T09-48-18-085Z/alternative.png",
+      "bytes": 8296,
+      "sha256": "b69d3ce41b2ee6f829a0208de45ccf78df3dc1508d56b4f79d76448dc4444ec9"
+    },
+    {
+      "path": "data/control-layout-tests/2026-10-09T09-48-18-085Z/budget-reference.png",
+      "bytes": 9809,
+      "sha256": "63a0a0f6af58b64985d384af16baff28a9e9c481bab47e4e671049f0e0741503"
+    },
+    {
+      "path": "data/control-layout-tests/2026-10-09T09-48-18-085Z/budget.json",
+      "bytes": 24825,
+      "sha256": "566f789a491b8eef7cdde0bada2929b9e4035f497dba062be87dee348179181a"
+    },
+    {
+      "path": "data/control-layout-tests/2026-10-09T09-48-18-085Z/budget.png",
+      "bytes": 7926,
+      "sha256": "d84961bb8f82656e8a5890afd597da43ff98e0ef1f4c4301374d2dd482ca2fae"
+    },
+    {
+      "path": "data/control-layout-tests/2026-10-09T09-48-18-085Z/clipped-reference.png",
+      "bytes": 4478,
+      "sha256": "cc61cc5c98955164d5e022dacaaecfa39254b5b0f02a98e85a778f3c8c35c1ae"
+    },
+    {
+      "path": "data/control-layout-tests/2026-10-09T09-48-18-085Z/clipped-renamed-reference.png",
+      "bytes": 4116,
+      "sha256": "05b940e6d1391cc9fdd3f5c1281a13b49f96167e91189d9ba92e7ee0b2483efa"
+    },
+    {
+      "path": "data/control-layout-tests/2026-10-09T09-48-18-085Z/clipped-renamed.json",
+      "bytes": 8763,
+      "sha256": "4a304b23e267862d553c726259e297a34eba5ef38cbcdfa597da1e2b1e788637"
+    },
+    {
+      "path": "data/control-layout-tests/2026-10-09T09-48-18-085Z/clipped-renamed.png",
+      "bytes": 6748,
+      "sha256": "94d240860a476ef440e79cdf60d968bd9659d3ee9480effd6f3828c7afe48d32"
+    },
+    {
+      "path": "data/control-layout-tests/2026-10-09T09-48-18-085Z/clipped.json",
+      "bytes": 8678,
+      "sha256": "0825653291ebac92edbd8559b1dd4afaca082236f731655f405b25da49157f59"
+    },
+    {
+      "path": "data/control-layout-tests/2026-10-09T09-48-18-085Z/clipped.png",
+      "bytes": 6988,
+      "sha256": "745c9319ad75438f174af79696650caa6e919373511bfcfbdf4dd9fc18209ca3"
+    },
+    {
+      "path": "data/control-layout-tests/2026-10-09T09-48-18-085Z/disabled-reference.png",
+      "bytes": 1447,
+      "sha256": "2a70cfdc07f531029e5f1210fd8b60b34c9138f57feeccd474871e3af02b4a9f"
+    },
+    {
+      "path": "data/control-layout-tests/2026-10-09T09-48-18-085Z/disabled.json",
+      "bytes": 7325,
+      "sha256": "269d9cc432fce814f2fd21d3dd0ac338bca5b58fb54030bec678eb87f7c8acda"
+    },
+    {
+      "path": "data/control-layout-tests/2026-10-09T09-48-18-085Z/disabled.png",
+      "bytes": 8296,
+      "sha256": "b69d3ce41b2ee6f829a0208de45ccf78df3dc1508d56b4f79d76448dc4444ec9"
+    },
+    {
+      "path": "data/control-layout-tests/2026-10-09T09-48-18-085Z/ellipsis-reference.png",
+      "bytes": 1447,
+      "sha256": "2a70cfdc07f531029e5f1210fd8b60b34c9138f57feeccd474871e3af02b4a9f"
+    },
+    {
+      "path": "data/control-layout-tests/2026-10-09T09-48-18-085Z/ellipsis.json",
+      "bytes": 8796,
+      "sha256": "6af9398647d2fa70bbcf46b157054846341305d63809fd67e46e7f5743706794"
+    },
+    {
+      "path": "data/control-layout-tests/2026-10-09T09-48-18-085Z/ellipsis.png",
+      "bytes": 6670,
+      "sha256": "9dfd01d0639d8f4ea4b9db9f294093cec70a4cc325c684f7ce6e523643a1095b"
+    },
+    {
+      "path": "data/control-layout-tests/2026-10-09T09-48-18-085Z/healthy-reference.png",
+      "bytes": 4478,
+      "sha256": "cc61cc5c98955164d5e022dacaaecfa39254b5b0f02a98e85a778f3c8c35c1ae"
+    },
+    {
+      "path": "data/control-layout-tests/2026-10-09T09-48-18-085Z/healthy-renamed-reference.png",
+      "bytes": 4116,
+      "sha256": "05b940e6d1391cc9fdd3f5c1281a13b49f96167e91189d9ba92e7ee0b2483efa"
+    },
+    {
+      "path": "data/control-layout-tests/2026-10-09T09-48-18-085Z/healthy-renamed.json",
+      "bytes": 8248,
+      "sha256": "492909b48937d6615511d8e6f2bc1a935738889756d45e5aab6155b5fb89417f"
+    },
+    {
+      "path": "data/control-layout-tests/2026-10-09T09-48-18-085Z/healthy-renamed.png",
+      "bytes": 7843,
+      "sha256": "327c8ea3814053cc863cda5e59e7c50e0990001c552f41bf462dad8cddbd2f3c"
+    },
+    {
+      "path": "data/control-layout-tests/2026-10-09T09-48-18-085Z/healthy.json",
+      "bytes": 8168,
+      "sha256": "3b89794b36d9d8d6e82ec0fc0deef212c5530478f2b79685af78b6e73df982a6"
+    },
+    {
+      "path": "data/control-layout-tests/2026-10-09T09-48-18-085Z/healthy.png",
+      "bytes": 8296,
+      "sha256": "b69d3ce41b2ee6f829a0208de45ccf78df3dc1508d56b4f79d76448dc4444ec9"
+    },
+    {
+      "path": "data/control-layout-tests/2026-10-09T09-48-18-085Z/layer.json",
+      "bytes": 6920,
+      "sha256": "8578c9281feccca443e2896fe2596c3fb30709c7acb2d1d9778384b19051f8bc"
+    },
+    {
+      "path": "data/control-layout-tests/2026-10-09T09-48-18-085Z/layer.png",
+      "bytes": 8296,
+      "sha256": "b69d3ce41b2ee6f829a0208de45ccf78df3dc1508d56b4f79d76448dc4444ec9"
+    },
+    {
+      "path": "data/control-layout-tests/2026-10-09T09-48-18-085Z/overlap-reference.png",
+      "bytes": 4478,
+      "sha256": "cc61cc5c98955164d5e022dacaaecfa39254b5b0f02a98e85a778f3c8c35c1ae"
+    },
+    {
+      "path": "data/control-layout-tests/2026-10-09T09-48-18-085Z/overlap-renamed-reference.png",
+      "bytes": 4116,
+      "sha256": "05b940e6d1391cc9fdd3f5c1281a13b49f96167e91189d9ba92e7ee0b2483efa"
+    },
+    {
+      "path": "data/control-layout-tests/2026-10-09T09-48-18-085Z/overlap-renamed.json",
+      "bytes": 8974,
+      "sha256": "88406b60a024d8879429a7a71e135f6d52e7eeee18309cbf8fa94d97dac7663e"
+    },
+    {
+      "path": "data/control-layout-tests/2026-10-09T09-48-18-085Z/overlap-renamed.png",
+      "bytes": 7348,
+      "sha256": "e39198b7ccde8583bf123b00fa37e1d6f62ee78c515729ee965c7dd14da79d47"
+    },
+    {
+      "path": "data/control-layout-tests/2026-10-09T09-48-18-085Z/overlap.json",
+      "bytes": 8878,
+      "sha256": "8ef1f2be9231aedd9f4713d532d1ded9a48bb2a34a08385921fcee20b8a41e1c"
+    },
+    {
+      "path": "data/control-layout-tests/2026-10-09T09-48-18-085Z/overlap.png",
+      "bytes": 7552,
+      "sha256": "11658d474f5afb19d899842d51e91249297f58869cebbfc56accbe31dd870152"
+    },
+    {
+      "path": "data/control-layout-tests/2026-10-09T09-48-18-085Z/scroll-reference.png",
+      "bytes": 1447,
+      "sha256": "2a70cfdc07f531029e5f1210fd8b60b34c9138f57feeccd474871e3af02b4a9f"
+    },
+    {
+      "path": "data/control-layout-tests/2026-10-09T09-48-18-085Z/scroll.json",
+      "bytes": 8012,
+      "sha256": "afa1eef6810c2cd8c410428ab36ccdc802b5c64863d92cf4663bbc9e1cc5f0f8"
+    },
+    {
+      "path": "data/control-layout-tests/2026-10-09T09-48-18-085Z/scroll.png",
+      "bytes": 7152,
+      "sha256": "d88ed0fb41b8eaada2c7cb8cdb6216ae3f0bb0f1de8d3ad8f4bdbbfe5917655a"
+    },
+    {
+      "path": "data/control-layout-tests/2026-10-09T09-48-18-085Z/unknown-reference.png",
+      "bytes": 1447,
+      "sha256": "2a70cfdc07f531029e5f1210fd8b60b34c9138f57feeccd474871e3af02b4a9f"
+    },
+    {
+      "path": "data/control-layout-tests/2026-10-09T09-48-18-085Z/unknown.json",
+      "bytes": 7446,
+      "sha256": "c8bcb43cb6536605ba8770001eac3ea4dc0fdb90d9e6b29077df89576ae9a166"
+    },
+    {
+      "path": "data/control-layout-tests/2026-10-09T09-48-18-085Z/unknown.png",
+      "bytes": 8907,
+      "sha256": "630b9f707e2ca1b62d0a4aaee716cd2d43af93822cf177167887b5ca6501fec1"
+    },
+    {
+      "path": "data/control-layout-validation/build-final.log",
+      "bytes": 1326,
+      "sha256": "ebff0649acfe4971c89ec8c67c53571bb3e4af3c8114842c4e84f7f8b377b194"
+    },
+    {
+      "path": "data/control-layout-validation/directed-2.log",
+      "bytes": 214,
+      "sha256": "9d070e7bc18dc90691af3b49b3f185515ec14169d50cf0883627e687f8c97091"
+    },
+    {
+      "path": "data/control-layout-validation/directed-before-recovery-guard.log",
+      "bytes": 213,
+      "sha256": "e542106f80c6595fc712e0c79b4e30a6443f0aa79e1110be37258ce60e67759e"
+    },
+    {
+      "path": "data/control-layout-validation/directed-final.log",
+      "bytes": 215,
+      "sha256": "3e19e8277318b444575885465fad48968e7dac700b90568fb4071282199cd155"
+    },
+    {
+      "path": "data/control-layout-validation/directed-first.log",
+      "bytes": 214,
+      "sha256": "cbf1881857cf5f1c22db4062d59b7ff5e74129f4fd052d94ac24b32a6533fb1c"
+    },
+    {
+      "path": "data/control-layout-validation/directed-recovery-guard.log",
+      "bytes": 215,
+      "sha256": "4cadaa778f190a2282ecdb588a662b85875cb37bb20f20c8e09af020c0c47936"
+    },
+    {
+      "path": "data/control-layout-validation/product-before-summary.log",
+      "bytes": 24730,
+      "sha256": "c81b678c3fcbbd5ff3669bec40718ca9c78659ec8c3b2fbb0cfd1894768f12a5"
+    },
+    {
+      "path": "data/control-layout-validation/product-final.log",
+      "bytes": 24738,
+      "sha256": "c512fd2d7f77aa13e43b5b2f8b7d2cb39b83eed68af962a932bb2abf92fffbae"
+    },
+    {
+      "path": "data/control-layout-validation/product-first.log",
+      "bytes": 32023,
+      "sha256": "dd3d25b5f4c1a7af703ead2de7ce2cddf1c0c3de54d1eefbefb8ce1294957d75"
+    },
+    {
+      "path": "data/control-layout-validation/product-mixed-fixture-failed.log",
+      "bytes": 975,
+      "sha256": "a2db7335be1e3e48f1755ef62ad82ae2386062d5a5523159e91b87808d7f696e"
+    },
+    {
+      "path": "data/control-layout-validation/product-recovery-guard.log",
+      "bytes": 18102,
+      "sha256": "6dd9cdf3f5041a0f4e883530d6a8736b57ca134127774c25ed07b20f9457b986"
+    },
+    {
+      "path": "data/control-layout-validation/typecheck-2.log",
+      "bytes": 12738,
+      "sha256": "2165e70c99ab033dc8c5f37669db0522c4aa4d4594621d92c7afd7ed05b1da18"
+    },
+    {
+      "path": "data/control-layout-validation/typecheck-final.log",
+      "bytes": 113,
+      "sha256": "d4ec4609054221ed4c16d6d39eadeb42e5cbc98686f33549e819de3b8a900214"
+    }
+  ],
+  "earlierRuns": [
+    "data/control-layout-product/2026-10-09T09-43-08-740Z",
+    "data/control-layout-product/2026-10-09T09-46-39-916Z",
+    "data/control-layout-product/2026-10-09T09-48-26-497Z",
+    "data/control-layout-product/2026-10-09T09-49-22-176Z"
+  ],
+  "history": [
+    "First typecheck found missing HTMLCollection annotation; fixed, output retained in chat rather than a separate log.",
+    "typecheck-2.log records PageSnapshot inference mismatch in test harness; corrected using the existing typed snapshot boundary.",
+    "Early product run included a scripted node update before recovery guards were tightened. It is historical, not evidence of the final fail scope.",
+    "product-mixed-fixture-failed.log: D005 returned its existing external-overflow-text unknown on a page containing the deliberate clipping fixture; no D005 changes. Compatibility proof moved to a separate healthy layout case, preserving the failed report and log.",
+    "Final formatter check requested one chain-expression line-wrap correction; fixed without algorithm changes. Original tested source hash and delivered formatting hash both retained."
+  ],
+  "retention": "Git contains source/fixtures, this manifest and one workbench screenshot. Bundles, SQLite, full reports and raw PNG/fact files remain ignored local data. Resolve localFiles paths against repository root; copy the indexed paths to another checkout separately and verify bytes/SHA256. Closed localhost ports and API artifact URLs are historical, not portable downloads. Earlier preliminary runs stay local and are not final proof.",
+  "deliveredSourceFormatting": {
+    "path": "src/execution/layout-facts.ts",
+    "bytes": 22192,
+    "sha256": "8cfb7106c32c24912f2d574dbf3ca39766c225c3372eedeb99f6fda9efa6587b",
+    "change": "Only whitespace/line wrapping of resourceEntries.slice(...).map(...), after tested implementation 4983896; no semantic change or test rerun. sourceIdentity retains exact tested source; other delivered source files unchanged."
+  }
+}

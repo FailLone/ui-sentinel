@@ -690,13 +690,29 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       const supplemental = await uiRules.evaluate(context)
       result = {
         ...result,
-        results: [...result.results, supplemental.result],
-        summary: `${result.summary}; control-text-disappearance: ${supplemental.result.verdict}`,
-        evaluatedCount: result.evaluatedCount + (supplemental.reused ? 0 : 1),
+        results: [...result.results, supplemental.result, ...supplemental.layoutResults],
+        summary: `${result.summary}; ${[supplemental.result, ...supplemental.layoutResults].map((r) => `${r.ruleId}: ${r.verdict}`).join('; ')}`,
+        evaluatedCount:
+          result.evaluatedCount + (supplemental.reused ? 0 : 1 + supplemental.layoutResults.length),
         reused: [
           ...(result.reused ?? []),
-          ...(supplemental.reused ? [supplemental.result.ruleId] : []),
+          ...(supplemental.reused
+            ? [supplemental.result.ruleId, ...supplemental.layoutResults.map((r) => r.ruleId)]
+            : []),
         ],
+      }
+      if (!supplemental.reused && supplemental.body.layout) {
+        for (const layout of supplemental.body.layout.results) {
+          if (
+            supplemental.body.layout.omitted ||
+            !supplemental.body.layout.enumerationComplete ||
+            layout.rows.some((row) => row.verdict === 'unknown')
+          )
+            await inspection?.recordUnsupported(
+              layout.ruleId + ':coverage',
+              'bounded-layout-measurement-incomplete',
+            )
+        }
       }
       if (
         !supplemental.reused &&
