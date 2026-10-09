@@ -49,6 +49,7 @@ export async function openImageBindingExperiment(options: {
     page: worker.page,
     runId: run.id,
     evidenceIntegrity: integrity.snapshot,
+    settleEvidence: () => eventTail,
   })
   let network: Awaited<ReturnType<typeof installUiNetworkSession>> | undefined
   let closed = false
@@ -113,6 +114,10 @@ export async function openImageBindingExperiment(options: {
       observe: async () => {
         await eventTail
         return session.observe()
+      },
+      diagnose: async (input: unknown) => {
+        await eventTail
+        return session.diagnose(input)
       },
       check: async (input: unknown) => {
         await eventTail

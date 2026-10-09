@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { afterAll, afterEach, beforeAll, beforeEach, expect, it } from 'vitest'
 import { createServer } from 'node:http'
-import { copyFile, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
+import { copyFile, cp, mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { createHash } from 'node:crypto'
 import { launchBrowser, observePage, type BrowserWorker } from '../execution/browser.ts'
 import { readImagePaintFacts } from '../execution/image-paint.ts'
@@ -155,13 +155,13 @@ async function caretRecords() {
   )
 }
 // Optional local handoff receipts; the normal test still removes its temporary artifacts.
-async function retainCaretEvidence(name: string, details: unknown) {
+async function retainCaretEvidence(name: string, details: unknown, evidenceRunId = runId) {
   if (!process.env.IMAGE_CARET_EVIDENCE_DIR) return
   const directory = resolve(process.env.IMAGE_CARET_EVIDENCE_DIR, name)
   await mkdir(directory, { recursive: true })
   const rows = await getDbClient().execute({
     sql: 'SELECT id,type,file_path FROM artifacts WHERE run_id=?',
-    args: [runId],
+    args: [evidenceRunId],
   })
   const artifacts = await Promise.all(
     rows.rows.map(async (row) => {
@@ -179,7 +179,11 @@ async function retainCaretEvidence(name: string, details: unknown) {
   )
   await writeFile(
     join(directory, 'receipt.json'),
-    JSON.stringify({ runId, details, artifacts, events: await getEvents(runId) }, null, 2),
+    JSON.stringify(
+      { runId: evidenceRunId, details, artifacts, events: await getEvents(evidenceRunId) },
+      null,
+      2,
+    ),
   )
 }
 
@@ -554,6 +558,225 @@ it('runs the free interactive CLI end to end with a separate database and explic
     expect((await readFile(join(output, 'experiment.db'))).length).toBeGreaterThan(0)
     expect(imageRequests).toBe(1)
     expect(writes).toBe(0)
+  } finally {
+    clearTimeout(deadline)
+    child.kill()
+    await completed
+    await rm(root, { recursive: true, force: true })
+    if (cliRunId) await rm(resolve('data/artifacts', cliRunId), { recursive: true, force: true })
+  }
+})
+
+const diagnosticRequest = (c: ImageBindingCandidate) => ({
+  candidateId: c.candidateId,
+  observationId: c.observationId,
+})
+it('diagnostic: valid machines need no semantic statement and cause no page actions', async () => {
+  html = image().replace('height:60px', 'height:120px') + editors
+  await worker.page.goto(origin + '/page')
+  await watchCaretMutations()
+  const batch = await experiment.observe(),
+    candidate = batch.candidates[0]!
+  const diagnosis = await experiment.diagnose(diagnosticRequest(candidate))
+  expect(diagnosis.sections.identity.status).toBe('available')
+  expect(diagnosis.sections.resource.status).toBe('available')
+  expect(diagnosis.sections.paint.status).toBe('available')
+  expect(diagnosis.sections.evidence.status).toBe('available')
+  expect(diagnosis.sections.machineBinding.status).toBe('available')
+  expect(diagnosis.sections.semantics.status).toBe('unknown')
+  expect(diagnosis.consumption).toMatchObject({
+    canConsumeNow: false,
+    checkInvoked: false,
+    ruleEvaluated: false,
+    actualInputGateReasons: ['missing-or-invalid-explicit-basis'],
+  })
+  expect(diagnosis.lifecycle).toMatchObject({
+    candidateReplaced: false,
+    newCandidateId: null,
+    freshReadPerformed: true,
+  })
+  expect(candidate.pending.basis.confirmedBy).toBeNull()
+  expect(await caretRecords()).toEqual([])
+  expect(imageRequests).toBe(1)
+  expect(writes).toBe(0)
+  expect((await getEvents(runId)).some((e) => e.type === 'rule:evaluated')).toBe(false)
+  expect(await getFindings(runId)).toHaveLength(0)
+  await retainCaretEvidence('diagnostic-valid', {
+    batch,
+    diagnosis,
+    imageRequests,
+    writes,
+    mutations: await caretRecords(),
+  })
+})
+it('diagnostic: a replaced target is not rebound, and a closed session is immutable', async () => {
+  const candidate = (await discover()).candidates[0]!
+  await worker.page.locator('img').evaluate((img) => img.replaceWith(img.cloneNode(true)))
+  const diagnosis = await experiment.diagnose(diagnosticRequest(candidate))
+  expect(diagnosis.sections.identity.status).toBe('unavailable')
+  expect(diagnosis.sections.resource.status).toBe('available')
+  expect(diagnosis.sections.machineBinding.reasons).toContain('target-lost-or-ambiguous')
+  expect(diagnosis.sections.identity.facts.current!.nodeId).not.toBe(
+    diagnosis.sections.identity.facts.source!.nodeId,
+  )
+  expect(diagnosis.lifecycle.confirmationTransferred).toBe(false)
+  const check = await experiment.check(review(candidate))
+  expect(check.actual).toContain('target-lost-or-ambiguous')
+  await experiment.close()
+  const count = (await getEvents(runId)).length
+  const closed = await experiment.diagnose(diagnosticRequest(candidate))
+  expect(closed.artifactRef).toBeNull()
+  expect(closed.sections.machineBinding.reasons).toContain('session-closed')
+  expect((await getEvents(runId)).length).toBe(count)
+  await retainCaretEvidence('diagnostic-replaced', { candidate, diagnosis, check, closed })
+})
+it('diagnostic: denied target image has a direct request receipt and no invented SHA', async () => {
+  html = image().replace('/image.png', 'http://127.0.0.1:54321/image.png')
+  const host = await openImageBindingExperiment({
+    entryUrl: origin + '/page',
+    trustedOrigins: [origin],
+  })
+  try {
+    const batch = await host.observe(),
+      diagnosis = await host.diagnose(diagnosticRequest(batch.candidates[0]!))
+    expect(diagnosis.sections.resource.status).toBe('unavailable')
+    expect(diagnosis.sections.resource.facts.current?.resource).toBeNull()
+    expect(diagnosis.sections.network.facts.directResourceDenials).toHaveLength(1)
+    expect(diagnosis.sections.network.facts.directResourceDenials[0]!.payload.url).toBe(
+      'http://127.0.0.1:54321/image.png',
+    )
+    expect(diagnosis.sections.network.facts.targetImpact).toBe('unknown')
+    expect(diagnosis.sections.machineBinding.reasons).toContain('evidence-intervened')
+    expect(imageRequests).toBe(0)
+    await retainCaretEvidence('diagnostic-image-denied', { batch, diagnosis }, host.runId)
+  } finally {
+    await host.close()
+    await rm(`data/artifacts/${host.runId}`, { recursive: true, force: true })
+  }
+})
+it('diagnostic: verified image does not excuse another denied request or repeat business work', async () => {
+  html = image() + '<script>fetch("/diagnostic-test-read",{method:"POST"}).catch(()=>{})</script>'
+  const host = await openImageBindingExperiment({
+    entryUrl: origin + '/page',
+    trustedOrigins: [origin],
+  })
+  try {
+    const batch = await host.observe(),
+      c = batch.candidates[0]!
+    const first = await host.diagnose(diagnosticRequest(c)),
+      second = await host.diagnose(diagnosticRequest(c))
+    for (const d of [first, second]) {
+      expect(d.sections.resource.status).toBe('available')
+      expect(d.sections.network.status).toBe('unavailable')
+      expect(d.sections.network.facts.directResourceDenials).toHaveLength(0)
+      expect(d.sections.network.facts.otherDenials).toHaveLength(1)
+      expect(d.sections.network.facts.targetImpact).toBe('unknown')
+      expect(d.sections.machineBinding.reasons).toContain('evidence-intervened')
+    }
+    expect(first.sections.network.facts.otherDenials[0]!.id).toBe(
+      second.sections.network.facts.otherDenials[0]!.id,
+    )
+    expect(imageRequests).toBe(1)
+    expect(writes).toBe(0)
+    expect((await host.check(review(c))).actual).toContain('evidence-intervened')
+    await retainCaretEvidence(
+      'diagnostic-other-denied',
+      { batch, first, second, imageRequests, writes },
+      host.runId,
+    )
+  } finally {
+    await host.close()
+    await rm(`data/artifacts/${host.runId}`, { recursive: true, force: true })
+  }
+})
+it('diagnostic: synthetic contract consumption and evidence/expiry/supersession gates remain intact', async () => {
+  const candidate = (await discover()).candidates[0]!
+  const diagnosis = await experiment.diagnose(diagnosticRequest(candidate))
+  const checked = await experiment.check(review(candidate))
+  expect(checked.verdict).toBe('fail') // existing stretched circular fixture contract
+  const path = await artifactPath(candidate.measured.evidenceRefs[0]!)
+  await writeFile(path, 'modified evidence')
+  const changed = await experiment.diagnose(diagnosticRequest(candidate))
+  expect(changed.sections.evidence.status).toBe('unavailable')
+  expect(changed.sections.machineBinding.reasons).toContain('evidence-changed')
+  time += 5 * 60 * 1000
+  const expired = await experiment.diagnose(diagnosticRequest(candidate))
+  expect(expired.sections.machineBinding.reasons).toContain('evidence-expired')
+  const fresh = await experiment.observe()
+  const superseded = await experiment.diagnose(diagnosticRequest(candidate))
+  expect(superseded.sections.machineBinding.reasons).toContain('unknown-or-superseded-candidate')
+  expect(superseded.lifecycle.freshReadPerformed).toBe(false)
+  expect(fresh.observationId).not.toBe(candidate.observationId)
+  expect(imageShapeDistortionRule.enabled).toBe(false)
+  await retainCaretEvidence('diagnostic-gates', {
+    candidate,
+    diagnosis,
+    checked,
+    changed,
+    expired,
+    superseded,
+    newObservationId: fresh.observationId,
+  })
+})
+it('diagnostic: interactive CLI consumes only selected IDs, without a review file', async () => {
+  html = image() + editors
+  const root = await mkdtemp(join(tmpdir(), 'image-diagnostic-cli-')),
+    output = join(root, 'experiment')
+  const child = spawn(
+    process.execPath,
+    [
+      '--import',
+      'tsx',
+      'scripts/experiments/image-bindings.ts',
+      '--url',
+      origin + '/page',
+      '--out',
+      output,
+      '--interactive',
+    ],
+    {
+      cwd: process.cwd(),
+      env: { ...process.env, URL_SCAN_TRUSTED_ORIGINS: origin, AGENT_MODEL: '', VISION_MODEL: '' },
+      stdio: ['pipe', 'pipe', 'pipe'],
+    },
+  )
+  let stdout = '',
+    stderr = '',
+    cliRunId = ''
+  const completed = new Promise<number | null>((resolve, reject) => {
+    child.once('error', reject)
+    child.once('exit', resolve)
+  })
+  const ready = new Promise<void>((resolve, reject) => {
+    child.stdout.on('data', (bytes) => {
+      stdout += String(bytes)
+      if (stdout.includes('Review candidates')) resolve()
+    })
+    child.once('exit', () => reject(Error(stderr + stdout)))
+    child.once('error', reject)
+  })
+  child.stderr.on('data', (bytes) => {
+    stderr += String(bytes)
+  })
+  const deadline = setTimeout(() => child.kill('SIGTERM'), 20000)
+  try {
+    await ready
+    const batch = JSON.parse(await readFile(join(output, 'candidates-1.json'), 'utf8'))
+    cliRunId = batch.runId
+    child.stdin.end('diagnose ' + batch.candidates[0].candidateId + '\nquit\n')
+    expect(await completed, stderr + stdout).toBe(0)
+    const diagnosis = JSON.parse(await readFile(join(output, 'diagnosis-2.json'), 'utf8'))
+    expect(diagnosis.sections.machineBinding.status).toBe('available')
+    expect(diagnosis.consumption.ruleEvaluated).toBe(false)
+    expect(diagnosis.request.observationId).toBe(batch.observationId)
+    expect(imageRequests).toBe(1)
+    expect(writes).toBe(0)
+    if (process.env.IMAGE_CARET_EVIDENCE_DIR) {
+      const dest = resolve(process.env.IMAGE_CARET_EVIDENCE_DIR, 'diagnostic-cli')
+      await cp(output, dest, { recursive: true })
+      await cp(resolve('data/artifacts', cliRunId), join(dest, 'artifacts'), { recursive: true })
+      await writeFile(join(dest, 'stdout.log'), stdout)
+    }
   } finally {
     clearTimeout(deadline)
     child.kill()

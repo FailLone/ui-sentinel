@@ -4,7 +4,7 @@ import type { ElementHandle, Page } from 'playwright'
 import { z } from 'zod'
 import { observePage, saveEvidence } from '../execution/browser.ts'
 import { installImageResourceCollector } from '../execution/image-paint.ts'
-import { appendEvent, getFindings, submitFinding } from '../execution/run-manager.ts'
+import { appendEvent, getEvents, getFindings, submitFinding } from '../execution/run-manager.ts'
 import {
   createImageShapeDistortionRule,
   imageShapeDistortionRule,
@@ -122,7 +122,7 @@ async function isSameTarget(handle: ElementHandle, selector: string): Promise<bo
 }
 
 /** Session-local experiment. The caller installs the normal network boundary before navigation.
- * Only observe/check are exposed: no navigation, clicks, fetching, registry enablement or R0 ledger.
+ * Only observe/diagnose/check are exposed: no navigation, clicks, fetching, registry enablement or R0 ledger.
  * Construct before navigation so the existing passive resource collector sees browser responses.
  */
 export function createImageBindingExperiment(options: {
@@ -130,6 +130,8 @@ export function createImageBindingExperiment(options: {
   runId: string
   evidenceIntegrity: () => EvidenceIntegrity
   now?: () => number
+  /** Drain only the existing host event writes; never starts a request. */
+  settleEvidence?: () => Promise<unknown>
 }) {
   const { page, runId } = options
   const now = options.now ?? Date.now
@@ -330,6 +332,342 @@ export function createImageBindingExperiment(options: {
     }
   }
 
+  // The checker keeps its original early refusal. Diagnostics may collect independent current
+  // facts despite a refusal, but use exactly the same machine gates and never update the entry.
+  async function validateBinding(
+    entry: Entry | undefined,
+    reasons: string[],
+    inspectBlocked = false,
+  ) {
+    const evidenceChecks: { ref: string; expectedSha256: string; actualSha256: string | null }[] =
+      []
+    let live: CapturedObservation | undefined
+    let sameTargetBefore: boolean | undefined, sameTargetAfter: boolean | undefined
+    if (entry) {
+      const candidate = entry.candidate
+      if (candidate.status !== 'facts-ready') reasons.push(...candidate.issues)
+      if (now() >= Date.parse(candidate.expiresAt)) reasons.push('evidence-expired')
+      if (!cleanEvidenceIntegrity(options.evidenceIntegrity())) reasons.push('evidence-intervened')
+      for (const [ref, hash] of entry.evidenceHashes) {
+        try {
+          const actual = digest(await readArtifact(ref))
+          evidenceChecks.push({ ref, expectedSha256: hash, actualSha256: actual })
+          if (actual !== hash) reasons.push('evidence-changed')
+        } catch {
+          evidenceChecks.push({ ref, expectedSha256: hash, actualSha256: null })
+          reasons.push('evidence-unavailable')
+        }
+      }
+      if (!reasons.length || inspectBlocked) {
+        const { selector } = candidate.measured.contractFields
+        sameTargetBefore = await isSameTarget(entry.handle, selector)
+        if (!sameTargetBefore) reasons.push('target-lost-or-ambiguous')
+        if (sameTargetBefore || inspectBlocked) {
+          live = await observePage(page, runId, metadata, [selector], { caret: 'initial' })
+          const current = onlyFact(live, selector),
+            previous = candidate.measured.paint
+          reasons.push(...factIssues(current))
+          if (
+            !cleanEvidenceIntegrity(live.snapshot.evidenceIntegrity) ||
+            !cleanEvidenceIntegrity(options.evidenceIntegrity())
+          )
+            reasons.push('evidence-intervened')
+          if (
+            live.snapshot.url !== candidate.measured.contractFields.pageUrl ||
+            JSON.stringify(live.snapshot.viewport) !==
+              JSON.stringify(candidate.measured.contractFields.viewport)
+          )
+            reasons.push('page-or-viewport-changed')
+          if (
+            current?.currentSrc !== previous?.currentSrc ||
+            current?.resource?.sha256 !== previous?.resource?.sha256
+          )
+            reasons.push('resource-changed-or-unverified')
+          if (current && (!previous || paintIdentity(current) !== paintIdentity(previous)))
+            reasons.push('observation-facts-changed')
+          sameTargetAfter = await isSameTarget(entry.handle, selector)
+          if (!sameTargetAfter) reasons.push('target-lost-or-ambiguous')
+          if (now() >= Date.parse(candidate.expiresAt)) reasons.push('evidence-expired')
+        }
+      }
+    }
+    return {
+      reasons: [...new Set(reasons)],
+      live,
+      evidenceChecks,
+      sameTargetBefore,
+      sameTargetAfter,
+    }
+  }
+
+  async function diagnose(raw: unknown) {
+    const parsed = z
+      .object({ candidateId: z.string().min(1), observationId: z.string().min(1) })
+      .strict()
+      .safeParse(raw)
+    const input = parsed.success ? parsed.data : undefined
+    const found = input ? entries.get(input.candidateId) : undefined
+    const entry =
+      !closed && found?.candidate.observationId === input?.observationId ? found : undefined
+    const reasons = closed
+      ? ['session-closed']
+      : !input
+        ? ['invalid-diagnostic-request']
+        : !entry
+          ? ['unknown-or-superseded-candidate']
+          : []
+    let validation: Awaited<ReturnType<typeof validateBinding>> = {
+      reasons,
+      live: undefined,
+      evidenceChecks: [],
+      sameTargetBefore: undefined,
+      sameTargetAfter: undefined,
+    }
+    let observationError: string | null = null
+    if (entry) {
+      try {
+        validation = await validateBinding(entry, reasons, true)
+      } catch (error) {
+        reasons.push('diagnostic-observation-failed')
+        observationError = String(error).slice(0, 1000)
+      }
+    }
+    // Diagnostic observation is a new receipt, NOT a new candidate batch. No entries are cleared,
+    // repaired or rebound, and no previous confirmation is transferred to a new identity/resource.
+    await options.settleEvidence?.()
+    const live = validation.live,
+      candidate = entry?.candidate
+    const current =
+      live && candidate ? onlyFact(live, candidate.measured.contractFields.selector) : undefined
+    const refs = [
+      ...new Set([
+        ...(entry ? [entry.artifactRef, ...entry.candidate.measured.evidenceRefs] : []),
+        ...(live?.evidenceRefs ?? []),
+        ...(current?.resource ? [current.resource.evidenceRef] : []),
+      ]),
+    ]
+    const integrity = options.evidenceIntegrity()
+    if (entry && !cleanEvidenceIntegrity(integrity)) validation.reasons.push('evidence-intervened')
+    const events = await getEvents(runId)
+    const networkEvents = events.filter(
+      (e) => e.type === 'network:decision' || e.type === 'image-bindings:intervention',
+    )
+    const resourceUrl =
+      current?.currentSrc || candidate?.measured.contractFields.resourceUrl || null
+    const direct = networkEvents.filter(
+      (e) =>
+        resourceUrl &&
+        e.payload.destination === 'image' &&
+        (e.payload.url === resourceUrl || e.payload.redirectFrom === resourceUrl),
+    )
+    const denied = networkEvents.filter(
+      (e) =>
+        (e.payload.allow === false && !e.payload.finalizationShutdown) ||
+        e.type === 'image-bindings:intervention',
+    )
+    const directDenied = direct.filter((e) => denied.includes(e))
+    const receipt = (e: (typeof events)[number]) => ({
+      id: e.id,
+      seq: e.seq,
+      type: e.type,
+      timestamp: e.timestamp,
+      payload: e.payload,
+    })
+    const section = <T>(
+      status: 'available' | 'unavailable' | 'unknown',
+      why: readonly string[],
+      facts: T,
+    ) => ({ status, reasons: [...new Set(why)], evidenceRefs: refs, facts })
+    const identityMatches =
+      validation.sameTargetBefore === true &&
+      validation.sameTargetAfter === true &&
+      current?.matchCount === 1 &&
+      !!current.documentId &&
+      !!current.nodeId &&
+      current.documentId === candidate?.measured.paint?.documentId &&
+      current.nodeId === candidate?.measured.paint?.nodeId
+    const identityMissing =
+      validation.sameTargetBefore === false ||
+      validation.sameTargetAfter === false ||
+      (current && current.matchCount !== 1)
+    const fileChecks = validation.evidenceChecks
+    const filesChanged = fileChecks.some((c) => c.actualSha256 !== c.expectedSha256)
+    const expired = !!candidate && now() >= Date.parse(candidate.expiresAt)
+    if (expired) validation.reasons.push('evidence-expired')
+    const paintReasons = factIssues(current).filter(
+      (r) => r !== 'supported-resource-bytes-unavailable',
+    )
+    const machineReasons = [...new Set(validation.reasons)]
+    const body = {
+      version: 'image-binding-diagnosis-1' as const,
+      runId,
+      diagnosticId: `image-diagnosis-${randomUUID()}`,
+      diagnosticObservationId: live ? `image-diagnostic-observation-${randomUUID()}` : null,
+      observedAt: new Date(now()).toISOString(),
+      request: input ?? null,
+      sourceCandidate: candidate
+        ? {
+            candidateId: candidate.candidateId,
+            observationId: candidate.observationId,
+            artifactRef: entry!.artifactRef,
+            status: candidate.status,
+            expiresAt: candidate.expiresAt,
+          }
+        : null,
+      lifecycle: {
+        candidateReplaced: false,
+        confirmationTransferred: false,
+        newCandidateId: null,
+        freshReadPerformed: !!live,
+      },
+      sections: {
+        identity: section(
+          identityMatches ? 'available' : identityMissing || !entry ? 'unavailable' : 'unknown',
+          identityMatches ? [] : ['original-target-not-confirmed'],
+          {
+            sameTargetBefore: validation.sameTargetBefore ?? null,
+            sameTargetAfter: validation.sameTargetAfter ?? null,
+            source: candidate?.measured.paint
+              ? {
+                  nodeId: candidate.measured.paint.nodeId,
+                  documentId: candidate.measured.paint.documentId,
+                  selector: candidate.measured.paint.selector,
+                }
+              : null,
+            current: current
+              ? {
+                  nodeId: current.nodeId,
+                  documentId: current.documentId,
+                  selector: current.selector,
+                  matchCount: current.matchCount,
+                }
+              : null,
+          },
+        ),
+        resource: section(
+          current?.resource ? 'available' : directDenied.length ? 'unavailable' : 'unknown',
+          current?.resource ? [] : ['supported-resource-bytes-unavailable'],
+          {
+            source: candidate?.measured.contractFields ?? null,
+            current: current
+              ? {
+                  url: current.currentSrc,
+                  resource: current.resource ?? null,
+                  complete: current.complete,
+                  decoded: current.decoded,
+                }
+              : null,
+            matchesSource:
+              current?.resource && candidate?.measured.paint?.resource
+                ? current.currentSrc === candidate.measured.paint.currentSrc &&
+                  current.resource.sha256 === candidate.measured.paint.resource.sha256
+                : null,
+          },
+        ),
+        paint: section(
+          !current
+            ? 'unknown'
+            : current.excluded
+              ? 'unavailable'
+              : paintReasons.length
+                ? 'unknown'
+                : 'available',
+          paintReasons,
+          {
+            current: current ?? null,
+            source: candidate?.measured.paint ?? null,
+            unmodifiedPageEstablished: cleanEvidenceIntegrity(integrity),
+          },
+        ),
+        evidence: section(
+          !fileChecks.length ? 'unknown' : filesChanged || expired ? 'unavailable' : 'available',
+          !fileChecks.length
+            ? ['artifact-check-not-completed']
+            : filesChanged
+              ? ['evidence-changed-or-unavailable']
+              : expired
+                ? ['evidence-expired']
+                : [],
+          {
+            expired,
+            originalArtifactChecks: fileChecks,
+            liveEvidenceRefs: live?.evidenceRefs ?? [],
+            originalExpiresAt: candidate?.expiresAt ?? null,
+          },
+        ),
+        network: section(
+          cleanEvidenceIntegrity(integrity) ? 'available' : 'unavailable',
+          cleanEvidenceIntegrity(integrity) ? [] : ['evidence-intervened'],
+          {
+            integrity,
+            capturedThroughSeq: events.at(-1)?.seq ?? null,
+            comparedResourceUrl: resourceUrl,
+            urlBasis: current?.currentSrc ? 'current-measurement' : 'source-candidate-or-missing',
+            directResourceRequests: direct.map(receipt),
+            directResourceDenials: directDenied.map(receipt),
+            otherDenials: denied.filter((e) => !direct.includes(e)).map(receipt),
+            targetImpact: cleanEvidenceIntegrity(integrity)
+              ? 'no-recorded-intervention'
+              : 'unknown',
+            limitation:
+              'URL/redirect equality proves a request relation only. Other requests, including telemetry, may affect rendering; no independence or permission is inferred. The global intervention remains binding.',
+          },
+        ),
+        semantics: section('unknown', ['no-explicit-basis-provided-to-diagnostic'], {
+          missingForThisRequest: [...semanticFields],
+          approval: false,
+          priorConfirmationsNotReused: true,
+        }),
+        machineBinding: section(
+          !entry
+            ? 'unavailable'
+            : !live
+              ? 'unknown'
+              : machineReasons.length
+                ? 'unavailable'
+                : 'available',
+          machineReasons,
+          {
+            sourceObservationId: candidate?.observationId ?? null,
+            currentPage: live?.snapshot.url ?? null,
+            currentViewport: live?.snapshot.viewport ?? null,
+            error: observationError,
+          },
+        ),
+      },
+      consumption: {
+        canConsumeNow: false,
+        checkInvoked: false,
+        ruleEvaluated: false,
+        actualInputGateReasons: closed ? ['session-closed'] : ['missing-or-invalid-explicit-basis'],
+        machineGateReasons: machineReasons,
+        limitation:
+          'This is a diagnostic receipt, not a contract, approval, RuleResult or replacement facts-ready state. A later check must supply a real basis and revalidate all gates.',
+      },
+      evidenceRefs: refs,
+    }
+    if (closed) return { ...body, artifactRef: null }
+    const artifactRef = await saveEvidence(
+      runId,
+      'image-binding-diagnosis',
+      JSON.stringify(body),
+      metadata(),
+    )
+    await appendEvent(
+      runId,
+      'image-bindings:diagnosed',
+      {
+        diagnosticId: body.diagnosticId,
+        candidateId: input?.candidateId ?? null,
+        sourceObservationId: input?.observationId ?? null,
+        machineReasons,
+        ruleEvaluated: false,
+      },
+      { evidenceRefs: [artifactRef, ...refs] },
+    )
+    return clone({ ...body, artifactRef })
+  }
+
   async function check(raw: unknown): Promise<RuleResult> {
     // Closed sessions are immutable evidence owners, not places to append new checks.
     if (closed)
@@ -353,50 +691,8 @@ export function createImageBindingExperiment(options: {
     if (!input) reasons.push('missing-or-invalid-explicit-basis')
     else if (!entry || entry.candidate.observationId !== input.observationId)
       reasons.push('unknown-or-superseded-candidate')
-    if (entry) {
-      const candidate = entry.candidate
-      if (candidate.status !== 'facts-ready') reasons.push(...candidate.issues)
-      if (now() >= Date.parse(candidate.expiresAt)) reasons.push('evidence-expired')
-      if (!cleanEvidenceIntegrity(options.evidenceIntegrity())) reasons.push('evidence-intervened')
-      for (const [ref, hash] of entry.evidenceHashes) {
-        try {
-          if (digest(await readArtifact(ref)) !== hash) reasons.push('evidence-changed')
-        } catch {
-          reasons.push('evidence-unavailable')
-        }
-      }
-      if (!reasons.length) {
-        const { selector } = candidate.measured.contractFields
-        if (!(await isSameTarget(entry.handle, selector))) reasons.push('target-lost-or-ambiguous')
-        else {
-          live = await observePage(page, runId, metadata, [selector], { caret: 'initial' })
-          const current = onlyFact(live, selector),
-            previous = candidate.measured.paint!
-          reasons.push(...factIssues(current))
-          if (
-            !cleanEvidenceIntegrity(live.snapshot.evidenceIntegrity) ||
-            !cleanEvidenceIntegrity(options.evidenceIntegrity())
-          )
-            reasons.push('evidence-intervened')
-          if (
-            live.snapshot.url !== candidate.measured.contractFields.pageUrl ||
-            JSON.stringify(live.snapshot.viewport) !==
-              JSON.stringify(candidate.measured.contractFields.viewport)
-          )
-            reasons.push('page-or-viewport-changed')
-          if (
-            current?.currentSrc !== previous.currentSrc ||
-            current?.resource?.sha256 !== previous.resource?.sha256
-          )
-            reasons.push('resource-changed-or-unverified')
-          if (current && paintIdentity(current) !== paintIdentity(previous))
-            reasons.push('observation-facts-changed')
-          if (!(await isSameTarget(entry.handle, selector)))
-            reasons.push('target-lost-or-ambiguous')
-          if (now() >= Date.parse(candidate.expiresAt)) reasons.push('evidence-expired')
-        }
-      }
-    }
+    const validation = await validateBinding(entry, reasons)
+    live = validation.live
     const refs = [
       ...new Set([
         ...(entry ? [entry.artifactRef, ...entry.candidate.measured.evidenceRefs] : []),
@@ -498,6 +794,7 @@ export function createImageBindingExperiment(options: {
 
   return {
     observe: () => serial(observe),
+    diagnose: (request: unknown) => serial(() => diagnose(request)),
     check: (confirmation: unknown) => serial(() => check(confirmation)),
     close: () =>
       serial(async () => {
