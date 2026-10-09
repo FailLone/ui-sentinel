@@ -1,41 +1,8 @@
-# R1 正常产品验收完成，交维护者审阅合入
+# R1 正常产品候选与统一验收入口
 
-2026-10-09。**冻结候选e3de7cb的28/28项真实产品验收全部通过，本期program产品出口已满足，建议维护者审阅后合入。** 采用program，Jev默认关闭；后置S1/S2/72轮研究仍未完成，不阻塞本期。原失败批次和未知费用全部保留；本任务未push/merge。
+2026-10-09。**主模型验收期限已由15秒前瞻性修正为产品默认60秒，免费受限整改完成；新候选e3de7cb，尚无新付费授权。** 单行180秒、整批90分钟、每行8次Agent/原动作额度及新请求USD14.112上限均不变。旧15秒批次及两项unknown全部保留，不能改写为通过；本期真实产品验收仍未完成。program/Jev关闭的本期选择和后置S1/S2、72轮研究范围不变。
 
-## 本批真实结果与费用
-
-用户在维护者会话收到绑定具体源码、28项、新预算及两笔unknown风险的授权问题后回复“继续”。[授权记录](product/deadline60/authorization-record.json)完整保存问题、答复和转达来源，不伪称用户逐字复述金额。[正式批准](product/deadline60/approval.authorized.json)于2026-10-09T14:30:24Z转达，至2026-10-10T14:30:00Z有效；一次批准已用于本批，不含额外补跑。
-
-在干净隔离runtime固定源码 **`e3de7cb890803c69e89e2ef8b91986e392901fc4`**，manifest对象摘要 **`e6b587f476d4a8ea92a0cf72b4aea1bbdb471979a1ba325d2099c4cefec7fc85`**，北京时间22:31启动、22:42完成。使用正常产品API及原fixture/evaluator，28行全通过：22行completed、6行按预期blocked，共52个实际动作、30次真实Wafer Agent请求、Jev/视觉0。各行请求次数见逐行表；程序能够完成的行没有强制收费调用。
-
-[28行逐项审计](product/deadline60/paid-20261009/audit.json)、[原runner结果](product/deadline60/paid-20261009/results.json)、[最终汇总](product/deadline60/paid-20261009/summary.json)是本批结果入口。C10两行各0动作合法交回；C11两行各1动作、pending原效果保留；C12两行各1动作后预算不足停止。C05/C06/C07两次均完成3步，健康对照无supported误报；原动作/测量/路径和报告持久证明均通过。全部28份保存报告再次用冻结验收器复核，1,693份附件字节/摘要及可读引用一致，无新执行、无重跑。最久单行144489ms，未越过180秒；每行最多6次实际请求，未达到8次上限。
-
-| 真实费用事实 | USD |
-| --- | ---: |
-| 本批30次请求usage费用（全部settled） | **0.061762584** |
-| 本批新增unknown / held | **0 / 0** |
-| 此前产品已知费用 | 0.00502455 |
-| 累计产品已知usage费用 | **0.066787134** |
-| 两项历史unknown预留（仍未结） | **0.116** |
-| 累计关联记账 | **0.182787134** |
-| 另列历史已结Jev frame | 0.000250824 |
-| 含历史frame关联记账 | **0.183037958** |
-
-本批远低于获准新请求上限USD14.112。30份usage.cost与账户settled金额逐条相同，无未释放预留；[账本](product/deadline60/paid-20261009/accounting.json)、[请求/生成ID摘要](product/deadline60/paid-20261009/request-summary.json)可追溯。usage核对不冒称独立正式账单；两笔unknown不是零或已结费用，实际累计总费仍未知。历史USD0.053及USD0.063失败请求原样保留，不影响已明确接受风险后的本批产品判定。
-
-新时序与30条实际请求body摘要逐条匹配：14个成功响应超过15秒，最长52645ms；响应头/首字节/事件早于完整响应，全部校验后放行。见[上游时序](product/deadline60/paid-20261009/upstream-timing.jsonl)。这证明本批60秒期限支持了原15秒容不下的有效响应，不能反推旧超时的唯一根因。单请求仍受实际剩余时间限制，未修改单行180秒、整批90分钟或质量标准。
-
-原41份失败材料、17个固定来源摘要和旧停止账户/claim核验不变。新一次性claim已按批准合法消费；账户已关闭且无WAL，campaign为 `ea3dcd12-f03e-450a-8c3d-25c950d41463`。本批无硬失败、无重试/额外收费探针或补跑。runtime保留在 `data/r1-product/runtime-e3de7cb`；[原始本机文件清单](product/deadline60/paid-20261009/raw-local-files.json)固定全部报告、附件、请求、响应、DB和日志的摘要，原始大文件保留本机，不冒称已上传或可跨机器直接读取。
-
-## 最终代码及合入边界
-
-精确验收源码仍为e3de7cb，后续文档提交不更换其身份。普通入口、有限多步、状态/去重/公平性、刷新/返回/重观察、有界恢复、原始证据和报告历史均沿用下述产品范围。61项受影响测试、4条浏览器路径及build/typecheck通过的免费证据继续复用；本轮仅启动已批准真实批次和只读证据核对，没有再跑免费全套。
-
-相对已整合main48b02b3的代码与文件摘要见[源码清单](product/deadline60/evidence/candidate-source-files.json)，相对当前main的差异见[diff统计](product/deadline60/paid-20261009/main-diff-stat.txt)。当前main为 `16cf9fdaf534c3e6a59f6ee9b03e3bb5887aa558`，其后续增量仅 `docs/product-roadmap.md`；本分支未整合这两条文档提交，直接两端diff中的Roadmap差异不是待回退内容，维护者合入时须保留main最新Roadmap。本任务未编辑其他工作区或Roadmap。
-
-建议合入本期program产品实现，Jev保持默认关闭。只覆盖既定匿名同源公开UI和有限输入/恢复路径；不扩展登录角色、任意业务副作用或浏览器历史栈恢复，不证明任意网站健康。S1更广状态、S2独立评分、S5 72轮收益比较继续后置且未完成，不能据此声称Jev无收益。原15秒失败、原假covered失败及未知费用永久保留。当前交付没有剩余产品验收阻塞，最终审阅与实际合入由维护者执行。
-
-## 历史准备记录：60秒协议修正及受限证据
+## 本轮60秒协议修正及受限证据
 
 用户指出“如果是主模型，15s太严格了，很难不超时”，本次按维护者明确范围只做免费整改，不原样重跑付费请求。普通产品config和验收manifest共用 `DEFAULT_MODEL_REQUEST_TIMEOUT_MS=60000`；不是宣称15秒本应通过，也不将本次缓冲逻辑确定为旧超时根因。
 
@@ -56,7 +23,7 @@
 
 本轮共 **61个不同定向测试最新结果通过**（首批16含9个上游测试，后续上游10项替换原9项，另有44项原边界；不把复跑叠加）；完整build/typecheck通过。首次类型检查仅发现新增合成Agent测试类型转换需显式unknown，已修正，首轮日志保留。浏览器来源为2c7fe5e加记录中的diff，最终源码e3de7cb；候选构建/时序证据及单行runner单独记录。见[审计](product/deadline60/evidence/audit.json)、[虚拟时钟与本地网关时序](product/deadline60/evidence/timing-traces.json)、[原始本机文件清单](product/deadline60/evidence/raw-local-files.json)。所有测试费用都是合成账户数据，不混入真实账本。
 
-## 历史提案：已获准并完成的60秒续验
+## 新冻结候选与具体续验提案（未批准）
 
 源码 **`e3de7cb890803c69e89e2ef8b91986e392901fc4`**；[新manifest](product/deadline60/manifest.proposed.json)对象摘要 **`e6b587f476d4a8ea92a0cf72b4aea1bbdb471979a1ba325d2099c4cefec7fc85`**。fixture、28行、evaluator、质量阈值、模型/provider、请求次数、费用和安全要求保持；policy仅modelMs由15000改为60000，同时版本与累计历史费用来源显式更新。
 
@@ -76,9 +43,9 @@
 
 累计上限增加部分仅是已发生、仍未结的USD0.063被纳入风险，不是新增请求额度；unknown不是已确认账单或最终上限。报价依据沿用上一批启动前[公开核对](product/recovery/paid-20261009/price-check.json)，正式启动前仍重新验证价格/能力。当前已知费用和两项unknown如实保留，实际总费用仍未知。
 
-[新批准草案](product/deadline60/approval.draft.json)缺署名/引用/有效期，准备阶段CLI已拒绝它和上一份真实批准，均在凭据、输出、账户、新claim前退出。只读核验原41份材料、17个固定来源摘要及关闭账户通过。准备阶段新 `continued-product-f7fa8326db127c1821cc038e50f65e5c02bd68989cb36ba42fa95e05a3e6abc9.claim` 不存在；准备提案没有创建或消费claim。只有对新源码/manifest、两项unknown USD0.116及累计金额的明确授权才可取得一次新的续验claim；不能复用旧许可或恢复旧停止账户。
+[新批准草案](product/deadline60/approval.draft.json)缺署名/引用/有效期，当前CLI已拒绝它和上一份真实批准，均在凭据、输出、账户、新claim前退出。只读核验原41份材料、17个固定来源摘要及关闭账户通过。新 `continued-product-f7fa8326db127c1821cc038e50f65e5c02bd68989cb36ba42fa95e05a3e6abc9.claim` 不存在；准备提案没有创建或消费claim。只有对新源码/manifest、两项unknown USD0.116及累计金额的明确授权才可取得一次新的续验claim；不能复用旧许可或恢复旧停止账户。
 
-当时计划获准后准备新e3de7cb隔离runtime，复制本次manifest及按真实批准原文生成的approval，使用现有私密凭据；正常产品runner命令模板为（实际执行由launch.json记录）：
+获准后才准备新e3de7cb隔离runtime，复制本次manifest及按真实批准原文生成的approval，使用现有私密凭据；正常产品runner命令为（当前未执行）：
 
 ```sh
 node_modules/.bin/tsx scripts/r1-product/acceptance.ts --run \
@@ -87,7 +54,7 @@ node_modules/.bin/tsx scripts/r1-product/acceptance.ts --run \
   /Users/xietian/Documents/ChatGPT/ui-sentinel-r1-online-claims
 ```
 
-发生新unknown、HTTP/安全/持久化/假covered、费用异常或来源变化仍立即停批。批准后在同一任务完成原28项及原回执/账本核对，不逐行询问；没有额外付费补跑许可。达到本期产品出口后交维护者审阅合入，当时尚未完成真实验收；当前通过结果见本文开头。相对main48b02b3的当前差异及源码哈希见[候选清单](product/deadline60/evidence/candidate-source-files.json)；没有push/merge或Roadmap编辑。
+发生新unknown、HTTP/安全/持久化/假covered、费用异常或来源变化仍立即停批。批准后在同一任务完成原28项及原回执/账本核对，不逐行询问；没有额外付费补跑许可。达到本期产品出口后交维护者审阅合入，当前不宣称真实验收完成。相对main48b02b3的当前差异及源码哈希见[候选清单](product/deadline60/evidence/candidate-source-files.json)；没有push/merge或Roadmap编辑。
 
 ## 历史：上一批15秒续验超时与未结费用
 

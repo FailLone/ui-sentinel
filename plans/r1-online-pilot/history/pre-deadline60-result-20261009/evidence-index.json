@@ -1,8 +1,8 @@
 {
   "version": "r1-product-delivery-1",
-  "checkedAt": "2026-10-09T14:46:16.628511+00:00",
+  "checkedAt": "2026-10-09T14:26:26.845548+00:00",
   "entry": "plans/r1-online-pilot/README.md",
-  "status": "real-product-acceptance-passed-ready-for-maintainer-review",
+  "status": "free-deadline-correction-complete-awaiting-specific-approval",
   "sourceSha": "e3de7cb890803c69e89e2ef8b91986e392901fc4",
   "integratedMainSha": "48b02b3fbfe7e5d95189a0d813480761b123ff6b",
   "mergeSha": "3cabb048b1d98609ec25d16756364b2f1b58761b",
@@ -17,8 +17,8 @@
     "bytes": 721,
     "sha256": "56e47cf7137cf52f14625481e5eeed982ac6483b794667f27474e94f75e88a61"
   },
-  "realAcceptanceApproved": true,
-  "newRealCalls": 35,
+  "realAcceptanceApproved": false,
+  "newRealCalls": 5,
   "newJevCalls": 0,
   "paidProposal": {
     "runs": 28,
@@ -37,8 +37,7 @@
     "unknownCount": 2,
     "modelMs": 60000,
     "wholeRunMs": 180000,
-    "approved": true,
-    "executed": true
+    "approved": false
   },
   "freeResults": {
     "uniqueBrowserCases": 17,
@@ -66,8 +65,7 @@
     "canonicalContinuationClaimConsumedByAuthorizedProductBatch": true,
     "nextProductContinuationClaimAbsent": false,
     "nextProductContinuationClaimConsumedByAuthorizedRecovery": true,
-    "deadline60ContinuationClaimAbsent": false,
-    "deadline60ContinuationClaimConsumedByAuthorizedBatch": true
+    "deadline60ContinuationClaimAbsent": true
   },
   "evidence": [
     {
@@ -687,126 +685,6 @@
       "bytes": 232,
       "sha256": "446a046656ea31ca1199501e1160db1bb69a0aa292f560590984da1aa79926c8",
       "interpretation": "Free targeted correction evidence; timing uses virtual clocks/local providers and any test costs are synthetic, not real spending. See audit for provenance and first typecheck failure."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/deadline60/paid-20261009/accounting.json",
-      "bytes": 18351,
-      "sha256": "5f6a9e945fcd68bcac6f41de4b6818c35345d574f9702f16bea350898c11cdb1",
-      "interpretation": "Authorized deadline60 real batch: all 28 rows passed; 30 settled Agent requests, no new unknown; historical failures and two unknowns retained."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/deadline60/paid-20261009/approval.json",
-      "bytes": 967,
-      "sha256": "1979eb23566867a4716cb67e48df4a92e21259b0bb4007f7434cb97a0f3db8c4",
-      "interpretation": "Authorized deadline60 real batch: all 28 rows passed; 30 settled Agent requests, no new unknown; historical failures and two unknowns retained."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/deadline60/paid-20261009/audit-script.py.txt",
-      "bytes": 6945,
-      "sha256": "1b4f0e6bb751775d1b5f9f1e886a69a6c0ec6a6f76bccc7823102820acc531db",
-      "interpretation": "Authorized deadline60 real batch: all 28 rows passed; 30 settled Agent requests, no new unknown; historical failures and two unknowns retained."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/deadline60/paid-20261009/audit.json",
-      "bytes": 46654,
-      "sha256": "f0c1a45c965f84e5f49953e4b466f2839ab63b7f2b0a081237b940dab96eeea3",
-      "interpretation": "Authorized deadline60 real batch: all 28 rows passed; 30 settled Agent requests, no new unknown; historical failures and two unknowns retained."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/deadline60/paid-20261009/fixture-requests.json",
-      "bytes": 1839,
-      "sha256": "ec3d0328762014391c356f372b53fb919c0ac587842474cd065c1c5ad500c85f",
-      "interpretation": "Authorized deadline60 real batch: all 28 rows passed; 30 settled Agent requests, no new unknown; historical failures and two unknowns retained."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/deadline60/paid-20261009/launch.json",
-      "bytes": 611,
-      "sha256": "242e2f26282d980825cfe3c4c9a471da60d0f721d70bf9ef780d7c7fb6eb9415",
-      "interpretation": "Authorized deadline60 real batch: all 28 rows passed; 30 settled Agent requests, no new unknown; historical failures and two unknowns retained."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/deadline60/paid-20261009/ledger.jsonl",
-      "bytes": 33448,
-      "sha256": "3cc5000d138a9c2dccc4a4bdd5caca43fab331a8b137d8557042caa25e78161b",
-      "interpretation": "Authorized deadline60 real batch: all 28 rows passed; 30 settled Agent requests, no new unknown; historical failures and two unknowns retained."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/deadline60/paid-20261009/main-diff-stat.txt",
-      "bytes": 34265,
-      "sha256": "bf3d81992e88fc7b8f31b08dfc36777b7707b26b3e7ff43c530717f5602c6988",
-      "interpretation": "Authorized deadline60 real batch: all 28 rows passed; 30 settled Agent requests, no new unknown; historical failures and two unknowns retained."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/deadline60/paid-20261009/manifest.json",
-      "bytes": 17178,
-      "sha256": "9489084b24dcf80c51c1cbe1b7a2dc66f88d7fe5a36b81bb735795fe50e31957",
-      "interpretation": "Authorized deadline60 real batch: all 28 rows passed; 30 settled Agent requests, no new unknown; historical failures and two unknowns retained."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/deadline60/paid-20261009/preparatory-price.json",
-      "bytes": 2611,
-      "sha256": "b0c996777b6d04d7b5ec78bbe2eaec9f3106749e35ff0bdab94771164b89c61b",
-      "interpretation": "Authorized deadline60 real batch: all 28 rows passed; 30 settled Agent requests, no new unknown; historical failures and two unknowns retained."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/deadline60/paid-20261009/price-check.json",
-      "bytes": 2611,
-      "sha256": "18abc024df815b9dde933ccd2568f1c70648b3606784337ca3e2d8cf091b4931",
-      "interpretation": "Authorized deadline60 real batch: all 28 rows passed; 30 settled Agent requests, no new unknown; historical failures and two unknowns retained."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/deadline60/paid-20261009/raw-local-files.json",
-      "bytes": 489098,
-      "sha256": "316d9f614a4c2e77acfe4fcb4f7f79f37d0a27ac9c286237bcfe2d971f2a6189",
-      "interpretation": "Authorized deadline60 real batch: all 28 rows passed; 30 settled Agent requests, no new unknown; historical failures and two unknowns retained."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/deadline60/paid-20261009/request-summary.json",
-      "bytes": 9028,
-      "sha256": "ae8c39bf0046fad1e64416872834109a2a85a17353fc0b7a2b72d2f3c7a50ea3",
-      "interpretation": "Authorized deadline60 real batch: all 28 rows passed; 30 settled Agent requests, no new unknown; historical failures and two unknowns retained."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/deadline60/paid-20261009/results.json",
-      "bytes": 12177,
-      "sha256": "a5b4449b6490accb4b2337bcb407e41e3e78ea0d78c6d21eae4a51b4550eeac8",
-      "interpretation": "Authorized deadline60 real batch: all 28 rows passed; 30 settled Agent requests, no new unknown; historical failures and two unknowns retained."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/deadline60/paid-20261009/runner.log",
-      "bytes": 9346,
-      "sha256": "57a9f0947f53c2624acfc5c1167267add42becb64aff167e8f5c6361cf345f86",
-      "interpretation": "Authorized deadline60 real batch: all 28 rows passed; 30 settled Agent requests, no new unknown; historical failures and two unknowns retained."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/deadline60/paid-20261009/runtime-install.log",
-      "bytes": 1868,
-      "sha256": "186d14c12a27137994171042da89a8c03f9439bf884341bd9547f2950c71d990",
-      "interpretation": "Authorized deadline60 real batch: all 28 rows passed; 30 settled Agent requests, no new unknown; historical failures and two unknowns retained."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/deadline60/paid-20261009/summary.json",
-      "bytes": 262,
-      "sha256": "75b8af1e60b8f11dc83469f68383ffdc306ddc21271f0fdf831b1b786c00be0f",
-      "interpretation": "Authorized deadline60 real batch: all 28 rows passed; 30 settled Agent requests, no new unknown; historical failures and two unknowns retained."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/deadline60/paid-20261009/upstream-timing.jsonl",
-      "bytes": 13086,
-      "sha256": "4e7530017b5bef9a5f0479a12801a74e08bf436c8ca160d98084ac72677c5372",
-      "interpretation": "Authorized deadline60 real batch: all 28 rows passed; 30 settled Agent requests, no new unknown; historical failures and two unknowns retained."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/deadline60/approval.authorized.json",
-      "bytes": 967,
-      "sha256": "1979eb23566867a4716cb67e48df4a92e21259b0bb4007f7434cb97a0f3db8c4",
-      "interpretation": "Exact human question and contextual answer, authorized and consumed for this one batch only."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/deadline60/authorization-record.json",
-      "bytes": 1309,
-      "sha256": "f5ede024ea8af07129c0794c4e9645808031c17912b82c2e7a4096f6187672fa",
-      "interpretation": "Exact human question and contextual answer, authorized and consumed for this one batch only."
     }
   ],
   "archivedFiles": [
@@ -904,26 +782,6 @@
       "path": "plans/r1-online-pilot/history/pre-deadline60-20261009/r1-completion-plan.md",
       "bytes": 11411,
       "sha256": "9fc69d3dc056bd2957e998c19740862e0adc10072b16ef37811afe2b17723f15"
-    },
-    {
-      "path": "plans/r1-online-pilot/history/pre-deadline60-result-20261009/CURRENT-TASK.md",
-      "bytes": 3443,
-      "sha256": "f12c32b7a7a132022bdc73b43d110eb577da2058029d52bc84986a81862325d9"
-    },
-    {
-      "path": "plans/r1-online-pilot/history/pre-deadline60-result-20261009/README.md",
-      "bytes": 32370,
-      "sha256": "710adfe67728d5f78e2de59d5e1adcfdf2b8d86f3b96afd6fa337a3a22863d8c"
-    },
-    {
-      "path": "plans/r1-online-pilot/history/pre-deadline60-result-20261009/evidence-index.json",
-      "bytes": 44819,
-      "sha256": "490403881b4523d2b69d451666ea9355d85e35ae4b7c34e0bb69b8cfdf12a2a2"
-    },
-    {
-      "path": "plans/r1-online-pilot/history/pre-deadline60-result-20261009/r1-completion-plan.md",
-      "bytes": 13193,
-      "sha256": "c87a7c89467525d95dfd14b3ac326883a5be9a60ed4dbcb73eae2195c2779049"
     }
   ],
   "localRawEvidence": "product/evidence/raw-local-files.json",
@@ -1010,12 +868,12 @@
     "authorizationConsumedAndStopped": true
   },
   "currentCumulativeAccounting": {
-    "knownProductUsageCostUsd": 0.066787134,
+    "knownProductUsageCostUsd": 0.00502455,
     "unknownReservedUsd": 0.116,
     "unknownCount": 2,
-    "accountedUsd": 0.182787134,
+    "accountedUsd": 0.12102455,
     "separateHistoricalSettledFrameUsd": 0.000250824,
-    "includingHistoricalFrameAccountedUsd": 0.183037958,
+    "includingHistoricalFrameAccountedUsd": 0.121275374,
     "actualTotalUsd": null,
     "furtherPaidRunAuthorized": false
   },
@@ -1036,42 +894,5 @@
     "oldAndEmptyApprovalsRejected": true,
     "priorPinsVerified": 17,
     "newClaimAbsent": true
-  },
-  "fullRealAcceptancePassed": true,
-  "authorizationRecord": "product/deadline60/authorization-record.json",
-  "approval": "product/deadline60/approval.authorized.json",
-  "expiresAt": "2026-10-10T14:30:00Z",
-  "authorizationConsumedAndCompleted": true,
-  "paidDeadline60": {
-    "sourceSha": "e3de7cb890803c69e89e2ef8b91986e392901fc4",
-    "manifestHash": "e6b587f476d4a8ea92a0cf72b4aea1bbdb471979a1ba325d2099c4cefec7fc85",
-    "approved": true,
-    "authorization": "product/deadline60/authorization-record.json",
-    "status": "completed-passed",
-    "paidCampaignRows": 28,
-    "passedRows": 28,
-    "notRunRows": 0,
-    "actualActions": 52,
-    "agentRequests": 30,
-    "jevRequests": 0,
-    "fullRealAcceptancePassed": true,
-    "newKnownUsageCostUsd": 0.061762584,
-    "newUnknownCount": 0,
-    "newHeldReservedUsd": 0,
-    "audit": "product/deadline60/paid-20261009/audit.json",
-    "runtime": "data/r1-product/runtime-e3de7cb",
-    "preserveRuntimeAndClosedAccount": true
-  },
-  "finalRecommendation": {
-    "currentR1ExitSatisfied": true,
-    "recommendMaintainerReviewAndMerge": true,
-    "merged": false,
-    "pushed": false,
-    "mode": "program",
-    "jevDefault": false,
-    "deferredResearchStillIncomplete": true,
-    "reviewMainSha": "16cf9fdaf534c3e6a59f6ee9b03e3bb5887aa558",
-    "mainSinceIntegratedChanges": "docs/product-roadmap.md only; preserve during merge",
-    "sourceUnchangedAfterAcceptance": true
   }
 }

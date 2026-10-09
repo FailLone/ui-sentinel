@@ -1,0 +1,494 @@
+{
+  "spending": {
+    "limitUsd": 14.112,
+    "knownCostUsd": 0.061762583999999995,
+    "unknownReservedUsd": 0,
+    "heldReservedUsd": 0,
+    "accountedUsd": 0.061762583999999995,
+    "unknownCount": 0,
+    "exceeded": false
+  },
+  "combined": {
+    "previous": {
+      "version": "r1-product-timeout-continuation-1",
+      "sourceManifestHash": "f7fa8326db127c1821cc038e50f65e5c02bd68989cb36ba42fa95e05a3e6abc9",
+      "sourceCampaignId": "39f08e3e-6bd6-498f-b8a6-060f378127e1",
+      "sourceRow": "C10-1",
+      "sourceStoppedReason": "transport-error",
+      "sourceRequestId": "1e9f2f841ecebbaa0b06a09d",
+      "previousKnownActualUsd": 0.00502455,
+      "inheritedUnknownReservedUsd": 0.116,
+      "inheritedUnknownCount": 2,
+      "originalFailure": {
+        "version": "r1-explicit-unknown-continuation-1",
+        "sourceManifestHash": "9f73f0d6e3140b2d891d043441053bb75579550d58fdbf850a081c0bdc56ba75",
+        "sourceCampaignId": "2063928d-77c8-46ab-8b09-5811fc52e03e",
+        "sourceRequestId": "0ddb03d5250db453759b72ee",
+        "sourceStopEpoch": 1,
+        "knownActualUsd": 0,
+        "unknownReservedUsd": 0.053,
+        "unknownCount": 1,
+        "heldReservedUsd": 0,
+        "canonicalClaims": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-online-claims",
+        "pins": [
+          {
+            "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-online-runtime/artifacts/r1-online-pilot/authorized-batch-1/account/campaign.db",
+            "sha256": "e78f2588e8d163155c639d65c2f19ccdd127cc1342b327e11604b04457645936"
+          },
+          {
+            "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-online-claims/9f73f0d6e3140b2d891d043441053bb75579550d58fdbf850a081c0bdc56ba75.claim",
+            "sha256": "f1743a4d1952fd712c87a76388d5da820a8c44b3daccf2dda0d7c680d32a639b"
+          },
+          {
+            "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-online-claims/9f73f0d6e3140b2d891d043441053bb75579550d58fdbf850a081c0bdc56ba75.execution-lock",
+            "sha256": "4865494226f9b1456c91966d85b2fdea5dfad5b5a004b79ead37379986cac937"
+          }
+        ],
+        "preserveOldUnknownAndStop": true,
+        "stopOnAnyNewUnknown": true
+      },
+      "pins": [
+        {
+          "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/account/campaign.db",
+          "sha256": "1f660d8b85d723b664efdca29db892ab90bbd4cc3627a5a9682bce0580a0f7b1"
+        },
+        {
+          "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/account/campaign-id.json",
+          "sha256": "d605cd24e876c9e2ad3d63b9a7177efd4ecb3cf6323e62c534b159085adeeeb3"
+        },
+        {
+          "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/accounting.json",
+          "sha256": "b1b45f128407d26640651a1f003161952fbb4395c3db898982a4055187f9bab8"
+        },
+        {
+          "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/stop.json",
+          "sha256": "fba1642e7df38b15a2e37bfd09fd8b6d76fa2eea7c1786312449a1684302a1f9"
+        },
+        {
+          "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/manifest.json",
+          "sha256": "7dc1a0a2c0a41aed632c655a01116b44d5287bda7cbb399bbfb9a757dcd84783"
+        },
+        {
+          "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/results.json",
+          "sha256": "b877d964998e3baec07a4a46d036c474bdbe1780eeff9d121479384a3ebef436"
+        },
+        {
+          "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-online-claims/continued-product-41eb23e34527461bae8bc50e6d0b28ae53d94bb584d8d167b7eddecedbfcf510.claim",
+          "sha256": "867f4711a91001c74330d12e54067cd598bc2e03c0c7f865515968e080f31fd7"
+        },
+        {
+          "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/data/r1-product/runtime-ddf1dd9/data/r1-product/authorized-acceptance/account/campaign.db",
+          "sha256": "9cd6d5a68d5bec046145cdc0a6b39c27736b9efa8b45abb0ba2a161004ef770c"
+        },
+        {
+          "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/data/r1-product/runtime-ddf1dd9/data/r1-product/authorized-acceptance/account/campaign-id.json",
+          "sha256": "4059f7c7de6b8e9df1f7611095f4f0c1acfac3cd67f35900c07590da2107ed46"
+        },
+        {
+          "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/data/r1-product/runtime-ddf1dd9/data/r1-product/authorized-acceptance/accounting.json",
+          "sha256": "e56a93413e2decaec793253c787dd6dfb4ed9ab9d918aa3363218c56bd7cb14d"
+        },
+        {
+          "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/data/r1-product/runtime-ddf1dd9/data/r1-product/authorized-acceptance/stop.json",
+          "sha256": "96bbf3e2aa2adef1f1a9a7def6f15376a2fa7eeb8b28ebb99bdedfd46f9ca31f"
+        },
+        {
+          "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/data/r1-product/runtime-ddf1dd9/data/r1-product/authorized-acceptance/manifest.json",
+          "sha256": "1a89755d397a87f62be87499b74cc1e18127f747b18a3c84cc942471f8a4fdcb"
+        },
+        {
+          "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/data/r1-product/runtime-ddf1dd9/data/r1-product/authorized-acceptance/results.json",
+          "sha256": "ac2933c85c5c69952866d87066ca00d375f95bd3269495ead7220e9fd493f81c"
+        },
+        {
+          "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-online-claims/continued-0ddb03d5250db453759b72ee.claim",
+          "sha256": "0944f222ae97e63f5a4ea25fb45dee60d0930d386621b0f456daebd60d3c3df1"
+        }
+      ]
+    },
+    "current": {
+      "limitUsd": 14.112,
+      "knownCostUsd": 0.061762583999999995,
+      "unknownReservedUsd": 0,
+      "heldReservedUsd": 0,
+      "accountedUsd": 0.061762583999999995,
+      "unknownCount": 0,
+      "exceeded": false
+    },
+    "combinedUnknownCount": 2,
+    "combinedKnownActualUsd": 0.066787134,
+    "combinedUnknownReservedUsd": 0.116,
+    "combinedAccountedUsd": 0.182787134,
+    "combinedLimitUsd": 14.23302455,
+    "actualTotalUsd": null,
+    "previousActualStillUnknown": true
+  },
+  "entries": [
+    {
+      "requestId": "9a335798d508725e92fc62c9",
+      "runId": "product-row:C10-1",
+      "phase": "r1-product-acceptance-3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.063,
+      "actualUsd": 0.002499,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-09T14:31:43.078Z"
+    },
+    {
+      "requestId": "2a467b011ac5c95cabb17399",
+      "runId": "product-row:C10-1",
+      "phase": "r1-product-acceptance-3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.063,
+      "actualUsd": 0.00119975,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-09T14:32:08.582Z"
+    },
+    {
+      "requestId": "83540f505adc34249023ecce",
+      "runId": "product-row:C10-1",
+      "phase": "r1-product-acceptance-3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.063,
+      "actualUsd": 0.00191225,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-09T14:32:38.824Z"
+    },
+    {
+      "requestId": "072f5e342c22d5e8a8cfb80b",
+      "runId": "product-row:C10-1",
+      "phase": "r1-product-acceptance-3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.063,
+      "actualUsd": 0.001689088,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-09T14:32:52.129Z"
+    },
+    {
+      "requestId": "12ff407c2f57efccef2ace65",
+      "runId": "product-row:C10-1",
+      "phase": "r1-product-acceptance-3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.063,
+      "actualUsd": 0.005354194,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-09T14:33:02.067Z"
+    },
+    {
+      "requestId": "bec3ab3901697c12d77e1735",
+      "runId": "product-row:C10-1",
+      "phase": "r1-product-acceptance-3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.063,
+      "actualUsd": 0.002200644,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-09T14:33:50.274Z"
+    },
+    {
+      "requestId": "d89261e3176116e3d84048a4",
+      "runId": "product-row:C10-2",
+      "phase": "r1-product-acceptance-3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.063,
+      "actualUsd": 0.0017521,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-09T14:34:08.209Z"
+    },
+    {
+      "requestId": "ef1c5ed218e9b74c4a5b50fa",
+      "runId": "product-row:C10-2",
+      "phase": "r1-product-acceptance-3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.063,
+      "actualUsd": 0.00094925,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-09T14:34:17.695Z"
+    },
+    {
+      "requestId": "6da3b6f0804282da9cf75a50",
+      "runId": "product-row:C10-2",
+      "phase": "r1-product-acceptance-3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.063,
+      "actualUsd": 0.0011252,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-09T14:34:20.986Z"
+    },
+    {
+      "requestId": "51a3067c57e245baac31d50b",
+      "runId": "product-row:C10-2",
+      "phase": "r1-product-acceptance-3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.063,
+      "actualUsd": 0.002108188,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-09T14:34:25.457Z"
+    },
+    {
+      "requestId": "7da0a1339471722e5f7ac598",
+      "runId": "product-row:C10-2",
+      "phase": "r1-product-acceptance-3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.063,
+      "actualUsd": 0.002039738,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-09T14:34:51.008Z"
+    },
+    {
+      "requestId": "364725ef990dd71b20ce622a",
+      "runId": "product-row:C10-2",
+      "phase": "r1-product-acceptance-3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.063,
+      "actualUsd": 0.001775688,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-09T14:35:03.664Z"
+    },
+    {
+      "requestId": "63e00a0dd5aeeb4f631adf2e",
+      "runId": "product-row:C11-1",
+      "phase": "r1-product-acceptance-3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.063,
+      "actualUsd": 0.00305895,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-09T14:37:11.132Z"
+    },
+    {
+      "requestId": "1123ccb71fb1ab9167604670",
+      "runId": "product-row:C11-1",
+      "phase": "r1-product-acceptance-3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.063,
+      "actualUsd": 0.00251215,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-09T14:37:40.595Z"
+    },
+    {
+      "requestId": "46c42d563bf4056f889c2e2b",
+      "runId": "product-row:C11-1",
+      "phase": "r1-product-acceptance-3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.063,
+      "actualUsd": 0.002728484,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-09T14:38:33.333Z"
+    },
+    {
+      "requestId": "c533de9bca07379eae50de45",
+      "runId": "product-row:C11-1",
+      "phase": "r1-product-acceptance-3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.063,
+      "actualUsd": 0.002649684,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-09T14:38:48.667Z"
+    },
+    {
+      "requestId": "ff8924e942bdd27f7632c2e4",
+      "runId": "product-row:C11-1",
+      "phase": "r1-product-acceptance-3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.063,
+      "actualUsd": 0.00172688,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-09T14:39:07.579Z"
+    },
+    {
+      "requestId": "02e825d8c888a2b0adaaedac",
+      "runId": "product-row:C11-1",
+      "phase": "r1-product-acceptance-3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.063,
+      "actualUsd": 0.002622122,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-09T14:39:15.869Z"
+    },
+    {
+      "requestId": "8ac2f2b296bbfe4ccd47ebd8",
+      "runId": "product-row:C11-2",
+      "phase": "r1-product-acceptance-3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.063,
+      "actualUsd": 0.0027081,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-09T14:39:33.778Z"
+    },
+    {
+      "requestId": "04f4c25aec005aef70f526bc",
+      "runId": "product-row:C11-2",
+      "phase": "r1-product-acceptance-3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.063,
+      "actualUsd": 0.0017906,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-09T14:39:52.206Z"
+    },
+    {
+      "requestId": "dde8230126102141cb197fd6",
+      "runId": "product-row:C11-2",
+      "phase": "r1-product-acceptance-3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.063,
+      "actualUsd": 0.001612234,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-09T14:40:01.559Z"
+    },
+    {
+      "requestId": "221efa2f17a264a2008ae6e2",
+      "runId": "product-row:C11-2",
+      "phase": "r1-product-acceptance-3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.063,
+      "actualUsd": 0.002263022,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-09T14:40:07.637Z"
+    },
+    {
+      "requestId": "fda2b60f52c7c507a6325b7c",
+      "runId": "product-row:C12-1",
+      "phase": "r1-product-acceptance-3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.063,
+      "actualUsd": 0.00153185,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-09T14:40:26.228Z"
+    },
+    {
+      "requestId": "d2f1bf048c8869a0e0f71e4c",
+      "runId": "product-row:C12-1",
+      "phase": "r1-product-acceptance-3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.063,
+      "actualUsd": 0.00162275,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-09T14:40:39.388Z"
+    },
+    {
+      "requestId": "1fbefd8c5aa58099434ac658",
+      "runId": "product-row:C12-1",
+      "phase": "r1-product-acceptance-3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.063,
+      "actualUsd": 0.0010286,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-09T14:41:19.638Z"
+    },
+    {
+      "requestId": "fe7c5118700c10df28bea324",
+      "runId": "product-row:C12-1",
+      "phase": "r1-product-acceptance-3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.063,
+      "actualUsd": 0.001612916,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-09T14:41:25.116Z"
+    },
+    {
+      "requestId": "9182f5cda32e80aba105eac4",
+      "runId": "product-row:C12-2",
+      "phase": "r1-product-acceptance-3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.063,
+      "actualUsd": 0.00204645,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-09T14:41:39.073Z"
+    },
+    {
+      "requestId": "401eff1355478179625f21a9",
+      "runId": "product-row:C12-2",
+      "phase": "r1-product-acceptance-3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.063,
+      "actualUsd": 0.0015372,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-09T14:41:54.584Z"
+    },
+    {
+      "requestId": "b45f206b983d2eacc672e872",
+      "runId": "product-row:C12-2",
+      "phase": "r1-product-acceptance-3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.063,
+      "actualUsd": 0.00213025,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-09T14:42:01.400Z"
+    },
+    {
+      "requestId": "185b140bdf7f1e039dd75a19",
+      "runId": "product-row:C12-2",
+      "phase": "r1-product-acceptance-3",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.063,
+      "actualUsd": 0.001975252,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-09T14:42:10.497Z"
+    }
+  ],
+  "status": {
+    "stopped": "",
+    "requests": 30,
+    "active": null
+  },
+  "realModels": true
+}
