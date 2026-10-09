@@ -1,0 +1,3195 @@
+{
+  "date": "2026-10-09",
+  "timezone": "Asia/Shanghai",
+  "baseline": "c12b5b32a9eae0fe5b884cb9905921c72ef48038",
+  "implementation": "abb27ddf435cca8090b2e44511a035ff53bb0b11",
+  "algorithm": "bounded-layers-1",
+  "bounds": {
+    "selectors": 32,
+    "selectorChars": 1000,
+    "visitedElements": 4096,
+    "retainedIntersectingElements": 256,
+    "cooperativeGeometryDeadlineMs": 250,
+    "batchSize": 256,
+    "ancestorDepthPerTarget": 128,
+    "factJsonUtf16Chars": 70000,
+    "returnFacts": 32
+  },
+  "baselineObservation": {
+    "runId": "run-bb81f8ef-c8e5-4aa2-9586-be8de4711bd5",
+    "nodeCount": 1207,
+    "elapsedMs": 33.46424999999999,
+    "fact": {
+      "selector": "img",
+      "matchCount": 1,
+      "documentId": "0.lj1u4k6ty9",
+      "mutationEpoch": 0,
+      "decoded": true,
+      "nodeId": 1,
+      "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+      "complete": true,
+      "naturalWidth": 120,
+      "naturalHeight": 60,
+      "contentWidth": 240,
+      "contentHeight": 120,
+      "objectFit": "fill",
+      "objectPosition": "50% 50%",
+      "bounds": {
+        "x": 80,
+        "y": 80,
+        "width": 240,
+        "height": 120
+      },
+      "matrix": [
+        1,
+        0,
+        0,
+        1
+      ],
+      "unsupported": [
+        "large-document-visibility-unmeasured"
+      ],
+      "stable": true,
+      "resource": {
+        "sha256": "05b0ec210e1eeebf0f1b77a97c8e3ab187b0d38bf4270485560a9726f2078eba",
+        "format": "png",
+        "evidenceRef": "ad71c093-0ff6-411a-bfa5-7144e68b2b25.json"
+      }
+    },
+    "artifacts": [
+      {
+        "id": "2616d95e-bb40-4dde-a2e2-cfdc99c224e6.png",
+        "type": "screenshot",
+        "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-bb81f8ef-c8e5-4aa2-9586-be8de4711bd5/2616d95e-bb40-4dde-a2e2-cfdc99c224e6.png",
+        "bytes": 5628,
+        "sha256": "6ab968ca5048b0d02380dd6695770a7ebc6919f46bcb177b4543d7b11fba49a1",
+        "committed": false
+      },
+      {
+        "id": "ad71c093-0ff6-411a-bfa5-7144e68b2b25.json",
+        "type": "image-resource",
+        "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-bb81f8ef-c8e5-4aa2-9586-be8de4711bd5/ad71c093-0ff6-411a-bfa5-7144e68b2b25.json",
+        "bytes": 1098,
+        "sha256": "f0e67834c3a3c8ff671df26263b719ca5ce788222ad82ac4162b4244cfcfc51c",
+        "committed": false
+      },
+      {
+        "id": "55776ee7-1093-4dc6-867a-86185df537b9.json",
+        "type": "snapshot",
+        "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-bb81f8ef-c8e5-4aa2-9586-be8de4711bd5/55776ee7-1093-4dc6-867a-86185df537b9.json",
+        "bytes": 10892,
+        "sha256": "3a7d24677e770318fdc96f7240249fd885372ecab760d9cad2079de107552f6e",
+        "committed": false
+      }
+    ]
+  },
+  "cases": [
+    {
+      "name": "candidate-budget",
+      "runId": "run-81731c12-e810-4f45-af1d-5c6bb067816b",
+      "observations": [
+        {
+          "name": "observed",
+          "elapsedMs": 46.574041999999736,
+          "ref": "f3fce9be-0dc4-43e6-b0bf-4e3d832c782c.png",
+          "facts": [
+            {
+              "selector": "img",
+              "matchCount": 1,
+              "visibilityScan": {
+                "version": "bounded-layers-1",
+                "complete": false,
+                "visited": 1460,
+                "rectangleReads": 1460,
+                "candidates": 256,
+                "intersectionChecks": 1458
+              },
+              "documentId": "0.htt6nn0cb0e",
+              "mutationEpoch": 0,
+              "decoded": true,
+              "nodeId": 1,
+              "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+              "complete": true,
+              "naturalWidth": 120,
+              "naturalHeight": 60,
+              "contentWidth": 240,
+              "contentHeight": 120,
+              "objectFit": "fill",
+              "objectPosition": "50% 50%",
+              "bounds": {
+                "x": 80,
+                "y": 80,
+                "width": 240,
+                "height": 120
+              },
+              "matrix": [
+                1,
+                0,
+                0,
+                1
+              ],
+              "unsupported": [
+                "visibility-candidate-budget-exceeded",
+                "overlapping-paint-surface"
+              ],
+              "stable": true,
+              "resource": {
+                "sha256": "05b0ec210e1eeebf0f1b77a97c8e3ab187b0d38bf4270485560a9726f2078eba",
+                "format": "png",
+                "evidenceRef": "0645b5fa-6024-48d8-b756-1a337ae1188a.json"
+              }
+            }
+          ]
+        }
+      ],
+      "receipt": {
+        "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/candidate-budget/receipt.json",
+        "bytes": 13381,
+        "sha256": "6f28ef3388896a96863e41a7bcae7354f84158c0e6f3c93f74332660f5142265",
+        "committed": false
+      },
+      "artifacts": [
+        {
+          "id": "f3fce9be-0dc4-43e6-b0bf-4e3d832c782c.png",
+          "type": "screenshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/candidate-budget/f3fce9be-0dc4-43e6-b0bf-4e3d832c782c.png",
+          "bytes": 5628,
+          "sha256": "6ab968ca5048b0d02380dd6695770a7ebc6919f46bcb177b4543d7b11fba49a1",
+          "committed": false
+        },
+        {
+          "id": "0645b5fa-6024-48d8-b756-1a337ae1188a.json",
+          "type": "image-resource",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/candidate-budget/0645b5fa-6024-48d8-b756-1a337ae1188a.json",
+          "bytes": 1098,
+          "sha256": "f0e67834c3a3c8ff671df26263b719ca5ce788222ad82ac4162b4244cfcfc51c",
+          "committed": false
+        },
+        {
+          "id": "c01dee72-4b3c-4895-a2ee-383533a9c68f.json",
+          "type": "snapshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/candidate-budget/c01dee72-4b3c-4895-a2ee-383533a9c68f.json",
+          "bytes": 11066,
+          "sha256": "d2eed0ba398caef819d807e98cd75e874b600871ced70d65a1fbc385594987d1",
+          "committed": false
+        }
+      ]
+    },
+    {
+      "name": "clipping",
+      "runId": "run-0857db9c-9ccc-4b2d-8eed-c4498b76f15d",
+      "observations": [
+        {
+          "name": "observed",
+          "elapsedMs": 43.50812500000029,
+          "ref": "3c90196d-cf52-4f00-b8a5-66684782a772.png",
+          "facts": [
+            {
+              "selector": "img",
+              "matchCount": 1,
+              "visibilityScan": {
+                "version": "bounded-layers-1",
+                "complete": true,
+                "visited": 1207,
+                "rectangleReads": 1207,
+                "candidates": 4,
+                "intersectionChecks": 1205
+              },
+              "documentId": "0.9e3s2ntpeln",
+              "mutationEpoch": 0,
+              "decoded": true,
+              "nodeId": 1,
+              "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+              "complete": true,
+              "naturalWidth": 120,
+              "naturalHeight": 60,
+              "contentWidth": 240,
+              "contentHeight": 120,
+              "objectFit": "fill",
+              "objectPosition": "50% 50%",
+              "bounds": {
+                "x": 80,
+                "y": 80,
+                "width": 240,
+                "height": 120
+              },
+              "matrix": [
+                1,
+                0,
+                0,
+                1
+              ],
+              "unsupported": [
+                "ancestor-clipping",
+                "visible-content-not-confirmed"
+              ],
+              "stable": true,
+              "resource": {
+                "sha256": "05b0ec210e1eeebf0f1b77a97c8e3ab187b0d38bf4270485560a9726f2078eba",
+                "format": "png",
+                "evidenceRef": "55c8ca49-ef71-4343-88f0-2a78dc9bffaf.json"
+              }
+            }
+          ]
+        }
+      ],
+      "receipt": {
+        "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/clipping/receipt.json",
+        "bytes": 13338,
+        "sha256": "c52b992c3f7ec6ec03cccebb5a1e67f4b7f50572fa0ed2c5e3da4671bf37b6cc",
+        "committed": false
+      },
+      "artifacts": [
+        {
+          "id": "3c90196d-cf52-4f00-b8a5-66684782a772.png",
+          "type": "screenshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/clipping/3c90196d-cf52-4f00-b8a5-66684782a772.png",
+          "bytes": 5056,
+          "sha256": "7a673d81555af06d0b471f5adfdacd75904f8b3f686b67aee8c0379c6bc80b58",
+          "committed": false
+        },
+        {
+          "id": "55c8ca49-ef71-4343-88f0-2a78dc9bffaf.json",
+          "type": "image-resource",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/clipping/55c8ca49-ef71-4343-88f0-2a78dc9bffaf.json",
+          "bytes": 1098,
+          "sha256": "f0e67834c3a3c8ff671df26263b719ca5ce788222ad82ac4162b4244cfcfc51c",
+          "committed": false
+        },
+        {
+          "id": "2558dff0-2c4c-4761-aa77-9d38e8d8cc68.json",
+          "type": "snapshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/clipping/2558dff0-2c4c-4761-aa77-9d38e8d8cc68.json",
+          "bytes": 11048,
+          "sha256": "67d2b2dbd7ab4694c5d099bc8428cae5ce7a569cefb18b96b707e1e88c77f60c",
+          "committed": false
+        }
+      ]
+    },
+    {
+      "name": "during-observation",
+      "runId": "run-3cd277d8-2033-4c9d-9212-b7c1a0aa4d9f",
+      "observations": [
+        {
+          "name": "observed",
+          "elapsedMs": 46.388458000000014,
+          "ref": "dd7b8367-9db0-499e-8308-2fe34a900f03.png",
+          "facts": [
+            {
+              "selector": "img",
+              "matchCount": 1,
+              "visibilityScan": {
+                "version": "bounded-layers-1",
+                "complete": false,
+                "visited": 1207,
+                "rectangleReads": 1207,
+                "candidates": 4,
+                "intersectionChecks": 1205
+              },
+              "documentId": "0.tuotbnlo5u",
+              "mutationEpoch": 2,
+              "decoded": true,
+              "nodeId": 1,
+              "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+              "complete": true,
+              "naturalWidth": 120,
+              "naturalHeight": 60,
+              "contentWidth": 240,
+              "contentHeight": 120,
+              "objectFit": "fill",
+              "objectPosition": "50% 50%",
+              "bounds": {
+                "x": 80,
+                "y": 80,
+                "width": 240,
+                "height": 120
+              },
+              "matrix": [
+                1,
+                0,
+                0,
+                1
+              ],
+              "unsupported": [
+                "visibility-dom-changed"
+              ],
+              "stable": false,
+              "resource": {
+                "sha256": "05b0ec210e1eeebf0f1b77a97c8e3ab187b0d38bf4270485560a9726f2078eba",
+                "format": "png",
+                "evidenceRef": "ac5eedc7-b4fd-41d6-8a5a-d3c6ac8fbc6a.json"
+              }
+            }
+          ]
+        }
+      ],
+      "verdict": "unknown",
+      "actual": "synthetic-brand-shape: unknown (paint-changed-across-observation)",
+      "receipt": {
+        "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/during-observation/receipt.json",
+        "bytes": 17577,
+        "sha256": "d1fe6ddc99dcfa31d814bbe8488a135220d5f307c71287021605977b041fb671",
+        "committed": false
+      },
+      "artifacts": [
+        {
+          "id": "dd7b8367-9db0-499e-8308-2fe34a900f03.png",
+          "type": "screenshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/during-observation/dd7b8367-9db0-499e-8308-2fe34a900f03.png",
+          "bytes": 5628,
+          "sha256": "6ab968ca5048b0d02380dd6695770a7ebc6919f46bcb177b4543d7b11fba49a1",
+          "committed": false
+        },
+        {
+          "id": "ac5eedc7-b4fd-41d6-8a5a-d3c6ac8fbc6a.json",
+          "type": "image-resource",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/during-observation/ac5eedc7-b4fd-41d6-8a5a-d3c6ac8fbc6a.json",
+          "bytes": 1098,
+          "sha256": "f0e67834c3a3c8ff671df26263b719ca5ce788222ad82ac4162b4244cfcfc51c",
+          "committed": false
+        },
+        {
+          "id": "338b1445-f017-4502-93c1-ca9cdca94b30.json",
+          "type": "snapshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/during-observation/338b1445-f017-4502-93c1-ca9cdca94b30.json",
+          "bytes": 11022,
+          "sha256": "62eb53c5c4b1e00f8048ddb231a33b3493c24df019b2c9daf868feba480d5797",
+          "committed": false
+        }
+      ]
+    },
+    {
+      "name": "mask",
+      "runId": "run-c9d3244f-c7a7-444d-9f62-2a0326beba2d",
+      "observations": [
+        {
+          "name": "observed",
+          "elapsedMs": 40.49616700000024,
+          "ref": "f4c8b4f3-7427-4e92-934d-164262e552c9.png",
+          "facts": [
+            {
+              "selector": "img",
+              "matchCount": 1,
+              "visibilityScan": {
+                "version": "bounded-layers-1",
+                "complete": true,
+                "visited": 1207,
+                "rectangleReads": 1207,
+                "candidates": 4,
+                "intersectionChecks": 1205
+              },
+              "documentId": "0.azes46tcty",
+              "mutationEpoch": 0,
+              "decoded": true,
+              "nodeId": 1,
+              "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+              "complete": true,
+              "naturalWidth": 120,
+              "naturalHeight": 60,
+              "contentWidth": 240,
+              "contentHeight": 120,
+              "objectFit": "fill",
+              "objectPosition": "50% 50%",
+              "bounds": {
+                "x": 80,
+                "y": 80,
+                "width": 240,
+                "height": 120
+              },
+              "matrix": [
+                1,
+                0,
+                0,
+                1
+              ],
+              "unsupported": [
+                "paint-effect"
+              ],
+              "stable": true,
+              "resource": {
+                "sha256": "05b0ec210e1eeebf0f1b77a97c8e3ab187b0d38bf4270485560a9726f2078eba",
+                "format": "png",
+                "evidenceRef": "36533f4f-df44-4c4a-9d60-05db367de2b7.json"
+              }
+            }
+          ]
+        }
+      ],
+      "receipt": {
+        "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/mask/receipt.json",
+        "bytes": 13273,
+        "sha256": "09f35c589e4e70676b869d6a09c97ec21b7168c127e1e868574b1ff36af10fc3",
+        "committed": false
+      },
+      "artifacts": [
+        {
+          "id": "f4c8b4f3-7427-4e92-934d-164262e552c9.png",
+          "type": "screenshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/mask/f4c8b4f3-7427-4e92-934d-164262e552c9.png",
+          "bytes": 7467,
+          "sha256": "beddb9e6173162e34a0a2bfc256ee0bcdec005fbf1d9aa05ffccc8680bd3c9ba",
+          "committed": false
+        },
+        {
+          "id": "36533f4f-df44-4c4a-9d60-05db367de2b7.json",
+          "type": "image-resource",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/mask/36533f4f-df44-4c4a-9d60-05db367de2b7.json",
+          "bytes": 1098,
+          "sha256": "f0e67834c3a3c8ff671df26263b719ca5ce788222ad82ac4162b4244cfcfc51c",
+          "committed": false
+        },
+        {
+          "id": "5253f8c0-5ec2-4a77-9b72-b4d208176e51.json",
+          "type": "snapshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/mask/5253f8c0-5ec2-4a77-9b72-b4d208176e51.json",
+          "bytes": 11010,
+          "sha256": "a90ed304828e01478515331e87e5ca806fe80403d324de1b37ad9866f95b32a6",
+          "committed": false
+        }
+      ]
+    },
+    {
+      "name": "node-budget",
+      "runId": "run-a1708c56-f316-4e87-9384-e6e189d6989a",
+      "observations": [
+        {
+          "name": "observed",
+          "elapsedMs": 173.92558400000007,
+          "ref": "9e6828bd-e84d-44c6-aca2-b233deb21239.png",
+          "facts": [
+            {
+              "selector": "img",
+              "matchCount": 1,
+              "visibilityScan": {
+                "version": "bounded-layers-1",
+                "complete": false,
+                "visited": 4096,
+                "rectangleReads": 4096,
+                "candidates": 4,
+                "intersectionChecks": 4094
+              },
+              "documentId": "0.fs5k7ac5zxc",
+              "mutationEpoch": 0,
+              "decoded": true,
+              "nodeId": 1,
+              "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+              "complete": true,
+              "naturalWidth": 120,
+              "naturalHeight": 60,
+              "contentWidth": 240,
+              "contentHeight": 120,
+              "objectFit": "fill",
+              "objectPosition": "50% 50%",
+              "bounds": {
+                "x": 80,
+                "y": 80,
+                "width": 240,
+                "height": 120
+              },
+              "matrix": [
+                1,
+                0,
+                0,
+                1
+              ],
+              "unsupported": [
+                "visibility-node-budget-exceeded"
+              ],
+              "stable": true,
+              "resource": {
+                "sha256": "05b0ec210e1eeebf0f1b77a97c8e3ab187b0d38bf4270485560a9726f2078eba",
+                "format": "png",
+                "evidenceRef": "765496f8-eb9a-4e3d-89ec-f39d631c6c26.json"
+              }
+            }
+          ]
+        }
+      ],
+      "receipt": {
+        "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/node-budget/receipt.json",
+        "bytes": 17432,
+        "sha256": "b2b7ca1b700d8fee024e596b084a21d124cdbaa45315012482f34e8ed2fc13ed",
+        "committed": false
+      },
+      "artifacts": [
+        {
+          "id": "9e6828bd-e84d-44c6-aca2-b233deb21239.png",
+          "type": "screenshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/node-budget/9e6828bd-e84d-44c6-aca2-b233deb21239.png",
+          "bytes": 5628,
+          "sha256": "6ab968ca5048b0d02380dd6695770a7ebc6919f46bcb177b4543d7b11fba49a1",
+          "committed": false
+        },
+        {
+          "id": "765496f8-eb9a-4e3d-89ec-f39d631c6c26.json",
+          "type": "image-resource",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/node-budget/765496f8-eb9a-4e3d-89ec-f39d631c6c26.json",
+          "bytes": 1098,
+          "sha256": "f0e67834c3a3c8ff671df26263b719ca5ce788222ad82ac4162b4244cfcfc51c",
+          "committed": false
+        },
+        {
+          "id": "ecd2f47f-ba4f-48b9-a4f9-cf8f77a0366c.json",
+          "type": "snapshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/node-budget/ecd2f47f-ba4f-48b9-a4f9-cf8f77a0366c.json",
+          "bytes": 15147,
+          "sha256": "c3699f64453b5b7b8b0772428f98ab8b98b9e40e4da36f162641ab1dcfe95be9",
+          "committed": false
+        }
+      ]
+    },
+    {
+      "name": "ordinary-early",
+      "runId": "run-42705b48-310d-4c07-ae51-f9652a668689",
+      "observations": [
+        {
+          "name": "observed",
+          "elapsedMs": 47.283959000000095,
+          "ref": "a3578918-3e8e-4c71-abbd-e88c991e1fa3.png",
+          "facts": [
+            {
+              "selector": "img",
+              "matchCount": 1,
+              "visibilityScan": {
+                "version": "bounded-layers-1",
+                "complete": true,
+                "visited": 1209,
+                "rectangleReads": 1209,
+                "candidates": 5,
+                "intersectionChecks": 1207
+              },
+              "documentId": "0.b0xpjf5ir4",
+              "mutationEpoch": 0,
+              "decoded": true,
+              "nodeId": 1,
+              "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+              "complete": true,
+              "naturalWidth": 120,
+              "naturalHeight": 60,
+              "contentWidth": 240,
+              "contentHeight": 120,
+              "objectFit": "fill",
+              "objectPosition": "50% 50%",
+              "bounds": {
+                "x": 80,
+                "y": 80,
+                "width": 240,
+                "height": 120
+              },
+              "matrix": [
+                1,
+                0,
+                0,
+                1
+              ],
+              "unsupported": [
+                "overlapping-paint-surface"
+              ],
+              "stable": true,
+              "resource": {
+                "sha256": "05b0ec210e1eeebf0f1b77a97c8e3ab187b0d38bf4270485560a9726f2078eba",
+                "format": "png",
+                "evidenceRef": "49da1407-af4f-43c7-9a75-2cf98215ea00.json"
+              }
+            }
+          ]
+        }
+      ],
+      "receipt": {
+        "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/ordinary-early/receipt.json",
+        "bytes": 13317,
+        "sha256": "244fa4562d8fc2cffd1d64a19a88225c4de44125442fed681debbdd080c94dba",
+        "committed": false
+      },
+      "artifacts": [
+        {
+          "id": "a3578918-3e8e-4c71-abbd-e88c991e1fa3.png",
+          "type": "screenshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/ordinary-early/a3578918-3e8e-4c71-abbd-e88c991e1fa3.png",
+          "bytes": 5628,
+          "sha256": "6ab968ca5048b0d02380dd6695770a7ebc6919f46bcb177b4543d7b11fba49a1",
+          "committed": false
+        },
+        {
+          "id": "49da1407-af4f-43c7-9a75-2cf98215ea00.json",
+          "type": "image-resource",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/ordinary-early/49da1407-af4f-43c7-9a75-2cf98215ea00.json",
+          "bytes": 1098,
+          "sha256": "f0e67834c3a3c8ff671df26263b719ca5ce788222ad82ac4162b4244cfcfc51c",
+          "committed": false
+        },
+        {
+          "id": "837bfd60-9a1f-4d96-a540-a628a9ac8d98.json",
+          "type": "snapshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/ordinary-early/837bfd60-9a1f-4d96-a540-a628a9ac8d98.json",
+          "bytes": 11023,
+          "sha256": "5e7358eb6c72177af82a79ba4f273740be46ae0f1d0780d8ccba879f43e5f388",
+          "committed": false
+        }
+      ]
+    },
+    {
+      "name": "output-budgets",
+      "runId": "run-58bb482c-a2ce-4dda-abf3-6a6f67a2b7c6",
+      "observations": [],
+      "rawFacts": [
+        {
+          "selector": "img:not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.absent):not(.abs",
+          "matchCount": 0,
+          "unsupported": [
+            "visibility-selector-budget-exceeded"
+          ]
+        }
+      ],
+      "oversized": [
+        {
+          "selector": "img",
+          "matchCount": 1,
+          "unsupported": [
+            "image-fact-output-budget-exceeded"
+          ]
+        }
+      ],
+      "receipt": {
+        "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/output-budgets/receipt.json",
+        "bytes": 1447,
+        "sha256": "9ee4861dcb4887e2175f5d3e902c727ae4c3f04c596f64e50b523177ae723f8b",
+        "committed": false
+      },
+      "artifacts": []
+    },
+    {
+      "name": "pseudo",
+      "runId": "run-9b2ff11d-b64f-49d8-9fca-a0473502393a",
+      "observations": [
+        {
+          "name": "observed",
+          "elapsedMs": 30.515249999999924,
+          "ref": "287a2c1e-7612-49e9-be7b-c89202481367.png",
+          "facts": [
+            {
+              "selector": "img",
+              "matchCount": 1,
+              "visibilityScan": {
+                "version": "bounded-layers-1",
+                "complete": false,
+                "visited": 1209,
+                "rectangleReads": 1209,
+                "candidates": 4,
+                "intersectionChecks": 1206
+              },
+              "documentId": "0.gseegjzqnnh",
+              "mutationEpoch": 0,
+              "decoded": true,
+              "nodeId": 1,
+              "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+              "complete": true,
+              "naturalWidth": 120,
+              "naturalHeight": 60,
+              "contentWidth": 240,
+              "contentHeight": 120,
+              "objectFit": "fill",
+              "objectPosition": "50% 50%",
+              "bounds": {
+                "x": 80,
+                "y": 80,
+                "width": 240,
+                "height": 120
+              },
+              "matrix": [
+                1,
+                0,
+                0,
+                1
+              ],
+              "unsupported": [
+                "visibility-unbounded-paint"
+              ],
+              "stable": true,
+              "resource": {
+                "sha256": "05b0ec210e1eeebf0f1b77a97c8e3ab187b0d38bf4270485560a9726f2078eba",
+                "format": "png",
+                "evidenceRef": "e6d50358-39e0-49bf-aedf-3c971854cb25.json"
+              }
+            }
+          ]
+        }
+      ],
+      "receipt": {
+        "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/pseudo/receipt.json",
+        "bytes": 13296,
+        "sha256": "f7e5b3a40b6a5281f5151181acba0942788d2766ad4bed298480ac98d2a4b01c",
+        "committed": false
+      },
+      "artifacts": [
+        {
+          "id": "287a2c1e-7612-49e9-be7b-c89202481367.png",
+          "type": "screenshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/pseudo/287a2c1e-7612-49e9-be7b-c89202481367.png",
+          "bytes": 5628,
+          "sha256": "6ab968ca5048b0d02380dd6695770a7ebc6919f46bcb177b4543d7b11fba49a1",
+          "committed": false
+        },
+        {
+          "id": "e6d50358-39e0-49bf-aedf-3c971854cb25.json",
+          "type": "image-resource",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/pseudo/e6d50358-39e0-49bf-aedf-3c971854cb25.json",
+          "bytes": 1098,
+          "sha256": "f0e67834c3a3c8ff671df26263b719ca5ce788222ad82ac4162b4244cfcfc51c",
+          "committed": false
+        },
+        {
+          "id": "8169bfbc-b649-4e55-950c-fdda76f30631.json",
+          "type": "snapshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/pseudo/8169bfbc-b649-4e55-950c-fdda76f30631.json",
+          "bytes": 11026,
+          "sha256": "4ad7ddaa21cdd8b190b6c7b3ecaf4f1067a2bc1fb0a15497171d973374c3e143",
+          "committed": false
+        }
+      ]
+    },
+    {
+      "name": "shadow-and-depth",
+      "runId": "run-d17ac05e-89da-46bf-a101-7e878426ed29",
+      "observations": [
+        {
+          "name": "shadow",
+          "elapsedMs": 28.746791999999914,
+          "ref": "51daea10-008b-41a2-bae0-c2ece890b617.png",
+          "facts": [
+            {
+              "selector": "img",
+              "matchCount": 1,
+              "visibilityScan": {
+                "version": "bounded-layers-1",
+                "complete": false,
+                "visited": 1208,
+                "rectangleReads": 1208,
+                "candidates": 4,
+                "intersectionChecks": 1206
+              },
+              "documentId": "0.4dujag5dswq",
+              "mutationEpoch": 0,
+              "decoded": true,
+              "nodeId": 1,
+              "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+              "complete": true,
+              "naturalWidth": 120,
+              "naturalHeight": 60,
+              "contentWidth": 240,
+              "contentHeight": 120,
+              "objectFit": "fill",
+              "objectPosition": "50% 50%",
+              "bounds": {
+                "x": 80,
+                "y": 80,
+                "width": 240,
+                "height": 120
+              },
+              "matrix": [
+                1,
+                0,
+                0,
+                1
+              ],
+              "unsupported": [
+                "visibility-unbounded-paint"
+              ],
+              "stable": true,
+              "resource": {
+                "sha256": "05b0ec210e1eeebf0f1b77a97c8e3ab187b0d38bf4270485560a9726f2078eba",
+                "format": "png",
+                "evidenceRef": "dc839c24-8c68-4fdd-9354-48cfdbb1a09e.json"
+              }
+            }
+          ]
+        },
+        {
+          "name": "deep",
+          "elapsedMs": 41.75179200000002,
+          "ref": "551de84a-7999-4132-b91e-5b04342607d9.png",
+          "facts": [
+            {
+              "selector": "img",
+              "matchCount": 1,
+              "visibilityScan": {
+                "version": "bounded-layers-1",
+                "complete": false,
+                "visited": 1336,
+                "rectangleReads": 1336,
+                "candidates": 133,
+                "intersectionChecks": 1334
+              },
+              "documentId": "0.4dujag5dswq",
+              "mutationEpoch": 2,
+              "decoded": true,
+              "nodeId": 2,
+              "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+              "complete": true,
+              "naturalWidth": 120,
+              "naturalHeight": 60,
+              "contentWidth": 240,
+              "contentHeight": 120,
+              "objectFit": "fill",
+              "objectPosition": "50% 50%",
+              "bounds": {
+                "x": 80,
+                "y": 80,
+                "width": 240,
+                "height": 120
+              },
+              "matrix": [
+                1,
+                0,
+                0,
+                1
+              ],
+              "unsupported": [
+                "visibility-unbounded-paint",
+                "image-ancestor-budget-exceeded"
+              ],
+              "stable": true,
+              "resource": {
+                "sha256": "05b0ec210e1eeebf0f1b77a97c8e3ab187b0d38bf4270485560a9726f2078eba",
+                "format": "png",
+                "evidenceRef": "126c1ef9-37de-4445-ad1b-2da4db49ca6b.json"
+              }
+            }
+          ]
+        }
+      ],
+      "receipt": {
+        "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/shadow-and-depth/receipt.json",
+        "bytes": 26598,
+        "sha256": "0b61ea9ef0e205b0f9da45919f36b9405bd4ee64d662cb20f9a881b6ede58f5c",
+        "committed": false
+      },
+      "artifacts": [
+        {
+          "id": "51daea10-008b-41a2-bae0-c2ece890b617.png",
+          "type": "screenshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/shadow-and-depth/51daea10-008b-41a2-bae0-c2ece890b617.png",
+          "bytes": 5628,
+          "sha256": "6ab968ca5048b0d02380dd6695770a7ebc6919f46bcb177b4543d7b11fba49a1",
+          "committed": false
+        },
+        {
+          "id": "dc839c24-8c68-4fdd-9354-48cfdbb1a09e.json",
+          "type": "image-resource",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/shadow-and-depth/dc839c24-8c68-4fdd-9354-48cfdbb1a09e.json",
+          "bytes": 1098,
+          "sha256": "f0e67834c3a3c8ff671df26263b719ca5ce788222ad82ac4162b4244cfcfc51c",
+          "committed": false
+        },
+        {
+          "id": "21f2ff23-d98d-490a-a2d4-0f7426e94ceb.json",
+          "type": "snapshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/shadow-and-depth/21f2ff23-d98d-490a-a2d4-0f7426e94ceb.json",
+          "bytes": 11026,
+          "sha256": "9e41c8355f07bc53f123a088d2ca72cda564166ec8fdfa7492b2941ff61f2f0f",
+          "committed": false
+        },
+        {
+          "id": "551de84a-7999-4132-b91e-5b04342607d9.png",
+          "type": "screenshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/shadow-and-depth/551de84a-7999-4132-b91e-5b04342607d9.png",
+          "bytes": 5628,
+          "sha256": "6ab968ca5048b0d02380dd6695770a7ebc6919f46bcb177b4543d7b11fba49a1",
+          "committed": false
+        },
+        {
+          "id": "126c1ef9-37de-4445-ad1b-2da4db49ca6b.json",
+          "type": "image-resource",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/shadow-and-depth/126c1ef9-37de-4445-ad1b-2da4db49ca6b.json",
+          "bytes": 1098,
+          "sha256": "f0e67834c3a3c8ff671df26263b719ca5ce788222ad82ac4162b4244cfcfc51c",
+          "committed": false
+        },
+        {
+          "id": "e71a1d3c-35df-4637-b823-a826c24f5817.json",
+          "type": "snapshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/shadow-and-depth/e71a1d3c-35df-4637-b823-a826c24f5817.json",
+          "bytes": 11061,
+          "sha256": "3b663fd389bc8b7e336f01120c11284d2fefdd2e3e43aaef41eaa8debafecc12",
+          "committed": false
+        }
+      ]
+    },
+    {
+      "name": "shared-and-consumed",
+      "runId": "run-c96c7f4e-290f-49a1-85db-99f4c8d0de3d",
+      "total": 1208,
+      "elapsedMs": 45.67166700000007,
+      "observations": [],
+      "verdict": "pass",
+      "actual": "image-a2fcff4d-6f2f-409e-902e-be1d8d96105d: pass (uniform-content-transform)",
+      "candidates": [
+        {
+          "candidateId": "image-a2fcff4d-6f2f-409e-902e-be1d8d96105d",
+          "status": "facts-ready",
+          "issues": [],
+          "pending": {
+            "intent": null,
+            "basis": {
+              "reference": null,
+              "statement": null,
+              "confirmedBy": null
+            }
+          },
+          "measured": {
+            "contractFields": {
+              "id": "image-a2fcff4d-6f2f-409e-902e-be1d8d96105d",
+              "pageUrl": "about:blank",
+              "viewport": {
+                "width": 1280,
+                "height": 768
+              },
+              "selector": "#png",
+              "resourceUrl": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+              "resourceSha256": "05b0ec210e1eeebf0f1b77a97c8e3ab187b0d38bf4270485560a9726f2078eba"
+            },
+            "locator": {
+              "kind": "existing-id",
+              "matchCount": 1
+            },
+            "paint": {
+              "selector": "#png",
+              "matchCount": 1,
+              "visibilityScan": {
+                "version": "bounded-layers-1",
+                "complete": true,
+                "visited": 1208,
+                "rectangleReads": 1208,
+                "candidates": 5,
+                "intersectionChecks": 2408
+              },
+              "documentId": "0.3lhyxqbwrrp",
+              "mutationEpoch": 0,
+              "decoded": true,
+              "nodeId": 1,
+              "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+              "complete": true,
+              "naturalWidth": 120,
+              "naturalHeight": 60,
+              "contentWidth": 240,
+              "contentHeight": 120,
+              "objectFit": "fill",
+              "objectPosition": "50% 50%",
+              "bounds": {
+                "x": 80,
+                "y": 80,
+                "width": 240,
+                "height": 120
+              },
+              "matrix": [
+                1,
+                0,
+                0,
+                1
+              ],
+              "unsupported": [],
+              "stable": true,
+              "resource": {
+                "sha256": "05b0ec210e1eeebf0f1b77a97c8e3ab187b0d38bf4270485560a9726f2078eba",
+                "format": "png",
+                "evidenceRef": "0829edc7-0dcb-466c-ab02-57f8eae0f5bc.json"
+              }
+            },
+            "evidenceRefs": [
+              "c971545c-03dd-4552-85f7-ac5679aa1f8c.png",
+              "493fffda-b4bb-43eb-9ef0-8af41b50a333.json",
+              "0829edc7-0dcb-466c-ab02-57f8eae0f5bc.json"
+            ]
+          }
+        },
+        {
+          "candidateId": "image-4452e661-3d5e-4563-90cf-0d7736ba703f",
+          "status": "facts-ready",
+          "issues": [],
+          "pending": {
+            "intent": null,
+            "basis": {
+              "reference": null,
+              "statement": null,
+              "confirmedBy": null
+            }
+          },
+          "measured": {
+            "contractFields": {
+              "id": "image-4452e661-3d5e-4563-90cf-0d7736ba703f",
+              "pageUrl": "about:blank",
+              "viewport": {
+                "width": 1280,
+                "height": 768
+              },
+              "selector": "#jpeg",
+              "resourceUrl": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/2wBDAQMDAwQDBAgEBAgQCwkLEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBD/wAARCAA8AHgDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAn/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFAEBAAAAAAAAAAAAAAAAAAAAAP/EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhEDEQA/AJVAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//9k=",
+              "resourceSha256": "033df3411396c0374a66a79cad66bd4162c18ad159d498f76e0a307b773a7ea5"
+            },
+            "locator": {
+              "kind": "existing-id",
+              "matchCount": 1
+            },
+            "paint": {
+              "selector": "#jpeg",
+              "matchCount": 1,
+              "visibilityScan": {
+                "version": "bounded-layers-1",
+                "complete": true,
+                "visited": 1208,
+                "rectangleReads": 1208,
+                "candidates": 5,
+                "intersectionChecks": 2408
+              },
+              "documentId": "0.3lhyxqbwrrp",
+              "mutationEpoch": 0,
+              "decoded": true,
+              "nodeId": 2,
+              "currentSrc": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/2wBDAQMDAwQDBAgEBAgQCwkLEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBD/wAARCAA8AHgDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAn/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFAEBAAAAAAAAAAAAAAAAAAAAAP/EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhEDEQA/AJVAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA//9k=",
+              "complete": true,
+              "naturalWidth": 120,
+              "naturalHeight": 60,
+              "contentWidth": 240,
+              "contentHeight": 120,
+              "objectFit": "fill",
+              "objectPosition": "50% 50%",
+              "bounds": {
+                "x": 80,
+                "y": 230,
+                "width": 240,
+                "height": 120
+              },
+              "matrix": [
+                1,
+                0,
+                0,
+                1
+              ],
+              "unsupported": [],
+              "stable": true,
+              "resource": {
+                "sha256": "033df3411396c0374a66a79cad66bd4162c18ad159d498f76e0a307b773a7ea5",
+                "format": "jpeg",
+                "evidenceRef": "9f9071ce-d489-488a-b596-f2d3cff64d7f.json"
+              }
+            },
+            "evidenceRefs": [
+              "c971545c-03dd-4552-85f7-ac5679aa1f8c.png",
+              "493fffda-b4bb-43eb-9ef0-8af41b50a333.json",
+              "9f9071ce-d489-488a-b596-f2d3cff64d7f.json"
+            ]
+          }
+        }
+      ],
+      "receipt": {
+        "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/shared-and-consumed/receipt.json",
+        "bytes": 17259,
+        "sha256": "5aed754d84e111f6c613f6dfacc50cf6f48b116c9c3f428c18c70dced05bc8e5",
+        "committed": false
+      },
+      "artifacts": [
+        {
+          "id": "c971545c-03dd-4552-85f7-ac5679aa1f8c.png",
+          "type": "screenshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/shared-and-consumed/c971545c-03dd-4552-85f7-ac5679aa1f8c.png",
+          "bytes": 5645,
+          "sha256": "31fbd0cf73801bbf2b9e11d3f2630a168119e3bdde36827ce270b0641f0ae7aa",
+          "committed": false
+        },
+        {
+          "id": "0829edc7-0dcb-466c-ab02-57f8eae0f5bc.json",
+          "type": "image-resource",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/shared-and-consumed/0829edc7-0dcb-466c-ab02-57f8eae0f5bc.json",
+          "bytes": 1098,
+          "sha256": "f0e67834c3a3c8ff671df26263b719ca5ce788222ad82ac4162b4244cfcfc51c",
+          "committed": false
+        },
+        {
+          "id": "9f9071ce-d489-488a-b596-f2d3cff64d7f.json",
+          "type": "image-resource",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/shared-and-consumed/9f9071ce-d489-488a-b596-f2d3cff64d7f.json",
+          "bytes": 1044,
+          "sha256": "562dcba206f6869020993ce952c599357ae3a74595a6af07c81e96ea156d70f7",
+          "committed": false
+        },
+        {
+          "id": "493fffda-b4bb-43eb-9ef0-8af41b50a333.json",
+          "type": "snapshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/shared-and-consumed/493fffda-b4bb-43eb-9ef0-8af41b50a333.json",
+          "bytes": 12207,
+          "sha256": "c5e5d75396a6dc4809aa345777e5518b4d375f028cbd33811139a1c1d06adc66",
+          "committed": false
+        },
+        {
+          "id": "50bb57d5-07e5-4522-9ee8-1687af98f076.json",
+          "type": "image-binding-candidates",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/shared-and-consumed/50bb57d5-07e5-4522-9ee8-1687af98f076.json",
+          "bytes": 5391,
+          "sha256": "684250b79bff9fc2aa52f26a35648905ab940fd88758744d98f7a0443700254c",
+          "committed": false
+        },
+        {
+          "id": "ae5cc272-b849-463f-99d5-2a23fad430c7.png",
+          "type": "screenshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/shared-and-consumed/ae5cc272-b849-463f-99d5-2a23fad430c7.png",
+          "bytes": 5645,
+          "sha256": "31fbd0cf73801bbf2b9e11d3f2630a168119e3bdde36827ce270b0641f0ae7aa",
+          "committed": false
+        },
+        {
+          "id": "554fc362-0bf2-4ec7-a96a-5f1538651bbf.json",
+          "type": "image-resource",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/shared-and-consumed/554fc362-0bf2-4ec7-a96a-5f1538651bbf.json",
+          "bytes": 1098,
+          "sha256": "f0e67834c3a3c8ff671df26263b719ca5ce788222ad82ac4162b4244cfcfc51c",
+          "committed": false
+        },
+        {
+          "id": "4297ebea-804c-4e3e-a882-a067aab56c6f.json",
+          "type": "snapshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/shared-and-consumed/4297ebea-804c-4e3e-a882-a067aab56c6f.json",
+          "bytes": 11070,
+          "sha256": "dab3e02f47c4e07c00eb3cbb916e961d621d9962ca73b34489cc440944acc519",
+          "committed": false
+        },
+        {
+          "id": "406797c8-5c24-42c7-8753-bb04ba9b6aad.json",
+          "type": "image-binding-review",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/shared-and-consumed/406797c8-5c24-42c7-8753-bb04ba9b6aad.json",
+          "bytes": 824,
+          "sha256": "d0c269e387924d8559edc90e9f200a208b1577195d8cb8e0012a088fc4f1dba5",
+          "committed": false
+        }
+      ]
+    },
+    {
+      "name": "simple-100",
+      "runId": "run-ccf892e3-e6bf-4de2-8cd9-bc3840c77754",
+      "total": 107,
+      "observations": [
+        {
+          "name": "observed",
+          "elapsedMs": 22.793750000000045,
+          "ref": "9dd1154c-e093-40ca-ad00-34841e1dbb3d.png",
+          "facts": [
+            {
+              "selector": "img",
+              "matchCount": 1,
+              "visibilityScan": {
+                "version": "bounded-layers-1",
+                "complete": true,
+                "visited": 107,
+                "rectangleReads": 107,
+                "candidates": 4,
+                "intersectionChecks": 105
+              },
+              "documentId": "0.nozljibqnm",
+              "mutationEpoch": 0,
+              "decoded": true,
+              "nodeId": 1,
+              "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+              "complete": true,
+              "naturalWidth": 120,
+              "naturalHeight": 60,
+              "contentWidth": 240,
+              "contentHeight": 120,
+              "objectFit": "fill",
+              "objectPosition": "50% 50%",
+              "bounds": {
+                "x": 80,
+                "y": 80,
+                "width": 240,
+                "height": 120
+              },
+              "matrix": [
+                1,
+                0,
+                0,
+                1
+              ],
+              "unsupported": [],
+              "stable": true,
+              "resource": {
+                "sha256": "05b0ec210e1eeebf0f1b77a97c8e3ab187b0d38bf4270485560a9726f2078eba",
+                "format": "png",
+                "evidenceRef": "f0803fdc-dac8-4dd5-b995-a9b95f000a13.json"
+              }
+            }
+          ]
+        }
+      ],
+      "receipt": {
+        "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/simple-100/receipt.json",
+        "bytes": 4464,
+        "sha256": "22471168f27bc11de076258e5cadc66064e54df107512bc06547a62f71e44ca3",
+        "committed": false
+      },
+      "artifacts": [
+        {
+          "id": "9dd1154c-e093-40ca-ad00-34841e1dbb3d.png",
+          "type": "screenshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/simple-100/9dd1154c-e093-40ca-ad00-34841e1dbb3d.png",
+          "bytes": 5628,
+          "sha256": "6ab968ca5048b0d02380dd6695770a7ebc6919f46bcb177b4543d7b11fba49a1",
+          "committed": false
+        },
+        {
+          "id": "f0803fdc-dac8-4dd5-b995-a9b95f000a13.json",
+          "type": "image-resource",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/simple-100/f0803fdc-dac8-4dd5-b995-a9b95f000a13.json",
+          "bytes": 1098,
+          "sha256": "f0e67834c3a3c8ff671df26263b719ca5ce788222ad82ac4162b4244cfcfc51c",
+          "committed": false
+        },
+        {
+          "id": "ac7840af-8f0f-4fbd-8594-e964149b8ce2.json",
+          "type": "snapshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/simple-100/ac7840af-8f0f-4fbd-8594-e964149b8ce2.json",
+          "bytes": 2193,
+          "sha256": "65f85924c417f62660f0347722ef8a7400e6c824771947474006e5aead4605cd",
+          "committed": false
+        }
+      ]
+    },
+    {
+      "name": "simple-1200",
+      "runId": "run-7ac093b5-97e1-4c9f-8553-a15ce6234696",
+      "total": 1207,
+      "observations": [
+        {
+          "name": "observed",
+          "elapsedMs": 31.04920800000002,
+          "ref": "1dea8530-70e2-4eea-a87d-5a73fc52773b.png",
+          "facts": [
+            {
+              "selector": "img",
+              "matchCount": 1,
+              "visibilityScan": {
+                "version": "bounded-layers-1",
+                "complete": true,
+                "visited": 1207,
+                "rectangleReads": 1207,
+                "candidates": 4,
+                "intersectionChecks": 1205
+              },
+              "documentId": "0.ajv73uujhb",
+              "mutationEpoch": 0,
+              "decoded": true,
+              "nodeId": 1,
+              "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+              "complete": true,
+              "naturalWidth": 120,
+              "naturalHeight": 60,
+              "contentWidth": 240,
+              "contentHeight": 120,
+              "objectFit": "fill",
+              "objectPosition": "50% 50%",
+              "bounds": {
+                "x": 80,
+                "y": 80,
+                "width": 240,
+                "height": 120
+              },
+              "matrix": [
+                1,
+                0,
+                0,
+                1
+              ],
+              "unsupported": [],
+              "stable": true,
+              "resource": {
+                "sha256": "05b0ec210e1eeebf0f1b77a97c8e3ab187b0d38bf4270485560a9726f2078eba",
+                "format": "png",
+                "evidenceRef": "82bceb01-ecaa-4496-80d6-90d48c1cd7c8.json"
+              }
+            }
+          ]
+        }
+      ],
+      "receipt": {
+        "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/simple-1200/receipt.json",
+        "bytes": 13271,
+        "sha256": "6827c6a2fc07443b1fb361c84d75e4027e6e5ce8f8a997baa3839e8a28fda00c",
+        "committed": false
+      },
+      "artifacts": [
+        {
+          "id": "1dea8530-70e2-4eea-a87d-5a73fc52773b.png",
+          "type": "screenshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/simple-1200/1dea8530-70e2-4eea-a87d-5a73fc52773b.png",
+          "bytes": 5628,
+          "sha256": "6ab968ca5048b0d02380dd6695770a7ebc6919f46bcb177b4543d7b11fba49a1",
+          "committed": false
+        },
+        {
+          "id": "82bceb01-ecaa-4496-80d6-90d48c1cd7c8.json",
+          "type": "image-resource",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/simple-1200/82bceb01-ecaa-4496-80d6-90d48c1cd7c8.json",
+          "bytes": 1098,
+          "sha256": "f0e67834c3a3c8ff671df26263b719ca5ce788222ad82ac4162b4244cfcfc51c",
+          "committed": false
+        },
+        {
+          "id": "e5a31b70-4fe0-4334-be3a-391201ec88e9.json",
+          "type": "snapshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/simple-1200/e5a31b70-4fe0-4334-be3a-391201ec88e9.json",
+          "bytes": 10996,
+          "sha256": "bd995ea0b809bcb48008b2b3662099879219e39cd7c7c84c2b14b15b8974e025",
+          "committed": false
+        }
+      ]
+    },
+    {
+      "name": "simple-3000",
+      "runId": "run-ba44481b-9c0b-48f2-af86-068cb19b022e",
+      "total": 3007,
+      "observations": [
+        {
+          "name": "observed",
+          "elapsedMs": 126.31179099999986,
+          "ref": "9c3f6f71-00f4-48ad-95c7-f497efa7a00d.png",
+          "facts": [
+            {
+              "selector": "img",
+              "matchCount": 1,
+              "visibilityScan": {
+                "version": "bounded-layers-1",
+                "complete": true,
+                "visited": 3007,
+                "rectangleReads": 3007,
+                "candidates": 4,
+                "intersectionChecks": 3005
+              },
+              "documentId": "0.6nj9o1ful96",
+              "mutationEpoch": 0,
+              "decoded": true,
+              "nodeId": 1,
+              "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+              "complete": true,
+              "naturalWidth": 120,
+              "naturalHeight": 60,
+              "contentWidth": 240,
+              "contentHeight": 120,
+              "objectFit": "fill",
+              "objectPosition": "50% 50%",
+              "bounds": {
+                "x": 80,
+                "y": 80,
+                "width": 240,
+                "height": 120
+              },
+              "matrix": [
+                1,
+                0,
+                0,
+                1
+              ],
+              "unsupported": [],
+              "stable": true,
+              "resource": {
+                "sha256": "05b0ec210e1eeebf0f1b77a97c8e3ab187b0d38bf4270485560a9726f2078eba",
+                "format": "png",
+                "evidenceRef": "b6088479-906e-4c94-96f8-98f64ef67361.json"
+              }
+            }
+          ]
+        }
+      ],
+      "receipt": {
+        "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/simple-3000/receipt.json",
+        "bytes": 17389,
+        "sha256": "83e1d07cf978b4c5152cc2ef6bab152b7157cd5db8c5973e112b54808a8f255c",
+        "committed": false
+      },
+      "artifacts": [
+        {
+          "id": "9c3f6f71-00f4-48ad-95c7-f497efa7a00d.png",
+          "type": "screenshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/simple-3000/9c3f6f71-00f4-48ad-95c7-f497efa7a00d.png",
+          "bytes": 5628,
+          "sha256": "6ab968ca5048b0d02380dd6695770a7ebc6919f46bcb177b4543d7b11fba49a1",
+          "committed": false
+        },
+        {
+          "id": "b6088479-906e-4c94-96f8-98f64ef67361.json",
+          "type": "image-resource",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/simple-3000/b6088479-906e-4c94-96f8-98f64ef67361.json",
+          "bytes": 1098,
+          "sha256": "f0e67834c3a3c8ff671df26263b719ca5ce788222ad82ac4162b4244cfcfc51c",
+          "committed": false
+        },
+        {
+          "id": "e65aa7fb-d89d-498f-8249-fdae125dca6d.json",
+          "type": "snapshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/simple-3000/e65aa7fb-d89d-498f-8249-fdae125dca6d.json",
+          "bytes": 15113,
+          "sha256": "03648c5d0720af3c49d9a27d674e19a328b0e4f1e30030fe450162adac72c8a3",
+          "committed": false
+        }
+      ]
+    },
+    {
+      "name": "target-budget",
+      "runId": "run-305f581f-87f0-428c-8dc8-752beb7e60c0",
+      "observations": [],
+      "rawFacts": [
+        {
+          "selector": "img",
+          "matchCount": 1,
+          "visibilityScan": {
+            "version": "bounded-layers-1",
+            "complete": false,
+            "visited": 0,
+            "rectangleReads": 0,
+            "candidates": 0,
+            "intersectionChecks": 0
+          },
+          "documentId": "0.u633ntm3tr",
+          "mutationEpoch": 0,
+          "decoded": true,
+          "nodeId": 1,
+          "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+          "complete": true,
+          "naturalWidth": 120,
+          "naturalHeight": 60,
+          "contentWidth": 240,
+          "contentHeight": 120,
+          "objectFit": "fill",
+          "objectPosition": "50% 50%",
+          "bounds": {
+            "x": 80,
+            "y": 80,
+            "width": 240,
+            "height": 120
+          },
+          "matrix": [
+            1,
+            0,
+            0,
+            1
+          ],
+          "unsupported": [
+            "visibility-target-budget-exceeded"
+          ]
+        },
+        {
+          "selector": "img",
+          "matchCount": 1,
+          "visibilityScan": {
+            "version": "bounded-layers-1",
+            "complete": false,
+            "visited": 0,
+            "rectangleReads": 0,
+            "candidates": 0,
+            "intersectionChecks": 0
+          },
+          "documentId": "0.u633ntm3tr",
+          "mutationEpoch": 0,
+          "decoded": true,
+          "nodeId": 1,
+          "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+          "complete": true,
+          "naturalWidth": 120,
+          "naturalHeight": 60,
+          "contentWidth": 240,
+          "contentHeight": 120,
+          "objectFit": "fill",
+          "objectPosition": "50% 50%",
+          "bounds": {
+            "x": 80,
+            "y": 80,
+            "width": 240,
+            "height": 120
+          },
+          "matrix": [
+            1,
+            0,
+            0,
+            1
+          ],
+          "unsupported": [
+            "visibility-target-budget-exceeded"
+          ]
+        },
+        {
+          "selector": "img",
+          "matchCount": 1,
+          "visibilityScan": {
+            "version": "bounded-layers-1",
+            "complete": false,
+            "visited": 0,
+            "rectangleReads": 0,
+            "candidates": 0,
+            "intersectionChecks": 0
+          },
+          "documentId": "0.u633ntm3tr",
+          "mutationEpoch": 0,
+          "decoded": true,
+          "nodeId": 1,
+          "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+          "complete": true,
+          "naturalWidth": 120,
+          "naturalHeight": 60,
+          "contentWidth": 240,
+          "contentHeight": 120,
+          "objectFit": "fill",
+          "objectPosition": "50% 50%",
+          "bounds": {
+            "x": 80,
+            "y": 80,
+            "width": 240,
+            "height": 120
+          },
+          "matrix": [
+            1,
+            0,
+            0,
+            1
+          ],
+          "unsupported": [
+            "visibility-target-budget-exceeded"
+          ]
+        },
+        {
+          "selector": "img",
+          "matchCount": 1,
+          "visibilityScan": {
+            "version": "bounded-layers-1",
+            "complete": false,
+            "visited": 0,
+            "rectangleReads": 0,
+            "candidates": 0,
+            "intersectionChecks": 0
+          },
+          "documentId": "0.u633ntm3tr",
+          "mutationEpoch": 0,
+          "decoded": true,
+          "nodeId": 1,
+          "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+          "complete": true,
+          "naturalWidth": 120,
+          "naturalHeight": 60,
+          "contentWidth": 240,
+          "contentHeight": 120,
+          "objectFit": "fill",
+          "objectPosition": "50% 50%",
+          "bounds": {
+            "x": 80,
+            "y": 80,
+            "width": 240,
+            "height": 120
+          },
+          "matrix": [
+            1,
+            0,
+            0,
+            1
+          ],
+          "unsupported": [
+            "visibility-target-budget-exceeded"
+          ]
+        },
+        {
+          "selector": "img",
+          "matchCount": 1,
+          "visibilityScan": {
+            "version": "bounded-layers-1",
+            "complete": false,
+            "visited": 0,
+            "rectangleReads": 0,
+            "candidates": 0,
+            "intersectionChecks": 0
+          },
+          "documentId": "0.u633ntm3tr",
+          "mutationEpoch": 0,
+          "decoded": true,
+          "nodeId": 1,
+          "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+          "complete": true,
+          "naturalWidth": 120,
+          "naturalHeight": 60,
+          "contentWidth": 240,
+          "contentHeight": 120,
+          "objectFit": "fill",
+          "objectPosition": "50% 50%",
+          "bounds": {
+            "x": 80,
+            "y": 80,
+            "width": 240,
+            "height": 120
+          },
+          "matrix": [
+            1,
+            0,
+            0,
+            1
+          ],
+          "unsupported": [
+            "visibility-target-budget-exceeded"
+          ]
+        },
+        {
+          "selector": "img",
+          "matchCount": 1,
+          "visibilityScan": {
+            "version": "bounded-layers-1",
+            "complete": false,
+            "visited": 0,
+            "rectangleReads": 0,
+            "candidates": 0,
+            "intersectionChecks": 0
+          },
+          "documentId": "0.u633ntm3tr",
+          "mutationEpoch": 0,
+          "decoded": true,
+          "nodeId": 1,
+          "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+          "complete": true,
+          "naturalWidth": 120,
+          "naturalHeight": 60,
+          "contentWidth": 240,
+          "contentHeight": 120,
+          "objectFit": "fill",
+          "objectPosition": "50% 50%",
+          "bounds": {
+            "x": 80,
+            "y": 80,
+            "width": 240,
+            "height": 120
+          },
+          "matrix": [
+            1,
+            0,
+            0,
+            1
+          ],
+          "unsupported": [
+            "visibility-target-budget-exceeded"
+          ]
+        },
+        {
+          "selector": "img",
+          "matchCount": 1,
+          "visibilityScan": {
+            "version": "bounded-layers-1",
+            "complete": false,
+            "visited": 0,
+            "rectangleReads": 0,
+            "candidates": 0,
+            "intersectionChecks": 0
+          },
+          "documentId": "0.u633ntm3tr",
+          "mutationEpoch": 0,
+          "decoded": true,
+          "nodeId": 1,
+          "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+          "complete": true,
+          "naturalWidth": 120,
+          "naturalHeight": 60,
+          "contentWidth": 240,
+          "contentHeight": 120,
+          "objectFit": "fill",
+          "objectPosition": "50% 50%",
+          "bounds": {
+            "x": 80,
+            "y": 80,
+            "width": 240,
+            "height": 120
+          },
+          "matrix": [
+            1,
+            0,
+            0,
+            1
+          ],
+          "unsupported": [
+            "visibility-target-budget-exceeded"
+          ]
+        },
+        {
+          "selector": "img",
+          "matchCount": 1,
+          "visibilityScan": {
+            "version": "bounded-layers-1",
+            "complete": false,
+            "visited": 0,
+            "rectangleReads": 0,
+            "candidates": 0,
+            "intersectionChecks": 0
+          },
+          "documentId": "0.u633ntm3tr",
+          "mutationEpoch": 0,
+          "decoded": true,
+          "nodeId": 1,
+          "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+          "complete": true,
+          "naturalWidth": 120,
+          "naturalHeight": 60,
+          "contentWidth": 240,
+          "contentHeight": 120,
+          "objectFit": "fill",
+          "objectPosition": "50% 50%",
+          "bounds": {
+            "x": 80,
+            "y": 80,
+            "width": 240,
+            "height": 120
+          },
+          "matrix": [
+            1,
+            0,
+            0,
+            1
+          ],
+          "unsupported": [
+            "visibility-target-budget-exceeded"
+          ]
+        },
+        {
+          "selector": "img",
+          "matchCount": 1,
+          "visibilityScan": {
+            "version": "bounded-layers-1",
+            "complete": false,
+            "visited": 0,
+            "rectangleReads": 0,
+            "candidates": 0,
+            "intersectionChecks": 0
+          },
+          "documentId": "0.u633ntm3tr",
+          "mutationEpoch": 0,
+          "decoded": true,
+          "nodeId": 1,
+          "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+          "complete": true,
+          "naturalWidth": 120,
+          "naturalHeight": 60,
+          "contentWidth": 240,
+          "contentHeight": 120,
+          "objectFit": "fill",
+          "objectPosition": "50% 50%",
+          "bounds": {
+            "x": 80,
+            "y": 80,
+            "width": 240,
+            "height": 120
+          },
+          "matrix": [
+            1,
+            0,
+            0,
+            1
+          ],
+          "unsupported": [
+            "visibility-target-budget-exceeded"
+          ]
+        },
+        {
+          "selector": "img",
+          "matchCount": 1,
+          "visibilityScan": {
+            "version": "bounded-layers-1",
+            "complete": false,
+            "visited": 0,
+            "rectangleReads": 0,
+            "candidates": 0,
+            "intersectionChecks": 0
+          },
+          "documentId": "0.u633ntm3tr",
+          "mutationEpoch": 0,
+          "decoded": true,
+          "nodeId": 1,
+          "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+          "complete": true,
+          "naturalWidth": 120,
+          "naturalHeight": 60,
+          "contentWidth": 240,
+          "contentHeight": 120,
+          "objectFit": "fill",
+          "objectPosition": "50% 50%",
+          "bounds": {
+            "x": 80,
+            "y": 80,
+            "width": 240,
+            "height": 120
+          },
+          "matrix": [
+            1,
+            0,
+            0,
+            1
+          ],
+          "unsupported": [
+            "visibility-target-budget-exceeded"
+          ]
+        },
+        {
+          "selector": "img",
+          "matchCount": 1,
+          "visibilityScan": {
+            "version": "bounded-layers-1",
+            "complete": false,
+            "visited": 0,
+            "rectangleReads": 0,
+            "candidates": 0,
+            "intersectionChecks": 0
+          },
+          "documentId": "0.u633ntm3tr",
+          "mutationEpoch": 0,
+          "decoded": true,
+          "nodeId": 1,
+          "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+          "complete": true,
+          "naturalWidth": 120,
+          "naturalHeight": 60,
+          "contentWidth": 240,
+          "contentHeight": 120,
+          "objectFit": "fill",
+          "objectPosition": "50% 50%",
+          "bounds": {
+            "x": 80,
+            "y": 80,
+            "width": 240,
+            "height": 120
+          },
+          "matrix": [
+            1,
+            0,
+            0,
+            1
+          ],
+          "unsupported": [
+            "visibility-target-budget-exceeded"
+          ]
+        },
+        {
+          "selector": "img",
+          "matchCount": 1,
+          "visibilityScan": {
+            "version": "bounded-layers-1",
+            "complete": false,
+            "visited": 0,
+            "rectangleReads": 0,
+            "candidates": 0,
+            "intersectionChecks": 0
+          },
+          "documentId": "0.u633ntm3tr",
+          "mutationEpoch": 0,
+          "decoded": true,
+          "nodeId": 1,
+          "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+          "complete": true,
+          "naturalWidth": 120,
+          "naturalHeight": 60,
+          "contentWidth": 240,
+          "contentHeight": 120,
+          "objectFit": "fill",
+          "objectPosition": "50% 50%",
+          "bounds": {
+            "x": 80,
+            "y": 80,
+            "width": 240,
+            "height": 120
+          },
+          "matrix": [
+            1,
+            0,
+            0,
+            1
+          ],
+          "unsupported": [
+            "visibility-target-budget-exceeded"
+          ]
+        },
+        {
+          "selector": "img",
+          "matchCount": 1,
+          "visibilityScan": {
+            "version": "bounded-layers-1",
+            "complete": false,
+            "visited": 0,
+            "rectangleReads": 0,
+            "candidates": 0,
+            "intersectionChecks": 0
+          },
+          "documentId": "0.u633ntm3tr",
+          "mutationEpoch": 0,
+          "decoded": true,
+          "nodeId": 1,
+          "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+          "complete": true,
+          "naturalWidth": 120,
+          "naturalHeight": 60,
+          "contentWidth": 240,
+          "contentHeight": 120,
+          "objectFit": "fill",
+          "objectPosition": "50% 50%",
+          "bounds": {
+            "x": 80,
+            "y": 80,
+            "width": 240,
+            "height": 120
+          },
+          "matrix": [
+            1,
+            0,
+            0,
+            1
+          ],
+          "unsupported": [
+            "visibility-target-budget-exceeded"
+          ]
+        },
+        {
+          "selector": "img",
+          "matchCount": 1,
+          "visibilityScan": {
+            "version": "bounded-layers-1",
+            "complete": false,
+            "visited": 0,
+            "rectangleReads": 0,
+            "candidates": 0,
+            "intersectionChecks": 0
+          },
+          "documentId": "0.u633ntm3tr",
+          "mutationEpoch": 0,
+          "decoded": true,
+          "nodeId": 1,
+          "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+          "complete": true,
+          "naturalWidth": 120,
+          "naturalHeight": 60,
+          "contentWidth": 240,
+          "contentHeight": 120,
+          "objectFit": "fill",
+          "objectPosition": "50% 50%",
+          "bounds": {
+            "x": 80,
+            "y": 80,
+            "width": 240,
+            "height": 120
+          },
+          "matrix": [
+            1,
+            0,
+            0,
+            1
+          ],
+          "unsupported": [
+            "visibility-target-budget-exceeded"
+          ]
+        },
+        {
+          "selector": "img",
+          "matchCount": 1,
+          "visibilityScan": {
+            "version": "bounded-layers-1",
+            "complete": false,
+            "visited": 0,
+            "rectangleReads": 0,
+            "candidates": 0,
+            "intersectionChecks": 0
+          },
+          "documentId": "0.u633ntm3tr",
+          "mutationEpoch": 0,
+          "decoded": true,
+          "nodeId": 1,
+          "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+          "complete": true,
+          "naturalWidth": 120,
+          "naturalHeight": 60,
+          "contentWidth": 240,
+          "contentHeight": 120,
+          "objectFit": "fill",
+          "objectPosition": "50% 50%",
+          "bounds": {
+            "x": 80,
+            "y": 80,
+            "width": 240,
+            "height": 120
+          },
+          "matrix": [
+            1,
+            0,
+            0,
+            1
+          ],
+          "unsupported": [
+            "visibility-target-budget-exceeded"
+          ]
+        },
+        {
+          "selector": "img",
+          "matchCount": 1,
+          "visibilityScan": {
+            "version": "bounded-layers-1",
+            "complete": false,
+            "visited": 0,
+            "rectangleReads": 0,
+            "candidates": 0,
+            "intersectionChecks": 0
+          },
+          "documentId": "0.u633ntm3tr",
+          "mutationEpoch": 0,
+          "decoded": true,
+          "nodeId": 1,
+          "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+          "complete": true,
+          "naturalWidth": 120,
+          "naturalHeight": 60,
+          "contentWidth": 240,
+          "contentHeight": 120,
+          "objectFit": "fill",
+          "objectPosition": "50% 50%",
+          "bounds": {
+            "x": 80,
+            "y": 80,
+            "width": 240,
+            "height": 120
+          },
+          "matrix": [
+            1,
+            0,
+            0,
+            1
+          ],
+          "unsupported": [
+            "visibility-target-budget-exceeded"
+          ]
+        },
+        {
+          "selector": "img",
+          "matchCount": 1,
+          "visibilityScan": {
+            "version": "bounded-layers-1",
+            "complete": false,
+            "visited": 0,
+            "rectangleReads": 0,
+            "candidates": 0,
+            "intersectionChecks": 0
+          },
+          "documentId": "0.u633ntm3tr",
+          "mutationEpoch": 0,
+          "decoded": true,
+          "nodeId": 1,
+          "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+          "complete": true,
+          "naturalWidth": 120,
+          "naturalHeight": 60,
+          "contentWidth": 240,
+          "contentHeight": 120,
+          "objectFit": "fill",
+          "objectPosition": "50% 50%",
+          "bounds": {
+            "x": 80,
+            "y": 80,
+            "width": 240,
+            "height": 120
+          },
+          "matrix": [
+            1,
+            0,
+            0,
+            1
+          ],
+          "unsupported": [
+            "visibility-target-budget-exceeded"
+          ]
+        },
+        {
+          "selector": "img",
+          "matchCount": 1,
+          "visibilityScan": {
+            "version": "bounded-layers-1",
+            "complete": false,
+            "visited": 0,
+            "rectangleReads": 0,
+            "candidates": 0,
+            "intersectionChecks": 0
+          },
+          "documentId": "0.u633ntm3tr",
+          "mutationEpoch": 0,
+          "decoded": true,
+          "nodeId": 1,
+          "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+          "complete": true,
+          "naturalWidth": 120,
+          "naturalHeight": 60,
+          "contentWidth": 240,
+          "contentHeight": 120,
+          "objectFit": "fill",
+          "objectPosition": "50% 50%",
+          "bounds": {
+            "x": 80,
+            "y": 80,
+            "width": 240,
+            "height": 120
+          },
+          "matrix": [
+            1,
+            0,
+            0,
+            1
+          ],
+          "unsupported": [
+            "visibility-target-budget-exceeded"
+          ]
+        },
+        {
+          "selector": "img",
+          "matchCount": 1,
+          "visibilityScan": {
+            "version": "bounded-layers-1",
+            "complete": false,
+            "visited": 0,
+            "rectangleReads": 0,
+            "candidates": 0,
+            "intersectionChecks": 0
+          },
+          "documentId": "0.u633ntm3tr",
+          "mutationEpoch": 0,
+          "decoded": true,
+          "nodeId": 1,
+          "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+          "complete": true,
+          "naturalWidth": 120,
+          "naturalHeight": 60,
+          "contentWidth": 240,
+          "contentHeight": 120,
+          "objectFit": "fill",
+          "objectPosition": "50% 50%",
+          "bounds": {
+            "x": 80,
+            "y": 80,
+            "width": 240,
+            "height": 120
+          },
+          "matrix": [
+            1,
+            0,
+            0,
+            1
+          ],
+          "unsupported": [
+            "visibility-target-budget-exceeded"
+          ]
+        },
+        {
+          "selector": "img",
+          "matchCount": 1,
+          "visibilityScan": {
+            "version": "bounded-layers-1",
+            "complete": false,
+            "visited": 0,
+            "rectangleReads": 0,
+            "candidates": 0,
+            "intersectionChecks": 0
+          },
+          "documentId": "0.u633ntm3tr",
+          "mutationEpoch": 0,
+          "decoded": true,
+          "nodeId": 1,
+          "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+          "complete": true,
+          "naturalWidth": 120,
+          "naturalHeight": 60,
+          "contentWidth": 240,
+          "contentHeight": 120,
+          "objectFit": "fill",
+          "objectPosition": "50% 50%",
+          "bounds": {
+            "x": 80,
+            "y": 80,
+            "width": 240,
+            "height": 120
+          },
+          "matrix": [
+            1,
+            0,
+            0,
+            1
+          ],
+          "unsupported": [
+            "visibility-target-budget-exceeded"
+          ]
+        },
+        {
+          "selector": "img",
+          "matchCount": 1,
+          "visibilityScan": {
+            "version": "bounded-layers-1",
+            "complete": false,
+            "visited": 0,
+            "rectangleReads": 0,
+            "candidates": 0,
+            "intersectionChecks": 0
+          },
+          "documentId": "0.u633ntm3tr",
+          "mutationEpoch": 0,
+          "decoded": true,
+          "nodeId": 1,
+          "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+          "complete": true,
+          "naturalWidth": 120,
+          "naturalHeight": 60,
+          "contentWidth": 240,
+          "contentHeight": 120,
+          "objectFit": "fill",
+          "objectPosition": "50% 50%",
+          "bounds": {
+            "x": 80,
+            "y": 80,
+            "width": 240,
+            "height": 120
+          },
+          "matrix": [
+            1,
+            0,
+            0,
+            1
+          ],
+          "unsupported": [
+            "visibility-target-budget-exceeded"
+          ]
+        },
+        {
+          "selector": "img",
+          "matchCount": 1,
+          "visibilityScan": {
+            "version": "bounded-layers-1",
+            "complete": false,
+            "visited": 0,
+            "rectangleReads": 0,
+            "candidates": 0,
+            "intersectionChecks": 0
+          },
+          "documentId": "0.u633ntm3tr",
+          "mutationEpoch": 0,
+          "decoded": true,
+          "nodeId": 1,
+          "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+          "complete": true,
+          "naturalWidth": 120,
+          "naturalHeight": 60,
+          "contentWidth": 240,
+          "contentHeight": 120,
+          "objectFit": "fill",
+          "objectPosition": "50% 50%",
+          "bounds": {
+            "x": 80,
+            "y": 80,
+            "width": 240,
+            "height": 120
+          },
+          "matrix": [
+            1,
+            0,
+            0,
+            1
+          ],
+          "unsupported": [
+            "visibility-target-budget-exceeded"
+          ]
+        },
+        {
+          "selector": "img",
+          "matchCount": 1,
+          "visibilityScan": {
+            "version": "bounded-layers-1",
+            "complete": false,
+            "visited": 0,
+            "rectangleReads": 0,
+            "candidates": 0,
+            "intersectionChecks": 0
+          },
+          "documentId": "0.u633ntm3tr",
+          "mutationEpoch": 0,
+          "decoded": true,
+          "nodeId": 1,
+          "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+          "complete": true,
+          "naturalWidth": 120,
+          "naturalHeight": 60,
+          "contentWidth": 240,
+          "contentHeight": 120,
+          "objectFit": "fill",
+          "objectPosition": "50% 50%",
+          "bounds": {
+            "x": 80,
+            "y": 80,
+            "width": 240,
+            "height": 120
+          },
+          "matrix": [
+            1,
+            0,
+            0,
+            1
+          ],
+          "unsupported": [
+            "visibility-target-budget-exceeded"
+          ]
+        },
+        {
+          "selector": "img",
+          "matchCount": 1,
+          "visibilityScan": {
+            "version": "bounded-layers-1",
+            "complete": false,
+            "visited": 0,
+            "rectangleReads": 0,
+            "candidates": 0,
+            "intersectionChecks": 0
+          },
+          "documentId": "0.u633ntm3tr",
+          "mutationEpoch": 0,
+          "decoded": true,
+          "nodeId": 1,
+          "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+          "complete": true,
+          "naturalWidth": 120,
+          "naturalHeight": 60,
+          "contentWidth": 240,
+          "contentHeight": 120,
+          "objectFit": "fill",
+          "objectPosition": "50% 50%",
+          "bounds": {
+            "x": 80,
+            "y": 80,
+            "width": 240,
+            "height": 120
+          },
+          "matrix": [
+            1,
+            0,
+            0,
+            1
+          ],
+          "unsupported": [
+            "visibility-target-budget-exceeded"
+          ]
+        },
+        {
+          "selector": "img",
+          "matchCount": 1,
+          "visibilityScan": {
+            "version": "bounded-layers-1",
+            "complete": false,
+            "visited": 0,
+            "rectangleReads": 0,
+            "candidates": 0,
+            "intersectionChecks": 0
+          },
+          "documentId": "0.u633ntm3tr",
+          "mutationEpoch": 0,
+          "decoded": true,
+          "nodeId": 1,
+          "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+          "complete": true,
+          "naturalWidth": 120,
+          "naturalHeight": 60,
+          "contentWidth": 240,
+          "contentHeight": 120,
+          "objectFit": "fill",
+          "objectPosition": "50% 50%",
+          "bounds": {
+            "x": 80,
+            "y": 80,
+            "width": 240,
+            "height": 120
+          },
+          "matrix": [
+            1,
+            0,
+            0,
+            1
+          ],
+          "unsupported": [
+            "visibility-target-budget-exceeded"
+          ]
+        },
+        {
+          "selector": "img",
+          "matchCount": 1,
+          "visibilityScan": {
+            "version": "bounded-layers-1",
+            "complete": false,
+            "visited": 0,
+            "rectangleReads": 0,
+            "candidates": 0,
+            "intersectionChecks": 0
+          },
+          "documentId": "0.u633ntm3tr",
+          "mutationEpoch": 0,
+          "decoded": true,
+          "nodeId": 1,
+          "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+          "complete": true,
+          "naturalWidth": 120,
+          "naturalHeight": 60,
+          "contentWidth": 240,
+          "contentHeight": 120,
+          "objectFit": "fill",
+          "objectPosition": "50% 50%",
+          "bounds": {
+            "x": 80,
+            "y": 80,
+            "width": 240,
+            "height": 120
+          },
+          "matrix": [
+            1,
+            0,
+            0,
+            1
+          ],
+          "unsupported": [
+            "visibility-target-budget-exceeded"
+          ]
+        },
+        {
+          "selector": "img",
+          "matchCount": 1,
+          "visibilityScan": {
+            "version": "bounded-layers-1",
+            "complete": false,
+            "visited": 0,
+            "rectangleReads": 0,
+            "candidates": 0,
+            "intersectionChecks": 0
+          },
+          "documentId": "0.u633ntm3tr",
+          "mutationEpoch": 0,
+          "decoded": true,
+          "nodeId": 1,
+          "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+          "complete": true,
+          "naturalWidth": 120,
+          "naturalHeight": 60,
+          "contentWidth": 240,
+          "contentHeight": 120,
+          "objectFit": "fill",
+          "objectPosition": "50% 50%",
+          "bounds": {
+            "x": 80,
+            "y": 80,
+            "width": 240,
+            "height": 120
+          },
+          "matrix": [
+            1,
+            0,
+            0,
+            1
+          ],
+          "unsupported": [
+            "visibility-target-budget-exceeded"
+          ]
+        },
+        {
+          "selector": "img",
+          "matchCount": 1,
+          "visibilityScan": {
+            "version": "bounded-layers-1",
+            "complete": false,
+            "visited": 0,
+            "rectangleReads": 0,
+            "candidates": 0,
+            "intersectionChecks": 0
+          },
+          "documentId": "0.u633ntm3tr",
+          "mutationEpoch": 0,
+          "decoded": true,
+          "nodeId": 1,
+          "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+          "complete": true,
+          "naturalWidth": 120,
+          "naturalHeight": 60,
+          "contentWidth": 240,
+          "contentHeight": 120,
+          "objectFit": "fill",
+          "objectPosition": "50% 50%",
+          "bounds": {
+            "x": 80,
+            "y": 80,
+            "width": 240,
+            "height": 120
+          },
+          "matrix": [
+            1,
+            0,
+            0,
+            1
+          ],
+          "unsupported": [
+            "visibility-target-budget-exceeded"
+          ]
+        },
+        {
+          "selector": "img",
+          "matchCount": 1,
+          "visibilityScan": {
+            "version": "bounded-layers-1",
+            "complete": false,
+            "visited": 0,
+            "rectangleReads": 0,
+            "candidates": 0,
+            "intersectionChecks": 0
+          },
+          "documentId": "0.u633ntm3tr",
+          "mutationEpoch": 0,
+          "decoded": true,
+          "nodeId": 1,
+          "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+          "complete": true,
+          "naturalWidth": 120,
+          "naturalHeight": 60,
+          "contentWidth": 240,
+          "contentHeight": 120,
+          "objectFit": "fill",
+          "objectPosition": "50% 50%",
+          "bounds": {
+            "x": 80,
+            "y": 80,
+            "width": 240,
+            "height": 120
+          },
+          "matrix": [
+            1,
+            0,
+            0,
+            1
+          ],
+          "unsupported": [
+            "visibility-target-budget-exceeded"
+          ]
+        },
+        {
+          "selector": "img",
+          "matchCount": 1,
+          "visibilityScan": {
+            "version": "bounded-layers-1",
+            "complete": false,
+            "visited": 0,
+            "rectangleReads": 0,
+            "candidates": 0,
+            "intersectionChecks": 0
+          },
+          "documentId": "0.u633ntm3tr",
+          "mutationEpoch": 0,
+          "decoded": true,
+          "nodeId": 1,
+          "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+          "complete": true,
+          "naturalWidth": 120,
+          "naturalHeight": 60,
+          "contentWidth": 240,
+          "contentHeight": 120,
+          "objectFit": "fill",
+          "objectPosition": "50% 50%",
+          "bounds": {
+            "x": 80,
+            "y": 80,
+            "width": 240,
+            "height": 120
+          },
+          "matrix": [
+            1,
+            0,
+            0,
+            1
+          ],
+          "unsupported": [
+            "visibility-target-budget-exceeded"
+          ]
+        },
+        {
+          "selector": "img",
+          "matchCount": 1,
+          "visibilityScan": {
+            "version": "bounded-layers-1",
+            "complete": false,
+            "visited": 0,
+            "rectangleReads": 0,
+            "candidates": 0,
+            "intersectionChecks": 0
+          },
+          "documentId": "0.u633ntm3tr",
+          "mutationEpoch": 0,
+          "decoded": true,
+          "nodeId": 1,
+          "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+          "complete": true,
+          "naturalWidth": 120,
+          "naturalHeight": 60,
+          "contentWidth": 240,
+          "contentHeight": 120,
+          "objectFit": "fill",
+          "objectPosition": "50% 50%",
+          "bounds": {
+            "x": 80,
+            "y": 80,
+            "width": 240,
+            "height": 120
+          },
+          "matrix": [
+            1,
+            0,
+            0,
+            1
+          ],
+          "unsupported": [
+            "visibility-target-budget-exceeded"
+          ]
+        },
+        {
+          "selector": "img",
+          "matchCount": 1,
+          "visibilityScan": {
+            "version": "bounded-layers-1",
+            "complete": false,
+            "visited": 0,
+            "rectangleReads": 0,
+            "candidates": 0,
+            "intersectionChecks": 0
+          },
+          "documentId": "0.u633ntm3tr",
+          "mutationEpoch": 0,
+          "decoded": true,
+          "nodeId": 1,
+          "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+          "complete": true,
+          "naturalWidth": 120,
+          "naturalHeight": 60,
+          "contentWidth": 240,
+          "contentHeight": 120,
+          "objectFit": "fill",
+          "objectPosition": "50% 50%",
+          "bounds": {
+            "x": 80,
+            "y": 80,
+            "width": 240,
+            "height": 120
+          },
+          "matrix": [
+            1,
+            0,
+            0,
+            1
+          ],
+          "unsupported": [
+            "visibility-target-budget-exceeded"
+          ]
+        }
+      ],
+      "receipt": {
+        "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/target-budget/receipt.json",
+        "bytes": 45396,
+        "sha256": "3a6e9fa6abe6bed522907b815fae244bd126702e5c7e1bd120847ad686594be9",
+        "committed": false
+      },
+      "artifacts": []
+    },
+    {
+      "name": "time-budget",
+      "runId": "run-cad25dba-db08-47d7-82fe-c76c8672dbad",
+      "clock": "synthetic +300ms per read",
+      "observations": [
+        {
+          "name": "observed",
+          "elapsedMs": 32.98895799999991,
+          "ref": "6415a58b-3236-4623-818b-8a8bb08571fe.png",
+          "facts": [
+            {
+              "selector": "img",
+              "matchCount": 1,
+              "visibilityScan": {
+                "version": "bounded-layers-1",
+                "complete": false,
+                "visited": 0,
+                "rectangleReads": 0,
+                "candidates": 0,
+                "intersectionChecks": 0
+              },
+              "documentId": "0.fom14qputh9",
+              "mutationEpoch": 0,
+              "decoded": true,
+              "nodeId": 1,
+              "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+              "complete": true,
+              "naturalWidth": 120,
+              "naturalHeight": 60,
+              "contentWidth": 240,
+              "contentHeight": 120,
+              "objectFit": "fill",
+              "objectPosition": "50% 50%",
+              "bounds": {
+                "x": 80,
+                "y": 80,
+                "width": 240,
+                "height": 120
+              },
+              "matrix": [
+                1,
+                0,
+                0,
+                1
+              ],
+              "unsupported": [
+                "visibility-time-budget-exceeded"
+              ],
+              "stable": true,
+              "resource": {
+                "sha256": "05b0ec210e1eeebf0f1b77a97c8e3ab187b0d38bf4270485560a9726f2078eba",
+                "format": "png",
+                "evidenceRef": "b38ec9f2-2ac0-4c10-b538-4f50a84a9dc1.json"
+              }
+            }
+          ]
+        }
+      ],
+      "receipt": {
+        "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/time-budget/receipt.json",
+        "bytes": 13348,
+        "sha256": "ef4c833a78d1f9849c1f5dcba303655de81e6445e966c183b04732743c81db5b",
+        "committed": false
+      },
+      "artifacts": [
+        {
+          "id": "6415a58b-3236-4623-818b-8a8bb08571fe.png",
+          "type": "screenshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/time-budget/6415a58b-3236-4623-818b-8a8bb08571fe.png",
+          "bytes": 5628,
+          "sha256": "6ab968ca5048b0d02380dd6695770a7ebc6919f46bcb177b4543d7b11fba49a1",
+          "committed": false
+        },
+        {
+          "id": "b38ec9f2-2ac0-4c10-b538-4f50a84a9dc1.json",
+          "type": "image-resource",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/time-budget/b38ec9f2-2ac0-4c10-b538-4f50a84a9dc1.json",
+          "bytes": 1098,
+          "sha256": "f0e67834c3a3c8ff671df26263b719ca5ce788222ad82ac4162b4244cfcfc51c",
+          "committed": false
+        },
+        {
+          "id": "ad617d1c-cdea-47e3-afc5-08466225e3e3.json",
+          "type": "snapshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/time-budget/ad617d1c-cdea-47e3-afc5-08466225e3e3.json",
+          "bytes": 11022,
+          "sha256": "4c8ba02a554d2db60bdc7b6d46557da19efc27a23428bb5d6a3d8da858403c29",
+          "committed": false
+        }
+      ]
+    },
+    {
+      "name": "transform",
+      "runId": "run-86d16bb4-1c19-41a4-a0c6-e5084ffe1e59",
+      "observations": [
+        {
+          "name": "observed",
+          "elapsedMs": 38.44358299999976,
+          "ref": "f7d1076c-4fb0-4e63-901c-31fac4bf5eef.png",
+          "facts": [
+            {
+              "selector": "img",
+              "matchCount": 1,
+              "visibilityScan": {
+                "version": "bounded-layers-1",
+                "complete": true,
+                "visited": 1207,
+                "rectangleReads": 1207,
+                "candidates": 4,
+                "intersectionChecks": 1205
+              },
+              "documentId": "0.5d2c8umbk1",
+              "mutationEpoch": 0,
+              "decoded": true,
+              "nodeId": 1,
+              "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+              "complete": true,
+              "naturalWidth": 120,
+              "naturalHeight": 60,
+              "contentWidth": 240,
+              "contentHeight": 120,
+              "objectFit": "fill",
+              "objectPosition": "50% 50%",
+              "bounds": {
+                "x": 155.02577209472656,
+                "y": 80,
+                "width": 207.84608459472656,
+                "height": 120
+              },
+              "matrix": [
+                0.866025,
+                0,
+                0,
+                1
+              ],
+              "unsupported": [
+                "3d-transform"
+              ],
+              "stable": true,
+              "resource": {
+                "sha256": "05b0ec210e1eeebf0f1b77a97c8e3ab187b0d38bf4270485560a9726f2078eba",
+                "format": "png",
+                "evidenceRef": "c93dea06-75c9-4257-bd28-becca2517562.json"
+              }
+            }
+          ]
+        }
+      ],
+      "receipt": {
+        "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/transform/receipt.json",
+        "bytes": 13326,
+        "sha256": "39ca5403d098a7cba93dc751d11aeda8375a1351425386803bfcceb387a5115b",
+        "committed": false
+      },
+      "artifacts": [
+        {
+          "id": "f7d1076c-4fb0-4e63-901c-31fac4bf5eef.png",
+          "type": "screenshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/transform/f7d1076c-4fb0-4e63-901c-31fac4bf5eef.png",
+          "bytes": 6811,
+          "sha256": "eae1e398ba7837d2fa74d177024d658dee936561fdd46e354e89c7098b98f7de",
+          "committed": false
+        },
+        {
+          "id": "c93dea06-75c9-4257-bd28-becca2517562.json",
+          "type": "image-resource",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/transform/c93dea06-75c9-4257-bd28-becca2517562.json",
+          "bytes": 1098,
+          "sha256": "f0e67834c3a3c8ff671df26263b719ca5ce788222ad82ac4162b4244cfcfc51c",
+          "committed": false
+        },
+        {
+          "id": "3ddd6ec3-d8cb-4ac2-a74d-fb844b8e099a.json",
+          "type": "snapshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/transform/3ddd6ec3-d8cb-4ac2-a74d-fb844b8e099a.json",
+          "bytes": 11048,
+          "sha256": "e2777b5b608ee314ff3bbeb36601de04a9955f586cd30a9179d6d0617247ace4",
+          "committed": false
+        }
+      ]
+    },
+    {
+      "name": "transparent-early",
+      "runId": "run-7808ec70-e278-4490-89c5-c554037aa9d3",
+      "observations": [
+        {
+          "name": "observed",
+          "elapsedMs": 45.71154200000001,
+          "ref": "cdf66df9-0402-4b52-9031-1661ed9c2401.png",
+          "facts": [
+            {
+              "selector": "img",
+              "matchCount": 1,
+              "visibilityScan": {
+                "version": "bounded-layers-1",
+                "complete": true,
+                "visited": 1209,
+                "rectangleReads": 1209,
+                "candidates": 5,
+                "intersectionChecks": 1207
+              },
+              "documentId": "0.j6h4ybu8m2h",
+              "mutationEpoch": 0,
+              "decoded": true,
+              "nodeId": 1,
+              "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+              "complete": true,
+              "naturalWidth": 120,
+              "naturalHeight": 60,
+              "contentWidth": 240,
+              "contentHeight": 120,
+              "objectFit": "fill",
+              "objectPosition": "50% 50%",
+              "bounds": {
+                "x": 80,
+                "y": 80,
+                "width": 240,
+                "height": 120
+              },
+              "matrix": [
+                1,
+                0,
+                0,
+                1
+              ],
+              "unsupported": [
+                "overlapping-paint-surface"
+              ],
+              "stable": true,
+              "resource": {
+                "sha256": "05b0ec210e1eeebf0f1b77a97c8e3ab187b0d38bf4270485560a9726f2078eba",
+                "format": "png",
+                "evidenceRef": "8e532410-8b3e-4537-b84d-aa2dbca15cfd.json"
+              }
+            }
+          ]
+        }
+      ],
+      "receipt": {
+        "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/transparent-early/receipt.json",
+        "bytes": 13326,
+        "sha256": "ca3f5c97adc73f4547c1ed01c7b6d16134ba8d25e65d7a136d07d742d1c0c81f",
+        "committed": false
+      },
+      "artifacts": [
+        {
+          "id": "cdf66df9-0402-4b52-9031-1661ed9c2401.png",
+          "type": "screenshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/transparent-early/cdf66df9-0402-4b52-9031-1661ed9c2401.png",
+          "bytes": 5628,
+          "sha256": "6ab968ca5048b0d02380dd6695770a7ebc6919f46bcb177b4543d7b11fba49a1",
+          "committed": false
+        },
+        {
+          "id": "8e532410-8b3e-4537-b84d-aa2dbca15cfd.json",
+          "type": "image-resource",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/transparent-early/8e532410-8b3e-4537-b84d-aa2dbca15cfd.json",
+          "bytes": 1098,
+          "sha256": "f0e67834c3a3c8ff671df26263b719ca5ce788222ad82ac4162b4244cfcfc51c",
+          "committed": false
+        },
+        {
+          "id": "237805aa-aecb-401c-81d1-b92741f1c996.json",
+          "type": "snapshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/transparent-early/237805aa-aecb-401c-81d1-b92741f1c996.json",
+          "bytes": 11024,
+          "sha256": "bc91da8c5f11fe394258cb69b63f551415215a8e11fb2a56ff7efee71961891c",
+          "committed": false
+        }
+      ]
+    },
+    {
+      "name": "transparent-late",
+      "runId": "run-f51cfea3-53fd-4758-afaf-f63824bd21e0",
+      "observations": [
+        {
+          "name": "observed",
+          "elapsedMs": 36.62625000000003,
+          "ref": "04dc2e84-635a-4ad0-b693-b66a79e0065c.png",
+          "facts": [
+            {
+              "selector": "img",
+              "matchCount": 1,
+              "visibilityScan": {
+                "version": "bounded-layers-1",
+                "complete": true,
+                "visited": 1208,
+                "rectangleReads": 1208,
+                "candidates": 5,
+                "intersectionChecks": 1206
+              },
+              "documentId": "0.dw63tktiz8h",
+              "mutationEpoch": 0,
+              "decoded": true,
+              "nodeId": 1,
+              "currentSrc": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAA8CAYAAACtrX6oAAABJ0lEQVR4nO3RyRUCAQzD0GmD1iibhqAG3iyyEx10d/KP1/tz2NzwASawCWwCLw0fYAJf3Tdgg8AXQf4bvVngG1BHY+MDAmFHQeMDgmFHQOMDSnBrkfEBRbiVyPiAMtw6ZHxAIW4VMj6gFLcGGR9QjFuBjA8ox41HxgcIvBuYhqtHxgcIvBeYBhuBjA8QWOCm6J/VANNQY5DxAQIL3Bb9O4EF5qORBBZY4I24ccj4gIHI9O8EFpiPRhJYYIEFDggfIPBO4FZk+mcCC5wTjSWwyNm4AgscEQ1XiyuwwDHRgJW4TcCpyPRPRgGnIdO/GAmcgkz/YDQwjUzfvgKYQqZvXgX8NDJ960rgJ6Dp2wS+CZq+ReAbsOnNAl8ET28Q2AQ2gQ0fYALbiX4zr7EW5BU/hAAAAABJRU5ErkJggg==",
+              "complete": true,
+              "naturalWidth": 120,
+              "naturalHeight": 60,
+              "contentWidth": 240,
+              "contentHeight": 120,
+              "objectFit": "fill",
+              "objectPosition": "50% 50%",
+              "bounds": {
+                "x": 80,
+                "y": 80,
+                "width": 240,
+                "height": 120
+              },
+              "matrix": [
+                1,
+                0,
+                0,
+                1
+              ],
+              "unsupported": [
+                "overlapping-paint-surface"
+              ],
+              "stable": true,
+              "resource": {
+                "sha256": "05b0ec210e1eeebf0f1b77a97c8e3ab187b0d38bf4270485560a9726f2078eba",
+                "format": "png",
+                "evidenceRef": "5fec1f2e-134e-45d3-b241-38ea65785485.json"
+              }
+            }
+          ]
+        }
+      ],
+      "receipt": {
+        "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/transparent-late/receipt.json",
+        "bytes": 13323,
+        "sha256": "a72433cd443687b581110ccd96bb48c048d50272026d8b6ba9ce50a5fec5a586",
+        "committed": false
+      },
+      "artifacts": [
+        {
+          "id": "04dc2e84-635a-4ad0-b693-b66a79e0065c.png",
+          "type": "screenshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/transparent-late/04dc2e84-635a-4ad0-b693-b66a79e0065c.png",
+          "bytes": 5628,
+          "sha256": "6ab968ca5048b0d02380dd6695770a7ebc6919f46bcb177b4543d7b11fba49a1",
+          "committed": false
+        },
+        {
+          "id": "5fec1f2e-134e-45d3-b241-38ea65785485.json",
+          "type": "image-resource",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/transparent-late/5fec1f2e-134e-45d3-b241-38ea65785485.json",
+          "bytes": 1098,
+          "sha256": "f0e67834c3a3c8ff671df26263b719ca5ce788222ad82ac4162b4244cfcfc51c",
+          "committed": false
+        },
+        {
+          "id": "dd7cd030-e89f-414f-ae6a-1c7136f751ec.json",
+          "type": "snapshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/final/transparent-late/dd7cd030-e89f-414f-ae6a-1c7136f751ec.json",
+          "bytes": 11024,
+          "sha256": "98f56bf8f9df2f988d5607602b6ca23cb3469179020d3a0b122395ab13c57867",
+          "committed": false
+        }
+      ]
+    }
+  ],
+  "validation": {
+    "newDirected": 18,
+    "reusedSmallBoundaries": 11,
+    "reusedCaret": 5,
+    "distinctPassed": 34,
+    "typecheck": "passed after correcting test snapshot typing",
+    "initialFailures": [
+      "typecheck: missing PageSnapshot assertion in new test; corrected",
+      "small-boundary regression: added overflow guard rejected compensating ancestor transform; restricted to non-target ancestors, 11/11 then passed"
+    ],
+    "notRun": [
+      "public three-page visits",
+      "DNS 62",
+      "full image suite",
+      "R0/R1",
+      "models"
+    ]
+  },
+  "logs": [
+    {
+      "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/baseline.log",
+      "bytes": 1142,
+      "sha256": "a2a1e05e2cb57c4f38e834e76991f35de6881590eae1a1551c7e18f7962588fd",
+      "committed": false
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/caret-mutation-final.log",
+      "bytes": 229,
+      "sha256": "6e8ef7cfc4b232d3db387520b06cfc92b85f9cfd21e32732cf3c2b39052bf729",
+      "committed": false
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/caret.log",
+      "bytes": 228,
+      "sha256": "a3f0129b4e62bc7783ed072eaf440f0f1116ee3309072d31baabaaf05a0aad3c",
+      "committed": false
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/directed-1.log",
+      "bytes": 215,
+      "sha256": "5132d894e98875449045025f49b38d2d9603b6acbda78f0b16c1fe18357372ec",
+      "committed": false
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/directed-final.log",
+      "bytes": 215,
+      "sha256": "f7514ea16a35065623b730471e6b1eae48e749746473a0366ae75ba4996109a2",
+      "committed": false
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/small-boundaries-final.log",
+      "bytes": 230,
+      "sha256": "59e04f84c55d61c091da147058f418b797ad6a0c750d2498a7b6372953d1df13",
+      "committed": false
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/small-boundaries.log",
+      "bytes": 3799,
+      "sha256": "1f962624bd55b52b43a3320b63ab02590a3f1d83a5c502fb8337766c02b09519",
+      "committed": false
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/typecheck-1.log",
+      "bytes": 1556,
+      "sha256": "06a4e8588ca2513adc99bda96e4268807afae3b7caa5965f26f7c80cbd83cd55",
+      "committed": false
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/typecheck-2.log",
+      "bytes": 113,
+      "sha256": "d4ec4609054221ed4c16d6d39eadeb42e5cbc98686f33549e819de3b8a900214",
+      "committed": false
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/typecheck-delivery.log",
+      "bytes": 113,
+      "sha256": "d4ec4609054221ed4c16d6d39eadeb42e5cbc98686f33549e819de3b8a900214",
+      "committed": false
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/typecheck-final.log",
+      "bytes": 113,
+      "sha256": "d4ec4609054221ed4c16d6d39eadeb42e5cbc98686f33549e819de3b8a900214",
+      "committed": false
+    }
+  ],
+  "localFiles": [
+    {
+      "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/baseline.mjs",
+      "bytes": 1750,
+      "sha256": "311fc3b4282725b0bbf09a7d94b29ebb346d83cc0a222de0b6f68b14c558a7d7",
+      "committed": false
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/baseline.json",
+      "bytes": 13148,
+      "sha256": "f109232fe4fce450f3426963982cd157b03d2582f427247a7e1f7cc18123a217",
+      "committed": false
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-visibility-20261009-c12b5b3/baseline.db",
+      "bytes": 73728,
+      "sha256": "aa1434e7af159938c2f13ee6f8b6c28125656aa6003b45992808a35c2a938b74",
+      "committed": false
+    }
+  ],
+  "sources": [
+    {
+      "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/src/execution/image-paint.ts",
+      "bytes": 16026,
+      "sha256": "33e0f932435f088d4dcc1591c67a05a75c78cb79b0ef4c46997d485f5870bf6f",
+      "committed": true
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/src/rules/image-shape.ts",
+      "bytes": 1763,
+      "sha256": "c7c32b01234f42c5c7c70d6a27ae4208a3aae780af3b7c2fcdeeb296b0b489d1",
+      "committed": true
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/src/experiments/image-bindings.ts",
+      "bytes": 19343,
+      "sha256": "b231d39974916ebebac1f5a6d4f19c4ca4add555ba7de2580672a1eb75738035",
+      "committed": true
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/src/execution/image-visibility.test.ts",
+      "bytes": 12270,
+      "sha256": "b8797e5fd22afeb4f2d37c3c029560bc0028ede629b3d67fd5751e7435653f25",
+      "committed": true
+    }
+  ],
+  "notes": [
+    "Synthetic local experiments, not public-page accuracy or automatic semantic binding acceptance.",
+    "Scan completion is not semantic correctness or proof of no overlapping layer; per-target unsupported/excluded/stability checks still apply.",
+    "Native selector matching, style/layout/animation calls and screenshot cannot be preempted inside a JS deadline; 250ms is a cooperative scan budget, not a hard renderer wall-clock guarantee.",
+    "Existing global network interventions and semantic-required consumer interface unchanged.",
+    "No changes to R0/R1 execution, sampling, finish gates, permissions or default rule enablement."
+  ]
+}

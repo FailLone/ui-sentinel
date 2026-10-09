@@ -26,6 +26,7 @@ export interface RuleEvent {
 }
 
 export interface PageSnapshot {
+  readonly imagePaint?: readonly import('./image-shape.ts').ImagePaintFact[]
   readonly evidenceIntegrity?: import('../shared/evidence-integrity.ts').EvidenceIntegrity
   readonly url: string
   readonly title: string
@@ -84,7 +85,11 @@ export interface RuleResult {
 }
 
 export interface Rule {
+  readonly observation?: {
+    readonly imageTargets: readonly { readonly pageUrl: string; readonly selector: string }[]
+  }
   readonly routing?: {
+    readonly cache?: 'never'
     readonly version: '1'
     readonly execution: 'automatic' | 'semantic-binding'
     readonly eventTypes: readonly string[]

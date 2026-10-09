@@ -6,6 +6,7 @@ import { createBrotliDecompress, createGunzip, createInflate } from 'node:zlib'
 export class TransportRefusal extends Error {
   constructor(
     readonly reason: 'response-budget-exhausted' | 'transport-error' | 'execution-stopped',
+    readonly detail?: 'tls' | 'connection' | 'timeout',
   ) {
     super(reason)
   }
@@ -71,103 +72,119 @@ export async function readPinnedResponse(input: {
   )
   headers['accept-encoding'] = 'identity'
   const reserve = input.budget.stream()
-  return new Promise<{ status: number; headers: { name: string; value: string }[]; body: Buffer }>(
-    (resolve, reject) => {
-      const request = (url.protocol === 'https:' ? httpsRequest : httpRequest)(url, {
-        method: input.method,
-        headers,
-        agent: false,
-        signal: input.signal,
-        // Node's lookup is replaced with the already checked answer. No second DNS lookup.
-        lookup: (_host, options, callback) => {
-          const answer = { address: input.address, family: isIP(input.address) }
-          if (options.all) callback(null, [answer] as never)
-          else callback(null, answer.address, answer.family)
-        },
-      })
-      const timer = setTimeout(
-        () => request.destroy(new TransportRefusal('transport-error')),
-        input.timeoutMs ?? 15_000,
+  return new Promise<{
+    status: number
+    headers: { name: string; value: string }[]
+    body: Buffer
+    remoteAddress?: string
+  }>((resolve, reject) => {
+    const request = (url.protocol === 'https:' ? httpsRequest : httpRequest)(url, {
+      method: input.method,
+      headers,
+      agent: false,
+      rejectUnauthorized: true,
+      signal: input.signal,
+      // Node's lookup is replaced with the already checked answer. No second DNS lookup.
+      lookup: (_host, options, callback) => {
+        const answer = { address: input.address, family: isIP(input.address) }
+        if (options.all) callback(null, [answer] as never)
+        else callback(null, answer.address, answer.family)
+      },
+    })
+    const timer = setTimeout(
+      () => request.destroy(new TransportRefusal('transport-error', 'timeout')),
+      input.timeoutMs ?? 15_000,
+    )
+    const fail = (error: unknown) => {
+      clearTimeout(timer)
+      request.destroy()
+      reject(
+        error instanceof TransportRefusal
+          ? error
+          : new TransportRefusal(
+              input.signal.aborted ? 'execution-stopped' : 'transport-error',
+              isTlsFailure(error) ? 'tls' : 'connection',
+            ),
       )
-      const fail = (error: unknown) => {
-        clearTimeout(timer)
-        request.destroy()
-        reject(
-          error instanceof TransportRefusal
-            ? error
-            : new TransportRefusal(input.signal.aborted ? 'execution-stopped' : 'transport-error'),
-        )
+    }
+    request.on('error', fail)
+    request.on('response', (response) => {
+      const encoding = String(response.headers['content-encoding'] ?? 'identity').toLowerCase()
+      const decoder =
+        encoding === 'gzip'
+          ? createGunzip()
+          : encoding === 'br'
+            ? createBrotliDecompress()
+            : encoding === 'deflate'
+              ? createInflate()
+              : null
+      if (!decoder && !['', 'identity'].includes(encoding)) {
+        response.destroy()
+        fail(new TransportRefusal('transport-error'))
+        return
       }
-      request.on('error', fail)
-      request.on('response', (response) => {
-        const encoding = String(response.headers['content-encoding'] ?? 'identity').toLowerCase()
-        const decoder =
-          encoding === 'gzip'
-            ? createGunzip()
-            : encoding === 'br'
-              ? createBrotliDecompress()
-              : encoding === 'deflate'
-                ? createInflate()
-                : null
-        if (!decoder && !['', 'identity'].includes(encoding)) {
-          response.destroy()
+      const stream = decoder ? response.pipe(decoder) : response
+      const chunks: Buffer[] = []
+      const stop = (error: unknown) => {
+        response.destroy()
+        decoder?.destroy()
+        fail(error)
+      }
+      response.on('data', (chunk: Buffer) => {
+        try {
+          reserve(chunk.length, 'wire')
+        } catch (error) {
+          stop(error)
+        }
+      })
+      response.on('error', stop)
+      stream.on('error', stop)
+      stream.on('data', (chunk: Buffer) => {
+        try {
+          reserve(chunk.length, 'decoded')
+          chunks.push(chunk)
+        } catch (error) {
+          stop(error)
+        }
+      })
+      stream.on('end', () => {
+        clearTimeout(timer)
+        if (response.destroyed && !response.complete) {
           fail(new TransportRefusal('transport-error'))
           return
         }
-        const stream = decoder ? response.pipe(decoder) : response
-        const chunks: Buffer[] = []
-        const stop = (error: unknown) => {
-          response.destroy()
-          decoder?.destroy()
-          fail(error)
+        const kept: { name: string; value: string }[] = []
+        for (let i = 0; i < response.rawHeaders.length; i += 2) {
+          const name = response.rawHeaders[i]!
+          if (
+            ![
+              'content-encoding',
+              'content-length',
+              'transfer-encoding',
+              'connection',
+              'keep-alive',
+              'upgrade',
+              'proxy-authenticate',
+            ].includes(name.toLowerCase())
+          )
+            kept.push({ name, value: response.rawHeaders[i + 1]! })
         }
-        response.on('data', (chunk: Buffer) => {
-          try {
-            reserve(chunk.length, 'wire')
-          } catch (error) {
-            stop(error)
-          }
-        })
-        response.on('error', stop)
-        stream.on('error', stop)
-        stream.on('data', (chunk: Buffer) => {
-          try {
-            reserve(chunk.length, 'decoded')
-            chunks.push(chunk)
-          } catch (error) {
-            stop(error)
-          }
-        })
-        stream.on('end', () => {
-          clearTimeout(timer)
-          if (response.destroyed && !response.complete) {
-            fail(new TransportRefusal('transport-error'))
-            return
-          }
-          const kept: { name: string; value: string }[] = []
-          for (let i = 0; i < response.rawHeaders.length; i += 2) {
-            const name = response.rawHeaders[i]!
-            if (
-              ![
-                'content-encoding',
-                'content-length',
-                'transfer-encoding',
-                'connection',
-                'keep-alive',
-                'upgrade',
-                'proxy-authenticate',
-              ].includes(name.toLowerCase())
-            )
-              kept.push({ name, value: response.rawHeaders[i + 1]! })
-          }
-          resolve({
-            status: response.statusCode ?? 502,
-            headers: kept,
-            body: Buffer.concat(chunks),
-          })
+        resolve({
+          status: response.statusCode ?? 502,
+          headers: kept,
+          body: Buffer.concat(chunks),
+          remoteAddress: response.socket.remoteAddress,
         })
       })
-      request.end()
-    },
+    })
+    request.end()
+  })
+}
+
+/** Stable categories only: never persist exception messages or resolver URLs. */
+function isTlsFailure(error: unknown): boolean {
+  const code = String((error as { code?: string })?.code ?? '')
+  return /^(ERR_TLS_|ERR_SSL_|CERT_|DEPTH_ZERO_|SELF_SIGNED_|UNABLE_TO_(VERIFY|GET_ISSUER))/.test(
+    code,
   )
 }

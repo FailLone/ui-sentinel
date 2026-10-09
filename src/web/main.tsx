@@ -1,3 +1,5 @@
+import { UiRuleReportSection } from './ui-rule-report.tsx'
+import type { UiRuleReportEntry } from '../server/reports/ui-rule-report.ts'
 import { UI_CHECK_DESCRIPTION as UI_SAMPLING_DESCRIPTION } from '../shared/ui-sampling-policy.ts'
 import type { FocusMeasurement } from '../server/reports/run-report.ts'
 import type { UiScanReport } from '../server/reports/ui-scan-report.ts'
@@ -49,6 +51,7 @@ type Report = RunReport & {
   coverage?: unknown
   hypotheses?: unknown[]
   /** The `ui-scan` projection, present only for a URL scan run (plan 6.3). */
+  uiRules?: UiRuleReportEntry[]
   uiScan?: UiScanReport
   business?: {
     status: 'versioned' | 'legacy-unversioned' | 'ui-scan-not-applicable'
@@ -564,6 +567,7 @@ function App() {
               {report.stopReason ?? '尚未停止'}
             </p>
             {report.uiScan && <UiScanReportSection report={report.uiScan} runId={runId} />}
+            {report.uiScan && <UiRuleReportSection entries={report.uiRules ?? []} runId={runId} />}
             {report.business && report.business.status !== 'ui-scan-not-applicable' && (
               <div className="business">
                 {report.business.status === 'legacy-unversioned' ? (

@@ -1,0 +1,261 @@
+{
+  "version": "rules-batch2-1",
+  "runId": "run-cff94d4b-e593-440d-baf3-79edae5dc1eb",
+  "observedAt": "2026-10-09T07:51:45.347Z",
+  "result": {
+    "ruleId": "control-text-disappearance",
+    "ruleRevision": "0.1.0",
+    "verdict": "fail",
+    "severity": "warning",
+    "title": "Native action text paint",
+    "expected": "The sole native action text name has distinguishable paint in the supported presentation",
+    "actual": "#white: fail (sole-native-text-name-has-no-distinguishable-paint)",
+    "evidenceRefs": [
+      "751d5f82-d1b3-4c61-b08b-dbeaa0245fd9.png",
+      "d7edaaa6-a037-4185-b64b-8bee380fcb74.json",
+      "219ef79a-d4c4-450b-97ea-d1168a07e663.json",
+      "f2edfeb4-206e-46b2-b545-ddcc0d0567bc.json"
+    ],
+    "confidence": 0.95,
+    "details": {
+      "knowledgeId": "UIK-D005",
+      "rows": [
+        {
+          "selector": "#white",
+          "verdict": "fail",
+          "reason": "sole-native-text-name-has-no-distinguishable-paint",
+          "fact": {
+            "selector": "#white",
+            "matchCount": 1,
+            "nodeId": 1,
+            "text": "Continue white",
+            "roleBasis": "enabled-native-button-text-name",
+            "excluded": null,
+            "issues": [],
+            "textBounds": {
+              "x": 72.078125,
+              "y": 31,
+              "width": 105.84375,
+              "height": 17
+            },
+            "foreground": [
+              255,
+              255,
+              255,
+              1
+            ],
+            "background": [
+              255,
+              255,
+              255
+            ],
+            "composed": [
+              255,
+              255,
+              255
+            ],
+            "layers": [
+              {
+                "selector": "#white",
+                "color": "rgb(255, 255, 255)",
+                "rgba": [
+                  255,
+                  255,
+                  255,
+                  1
+                ]
+              },
+              {
+                "selector": "html > body:nth-child(2)",
+                "color": "rgba(0, 0, 0, 0)",
+                "rgba": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "selector": "html",
+                "color": "rgb(255, 255, 255)",
+                "rgba": [
+                  255,
+                  255,
+                  255,
+                  1
+                ]
+              }
+            ]
+          },
+          "pixel": {
+            "selector": "#white",
+            "samples": 1768,
+            "backgroundPixels": 1768,
+            "foregroundPixels": 0,
+            "otherPixels": 0
+          }
+        }
+      ],
+      "problems": [],
+      "scope": "Sole native button/link text name, not task importance, accessibility compliance, charts or overall readability; no manual semantic confirmation required.",
+      "total": 1,
+      "omitted": 0
+    }
+  },
+  "review": {
+    "id": "image-fallback-review",
+    "revision": "0.1.0",
+    "knowledgeId": "UIK-R005",
+    "enabled": false,
+    "kind": "review-material",
+    "rows": [
+      {
+        "selector": "html > body:nth-child(2) > img:nth-child(2)",
+        "disposition": "review-needed",
+        "measurement": "observed",
+        "resourceState": "http-failed",
+        "reasons": [],
+        "applicability": "identification-role-not-established",
+        "measured": {
+          "selector": "html > body:nth-child(2) > img:nth-child(2)",
+          "matchCount": 1,
+          "nodeId": 2,
+          "issue": null,
+          "image": {
+            "src": "/broken.png",
+            "srcset": null,
+            "currentSrc": "http://127.0.0.1:60687/broken.png",
+            "loading": "auto",
+            "complete": true,
+            "naturalWidth": 0,
+            "naturalHeight": 0,
+            "alt": null,
+            "role": null,
+            "bounds": {
+              "x": 20,
+              "y": 68,
+              "width": 80,
+              "height": 40
+            },
+            "inViewport": true,
+            "hidden": false,
+            "container": {
+              "selector": "html > body:nth-child(2)",
+              "bounds": {
+                "x": 20,
+                "y": 20,
+                "width": 1240,
+                "height": 92
+              },
+              "relationship": "direct-parent-children",
+              "confidence": "structural-only",
+              "omittedSiblings": 0
+            },
+            "nearby": [
+              {
+                "selector": "#white",
+                "text": "Continue white",
+                "bounds": {
+                  "x": 20,
+                  "y": 20,
+                  "width": 210,
+                  "height": 40
+                },
+                "visibility": "visible",
+                "display": "block",
+                "opacity": "1"
+              }
+            ],
+            "alternatives": []
+          }
+        },
+        "requests": [
+          {
+            "id": 1,
+            "url": "http://127.0.0.1:60687/broken.png",
+            "startedAt": "2026-10-09T07:51:45.343Z",
+            "status": 404,
+            "finished": true
+          }
+        ],
+        "paint": {
+          "selector": "html > body:nth-child(2) > img:nth-child(2)",
+          "matchCount": 1,
+          "visibilityScan": {
+            "version": "bounded-layers-1",
+            "complete": true,
+            "visited": 7,
+            "rectangleReads": 7,
+            "candidates": 3,
+            "intersectionChecks": 4
+          },
+          "documentId": "0.g7wim1slngv",
+          "mutationEpoch": 0,
+          "decoded": false,
+          "nodeId": 1,
+          "currentSrc": "http://127.0.0.1:60687/broken.png",
+          "complete": true,
+          "naturalWidth": 0,
+          "naturalHeight": 0,
+          "contentWidth": 80,
+          "contentHeight": 40,
+          "objectFit": "fill",
+          "objectPosition": "50% 50%",
+          "bounds": {
+            "x": 20,
+            "y": 68,
+            "width": 80,
+            "height": 40
+          },
+          "matrix": [
+            1,
+            0,
+            0,
+            1
+          ],
+          "unsupported": [],
+          "stable": true
+        },
+        "association": {
+          "confidence": "structural-only",
+          "identityEquivalence": "unknown",
+          "textVisibility": "DOM layout/style only; not verified legibility or lack of occlusion",
+          "replacementImageMeaning": "unknown"
+        },
+        "advice": [
+          "Review whether this region needs an image at all; visible text can be sufficient.",
+          "Check the saved same-region text, image alternatives and layout; no placeholder style is required.",
+          "Entity identity and equivalence require independent evidence; alt and proximity do not establish either."
+        ],
+        "limitation": "A missing avatar, empty slot or different placeholder is not automatically a defect. No-image entities without a native img are not enumerated."
+      }
+    ],
+    "evidenceRefs": [
+      "751d5f82-d1b3-4c61-b08b-dbeaa0245fd9.png",
+      "d7edaaa6-a037-4185-b64b-8bee380fcb74.json",
+      "219ef79a-d4c4-450b-97ea-d1168a07e663.json",
+      "f2edfeb4-206e-46b2-b545-ddcc0d0567bc.json"
+    ],
+    "evidenceIntegrity": {
+      "version": 1,
+      "status": "clean",
+      "interventionIds": []
+    },
+    "total": 1,
+    "omitted": 0,
+    "ruleEvaluated": false,
+    "confirmedDefects": 0,
+    "healthyPasses": 0,
+    "requiresHumanOrGroundedSemanticReview": true
+  },
+  "reviewRef": "4b2a7de3-8d15-4ac5-a558-e1d7a7240cd1.json",
+  "receiptRef": "f2edfeb4-206e-46b2-b545-ddcc0d0567bc.json",
+  "evidenceRefs": [
+    "751d5f82-d1b3-4c61-b08b-dbeaa0245fd9.png",
+    "d7edaaa6-a037-4185-b64b-8bee380fcb74.json",
+    "219ef79a-d4c4-450b-97ea-d1168a07e663.json",
+    "f2edfeb4-206e-46b2-b545-ddcc0d0567bc.json",
+    "4b2a7de3-8d15-4ac5-a558-e1d7a7240cd1.json"
+  ],
+  "acceptanceClaim": false
+}

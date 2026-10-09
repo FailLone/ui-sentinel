@@ -54,6 +54,12 @@ covered需要全部必需义务有据结算，允许含已证缺陷；未完成�
 
 ## R1接入与未来边界
 
-本次main只交付[固定六状态公开包](../plans/r0-r1-dependency-v2/README.md)和只读提取工具；R1消费代码仍在独立分支。候选、选中身份、两维待办、公开DOM/规则及原check/action回执可支持离线调查排序；实时权限/节点/费用unknown不自动阻断建议，但禁止直接派发声明。程序和未来Jev必须读同一完整事实及候选，历史选择/评价另存。
+main提供[固定六状态公开包](../plans/r0-r1-dependency-v2/README.md)和只读提取工具；R1消费代码仍在独立分支。候选、选中身份、两维待办、公开DOM/规则及原check/action回执可支持离线调查排序；实时权限/节点/费用unknown不自动阻断建议，但禁止直接派发声明。程序和未来Jev必须读同一完整事实及候选，历史选择/评价另存。
 
 当前没有自主通用状态遍历、任意资料自动理解或R1默认执行接线。详细实现分别见[执行层](execution-engine.md)、[可组合调查](composable-investigations.md)、[规则](rules-and-rule-library.md)和[评估](arena-and-evaluation.md)。
+
+## 普通网址扫描的规则与 DNS 接线
+
+规则分支已通过 `5e3255b` 合入 main。执行器的 `createUiRuleObservation` 复用同次页面观察和截图，在网址检查中自动评价 D005 原生控件文字消失，并持久化 R005 缺图审查材料；报告与历史恢复共用保存的证据。R005 不产生缺陷或健康 pass，D005 仅在限定绘制条件下判定；未知与省略单列。D004 图片比例仍需明确保形依据，默认关闭。普通业务任务不自动启用上述补充检查，全局 `EXECUTION_URL_SCAN` 默认值不变。
+
+部署可显式配置有界 DoH；默认仍走 system DNS。DoH 只允许配置的精确域名，连接前复查全部地址并固定地址连接，保留 Host/SNI/TLS 和私网拒绝；不提供任意代理或 fake-IP 绕过。支持范围及已知性能/证据局限见[规则整合交接](rule-library/rules-main-integration-handoff.md)和[DNS 说明](network-dns-compat.md)。

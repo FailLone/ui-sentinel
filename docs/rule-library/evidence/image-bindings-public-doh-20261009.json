@@ -1,0 +1,3226 @@
+{
+  "date": "2026-10-09",
+  "timezone": "Asia/Shanghai",
+  "protocol": {
+    "fixedBeforeNavigation": true,
+    "date": "2026-10-09",
+    "revision": "487dba2df1bcee7a0947d5b4dc4db0e433f19d64",
+    "viewport": {
+      "width": 1280,
+      "height": 768
+    },
+    "observationsPerSuccessfulVisit": 2,
+    "gapAfterFirstObservationMs": 5000,
+    "retry": false,
+    "semanticCheck": "not executed without reliable explicit basis; no placeholder confirmation",
+    "trustedOrigins": [],
+    "pages": [
+      {
+        "key": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:PNG_transparency_demonstration_1.png",
+        "reason": "公开文件说明页，预期包含简单静态 PNG 及其来源信息。",
+        "resourceOrigins": [
+          "https://upload.wikimedia.org",
+          "https://meta.wikimedia.org"
+        ]
+      },
+      {
+        "key": "mdn",
+        "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Responsive_images",
+        "reason": "公开响应式图片教程，预期包含响应式示例或延迟加载插图；实际类别是否可确认另行记录。",
+        "resourceOrigins": [
+          "https://mdn.github.io",
+          "https://interactive-examples.mdn.mozilla.net"
+        ]
+      },
+      {
+        "key": "github",
+        "url": "https://github.com/python/cpython",
+        "reason": "公开仓库普通页面，预期包含客户端异步加载的仓库信息和头像。",
+        "resourceOrigins": [
+          "https://github.githubassets.com",
+          "https://avatars.githubusercontent.com",
+          "https://user-images.githubusercontent.com",
+          "https://raw.githubusercontent.com",
+          "https://camo.githubusercontent.com"
+        ]
+      }
+    ],
+    "selectionNote": "第三项在任何访问前由 Hacker News 更正为 GitHub；清单固定后不替换。",
+    "measurementBoundary": "Only existing openImageBindingExperiment host. No clicks, fills, scrolling, extra fetch, paid models or tests. Two snapshots are diagnostics, not live binding consumption.",
+    "registeredAt": "2026-10-08T16:31:48.654Z",
+    "dnsHead": "b0174b148923cf801db6cc596fbd288f30511bf4",
+    "priorResult": "36247ffad7d364a77e5910d62fb8dd632f067c0e",
+    "network": {
+      "URL_SCAN_DNS_MODE": "doh",
+      "URL_SCAN_DNS_TIMEOUT_MS": "5000",
+      "URL_SCAN_DOH_ENDPOINT": "https://dns.alidns.com/dns-query",
+      "URL_SCAN_DOH_BOOTSTRAP_ADDRESS": "223.5.5.5",
+      "URL_SCAN_DOH_ALLOWED_HOSTS": "commons.wikimedia.org,upload.wikimedia.org,meta.wikimedia.org,developer.mozilla.org,mdn.github.io,interactive-examples.mdn.mozilla.net,github.com,github.githubassets.com,avatars.githubusercontent.com,user-images.githubusercontent.com,raw.githubusercontent.com,camo.githubusercontent.com"
+    },
+    "note": "New authorized round after DNS integration. Page list, origins, per-page single navigation/two observations and 5-second gap unchanged. No semantic confirmation supplied."
+  },
+  "commits": {
+    "previousRuleHead": "36247ffad7d364a77e5910d62fb8dd632f067c0e",
+    "dnsImplementation": "6566d568f5cd1bbe9b6afaef1b12a4b90463288a",
+    "dnsHandoff": "3725f770e3ba39587fc0eb9c95d763370a788171",
+    "dnsDeliveredHead": "b0174b148923cf801db6cc596fbd288f30511bf4",
+    "merge": "487dba2df1bcee7a0947d5b4dc4db0e433f19d64",
+    "build": "487dba2df1bcee7a0947d5b4dc4db0e433f19d64",
+    "observation": "487dba2df1bcee7a0947d5b4dc4db0e433f19d64",
+    "mergeConflicts": 0,
+    "implementationChangesAfterMerge": 0
+  },
+  "validation": {
+    "install": "pnpm install --frozen-lockfile; local node_modules, no shared-workspace mutation",
+    "build": "pnpm build (includes typecheck), passed once",
+    "testsRun": 0,
+    "modelCalls": 0,
+    "semanticChecks": 0,
+    "bindingConsumptionCalls": 0,
+    "retries": 0
+  },
+  "buildArtifacts": [
+    {
+      "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-bindings-public-20261009-487dba2/install.log",
+      "bytes": 1808,
+      "sha256": "5f0ba2fefe7f3c384cd98dcd4d59373373397d62497791539b29c7f2f7c84a0c",
+      "committed": false
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-bindings-public-20261009-487dba2/build.log",
+      "bytes": 1326,
+      "sha256": "1a00e357152716c99b668427b9c0325aa448ba9ef77a9a0f64725eaf95aafb93",
+      "committed": false
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-bindings-public-20261009-487dba2/record.mjs",
+      "bytes": 3645,
+      "sha256": "e2f8a8fa272f92392384f3e1965463ea18136167dae48a48ffd31262da728ff0",
+      "committed": false
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-bindings-public-20261009-487dba2/summarize.mjs",
+      "bytes": 5656,
+      "sha256": "45fc64cf20733df18d2f0b79348bfde76884baf2540700ef8751357e16ec28d8",
+      "committed": false
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-bindings-public-20261009-487dba2/protocol.json",
+      "bytes": 2786,
+      "sha256": "b9c3f5eaa98d6e3e8d59b62ebc709b9d43a0592697773bcc0032b14985b29a3a",
+      "committed": false
+    }
+  ],
+  "serverBuild": {
+    "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/dist/server/index.js",
+    "bytes": 693192,
+    "sha256": "59cad4c90dbf77865eec3bb36e1e0303015538eba5bf899f781a40a557078812",
+    "committed": false
+  },
+  "sourceIdentity": [
+    {
+      "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/src/experiments/image-binding-host.ts",
+      "bytes": 4447,
+      "sha256": "ff4d8a0df72ad41af90e85b6e5f18b5c74c291fa0a1334f8107e3d3bb62f557c",
+      "committed": true
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/src/experiments/image-bindings.ts",
+      "bytes": 19060,
+      "sha256": "75bfdd06b676010a98c99913e74b39d9f30ae3c31a95101b4da5a8656da8c761",
+      "committed": true
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/src/execution/browser.ts",
+      "bytes": 15629,
+      "sha256": "3d20bfd01631550746a12625e9e046b215798a636d859d786ad4baadd809c6a1",
+      "committed": true
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/src/execution/image-paint.ts",
+      "bytes": 10605,
+      "sha256": "cea35691e4bfd96afcffa0521e190d9c2741f2313580a591e0b56a58d6dc0f28",
+      "committed": true
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/src/execution/network/session.ts",
+      "bytes": 13039,
+      "sha256": "983ba0c5358d7033ce51a18ad006bc53e58f1d4dff99b08f32fb26d92e017eec",
+      "committed": true
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/src/execution/network/resolver.ts",
+      "bytes": 6181,
+      "sha256": "932ab7c3ad08520dc286efae48a8ead525f83758f5f01b2c7fd89c9193b0ccdf",
+      "committed": true
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/src/execution/network/transport.ts",
+      "bytes": 6346,
+      "sha256": "6cf2fa39e4b3bcb0cd30f2dd1604bfe9c95cba85ee55d844f3342448d2109217",
+      "committed": true
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/pnpm-lock.yaml",
+      "bytes": 196647,
+      "sha256": "917980b6c33a6475a027ddc66920d33293d6499d2b8134fca31a69f5f6e284da",
+      "committed": true
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/node_modules/.pnpm/playwright-core@1.63.0/node_modules/playwright-core/lib/coreBundle.js",
+      "bytes": 3477183,
+      "sha256": "549070af3acabb3efcc4f55bfe6210f9f7c2fcf633cf7eaa59bfe60719969171",
+      "committed": false
+    }
+  ],
+  "dnsHandoffCopies": [
+    {
+      "path": "/private/tmp/ui-sentinel-network-dns-compat/data/network-dns-compat/targeted-authorized.log",
+      "bytes": 195,
+      "sha256": "3b6aea54d73e708af29c14f0b7253e55ee8d054e7c325845162252b82440d2a2",
+      "committed": false,
+      "copiedTo": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-bindings-public-20261009-487dba2/dns-handoff/targeted-authorized.log",
+      "verified": true
+    },
+    {
+      "path": "/private/tmp/ui-sentinel-network-dns-compat/data/network-dns-compat/integration-final.log",
+      "bytes": 203,
+      "sha256": "114d2453657f7549480c61ecc85590d9b8aefb8b6bb0875f2370972ffe63a715",
+      "committed": false,
+      "copiedTo": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-bindings-public-20261009-487dba2/dns-handoff/integration-final.log",
+      "verified": true
+    },
+    {
+      "path": "/private/tmp/ui-sentinel-network-dns-compat/data/network-dns-compat/system-regression.log",
+      "bytes": 205,
+      "sha256": "caa4e110346cfeaa2b3380b22f079270576fc648aa51f3b1a9004ec3221efe3a",
+      "committed": false,
+      "copiedTo": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-bindings-public-20261009-487dba2/dns-handoff/system-regression.log",
+      "verified": true
+    },
+    {
+      "path": "/private/tmp/ui-sentinel-network-dns-compat/data/network-dns-compat/build-authorized.log",
+      "bytes": 1282,
+      "sha256": "879cff6d9e232ce10c80e14cd860ca86bebd0b983687a190fb566fb1b14e97d9",
+      "committed": false,
+      "copiedTo": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-bindings-public-20261009-487dba2/dns-handoff/build-authorized.log",
+      "verified": true
+    },
+    {
+      "path": "/private/tmp/ui-sentinel-network-dns-compat/data/network-dns-compat/audit.json",
+      "bytes": 45969,
+      "sha256": "9d3418a4c6b2d89aef78972ca82363426482a50282c17cc55f7df450f49e87e4",
+      "committed": false,
+      "copiedTo": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-bindings-public-20261009-487dba2/dns-handoff/audit.json",
+      "verified": true
+    },
+    {
+      "path": "/private/tmp/ui-sentinel-network-dns-compat/data/network-dns-compat/public-system.log",
+      "bytes": 2579,
+      "sha256": "0c23542c9025d9cb2942120bbd325466419532dfb8b10cde75f91198beb83967",
+      "committed": false,
+      "copiedTo": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-bindings-public-20261009-487dba2/dns-handoff/public-system.log",
+      "verified": true
+    },
+    {
+      "path": "/private/tmp/ui-sentinel-network-dns-compat/data/network-dns-compat/public-observer.mjs",
+      "bytes": 46301,
+      "sha256": "0f2f101ee3ac18bb0e730fa9c6bd685bcf97171e8acfabdbf27d2bb463c08723",
+      "committed": false,
+      "copiedTo": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-bindings-public-20261009-487dba2/dns-handoff/public-observer.mjs",
+      "verified": true
+    },
+    {
+      "path": "/private/tmp/ui-sentinel-network-dns-compat/data/network-dns-compat/public-system/results.json",
+      "bytes": 3739,
+      "sha256": "3ec2bbac5bca9f42c500efe7e370e07465b95e139c233a7bcd1be9cf9deb15a9",
+      "committed": false,
+      "copiedTo": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-bindings-public-20261009-487dba2/dns-handoff/public-system/results.json",
+      "verified": true
+    },
+    {
+      "path": "/private/tmp/ui-sentinel-network-dns-compat/data/network-dns-compat/public-doh.log",
+      "bytes": 276448,
+      "sha256": "ba302d4bd6ccfe4aee696c833333c3486a1e8ee2799875a11e8d17052a50d34f",
+      "committed": false,
+      "copiedTo": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-bindings-public-20261009-487dba2/dns-handoff/public-doh.log",
+      "verified": true
+    },
+    {
+      "path": "/private/tmp/ui-sentinel-network-dns-compat/data/network-dns-compat/public-doh/mdn.png",
+      "bytes": 256919,
+      "sha256": "c17d184b92df6f46ad6d55a43eff95bf29e4864c54d8d0d88027d67b7c15c52e",
+      "committed": false,
+      "copiedTo": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-bindings-public-20261009-487dba2/dns-handoff/public-doh/mdn.png",
+      "verified": true
+    },
+    {
+      "path": "/private/tmp/ui-sentinel-network-dns-compat/data/network-dns-compat/public-doh/github.png",
+      "bytes": 168587,
+      "sha256": "0fecaa8a4ed58d7fbd8bbb8e83e517a41ebf40dbeab9b47591a66d99cf2a1e44",
+      "committed": false,
+      "copiedTo": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-bindings-public-20261009-487dba2/dns-handoff/public-doh/github.png",
+      "verified": true
+    },
+    {
+      "path": "/private/tmp/ui-sentinel-network-dns-compat/data/network-dns-compat/public-doh/results.json",
+      "bytes": 284653,
+      "sha256": "b545471cee3d1e8d0b5a842c4ad1fb8ef0b96a561ee23db3d80ef82b45119597",
+      "committed": false,
+      "copiedTo": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-bindings-public-20261009-487dba2/dns-handoff/public-doh/results.json",
+      "verified": true
+    },
+    {
+      "path": "/private/tmp/ui-sentinel-network-dns-compat/data/network-dns-compat/public-doh/commons.png",
+      "bytes": 257046,
+      "sha256": "6d27bd260ec32f465290583f76dc517cefe3a11038a13b7cd4daeb5d78c40110",
+      "committed": false,
+      "copiedTo": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-bindings-public-20261009-487dba2/dns-handoff/public-doh/commons.png",
+      "verified": true
+    }
+  ],
+  "pages": [
+    {
+      "key": "commons",
+      "runId": "run-f9dbabdf-7b35-4312-9416-91c46cfb61e0",
+      "startedAt": "2026-10-08T16:32:00.363Z",
+      "finishedAt": "2026-10-08T16:32:10.393Z",
+      "openMs": 4551,
+      "totalMs": 10030,
+      "closeMs": 25,
+      "failures": [],
+      "observations": [
+        {
+          "number": 1,
+          "startedAt": "2026-10-08T16:32:04.914Z",
+          "finishedAt": "2026-10-08T16:32:05.138Z",
+          "durationMs": 224,
+          "file": "candidates-1.json",
+          "observationId": "image-observation-5f943a2a-2d6b-4a87-a25a-ff0263f56a36",
+          "totalImages": 26,
+          "enumerated": 26,
+          "omitted": 0,
+          "observedAt": "2026-10-08T16:32:05.130Z",
+          "expiresAt": "2026-10-08T16:37:05.130Z",
+          "decodedImages": 4,
+          "paintRecords": 26,
+          "uniqueStable": 0,
+          "verifiedStaticTypes": {
+            "png": 1
+          },
+          "verifiedStaticCount": 1,
+          "contractFieldsComplete": 1,
+          "paintSupported": 0,
+          "factsReady": 0,
+          "issues": {
+            "unstable-target-evidence": 26,
+            "supported-resource-bytes-unavailable": 25,
+            "large-document-visibility-unmeasured": 26,
+            "evidence-intervened": 26,
+            "image-not-loaded": 22,
+            "opacity": 6,
+            "partial-viewport": 1,
+            "outside-viewport": 17,
+            "ancestor-clipping": 17,
+            "visible-content-not-confirmed": 17
+          },
+          "missingFields": {
+            "intent": 26,
+            "basis.reference": 26,
+            "basis.statement": 26,
+            "basis.confirmedBy": 26,
+            "resourceSha256": 25,
+            "fresh-supported-target-evidence": 26,
+            "resourceUrl": 2
+          },
+          "epochs": [
+            6
+          ],
+          "snapshot": {
+            "ref": "200cd0f1-f323-496f-8958-d69833b6fb6b.json",
+            "url": "https://commons.wikimedia.org/wiki/File:PNG_transparency_demonstration_1.png",
+            "title": "File:PNG transparency demonstration 1.png - Wikimedia Commons",
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 16
+            }
+          },
+          "uniqueResourceHashes": 1,
+          "decodedStaticImages": 1,
+          "ambiguousLocators": 0
+        },
+        {
+          "number": 2,
+          "startedAt": "2026-10-08T16:32:10.141Z",
+          "finishedAt": "2026-10-08T16:32:10.367Z",
+          "durationMs": 227,
+          "file": "candidates-2.json",
+          "observationId": "image-observation-b9be202e-85f4-4dc2-8495-29dc9dfc5020",
+          "totalImages": 28,
+          "enumerated": 28,
+          "omitted": 0,
+          "observedAt": "2026-10-08T16:32:10.360Z",
+          "expiresAt": "2026-10-08T16:37:10.360Z",
+          "decodedImages": 4,
+          "paintRecords": 28,
+          "uniqueStable": 0,
+          "verifiedStaticTypes": {
+            "png": 1
+          },
+          "verifiedStaticCount": 1,
+          "contractFieldsComplete": 1,
+          "paintSupported": 0,
+          "factsReady": 0,
+          "issues": {
+            "unstable-target-evidence": 28,
+            "supported-resource-bytes-unavailable": 27,
+            "large-document-visibility-unmeasured": 28,
+            "evidence-intervened": 28,
+            "image-not-loaded": 24,
+            "opacity": 6,
+            "partial-viewport": 1,
+            "outside-viewport": 19,
+            "ancestor-clipping": 17,
+            "visible-content-not-confirmed": 19,
+            "subpixel-or-empty-display": 2
+          },
+          "missingFields": {
+            "intent": 28,
+            "basis.reference": 28,
+            "basis.statement": 28,
+            "basis.confirmedBy": 28,
+            "resourceSha256": 27,
+            "fresh-supported-target-evidence": 28,
+            "resourceUrl": 4
+          },
+          "epochs": [
+            10
+          ],
+          "snapshot": {
+            "ref": "c97ba673-c563-41b2-bf05-d7ef5fb6c028.json",
+            "url": "https://commons.wikimedia.org/wiki/File:PNG_transparency_demonstration_1.png",
+            "title": "File:PNG transparency demonstration 1.png - Wikimedia Commons",
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 16
+            }
+          },
+          "uniqueResourceHashes": 1,
+          "decodedStaticImages": 1,
+          "ambiguousLocators": 0
+        }
+      ],
+      "changes": {
+        "sameIdentity": 26,
+        "firstOnly": [],
+        "secondOnly": [
+          {
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(15) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > p:nth-of-type(4) > span:nth-of-type(3) > span:nth-of-type(1) > a:nth-of-type(1) > img:nth-of-type(1)",
+            "identity": "0.5opts75dy7d:27",
+            "hints": {
+              "alt": "This file has annotations"
+            }
+          },
+          {
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(15) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > span:nth-of-type(1) > span:nth-of-type(1) > img:nth-of-type(1)",
+            "identity": "0.5opts75dy7d:28",
+            "hints": {
+              "alt": ""
+            }
+          }
+        ],
+        "selectorChanged": [],
+        "targetFactsChanged": [],
+        "resourceUrlChanged": [],
+        "verifiedHashChanged": [],
+        "resourceEvidenceAvailabilityChanged": [],
+        "firstBatchSuperseded": 26,
+        "actualGapMs": 5003,
+        "epochOnlyCount": 26,
+        "unchangedCount": 0
+      },
+      "network": {
+        "decisions": 69,
+        "document": [
+          {
+            "requestId": "interception-job-1.0",
+            "actionId": null,
+            "method": "GET",
+            "url": "https://commons.wikimedia.org/wiki/File:PNG_transparency_demonstration_1.png",
+            "destination": "document",
+            "redirectFrom": null,
+            "policyRevision": "url-scan-network-1",
+            "allow": true,
+            "reasonCode": "allowed",
+            "dnsMode": "doh",
+            "networkStage": "complete",
+            "resolvedAddresses": [
+              "103.102.166.224",
+              "2001:df2:e500:ed1a::1"
+            ],
+            "selectedAddress": "103.102.166.224",
+            "connectedAddress": "103.102.166.224",
+            "elapsedMs": 1213,
+            "experiment": "image-bindings-1"
+          }
+        ],
+        "refusals": [
+          {
+            "requestId": "interception-job-16.0",
+            "actionId": null,
+            "method": "GET",
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/17/System-search.svg/40px-System-search.svg.png?utm_source=commons.wikimedia.org&utm_campaign=parser&utm_content=thumbnail",
+            "destination": "image",
+            "redirectFrom": null,
+            "policyRevision": "url-scan-network-1",
+            "dnsMode": "doh",
+            "networkStage": "policy",
+            "resolvedAddresses": [],
+            "elapsedMs": 0,
+            "allow": false,
+            "reasonCode": "resource-origin-denied",
+            "experiment": "image-bindings-1"
+          },
+          {
+            "requestId": "interception-job-17.0",
+            "actionId": null,
+            "method": "GET",
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/79/CC_some_rights_reserved.svg/120px-CC_some_rights_reserved.svg.png?utm_source=commons.wikimedia.org&utm_campaign=parser&utm_content=thumbnail",
+            "destination": "image",
+            "redirectFrom": null,
+            "policyRevision": "url-scan-network-1",
+            "dnsMode": "doh",
+            "networkStage": "policy",
+            "resolvedAddresses": [],
+            "elapsedMs": 0,
+            "allow": false,
+            "reasonCode": "resource-origin-denied",
+            "experiment": "image-bindings-1"
+          },
+          {
+            "requestId": "interception-job-18.0",
+            "actionId": null,
+            "method": "GET",
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/11/Cc-by_new_white.svg/40px-Cc-by_new_white.svg.png?utm_source=commons.wikimedia.org&utm_campaign=parser&utm_content=thumbnail",
+            "destination": "image",
+            "redirectFrom": null,
+            "policyRevision": "url-scan-network-1",
+            "dnsMode": "doh",
+            "networkStage": "policy",
+            "resolvedAddresses": [],
+            "elapsedMs": 0,
+            "allow": false,
+            "reasonCode": "resource-origin-denied",
+            "experiment": "image-bindings-1"
+          },
+          {
+            "requestId": "interception-job-19.0",
+            "actionId": null,
+            "method": "GET",
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/df/Cc-sa_white.svg/40px-Cc-sa_white.svg.png?utm_source=commons.wikimedia.org&utm_campaign=parser&utm_content=thumbnail",
+            "destination": "image",
+            "redirectFrom": null,
+            "policyRevision": "url-scan-network-1",
+            "dnsMode": "doh",
+            "networkStage": "policy",
+            "resolvedAddresses": [],
+            "elapsedMs": 0,
+            "allow": false,
+            "reasonCode": "resource-origin-denied",
+            "experiment": "image-bindings-1"
+          },
+          {
+            "requestId": "interception-job-20.0",
+            "actionId": null,
+            "method": "GET",
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/22/Heckert_GNU_white.svg/120px-Heckert_GNU_white.svg.png?utm_source=commons.wikimedia.org&utm_campaign=parser&utm_content=thumbnail",
+            "destination": "image",
+            "redirectFrom": null,
+            "policyRevision": "url-scan-network-1",
+            "dnsMode": "doh",
+            "networkStage": "policy",
+            "resolvedAddresses": [],
+            "elapsedMs": 0,
+            "allow": false,
+            "reasonCode": "resource-origin-denied",
+            "experiment": "image-bindings-1"
+          },
+          {
+            "requestId": "interception-job-21.0",
+            "actionId": null,
+            "method": "GET",
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/47/PNG_transparency_demonstration_1.png/120px-PNG_transparency_demonstration_1.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail&_=20240708155759",
+            "destination": "image",
+            "redirectFrom": null,
+            "policyRevision": "url-scan-network-1",
+            "dnsMode": "doh",
+            "networkStage": "policy",
+            "resolvedAddresses": [],
+            "elapsedMs": 0,
+            "allow": false,
+            "reasonCode": "resource-origin-denied",
+            "experiment": "image-bindings-1"
+          },
+          {
+            "requestId": "interception-job-22.0",
+            "actionId": null,
+            "method": "GET",
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/archive/4/47/20240708155757%21PNG_transparency_demonstration_1.png/120px-PNG_transparency_demonstration_1.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail",
+            "destination": "image",
+            "redirectFrom": null,
+            "policyRevision": "url-scan-network-1",
+            "dnsMode": "doh",
+            "networkStage": "policy",
+            "resolvedAddresses": [],
+            "elapsedMs": 0,
+            "allow": false,
+            "reasonCode": "resource-origin-denied",
+            "experiment": "image-bindings-1"
+          },
+          {
+            "requestId": "interception-job-23.0",
+            "actionId": null,
+            "method": "GET",
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/archive/4/47/20210701224648%21PNG_transparency_demonstration_1.png/120px-PNG_transparency_demonstration_1.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail",
+            "destination": "image",
+            "redirectFrom": null,
+            "policyRevision": "url-scan-network-1",
+            "dnsMode": "doh",
+            "networkStage": "policy",
+            "resolvedAddresses": [],
+            "elapsedMs": 0,
+            "allow": false,
+            "reasonCode": "resource-origin-denied",
+            "experiment": "image-bindings-1"
+          },
+          {
+            "requestId": "interception-job-24.0",
+            "actionId": null,
+            "method": "GET",
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/archive/4/47/20200926191124%21PNG_transparency_demonstration_1.png/120px-PNG_transparency_demonstration_1.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail",
+            "destination": "image",
+            "redirectFrom": null,
+            "policyRevision": "url-scan-network-1",
+            "dnsMode": "doh",
+            "networkStage": "policy",
+            "resolvedAddresses": [],
+            "elapsedMs": 0,
+            "allow": false,
+            "reasonCode": "resource-origin-denied",
+            "experiment": "image-bindings-1"
+          },
+          {
+            "requestId": "interception-job-25.0",
+            "actionId": null,
+            "method": "GET",
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/archive/4/47/20190107230059%21PNG_transparency_demonstration_1.png/120px-PNG_transparency_demonstration_1.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail",
+            "destination": "image",
+            "redirectFrom": null,
+            "policyRevision": "url-scan-network-1",
+            "dnsMode": "doh",
+            "networkStage": "policy",
+            "resolvedAddresses": [],
+            "elapsedMs": 0,
+            "allow": false,
+            "reasonCode": "resource-origin-denied",
+            "experiment": "image-bindings-1"
+          },
+          {
+            "requestId": "interception-job-26.0",
+            "actionId": null,
+            "method": "GET",
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/archive/4/47/20190106031128%21PNG_transparency_demonstration_1.png/120px-PNG_transparency_demonstration_1.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail",
+            "destination": "image",
+            "redirectFrom": null,
+            "policyRevision": "url-scan-network-1",
+            "dnsMode": "doh",
+            "networkStage": "policy",
+            "resolvedAddresses": [],
+            "elapsedMs": 0,
+            "allow": false,
+            "reasonCode": "resource-origin-denied",
+            "experiment": "image-bindings-1"
+          },
+          {
+            "requestId": "interception-job-27.0",
+            "actionId": null,
+            "method": "GET",
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/archive/4/47/20170225194941%21PNG_transparency_demonstration_1.png/120px-PNG_transparency_demonstration_1.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail",
+            "destination": "image",
+            "redirectFrom": null,
+            "policyRevision": "url-scan-network-1",
+            "dnsMode": "doh",
+            "networkStage": "policy",
+            "resolvedAddresses": [],
+            "elapsedMs": 0,
+            "allow": false,
+            "reasonCode": "resource-origin-denied",
+            "experiment": "image-bindings-1"
+          },
+          {
+            "requestId": "interception-job-28.0",
+            "actionId": null,
+            "method": "GET",
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/archive/4/47/20161122122708%21PNG_transparency_demonstration_1.png/120px-PNG_transparency_demonstration_1.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail",
+            "destination": "image",
+            "redirectFrom": null,
+            "policyRevision": "url-scan-network-1",
+            "dnsMode": "doh",
+            "networkStage": "policy",
+            "resolvedAddresses": [],
+            "elapsedMs": 0,
+            "allow": false,
+            "reasonCode": "resource-origin-denied",
+            "experiment": "image-bindings-1"
+          },
+          {
+            "requestId": "interception-job-29.0",
+            "actionId": null,
+            "method": "GET",
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/archive/4/47/20160116174013%21PNG_transparency_demonstration_1.png/120px-PNG_transparency_demonstration_1.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail",
+            "destination": "image",
+            "redirectFrom": null,
+            "policyRevision": "url-scan-network-1",
+            "dnsMode": "doh",
+            "networkStage": "policy",
+            "resolvedAddresses": [],
+            "elapsedMs": 0,
+            "allow": false,
+            "reasonCode": "resource-origin-denied",
+            "experiment": "image-bindings-1"
+          },
+          {
+            "requestId": "interception-job-30.0",
+            "actionId": null,
+            "method": "GET",
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/archive/4/47/20160116173954%21PNG_transparency_demonstration_1.png/120px-PNG_transparency_demonstration_1.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail",
+            "destination": "image",
+            "redirectFrom": null,
+            "policyRevision": "url-scan-network-1",
+            "dnsMode": "doh",
+            "networkStage": "policy",
+            "resolvedAddresses": [],
+            "elapsedMs": 0,
+            "allow": false,
+            "reasonCode": "resource-origin-denied",
+            "experiment": "image-bindings-1"
+          },
+          {
+            "requestId": "interception-job-33.1",
+            "actionId": null,
+            "method": "GET",
+            "url": "https://auth.wikimedia.org/metawiki/wiki/Special:CentralAutoLogin/checkLoggedIn?useformat=desktop&wikiid=commonswiki&usesul3=1&type=script",
+            "destination": "script",
+            "redirectFrom": "https://commons.wikimedia.org/wiki/Special:CentralAutoLogin/start?useformat=desktop&type=script&usesul3=1",
+            "policyRevision": "url-scan-network-1",
+            "dnsMode": "doh",
+            "networkStage": "policy",
+            "resolvedAddresses": [],
+            "elapsedMs": 0,
+            "allow": false,
+            "reasonCode": "resource-origin-denied",
+            "experiment": "image-bindings-1"
+          }
+        ],
+        "cancellations": [],
+        "refusalGroups": {
+          "thumb.wikimedia.org | image | GET | resource-origin-denied | ": 15,
+          "auth.wikimedia.org | script | GET | resource-origin-denied | ": 1
+        },
+        "completedResponses": 53,
+        "pinMatches": 53
+      },
+      "artifacts": [
+        {
+          "id": "1d098a8d-8ca6-41f3-8cd0-be700a5fb484.png",
+          "run_id": "run-f9dbabdf-7b35-4312-9416-91c46cfb61e0",
+          "type": "screenshot",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-f9dbabdf-7b35-4312-9416-91c46cfb61e0/1d098a8d-8ca6-41f3-8cd0-be700a5fb484.png",
+          "metadata": {
+            "url": "https://commons.wikimedia.org/wiki/File:PNG_transparency_demonstration_1.png",
+            "viewport": {
+              "width": 1280,
+              "height": 768
+            },
+            "capturedAt": "2026-10-08T16:32:05.033Z",
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 16
+            }
+          },
+          "created_at": "2026-10-08 16:32:05",
+          "bytes": 241934,
+          "sha256": "c92e0b25d0df62039aed1b4fe79cefe08668d97dcec53324d7807cb31a4f5093",
+          "committed": false
+        },
+        {
+          "id": "3b8a198a-b0f1-4ca0-b171-8ef3db37c703.json",
+          "run_id": "run-f9dbabdf-7b35-4312-9416-91c46cfb61e0",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-f9dbabdf-7b35-4312-9416-91c46cfb61e0/3b8a198a-b0f1-4ca0-b171-8ef3db37c703.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 16
+            }
+          },
+          "created_at": "2026-10-08 16:32:05",
+          "bytes": 299744,
+          "sha256": "9bf11052342a478b6ff25b3f988c72cb6e929e92bbe4fe1d7cbe689fb460e834",
+          "committed": false
+        },
+        {
+          "id": "200cd0f1-f323-496f-8958-d69833b6fb6b.json",
+          "run_id": "run-f9dbabdf-7b35-4312-9416-91c46cfb61e0",
+          "type": "snapshot",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-f9dbabdf-7b35-4312-9416-91c46cfb61e0/200cd0f1-f323-496f-8958-d69833b6fb6b.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 16
+            }
+          },
+          "created_at": "2026-10-08 16:32:05",
+          "bytes": 311149,
+          "sha256": "661b210a612a40e8a88ddfed0cefc6920d92abef65b0e135224c702ca496bde7",
+          "committed": false
+        },
+        {
+          "id": "409351ac-7589-4afe-b9ad-56d55825216c.json",
+          "run_id": "run-f9dbabdf-7b35-4312-9416-91c46cfb61e0",
+          "type": "image-binding-candidates",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-f9dbabdf-7b35-4312-9416-91c46cfb61e0/409351ac-7589-4afe-b9ad-56d55825216c.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 16
+            }
+          },
+          "created_at": "2026-10-08 16:32:05",
+          "bytes": 69290,
+          "sha256": "84f6e369ff5026c69e0c0c9a05ffb9200bec2dd633a05ebbd5b08d45481d81da",
+          "committed": false
+        },
+        {
+          "id": "18ab2fa1-5763-4bef-a2c5-338ee622265e.png",
+          "run_id": "run-f9dbabdf-7b35-4312-9416-91c46cfb61e0",
+          "type": "screenshot",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-f9dbabdf-7b35-4312-9416-91c46cfb61e0/18ab2fa1-5763-4bef-a2c5-338ee622265e.png",
+          "metadata": {
+            "url": "https://commons.wikimedia.org/wiki/File:PNG_transparency_demonstration_1.png",
+            "viewport": {
+              "width": 1280,
+              "height": 768
+            },
+            "capturedAt": "2026-10-08T16:32:10.253Z",
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 16
+            }
+          },
+          "created_at": "2026-10-08 16:32:10",
+          "bytes": 241942,
+          "sha256": "f60269f4571dbef052a2064019bc9fb58f6a6b95a9ed9090012e5b265a6c9d7c",
+          "committed": false
+        },
+        {
+          "id": "6ddfcde1-b72c-40c7-abe5-c3bc85146e1b.json",
+          "run_id": "run-f9dbabdf-7b35-4312-9416-91c46cfb61e0",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-f9dbabdf-7b35-4312-9416-91c46cfb61e0/6ddfcde1-b72c-40c7-abe5-c3bc85146e1b.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 16
+            }
+          },
+          "created_at": "2026-10-08 16:32:10",
+          "bytes": 299744,
+          "sha256": "9bf11052342a478b6ff25b3f988c72cb6e929e92bbe4fe1d7cbe689fb460e834",
+          "committed": false
+        },
+        {
+          "id": "c97ba673-c563-41b2-bf05-d7ef5fb6c028.json",
+          "run_id": "run-f9dbabdf-7b35-4312-9416-91c46cfb61e0",
+          "type": "snapshot",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-f9dbabdf-7b35-4312-9416-91c46cfb61e0/c97ba673-c563-41b2-bf05-d7ef5fb6c028.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 16
+            }
+          },
+          "created_at": "2026-10-08 16:32:10",
+          "bytes": 312548,
+          "sha256": "6b1e50920babc7e75987e633de5eec0a0fafa968709473d200f1d534401afa87",
+          "committed": false
+        },
+        {
+          "id": "17cb609c-6b02-4245-a0dc-316868fd9f63.json",
+          "run_id": "run-f9dbabdf-7b35-4312-9416-91c46cfb61e0",
+          "type": "image-binding-candidates",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-f9dbabdf-7b35-4312-9416-91c46cfb61e0/17cb609c-6b02-4245-a0dc-316868fd9f63.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 16
+            }
+          },
+          "created_at": "2026-10-08 16:32:10",
+          "bytes": 73541,
+          "sha256": "3de8ed019f7069d362bf946be2dc594fe31e03ee9ba8dcc5ad9592e483a8f62f",
+          "committed": false
+        }
+      ],
+      "evidenceBytes": 1849892,
+      "eventBytes": 74498,
+      "databaseBytes": 147456,
+      "semanticChecks": 0,
+      "bindingChecks": 0,
+      "asyncReadRequests": [
+        {
+          "timestamp": "2026-10-08T16:32:03.970Z",
+          "requestId": "interception-job-31.0",
+          "actionId": null,
+          "method": "GET",
+          "url": "https://commons.wikimedia.org/wiki/Special:EntityData/M221157.json?revision=1102350308",
+          "destination": "xhr",
+          "redirectFrom": null,
+          "policyRevision": "url-scan-network-1",
+          "allow": true,
+          "reasonCode": "allowed",
+          "dnsMode": "doh",
+          "networkStage": "complete",
+          "resolvedAddresses": [
+            "103.102.166.224",
+            "2001:df2:e500:ed1a::1"
+          ],
+          "selectedAddress": "103.102.166.224",
+          "connectedAddress": "103.102.166.224",
+          "elapsedMs": 765,
+          "experiment": "image-bindings-1"
+        },
+        {
+          "timestamp": "2026-10-08T16:32:04.095Z",
+          "requestId": "interception-job-59.0",
+          "actionId": null,
+          "method": "GET",
+          "url": "https://commons.wikimedia.org/w/api.php?action=wbformatvalue&format=json&datavalue=%7B%22type%22%3A%22wikibase-entityid%22%2C%22value%22%3A%7B%22id%22%3A%22Q943%22%7D%7D&generate=text%2Fplain&options=%7B%22lang%22%3A%22en%22%7D",
+          "destination": "xhr",
+          "redirectFrom": null,
+          "policyRevision": "url-scan-network-1",
+          "allow": true,
+          "reasonCode": "allowed",
+          "dnsMode": "doh",
+          "networkStage": "complete",
+          "resolvedAddresses": [
+            "103.102.166.224",
+            "2001:df2:e500:ed1a::1"
+          ],
+          "selectedAddress": "103.102.166.224",
+          "connectedAddress": "103.102.166.224",
+          "elapsedMs": 619,
+          "experiment": "image-bindings-1"
+        },
+        {
+          "timestamp": "2026-10-08T16:32:04.098Z",
+          "requestId": "interception-job-57.0",
+          "actionId": null,
+          "method": "GET",
+          "url": "https://commons.wikimedia.org/w/api.php?action=wbformatvalue&format=json&datavalue=%7B%22type%22%3A%22wikibase-entityid%22%2C%22value%22%3A%7B%22id%22%3A%22Q1088%22%7D%7D&generate=text%2Fplain&options=%7B%22lang%22%3A%22en%22%7D",
+          "destination": "xhr",
+          "redirectFrom": null,
+          "policyRevision": "url-scan-network-1",
+          "allow": true,
+          "reasonCode": "allowed",
+          "dnsMode": "doh",
+          "networkStage": "complete",
+          "resolvedAddresses": [
+            "103.102.166.224",
+            "2001:df2:e500:ed1a::1"
+          ],
+          "selectedAddress": "103.102.166.224",
+          "connectedAddress": "103.102.166.224",
+          "elapsedMs": 624,
+          "experiment": "image-bindings-1"
+        },
+        {
+          "timestamp": "2026-10-08T16:32:04.107Z",
+          "requestId": "interception-job-58.0",
+          "actionId": null,
+          "method": "GET",
+          "url": "https://commons.wikimedia.org/w/api.php?action=wbformatvalue&format=json&datavalue=%7B%22type%22%3A%22wikibase-entityid%22%2C%22value%22%3A%7B%22id%22%3A%22Q3133%22%7D%7D&generate=text%2Fplain&options=%7B%22lang%22%3A%22en%22%7D",
+          "destination": "xhr",
+          "redirectFrom": null,
+          "policyRevision": "url-scan-network-1",
+          "allow": true,
+          "reasonCode": "allowed",
+          "dnsMode": "doh",
+          "networkStage": "complete",
+          "resolvedAddresses": [
+            "103.102.166.224",
+            "2001:df2:e500:ed1a::1"
+          ],
+          "selectedAddress": "103.102.166.224",
+          "connectedAddress": "103.102.166.224",
+          "elapsedMs": 633,
+          "experiment": "image-bindings-1"
+        },
+        {
+          "timestamp": "2026-10-08T16:32:04.294Z",
+          "requestId": "interception-job-56.0",
+          "actionId": null,
+          "method": "GET",
+          "url": "https://commons.wikimedia.org/w/api.php?action=wbformatvalue&format=json&datavalue=%7B%22type%22%3A%22wikibase-entityid%22%2C%22value%22%3A%7B%22id%22%3A%22Q487623%22%7D%7D&generate=text%2Fplain&options=%7B%22lang%22%3A%22en%22%7D",
+          "destination": "xhr",
+          "redirectFrom": null,
+          "policyRevision": "url-scan-network-1",
+          "allow": true,
+          "reasonCode": "allowed",
+          "dnsMode": "doh",
+          "networkStage": "complete",
+          "resolvedAddresses": [
+            "103.102.166.224",
+            "2001:df2:e500:ed1a::1"
+          ],
+          "selectedAddress": "103.102.166.224",
+          "connectedAddress": "103.102.166.224",
+          "elapsedMs": 822,
+          "experiment": "image-bindings-1"
+        },
+        {
+          "timestamp": "2026-10-08T16:32:04.397Z",
+          "requestId": "interception-job-55.0",
+          "actionId": null,
+          "method": "GET",
+          "url": "https://commons.wikimedia.org/w/api.php?action=wbformatvalue&format=json&datavalue=%7B%22type%22%3A%22wikibase-entityid%22%2C%22value%22%3A%7B%22id%22%3A%22Q3142%22%7D%7D&generate=text%2Fplain&options=%7B%22lang%22%3A%22en%22%7D",
+          "destination": "xhr",
+          "redirectFrom": null,
+          "policyRevision": "url-scan-network-1",
+          "allow": true,
+          "reasonCode": "allowed",
+          "dnsMode": "doh",
+          "networkStage": "complete",
+          "resolvedAddresses": [
+            "103.102.166.224",
+            "2001:df2:e500:ed1a::1"
+          ],
+          "selectedAddress": "103.102.166.224",
+          "connectedAddress": "103.102.166.224",
+          "elapsedMs": 926,
+          "experiment": "image-bindings-1"
+        },
+        {
+          "timestamp": "2026-10-08T16:32:05.504Z",
+          "requestId": "interception-job-67.0",
+          "actionId": null,
+          "method": "GET",
+          "url": "https://commons.wikimedia.org/w/api.php?action=parse&pst&text=%7B%7BMediaWiki%3AImageAnnotatorTexts%7Clive%3D1%7D%7D&title=API&prop=text&uselang=en&maxage=14400&smaxage=14400&format=json",
+          "destination": "xhr",
+          "redirectFrom": null,
+          "policyRevision": "url-scan-network-1",
+          "allow": true,
+          "reasonCode": "allowed",
+          "dnsMode": "doh",
+          "networkStage": "complete",
+          "resolvedAddresses": [
+            "103.102.166.224",
+            "2001:df2:e500:ed1a::1"
+          ],
+          "selectedAddress": "103.102.166.224",
+          "connectedAddress": "103.102.166.224",
+          "elapsedMs": 374,
+          "experiment": "image-bindings-1"
+        }
+      ],
+      "localFiles": [
+        {
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-bindings-public-20261009-487dba2/commons/result.json",
+          "bytes": 16351,
+          "sha256": "24dc085fb8b70c924ee3cadfb93eb82136f518fbffd4b71ca40c95e58969b934",
+          "committed": false
+        },
+        {
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-bindings-public-20261009-487dba2/commons/events.json",
+          "bytes": 74498,
+          "sha256": "df4c63ce88fcc072dd778803fb1ba39ce06d57f6ff05edf6a1dc593f07c68be4",
+          "committed": false
+        },
+        {
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-bindings-public-20261009-487dba2/commons/experiment.db",
+          "bytes": 147456,
+          "sha256": "6aeae58bce79e4bcf4e517b5470306a11e3656a96962243f4dd50ce26bb67b91",
+          "committed": false
+        },
+        {
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-bindings-public-20261009-487dba2/commons/candidates-1.json",
+          "bytes": 94339,
+          "sha256": "3b8375fb82d63f3514b399723b9687696a40a8e229adca9594391af9cac07900",
+          "committed": false
+        },
+        {
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-bindings-public-20261009-487dba2/commons/candidates-2.json",
+          "bytes": 100558,
+          "sha256": "60b7fbea400b82861f85a61fe08ed50164f85c4b33c5dd736359e7ea971ab2da",
+          "committed": false
+        }
+      ],
+      "sampleVerifiedCandidates": [
+        {
+          "candidateId": "image-bac9ebcc-38e2-4b75-8c3c-1dab4d249f9c",
+          "measured": {
+            "contractFields": {
+              "id": "image-bac9ebcc-38e2-4b75-8c3c-1dab4d249f9c",
+              "pageUrl": "https://commons.wikimedia.org/wiki/File:PNG_transparency_demonstration_1.png",
+              "viewport": {
+                "width": 1280,
+                "height": 768
+              },
+              "selector": "html > body:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(3) > main:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(2) > div:nth-of-type(2) > a:nth-of-type(1) > img:nth-of-type(1)",
+              "resourceUrl": "https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail_unscaled&_=20240708155759",
+              "resourceSha256": "c4e870d358d64ce677e958c156d0e3fba466993d8e915fc81c5dc64937a9b696"
+            },
+            "locator": {
+              "kind": "structural",
+              "matchCount": 1
+            },
+            "paint": {
+              "selector": "html > body:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(3) > main:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(2) > div:nth-of-type(2) > a:nth-of-type(1) > img:nth-of-type(1)",
+              "matchCount": 1,
+              "documentId": "0.5opts75dy7d",
+              "mutationEpoch": 10,
+              "decoded": true,
+              "nodeId": 26,
+              "currentSrc": "https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail_unscaled&_=20240708155759",
+              "complete": true,
+              "naturalWidth": 800,
+              "naturalHeight": 600,
+              "contentWidth": 752,
+              "contentHeight": 564,
+              "objectFit": "fill",
+              "objectPosition": "50% 50%",
+              "bounds": {
+                "x": 264,
+                "y": 274.640625,
+                "width": 752,
+                "height": 564
+              },
+              "matrix": [
+                1,
+                0,
+                0,
+                1
+              ],
+              "unsupported": [
+                "partial-viewport",
+                "large-document-visibility-unmeasured"
+              ],
+              "stable": false,
+              "resource": {
+                "sha256": "c4e870d358d64ce677e958c156d0e3fba466993d8e915fc81c5dc64937a9b696",
+                "format": "png",
+                "evidenceRef": "6ddfcde1-b72c-40c7-abe5-c3bc85146e1b.json"
+              }
+            },
+            "evidenceRefs": [
+              "18ab2fa1-5763-4bef-a2c5-338ee622265e.png",
+              "c97ba673-c563-41b2-bf05-d7ef5fb6c028.json",
+              "6ddfcde1-b72c-40c7-abe5-c3bc85146e1b.json"
+            ]
+          },
+          "issues": [
+            "unstable-target-evidence",
+            "partial-viewport",
+            "large-document-visibility-unmeasured",
+            "evidence-intervened"
+          ],
+          "pending": {
+            "intent": null,
+            "basis": {
+              "reference": null,
+              "statement": null,
+              "confirmedBy": null
+            }
+          }
+        }
+      ]
+    },
+    {
+      "key": "mdn",
+      "runId": "run-4b6ee796-0328-4182-a09e-9509223ba11e",
+      "startedAt": "2026-10-08T16:32:16.252Z",
+      "finishedAt": "2026-10-08T16:32:25.475Z",
+      "openMs": 3873,
+      "totalMs": 9223,
+      "closeMs": 20,
+      "failures": [],
+      "observations": [
+        {
+          "number": 1,
+          "startedAt": "2026-10-08T16:32:20.126Z",
+          "finishedAt": "2026-10-08T16:32:20.285Z",
+          "durationMs": 159,
+          "file": "candidates-1.json",
+          "observationId": "image-observation-146fed6e-8b11-4097-b9f2-44edb07a04d8",
+          "totalImages": 5,
+          "enumerated": 5,
+          "omitted": 0,
+          "observedAt": "2026-10-08T16:32:20.280Z",
+          "expiresAt": "2026-10-08T16:37:20.280Z",
+          "decodedImages": 2,
+          "paintRecords": 5,
+          "uniqueStable": 5,
+          "verifiedStaticTypes": {
+            "png": 3
+          },
+          "verifiedStaticCount": 3,
+          "contractFieldsComplete": 3,
+          "paintSupported": 0,
+          "factsReady": 0,
+          "issues": {
+            "partial-viewport": 1,
+            "large-document-visibility-unmeasured": 5,
+            "visible-content-not-confirmed": 5,
+            "evidence-intervened": 5,
+            "outside-viewport": 4,
+            "image-not-loaded": 3,
+            "supported-resource-bytes-unavailable": 2
+          },
+          "missingFields": {
+            "intent": 5,
+            "basis.reference": 5,
+            "basis.statement": 5,
+            "basis.confirmedBy": 5,
+            "fresh-supported-target-evidence": 5,
+            "resourceUrl": 2,
+            "resourceSha256": 2
+          },
+          "epochs": [
+            0
+          ],
+          "snapshot": {
+            "ref": "3d824e6e-9d86-48df-90dd-2e58b7ac071f.json",
+            "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Responsive_images",
+            "title": "Using responsive images in HTML - HTML | MDN",
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 1
+            }
+          },
+          "uniqueResourceHashes": 2,
+          "decodedStaticImages": 2,
+          "ambiguousLocators": 0
+        },
+        {
+          "number": 2,
+          "startedAt": "2026-10-08T16:32:25.288Z",
+          "finishedAt": "2026-10-08T16:32:25.455Z",
+          "durationMs": 167,
+          "file": "candidates-2.json",
+          "observationId": "image-observation-9388b1c0-0875-4ab5-852d-51f9195d35b9",
+          "totalImages": 5,
+          "enumerated": 5,
+          "omitted": 0,
+          "observedAt": "2026-10-08T16:32:25.451Z",
+          "expiresAt": "2026-10-08T16:37:25.451Z",
+          "decodedImages": 2,
+          "paintRecords": 5,
+          "uniqueStable": 5,
+          "verifiedStaticTypes": {
+            "png": 3
+          },
+          "verifiedStaticCount": 3,
+          "contractFieldsComplete": 3,
+          "paintSupported": 0,
+          "factsReady": 0,
+          "issues": {
+            "partial-viewport": 1,
+            "large-document-visibility-unmeasured": 5,
+            "visible-content-not-confirmed": 5,
+            "evidence-intervened": 5,
+            "outside-viewport": 4,
+            "image-not-loaded": 3,
+            "supported-resource-bytes-unavailable": 2
+          },
+          "missingFields": {
+            "intent": 5,
+            "basis.reference": 5,
+            "basis.statement": 5,
+            "basis.confirmedBy": 5,
+            "fresh-supported-target-evidence": 5,
+            "resourceUrl": 2,
+            "resourceSha256": 2
+          },
+          "epochs": [
+            0
+          ],
+          "snapshot": {
+            "ref": "f56de9d6-844b-4e36-8bf0-fbdebce7fb22.json",
+            "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Responsive_images",
+            "title": "Using responsive images in HTML - HTML | MDN",
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 5
+            }
+          },
+          "uniqueResourceHashes": 2,
+          "decodedStaticImages": 2,
+          "ambiguousLocators": 0
+        }
+      ],
+      "changes": {
+        "sameIdentity": 5,
+        "firstOnly": [],
+        "secondOnly": [],
+        "selectorChanged": [],
+        "targetFactsChanged": [],
+        "resourceUrlChanged": [],
+        "verifiedHashChanged": [],
+        "resourceEvidenceAvailabilityChanged": [],
+        "firstBatchSuperseded": 5,
+        "actualGapMs": 5003,
+        "epochOnlyCount": 0,
+        "unchangedCount": 5
+      },
+      "network": {
+        "decisions": 76,
+        "document": [
+          {
+            "requestId": "interception-job-1.0",
+            "actionId": null,
+            "method": "GET",
+            "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Responsive_images",
+            "destination": "document",
+            "redirectFrom": null,
+            "policyRevision": "url-scan-network-1",
+            "allow": true,
+            "reasonCode": "allowed",
+            "dnsMode": "doh",
+            "networkStage": "complete",
+            "resolvedAddresses": [
+              "151.101.89.91",
+              "2a04:4e42:15::347"
+            ],
+            "selectedAddress": "151.101.89.91",
+            "connectedAddress": "151.101.89.91",
+            "elapsedMs": 1427,
+            "experiment": "image-bindings-1"
+          }
+        ],
+        "refusals": [
+          {
+            "requestId": "interception-job-43.0",
+            "actionId": null,
+            "method": "POST",
+            "url": "https://incoming.telemetry.mozilla.org/submit/mdn-fred/events/1/bc5855cd-14b7-4905-8a08-a1bf69bb63f3",
+            "destination": "beacon",
+            "redirectFrom": null,
+            "policyRevision": "url-scan-network-1",
+            "dnsMode": "doh",
+            "networkStage": "policy",
+            "resolvedAddresses": [],
+            "elapsedMs": 0,
+            "allow": false,
+            "reasonCode": "unsupported-channel",
+            "experiment": "image-bindings-1"
+          },
+          {
+            "requestId": "interception-job-73.0",
+            "actionId": null,
+            "method": "POST",
+            "url": "https://incoming.telemetry.mozilla.org/submit/mdn-fred/events/1/11b64b55-75ce-4e25-9f93-992005e7e19b",
+            "destination": "beacon",
+            "redirectFrom": null,
+            "policyRevision": "url-scan-network-1",
+            "dnsMode": "doh",
+            "networkStage": "policy",
+            "resolvedAddresses": [],
+            "elapsedMs": 0,
+            "allow": false,
+            "reasonCode": "unsupported-channel",
+            "experiment": "image-bindings-1"
+          },
+          {
+            "requestId": "interception-job-74.0",
+            "actionId": null,
+            "method": "POST",
+            "url": "https://developer.mozilla.org/pong/get",
+            "destination": "xhr",
+            "redirectFrom": null,
+            "policyRevision": "url-scan-network-1",
+            "dnsMode": "doh",
+            "networkStage": "policy",
+            "resolvedAddresses": [],
+            "elapsedMs": 0,
+            "allow": false,
+            "reasonCode": "unsupported-data-method",
+            "experiment": "image-bindings-1"
+          },
+          {
+            "requestId": "interception-job-75.0",
+            "actionId": null,
+            "method": "POST",
+            "url": "https://incoming.telemetry.mozilla.org/submit/mdn-fred/events/1/03cc4cc2-2f98-4130-b739-e85ba6f7d02a",
+            "destination": "beacon",
+            "redirectFrom": null,
+            "policyRevision": "url-scan-network-1",
+            "dnsMode": "doh",
+            "networkStage": "policy",
+            "resolvedAddresses": [],
+            "elapsedMs": 0,
+            "allow": false,
+            "reasonCode": "unsupported-channel",
+            "experiment": "image-bindings-1"
+          },
+          {
+            "requestId": "interception-job-76.0",
+            "actionId": null,
+            "method": "POST",
+            "url": "https://incoming.telemetry.mozilla.org/submit/mdn-fred/events/1/3e449cf5-e8dd-4098-ab59-18c82540a870",
+            "destination": "beacon",
+            "redirectFrom": null,
+            "policyRevision": "url-scan-network-1",
+            "dnsMode": "doh",
+            "networkStage": "policy",
+            "resolvedAddresses": [],
+            "elapsedMs": 0,
+            "allow": false,
+            "reasonCode": "unsupported-channel",
+            "experiment": "image-bindings-1"
+          }
+        ],
+        "cancellations": [],
+        "refusalGroups": {
+          "incoming.telemetry.mozilla.org | beacon | POST | unsupported-channel | ": 4,
+          "developer.mozilla.org | xhr | POST | unsupported-data-method | ": 1
+        },
+        "completedResponses": 71,
+        "pinMatches": 71
+      },
+      "artifacts": [
+        {
+          "id": "3974360c-aa6e-40c8-83af-8e8960c81fd5.png",
+          "run_id": "run-4b6ee796-0328-4182-a09e-9509223ba11e",
+          "type": "screenshot",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4b6ee796-0328-4182-a09e-9509223ba11e/3974360c-aa6e-40c8-83af-8e8960c81fd5.png",
+          "metadata": {
+            "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Responsive_images",
+            "viewport": {
+              "width": 1280,
+              "height": 768
+            },
+            "capturedAt": "2026-10-08T16:32:20.199Z",
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 1
+            }
+          },
+          "created_at": "2026-10-08 16:32:20",
+          "bytes": 250058,
+          "sha256": "cc234894af1c0501e60a71f8cf014b3663436f065bbb8d5cb27c316374158628",
+          "committed": false
+        },
+        {
+          "id": "c6476bff-cb42-4420-a423-cf3ad285c9f6.json",
+          "run_id": "run-4b6ee796-0328-4182-a09e-9509223ba11e",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4b6ee796-0328-4182-a09e-9509223ba11e/c6476bff-cb42-4420-a423-cf3ad285c9f6.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 1
+            }
+          },
+          "created_at": "2026-10-08 16:32:20",
+          "bytes": 160127,
+          "sha256": "b8ff4aa1586d12bb87e9780e0a129efa63291c002511f0576f21e1f9c41b17b3",
+          "committed": false
+        },
+        {
+          "id": "ce0e081c-0b87-493d-a741-d091c314b9d3.json",
+          "run_id": "run-4b6ee796-0328-4182-a09e-9509223ba11e",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4b6ee796-0328-4182-a09e-9509223ba11e/ce0e081c-0b87-493d-a741-d091c314b9d3.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 1
+            }
+          },
+          "created_at": "2026-10-08 16:32:20",
+          "bytes": 85004,
+          "sha256": "f8444722354530557bed479bec9bb3f92b9fa7018b0fbdd56450dacf1b327fee",
+          "committed": false
+        },
+        {
+          "id": "9ed7c282-af6b-49a3-b85a-f2d3a3958a6d.json",
+          "run_id": "run-4b6ee796-0328-4182-a09e-9509223ba11e",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4b6ee796-0328-4182-a09e-9509223ba11e/9ed7c282-af6b-49a3-b85a-f2d3a3958a6d.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 1
+            }
+          },
+          "created_at": "2026-10-08 16:32:20",
+          "bytes": 160127,
+          "sha256": "b8ff4aa1586d12bb87e9780e0a129efa63291c002511f0576f21e1f9c41b17b3",
+          "committed": false
+        },
+        {
+          "id": "3d824e6e-9d86-48df-90dd-2e58b7ac071f.json",
+          "run_id": "run-4b6ee796-0328-4182-a09e-9509223ba11e",
+          "type": "snapshot",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4b6ee796-0328-4182-a09e-9509223ba11e/3d824e6e-9d86-48df-90dd-2e58b7ac071f.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 1
+            }
+          },
+          "created_at": "2026-10-08 16:32:20",
+          "bytes": 254611,
+          "sha256": "68ba8263e979e336e2648cc8a823b4f1672bd98de883361cef723ba901eb44aa",
+          "committed": false
+        },
+        {
+          "id": "8c0bb547-95aa-42e4-8c47-447464a2a84e.json",
+          "run_id": "run-4b6ee796-0328-4182-a09e-9509223ba11e",
+          "type": "image-binding-candidates",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4b6ee796-0328-4182-a09e-9509223ba11e/8c0bb547-95aa-42e4-8c47-447464a2a84e.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 1
+            }
+          },
+          "created_at": "2026-10-08 16:32:20",
+          "bytes": 11915,
+          "sha256": "f2a8e97cfdd60558241287f6bda5e6fa93c1259435f7e2ffe91280e9eff5dd3d",
+          "committed": false
+        },
+        {
+          "id": "60700fac-22fd-4dc6-9f90-e6acf0aec327.png",
+          "run_id": "run-4b6ee796-0328-4182-a09e-9509223ba11e",
+          "type": "screenshot",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4b6ee796-0328-4182-a09e-9509223ba11e/60700fac-22fd-4dc6-9f90-e6acf0aec327.png",
+          "metadata": {
+            "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Responsive_images",
+            "viewport": {
+              "width": 1280,
+              "height": 768
+            },
+            "capturedAt": "2026-10-08T16:32:25.360Z",
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 5
+            }
+          },
+          "created_at": "2026-10-08 16:32:25",
+          "bytes": 257127,
+          "sha256": "68d56b614414a0249e17089b5fab72a6f5c57894fd5413d22dcdf05e8981e9f3",
+          "committed": false
+        },
+        {
+          "id": "c980a904-03cb-45d8-88d5-6c857ee68ca0.json",
+          "run_id": "run-4b6ee796-0328-4182-a09e-9509223ba11e",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4b6ee796-0328-4182-a09e-9509223ba11e/c980a904-03cb-45d8-88d5-6c857ee68ca0.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 5
+            }
+          },
+          "created_at": "2026-10-08 16:32:25",
+          "bytes": 160127,
+          "sha256": "b8ff4aa1586d12bb87e9780e0a129efa63291c002511f0576f21e1f9c41b17b3",
+          "committed": false
+        },
+        {
+          "id": "5b565976-427f-4292-a843-2d1568444141.json",
+          "run_id": "run-4b6ee796-0328-4182-a09e-9509223ba11e",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4b6ee796-0328-4182-a09e-9509223ba11e/5b565976-427f-4292-a843-2d1568444141.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 5
+            }
+          },
+          "created_at": "2026-10-08 16:32:25",
+          "bytes": 160127,
+          "sha256": "b8ff4aa1586d12bb87e9780e0a129efa63291c002511f0576f21e1f9c41b17b3",
+          "committed": false
+        },
+        {
+          "id": "09656182-7257-41a7-aaa7-ff635de9cde9.json",
+          "run_id": "run-4b6ee796-0328-4182-a09e-9509223ba11e",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4b6ee796-0328-4182-a09e-9509223ba11e/09656182-7257-41a7-aaa7-ff635de9cde9.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 5
+            }
+          },
+          "created_at": "2026-10-08 16:32:25",
+          "bytes": 85004,
+          "sha256": "f8444722354530557bed479bec9bb3f92b9fa7018b0fbdd56450dacf1b327fee",
+          "committed": false
+        },
+        {
+          "id": "f56de9d6-844b-4e36-8bf0-fbdebce7fb22.json",
+          "run_id": "run-4b6ee796-0328-4182-a09e-9509223ba11e",
+          "type": "snapshot",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4b6ee796-0328-4182-a09e-9509223ba11e/f56de9d6-844b-4e36-8bf0-fbdebce7fb22.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 5
+            }
+          },
+          "created_at": "2026-10-08 16:32:25",
+          "bytes": 254819,
+          "sha256": "2796187f4a6abb5830ec3f7b43ccea3fa4e443771693638a310c366f71797756",
+          "committed": false
+        },
+        {
+          "id": "85889d61-45aa-4b00-825d-7605fa01811c.json",
+          "run_id": "run-4b6ee796-0328-4182-a09e-9509223ba11e",
+          "type": "image-binding-candidates",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4b6ee796-0328-4182-a09e-9509223ba11e/85889d61-45aa-4b00-825d-7605fa01811c.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 5
+            }
+          },
+          "created_at": "2026-10-08 16:32:25",
+          "bytes": 11915,
+          "sha256": "10843175f4de4da0146fb5f05879a14aa53a8836e786fd4ffe857b7e3143a544",
+          "committed": false
+        }
+      ],
+      "evidenceBytes": 1850961,
+      "eventBytes": 73185,
+      "databaseBytes": 135168,
+      "semanticChecks": 0,
+      "bindingChecks": 0,
+      "asyncReadRequests": [
+        {
+          "timestamp": "2026-10-08T16:32:20.343Z",
+          "requestId": "interception-job-70.0",
+          "actionId": null,
+          "method": "GET",
+          "url": "https://developer.mozilla.org/api/v1/whoami",
+          "destination": "xhr",
+          "redirectFrom": null,
+          "policyRevision": "url-scan-network-1",
+          "allow": true,
+          "reasonCode": "allowed",
+          "dnsMode": "doh",
+          "networkStage": "complete",
+          "resolvedAddresses": [
+            "151.101.89.91",
+            "2a04:4e42:15::347"
+          ],
+          "selectedAddress": "151.101.89.91",
+          "connectedAddress": "151.101.89.91",
+          "elapsedMs": 1236,
+          "experiment": "image-bindings-1"
+        },
+        {
+          "timestamp": "2026-10-08T16:32:20.347Z",
+          "requestId": "interception-job-74.0",
+          "actionId": null,
+          "method": "POST",
+          "url": "https://developer.mozilla.org/pong/get",
+          "destination": "xhr",
+          "redirectFrom": null,
+          "policyRevision": "url-scan-network-1",
+          "dnsMode": "doh",
+          "networkStage": "policy",
+          "resolvedAddresses": [],
+          "elapsedMs": 0,
+          "allow": false,
+          "reasonCode": "unsupported-data-method",
+          "experiment": "image-bindings-1"
+        }
+      ],
+      "localFiles": [
+        {
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-bindings-public-20261009-487dba2/mdn/result.json",
+          "bytes": 13080,
+          "sha256": "f20703318f568eb05c3cb7c671d6aa2881939ad8daeeb0c6a934c95d416f2d61",
+          "committed": false
+        },
+        {
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-bindings-public-20261009-487dba2/mdn/events.json",
+          "bytes": 73185,
+          "sha256": "1f4aaf9b8fca4400b768b20dc681db9b47fa44131a9e6198cb9a167149cad3d2",
+          "committed": false
+        },
+        {
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-bindings-public-20261009-487dba2/mdn/experiment.db",
+          "bytes": 135168,
+          "sha256": "008efd81e29a38010fcf61d9b21a5bbc3fb091a2476bc36bdd0e615d308909ba",
+          "committed": false
+        },
+        {
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-bindings-public-20261009-487dba2/mdn/candidates-1.json",
+          "bytes": 16900,
+          "sha256": "4708bb80d678c4c845b293d01fb5affe8a2375a4dc8350322edcae253b2e9265",
+          "committed": false
+        },
+        {
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-bindings-public-20261009-487dba2/mdn/candidates-2.json",
+          "bytes": 16900,
+          "sha256": "a3ac8504d3fa200b929b381ea495ce99de44e8ff6677195007ad721b6444b150",
+          "committed": false
+        }
+      ],
+      "sampleVerifiedCandidates": [
+        {
+          "candidateId": "image-ff3ba69a-f0d6-44c1-b4ba-a0a10e8c5b14",
+          "measured": {
+            "contractFields": {
+              "id": "image-ff3ba69a-f0d6-44c1-b4ba-a0a10e8c5b14",
+              "pageUrl": "https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Responsive_images",
+              "viewport": {
+                "width": 1280,
+                "height": 768
+              },
+              "selector": "html > body:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > section:nth-of-type(1) > p:nth-of-type(2) > img:nth-of-type(1)",
+              "resourceUrl": "https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Responsive_images/picture-element-wide.png",
+              "resourceSha256": "cc9035e4c9d32c1dd19f88c13041482d96ee1de0e6580598cff10e0a7e41681f"
+            },
+            "locator": {
+              "kind": "structural",
+              "matchCount": 1
+            },
+            "paint": {
+              "selector": "html > body:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(2) > section:nth-of-type(1) > p:nth-of-type(2) > img:nth-of-type(1)",
+              "matchCount": 1,
+              "documentId": "0.4nbp6aynnhx",
+              "mutationEpoch": 0,
+              "decoded": true,
+              "nodeId": 4,
+              "currentSrc": "https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Responsive_images/picture-element-wide.png",
+              "complete": true,
+              "naturalWidth": 700,
+              "naturalHeight": 554,
+              "contentWidth": 698,
+              "contentHeight": 552.406,
+              "objectFit": "fill",
+              "objectPosition": "50% 50%",
+              "bounds": {
+                "x": 290,
+                "y": 615,
+                "width": 700,
+                "height": 554.40625
+              },
+              "matrix": [
+                1,
+                0,
+                0,
+                1
+              ],
+              "unsupported": [
+                "partial-viewport",
+                "large-document-visibility-unmeasured",
+                "visible-content-not-confirmed"
+              ],
+              "stable": true,
+              "resource": {
+                "sha256": "cc9035e4c9d32c1dd19f88c13041482d96ee1de0e6580598cff10e0a7e41681f",
+                "format": "png",
+                "evidenceRef": "c980a904-03cb-45d8-88d5-6c857ee68ca0.json"
+              }
+            },
+            "evidenceRefs": [
+              "60700fac-22fd-4dc6-9f90-e6acf0aec327.png",
+              "f56de9d6-844b-4e36-8bf0-fbdebce7fb22.json",
+              "c980a904-03cb-45d8-88d5-6c857ee68ca0.json"
+            ]
+          },
+          "issues": [
+            "partial-viewport",
+            "large-document-visibility-unmeasured",
+            "visible-content-not-confirmed",
+            "evidence-intervened"
+          ],
+          "pending": {
+            "intent": null,
+            "basis": {
+              "reference": null,
+              "statement": null,
+              "confirmedBy": null
+            }
+          }
+        }
+      ]
+    },
+    {
+      "key": "github",
+      "runId": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+      "startedAt": "2026-10-08T16:33:39.561Z",
+      "finishedAt": "2026-10-08T16:33:52.659Z",
+      "openMs": 7492,
+      "totalMs": 13098,
+      "closeMs": 24,
+      "failures": [],
+      "observations": [
+        {
+          "number": 1,
+          "startedAt": "2026-10-08T16:33:47.054Z",
+          "finishedAt": "2026-10-08T16:33:47.320Z",
+          "durationMs": 266,
+          "file": "candidates-1.json",
+          "observationId": "image-observation-77c7e147-90ca-4c56-aff3-6f9f087c7d41",
+          "totalImages": 25,
+          "enumerated": 25,
+          "omitted": 0,
+          "observedAt": "2026-10-08T16:33:47.309Z",
+          "expiresAt": "2026-10-08T16:38:47.309Z",
+          "decodedImages": 25,
+          "paintRecords": 25,
+          "uniqueStable": 0,
+          "verifiedStaticTypes": {
+            "png": 7,
+            "jpeg": 15
+          },
+          "verifiedStaticCount": 22,
+          "contractFieldsComplete": 22,
+          "paintSupported": 0,
+          "factsReady": 0,
+          "issues": {
+            "unstable-target-evidence": 25,
+            "large-document-visibility-unmeasured": 25,
+            "evidence-intervened": 25,
+            "supported-resource-bytes-unavailable": 3,
+            "outside-viewport": 23,
+            "ancestor-clipping": 23,
+            "visible-content-not-confirmed": 23,
+            "paint-effect": 4
+          },
+          "missingFields": {
+            "intent": 25,
+            "basis.reference": 25,
+            "basis.statement": 25,
+            "basis.confirmedBy": 25,
+            "fresh-supported-target-evidence": 25,
+            "resourceSha256": 3
+          },
+          "epochs": [
+            2
+          ],
+          "snapshot": {
+            "ref": "9fe343a5-e282-4f64-84d7-4cec5e00b34f.json",
+            "url": "https://github.com/python/cpython",
+            "title": "GitHub - python/cpython: The Python programming language · GitHub",
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 3
+            }
+          },
+          "uniqueResourceHashes": 21,
+          "decodedStaticImages": 22,
+          "ambiguousLocators": 0
+        },
+        {
+          "number": 2,
+          "startedAt": "2026-10-08T16:33:52.321Z",
+          "finishedAt": "2026-10-08T16:33:52.635Z",
+          "durationMs": 314,
+          "file": "candidates-2.json",
+          "observationId": "image-observation-3adb4461-54be-4e1a-bdd3-e2e78fa98248",
+          "totalImages": 25,
+          "enumerated": 25,
+          "omitted": 0,
+          "observedAt": "2026-10-08T16:33:52.626Z",
+          "expiresAt": "2026-10-08T16:38:52.626Z",
+          "decodedImages": 25,
+          "paintRecords": 25,
+          "uniqueStable": 0,
+          "verifiedStaticTypes": {
+            "png": 7,
+            "jpeg": 15
+          },
+          "verifiedStaticCount": 22,
+          "contractFieldsComplete": 22,
+          "paintSupported": 0,
+          "factsReady": 0,
+          "issues": {
+            "unstable-target-evidence": 25,
+            "large-document-visibility-unmeasured": 25,
+            "evidence-intervened": 25,
+            "supported-resource-bytes-unavailable": 3,
+            "outside-viewport": 23,
+            "ancestor-clipping": 23,
+            "visible-content-not-confirmed": 23,
+            "paint-effect": 4
+          },
+          "missingFields": {
+            "intent": 25,
+            "basis.reference": 25,
+            "basis.statement": 25,
+            "basis.confirmedBy": 25,
+            "fresh-supported-target-evidence": 25,
+            "resourceSha256": 3
+          },
+          "epochs": [
+            4
+          ],
+          "snapshot": {
+            "ref": "f65673dd-f67c-4175-875a-44a1fbfcd23a.json",
+            "url": "https://github.com/python/cpython",
+            "title": "GitHub - python/cpython: The Python programming language · GitHub",
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 4
+            }
+          },
+          "uniqueResourceHashes": 21,
+          "decodedStaticImages": 22,
+          "ambiguousLocators": 0
+        }
+      ],
+      "changes": {
+        "sameIdentity": 25,
+        "firstOnly": [],
+        "secondOnly": [],
+        "selectorChanged": [],
+        "targetFactsChanged": [],
+        "resourceUrlChanged": [],
+        "verifiedHashChanged": [],
+        "resourceEvidenceAvailabilityChanged": [],
+        "firstBatchSuperseded": 25,
+        "actualGapMs": 5001,
+        "epochOnlyCount": 25,
+        "unchangedCount": 0
+      },
+      "network": {
+        "decisions": 199,
+        "document": [
+          {
+            "requestId": "interception-job-1.0",
+            "actionId": null,
+            "method": "GET",
+            "url": "https://github.com/python/cpython",
+            "destination": "document",
+            "redirectFrom": null,
+            "policyRevision": "url-scan-network-1",
+            "allow": true,
+            "reasonCode": "allowed",
+            "dnsMode": "doh",
+            "networkStage": "complete",
+            "resolvedAddresses": [
+              "20.205.243.166"
+            ],
+            "selectedAddress": "20.205.243.166",
+            "connectedAddress": "20.205.243.166",
+            "elapsedMs": 1086,
+            "experiment": "image-bindings-1"
+          }
+        ],
+        "refusals": [
+          {
+            "requestId": "interception-job-196.0",
+            "actionId": null,
+            "method": "POST",
+            "url": "https://collector.github.com/github/collect",
+            "destination": "beacon",
+            "redirectFrom": null,
+            "policyRevision": "url-scan-network-1",
+            "dnsMode": "doh",
+            "networkStage": "policy",
+            "resolvedAddresses": [],
+            "elapsedMs": 0,
+            "allow": false,
+            "reasonCode": "unsupported-channel",
+            "experiment": "image-bindings-1"
+          },
+          {
+            "requestId": "interception-job-197.0",
+            "actionId": null,
+            "method": "POST",
+            "url": "https://collector.github.com/github/collect",
+            "destination": "beacon",
+            "redirectFrom": null,
+            "policyRevision": "url-scan-network-1",
+            "dnsMode": "doh",
+            "networkStage": "policy",
+            "resolvedAddresses": [],
+            "elapsedMs": 0,
+            "allow": false,
+            "reasonCode": "unsupported-channel",
+            "experiment": "image-bindings-1"
+          },
+          {
+            "requestId": "interception-job-198.0",
+            "actionId": null,
+            "method": "POST",
+            "url": "https://api.github.com/_private/browser/stats",
+            "destination": "beacon",
+            "redirectFrom": null,
+            "policyRevision": "url-scan-network-1",
+            "dnsMode": "doh",
+            "networkStage": "policy",
+            "resolvedAddresses": [],
+            "elapsedMs": 0,
+            "allow": false,
+            "reasonCode": "unsupported-channel",
+            "experiment": "image-bindings-1"
+          },
+          {
+            "requestId": "interception-job-199.0",
+            "actionId": null,
+            "method": "POST",
+            "url": "https://collector.github.com/github/collect",
+            "destination": "beacon",
+            "redirectFrom": null,
+            "policyRevision": "url-scan-network-1",
+            "dnsMode": "doh",
+            "networkStage": "policy",
+            "resolvedAddresses": [],
+            "elapsedMs": 0,
+            "allow": false,
+            "reasonCode": "unsupported-channel",
+            "experiment": "image-bindings-1"
+          }
+        ],
+        "cancellations": [],
+        "refusalGroups": {
+          "collector.github.com | beacon | POST | unsupported-channel | ": 3,
+          "api.github.com | beacon | POST | unsupported-channel | ": 1
+        },
+        "completedResponses": 195,
+        "pinMatches": 195
+      },
+      "artifacts": [
+        {
+          "id": "cd264f77-c386-4dee-b096-599293e40067.png",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "screenshot",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/cd264f77-c386-4dee-b096-599293e40067.png",
+          "metadata": {
+            "url": "https://github.com/python/cpython",
+            "viewport": {
+              "width": 1280,
+              "height": 768
+            },
+            "capturedAt": "2026-10-08T16:33:47.163Z",
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 3
+            }
+          },
+          "created_at": "2026-10-08 16:33:47",
+          "bytes": 169457,
+          "sha256": "89012ef658442e9660ddea4c0adef034c1dd4347ddfcf6d8130f541b96d42f0c",
+          "committed": false
+        },
+        {
+          "id": "ccb3aede-86a3-4bb2-a9fa-c08bd3b52987.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/ccb3aede-86a3-4bb2-a9fa-c08bd3b52987.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 3
+            }
+          },
+          "created_at": "2026-10-08 16:33:47",
+          "bytes": 3016,
+          "sha256": "434a90b8f7287ae61f8828b5a4023a9bb297450b2220ddaa1a21a5b4ffc36310",
+          "committed": false
+        },
+        {
+          "id": "8402bd11-9575-48a0-83af-736c8724ce39.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/8402bd11-9575-48a0-83af-736c8724ce39.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 3
+            }
+          },
+          "created_at": "2026-10-08 16:33:47",
+          "bytes": 6040,
+          "sha256": "bbcb3e67d51df1910ae763a660fa3c8499164ff9887480eb9e2026708a2875fd",
+          "committed": false
+        },
+        {
+          "id": "ab292aec-87fa-4ec9-ac85-79af54ca1a71.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/ab292aec-87fa-4ec9-ac85-79af54ca1a71.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 3
+            }
+          },
+          "created_at": "2026-10-08 16:33:47",
+          "bytes": 3284,
+          "sha256": "670179d90a184d45fcf313a093d47fe03d956499bd132976d1fdb7e5673d7de3",
+          "committed": false
+        },
+        {
+          "id": "08252f23-deaf-4243-90a3-d80a034ae738.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/08252f23-deaf-4243-90a3-d80a034ae738.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 3
+            }
+          },
+          "created_at": "2026-10-08 16:33:47",
+          "bytes": 2341,
+          "sha256": "53b065f237091db399cf10c98b8769732599b7864e905c5bf39ab6d6fa52bf3d",
+          "committed": false
+        },
+        {
+          "id": "7dae109a-48d8-43ef-9d4e-723824335aad.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/7dae109a-48d8-43ef-9d4e-723824335aad.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 3
+            }
+          },
+          "created_at": "2026-10-08 16:33:47",
+          "bytes": 5681,
+          "sha256": "6b4f6a88ecc0ff7b627c664c81371e1bf9c0a6f08789b45ba1e23510d452688f",
+          "committed": false
+        },
+        {
+          "id": "fa909fc0-c065-4ea4-90e1-60894e57cf2a.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/fa909fc0-c065-4ea4-90e1-60894e57cf2a.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 3
+            }
+          },
+          "created_at": "2026-10-08 16:33:47",
+          "bytes": 2266,
+          "sha256": "15536e6356728af1c61a97fa297b1f5d30a02020ad5874406d15e9298b625e68",
+          "committed": false
+        },
+        {
+          "id": "e9afa469-06e6-4367-be71-2bcde7cbd939.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/e9afa469-06e6-4367-be71-2bcde7cbd939.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 3
+            }
+          },
+          "created_at": "2026-10-08 16:33:47",
+          "bytes": 2368,
+          "sha256": "92c8c9f4739f2aece1d27486a2d7deb33682af73c1b83714dc20986bbb92528d",
+          "committed": false
+        },
+        {
+          "id": "f246993e-5376-444a-8a7d-23d6ceab2269.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/f246993e-5376-444a-8a7d-23d6ceab2269.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 3
+            }
+          },
+          "created_at": "2026-10-08 16:33:47",
+          "bytes": 3436,
+          "sha256": "2745fa7deef41a08029e602d0f14aa455277fc63220aebb9ed8a1b6a6f7e971a",
+          "committed": false
+        },
+        {
+          "id": "9ede4c74-edc9-48b7-8964-ecea53612648.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/9ede4c74-edc9-48b7-8964-ecea53612648.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 3
+            }
+          },
+          "created_at": "2026-10-08 16:33:47",
+          "bytes": 3056,
+          "sha256": "1ea3e416193c01ed29cfe3bc9a2047589c8055035b61947f5b4cf3e217f43f59",
+          "committed": false
+        },
+        {
+          "id": "748c95e8-2181-4e81-928f-726d9f81604d.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/748c95e8-2181-4e81-928f-726d9f81604d.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 3
+            }
+          },
+          "created_at": "2026-10-08 16:33:47",
+          "bytes": 2753,
+          "sha256": "88a06ef8d01deeaad7b886491b5d42209ae9f2229559b3146e9f8d995b9d8a4d",
+          "committed": false
+        },
+        {
+          "id": "0d99b683-bc86-40dc-9ea7-dabad6e14e4c.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/0d99b683-bc86-40dc-9ea7-dabad6e14e4c.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 3
+            }
+          },
+          "created_at": "2026-10-08 16:33:47",
+          "bytes": 2269,
+          "sha256": "57803d0667523a88abb92ad3f05193c856bd70d2e19f7b5b1c4100743e72fc7d",
+          "committed": false
+        },
+        {
+          "id": "f49c4066-2917-4b8e-b907-b39459ca5497.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/f49c4066-2917-4b8e-b907-b39459ca5497.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 3
+            }
+          },
+          "created_at": "2026-10-08 16:33:47",
+          "bytes": 3529,
+          "sha256": "73f0337a417d4d0c7c9056f603672384546237f4a0726f456163266cbb8e329a",
+          "committed": false
+        },
+        {
+          "id": "b57017c2-54c9-4b87-9109-9348c9c19f1f.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/b57017c2-54c9-4b87-9109-9348c9c19f1f.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 3
+            }
+          },
+          "created_at": "2026-10-08 16:33:47",
+          "bytes": 2440,
+          "sha256": "62b439502721a0c372e0a67b639c62c8722db5b3a1b81edc727fe3eb672eeca9",
+          "committed": false
+        },
+        {
+          "id": "d4fe7e94-6dcc-43f0-bcad-18100a074716.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/d4fe7e94-6dcc-43f0-bcad-18100a074716.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 3
+            }
+          },
+          "created_at": "2026-10-08 16:33:47",
+          "bytes": 1970,
+          "sha256": "c7fc839ca44b9398f2284a54f77c3fd57b86c13401b34d3dd470ce3c135ec441",
+          "committed": false
+        },
+        {
+          "id": "59226979-81d3-4d7a-88ab-07a4eb92cbef.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/59226979-81d3-4d7a-88ab-07a4eb92cbef.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 3
+            }
+          },
+          "created_at": "2026-10-08 16:33:47",
+          "bytes": 2729,
+          "sha256": "971fb2aa989b3267bdf7d58d33e088f721a5ac8291e5e4cd34020d70608fc9a0",
+          "committed": false
+        },
+        {
+          "id": "b6982f70-eb11-43c1-bf06-8e53274ca0bf.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/b6982f70-eb11-43c1-bf06-8e53274ca0bf.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 3
+            }
+          },
+          "created_at": "2026-10-08 16:33:47",
+          "bytes": 2601,
+          "sha256": "3c17444486fecf0916fedc79f70b4e263ae38b1c244e2e7e8d31c8560b6707fa",
+          "committed": false
+        },
+        {
+          "id": "02181f29-fd19-41e7-a24c-c9c9d9ead55a.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/02181f29-fd19-41e7-a24c-c9c9d9ead55a.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 3
+            }
+          },
+          "created_at": "2026-10-08 16:33:47",
+          "bytes": 9390,
+          "sha256": "ff21a31cd9d1620b58cf45f15d57a260105aa57f88d739a9f61b73c7268f6e2c",
+          "committed": false
+        },
+        {
+          "id": "70499cd9-f8c5-4141-9460-1d72f2242178.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/70499cd9-f8c5-4141-9460-1d72f2242178.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 3
+            }
+          },
+          "created_at": "2026-10-08 16:33:47",
+          "bytes": 2204,
+          "sha256": "a9723096412d5e81e04a9305f8d021ed294cd85de009f338fea499fe32946d5b",
+          "committed": false
+        },
+        {
+          "id": "ea20dc7a-ed1b-42a8-9a09-c2b892f7ae58.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/ea20dc7a-ed1b-42a8-9a09-c2b892f7ae58.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 3
+            }
+          },
+          "created_at": "2026-10-08 16:33:47",
+          "bytes": 3188,
+          "sha256": "f810e7172bf864b88f4a6b052455f3a7fb3a870fe311e4ba73899802bcc34970",
+          "committed": false
+        },
+        {
+          "id": "b29027db-c604-461b-8c58-86ff013f22d6.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/b29027db-c604-461b-8c58-86ff013f22d6.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 3
+            }
+          },
+          "created_at": "2026-10-08 16:33:47",
+          "bytes": 2007,
+          "sha256": "cb1d51171c14d96988b8588180311c7ca21d12a4ec23d92ec29c1f539563d8e0",
+          "committed": false
+        },
+        {
+          "id": "af3b3485-30f1-4f4d-be25-42a88ee66e1c.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/af3b3485-30f1-4f4d-be25-42a88ee66e1c.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 3
+            }
+          },
+          "created_at": "2026-10-08 16:33:47",
+          "bytes": 2099,
+          "sha256": "41bcd5a9da6eb4f19cc88ddaeab82a964753cd26885fa2eaf084aecf00e1e00e",
+          "committed": false
+        },
+        {
+          "id": "a83777d7-5d1c-4972-bc4d-2ceec73a3eb1.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/a83777d7-5d1c-4972-bc4d-2ceec73a3eb1.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 3
+            }
+          },
+          "created_at": "2026-10-08 16:33:47",
+          "bytes": 2099,
+          "sha256": "41bcd5a9da6eb4f19cc88ddaeab82a964753cd26885fa2eaf084aecf00e1e00e",
+          "committed": false
+        },
+        {
+          "id": "9fe343a5-e282-4f64-84d7-4cec5e00b34f.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "snapshot",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/9fe343a5-e282-4f64-84d7-4cec5e00b34f.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 3
+            }
+          },
+          "created_at": "2026-10-08 16:33:47",
+          "bytes": 682839,
+          "sha256": "d65c473faae5c9cd9da78ab809cd320b9def863e31a0150e8fd6ef4c4d45ce92",
+          "committed": false
+        },
+        {
+          "id": "f552e561-3546-49d6-93e9-f3f088184b1c.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "image-binding-candidates",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/f552e561-3546-49d6-93e9-f3f088184b1c.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 3
+            }
+          },
+          "created_at": "2026-10-08 16:33:47",
+          "bytes": 78438,
+          "sha256": "18550d42444f27c2cd89ffa5db7cc966d0955526f70281cf5af2994359030d30",
+          "committed": false
+        },
+        {
+          "id": "d5b1afc8-0ab5-4ed8-b081-4b8b5b9d6760.png",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "screenshot",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/d5b1afc8-0ab5-4ed8-b081-4b8b5b9d6760.png",
+          "metadata": {
+            "url": "https://github.com/python/cpython",
+            "viewport": {
+              "width": 1280,
+              "height": 768
+            },
+            "capturedAt": "2026-10-08T16:33:52.446Z",
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 4
+            }
+          },
+          "created_at": "2026-10-08 16:33:52",
+          "bytes": 169463,
+          "sha256": "e1c1b824c7c0c9a0e234afcc4b31564c9e07bc91e08a3a7fdcd0398ee8286ffa",
+          "committed": false
+        },
+        {
+          "id": "ee6814ac-4348-4dc6-a4f8-aad52c0ac739.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/ee6814ac-4348-4dc6-a4f8-aad52c0ac739.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 4
+            }
+          },
+          "created_at": "2026-10-08 16:33:52",
+          "bytes": 3016,
+          "sha256": "434a90b8f7287ae61f8828b5a4023a9bb297450b2220ddaa1a21a5b4ffc36310",
+          "committed": false
+        },
+        {
+          "id": "c1e09413-1f4d-4c52-8b50-64d7cd5c05a1.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/c1e09413-1f4d-4c52-8b50-64d7cd5c05a1.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 4
+            }
+          },
+          "created_at": "2026-10-08 16:33:52",
+          "bytes": 2266,
+          "sha256": "15536e6356728af1c61a97fa297b1f5d30a02020ad5874406d15e9298b625e68",
+          "committed": false
+        },
+        {
+          "id": "2ac32529-bbe0-4519-95be-8e41b2d48dbb.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/2ac32529-bbe0-4519-95be-8e41b2d48dbb.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 4
+            }
+          },
+          "created_at": "2026-10-08 16:33:52",
+          "bytes": 2099,
+          "sha256": "41bcd5a9da6eb4f19cc88ddaeab82a964753cd26885fa2eaf084aecf00e1e00e",
+          "committed": false
+        },
+        {
+          "id": "97e45ba4-d70d-403b-abe9-99e8ca007aa2.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/97e45ba4-d70d-403b-abe9-99e8ca007aa2.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 4
+            }
+          },
+          "created_at": "2026-10-08 16:33:52",
+          "bytes": 2099,
+          "sha256": "41bcd5a9da6eb4f19cc88ddaeab82a964753cd26885fa2eaf084aecf00e1e00e",
+          "committed": false
+        },
+        {
+          "id": "e3623d03-a7b8-4add-a317-ccf740aea155.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/e3623d03-a7b8-4add-a317-ccf740aea155.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 4
+            }
+          },
+          "created_at": "2026-10-08 16:33:52",
+          "bytes": 6040,
+          "sha256": "bbcb3e67d51df1910ae763a660fa3c8499164ff9887480eb9e2026708a2875fd",
+          "committed": false
+        },
+        {
+          "id": "8e7e8a0e-b5ed-4973-a35e-edc0c006185c.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/8e7e8a0e-b5ed-4973-a35e-edc0c006185c.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 4
+            }
+          },
+          "created_at": "2026-10-08 16:33:52",
+          "bytes": 3284,
+          "sha256": "670179d90a184d45fcf313a093d47fe03d956499bd132976d1fdb7e5673d7de3",
+          "committed": false
+        },
+        {
+          "id": "1bb2efac-bcb1-45f6-8a15-063a99a096f6.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/1bb2efac-bcb1-45f6-8a15-063a99a096f6.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 4
+            }
+          },
+          "created_at": "2026-10-08 16:33:52",
+          "bytes": 3436,
+          "sha256": "2745fa7deef41a08029e602d0f14aa455277fc63220aebb9ed8a1b6a6f7e971a",
+          "committed": false
+        },
+        {
+          "id": "769d9cce-8bff-47a6-bdae-f419c6aee89e.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/769d9cce-8bff-47a6-bdae-f419c6aee89e.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 4
+            }
+          },
+          "created_at": "2026-10-08 16:33:52",
+          "bytes": 2440,
+          "sha256": "62b439502721a0c372e0a67b639c62c8722db5b3a1b81edc727fe3eb672eeca9",
+          "committed": false
+        },
+        {
+          "id": "30e4d1ec-cd3b-4c57-a1dc-6df3bc8f8ac4.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/30e4d1ec-cd3b-4c57-a1dc-6df3bc8f8ac4.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 4
+            }
+          },
+          "created_at": "2026-10-08 16:33:52",
+          "bytes": 5681,
+          "sha256": "6b4f6a88ecc0ff7b627c664c81371e1bf9c0a6f08789b45ba1e23510d452688f",
+          "committed": false
+        },
+        {
+          "id": "b9cfef2c-ba71-4b15-8a50-48315b3acb40.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/b9cfef2c-ba71-4b15-8a50-48315b3acb40.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 4
+            }
+          },
+          "created_at": "2026-10-08 16:33:52",
+          "bytes": 2341,
+          "sha256": "53b065f237091db399cf10c98b8769732599b7864e905c5bf39ab6d6fa52bf3d",
+          "committed": false
+        },
+        {
+          "id": "e3b8a313-25f5-4d79-b121-1132e484abea.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/e3b8a313-25f5-4d79-b121-1132e484abea.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 4
+            }
+          },
+          "created_at": "2026-10-08 16:33:52",
+          "bytes": 1970,
+          "sha256": "c7fc839ca44b9398f2284a54f77c3fd57b86c13401b34d3dd470ce3c135ec441",
+          "committed": false
+        },
+        {
+          "id": "18fdd077-b5a7-44ee-be7e-9fe7b4e61fb2.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/18fdd077-b5a7-44ee-be7e-9fe7b4e61fb2.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 4
+            }
+          },
+          "created_at": "2026-10-08 16:33:52",
+          "bytes": 2753,
+          "sha256": "88a06ef8d01deeaad7b886491b5d42209ae9f2229559b3146e9f8d995b9d8a4d",
+          "committed": false
+        },
+        {
+          "id": "c0dba32e-dac4-420d-8f32-6df22be807a6.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/c0dba32e-dac4-420d-8f32-6df22be807a6.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 4
+            }
+          },
+          "created_at": "2026-10-08 16:33:52",
+          "bytes": 3529,
+          "sha256": "73f0337a417d4d0c7c9056f603672384546237f4a0726f456163266cbb8e329a",
+          "committed": false
+        },
+        {
+          "id": "97893b0a-170d-4e0e-9ed4-d276162447ec.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/97893b0a-170d-4e0e-9ed4-d276162447ec.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 4
+            }
+          },
+          "created_at": "2026-10-08 16:33:52",
+          "bytes": 2368,
+          "sha256": "92c8c9f4739f2aece1d27486a2d7deb33682af73c1b83714dc20986bbb92528d",
+          "committed": false
+        },
+        {
+          "id": "43a0cfc3-936a-4429-ae6c-3f150d91ff62.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/43a0cfc3-936a-4429-ae6c-3f150d91ff62.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 4
+            }
+          },
+          "created_at": "2026-10-08 16:33:52",
+          "bytes": 3056,
+          "sha256": "1ea3e416193c01ed29cfe3bc9a2047589c8055035b61947f5b4cf3e217f43f59",
+          "committed": false
+        },
+        {
+          "id": "ec0eafbc-e385-41e0-93ea-23457ff1dd71.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/ec0eafbc-e385-41e0-93ea-23457ff1dd71.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 4
+            }
+          },
+          "created_at": "2026-10-08 16:33:52",
+          "bytes": 9390,
+          "sha256": "ff21a31cd9d1620b58cf45f15d57a260105aa57f88d739a9f61b73c7268f6e2c",
+          "committed": false
+        },
+        {
+          "id": "021114e9-df80-49c7-803f-38e70600a815.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/021114e9-df80-49c7-803f-38e70600a815.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 4
+            }
+          },
+          "created_at": "2026-10-08 16:33:52",
+          "bytes": 2007,
+          "sha256": "cb1d51171c14d96988b8588180311c7ca21d12a4ec23d92ec29c1f539563d8e0",
+          "committed": false
+        },
+        {
+          "id": "a83dc91e-e5b1-4270-9232-321f7ffea09f.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/a83dc91e-e5b1-4270-9232-321f7ffea09f.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 4
+            }
+          },
+          "created_at": "2026-10-08 16:33:52",
+          "bytes": 2601,
+          "sha256": "3c17444486fecf0916fedc79f70b4e263ae38b1c244e2e7e8d31c8560b6707fa",
+          "committed": false
+        },
+        {
+          "id": "f7d1370e-eb80-4d32-a7cc-a0e754f791a4.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/f7d1370e-eb80-4d32-a7cc-a0e754f791a4.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 4
+            }
+          },
+          "created_at": "2026-10-08 16:33:52",
+          "bytes": 2269,
+          "sha256": "57803d0667523a88abb92ad3f05193c856bd70d2e19f7b5b1c4100743e72fc7d",
+          "committed": false
+        },
+        {
+          "id": "4bcbd822-fa57-4380-9d87-fb7f6fdd040e.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/4bcbd822-fa57-4380-9d87-fb7f6fdd040e.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 4
+            }
+          },
+          "created_at": "2026-10-08 16:33:52",
+          "bytes": 2729,
+          "sha256": "971fb2aa989b3267bdf7d58d33e088f721a5ac8291e5e4cd34020d70608fc9a0",
+          "committed": false
+        },
+        {
+          "id": "9b4bd78c-55d6-411d-81dc-cceb141dcefb.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/9b4bd78c-55d6-411d-81dc-cceb141dcefb.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 4
+            }
+          },
+          "created_at": "2026-10-08 16:33:52",
+          "bytes": 2204,
+          "sha256": "a9723096412d5e81e04a9305f8d021ed294cd85de009f338fea499fe32946d5b",
+          "committed": false
+        },
+        {
+          "id": "0ca0783a-7faf-4b91-93d4-45f3dd63c354.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "image-resource",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/0ca0783a-7faf-4b91-93d4-45f3dd63c354.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 4
+            }
+          },
+          "created_at": "2026-10-08 16:33:52",
+          "bytes": 3188,
+          "sha256": "f810e7172bf864b88f4a6b052455f3a7fb3a870fe311e4ba73899802bcc34970",
+          "committed": false
+        },
+        {
+          "id": "f65673dd-f67c-4175-875a-44a1fbfcd23a.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "snapshot",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/f65673dd-f67c-4175-875a-44a1fbfcd23a.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 4
+            }
+          },
+          "created_at": "2026-10-08 16:33:52",
+          "bytes": 682891,
+          "sha256": "b1c3e1c6454accacc5fdb8d217f6db75c474ea635ae187fe3dc58516114fa52c",
+          "committed": false
+        },
+        {
+          "id": "94bd7d0f-cf98-4676-88bb-45fee1a83f2a.json",
+          "run_id": "run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2",
+          "type": "image-binding-candidates",
+          "file_path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-4e5e7bfb-8472-4bc3-8f3e-5a35318ceda2/94bd7d0f-cf98-4676-88bb-45fee1a83f2a.json",
+          "metadata": {
+            "evidenceIntegrity": {
+              "status": "intervened",
+              "interventionCount": 4
+            }
+          },
+          "created_at": "2026-10-08 16:33:52",
+          "bytes": 78438,
+          "sha256": "2d9b4f1fbabe2e40ed731a56c07959c29e66e4849d4cc43f458fe40c1cc30cf4",
+          "committed": false
+        }
+      ],
+      "evidenceBytes": 2003058,
+      "eventBytes": 220980,
+      "databaseBytes": 294912,
+      "semanticChecks": 0,
+      "bindingChecks": 0,
+      "asyncReadRequests": [
+        {
+          "timestamp": "2026-10-08T16:33:43.809Z",
+          "requestId": "interception-job-152.0",
+          "actionId": null,
+          "method": "GET",
+          "url": "https://github.com/python/cpython/recently-touched-branches",
+          "destination": "xhr",
+          "redirectFrom": null,
+          "policyRevision": "url-scan-network-1",
+          "allow": true,
+          "reasonCode": "allowed",
+          "dnsMode": "doh",
+          "networkStage": "complete",
+          "resolvedAddresses": [
+            "20.205.243.166"
+          ],
+          "selectedAddress": "20.205.243.166",
+          "connectedAddress": "20.205.243.166",
+          "elapsedMs": 667,
+          "experiment": "image-bindings-1"
+        },
+        {
+          "timestamp": "2026-10-08T16:33:43.819Z",
+          "requestId": "interception-job-153.0",
+          "actionId": null,
+          "method": "GET",
+          "url": "https://github.com/python/cpython/branch-and-tag-count",
+          "destination": "xhr",
+          "redirectFrom": null,
+          "policyRevision": "url-scan-network-1",
+          "allow": true,
+          "reasonCode": "allowed",
+          "dnsMode": "doh",
+          "networkStage": "complete",
+          "resolvedAddresses": [
+            "20.205.243.166"
+          ],
+          "selectedAddress": "20.205.243.166",
+          "connectedAddress": "20.205.243.166",
+          "elapsedMs": 676,
+          "experiment": "image-bindings-1"
+        },
+        {
+          "timestamp": "2026-10-08T16:33:43.857Z",
+          "requestId": "interception-job-168.0",
+          "actionId": null,
+          "method": "GET",
+          "url": "https://github.com/python/cpython/refs?type=branch",
+          "destination": "xhr",
+          "redirectFrom": null,
+          "policyRevision": "url-scan-network-1",
+          "allow": true,
+          "reasonCode": "allowed",
+          "dnsMode": "doh",
+          "networkStage": "complete",
+          "resolvedAddresses": [
+            "20.205.243.166"
+          ],
+          "selectedAddress": "20.205.243.166",
+          "connectedAddress": "20.205.243.166",
+          "elapsedMs": 627,
+          "experiment": "image-bindings-1"
+        },
+        {
+          "timestamp": "2026-10-08T16:33:43.872Z",
+          "requestId": "interception-job-151.0",
+          "actionId": null,
+          "method": "GET",
+          "url": "https://github.com/python/cpython/latest-commit",
+          "destination": "xhr",
+          "redirectFrom": null,
+          "policyRevision": "url-scan-network-1",
+          "allow": true,
+          "reasonCode": "allowed",
+          "dnsMode": "doh",
+          "networkStage": "complete",
+          "resolvedAddresses": [
+            "20.205.243.166"
+          ],
+          "selectedAddress": "20.205.243.166",
+          "connectedAddress": "20.205.243.166",
+          "elapsedMs": 731,
+          "experiment": "image-bindings-1"
+        },
+        {
+          "timestamp": "2026-10-08T16:33:43.941Z",
+          "requestId": "interception-job-167.0",
+          "actionId": null,
+          "method": "GET",
+          "url": "https://github.com/python/cpython/tree-commit-info",
+          "destination": "xhr",
+          "redirectFrom": null,
+          "policyRevision": "url-scan-network-1",
+          "allow": true,
+          "reasonCode": "allowed",
+          "dnsMode": "doh",
+          "networkStage": "complete",
+          "resolvedAddresses": [
+            "20.205.243.166"
+          ],
+          "selectedAddress": "20.205.243.166",
+          "connectedAddress": "20.205.243.166",
+          "elapsedMs": 722,
+          "experiment": "image-bindings-1"
+        },
+        {
+          "timestamp": "2026-10-08T16:33:43.990Z",
+          "requestId": "interception-job-170.0",
+          "actionId": null,
+          "method": "GET",
+          "url": "https://github.com/python/cpython/_sidebar/sponsors",
+          "destination": "xhr",
+          "redirectFrom": null,
+          "policyRevision": "url-scan-network-1",
+          "allow": true,
+          "reasonCode": "allowed",
+          "dnsMode": "doh",
+          "networkStage": "complete",
+          "resolvedAddresses": [
+            "20.205.243.166"
+          ],
+          "selectedAddress": "20.205.243.166",
+          "connectedAddress": "20.205.243.166",
+          "elapsedMs": 715,
+          "experiment": "image-bindings-1"
+        },
+        {
+          "timestamp": "2026-10-08T16:33:44.170Z",
+          "requestId": "interception-job-169.0",
+          "actionId": null,
+          "method": "GET",
+          "url": "https://github.com/python/cpython/overview-files/main",
+          "destination": "xhr",
+          "redirectFrom": null,
+          "policyRevision": "url-scan-network-1",
+          "allow": true,
+          "reasonCode": "allowed",
+          "dnsMode": "doh",
+          "networkStage": "complete",
+          "resolvedAddresses": [
+            "20.205.243.166"
+          ],
+          "selectedAddress": "20.205.243.166",
+          "connectedAddress": "20.205.243.166",
+          "elapsedMs": 937,
+          "experiment": "image-bindings-1"
+        },
+        {
+          "timestamp": "2026-10-08T16:33:44.262Z",
+          "requestId": "interception-job-171.0",
+          "actionId": null,
+          "method": "GET",
+          "url": "https://github.com/python/cpython/_sidebar",
+          "destination": "xhr",
+          "redirectFrom": null,
+          "policyRevision": "url-scan-network-1",
+          "allow": true,
+          "reasonCode": "allowed",
+          "dnsMode": "doh",
+          "networkStage": "complete",
+          "resolvedAddresses": [
+            "20.205.243.166"
+          ],
+          "selectedAddress": "20.205.243.166",
+          "connectedAddress": "20.205.243.166",
+          "elapsedMs": 986,
+          "experiment": "image-bindings-1"
+        },
+        {
+          "timestamp": "2026-10-08T16:33:44.431Z",
+          "requestId": "interception-job-173.0",
+          "actionId": null,
+          "method": "GET",
+          "url": "https://github.com/_global-navigation/payloads.json?can_toggle_site_admin_and_employee_status=0&is_admin_mode_on=0&is_ui_opted_out=0&show_ui_opt_out=0&v=6",
+          "destination": "xhr",
+          "redirectFrom": null,
+          "policyRevision": "url-scan-network-1",
+          "allow": true,
+          "reasonCode": "allowed",
+          "dnsMode": "doh",
+          "networkStage": "complete",
+          "resolvedAddresses": [
+            "20.205.243.166"
+          ],
+          "selectedAddress": "20.205.243.166",
+          "connectedAddress": "20.205.243.166",
+          "elapsedMs": 369,
+          "experiment": "image-bindings-1"
+        }
+      ],
+      "localFiles": [
+        {
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-bindings-public-20261009-487dba2/github/result.json",
+          "bytes": 47324,
+          "sha256": "36a6a97ebf91750d7377f451bfe9e3be2607b53558accaf9d386ff07d9a99292",
+          "committed": false
+        },
+        {
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-bindings-public-20261009-487dba2/github/events.json",
+          "bytes": 220980,
+          "sha256": "7469d01d4a79e3f0968730f9e15b60690aa1a4dd886db4e2b20edada0dee8f8a",
+          "committed": false
+        },
+        {
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-bindings-public-20261009-487dba2/github/experiment.db",
+          "bytes": 294912,
+          "sha256": "13b3f9b6e5bf3d8de17d2d5e4006c8302ae5840ef2a5bf48ad0a66d6f7aa809b",
+          "committed": false
+        },
+        {
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-bindings-public-20261009-487dba2/github/candidates-1.json",
+          "bytes": 103912,
+          "sha256": "96f8e532aa23d219ddb3e1357b7c9afa085c3169a8340c4b830d667aaf9c73c8",
+          "committed": false
+        },
+        {
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-bindings-public-20261009-487dba2/github/candidates-2.json",
+          "bytes": 103912,
+          "sha256": "c78952e8f41517460b2fb0450788d560816b4075acfec7c0f82cc0788748d3c5",
+          "committed": false
+        }
+      ],
+      "sampleVerifiedCandidates": [
+        {
+          "candidateId": "image-1cfa8aeb-0c4c-44b8-8933-0906d068d14e",
+          "measured": {
+            "contractFields": {
+              "id": "image-1cfa8aeb-0c4c-44b8-8933-0906d068d14e",
+              "pageUrl": "https://github.com/python/cpython",
+              "viewport": {
+                "width": 1280,
+                "height": 768
+              },
+              "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(5) > div:nth-of-type(1) > main:nth-of-type(1) > turbo-frame:nth-of-type(1) > div:nth-of-type(1) > react-app:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > img:nth-of-type(1)",
+              "resourceUrl": "https://avatars.githubusercontent.com/u/1525981?s=60&v=4",
+              "resourceSha256": "58d3a1e50dbbe8e54d0b35b9ea1025195d20f2604b8b7669ca925add5a71b429"
+            },
+            "locator": {
+              "kind": "structural",
+              "matchCount": 1
+            },
+            "paint": {
+              "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(5) > div:nth-of-type(1) > main:nth-of-type(1) > turbo-frame:nth-of-type(1) > div:nth-of-type(1) > react-app:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > header:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > img:nth-of-type(1)",
+              "matchCount": 1,
+              "documentId": "0.ftcbeeghwgg",
+              "mutationEpoch": 4,
+              "decoded": true,
+              "nodeId": 4,
+              "currentSrc": "https://avatars.githubusercontent.com/u/1525981?s=60&v=4",
+              "complete": true,
+              "naturalWidth": 60,
+              "naturalHeight": 60,
+              "contentWidth": 24,
+              "contentHeight": 24,
+              "objectFit": "fill",
+              "objectPosition": "50% 50%",
+              "bounds": {
+                "x": 32,
+                "y": 194,
+                "width": 24,
+                "height": 24
+              },
+              "matrix": [
+                1,
+                0,
+                0,
+                1
+              ],
+              "unsupported": [
+                "large-document-visibility-unmeasured"
+              ],
+              "stable": false,
+              "resource": {
+                "sha256": "58d3a1e50dbbe8e54d0b35b9ea1025195d20f2604b8b7669ca925add5a71b429",
+                "format": "png",
+                "evidenceRef": "ee6814ac-4348-4dc6-a4f8-aad52c0ac739.json"
+              }
+            },
+            "evidenceRefs": [
+              "d5b1afc8-0ab5-4ed8-b081-4b8b5b9d6760.png",
+              "f65673dd-f67c-4175-875a-44a1fbfcd23a.json",
+              "ee6814ac-4348-4dc6-a4f8-aad52c0ac739.json"
+            ]
+          },
+          "issues": [
+            "unstable-target-evidence",
+            "large-document-visibility-unmeasured",
+            "evidence-intervened"
+          ],
+          "pending": {
+            "intent": null,
+            "basis": {
+              "reference": null,
+              "statement": null,
+              "confirmedBy": null
+            }
+          }
+        },
+        {
+          "candidateId": "image-275fd335-ff3e-4fd2-aacd-77616a93b9de",
+          "measured": {
+            "contractFields": {
+              "id": "image-275fd335-ff3e-4fd2-aacd-77616a93b9de",
+              "pageUrl": "https://github.com/python/cpython",
+              "viewport": {
+                "width": 1280,
+                "height": 768
+              },
+              "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(5) > div:nth-of-type(1) > main:nth-of-type(1) > turbo-frame:nth-of-type(1) > div:nth-of-type(1) > react-app:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > a:nth-of-type(1) > img:nth-of-type(1)",
+              "resourceUrl": "https://avatars.githubusercontent.com/u/20501725?v=4&size=40",
+              "resourceSha256": "79a24de205e94480b7672cba28ba2c14f115db1be95ff896a7c4a270024930a1"
+            },
+            "locator": {
+              "kind": "structural",
+              "matchCount": 1
+            },
+            "paint": {
+              "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(5) > div:nth-of-type(1) > main:nth-of-type(1) > turbo-frame:nth-of-type(1) > div:nth-of-type(1) > react-app:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(3) > div:nth-of-type(1) > div:nth-of-type(2) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > a:nth-of-type(1) > img:nth-of-type(1)",
+              "matchCount": 1,
+              "documentId": "0.ftcbeeghwgg",
+              "mutationEpoch": 4,
+              "decoded": true,
+              "nodeId": 5,
+              "currentSrc": "https://avatars.githubusercontent.com/u/20501725?v=4&size=40",
+              "complete": true,
+              "naturalWidth": 40,
+              "naturalHeight": 40,
+              "contentWidth": 20,
+              "contentHeight": 20,
+              "objectFit": "fill",
+              "objectPosition": "50% 50%",
+              "bounds": {
+                "x": 46,
+                "y": 330.90625,
+                "width": 20,
+                "height": 20
+              },
+              "matrix": [
+                1,
+                0,
+                0,
+                1
+              ],
+              "unsupported": [
+                "large-document-visibility-unmeasured"
+              ],
+              "stable": false,
+              "resource": {
+                "sha256": "79a24de205e94480b7672cba28ba2c14f115db1be95ff896a7c4a270024930a1",
+                "format": "png",
+                "evidenceRef": "e3623d03-a7b8-4add-a317-ccf740aea155.json"
+              }
+            },
+            "evidenceRefs": [
+              "d5b1afc8-0ab5-4ed8-b081-4b8b5b9d6760.png",
+              "f65673dd-f67c-4175-875a-44a1fbfcd23a.json",
+              "e3623d03-a7b8-4add-a317-ccf740aea155.json"
+            ]
+          },
+          "issues": [
+            "unstable-target-evidence",
+            "large-document-visibility-unmeasured",
+            "evidence-intervened"
+          ],
+          "pending": {
+            "intent": null,
+            "basis": {
+              "reference": null,
+              "statement": null,
+              "confirmedBy": null
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "totals": {
+    "navigationAttempts": 3,
+    "observations": 6,
+    "secondObservationImages": 58,
+    "secondObservationEnumerated": 58,
+    "omitted": 0,
+    "decodedImagesSecond": 31,
+    "verifiedStaticCandidateTargetsSecond": 26,
+    "decodedStaticCandidateTargetsSecond": 25,
+    "uniqueStaticResourceHashesAcrossPagesSecond": 24,
+    "contractFieldsCompleteSecond": 26,
+    "fullSupportedPaintSecond": 0,
+    "factsReadySecond": 0,
+    "semanticChecks": 0,
+    "completedNetworkResponses": 319,
+    "pinMatches": 319,
+    "policyRefusals": 25,
+    "finalizationCancellations": 0,
+    "evidenceBytes": 5703911
+  },
+  "limitations": [
+    "Two observations per page; no binding-only consumption API and no semantic basis supplied.",
+    "Global epoch does not identify mutation origins; screenshot default hide-caret writes input styles (Playwright 1.63.0). Do not attribute all epoch changes to website async DOM.",
+    "All candidate records have large-document-visibility-unmeasured and evidence-intervened; field presence is not checker readiness.",
+    "MDN actual srcset/sizes/loading attributes not captured; responsive/lazy behaviour not established.",
+    "Raw PNG/JSON/resources/databases/build logs and DNS source copies are local ignored files, not delivered through Git."
+  ]
+}

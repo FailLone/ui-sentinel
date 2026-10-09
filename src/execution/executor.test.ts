@@ -1,3 +1,5 @@
+import { imageContract, imageHtml, imagePng } from '../../evaluation/fixtures/image-shape.ts'
+import { createImageShapeDistortionRule } from '../rules/builtin/image-shape-distortion.ts'
 import { describe, it, expect, vi, beforeAll, afterAll, beforeEach } from 'vitest'
 import { createServer } from 'node:http'
 import { readFile, rm } from 'node:fs/promises'
@@ -158,6 +160,22 @@ let exportCreates = 0
  */
 let exportEligibilityWorkspace = false
 const server = createServer((req, res) => {
+  if (req.url === '/image-shape.png') {
+    res.writeHead(200, { 'content-type': 'image/png' })
+    res.end(imagePng)
+    return
+  }
+  if (req.url?.startsWith('/synthetic-image-shape')) {
+    res.writeHead(200, { 'content-type': 'text/html' })
+    const variant = new URL(req.url, 'http://fixture').searchParams.get('variant')
+    res.end(
+      imageHtml(
+        variant === 'healthy' ? 'height:240px;object-fit:contain' : 'height:60px',
+        '/image-shape.png',
+      ),
+    )
+    return
+  }
   if (exportDownloadMode && req.url?.endsWith('/download')) {
     exportDownloads++
     res.writeHead(200, {
@@ -2813,5 +2831,82 @@ it.each(['owned', 'foreign', 'private'] as const)(
     const events = await getEvents(run.id)
     expect(events.some((e) => e.type === 'execution:intervention')).toBe(mode !== 'owned')
     expect((await getRun(run.id))?.status).toBe(mode === 'owned' ? 'completed' : 'blocked')
+  },
+)
+
+it.each(['defect', 'healthy', 'exception', 'insufficient', 'disabled'] as const)(
+  'synthetic image candidate wires %s through executor, source=rule finding and report without paid models',
+  async (variant) => {
+    const entryUrl = url + '/synthetic-image-shape?variant=' + variant
+    const contract = imageContract(entryUrl, url + '/image-shape.png')
+    const rule = createImageShapeDistortionRule(
+      variant === 'insufficient'
+        ? []
+        : [
+            {
+              ...contract,
+              intent: variant === 'exception' ? 'intentional-distortion' : 'preserve',
+            },
+          ],
+    )
+    registerRule({ ...rule, enabled: variant !== 'disabled' })
+    harness.handler = async (tools: any) =>
+      call(tools, 'run_finish', {
+        businessResult: 'unknown',
+        blocked: true,
+        summary: 'Synthetic fixture check only',
+      })
+    const run = await createRun({
+      goal: 'Synthetic image candidate',
+      environmentId: 'test',
+      entryUrl,
+    })
+    ids.push(run.id)
+    await startRunExecution(run.id)
+    const { buildReport } = await import('../server/reports/run-report.ts')
+    const { runRoutes } = await import('../server/routes/runs.ts')
+    const report = await buildReport(run.id)
+    const evaluations = report!.evaluations.filter((e: any) => e.ruleId === rule.id) as any[]
+    if (variant === 'disabled') {
+      expect(evaluations).toHaveLength(0)
+      expect(report!.artifacts.some((a: any) => a.type === 'image-resource')).toBe(false)
+      const snapshot = report!.artifacts.find((a: any) => a.type === 'snapshot')!
+      expect((await (await runRoutes.request(snapshot.url)).json()).imagePaint).toBeUndefined()
+    } else {
+      const expected = {
+        defect: 'fail',
+        healthy: 'pass',
+        exception: 'not-applicable',
+        insufficient: 'unknown',
+      }[variant]
+      expect(evaluations.length).toBeGreaterThan(0)
+      expect(evaluations.every((e) => e.verdict === expected)).toBe(true)
+      const evaluation = evaluations[0]!
+      expect(evaluation.ruleRevision).toBe('0.1.0')
+      expect(evaluation.details.knowledgeId).toBe('UIK-D004')
+      const findings = report!.findings.filter((f: any) => f.ruleId === rule.id)
+      expect(findings).toHaveLength(variant === 'defect' ? 1 : 0)
+      if (variant === 'defect')
+        expect(findings[0]).toMatchObject({
+          source: 'rule',
+          validationStatus: 'supported',
+          ruleRevision: '0.1.0',
+        })
+      for (const ref of evaluation.evidenceRefs) {
+        const artifact = report!.artifacts.find((a: any) => a.id === ref)!
+        expect(artifact).toBeTruthy()
+        expect(artifact.available).toBe(true)
+        const served = await runRoutes.request(artifact.url)
+        expect(served.status).toBe(200)
+        expect((await served.arrayBuffer()).byteLength).toBeGreaterThan(0)
+      }
+      if (variant !== 'insufficient') {
+        expect(evaluation.details.rows[0].contract.basis).toEqual(contract.basis)
+        const resource = evaluation.details.rows[0].fact.resource
+        expect(resource.sha256).toBe(contract.resourceSha256)
+        expect(evaluation.evidenceRefs).toContain(resource.evidenceRef)
+      }
+    }
+    expect(writes).toBe(0)
   },
 )

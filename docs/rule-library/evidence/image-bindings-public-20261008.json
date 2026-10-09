@@ -1,0 +1,377 @@
+{
+  "protocol": {
+    "fixedBeforeNavigation": true,
+    "date": "2026-10-08",
+    "revision": "330c5ba",
+    "viewport": {
+      "width": 1280,
+      "height": 768
+    },
+    "observationsPerSuccessfulVisit": 2,
+    "gapAfterFirstObservationMs": 5000,
+    "retry": false,
+    "semanticCheck": "not executed without reliable explicit basis; no placeholder confirmation",
+    "trustedOrigins": [],
+    "pages": [
+      {
+        "key": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:PNG_transparency_demonstration_1.png",
+        "reason": "公开文件说明页，预期包含简单静态 PNG 及其来源信息。",
+        "resourceOrigins": [
+          "https://upload.wikimedia.org",
+          "https://meta.wikimedia.org"
+        ]
+      },
+      {
+        "key": "mdn",
+        "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Responsive_images",
+        "reason": "公开响应式图片教程，预期包含响应式示例或延迟加载插图；实际类别是否可确认另行记录。",
+        "resourceOrigins": [
+          "https://mdn.github.io",
+          "https://interactive-examples.mdn.mozilla.net"
+        ]
+      },
+      {
+        "key": "github",
+        "url": "https://github.com/python/cpython",
+        "reason": "公开仓库普通页面，预期包含客户端异步加载的仓库信息和头像。",
+        "resourceOrigins": [
+          "https://github.githubassets.com",
+          "https://avatars.githubusercontent.com",
+          "https://user-images.githubusercontent.com",
+          "https://raw.githubusercontent.com",
+          "https://camo.githubusercontent.com"
+        ]
+      }
+    ],
+    "selectionNote": "第三项在任何访问前由 Hacker News 更正为 GitHub；清单固定后不替换。",
+    "measurementBoundary": "Only existing openImageBindingExperiment host. No clicks, fills, scrolling, extra fetch, paid models or tests. Two snapshots are diagnostics, not live binding consumption."
+  },
+  "dnsDiagnostic": {
+    "at": "2026-10-08T14:21:41.508Z",
+    "note": "Post-failure system DNS diagnostic only; no HTTP request or browser retry. These are not the exact answers retained at request time.",
+    "answers": [
+      {
+        "host": "commons.wikimedia.org",
+        "answers": [
+          {
+            "address": "198.18.228.47",
+            "family": 4
+          }
+        ]
+      },
+      {
+        "host": "developer.mozilla.org",
+        "answers": [
+          {
+            "address": "198.18.228.52",
+            "family": 4
+          }
+        ]
+      },
+      {
+        "host": "github.com",
+        "answers": [
+          {
+            "address": "198.18.1.109",
+            "family": 4
+          }
+        ]
+      }
+    ]
+  },
+  "recorderSha256": "dd700fcfe11478843ae2ebef1e0ec817bc6a8e5441d47b39533be0e48096a070",
+  "pages": [
+    {
+      "key": "commons",
+      "result": {
+        "page": {
+          "key": "commons",
+          "url": "https://commons.wikimedia.org/wiki/File:PNG_transparency_demonstration_1.png",
+          "reason": "公开文件说明页，预期包含简单静态 PNG 及其来源信息。",
+          "resourceOrigins": [
+            "https://upload.wikimedia.org",
+            "https://meta.wikimedia.org"
+          ]
+        },
+        "startedAt": "2026-10-08T14:21:03.785Z",
+        "observations": [],
+        "semanticCheck": "未执行语义检查",
+        "bindingConsumption": "未执行：现有入口要求完整语义依据，无 binding-only 接口",
+        "failures": [
+          {
+            "stage": "open",
+            "durationMs": 224,
+            "error": "Error: page.goto: net::ERR_BLOCKED_BY_CLIENT at https://commons.wikimedia.org/wiki/File:PNG_transparency_demonstration_1.png\nCall log:\n\u001b[2m  - navigating to \"https://commons.wikimedia.org/wiki/File:PNG_transparency_demonstration_1.png\", waiting until \"load\"\u001b[22m\n"
+          }
+        ],
+        "totalMs": 224,
+        "finishedAt": "2026-10-08T14:21:04.008Z",
+        "runs": [
+          {
+            "id": "run-1c50db1b-e636-41a1-8cc8-48954faa702c",
+            "spec": "{\"goal\":\"Independent image binding experiment; no acceptance claim\",\"environmentId\":\"image-binding-experiment\",\"entryUrl\":\"https://commons.wikimedia.org/wiki/File:PNG_transparency_demonstration_1.png\",\"budget\":{\"totalTimeoutMs\":300000,\"maxActions\":40,\"maxModelCalls\":40},\"viewport\":{\"width\":1280,\"height\":768}}",
+            "status": "cancelled",
+            "business_result": "unknown",
+            "stop_reason": "cancelled",
+            "usage": "{\"actions\":0,\"modelCalls\":0,\"elapsedMs\":0,\"modelInputTokens\":0,\"modelOutputTokens\":0}",
+            "created_at": "2026-10-08T14:21:03.790Z",
+            "updated_at": "2026-10-08T14:21:04.007Z"
+          }
+        ],
+        "runId": "run-1c50db1b-e636-41a1-8cc8-48954faa702c",
+        "artifacts": [],
+        "evidenceBytes": 0
+      },
+      "events": [
+        {
+          "id": "evt-fe78d346-b674-49f5-87c4-7743eba07a3a",
+          "run_id": "run-1c50db1b-e636-41a1-8cc8-48954faa702c",
+          "seq": 0,
+          "type": "network:decision",
+          "timestamp": "2026-10-08T14:21:03.979Z",
+          "step_id": null,
+          "action_id": null,
+          "payload": {
+            "requestId": "interception-job-1.0",
+            "actionId": null,
+            "method": "GET",
+            "url": "https://commons.wikimedia.org/wiki/File:PNG_transparency_demonstration_1.png",
+            "destination": "document",
+            "redirectFrom": null,
+            "policyRevision": "url-scan-network-1",
+            "allow": false,
+            "reasonCode": "private-address",
+            "experiment": "image-bindings-1"
+          },
+          "evidence_refs": "[]"
+        },
+        {
+          "id": "evt-bf8bf926-dad9-48c3-ab5f-b038aedbad2a",
+          "run_id": "run-1c50db1b-e636-41a1-8cc8-48954faa702c",
+          "seq": 1,
+          "type": "run:completed",
+          "timestamp": "2026-10-08T14:21:04.008Z",
+          "step_id": null,
+          "action_id": null,
+          "payload": {
+            "status": "cancelled",
+            "stopReason": "cancelled",
+            "experiment": "image-bindings-1",
+            "acceptanceClaim": false
+          },
+          "evidence_refs": "[]"
+        }
+      ],
+      "eventExportBytes": 1134,
+      "databaseBytes": 73728,
+      "counts": {
+        "totalImages": null,
+        "enumeratedImages": null,
+        "omittedImages": null,
+        "supportedImages": null,
+        "machineFactsComplete": null,
+        "candidateBatches": 0,
+        "completedObservations": 0,
+        "navigationAttempts": 1,
+        "semanticChecks": 0
+      },
+      "invalidation": "not measured: no candidate produced; target change and unrelated DOM change both unknown"
+    },
+    {
+      "key": "mdn",
+      "result": {
+        "page": {
+          "key": "mdn",
+          "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Responsive_images",
+          "reason": "公开响应式图片教程，预期包含响应式示例或延迟加载插图；实际类别是否可确认另行记录。",
+          "resourceOrigins": [
+            "https://mdn.github.io",
+            "https://interactive-examples.mdn.mozilla.net"
+          ]
+        },
+        "startedAt": "2026-10-08T14:21:09.264Z",
+        "observations": [],
+        "semanticCheck": "未执行语义检查",
+        "bindingConsumption": "未执行：现有入口要求完整语义依据，无 binding-only 接口",
+        "failures": [
+          {
+            "stage": "open",
+            "durationMs": 211,
+            "error": "Error: page.goto: net::ERR_BLOCKED_BY_CLIENT at https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Responsive_images\nCall log:\n\u001b[2m  - navigating to \"https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Responsive_images\", waiting until \"load\"\u001b[22m\n"
+          }
+        ],
+        "totalMs": 211,
+        "finishedAt": "2026-10-08T14:21:09.475Z",
+        "runs": [
+          {
+            "id": "run-a2ab879c-5db1-4fd0-ad21-ec8b018d6589",
+            "spec": "{\"goal\":\"Independent image binding experiment; no acceptance claim\",\"environmentId\":\"image-binding-experiment\",\"entryUrl\":\"https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Responsive_images\",\"budget\":{\"totalTimeoutMs\":300000,\"maxActions\":40,\"maxModelCalls\":40},\"viewport\":{\"width\":1280,\"height\":768}}",
+            "status": "cancelled",
+            "business_result": "unknown",
+            "stop_reason": "cancelled",
+            "usage": "{\"actions\":0,\"modelCalls\":0,\"elapsedMs\":0,\"modelInputTokens\":0,\"modelOutputTokens\":0}",
+            "created_at": "2026-10-08T14:21:09.270Z",
+            "updated_at": "2026-10-08T14:21:09.474Z"
+          }
+        ],
+        "runId": "run-a2ab879c-5db1-4fd0-ad21-ec8b018d6589",
+        "artifacts": [],
+        "evidenceBytes": 0
+      },
+      "events": [
+        {
+          "id": "evt-0ffdd8de-6d69-43ca-8836-205000f7b500",
+          "run_id": "run-a2ab879c-5db1-4fd0-ad21-ec8b018d6589",
+          "seq": 0,
+          "type": "network:decision",
+          "timestamp": "2026-10-08T14:21:09.453Z",
+          "step_id": null,
+          "action_id": null,
+          "payload": {
+            "requestId": "interception-job-1.0",
+            "actionId": null,
+            "method": "GET",
+            "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Responsive_images",
+            "destination": "document",
+            "redirectFrom": null,
+            "policyRevision": "url-scan-network-1",
+            "allow": false,
+            "reasonCode": "private-address",
+            "experiment": "image-bindings-1"
+          },
+          "evidence_refs": "[]"
+        },
+        {
+          "id": "evt-22cdf424-e916-45d8-b7f8-8685fe0ad078",
+          "run_id": "run-a2ab879c-5db1-4fd0-ad21-ec8b018d6589",
+          "seq": 1,
+          "type": "run:completed",
+          "timestamp": "2026-10-08T14:21:09.475Z",
+          "step_id": null,
+          "action_id": null,
+          "payload": {
+            "status": "cancelled",
+            "stopReason": "cancelled",
+            "experiment": "image-bindings-1",
+            "acceptanceClaim": false
+          },
+          "evidence_refs": "[]"
+        }
+      ],
+      "eventExportBytes": 1132,
+      "databaseBytes": 73728,
+      "counts": {
+        "totalImages": null,
+        "enumeratedImages": null,
+        "omittedImages": null,
+        "supportedImages": null,
+        "machineFactsComplete": null,
+        "candidateBatches": 0,
+        "completedObservations": 0,
+        "navigationAttempts": 1,
+        "semanticChecks": 0
+      },
+      "invalidation": "not measured: no candidate produced; target change and unrelated DOM change both unknown"
+    },
+    {
+      "key": "github",
+      "result": {
+        "page": {
+          "key": "github",
+          "url": "https://github.com/python/cpython",
+          "reason": "公开仓库普通页面，预期包含客户端异步加载的仓库信息和头像。",
+          "resourceOrigins": [
+            "https://github.githubassets.com",
+            "https://avatars.githubusercontent.com",
+            "https://user-images.githubusercontent.com",
+            "https://raw.githubusercontent.com",
+            "https://camo.githubusercontent.com"
+          ]
+        },
+        "startedAt": "2026-10-08T14:21:15.841Z",
+        "observations": [],
+        "semanticCheck": "未执行语义检查",
+        "bindingConsumption": "未执行：现有入口要求完整语义依据，无 binding-only 接口",
+        "failures": [
+          {
+            "stage": "open",
+            "durationMs": 233,
+            "error": "Error: page.goto: net::ERR_BLOCKED_BY_CLIENT at https://github.com/python/cpython\nCall log:\n\u001b[2m  - navigating to \"https://github.com/python/cpython\", waiting until \"load\"\u001b[22m\n"
+          }
+        ],
+        "totalMs": 233,
+        "finishedAt": "2026-10-08T14:21:16.075Z",
+        "runs": [
+          {
+            "id": "run-1b699dcd-3e72-47ab-a1ab-8f221db691e6",
+            "spec": "{\"goal\":\"Independent image binding experiment; no acceptance claim\",\"environmentId\":\"image-binding-experiment\",\"entryUrl\":\"https://github.com/python/cpython\",\"budget\":{\"totalTimeoutMs\":300000,\"maxActions\":40,\"maxModelCalls\":40},\"viewport\":{\"width\":1280,\"height\":768}}",
+            "status": "cancelled",
+            "business_result": "unknown",
+            "stop_reason": "cancelled",
+            "usage": "{\"actions\":0,\"modelCalls\":0,\"elapsedMs\":0,\"modelInputTokens\":0,\"modelOutputTokens\":0}",
+            "created_at": "2026-10-08T14:21:15.848Z",
+            "updated_at": "2026-10-08T14:21:16.073Z"
+          }
+        ],
+        "runId": "run-1b699dcd-3e72-47ab-a1ab-8f221db691e6",
+        "artifacts": [],
+        "evidenceBytes": 0
+      },
+      "events": [
+        {
+          "id": "evt-1b89d551-8bf5-4e70-906b-c7ee0cfa2b9a",
+          "run_id": "run-1b699dcd-3e72-47ab-a1ab-8f221db691e6",
+          "seq": 0,
+          "type": "network:decision",
+          "timestamp": "2026-10-08T14:21:16.047Z",
+          "step_id": null,
+          "action_id": null,
+          "payload": {
+            "requestId": "interception-job-1.0",
+            "actionId": null,
+            "method": "GET",
+            "url": "https://github.com/python/cpython",
+            "destination": "document",
+            "redirectFrom": null,
+            "policyRevision": "url-scan-network-1",
+            "allow": false,
+            "reasonCode": "private-address",
+            "experiment": "image-bindings-1"
+          },
+          "evidence_refs": "[]"
+        },
+        {
+          "id": "evt-f8396211-b55f-43ab-ad9a-9a856f9fd0b2",
+          "run_id": "run-1b699dcd-3e72-47ab-a1ab-8f221db691e6",
+          "seq": 1,
+          "type": "run:completed",
+          "timestamp": "2026-10-08T14:21:16.074Z",
+          "step_id": null,
+          "action_id": null,
+          "payload": {
+            "status": "cancelled",
+            "stopReason": "cancelled",
+            "experiment": "image-bindings-1",
+            "acceptanceClaim": false
+          },
+          "evidence_refs": "[]"
+        }
+      ],
+      "eventExportBytes": 1091,
+      "databaseBytes": 73728,
+      "counts": {
+        "totalImages": null,
+        "enumeratedImages": null,
+        "omittedImages": null,
+        "supportedImages": null,
+        "machineFactsComplete": null,
+        "candidateBatches": 0,
+        "completedObservations": 0,
+        "navigationAttempts": 1,
+        "semanticChecks": 0
+      },
+      "invalidation": "not measured: no candidate produced; target change and unrelated DOM change both unknown"
+    }
+  ]
+}

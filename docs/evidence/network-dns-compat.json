@@ -1,0 +1,824 @@
+{
+  "baseline": "2ac24efab18f7704f5c0b2b7bd74cf1f22ef94f8",
+  "implementationCommit": "6566d568f5cd1bbe9b6afaef1b12a4b90463288a",
+  "branch": "codex/network-dns-compat",
+  "workspace": "/private/tmp/ui-sentinel-network-dns-compat",
+  "deterministic": {
+    "passed": 62,
+    "failed": 0,
+    "suites": [
+      {
+        "path": "targeted-authorized.log",
+        "passed": 51
+      },
+      {
+        "path": "integration-final.log",
+        "passed": 9
+      },
+      {
+        "path": "system-regression.log",
+        "passed": 2,
+        "notSelected": 9
+      }
+    ],
+    "build": "passed",
+    "note": "Local fixture tests; no model calls. Initial sandbox EPERM and a test cleanup callback issue were resolved; final logs above."
+  },
+  "publicSystem": {
+    "build": {
+      "commit": "6566d568f5cd1bbe9b6afaef1b12a4b90463288a",
+      "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "observerSha256": "0f2f101ee3ac18bb0e730fa9c6bd685bcf97171e8acfabdbf27d2bb463c08723",
+      "serverSha256": "adb44e737dfa540fd06cc4e93af2e4e16c31e168af5371619a001d5dd6fa02ba",
+      "node": "v24.21.0",
+      "dnsMode": "system"
+    },
+    "results": [
+      {
+        "id": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:PNG_transparency_demonstration_1.png",
+        "resources": [
+          "https://upload.wikimedia.org",
+          "https://meta.wikimedia.org"
+        ],
+        "startedAt": "2026-10-08T16:15:16.448Z",
+        "elapsedMs": 189,
+        "observationComplete": false,
+        "observation": null,
+        "failure": "address",
+        "decisions": [
+          {
+            "requestId": "interception-job-1.0",
+            "actionId": null,
+            "method": "GET",
+            "url": "https://commons.wikimedia.org/wiki/File:PNG_transparency_demonstration_1.png",
+            "destination": "document",
+            "redirectFrom": null,
+            "policyRevision": "url-scan-network-1",
+            "dnsMode": "system",
+            "networkStage": "address",
+            "resolvedAddresses": [
+              "198.18.228.47"
+            ],
+            "elapsedMs": 13,
+            "allow": false,
+            "reasonCode": "private-address"
+          }
+        ],
+        "modelCalls": 0,
+        "semanticChecks": 0,
+        "acceptanceClaim": false
+      },
+      {
+        "id": "mdn",
+        "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Responsive_images",
+        "resources": [
+          "https://mdn.github.io",
+          "https://interactive-examples.mdn.mozilla.net"
+        ],
+        "startedAt": "2026-10-08T16:15:16.637Z",
+        "elapsedMs": 164,
+        "observationComplete": false,
+        "observation": null,
+        "failure": "address",
+        "decisions": [
+          {
+            "requestId": "interception-job-1.0",
+            "actionId": null,
+            "method": "GET",
+            "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Responsive_images",
+            "destination": "document",
+            "redirectFrom": null,
+            "policyRevision": "url-scan-network-1",
+            "dnsMode": "system",
+            "networkStage": "address",
+            "resolvedAddresses": [
+              "198.18.228.52"
+            ],
+            "elapsedMs": 7,
+            "allow": false,
+            "reasonCode": "private-address"
+          }
+        ],
+        "modelCalls": 0,
+        "semanticChecks": 0,
+        "acceptanceClaim": false
+      },
+      {
+        "id": "github",
+        "url": "https://github.com/python/cpython",
+        "resources": [
+          "https://github.githubassets.com",
+          "https://avatars.githubusercontent.com",
+          "https://user-images.githubusercontent.com",
+          "https://raw.githubusercontent.com",
+          "https://camo.githubusercontent.com"
+        ],
+        "startedAt": "2026-10-08T16:15:16.801Z",
+        "elapsedMs": 150,
+        "observationComplete": false,
+        "observation": null,
+        "failure": "address",
+        "decisions": [
+          {
+            "requestId": "interception-job-1.0",
+            "actionId": null,
+            "method": "GET",
+            "url": "https://github.com/python/cpython",
+            "destination": "document",
+            "redirectFrom": null,
+            "policyRevision": "url-scan-network-1",
+            "dnsMode": "system",
+            "networkStage": "address",
+            "resolvedAddresses": [
+              "198.18.1.109"
+            ],
+            "elapsedMs": 6,
+            "allow": false,
+            "reasonCode": "private-address"
+          }
+        ],
+        "modelCalls": 0,
+        "semanticChecks": 0,
+        "acceptanceClaim": false
+      }
+    ]
+  },
+  "publicDoh": {
+    "status": "completed",
+    "validationConfig": {
+      "URL_SCAN_DNS_MODE": "doh",
+      "URL_SCAN_DNS_TIMEOUT_MS": "5000",
+      "URL_SCAN_DOH_ENDPOINT": "https://dns.alidns.com/dns-query",
+      "URL_SCAN_DOH_BOOTSTRAP_ADDRESS": "223.5.5.5",
+      "URL_SCAN_DOH_ALLOWED_HOSTS": "commons.wikimedia.org,upload.wikimedia.org,meta.wikimedia.org,developer.mozilla.org,mdn.github.io,interactive-examples.mdn.mozilla.net,github.com,github.githubassets.com,avatars.githubusercontent.com,user-images.githubusercontent.com,raw.githubusercontent.com,camo.githubusercontent.com"
+    },
+    "configScope": "Explicitly authorized for this fixed experiment; not a product default.",
+    "build": {
+      "commit": "3725f770e3ba39587fc0eb9c95d763370a788171",
+      "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "observerSha256": "0f2f101ee3ac18bb0e730fa9c6bd685bcf97171e8acfabdbf27d2bb463c08723",
+      "serverSha256": "adb44e737dfa540fd06cc4e93af2e4e16c31e168af5371619a001d5dd6fa02ba",
+      "node": "v24.21.0",
+      "dnsMode": "doh"
+    },
+    "identityCheck": "All previous artifact hashes matched; src/scripts/package/lock unchanged from 6566d56. Reused existing compiled observer and server build; no install, rebuild, or test rerun.",
+    "results": [
+      {
+        "id": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:PNG_transparency_demonstration_1.png",
+        "resourceOrigins": [
+          "https://upload.wikimedia.org",
+          "https://meta.wikimedia.org"
+        ],
+        "startedAt": "2026-10-08T16:22:22.438Z",
+        "elapsedMs": 3093,
+        "observationComplete": true,
+        "failure": null,
+        "observation": {
+          "url": "https://commons.wikimedia.org/wiki/File:PNG_transparency_demonstration_1.png",
+          "title": "File:PNG transparency demonstration 1.png - Wikimedia Commons",
+          "elements": 2415,
+          "images": 26
+        },
+        "documentDecisions": [
+          {
+            "requestId": "interception-job-1.0",
+            "actionId": null,
+            "method": "GET",
+            "url": "https://commons.wikimedia.org/wiki/File:PNG_transparency_demonstration_1.png",
+            "destination": "document",
+            "redirectFrom": null,
+            "policyRevision": "url-scan-network-1",
+            "allow": true,
+            "reasonCode": "allowed",
+            "dnsMode": "doh",
+            "networkStage": "complete",
+            "resolvedAddresses": [
+              "103.102.166.224",
+              "2001:df2:e500:ed1a::1"
+            ],
+            "selectedAddress": "103.102.166.224",
+            "connectedAddress": "103.102.166.224",
+            "elapsedMs": 604
+          }
+        ],
+        "dnsAddressesByHost": {
+          "commons.wikimedia.org": {
+            "A": [
+              "103.102.166.224"
+            ],
+            "AAAA": [
+              "2001:df2:e500:ed1a::1"
+            ],
+            "selected": [
+              "103.102.166.224"
+            ],
+            "connected": [
+              "103.102.166.224"
+            ]
+          },
+          "upload.wikimedia.org": {
+            "A": [
+              "103.102.166.240"
+            ],
+            "AAAA": [
+              "2001:df2:e500:ed1a::2:b"
+            ],
+            "selected": [
+              "103.102.166.240"
+            ],
+            "connected": [
+              "103.102.166.240"
+            ]
+          },
+          "meta.wikimedia.org": {
+            "A": [
+              "103.102.166.224"
+            ],
+            "AAAA": [
+              "2001:df2:e500:ed1a::1"
+            ],
+            "selected": [
+              "103.102.166.224"
+            ],
+            "connected": [
+              "103.102.166.224"
+            ]
+          }
+        },
+        "counts": {
+          "decisions": 66,
+          "completedResponses": 48,
+          "pinMatches": 48,
+          "policyRefusals": 16,
+          "finalizationCancellations": 2
+        },
+        "policyRefusalGroups": [
+          {
+            "host": "thumb.wikimedia.org",
+            "destination": "image",
+            "method": "GET",
+            "reasonCode": "resource-origin-denied",
+            "sessionReason": null,
+            "count": 15
+          },
+          {
+            "host": "auth.wikimedia.org",
+            "destination": "script",
+            "method": "GET",
+            "reasonCode": "resource-origin-denied",
+            "sessionReason": null,
+            "count": 1
+          }
+        ],
+        "policyRefusals": [
+          {
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/17/System-search.svg/40px-System-search.svg.png?utm_source=commons.wikimedia.org&utm_campaign=parser&utm_content=thumbnail",
+            "destination": "image",
+            "method": "GET",
+            "reasonCode": "resource-origin-denied",
+            "networkStage": "policy",
+            "redirectFrom": null
+          },
+          {
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/79/CC_some_rights_reserved.svg/120px-CC_some_rights_reserved.svg.png?utm_source=commons.wikimedia.org&utm_campaign=parser&utm_content=thumbnail",
+            "destination": "image",
+            "method": "GET",
+            "reasonCode": "resource-origin-denied",
+            "networkStage": "policy",
+            "redirectFrom": null
+          },
+          {
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/11/Cc-by_new_white.svg/40px-Cc-by_new_white.svg.png?utm_source=commons.wikimedia.org&utm_campaign=parser&utm_content=thumbnail",
+            "destination": "image",
+            "method": "GET",
+            "reasonCode": "resource-origin-denied",
+            "networkStage": "policy",
+            "redirectFrom": null
+          },
+          {
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/df/Cc-sa_white.svg/40px-Cc-sa_white.svg.png?utm_source=commons.wikimedia.org&utm_campaign=parser&utm_content=thumbnail",
+            "destination": "image",
+            "method": "GET",
+            "reasonCode": "resource-origin-denied",
+            "networkStage": "policy",
+            "redirectFrom": null
+          },
+          {
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/22/Heckert_GNU_white.svg/120px-Heckert_GNU_white.svg.png?utm_source=commons.wikimedia.org&utm_campaign=parser&utm_content=thumbnail",
+            "destination": "image",
+            "method": "GET",
+            "reasonCode": "resource-origin-denied",
+            "networkStage": "policy",
+            "redirectFrom": null
+          },
+          {
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/47/PNG_transparency_demonstration_1.png/120px-PNG_transparency_demonstration_1.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail&_=20240708155759",
+            "destination": "image",
+            "method": "GET",
+            "reasonCode": "resource-origin-denied",
+            "networkStage": "policy",
+            "redirectFrom": null
+          },
+          {
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/archive/4/47/20240708155757%21PNG_transparency_demonstration_1.png/120px-PNG_transparency_demonstration_1.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail",
+            "destination": "image",
+            "method": "GET",
+            "reasonCode": "resource-origin-denied",
+            "networkStage": "policy",
+            "redirectFrom": null
+          },
+          {
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/archive/4/47/20210701224648%21PNG_transparency_demonstration_1.png/120px-PNG_transparency_demonstration_1.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail",
+            "destination": "image",
+            "method": "GET",
+            "reasonCode": "resource-origin-denied",
+            "networkStage": "policy",
+            "redirectFrom": null
+          },
+          {
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/archive/4/47/20200926191124%21PNG_transparency_demonstration_1.png/120px-PNG_transparency_demonstration_1.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail",
+            "destination": "image",
+            "method": "GET",
+            "reasonCode": "resource-origin-denied",
+            "networkStage": "policy",
+            "redirectFrom": null
+          },
+          {
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/archive/4/47/20190107230059%21PNG_transparency_demonstration_1.png/120px-PNG_transparency_demonstration_1.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail",
+            "destination": "image",
+            "method": "GET",
+            "reasonCode": "resource-origin-denied",
+            "networkStage": "policy",
+            "redirectFrom": null
+          },
+          {
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/archive/4/47/20190106031128%21PNG_transparency_demonstration_1.png/120px-PNG_transparency_demonstration_1.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail",
+            "destination": "image",
+            "method": "GET",
+            "reasonCode": "resource-origin-denied",
+            "networkStage": "policy",
+            "redirectFrom": null
+          },
+          {
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/archive/4/47/20170225194941%21PNG_transparency_demonstration_1.png/120px-PNG_transparency_demonstration_1.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail",
+            "destination": "image",
+            "method": "GET",
+            "reasonCode": "resource-origin-denied",
+            "networkStage": "policy",
+            "redirectFrom": null
+          },
+          {
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/archive/4/47/20161122122708%21PNG_transparency_demonstration_1.png/120px-PNG_transparency_demonstration_1.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail",
+            "destination": "image",
+            "method": "GET",
+            "reasonCode": "resource-origin-denied",
+            "networkStage": "policy",
+            "redirectFrom": null
+          },
+          {
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/archive/4/47/20160116174013%21PNG_transparency_demonstration_1.png/120px-PNG_transparency_demonstration_1.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail",
+            "destination": "image",
+            "method": "GET",
+            "reasonCode": "resource-origin-denied",
+            "networkStage": "policy",
+            "redirectFrom": null
+          },
+          {
+            "url": "https://thumb.wikimedia.org/wikipedia/commons/thumb/archive/4/47/20160116173954%21PNG_transparency_demonstration_1.png/120px-PNG_transparency_demonstration_1.png?utm_source=commons.wikimedia.org&utm_campaign=index&utm_content=thumbnail",
+            "destination": "image",
+            "method": "GET",
+            "reasonCode": "resource-origin-denied",
+            "networkStage": "policy",
+            "redirectFrom": null
+          },
+          {
+            "url": "https://auth.wikimedia.org/metawiki/wiki/Special:CentralAutoLogin/checkLoggedIn?useformat=desktop&wikiid=commonswiki&usesul3=1&type=script",
+            "destination": "script",
+            "method": "GET",
+            "reasonCode": "resource-origin-denied",
+            "networkStage": "policy",
+            "redirectFrom": "https://commons.wikimedia.org/wiki/Special:CentralAutoLogin/start?useformat=desktop&type=script&usesul3=1"
+          }
+        ],
+        "redirectDecisions": [
+          {
+            "requestId": "interception-job-33.1",
+            "actionId": null,
+            "method": "GET",
+            "url": "https://auth.wikimedia.org/metawiki/wiki/Special:CentralAutoLogin/checkLoggedIn?useformat=desktop&wikiid=commonswiki&usesul3=1&type=script",
+            "destination": "script",
+            "redirectFrom": "https://commons.wikimedia.org/wiki/Special:CentralAutoLogin/start?useformat=desktop&type=script&usesul3=1",
+            "policyRevision": "url-scan-network-1",
+            "dnsMode": "doh",
+            "networkStage": "policy",
+            "resolvedAddresses": [],
+            "elapsedMs": 0,
+            "allow": false,
+            "reasonCode": "resource-origin-denied"
+          }
+        ],
+        "finalizationCancellationNote": "Observation finished; seal cancelled pending reads. These are not remote connection/TLS failures.",
+        "modelCalls": 0,
+        "semanticChecks": 0,
+        "acceptanceClaim": false
+      },
+      {
+        "id": "mdn",
+        "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Responsive_images",
+        "resourceOrigins": [
+          "https://mdn.github.io",
+          "https://interactive-examples.mdn.mozilla.net"
+        ],
+        "startedAt": "2026-10-08T16:22:25.531Z",
+        "elapsedMs": 5215,
+        "observationComplete": true,
+        "failure": null,
+        "observation": {
+          "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Responsive_images",
+          "title": "Using responsive images in HTML - HTML | MDN",
+          "elements": 1610,
+          "images": 5
+        },
+        "documentDecisions": [
+          {
+            "requestId": "interception-job-1.0",
+            "actionId": null,
+            "method": "GET",
+            "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Responsive_images",
+            "destination": "document",
+            "redirectFrom": null,
+            "policyRevision": "url-scan-network-1",
+            "allow": true,
+            "reasonCode": "allowed",
+            "dnsMode": "doh",
+            "networkStage": "complete",
+            "resolvedAddresses": [
+              "151.101.89.91",
+              "2a04:4e42:15::347"
+            ],
+            "selectedAddress": "151.101.89.91",
+            "connectedAddress": "151.101.89.91",
+            "elapsedMs": 1339
+          }
+        ],
+        "dnsAddressesByHost": {
+          "developer.mozilla.org": {
+            "A": [
+              "151.101.89.91"
+            ],
+            "AAAA": [
+              "2a04:4e42:15::347"
+            ],
+            "selected": [
+              "151.101.89.91"
+            ],
+            "connected": [
+              "151.101.89.91"
+            ]
+          }
+        },
+        "counts": {
+          "decisions": 75,
+          "completedResponses": 67,
+          "pinMatches": 67,
+          "policyRefusals": 4,
+          "finalizationCancellations": 4
+        },
+        "policyRefusalGroups": [
+          {
+            "host": "incoming.telemetry.mozilla.org",
+            "destination": "beacon",
+            "method": "POST",
+            "reasonCode": "unsupported-channel",
+            "sessionReason": null,
+            "count": 3
+          },
+          {
+            "host": "developer.mozilla.org",
+            "destination": "xhr",
+            "method": "POST",
+            "reasonCode": "unsupported-data-method",
+            "sessionReason": null,
+            "count": 1
+          }
+        ],
+        "policyRefusals": [
+          {
+            "url": "https://incoming.telemetry.mozilla.org/submit/mdn-fred/events/1/8a2ea6ab-4981-49d9-a3e3-5e96e977b531",
+            "destination": "beacon",
+            "method": "POST",
+            "reasonCode": "unsupported-channel",
+            "networkStage": "policy",
+            "redirectFrom": null
+          },
+          {
+            "url": "https://incoming.telemetry.mozilla.org/submit/mdn-fred/events/1/3354a343-e708-4b2b-96d3-6fefb9a6ab2f",
+            "destination": "beacon",
+            "method": "POST",
+            "reasonCode": "unsupported-channel",
+            "networkStage": "policy",
+            "redirectFrom": null
+          },
+          {
+            "url": "https://developer.mozilla.org/pong/get",
+            "destination": "xhr",
+            "method": "POST",
+            "reasonCode": "unsupported-data-method",
+            "networkStage": "policy",
+            "redirectFrom": null
+          },
+          {
+            "url": "https://incoming.telemetry.mozilla.org/submit/mdn-fred/events/1/1f931dea-3037-43ac-a07a-68810f97b5c0",
+            "destination": "beacon",
+            "method": "POST",
+            "reasonCode": "unsupported-channel",
+            "networkStage": "policy",
+            "redirectFrom": null
+          }
+        ],
+        "redirectDecisions": [],
+        "finalizationCancellationNote": "Observation finished; seal cancelled pending reads. These are not remote connection/TLS failures.",
+        "modelCalls": 0,
+        "semanticChecks": 0,
+        "acceptanceClaim": false
+      },
+      {
+        "id": "github",
+        "url": "https://github.com/python/cpython",
+        "resourceOrigins": [
+          "https://github.githubassets.com",
+          "https://avatars.githubusercontent.com",
+          "https://user-images.githubusercontent.com",
+          "https://raw.githubusercontent.com",
+          "https://camo.githubusercontent.com"
+        ],
+        "startedAt": "2026-10-08T16:22:30.747Z",
+        "elapsedMs": 5250,
+        "observationComplete": true,
+        "failure": null,
+        "observation": {
+          "url": "https://github.com/python/cpython",
+          "title": "GitHub - python/cpython: The Python programming language · GitHub",
+          "elements": 2723,
+          "images": 25
+        },
+        "documentDecisions": [
+          {
+            "requestId": "interception-job-1.0",
+            "actionId": null,
+            "method": "GET",
+            "url": "https://github.com/python/cpython",
+            "destination": "document",
+            "redirectFrom": null,
+            "policyRevision": "url-scan-network-1",
+            "allow": true,
+            "reasonCode": "allowed",
+            "dnsMode": "doh",
+            "networkStage": "complete",
+            "resolvedAddresses": [
+              "20.205.243.166"
+            ],
+            "selectedAddress": "20.205.243.166",
+            "connectedAddress": "20.205.243.166",
+            "elapsedMs": 1055
+          }
+        ],
+        "dnsAddressesByHost": {
+          "github.com": {
+            "A": [
+              "20.205.243.166"
+            ],
+            "AAAA": [],
+            "selected": [
+              "20.205.243.166"
+            ],
+            "connected": [
+              "20.205.243.166"
+            ]
+          },
+          "camo.githubusercontent.com": {
+            "A": [
+              "185.199.108.133",
+              "185.199.109.133",
+              "185.199.110.133",
+              "185.199.111.133"
+            ],
+            "AAAA": [],
+            "selected": [
+              "185.199.109.133",
+              "185.199.111.133"
+            ],
+            "connected": [
+              "185.199.109.133",
+              "185.199.111.133"
+            ]
+          },
+          "github.githubassets.com": {
+            "A": [
+              "185.199.108.215",
+              "185.199.109.215",
+              "185.199.110.215",
+              "185.199.111.215"
+            ],
+            "AAAA": [
+              "2606:50c0:8000::215",
+              "2606:50c0:8001::215",
+              "2606:50c0:8002::215",
+              "2606:50c0:8003::215"
+            ],
+            "selected": [
+              "185.199.108.215",
+              "185.199.109.215",
+              "185.199.110.215",
+              "185.199.111.215"
+            ],
+            "connected": [
+              "185.199.108.215",
+              "185.199.109.215",
+              "185.199.110.215",
+              "185.199.111.215"
+            ]
+          },
+          "avatars.githubusercontent.com": {
+            "A": [
+              "185.199.108.133",
+              "185.199.109.133",
+              "185.199.110.133",
+              "185.199.111.133"
+            ],
+            "AAAA": [
+              "2606:50c0:8000::154",
+              "2606:50c0:8001::154",
+              "2606:50c0:8002::154",
+              "2606:50c0:8003::154"
+            ],
+            "selected": [
+              "185.199.108.133",
+              "185.199.109.133",
+              "185.199.110.133",
+              "185.199.111.133"
+            ],
+            "connected": [
+              "185.199.110.133",
+              "185.199.111.133"
+            ]
+          }
+        },
+        "counts": {
+          "decisions": 197,
+          "completedResponses": 174,
+          "pinMatches": 174,
+          "policyRefusals": 2,
+          "finalizationCancellations": 21
+        },
+        "policyRefusalGroups": [
+          {
+            "host": "collector.github.com",
+            "destination": "beacon",
+            "method": "POST",
+            "reasonCode": "unsupported-channel",
+            "sessionReason": null,
+            "count": 2
+          }
+        ],
+        "policyRefusals": [
+          {
+            "url": "https://collector.github.com/github/collect",
+            "destination": "beacon",
+            "method": "POST",
+            "reasonCode": "unsupported-channel",
+            "networkStage": "policy",
+            "redirectFrom": null
+          },
+          {
+            "url": "https://collector.github.com/github/collect",
+            "destination": "beacon",
+            "method": "POST",
+            "reasonCode": "unsupported-channel",
+            "networkStage": "policy",
+            "redirectFrom": null
+          }
+        ],
+        "redirectDecisions": [],
+        "finalizationCancellationNote": "Observation finished; seal cancelled pending reads. These are not remote connection/TLS failures.",
+        "modelCalls": 0,
+        "semanticChecks": 0,
+        "acceptanceClaim": false
+      }
+    ],
+    "summary": {
+      "observationsCompleted": 3,
+      "samples": 3,
+      "completedResponses": 289,
+      "pinMatches": 289,
+      "policyRefusals": 22,
+      "finalizationCancellations": 27,
+      "resolutionFailures": 0,
+      "targetTransportFailures": 0,
+      "targetTlsFailures": 0,
+      "noRetries": true
+    },
+    "resolverConnectionEvidence": "Successful RFC8484 responses over the existing pinned HTTPS transport with bootstrap 223.5.5.5 and dns.alidns.com Host/SNI/certificate verification. Raw resolver socket receipts are not separately persisted.",
+    "limitations": [
+      "Bounded DOM and screenshot observation, not complete resource loading or UI/rule acceptance.",
+      "IPv6 answers checked but connections selected IPv4; public IPv6 connectivity was not tested.",
+      "Unchanged origin/channel/method restrictions and finalization cancellations remain visible.",
+      "Does not establish general VPN/proxy compatibility."
+    ]
+  },
+  "cost": {
+    "modelCalls": 0,
+    "semanticChecks": 0,
+    "paidApiCalls": 0
+  },
+  "audit": {
+    "newDependencyAdvisories": [],
+    "wholeProject": {
+      "moderate": 4,
+      "high": 9
+    },
+    "claim": "Not a clean whole-project security audit."
+  },
+  "localArtifacts": [
+    {
+      "path": "/private/tmp/ui-sentinel-network-dns-compat/data/network-dns-compat/targeted-authorized.log",
+      "bytes": 195,
+      "sha256": "3b6aea54d73e708af29c14f0b7253e55ee8d054e7c325845162252b82440d2a2",
+      "committed": false
+    },
+    {
+      "path": "/private/tmp/ui-sentinel-network-dns-compat/data/network-dns-compat/integration-final.log",
+      "bytes": 203,
+      "sha256": "114d2453657f7549480c61ecc85590d9b8aefb8b6bb0875f2370972ffe63a715",
+      "committed": false
+    },
+    {
+      "path": "/private/tmp/ui-sentinel-network-dns-compat/data/network-dns-compat/system-regression.log",
+      "bytes": 205,
+      "sha256": "caa4e110346cfeaa2b3380b22f079270576fc648aa51f3b1a9004ec3221efe3a",
+      "committed": false
+    },
+    {
+      "path": "/private/tmp/ui-sentinel-network-dns-compat/data/network-dns-compat/build-authorized.log",
+      "bytes": 1282,
+      "sha256": "879cff6d9e232ce10c80e14cd860ca86bebd0b983687a190fb566fb1b14e97d9",
+      "committed": false
+    },
+    {
+      "path": "/private/tmp/ui-sentinel-network-dns-compat/data/network-dns-compat/audit.json",
+      "bytes": 45969,
+      "sha256": "9d3418a4c6b2d89aef78972ca82363426482a50282c17cc55f7df450f49e87e4",
+      "committed": false
+    },
+    {
+      "path": "/private/tmp/ui-sentinel-network-dns-compat/data/network-dns-compat/public-system.log",
+      "bytes": 2579,
+      "sha256": "0c23542c9025d9cb2942120bbd325466419532dfb8b10cde75f91198beb83967",
+      "committed": false
+    },
+    {
+      "path": "/private/tmp/ui-sentinel-network-dns-compat/data/network-dns-compat/public-observer.mjs",
+      "bytes": 46301,
+      "sha256": "0f2f101ee3ac18bb0e730fa9c6bd685bcf97171e8acfabdbf27d2bb463c08723",
+      "committed": false
+    },
+    {
+      "path": "/private/tmp/ui-sentinel-network-dns-compat/data/network-dns-compat/public-system/results.json",
+      "bytes": 3739,
+      "sha256": "3ec2bbac5bca9f42c500efe7e370e07465b95e139c233a7bcd1be9cf9deb15a9",
+      "committed": false
+    },
+    {
+      "path": "/private/tmp/ui-sentinel-network-dns-compat/data/network-dns-compat/public-doh.log",
+      "bytes": 276448,
+      "sha256": "ba302d4bd6ccfe4aee696c833333c3486a1e8ee2799875a11e8d17052a50d34f",
+      "committed": false
+    },
+    {
+      "path": "/private/tmp/ui-sentinel-network-dns-compat/data/network-dns-compat/public-doh/mdn.png",
+      "bytes": 256919,
+      "sha256": "c17d184b92df6f46ad6d55a43eff95bf29e4864c54d8d0d88027d67b7c15c52e",
+      "committed": false
+    },
+    {
+      "path": "/private/tmp/ui-sentinel-network-dns-compat/data/network-dns-compat/public-doh/github.png",
+      "bytes": 168587,
+      "sha256": "0fecaa8a4ed58d7fbd8bbb8e83e517a41ebf40dbeab9b47591a66d99cf2a1e44",
+      "committed": false
+    },
+    {
+      "path": "/private/tmp/ui-sentinel-network-dns-compat/data/network-dns-compat/public-doh/results.json",
+      "bytes": 284653,
+      "sha256": "b545471cee3d1e8d0b5a842c4ad1fb8ef0b96a561ee23db3d80ef82b45119597",
+      "committed": false
+    },
+    {
+      "path": "/private/tmp/ui-sentinel-network-dns-compat/data/network-dns-compat/public-doh/commons.png",
+      "bytes": 257046,
+      "sha256": "6d27bd260ec32f465290583f76dc517cefe3a11038a13b7cd4daeb5d78c40110",
+      "committed": false
+    }
+  ]
+}

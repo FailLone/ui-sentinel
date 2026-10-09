@@ -73,7 +73,7 @@ describe('rule engine', () => {
 
   it('registers builtin rules', () => {
     registerBuiltinRules()
-    expect(getAllRules()).toHaveLength(3)
+    expect(getAllRules()).toHaveLength(4)
     expect(getEnabledRules()).toHaveLength(3)
   })
 

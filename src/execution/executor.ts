@@ -2,6 +2,7 @@ import {
   createExperimentalHost,
   experimentalScopeExpansionEnabled,
 } from './experimental-decision-host.ts'
+import { createUiRuleObservation } from './ui-rule-observation.ts'
 import { checkHash } from '../inspection/check-contract.ts'
 import { createDefaultCheckRuntime, summary as checkSummary } from './default-check-runtime.ts'
 import { admitOptionalScope } from './scope-admission.ts'
@@ -287,6 +288,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     reportedModelCalls = 0
   let businessResult: BusinessResult = uiScan ? 'not-applicable' : 'unknown',
     stopReason: StopReason = 'budget-exhausted'
+  let uiRules: ReturnType<typeof createUiRuleObservation> | undefined
   let worker: Awaited<ReturnType<typeof launchBrowser>> | undefined
   /** Installed before the first navigation; awaited by finish so no receipt lands after the claim. */
   let networkBoundary: Awaited<ReturnType<typeof installRunNetworkBoundary>> | undefined
@@ -690,10 +692,31 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       })(),
       snapshot: { ...latest.snapshot, transitionObservations: transitions } as PageSnapshot,
     }
-    const result = await runChecks(
+    let result = await runChecks(
       context,
       config.features?.ruleRouting ? { route: true, cache: ruleEvaluationCache } : undefined,
     )
+    if (uiRules) {
+      const supplemental = await uiRules.evaluate(context)
+      result = {
+        ...result,
+        results: [...result.results, supplemental.result],
+        summary: `${result.summary}; control-text-disappearance: ${supplemental.result.verdict}`,
+        evaluatedCount: result.evaluatedCount + (supplemental.reused ? 0 : 1),
+        reused: [
+          ...(result.reused ?? []),
+          ...(supplemental.reused ? [supplemental.result.ruleId] : []),
+        ],
+      }
+      if (
+        !supplemental.reused &&
+        (supplemental.body.controls.unknown || supplemental.body.controls.omitted)
+      )
+        await inspection?.recordUnsupported(
+          'control-text-disappearance:coverage',
+          'bounded-text-measurement-incomplete',
+        )
+    }
     for (const skipped of result.skipped ?? []) await appendEvent(runId, 'rule:skipped', skipped)
     const existing = await getFindings(runId)
     for (const r of result.results) {
@@ -1042,7 +1065,30 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       }
     }
     observeCount++
-    latest = await observePage(worker!.page, runId, evidenceMetadata)
+    const captureCurrent = async () => {
+      const prepared = uiRules ? await uiRules.prepare() : undefined
+      const imageSelectors = [
+        ...new Set([
+          ...getEnabledRules()
+            .flatMap((r) => r.observation?.imageTargets ?? [])
+            .filter((t) => t.pageUrl === worker!.page.url())
+            .map((t) => t.selector),
+          ...(prepared?.before.images.map((i) => i.selector) ?? []),
+        ]),
+      ]
+      const sharedObservationStart = performance.now()
+      const observed = await observePage(
+        worker!.page,
+        runId,
+        evidenceMetadata,
+        imageSelectors,
+        uiRules ? { caret: 'initial' } : {},
+      )
+      if (prepared)
+        await uiRules!.complete(prepared, observed, performance.now() - sharedObservationStart)
+      return observed
+    }
+    latest = await captureCurrent()
     latestA11y = await captureA11yTree(worker!.page)
     let after = optimized ? await readObservationVersion(worker!.page) : undefined
     if (before?.reusable && after?.reusable && before.key !== after.key) {
@@ -1051,7 +1097,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         evidenceRefs: latest.evidenceRefs,
       })
       before = after
-      latest = await observePage(worker!.page, runId, evidenceMetadata)
+      latest = await captureCurrent()
       latestA11y = await captureA11yTree(worker!.page)
       after = await readObservationVersion(worker!.page)
       if (after.reusable && before.key !== after.key)
@@ -1309,9 +1355,15 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       tokenUsage: 'unavailable-until-reported',
     })
     guard()
-    worker = await launchBrowser({ viewport: run.spec.viewport, uiScan: !!uiScan })
+    worker = await launchBrowser({
+      viewport: run.spec.viewport,
+      uiScan: !!uiScan,
+      collectImageResources:
+        !!uiScan || getEnabledRules().some((r) => r.observation?.imageTargets.length),
+    })
     guard()
     const page = worker.page
+    if (uiScan) uiRules = createUiRuleObservation(page, runId, integrity.snapshot)
     let mutationFailed = false
     let deniedWrites = 0
     let businessCreated = false
@@ -5218,6 +5270,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     await interactionRecovery.dispose()
     await interactionExploration.dispose()
     await checkRuntime?.dispose()
+    uiRules?.close()
     await Promise.allSettled(investigationBlockers.map((cached) => cached.handle.dispose()))
     if (worker) await worker.close().catch(() => {})
     await queue.commitRun(

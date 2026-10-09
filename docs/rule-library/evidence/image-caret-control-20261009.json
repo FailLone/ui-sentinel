@@ -1,0 +1,1006 @@
+{
+  "date": "2026-10-09",
+  "timezone": "Asia/Shanghai",
+  "baseline": "f33934307fb31d3680ce255fe49e51c0959b91c0",
+  "implementation": "46cc7c035b87f5b69469f66563b86d37f71f72cb",
+  "scope": "Synthetic local mechanism verification only; no public navigation, model, DNS regression suite or R0 run.",
+  "prePatch": {
+    "startedAt": "2026-10-08T16:48:58.027Z",
+    "finishedAt": "2026-10-08T16:48:58.496Z",
+    "passed": true,
+    "note": "Synthetic local causal comparison, not public-page revalidation. Same observePage path. Before optional parameter exists, control adapter changes only screenshot caret option; production code untouched.",
+    "imageRequests": 2,
+    "cases": [
+      {
+        "mode": "default",
+        "runId": "run-851e4d3e-f663-4ae1-90bd-305a7fedd04c",
+        "before": {
+          "selector": "#mark",
+          "matchCount": 1,
+          "documentId": "0.jp1lairp9kc",
+          "mutationEpoch": 0,
+          "decoded": true,
+          "nodeId": 1,
+          "currentSrc": "http://127.0.0.1:52538/image.png",
+          "complete": true,
+          "naturalWidth": 120,
+          "naturalHeight": 60,
+          "contentWidth": 240,
+          "contentHeight": 120,
+          "objectFit": "fill",
+          "objectPosition": "50% 50%",
+          "bounds": {
+            "x": 80,
+            "y": 80,
+            "width": 240,
+            "height": 120
+          },
+          "matrix": [
+            1,
+            0,
+            0,
+            1
+          ],
+          "unsupported": []
+        },
+        "after": {
+          "selector": "#mark",
+          "matchCount": 1,
+          "documentId": "0.jp1lairp9kc",
+          "mutationEpoch": 2,
+          "decoded": true,
+          "nodeId": 1,
+          "currentSrc": "http://127.0.0.1:52538/image.png",
+          "complete": true,
+          "naturalWidth": 120,
+          "naturalHeight": 60,
+          "contentWidth": 240,
+          "contentHeight": 120,
+          "objectFit": "fill",
+          "objectPosition": "50% 50%",
+          "bounds": {
+            "x": 80,
+            "y": 80,
+            "width": 240,
+            "height": 120
+          },
+          "matrix": [
+            1,
+            0,
+            0,
+            1
+          ],
+          "unsupported": []
+        },
+        "mutationRecords": [
+          {
+            "type": "attributes",
+            "target": "input",
+            "attribute": "style",
+            "oldValue": "color:blue",
+            "value": "color: blue; caret-color: transparent !important;"
+          },
+          {
+            "type": "attributes",
+            "target": "textarea",
+            "attribute": "style",
+            "oldValue": "color:green",
+            "value": "color: green; caret-color: transparent !important;"
+          },
+          {
+            "type": "attributes",
+            "target": "editable",
+            "attribute": "style",
+            "oldValue": "color:red",
+            "value": "color: red; caret-color: transparent !important;"
+          },
+          {
+            "type": "attributes",
+            "target": "input",
+            "attribute": "style",
+            "oldValue": "color: blue; caret-color: transparent !important;",
+            "value": "color: blue;"
+          },
+          {
+            "type": "attributes",
+            "target": "textarea",
+            "attribute": "style",
+            "oldValue": "color: green; caret-color: transparent !important;",
+            "value": "color: green;"
+          },
+          {
+            "type": "attributes",
+            "target": "editable",
+            "attribute": "style",
+            "oldValue": "color: red; caret-color: transparent !important;",
+            "value": "color: red;"
+          }
+        ],
+        "stable": false,
+        "artifacts": [
+          {
+            "id": "8c975e6d-ba5f-43db-b5dc-d73725dc5375.png",
+            "type": "screenshot",
+            "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-851e4d3e-f663-4ae1-90bd-305a7fedd04c/8c975e6d-ba5f-43db-b5dc-d73725dc5375.png",
+            "bytes": 10978,
+            "sha256": "f5a1c3ccb83504b23fd3d9f993965f23e25c4c840cfadb6b0ce55f11033309c6",
+            "committed": false
+          },
+          {
+            "id": "2bbd9e12-6035-4f64-8757-c81c14e2c567.json",
+            "type": "image-resource",
+            "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-851e4d3e-f663-4ae1-90bd-305a7fedd04c/2bbd9e12-6035-4f64-8757-c81c14e2c567.json",
+            "bytes": 636,
+            "sha256": "bebbfe1b1d95cfc20f1aabd76fa9b8e83fc47588812f179d864309779ede0dd2",
+            "committed": false
+          },
+          {
+            "id": "5daaa028-7b64-4aff-a136-b6d946c44bad.json",
+            "type": "snapshot",
+            "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-851e4d3e-f663-4ae1-90bd-305a7fedd04c/5daaa028-7b64-4aff-a136-b6d946c44bad.json",
+            "bytes": 2923,
+            "sha256": "fa5b6733bdec9282a8f1879372a21dc394f76b24d9d4235d75cf422bbaedc011",
+            "committed": false
+          }
+        ]
+      },
+      {
+        "mode": "initial",
+        "runId": "run-33c9b2f5-3ebd-4ac7-88e9-b2806aa62185",
+        "before": {
+          "selector": "#mark",
+          "matchCount": 1,
+          "documentId": "0.zf3r93cd4h",
+          "mutationEpoch": 0,
+          "decoded": true,
+          "nodeId": 1,
+          "currentSrc": "http://127.0.0.1:52538/image.png",
+          "complete": true,
+          "naturalWidth": 120,
+          "naturalHeight": 60,
+          "contentWidth": 240,
+          "contentHeight": 120,
+          "objectFit": "fill",
+          "objectPosition": "50% 50%",
+          "bounds": {
+            "x": 80,
+            "y": 80,
+            "width": 240,
+            "height": 120
+          },
+          "matrix": [
+            1,
+            0,
+            0,
+            1
+          ],
+          "unsupported": []
+        },
+        "after": {
+          "selector": "#mark",
+          "matchCount": 1,
+          "documentId": "0.zf3r93cd4h",
+          "mutationEpoch": 0,
+          "decoded": true,
+          "nodeId": 1,
+          "currentSrc": "http://127.0.0.1:52538/image.png",
+          "complete": true,
+          "naturalWidth": 120,
+          "naturalHeight": 60,
+          "contentWidth": 240,
+          "contentHeight": 120,
+          "objectFit": "fill",
+          "objectPosition": "50% 50%",
+          "bounds": {
+            "x": 80,
+            "y": 80,
+            "width": 240,
+            "height": 120
+          },
+          "matrix": [
+            1,
+            0,
+            0,
+            1
+          ],
+          "unsupported": []
+        },
+        "mutationRecords": [],
+        "stable": true,
+        "artifacts": [
+          {
+            "id": "95132f74-df0c-4753-b7ca-21962f30f545.png",
+            "type": "screenshot",
+            "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-33c9b2f5-3ebd-4ac7-88e9-b2806aa62185/95132f74-df0c-4753-b7ca-21962f30f545.png",
+            "bytes": 10978,
+            "sha256": "f5a1c3ccb83504b23fd3d9f993965f23e25c4c840cfadb6b0ce55f11033309c6",
+            "committed": false
+          },
+          {
+            "id": "96fb46bb-309f-48eb-aa22-c5182e88dc80.json",
+            "type": "image-resource",
+            "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-33c9b2f5-3ebd-4ac7-88e9-b2806aa62185/96fb46bb-309f-48eb-aa22-c5182e88dc80.json",
+            "bytes": 636,
+            "sha256": "bebbfe1b1d95cfc20f1aabd76fa9b8e83fc47588812f179d864309779ede0dd2",
+            "committed": false
+          },
+          {
+            "id": "350346d9-b9a9-4735-8f5e-129379bcf63b.json",
+            "type": "snapshot",
+            "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/artifacts/run-33c9b2f5-3ebd-4ac7-88e9-b2806aa62185/350346d9-b9a9-4735-8f5e-129379bcf63b.json",
+            "bytes": 2921,
+            "sha256": "67137afea5a939a6dced226bc76310cd6847f7c2702b92e0f01ec10139bc2315",
+            "committed": false
+          }
+        ]
+      }
+    ]
+  },
+  "directed": [
+    {
+      "name": "control-default",
+      "runId": "run-edfe41d4-97ed-432d-87ab-fdfe36de52a8",
+      "receipt": {
+        "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-caret-20261009-f339343/directed/control-default/receipt.json",
+        "bytes": 10259,
+        "sha256": "899f96ed30bfc6840785d6f07b1ce802fda3f5ba2818e92bb760ab3d149ff869",
+        "committed": false
+      },
+      "before": {
+        "selector": "#mark",
+        "matchCount": 1,
+        "documentId": "0.w127gnxp97k",
+        "mutationEpoch": 0,
+        "decoded": true,
+        "nodeId": 1,
+        "currentSrc": "http://127.0.0.1:52566/image.png",
+        "complete": true,
+        "naturalWidth": 120,
+        "naturalHeight": 60,
+        "contentWidth": 240,
+        "contentHeight": 120,
+        "objectFit": "fill",
+        "objectPosition": "50% 50%",
+        "bounds": {
+          "x": 38,
+          "y": 30,
+          "width": 240,
+          "height": 120
+        },
+        "matrix": [
+          1,
+          0,
+          0,
+          1
+        ],
+        "unsupported": []
+      },
+      "after": {
+        "selector": "#mark",
+        "matchCount": 1,
+        "documentId": "0.w127gnxp97k",
+        "mutationEpoch": 2,
+        "decoded": true,
+        "nodeId": 1,
+        "currentSrc": "http://127.0.0.1:52566/image.png",
+        "complete": true,
+        "naturalWidth": 120,
+        "naturalHeight": 60,
+        "contentWidth": 240,
+        "contentHeight": 120,
+        "objectFit": "fill",
+        "objectPosition": "50% 50%",
+        "bounds": {
+          "x": 38,
+          "y": 30,
+          "width": 240,
+          "height": 120
+        },
+        "matrix": [
+          1,
+          0,
+          0,
+          1
+        ],
+        "unsupported": []
+      },
+      "records": [
+        {
+          "type": "attributes",
+          "target": "input",
+          "attribute": "style",
+          "oldValue": "color:blue",
+          "value": "color: blue; caret-color: transparent !important;"
+        },
+        {
+          "type": "attributes",
+          "target": "textarea",
+          "attribute": "style",
+          "oldValue": "color:green",
+          "value": "color: green; caret-color: transparent !important;"
+        },
+        {
+          "type": "attributes",
+          "target": "editable",
+          "attribute": "style",
+          "oldValue": "color:red",
+          "value": "color: red; caret-color: transparent !important;"
+        },
+        {
+          "type": "attributes",
+          "target": "input",
+          "attribute": "style",
+          "oldValue": "color: blue; caret-color: transparent !important;",
+          "value": "color: blue;"
+        },
+        {
+          "type": "attributes",
+          "target": "textarea",
+          "attribute": "style",
+          "oldValue": "color: green; caret-color: transparent !important;",
+          "value": "color: green;"
+        },
+        {
+          "type": "attributes",
+          "target": "editable",
+          "attribute": "style",
+          "oldValue": "color: red; caret-color: transparent !important;",
+          "value": "color: red;"
+        }
+      ],
+      "stable": false,
+      "artifacts": [
+        {
+          "id": "6087c7ae-f8d7-4d59-90c0-f87ee840c248.png",
+          "type": "screenshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-caret-20261009-f339343/directed/control-default/6087c7ae-f8d7-4d59-90c0-f87ee840c248.png",
+          "bytes": 11014,
+          "sha256": "34ee51186a7f16af91ba5150994f4926b4093a892b528ee864674c5d1d84b1b0",
+          "committed": false
+        },
+        {
+          "id": "790d1f81-b2ff-4c5b-99b5-c43e1bbf8580.json",
+          "type": "image-resource",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-caret-20261009-f339343/directed/control-default/790d1f81-b2ff-4c5b-99b5-c43e1bbf8580.json",
+          "bytes": 636,
+          "sha256": "3a7ea9aaf62557099696b06019dafa03878488767123175ee9e70a4863a1c6f0",
+          "committed": false
+        },
+        {
+          "id": "9549c299-7f0e-4b36-9831-558bcf31b41c.json",
+          "type": "snapshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-caret-20261009-f339343/directed/control-default/9549c299-7f0e-4b36-9831-558bcf31b41c.json",
+          "bytes": 2920,
+          "sha256": "34a206773c80c3a3657e09a0a3b67afd3baeff8343965c3e2a94bd2dde0bc502",
+          "committed": false
+        }
+      ]
+    },
+    {
+      "name": "control-initial",
+      "runId": "run-f9e383a3-202a-4d18-a162-40419766c82c",
+      "receipt": {
+        "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-caret-20261009-f339343/directed/control-initial/receipt.json",
+        "bytes": 8994,
+        "sha256": "bcf4f96b35061e0f7f6c03b3fe92ad4ab4a42d4b8f8f2bd43f93929ddd555067",
+        "committed": false
+      },
+      "before": {
+        "selector": "#mark",
+        "matchCount": 1,
+        "documentId": "0.grsn0cgbzob",
+        "mutationEpoch": 0,
+        "decoded": true,
+        "nodeId": 1,
+        "currentSrc": "http://127.0.0.1:52566/image.png",
+        "complete": true,
+        "naturalWidth": 120,
+        "naturalHeight": 60,
+        "contentWidth": 240,
+        "contentHeight": 120,
+        "objectFit": "fill",
+        "objectPosition": "50% 50%",
+        "bounds": {
+          "x": 38,
+          "y": 30,
+          "width": 240,
+          "height": 120
+        },
+        "matrix": [
+          1,
+          0,
+          0,
+          1
+        ],
+        "unsupported": []
+      },
+      "after": {
+        "selector": "#mark",
+        "matchCount": 1,
+        "documentId": "0.grsn0cgbzob",
+        "mutationEpoch": 0,
+        "decoded": true,
+        "nodeId": 1,
+        "currentSrc": "http://127.0.0.1:52566/image.png",
+        "complete": true,
+        "naturalWidth": 120,
+        "naturalHeight": 60,
+        "contentWidth": 240,
+        "contentHeight": 120,
+        "objectFit": "fill",
+        "objectPosition": "50% 50%",
+        "bounds": {
+          "x": 38,
+          "y": 30,
+          "width": 240,
+          "height": 120
+        },
+        "matrix": [
+          1,
+          0,
+          0,
+          1
+        ],
+        "unsupported": []
+      },
+      "records": [],
+      "stable": true,
+      "artifacts": [
+        {
+          "id": "a32eaaa6-60b1-4fcb-bdde-19e2b757b4d9.png",
+          "type": "screenshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-caret-20261009-f339343/directed/control-initial/a32eaaa6-60b1-4fcb-bdde-19e2b757b4d9.png",
+          "bytes": 11014,
+          "sha256": "34ee51186a7f16af91ba5150994f4926b4093a892b528ee864674c5d1d84b1b0",
+          "committed": false
+        },
+        {
+          "id": "009e2e82-562c-420e-8423-ea8e00e90e85.json",
+          "type": "image-resource",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-caret-20261009-f339343/directed/control-initial/009e2e82-562c-420e-8423-ea8e00e90e85.json",
+          "bytes": 636,
+          "sha256": "3a7ea9aaf62557099696b06019dafa03878488767123175ee9e70a4863a1c6f0",
+          "committed": false
+        },
+        {
+          "id": "e9f51fc0-1f09-4b76-ba11-99625690692c.json",
+          "type": "snapshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-caret-20261009-f339343/directed/control-initial/e9f51fc0-1f09-4b76-ba11-99625690692c.json",
+          "bytes": 2919,
+          "sha256": "61b35c9db3f0a8577d4bb74f4e2ed0d3dd3c6fbeefad4bb1cc70526187d25da9",
+          "committed": false
+        }
+      ]
+    },
+    {
+      "name": "static-binding",
+      "runId": "run-a947c568-c9d2-4f62-97a3-105307701d3c",
+      "receipt": {
+        "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-caret-20261009-f339343/directed/static-binding/receipt.json",
+        "bytes": 16779,
+        "sha256": "2fa69ca797c45a7057903c8931d05544811d3d2683a2669d1ad7f73d9800a346",
+        "committed": false
+      },
+      "before": {
+        "selector": "#mark",
+        "matchCount": 1,
+        "documentId": "0.hveoyrkw6ml",
+        "mutationEpoch": 0,
+        "decoded": true,
+        "nodeId": 1,
+        "currentSrc": "http://127.0.0.1:52566/image.png",
+        "complete": true,
+        "naturalWidth": 120,
+        "naturalHeight": 60,
+        "contentWidth": 240,
+        "contentHeight": 120,
+        "objectFit": "fill",
+        "objectPosition": "50% 50%",
+        "bounds": {
+          "x": 38,
+          "y": 30,
+          "width": 240,
+          "height": 120
+        },
+        "matrix": [
+          1,
+          0,
+          0,
+          1
+        ],
+        "unsupported": [],
+        "stable": true,
+        "resource": {
+          "sha256": "05b0ec210e1eeebf0f1b77a97c8e3ab187b0d38bf4270485560a9726f2078eba",
+          "format": "png",
+          "evidenceRef": "95af598b-2f22-4ca9-9b5c-245fcd32fc86.json"
+        }
+      },
+      "after": {
+        "selector": "#mark",
+        "matchCount": 1,
+        "documentId": "0.hveoyrkw6ml",
+        "mutationEpoch": 0,
+        "decoded": true,
+        "nodeId": 1,
+        "currentSrc": "http://127.0.0.1:52566/image.png",
+        "complete": true,
+        "naturalWidth": 120,
+        "naturalHeight": 60,
+        "contentWidth": 240,
+        "contentHeight": 120,
+        "objectFit": "fill",
+        "objectPosition": "50% 50%",
+        "bounds": {
+          "x": 38,
+          "y": 30,
+          "width": 240,
+          "height": 120
+        },
+        "matrix": [
+          1,
+          0,
+          0,
+          1
+        ],
+        "unsupported": []
+      },
+      "records": [],
+      "status": "facts-ready",
+      "verdict": "pass",
+      "actual": "image-6c2c63e1-f4f5-4697-88d9-f4bdfcee5e9a: pass (uniform-content-transform)",
+      "artifacts": [
+        {
+          "id": "0cd4f586-6c6b-4e76-8863-36aed96e6d6d.png",
+          "type": "screenshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-caret-20261009-f339343/directed/static-binding/0cd4f586-6c6b-4e76-8863-36aed96e6d6d.png",
+          "bytes": 11014,
+          "sha256": "34ee51186a7f16af91ba5150994f4926b4093a892b528ee864674c5d1d84b1b0",
+          "committed": false
+        },
+        {
+          "id": "95af598b-2f22-4ca9-9b5c-245fcd32fc86.json",
+          "type": "image-resource",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-caret-20261009-f339343/directed/static-binding/95af598b-2f22-4ca9-9b5c-245fcd32fc86.json",
+          "bytes": 636,
+          "sha256": "3a7ea9aaf62557099696b06019dafa03878488767123175ee9e70a4863a1c6f0",
+          "committed": false
+        },
+        {
+          "id": "f483e14b-4bab-457b-883f-00050b82117b.json",
+          "type": "snapshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-caret-20261009-f339343/directed/static-binding/f483e14b-4bab-457b-883f-00050b82117b.json",
+          "bytes": 2991,
+          "sha256": "19375eb8ea38247bab867b808f6a5e19430874768c9c63cc1426ebc51cb4f944",
+          "committed": false
+        },
+        {
+          "id": "f300c120-ba25-44ba-ac96-df28d9d980a1.json",
+          "type": "image-binding-candidates",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-caret-20261009-f339343/directed/static-binding/f300c120-ba25-44ba-ac96-df28d9d980a1.json",
+          "bytes": 1780,
+          "sha256": "f51b7a65d02c74b1fd6f61031b589bde73f6088bfbf99c8dbc7d8b1a17eaf41a",
+          "committed": false
+        },
+        {
+          "id": "05a24373-8866-4b56-bece-ec7faa4440f6.png",
+          "type": "screenshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-caret-20261009-f339343/directed/static-binding/05a24373-8866-4b56-bece-ec7faa4440f6.png",
+          "bytes": 11014,
+          "sha256": "34ee51186a7f16af91ba5150994f4926b4093a892b528ee864674c5d1d84b1b0",
+          "committed": false
+        },
+        {
+          "id": "afea28f8-cd43-4940-9ed0-7c233e68079c.json",
+          "type": "image-resource",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-caret-20261009-f339343/directed/static-binding/afea28f8-cd43-4940-9ed0-7c233e68079c.json",
+          "bytes": 636,
+          "sha256": "3a7ea9aaf62557099696b06019dafa03878488767123175ee9e70a4863a1c6f0",
+          "committed": false
+        },
+        {
+          "id": "e9dcd464-e1d8-4015-ae8f-57957780cd5e.json",
+          "type": "snapshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-caret-20261009-f339343/directed/static-binding/e9dcd464-e1d8-4015-ae8f-57957780cd5e.json",
+          "bytes": 2991,
+          "sha256": "ef3e61e8d2c11193af61f17136cb709c3853630ba596f77e7b17159c220c5a4b",
+          "committed": false
+        },
+        {
+          "id": "e27fdab3-e366-4555-aa57-28e2fc11a235.json",
+          "type": "image-binding-review",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-caret-20261009-f339343/directed/static-binding/e27fdab3-e366-4555-aa57-28e2fc11a235.json",
+          "bytes": 824,
+          "sha256": "2a5aed4033d1b648aa5ace083944d81be9b7835d29c4cbf94a1f7a396bdff4f2",
+          "committed": false
+        }
+      ]
+    },
+    {
+      "name": "changed-target",
+      "runId": "run-8d3236ed-239f-4b57-8498-5cfc92fa5e17",
+      "receipt": {
+        "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-caret-20261009-f339343/directed/changed-target/receipt.json",
+        "bytes": 10677,
+        "sha256": "77653a6549f06beed03dc9a10528edee1116a8ce4c0cd42c1d7900aaec2d23f4",
+        "committed": false
+      },
+      "before": {
+        "selector": "#mark",
+        "matchCount": 1,
+        "documentId": "0.c7vbok2q7f",
+        "mutationEpoch": 0,
+        "decoded": true,
+        "nodeId": 1,
+        "currentSrc": "http://127.0.0.1:52566/image.png",
+        "complete": true,
+        "naturalWidth": 120,
+        "naturalHeight": 60,
+        "contentWidth": 240,
+        "contentHeight": 120,
+        "objectFit": "fill",
+        "objectPosition": "50% 50%",
+        "bounds": {
+          "x": 38,
+          "y": 30,
+          "width": 240,
+          "height": 120
+        },
+        "matrix": [
+          1,
+          0,
+          0,
+          1
+        ],
+        "unsupported": [],
+        "stable": true,
+        "resource": {
+          "sha256": "05b0ec210e1eeebf0f1b77a97c8e3ab187b0d38bf4270485560a9726f2078eba",
+          "format": "png",
+          "evidenceRef": "34852a85-0872-42a9-908d-c1bb94dd7610.json"
+        }
+      },
+      "after": {
+        "selector": "#mark",
+        "matchCount": 1,
+        "documentId": "0.c7vbok2q7f",
+        "mutationEpoch": 1,
+        "decoded": true,
+        "nodeId": 1,
+        "currentSrc": "http://127.0.0.1:52566/image.png",
+        "complete": true,
+        "naturalWidth": 120,
+        "naturalHeight": 60,
+        "contentWidth": 260,
+        "contentHeight": 120,
+        "objectFit": "fill",
+        "objectPosition": "50% 50%",
+        "bounds": {
+          "x": 38,
+          "y": 30,
+          "width": 260,
+          "height": 120
+        },
+        "matrix": [
+          1,
+          0,
+          0,
+          1
+        ],
+        "unsupported": []
+      },
+      "records": [
+        {
+          "type": "attributes",
+          "target": "mark",
+          "attribute": "style",
+          "oldValue": "display:block;width:240px;height:120px;margin:30px",
+          "value": "display: block; width: 260px; height: 120px; margin: 30px;"
+        }
+      ],
+      "status": "facts-ready",
+      "verdict": "unknown",
+      "actual": "observation-facts-changed",
+      "artifacts": [
+        {
+          "id": "e5e4071b-8206-4ebe-aad9-52fa5b4432bc.png",
+          "type": "screenshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-caret-20261009-f339343/directed/changed-target/e5e4071b-8206-4ebe-aad9-52fa5b4432bc.png",
+          "bytes": 11014,
+          "sha256": "34ee51186a7f16af91ba5150994f4926b4093a892b528ee864674c5d1d84b1b0",
+          "committed": false
+        },
+        {
+          "id": "34852a85-0872-42a9-908d-c1bb94dd7610.json",
+          "type": "image-resource",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-caret-20261009-f339343/directed/changed-target/34852a85-0872-42a9-908d-c1bb94dd7610.json",
+          "bytes": 636,
+          "sha256": "3a7ea9aaf62557099696b06019dafa03878488767123175ee9e70a4863a1c6f0",
+          "committed": false
+        },
+        {
+          "id": "89d17321-692a-4d58-9026-8ed2cbf6263d.json",
+          "type": "snapshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-caret-20261009-f339343/directed/changed-target/89d17321-692a-4d58-9026-8ed2cbf6263d.json",
+          "bytes": 2990,
+          "sha256": "e63cda8dab6f4bf964389e8e9c06e75fdea356f0feee26639b45e37de30eb751",
+          "committed": false
+        },
+        {
+          "id": "26f90029-d2dd-4a0e-877c-eae7ba8ffa63.json",
+          "type": "image-binding-candidates",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-caret-20261009-f339343/directed/changed-target/26f90029-d2dd-4a0e-877c-eae7ba8ffa63.json",
+          "bytes": 1779,
+          "sha256": "c57cf4ddcddf511bcbfd830336ea1f55404e912858e3d533ba4d3d99ea435307",
+          "committed": false
+        },
+        {
+          "id": "3e5e2778-7bde-4901-9a7b-e66057030adc.png",
+          "type": "screenshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-caret-20261009-f339343/directed/changed-target/3e5e2778-7bde-4901-9a7b-e66057030adc.png",
+          "bytes": 12569,
+          "sha256": "badc3bf2b388e281ea099bcfae80a58c7e084a04faa0859fbd9b610046e883e5",
+          "committed": false
+        },
+        {
+          "id": "436f7c98-300c-45c1-88d1-f0a9e0658077.json",
+          "type": "image-resource",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-caret-20261009-f339343/directed/changed-target/436f7c98-300c-45c1-88d1-f0a9e0658077.json",
+          "bytes": 636,
+          "sha256": "3a7ea9aaf62557099696b06019dafa03878488767123175ee9e70a4863a1c6f0",
+          "committed": false
+        },
+        {
+          "id": "0bb66e28-ff21-45c5-90d4-aea1ad20674d.json",
+          "type": "snapshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-caret-20261009-f339343/directed/changed-target/0bb66e28-ff21-45c5-90d4-aea1ad20674d.json",
+          "bytes": 2990,
+          "sha256": "b1485b46f1beaa382257de8d0614e5451736c3459ccd278ffcb47d4344a3841b",
+          "committed": false
+        },
+        {
+          "id": "d137c19c-0088-4354-a278-e45e91183ce9.json",
+          "type": "image-binding-review",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-caret-20261009-f339343/directed/changed-target/d137c19c-0088-4354-a278-e45e91183ce9.json",
+          "bytes": 851,
+          "sha256": "a91cebabe2a45f3937334f66e470a1a500cf87c1d088ce343c47665f12737347",
+          "committed": false
+        }
+      ]
+    },
+    {
+      "name": "changed-unrelated",
+      "runId": "run-92ccf383-4e58-4184-a6dc-7e63f20e0eed",
+      "receipt": {
+        "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-caret-20261009-f339343/directed/changed-unrelated/receipt.json",
+        "bytes": 10632,
+        "sha256": "5083ed8e0020aadc8c21ee866d5d030bad9352ce81a2ce48abe02ca45db010e8",
+        "committed": false
+      },
+      "before": {
+        "selector": "#mark",
+        "matchCount": 1,
+        "documentId": "0.utkzajelu8l",
+        "mutationEpoch": 0,
+        "decoded": true,
+        "nodeId": 1,
+        "currentSrc": "http://127.0.0.1:52566/image.png",
+        "complete": true,
+        "naturalWidth": 120,
+        "naturalHeight": 60,
+        "contentWidth": 240,
+        "contentHeight": 120,
+        "objectFit": "fill",
+        "objectPosition": "50% 50%",
+        "bounds": {
+          "x": 38,
+          "y": 30,
+          "width": 240,
+          "height": 120
+        },
+        "matrix": [
+          1,
+          0,
+          0,
+          1
+        ],
+        "unsupported": [],
+        "stable": true,
+        "resource": {
+          "sha256": "05b0ec210e1eeebf0f1b77a97c8e3ab187b0d38bf4270485560a9726f2078eba",
+          "format": "png",
+          "evidenceRef": "c7b5e267-ee25-434d-a0d8-dce0c2f2d7e5.json"
+        }
+      },
+      "after": {
+        "selector": "#mark",
+        "matchCount": 1,
+        "documentId": "0.utkzajelu8l",
+        "mutationEpoch": 1,
+        "decoded": true,
+        "nodeId": 1,
+        "currentSrc": "http://127.0.0.1:52566/image.png",
+        "complete": true,
+        "naturalWidth": 120,
+        "naturalHeight": 60,
+        "contentWidth": 240,
+        "contentHeight": 120,
+        "objectFit": "fill",
+        "objectPosition": "50% 50%",
+        "bounds": {
+          "x": 38,
+          "y": 30,
+          "width": 240,
+          "height": 120
+        },
+        "matrix": [
+          1,
+          0,
+          0,
+          1
+        ],
+        "unsupported": []
+      },
+      "records": [
+        {
+          "type": "attributes",
+          "target": "editable",
+          "attribute": "title",
+          "oldValue": null,
+          "value": "Synthetic unrelated page update"
+        }
+      ],
+      "status": "facts-ready",
+      "verdict": "unknown",
+      "actual": "observation-facts-changed",
+      "artifacts": [
+        {
+          "id": "da6b7222-dc11-4c17-a66d-4e3a4da73566.png",
+          "type": "screenshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-caret-20261009-f339343/directed/changed-unrelated/da6b7222-dc11-4c17-a66d-4e3a4da73566.png",
+          "bytes": 11014,
+          "sha256": "34ee51186a7f16af91ba5150994f4926b4093a892b528ee864674c5d1d84b1b0",
+          "committed": false
+        },
+        {
+          "id": "c7b5e267-ee25-434d-a0d8-dce0c2f2d7e5.json",
+          "type": "image-resource",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-caret-20261009-f339343/directed/changed-unrelated/c7b5e267-ee25-434d-a0d8-dce0c2f2d7e5.json",
+          "bytes": 636,
+          "sha256": "3a7ea9aaf62557099696b06019dafa03878488767123175ee9e70a4863a1c6f0",
+          "committed": false
+        },
+        {
+          "id": "22e98a34-45ee-42c9-b95c-1480d496ebe6.json",
+          "type": "snapshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-caret-20261009-f339343/directed/changed-unrelated/22e98a34-45ee-42c9-b95c-1480d496ebe6.json",
+          "bytes": 2991,
+          "sha256": "78637bd4212c8d3e4b946c439d0bceebe34af5b04a6537cea7300d36c9a19c5b",
+          "committed": false
+        },
+        {
+          "id": "f083c20c-8754-42cf-b493-a146120c8861.json",
+          "type": "image-binding-candidates",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-caret-20261009-f339343/directed/changed-unrelated/f083c20c-8754-42cf-b493-a146120c8861.json",
+          "bytes": 1780,
+          "sha256": "8557036c8a814dd241ddc23bbb07d9b37082be4136c6974663b33b292c72f252",
+          "committed": false
+        },
+        {
+          "id": "f30b325c-52a3-4a48-bc8e-fe42e995e90e.png",
+          "type": "screenshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-caret-20261009-f339343/directed/changed-unrelated/f30b325c-52a3-4a48-bc8e-fe42e995e90e.png",
+          "bytes": 11014,
+          "sha256": "34ee51186a7f16af91ba5150994f4926b4093a892b528ee864674c5d1d84b1b0",
+          "committed": false
+        },
+        {
+          "id": "215e06a0-ebe2-4898-a375-be89a16f0479.json",
+          "type": "image-resource",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-caret-20261009-f339343/directed/changed-unrelated/215e06a0-ebe2-4898-a375-be89a16f0479.json",
+          "bytes": 636,
+          "sha256": "3a7ea9aaf62557099696b06019dafa03878488767123175ee9e70a4863a1c6f0",
+          "committed": false
+        },
+        {
+          "id": "36404b9a-e36c-42c8-b900-0b7ac7bc26b8.json",
+          "type": "snapshot",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-caret-20261009-f339343/directed/changed-unrelated/36404b9a-e36c-42c8-b900-0b7ac7bc26b8.json",
+          "bytes": 2991,
+          "sha256": "2b9c2d4ec89d4bb9f523789e3abe79edefd6f7afea2f80e1981eb6c0434ba4be",
+          "committed": false
+        },
+        {
+          "id": "1cef907c-49c3-467b-bee3-0936c508f32d.json",
+          "type": "image-binding-review",
+          "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-caret-20261009-f339343/directed/changed-unrelated/1cef907c-49c3-467b-bee3-0936c508f32d.json",
+          "bytes": 851,
+          "sha256": "966f40428455dd0c537c23f8b15fc1379e560ffba64bd8ac9f31604c57414528",
+          "committed": false
+        }
+      ]
+    }
+  ],
+  "validation": {
+    "command": "pnpm exec vitest run src/experiments/image-bindings.test.ts -t 'caret|refuses changed resource URLs|identifies expired|uses the independent host'",
+    "passed": 8,
+    "skipped": 6,
+    "durationSeconds": 3.07,
+    "newCases": 5,
+    "reusedCases": 3,
+    "typecheck": "passed",
+    "format": "3 touched files; passed",
+    "diffCheck": "passed"
+  },
+  "localFiles": [
+    {
+      "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-caret-20261009-f339343/causal-before.mjs",
+      "bytes": 5158,
+      "sha256": "8bad21e7b271be1fdd1028c34ad2e2486a22eb32314f4ce54a636e18558bee24",
+      "committed": false
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-caret-20261009-f339343/causal-before.json",
+      "bytes": 22112,
+      "sha256": "67be7ba35a4c4ac473b409a9f75c46a1007d0b0e0c6c3e7d8542d83806b7fbd6",
+      "committed": false
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-caret-20261009-f339343/causal-before.log",
+      "bytes": 1105,
+      "sha256": "b96db15f42382e7a72db7f798b24779ab35e8c61cb0815985efd32094bf50720",
+      "committed": false
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-caret-20261009-f339343/causal-before.db",
+      "bytes": 73728,
+      "sha256": "e8df2a03f9a9c4de509d656ece875d825fdb7354285d73245ffc5b8c7e1f4820",
+      "committed": false
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-caret-20261009-f339343/directed.log",
+      "bytes": 227,
+      "sha256": "5534f81e2ff7bc1563c4f4ce076be0937b275df07c167ba86b564174bebf8b74",
+      "committed": false
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-caret-20261009-f339343/typecheck.log",
+      "bytes": 113,
+      "sha256": "d4ec4609054221ed4c16d6d39eadeb42e5cbc98686f33549e819de3b8a900214",
+      "committed": false
+    }
+  ],
+  "sourceIdentity": [
+    {
+      "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/src/execution/browser.ts",
+      "bytes": 15740,
+      "sha256": "3d67f02fd9e49214406e66eaa0162a94198385ccfb326dc2050e802a1dd4e5b8",
+      "committed": true
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/src/experiments/image-bindings.ts",
+      "bytes": 19227,
+      "sha256": "3666273cb1b643cd4515db49d01d84fde443c4a2d0fcbfdec12ef7cb215cf166",
+      "committed": true
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/src/experiments/image-bindings.test.ts",
+      "bytes": 23194,
+      "sha256": "feceea1640ace51302ce0a45a8e32cf51add8dcad49d4a4518b7ff3b1ec0110e",
+      "committed": true
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/evaluation/fixtures/image-shape.ts",
+      "bytes": 2440,
+      "sha256": "06df27a2172685259f76533d69f2e71f148115d55023bdca52eaaacd8b120daa",
+      "committed": true
+    }
+  ],
+  "limitations": [
+    "No revalidation of the public three-page sample; prior zero-facts-ready results unchanged.",
+    "Large-document visibility gate, global network interventions, global DOM invalidation and semantic-basis-required binding interface remain.",
+    "caret:initial removes this default screenshot style mutation; does not freeze an active caret or prove every screenshot path has zero side effects.",
+    "A pass in the static case uses only the pre-existing synthetic fixture obligation; not public-site intent or rule accuracy.",
+    "Large local receipts, screenshots and image resource bytes are ignored data files, not distributed through Git."
+  ]
+}

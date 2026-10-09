@@ -76,3 +76,15 @@ pnpm validate:learning -- --recheck <已关闭且已批准学习目录>
 跨业务迁移既有批准规则时（导出靶场 E1/E4 就是这件事），声明的语义 target、timeoutMs 与适用性**不得修改**；复查要求原批准与声明未变。规则迁移组的健康样本必须存在实际 pass 测量，并有一个 `source=rule` 的 fail 发现，不能只有探索性 finding。
 
 未来可增加规则包元数据、Hook 和 SDK 模板，但应沿用上述四态结果、版本、证据和副作用边界。当前候选审批仍面向受限声明式时序规则；保存调查程序不代表它已经支持通用规则提案、适用性审查与自动发布。
+
+## 默认关闭的图像候选
+
+`image-shape-distortion` 0.1.0 将 [UIK-D004](rule-library/rules/UIK-D004.md) 中“有明确保形合同的静态 PNG/JPEG”做成限定 builtin。调用方需提供页面/视口、唯一目标、资源 URL/hash 及依据；缺依据不把所有图片视为保形。内容比例由 content box、object-fit 和支持的二维累积变换计算，不使用元素 AABB 比例直接判错。规则默认关闭，未知/不支持情形明确记录，详见 [支持范围、缓存、报告和免费验证](rule-library/image-shape-candidate.md)。现有语义学习/批准接口尚不支持此类合同，自动语义识别不是已交付能力。
+
+`UIK-D010` 复用既有 `overlay-blocking` 2.1.0，仅报告五点命中采样，详见 [能力映射](rule-library/rules/UIK-D010.md)。这批知识材料没有扩大现有规则结论或修改 R0 验收。
+
+## 已合入普通网址扫描的检查
+
+2026-10-09，完整规则分支经 `5e3255b` 合入 main。已启用的网址扫描在原观察/检查流程自动运行 `control-text-disappearance`（D005），检查稳定原生按钮/链接的有限文字绘制；不需要用户逐个填写合同。一般颜色、复杂绘制或不完整证据可能为 unknown，不是通用可读性检查。
+
+`image-fallback-review`（R005）自动采集原生图片的加载状态及同区域材料，单独显示待审查建议和证据不足，不作为缺陷或健康 pass。两项共用原入口和历史报告；D004、业务默认规则及全局扫描开关保持原设置。23条规则知识不等于23个已实现检查器。详见[产品接入](rule-library/rules-scan-integration.md)与[合并记录](rule-library/rules-main-integration-handoff.md)。
