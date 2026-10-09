@@ -1,8 +1,8 @@
 {
   "version": "r1-product-delivery-1",
-  "checkedAt": "2026-10-09T14:04:55.972465+00:00",
+  "checkedAt": "2026-10-09T13:53:23.089767+00:00",
   "entry": "plans/r1-online-pilot/README.md",
-  "status": "authorized-recovery-stopped-new-unknown-real-acceptance-incomplete",
+  "status": "authorized-recovery-running",
   "sourceSha": "98f7854472c3df9e3baa913ab3e74f97d8cff3c7",
   "integratedMainSha": "48b02b3fbfe7e5d95189a0d813480761b123ff6b",
   "mergeSha": "3cabb048b1d98609ec25d16756364b2f1b58761b",
@@ -18,7 +18,7 @@
     "sha256": "0a39489ea4e104072870a63e829f8f2a1308aae285019db5b8ad774e7ed3fc1e"
   },
   "realAcceptanceApproved": true,
-  "newRealCalls": 5,
+  "newRealCalls": 4,
   "newJevCalls": 0,
   "paidProposal": {
     "runs": 28,
@@ -59,8 +59,7 @@
     "archivedEntry": "history/pre-product-20261009/README.md",
     "historicalRelativePaths": "Resolve archived verbatim entry paths in their original plans/r1-online-pilot context; archive content is not rewritten.",
     "canonicalContinuationClaimConsumedByAuthorizedProductBatch": true,
-    "nextProductContinuationClaimAbsent": false,
-    "nextProductContinuationClaimConsumedByAuthorizedRecovery": true
+    "nextProductContinuationClaimAbsent": true
   },
   "evidence": [
     {
@@ -464,120 +463,6 @@
       "bytes": 25811,
       "sha256": "ed4a35c9a5b980c965b7662a4ea4ca50dd24b509a57c0f9dad54ad80e27607ef",
       "interpretation": "Current recovery candidate source hashes and new fix delta; maintainer review/merge still pending."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/recovery/paid-20261009/accounting.json",
-      "bytes": 5107,
-      "sha256": "b1b45f128407d26640651a1f003161952fbb4395c3db898982a4055187f9bab8",
-      "interpretation": "Second authorized product batch: transport timeout, new unknown, cancelled first row, 27 not run; not a pass."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/recovery/paid-20261009/approval.json",
-      "bytes": 1030,
-      "sha256": "bfa19fcbc66bbfb0abc135f47e42c87fc5a9849a3ffabb0cb304eaa38ba8a402",
-      "interpretation": "Second authorized product batch: transport timeout, new unknown, cancelled first row, 27 not run; not a pass."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/recovery/paid-20261009/audit.json",
-      "bytes": 10129,
-      "sha256": "1df1e14ab406a819e90c18bef8db34de546a4ff3fd4038c24014819cadc383af",
-      "interpretation": "Second authorized product batch: transport timeout, new unknown, cancelled first row, 27 not run; not a pass."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/recovery/paid-20261009/failure.json",
-      "bytes": 64,
-      "sha256": "59653907086b9b08577070568b99bdfe6cbabe96b38d80a073e8822c1ec14f2e",
-      "interpretation": "Second authorized product batch: transport timeout, new unknown, cancelled first row, 27 not run; not a pass."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/recovery/paid-20261009/launch.json",
-      "bytes": 662,
-      "sha256": "90cc3975371057dfb4a15b1919077e1496cc1205c8178aee3eea285600d34eb4",
-      "interpretation": "Second authorized product batch: transport timeout, new unknown, cancelled first row, 27 not run; not a pass."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/recovery/paid-20261009/ledger.jsonl",
-      "bytes": 527,
-      "sha256": "c5e76c88011034f1e897cef669d7b3e4ab82191654e50dd0188730ed1a1c9d33",
-      "interpretation": "Second authorized product batch: transport timeout, new unknown, cancelled first row, 27 not run; not a pass."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/recovery/paid-20261009/manifest.json",
-      "bytes": 15217,
-      "sha256": "7dc1a0a2c0a41aed632c655a01116b44d5287bda7cbb399bbfb9a757dcd84783",
-      "interpretation": "Second authorized product batch: transport timeout, new unknown, cancelled first row, 27 not run; not a pass."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/recovery/paid-20261009/preparatory-price.json",
-      "bytes": 2612,
-      "sha256": "ec7eb88aa8e46996cada3517971e465e0b956dffc2bacecedead7b2441908927",
-      "interpretation": "Second authorized product batch: transport timeout, new unknown, cancelled first row, 27 not run; not a pass."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/recovery/paid-20261009/price-check.json",
-      "bytes": 2612,
-      "sha256": "32c216038e24a4997b0b3969b5473a64c34e1c5d5fb4e28310ab7580ec515a60",
-      "interpretation": "Second authorized product batch: transport timeout, new unknown, cancelled first row, 27 not run; not a pass."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/recovery/paid-20261009/raw-local-files.json",
-      "bytes": 7220,
-      "sha256": "340a1be0e1aed4e978277f457f964b48457a92c4ecc7b85b985fa84e7584972a",
-      "interpretation": "Second authorized product batch: transport timeout, new unknown, cancelled first row, 27 not run; not a pass."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/recovery/paid-20261009/requests.jsonl",
-      "bytes": 51100,
-      "sha256": "491059ec990a6dd9707300e308cda2cd3149b8378dd623286e702f6bc2262774",
-      "interpretation": "Second authorized product batch: transport timeout, new unknown, cancelled first row, 27 not run; not a pass."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/recovery/paid-20261009/responses.jsonl",
-      "bytes": 113,
-      "sha256": "3e752278195f30d61d6170ab9e0c8cbddc887d97a43bdf2e2077059ce2e18f20",
-      "interpretation": "Second authorized product batch: transport timeout, new unknown, cancelled first row, 27 not run; not a pass."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/recovery/paid-20261009/results.json",
-      "bytes": 537,
-      "sha256": "b877d964998e3baec07a4a46d036c474bdbe1780eeff9d121479384a3ebef436",
-      "interpretation": "Second authorized product batch: transport timeout, new unknown, cancelled first row, 27 not run; not a pass."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/recovery/paid-20261009/runner.log",
-      "bytes": 408,
-      "sha256": "6d58133b336d3191a2c0b1fb82f9dc8f23a8f2ef0e1c138441101f881796bd5a",
-      "interpretation": "Second authorized product batch: transport timeout, new unknown, cancelled first row, 27 not run; not a pass."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/recovery/paid-20261009/runtime-install.log",
-      "bytes": 1868,
-      "sha256": "7d68e740beb825a54293ca6c9b4162cd44b4cc45b8693c5db04d2c8ca94cdbf3",
-      "interpretation": "Second authorized product batch: transport timeout, new unknown, cancelled first row, 27 not run; not a pass."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/recovery/paid-20261009/stop.json",
-      "bytes": 143,
-      "sha256": "fba1642e7df38b15a2e37bfd09fd8b6d76fa2eea7c1786312449a1684302a1f9",
-      "interpretation": "Second authorized product batch: transport timeout, new unknown, cancelled first row, 27 not run; not a pass."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/recovery/paid-20261009/summary.json",
-      "bytes": 262,
-      "sha256": "324e4bd4e90c3cade60041285920edc20c7cd5e05b777e6736a09cf0c6c37c80",
-      "interpretation": "Second authorized product batch: transport timeout, new unknown, cancelled first row, 27 not run; not a pass."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/recovery/approval.authorized.json",
-      "bytes": 1030,
-      "sha256": "bfa19fcbc66bbfb0abc135f47e42c87fc5a9849a3ffabb0cb304eaa38ba8a402",
-      "interpretation": "Human contextual approval of the exact recovery proposal; now consumed by the stopped batch, no further paid retry authorized."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/recovery/authorization-record.json",
-      "bytes": 1159,
-      "sha256": "f8f7349cc2b091889550d7ae6c81cb24b194f31343830c82ecd81543648e25db",
-      "interpretation": "Human contextual approval of the exact recovery proposal; now consumed by the stopped batch, no further paid retry authorized."
     }
   ],
   "archivedFiles": [
@@ -635,26 +520,6 @@
       "path": "plans/r1-online-pilot/history/pre-paid-result-20261009/r1-completion-plan.md",
       "bytes": 8958,
       "sha256": "61f1187ab62ccf6c6c641a05337afacc39dc6839bcf2dd4bdb6d93bb01d57196"
-    },
-    {
-      "path": "plans/r1-online-pilot/history/pre-recovery-result-20261009/CURRENT-TASK.md",
-      "bytes": 4069,
-      "sha256": "d3fa91005a37e4e7dc065e6079d72f477986ef6fc27e370fdbeb5107dab69be6"
-    },
-    {
-      "path": "plans/r1-online-pilot/history/pre-recovery-result-20261009/README.md",
-      "bytes": 21845,
-      "sha256": "aa01ae8d57c28ab0a2beb58273be16e21ddb3cc0b3ebc36b54607b19b82a9037"
-    },
-    {
-      "path": "plans/r1-online-pilot/history/pre-recovery-result-20261009/evidence-index.json",
-      "bytes": 27590,
-      "sha256": "378325aa07b568c517f02ede764849ac235b1046e46e1c4e5ebbad80015fe668"
-    },
-    {
-      "path": "plans/r1-online-pilot/history/pre-recovery-result-20261009/r1-completion-plan.md",
-      "bytes": 10183,
-      "sha256": "c83be9b84e65231f3df4b1b2e3dd0200d92ae33f1d563debba8eaadf5c5127f6"
     }
   ],
   "localRawEvidence": "product/evidence/raw-local-files.json",
@@ -717,38 +582,5 @@
     "unintendedBroadFreeRunInterruptedAndNotCountedAsFullPass": true
   },
   "approval": "product/recovery/approval.authorized.json",
-  "expiresAt": "2026-10-10T13:58:00Z",
-  "authorizationConsumedAndStopped": true,
-  "automaticFurtherPaidWorkAuthorized": false,
-  "paidRecovery": {
-    "sourceSha": "98f7854472c3df9e3baa913ab3e74f97d8cff3c7",
-    "manifestHash": "f7fa8326db127c1821cc038e50f65e5c02bd68989cb36ba42fa95e05a3e6abc9",
-    "approved": true,
-    "authorization": "product/recovery/authorization-record.json",
-    "status": "stopped-transport-error-new-unknown",
-    "paidRows": 1,
-    "passedRows": 0,
-    "incompleteRows": 1,
-    "notRunRows": 27,
-    "actualActions": 0,
-    "agentRequests": 1,
-    "fullRealAcceptancePassed": false,
-    "newKnownUsageCostUsd": 0,
-    "newActualCostUsd": null,
-    "newUnknownReservedUsd": 0.063,
-    "newUnknownCount": 1,
-    "audit": "product/recovery/paid-20261009/audit.json",
-    "runtime": "data/r1-product/runtime-98f7854",
-    "preserveRuntimeAndClosedAccount": true
-  },
-  "currentCumulativeAccounting": {
-    "knownProductUsageCostUsd": 0.00502455,
-    "unknownReservedUsd": 0.116,
-    "unknownCount": 2,
-    "accountedUsd": 0.12102455,
-    "separateHistoricalSettledFrameUsd": 0.000250824,
-    "includingHistoricalFrameAccountedUsd": 0.121275374,
-    "actualTotalUsd": null,
-    "furtherPaidRunAuthorized": false
-  }
+  "expiresAt": "2026-10-10T13:58:00Z"
 }

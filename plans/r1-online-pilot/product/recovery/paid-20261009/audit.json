@@ -1,0 +1,348 @@
+{
+  "checkedAt": "2026-10-09T14:02:23.739427+00:00",
+  "sourceSha": "98f7854472c3df9e3baa913ab3e74f97d8cff3c7",
+  "manifestHash": "f7fa8326db127c1821cc038e50f65e5c02bd68989cb36ba42fa95e05a3e6abc9",
+  "fullRealAcceptancePassed": false,
+  "rows": [
+    {
+      "row": "C10-1",
+      "scenario": "ambiguous",
+      "result": "cancelled-incomplete",
+      "reason": "model-request-timeout; transport-error; new unknown; batch cancelled",
+      "actual": {
+        "row": "C10-1",
+        "runId": "run-054c1a38-2d55-4ca4-bb10-fbce3c36ad65",
+        "status": "cancelled",
+        "actions": 0,
+        "modelRequests": 1,
+        "jevRequests": 0,
+        "evaluation": {
+          "version": "r1-product-evaluation-1",
+          "passed": false,
+          "integrity": false,
+          "falseCovered": false,
+          "issues": [
+            "original-persistence-or-measurement-chain",
+            "unexpected-terminal-status"
+          ],
+          "scope": "Synthetic public fixtures; no Jev quality or statistical benefit inference"
+        }
+      }
+    },
+    {
+      "row": "C10-2",
+      "scenario": "ambiguous",
+      "result": "not-run",
+      "reason": "batch stopped after first new unknown",
+      "actual": null
+    },
+    {
+      "row": "C01-1",
+      "scenario": "menu-healthy",
+      "result": "not-run",
+      "reason": "batch stopped after first new unknown",
+      "actual": null
+    },
+    {
+      "row": "C01-2",
+      "scenario": "menu-healthy",
+      "result": "not-run",
+      "reason": "batch stopped after first new unknown",
+      "actual": null
+    },
+    {
+      "row": "C02-1",
+      "scenario": "tabs-defect",
+      "result": "not-run",
+      "reason": "batch stopped after first new unknown",
+      "actual": null
+    },
+    {
+      "row": "C02-2",
+      "scenario": "tabs-defect",
+      "result": "not-run",
+      "reason": "batch stopped after first new unknown",
+      "actual": null
+    },
+    {
+      "row": "C03-1",
+      "scenario": "boundary-input",
+      "result": "not-run",
+      "reason": "batch stopped after first new unknown",
+      "actual": null
+    },
+    {
+      "row": "C03-2",
+      "scenario": "boundary-input",
+      "result": "not-run",
+      "reason": "batch stopped after first new unknown",
+      "actual": null
+    },
+    {
+      "row": "C04a-1",
+      "scenario": "refresh",
+      "result": "not-run",
+      "reason": "batch stopped after first new unknown",
+      "actual": null
+    },
+    {
+      "row": "C04a-2",
+      "scenario": "refresh",
+      "result": "not-run",
+      "reason": "batch stopped after first new unknown",
+      "actual": null
+    },
+    {
+      "row": "C04b-1",
+      "scenario": "return-start",
+      "result": "not-run",
+      "reason": "batch stopped after first new unknown",
+      "actual": null
+    },
+    {
+      "row": "C04b-2",
+      "scenario": "return-start",
+      "result": "not-run",
+      "reason": "batch stopped after first new unknown",
+      "actual": null
+    },
+    {
+      "row": "C04c-1",
+      "scenario": "view-context-healthy",
+      "result": "not-run",
+      "reason": "batch stopped after first new unknown",
+      "actual": null
+    },
+    {
+      "row": "C04c-2",
+      "scenario": "view-context-healthy",
+      "result": "not-run",
+      "reason": "batch stopped after first new unknown",
+      "actual": null
+    },
+    {
+      "row": "C05-1",
+      "scenario": "three-step-defect",
+      "result": "not-run",
+      "reason": "batch stopped after first new unknown",
+      "actual": null
+    },
+    {
+      "row": "C05-2",
+      "scenario": "three-step-defect",
+      "result": "not-run",
+      "reason": "batch stopped after first new unknown",
+      "actual": null
+    },
+    {
+      "row": "C06-1",
+      "scenario": "three-step-healthy",
+      "result": "not-run",
+      "reason": "batch stopped after first new unknown",
+      "actual": null
+    },
+    {
+      "row": "C06-2",
+      "scenario": "three-step-healthy",
+      "result": "not-run",
+      "reason": "batch stopped after first new unknown",
+      "actual": null
+    },
+    {
+      "row": "C07-1",
+      "scenario": "fairness",
+      "result": "not-run",
+      "reason": "batch stopped after first new unknown",
+      "actual": null
+    },
+    {
+      "row": "C07-2",
+      "scenario": "fairness",
+      "result": "not-run",
+      "reason": "batch stopped after first new unknown",
+      "actual": null
+    },
+    {
+      "row": "C08-1",
+      "scenario": "layout-pair",
+      "result": "not-run",
+      "reason": "batch stopped after first new unknown",
+      "actual": null
+    },
+    {
+      "row": "C08-2",
+      "scenario": "layout-pair",
+      "result": "not-run",
+      "reason": "batch stopped after first new unknown",
+      "actual": null
+    },
+    {
+      "row": "C09-1",
+      "scenario": "repeat-defect",
+      "result": "not-run",
+      "reason": "batch stopped after first new unknown",
+      "actual": null
+    },
+    {
+      "row": "C09-2",
+      "scenario": "repeat-defect",
+      "result": "not-run",
+      "reason": "batch stopped after first new unknown",
+      "actual": null
+    },
+    {
+      "row": "C11-1",
+      "scenario": "recovery",
+      "result": "not-run",
+      "reason": "batch stopped after first new unknown",
+      "actual": null
+    },
+    {
+      "row": "C11-2",
+      "scenario": "recovery",
+      "result": "not-run",
+      "reason": "batch stopped after first new unknown",
+      "actual": null
+    },
+    {
+      "row": "C12-1",
+      "scenario": "budget",
+      "result": "not-run",
+      "reason": "batch stopped after first new unknown",
+      "actual": null
+    },
+    {
+      "row": "C12-2",
+      "scenario": "budget",
+      "result": "not-run",
+      "reason": "batch stopped after first new unknown",
+      "actual": null
+    }
+  ],
+  "paidRows": 1,
+  "notRunRows": 27,
+  "passedRows": 0,
+  "failedProductVerdicts": 0,
+  "incompleteRows": 1,
+  "agentRequests": 1,
+  "jevRequests": 0,
+  "actualActions": 0,
+  "newKnownUsageCostUsd": 0,
+  "newUnknownReservedUsd": 0.063,
+  "newUnknownCount": 1,
+  "actualNewCostUsd": null,
+  "priorProductKnownUsageCostUsd": 0.00502455,
+  "oldUnknownReservedUsd": 0.053,
+  "combinedKnownUsageCostUsd": 0.00502455,
+  "combinedUnknownReservedUsd": 0.116,
+  "combinedUnknownCount": 2,
+  "combinedAccountedUsd": 0.12102455,
+  "includingSeparateHistoricalSettledAccountedUsd": 0.121275374,
+  "actualTotalUsd": null,
+  "request": {
+    "requestId": "1e9f2f841ecebbaa0b06a09d",
+    "phase": "r1-product-acceptance-2",
+    "provider": "Wafer",
+    "run": "product-row:C10-1",
+    "seq": 1,
+    "model": "deepseek/deepseek-v4.1-flash",
+    "startedAt": "2026-10-09T13:59:31.577Z",
+    "inputBytes": 50668,
+    "status": "error",
+    "usage": null,
+    "transportComplete": false,
+    "receivedBytes": 0,
+    "firstStreamByteMs": null,
+    "firstReasoningDeltaMs": null,
+    "firstContentDeltaMs": null,
+    "firstToolDeltaMs": null,
+    "dispatchedAt": "2026-10-09T13:59:31.580Z",
+    "error": "Error: downstream-disconnected",
+    "streamEventCount": 0,
+    "durationMs": 14960
+  },
+  "modelAndCancellationEvents": [
+    {
+      "type": "model:request-started",
+      "payload": {
+        "attemptId": "95b01429-8d03-470e-a607-5ceb2eb84734",
+        "startedAt": 1791554371525,
+        "deadlineAt": 1791554386525,
+        "purpose": "agent",
+        "model": "openai/deepseek/deepseek-v4.1-flash"
+      }
+    },
+    {
+      "type": "model:request-finished",
+      "payload": {
+        "attemptId": "95b01429-8d03-470e-a607-5ceb2eb84734",
+        "startedAt": 1791554371526,
+        "deadlineAt": 1791554386525,
+        "durationMs": 15004,
+        "modelDurationMs": 15004,
+        "status": "timeout",
+        "error": "model-request-timeout",
+        "hadToolCalls": false,
+        "usage": "unknown",
+        "timing": {
+          "transport": "stream",
+          "responseHeadersMs": null,
+          "firstModelDeltaMs": null,
+          "firstToolCallMs": null,
+          "firstToolExecutionMs": null,
+          "lastModelDeltaMs": null,
+          "maxDeltaGapMs": null,
+          "cancelledMs": 15002,
+          "responseCompleteMs": null
+        },
+        "seq": 1,
+        "purpose": "agent",
+        "model": "openai/deepseek/deepseek-v4.1-flash",
+        "inputTokens": null,
+        "outputTokens": null,
+        "decisionDurationMs": 15004
+      }
+    },
+    {
+      "type": "run:cancel-requested",
+      "payload": {}
+    },
+    {
+      "type": "run:completed",
+      "payload": {
+        "status": "cancelled",
+        "businessResult": "not-applicable",
+        "stopReason": "cancelled",
+        "usage": {
+          "actions": 0,
+          "modelCalls": 1,
+          "elapsedMs": 15868,
+          "modelInputTokens": 0,
+          "modelOutputTokens": 0
+        },
+        "tokenUsage": "unavailable"
+      }
+    }
+  ],
+  "reportPersistence": {
+    "status": "not-final",
+    "issues": [],
+    "recordedStatus": "cancelled",
+    "recordedBusinessResult": "not-applicable",
+    "recordedStopReason": "cancelled",
+    "readConsistency": "single-read-transaction"
+  },
+  "originalArtifactsVerified": 8,
+  "old41AndPreviousPaidPinsUnchanged": true,
+  "oldAndNewClaimsPreserved": true,
+  "runtimeHead": "98f7854472c3df9e3baa913ab3e74f97d8cff3c7",
+  "runtimeTrackedClean": true,
+  "diagnosis": {
+    "confirmed": "Agent model timeout at 15004ms; downstream disconnected at about14960ms; no gateway-visible response headers/events/usage/generation ID; batch transport-error, cancellation and unknown reserve persisted.",
+    "uncertain": "No evidence identifies provider delay versus transport versus time spent buffering validation. The runner validates the full response before release, so gateway receivedBytes=0 does not prove no upstream bytes arrived.",
+    "codeChange": "None: no demonstrated new product defect; timeout/provider/budget not changed.",
+    "reportLimit": "Cancelled report is not-final; integrity failure is secondary to cancellation, not an observed recurrence of false-covered.",
+    "retries": 0,
+    "reconciliation": "No lawful generation ID or billing receipt available locally; no cost invented, no old/new unknown cleared."
+  }
+}
