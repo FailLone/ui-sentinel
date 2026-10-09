@@ -1,4 +1,7 @@
-import { createExperimentalHost } from './experimental-decision-host.ts'
+import {
+  createExperimentalHost,
+  experimentalScopeExpansionEnabled,
+} from './experimental-decision-host.ts'
 import { checkHash } from '../inspection/check-contract.ts'
 import { createDefaultCheckRuntime, summary as checkSummary } from './default-check-runtime.ts'
 import { admitOptionalScope } from './scope-admission.ts'
@@ -3088,6 +3091,19 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       })
     }
     closeCoveredUiScope = async () => {
+      // Optional experiment window only: let the normal selection tool admit newly observed controls.
+      // The completion function, ledger and budget admission are unchanged.
+      if (
+        experimentalScopeExpansionEnabled() &&
+        inspection
+          ?.candidateItems()
+          .some(
+            (c) =>
+              c.category === 'local-interaction' &&
+              inspection.scope.snapshot().items.some((i) => i.itemId === c.itemId && !i.selected),
+          )
+      )
+        return false
       if (
         !explicitScope ||
         !inspection ||

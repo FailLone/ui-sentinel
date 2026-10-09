@@ -20,3 +20,12 @@ export function installExperimentalHost(value: (runId: string) => ExperimentalHo
 export function createExperimentalHost(runId: string) {
   return factory?.(runId)
 }
+
+let scopeExpansion = false
+/** Same explicit bounded selection window for all experiment arms, including the Agent arm. */
+export function installExperimentalScopeExpansion() {
+  scopeExpansion = true
+}
+export function experimentalScopeExpansionEnabled() {
+  return scopeExpansion
+}

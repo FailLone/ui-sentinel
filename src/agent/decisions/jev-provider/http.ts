@@ -25,6 +25,8 @@ export type ProviderEvent = {
 }
 export type HttpOptions = {
   profile: Profile
+  /** Explicit compiler for a versioned experiment; default projection remains unchanged. */
+  compile?: typeof compileRequest
   apiKey: string
   maxInputBytes?: number
   fetch?: HttpFetch
@@ -80,7 +82,11 @@ export function createJevTransport(options: HttpOptions): SendFn {
     void aborted.catch(() => {})
     try {
       guard()
-      compiled = compileRequest(request, profile, options.maxInputBytes ?? 32768)
+      compiled = (options.compile ?? compileRequest)(
+        request,
+        profile,
+        options.maxInputBytes ?? 32768,
+      )
       if (compiled.requestDigest !== context.requestDigest)
         throw new ProviderError('request-digest-mismatch', usage)
       // Never serialize a credential if supplied page text or a response happens to contain it.

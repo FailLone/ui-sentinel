@@ -186,7 +186,15 @@ try {
           uiScan: report.uiScan,
           artifacts: index.length,
         })
-        console.log(JSON.stringify(rows.at(-1)))
+        console.log(
+          JSON.stringify({
+            arm,
+            scenario,
+            status: report.status,
+            usage: report.usage,
+            checks: report.uiScan.checkCounts,
+          }),
+        )
         if (['interrupted', 'execution-error'].includes(report.status))
           throw Error('affected-run-stopped:' + report.status)
       }
