@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto'
-/** Normal product server + API + workbench + Chromium. The only provider always hands back partial. */
+/** Normal product server + API + workbench + Chromium; local-only provider. */
 import { createServer } from 'node:http'
 import { spawn, execFileSync } from 'node:child_process'
 import { mkdir, writeFile, readFile } from 'node:fs/promises'
@@ -9,6 +9,8 @@ import { build as viteBuild } from 'vite'
 import { chromium } from 'playwright'
 import { strict as assert } from 'node:assert'
 import { fixtures, documentFor, pathFor, fixtureAt } from './fixtures.ts'
+const challengeHandoff = process.argv.includes('--challenge-handoff')
+let challengeCalls = 0
 const root = resolve('data/r1-product', new Date().toISOString().replace(/[:.]/g, '-'))
 await mkdir(root, { recursive: true })
 const save = (name: string, value: unknown) =>
@@ -42,13 +44,46 @@ const provider = createServer(async (req, res) => {
   for await (const b of req) raw += b
   const body = JSON.parse(raw)
   packets.push(body)
-  // No scenario, answer, action or candidate is supplied by this substitute.
+  // Default mode supplies no actions. The explicit regression mode attempts the two
+  // dispatch routes used to bypass a public-ambiguity handoff, then closes partial.
+  const handoffAttempt = challengeHandoff ? ++challengeCalls : 0
+  const challenge =
+    handoffAttempt === 1
+      ? { name: 'page_act', args: { type: 'click', selector: 'button:nth-of-type(1)' } }
+      : handoffAttempt === 2
+        ? {
+            name: 'investigation_run',
+            args: {
+              version: 1,
+              phenomenon: 'Attempt an action after unresolved public ambiguity',
+              basis: 'A unique CSS node must not bypass the R1 handoff constraint',
+              exploration: { requirementIds: [], expectedEffect: null },
+              targets: [
+                {
+                  name: 'open',
+                  selector: 'button:nth-of-type(1)',
+                  identityBasis: null,
+                  binding: 'node',
+                },
+              ],
+              steps: [
+                { op: 'measure', name: 'before' },
+                { op: 'act', type: 'click', target: 'open', value: null, scrollY: null },
+                { op: 'measure', name: 'after' },
+              ],
+              assertions: [],
+            },
+          }
+        : undefined
   const calls = [
     {
       index: 0,
       id: 'partial-' + packets.length,
       type: 'function',
-      function: { name: 'run_finish', arguments: JSON.stringify({ reason: 'unverified-scope' }) },
+      function: {
+        name: challenge?.name ?? 'run_finish',
+        arguments: JSON.stringify(challenge?.args ?? { reason: 'unverified-scope' }),
+      },
     },
   ]
   const base = {
@@ -81,7 +116,7 @@ await viteBuild({ configFile: 'src/web/vite.config.ts' })
 await save('identity.json', {
   sourceSha: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
   diff: execFileSync('git', ['diff'], { encoding: 'utf8' }),
-  provider: 'local-fixed-partial-only',
+  provider: challengeHandoff ? 'local-handoff-dispatch-challenge' : 'local-fixed-partial-only',
   realCalls: 0,
 })
 const child = spawn(process.execPath, [resolve(root, 'server.mjs')], {
@@ -132,9 +167,12 @@ try {
     if (i === 99) throw Error('startup')
     await new Promise((r) => setTimeout(r, 100))
   }
-  const names = process.argv.slice(2).length
-    ? process.argv.slice(2)
+  const requested = process.argv.slice(2).filter((a) => a !== '--challenge-handoff')
+  const names = requested.length
+    ? requested
     : Object.keys(fixtures).filter((n) => n !== 'return-end')
+  if (challengeHandoff)
+    assert.deepEqual(names, ['ambiguous'], 'challenge only the affected ambiguity case')
   const denied = await fetch(base + '/api/runs', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
@@ -263,7 +301,23 @@ try {
       'tabs-defect': 1,
     }
     assert.equal(report.usage.actions, actionCounts[name], name + ' actions')
-    assert.equal(packets.length - before, partial ? 1 : 0, name + ' fixed-model count')
+    assert.equal(
+      packets.length - before,
+      challengeHandoff ? 3 : partial ? 1 : 0,
+      name + ' fixed-model count',
+    )
+    if (challengeHandoff) {
+      const refused = report.events.filter((e: any) => e.type === 'r1:action-refused')
+      assert.equal(
+        refused.length,
+        2,
+        'both direct and investigation actions reach the shared refusal gate',
+      )
+      assert(
+        report.uiScan.inspection.gaps.some((g: any) => g.reasonCode === 'ambiguous-public-target'),
+        'original permanent gap survives handoff',
+      )
+    }
     const failures: Record<string, number> = {
       'three-step-defect': 1,
       fairness: 2,

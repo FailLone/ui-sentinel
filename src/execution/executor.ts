@@ -280,6 +280,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
   const { run, legacyUnversioned, runKind, uiScan, businessRuntime, active } = prepared
   let productHost: ReturnType<typeof createProductHost> | undefined
   let productHandedOff = false
+  let productReadOnlyHandoff: string | undefined
   let productNavigationProposal: string | undefined
   const signal = active.abortController.signal
   const startedAt = Date.now(),
@@ -2337,6 +2338,20 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     })
     async function performAction(input: z.infer<typeof actionInput>) {
       guard()
+      // A unique selector/ref does not resolve the public ambiguity that caused handoff.
+      // This gate also covers investigation_run, which delegates every act here.
+      if (productReadOnlyHandoff) {
+        await appendEvent(runId, 'r1:action-refused', {
+          reason: productReadOnlyHandoff,
+          actionType: input.type,
+          dispatched: false,
+        })
+        return {
+          error: 'r1-unresolved-public-ambiguity: read-only inspection or run_finish required',
+          reason: productReadOnlyHandoff,
+          dispatched: false,
+        }
+      }
       if (checkRuntime) preparedV2 = null
       const invalid = actionInputValidationError(input, { allowRefOnly: !!inspection })
       if (invalid) return invalid
@@ -5284,6 +5299,17 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           experimentHandedOff = true
           productHandedOff = true
           await appendEvent(runId, 'r1:handoff', decision)
+          if (
+            productHost &&
+            ['ambiguous-public-target', 'ambiguous-result-target'].includes(decision.reason)
+          ) {
+            productReadOnlyHandoff = decision.reason
+            await inspection!.recordGap({
+              reasonCode: decision.reason,
+              detail:
+                'Public target or result meaning remains ambiguous. This bounded run permits only read-only investigation and partial closure after handoff; a unique selector is not disambiguation.',
+            })
+          }
           if (
             productHost &&
             [

@@ -10,7 +10,7 @@ import { startGateway, AGENT_MODEL } from '../../evaluation/support/model-gatewa
 import { openCampaignSession } from '../../evaluation/support/campaign-session.ts'
 import { createBatch } from '../r1-online-pilot/batch.ts'
 import { checkPublishedPrice } from '../r1-online-pilot/preflight.ts'
-import { createContinuation, combinedSpending } from '../r1-online-pilot/continuation.ts'
+import { createProductContinuation, combinedProductSpending } from './recovery.ts'
 import { bindRunCancellation } from '../r1-online-pilot/lifecycle.ts'
 import {
   makeProductManifest,
@@ -39,7 +39,7 @@ const manifest: ProductManifest = free
   : JSON.parse(readFileSync(args[0], 'utf8'))
 const continuation = free
   ? undefined
-  : createContinuation(digest(manifest), resolve(args[2] ?? ''), output)
+  : createProductContinuation(digest(manifest), resolve(args[2] ?? ''), output)
 let key = 'fixed-only-never-real',
   priceCheck: unknown = { mode: 'free' },
   approval: unknown
@@ -328,7 +328,7 @@ try {
   const spending = await session.ledger.spending()
   save('accounting.json', {
     spending,
-    ...(continuation ? { combined: combinedSpending(spending) } : {}),
+    ...(continuation ? { combined: combinedProductSpending(spending) } : {}),
     entries: await session.ledger.entries(),
     status: batch.status(),
     realModels: !free,

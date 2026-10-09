@@ -1,7 +1,7 @@
 /** Product acceptance of the recommended program mode. This does not authorize Jev adoption or 72-arm statistics. */
 import { readFileSync } from 'node:fs'
 import { digest } from '../../src/agent/exploration/integration/host.ts'
-import { CONTINUATION, acceptanceFor } from '../r1-online-pilot/continuation.ts'
+import { PRODUCT_RECOVERY, productRiskAcceptance } from './recovery.ts'
 import { fixtures, documentFor } from './fixtures.ts'
 export const CASES = [
   ['C10', 'ambiguous'],
@@ -46,7 +46,7 @@ export function goal(scenario: string) {
 export { documentFor } from './fixtures.ts'
 export function makeProductManifest(sourceSha: string) {
   return {
-    version: 'r1-product-acceptance-1',
+    version: 'r1-product-acceptance-2',
     sourceSha,
     integratedMainSha: '48b02b3fbfe7e5d95189a0d813480761b123ff6b',
     entry:
@@ -61,7 +61,7 @@ export function makeProductManifest(sourceSha: string) {
     priceSourceSha: digest(
       JSON.parse(readFileSync('plans/r1-online-pilot/price-source.json', 'utf8')),
     ),
-    continuation: { ...CONTINUATION, acceptance: acceptanceFor(LIMITS.maxCostUsd) },
+    continuation: { ...PRODUCT_RECOVERY, acceptance: productRiskAcceptance(LIMITS.maxCostUsd) },
     fixtures: Object.keys(fixtures).map((id) => ({
       id,
       htmlHash: digest(documentFor(id as keyof typeof fixtures)),

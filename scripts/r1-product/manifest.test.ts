@@ -9,7 +9,7 @@ it('freezes 12 cases with separate return/refresh/public-view, twice, explicit p
     LIMITS.maxCostUsd,
   )
   expect(manifest.rows.every((r) => r.mode === 'program' && r.maxJevRequests === 0)).toBe(true)
-  expect(manifest.continuation.acceptance.maxCombinedAccountedUsd).toBe(14.165)
+  expect(manifest.continuation.acceptance.maxCombinedAccountedUsd).toBe(14.17002455)
   const approval = {
     approvedBy: 'synthetic-test',
     approvalReference: 'free test only',
