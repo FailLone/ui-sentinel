@@ -2,6 +2,9 @@ import { expect, it } from 'vitest'
 import { makeProductManifest, authorizeProduct, LIMITS } from './manifest.ts'
 import { digest } from '../../src/agent/exploration/integration/host.ts'
 it('freezes 12 cases with separate return/refresh/public-view, twice, explicit program mode and zero Jev budget', () => {
+  expect(LIMITS.modelMs).toBe(60000)
+  expect(LIMITS.totalTimeoutMs).toBe(180000)
+  expect(LIMITS.windowMs).toBe(5400000)
   const manifest = makeProductManifest('candidate')
   expect(manifest.rows).toHaveLength(28)
   expect(manifest.rows.reduce((n, r) => n + r.maxAgentRequests, 0)).toBe(224)
@@ -9,7 +12,7 @@ it('freezes 12 cases with separate return/refresh/public-view, twice, explicit p
     LIMITS.maxCostUsd,
   )
   expect(manifest.rows.every((r) => r.mode === 'program' && r.maxJevRequests === 0)).toBe(true)
-  expect(manifest.continuation.acceptance.maxCombinedAccountedUsd).toBe(14.17002455)
+  expect(manifest.continuation.acceptance.maxCombinedAccountedUsd).toBe(14.23302455)
   const approval = {
     approvedBy: 'synthetic-test',
     approvalReference: 'free test only',

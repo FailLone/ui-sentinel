@@ -1,4 +1,5 @@
 import 'dotenv/config'
+import { DEFAULT_MODEL_REQUEST_TIMEOUT_MS } from './model-defaults.ts'
 import { readDnsConfig } from './dns-config.ts'
 
 function bounded(name: string, fallback: number, max: number): number {
@@ -96,7 +97,11 @@ export const config = Object.freeze({
     maxActions: bounded('RUN_MAX_ACTIONS', 40, 40),
     maxModelCalls: bounded('RUN_MAX_MODEL_CALLS', 40, 60),
     toolTimeoutMs: bounded('TOOL_TIMEOUT_MS', 15_000, 60_000),
-    modelRequestTimeoutMs: bounded('MODEL_REQUEST_TIMEOUT_MS', 60_000, 120_000),
+    modelRequestTimeoutMs: bounded(
+      'MODEL_REQUEST_TIMEOUT_MS',
+      DEFAULT_MODEL_REQUEST_TIMEOUT_MS,
+      120_000,
+    ),
     modelRequestMaxRetries: retries(),
   },
 })

@@ -1,5 +1,7 @@
 /** Explicitly authorized normal-product acceptance. --free uses a local partial-only provider; no real credentials. */
 import { createHash } from 'node:crypto'
+import { appendFile } from 'node:fs/promises'
+import { createValidatedUpstream } from './upstream.ts'
 import { createServer } from 'node:http'
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from 'node:fs'
 import { resolve, join } from 'node:path'
@@ -103,35 +105,16 @@ const fake: typeof fetch = async (_url, init) => {
     { headers: { 'content-type': 'text/event-stream' } },
   )
 }
-const upstream: typeof fetch = async (url, init) => {
-  batch.auditWire(String(url), String(init?.body))
-  try {
-    const r = await (free ? fake : fetch)(url, { ...init, redirect: 'error' })
-    if (!r.ok) {
-      batch.stop('provider-http-error')
-      return r
-    }
-    const raw = await r.clone().text()
-    const chunks = raw
-      .split('\n')
-      .filter((l) => l.startsWith('data:') && l.slice(5).trim() !== '[DONE]')
-      .map((l) => JSON.parse(l.slice(5)))
-    if (
-      !chunks.length ||
-      chunks.some(
-        (e) =>
-          e.error ||
-          (e.provider && e.provider !== 'Wafer') ||
-          (e.model && ![AGENT_MODEL, 'deepseek/deepseek-v4.1-flash-20260910'].includes(e.model)),
-      )
-    )
-      batch.stop('provider-response-error')
-    return r
-  } catch (e) {
-    batch.stop('transport-error')
-    throw e
-  }
-}
+let timingRow = '',
+  timingSequence = 0
+const upstream = createValidatedUpstream(free ? fake : fetch, {
+  context: () => ({ row: timingRow, sequence: ++timingSequence }),
+  auditWire: (url, body) => batch.auditWire(url, body),
+  stop: (reason) => batch.stop(reason),
+  record: (timing) =>
+    appendFile(join(output, 'upstream-timing.jsonl'), JSON.stringify(timing) + '\n'),
+})
+
 const gateway = await startGateway(key, output, upstream, {
   limitUsd: LIMITS.maxCostUsd,
   estimateCost: batch.estimate,
@@ -157,6 +140,8 @@ try {
     free && args.length ? manifest.rows.filter((r) => args.includes(r.id)) : manifest.rows
   if (!rows.length) throw Error('no-requested-row')
   for (const row of rows) {
+    timingRow = row.id
+    timingSequence = 0
     batch.guard()
     runId = ''
     const dir = join(output, row.id)

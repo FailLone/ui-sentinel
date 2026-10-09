@@ -1,5 +1,6 @@
 /** Product acceptance of the recommended program mode. This does not authorize Jev adoption or 72-arm statistics. */
 import { readFileSync } from 'node:fs'
+import { DEFAULT_MODEL_REQUEST_TIMEOUT_MS } from '../../src/shared/model-defaults.ts'
 import { digest } from '../../src/agent/exploration/integration/host.ts'
 import { PRODUCT_RECOVERY, productRiskAcceptance } from './recovery.ts'
 import { fixtures, documentFor } from './fixtures.ts'
@@ -30,7 +31,7 @@ export const LIMITS = {
   modelCalls: 8,
   totalTimeoutMs: 180000,
   toolMs: 5000,
-  modelMs: 15000,
+  modelMs: DEFAULT_MODEL_REQUEST_TIMEOUT_MS,
 } as const
 export function goal(scenario: string) {
   return scenario === 'view-context' || scenario === 'view-context-healthy'
@@ -46,7 +47,7 @@ export function goal(scenario: string) {
 export { documentFor } from './fixtures.ts'
 export function makeProductManifest(sourceSha: string) {
   return {
-    version: 'r1-product-acceptance-2',
+    version: 'r1-product-acceptance-3',
     sourceSha,
     integratedMainSha: '48b02b3fbfe7e5d95189a0d813480761b123ff6b',
     entry:

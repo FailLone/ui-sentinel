@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto'
+import { DEFAULT_MODEL_REQUEST_TIMEOUT_MS } from '../../src/shared/model-defaults.ts'
 /** Normal product server + API + workbench + Chromium; local-only provider. */
 import { createServer } from 'node:http'
 import { spawn, execFileSync } from 'node:child_process'
@@ -144,7 +145,7 @@ const child = spawn(process.execPath, [resolve(root, 'server.mjs')], {
     RUN_TOTAL_TIMEOUT_MS: '180000',
     RUN_MAX_MODEL_CALLS: '8',
     RUN_MAX_ACTIONS: '6',
-    MODEL_REQUEST_TIMEOUT_MS: '1000',
+    MODEL_REQUEST_TIMEOUT_MS: String(DEFAULT_MODEL_REQUEST_TIMEOUT_MS),
     TOOL_TIMEOUT_MS: '4000',
     OTEL_SDK_DISABLED: 'true',
   },

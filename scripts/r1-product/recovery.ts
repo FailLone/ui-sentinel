@@ -5,16 +5,45 @@ import { join } from 'node:path'
 import { CONTINUATION } from '../r1-online-pilot/continuation.ts'
 import type { CampaignSpending } from '../../evaluation/support/campaign-ledger.ts'
 export const PRODUCT_RECOVERY = {
-  version: 'r1-product-failure-continuation-1',
-  sourceManifestHash: '41eb23e34527461bae8bc50e6d0b28ae53d94bb584d8d167b7eddecedbfcf510',
-  sourceCampaignId: '68594301-1db8-4ff9-9f67-a60d72dc67f7',
+  version: 'r1-product-timeout-continuation-1',
+  sourceManifestHash: 'f7fa8326db127c1821cc038e50f65e5c02bd68989cb36ba42fa95e05a3e6abc9',
+  sourceCampaignId: '39f08e3e-6bd6-498f-b8a6-060f378127e1',
   sourceRow: 'C10-1',
-  sourceStoppedReason: 'persistence-or-false-covered',
+  sourceStoppedReason: 'transport-error',
+  sourceRequestId: '1e9f2f841ecebbaa0b06a09d',
   previousKnownActualUsd: 0.00502455,
-  inheritedUnknownReservedUsd: 0.053,
-  inheritedUnknownCount: 1,
+  inheritedUnknownReservedUsd: 0.116,
+  inheritedUnknownCount: 2,
   originalFailure: CONTINUATION,
   pins: [
+    {
+      path: '/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/account/campaign.db',
+      sha256: '1f660d8b85d723b664efdca29db892ab90bbd4cc3627a5a9682bce0580a0f7b1',
+    },
+    {
+      path: '/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/account/campaign-id.json',
+      sha256: 'd605cd24e876c9e2ad3d63b9a7177efd4ecb3cf6323e62c534b159085adeeeb3',
+    },
+    {
+      path: '/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/accounting.json',
+      sha256: 'b1b45f128407d26640651a1f003161952fbb4395c3db898982a4055187f9bab8',
+    },
+    {
+      path: '/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/stop.json',
+      sha256: 'fba1642e7df38b15a2e37bfd09fd8b6d76fa2eea7c1786312449a1684302a1f9',
+    },
+    {
+      path: '/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/manifest.json',
+      sha256: '7dc1a0a2c0a41aed632c655a01116b44d5287bda7cbb399bbfb9a757dcd84783',
+    },
+    {
+      path: '/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/data/r1-product/runtime-98f7854/data/r1-product/authorized-recovery/results.json',
+      sha256: 'b877d964998e3baec07a4a46d036c474bdbe1780eeff9d121479384a3ebef436',
+    },
+    {
+      path: '/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-online-claims/continued-product-41eb23e34527461bae8bc50e6d0b28ae53d94bb584d8d167b7eddecedbfcf510.claim',
+      sha256: '867f4711a91001c74330d12e54067cd598bc2e03c0c7f865515968e080f31fd7',
+    },
     {
       path: '/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/data/r1-product/runtime-ddf1dd9/data/r1-product/authorized-acceptance/account/campaign.db',
       sha256: '9cd6d5a68d5bec046145cdc0a6b39c27736b9efa8b45abb0ba2a161004ef770c',
@@ -53,9 +82,13 @@ export function productRiskAcceptance(newBudgetUsd: number) {
     sourceCampaignId: PRODUCT_RECOVERY.sourceCampaignId,
     sourceDbSha256: PRODUCT_RECOVERY.pins[0].sha256,
     previousKnownActualUsd: PRODUCT_RECOVERY.previousKnownActualUsd,
-    acceptUnsettledRiskUsd: 0.053,
-    maxCombinedAccountedUsd: amount(newBudgetUsd + 0.00502455 + 0.053),
-    bothPriorBatchesRemainStopped: true,
+    acceptUnsettledRiskUsd: PRODUCT_RECOVERY.inheritedUnknownReservedUsd,
+    maxCombinedAccountedUsd: amount(
+      newBudgetUsd +
+        PRODUCT_RECOVERY.previousKnownActualUsd +
+        PRODUCT_RECOVERY.inheritedUnknownReservedUsd,
+    ),
+    allPriorBatchesRemainStopped: true,
     stopOnAnyNewUnknown: true,
   }
 }
@@ -63,11 +96,21 @@ export function combinedProductSpending(current: CampaignSpending) {
   return {
     previous: PRODUCT_RECOVERY,
     current,
-    combinedUnknownCount: current.unknownCount + 1,
+    combinedUnknownCount: current.unknownCount + PRODUCT_RECOVERY.inheritedUnknownCount,
     combinedKnownActualUsd: amount(current.knownCostUsd + 0.00502455),
-    combinedUnknownReservedUsd: amount(current.unknownReservedUsd + 0.053),
-    combinedAccountedUsd: amount(current.accountedUsd + 0.00502455 + 0.053),
-    combinedLimitUsd: amount(current.limitUsd + 0.00502455 + 0.053),
+    combinedUnknownReservedUsd: amount(
+      current.unknownReservedUsd + PRODUCT_RECOVERY.inheritedUnknownReservedUsd,
+    ),
+    combinedAccountedUsd: amount(
+      current.accountedUsd +
+        PRODUCT_RECOVERY.previousKnownActualUsd +
+        PRODUCT_RECOVERY.inheritedUnknownReservedUsd,
+    ),
+    combinedLimitUsd: amount(
+      current.limitUsd +
+        PRODUCT_RECOVERY.previousKnownActualUsd +
+        PRODUCT_RECOVERY.inheritedUnknownReservedUsd,
+    ),
     actualTotalUsd: null,
     previousActualStillUnknown: true,
   }
@@ -100,7 +143,9 @@ export function createProductContinuation(
     for (const p of io.pins)
       if (createHash('sha256').update(io.read(p.path)).digest('hex') !== p.sha256)
         throw Error('product-recovery-source-changed')
-    for (const db of [CONTINUATION.pins[0].path, PRODUCT_RECOVERY.pins[0].path])
+    for (const db of [...CONTINUATION.pins, ...PRODUCT_RECOVERY.pins]
+      .map((p) => p.path)
+      .filter((p) => p.endsWith('/campaign.db')))
       if (io.exists(db + '-wal')) throw Error('product-recovery-source-not-closed')
     if (claimed && io.read(riskClaim).toString() !== body)
       throw Error('product-recovery-claim-changed')

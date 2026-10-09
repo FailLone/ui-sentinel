@@ -10,7 +10,7 @@ import {
 import { createUiRuleObservation } from './ui-rule-observation.ts'
 import { checkHash } from '../inspection/check-contract.ts'
 import { createDefaultCheckRuntime, summary as checkSummary } from './default-check-runtime.ts'
-import { admitOptionalScope } from './scope-admission.ts'
+import { admitOptionalScope, localExtensionBound } from './scope-admission.ts'
 import { actionInputValidationError } from './action-input.ts'
 import { publishInteractionFinding } from './interaction-finding.ts'
 import { measureUiProbe } from './ui-probe.ts'
@@ -4560,13 +4560,12 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
                             timeMs: budget.totalTimeoutMs - (Date.now() - startedAt),
                           },
                           requiredBound: { actions: 0, modelCalls: 0, timeMs: 0 },
-                          extensionBound: {
-                            actions: 1,
-                            modelCalls: 4,
-                            timeMs:
-                              4 * config.budget.toolTimeoutMs +
-                              4 * config.budget.modelRequestTimeoutMs,
-                          },
+                          extensionBound: localExtensionBound({
+                            programOnly:
+                              !!productHost && !uiScan!.exploration!.jev && !productHandedOff,
+                            toolMs: config.budget.toolTimeoutMs,
+                            modelMs: config.budget.modelRequestTimeoutMs,
+                          }),
                           closingReserve: {
                             actions: 0,
                             modelCalls: 2,
