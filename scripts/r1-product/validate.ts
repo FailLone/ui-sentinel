@@ -297,7 +297,7 @@ try {
       assert.equal(checks.requiredEffectVerifiedCount, 1)
     assert(
       !report.events.some(
-        (e: any) => e.type === 'rule:evaluated' && e.payload.ruleId === 'text-contrast',
+        (e: any) => e.type === 'rule:evaluated' && e.payload.ruleId === 'image-shape-distortion',
       ),
       'D004 remains off',
     )
