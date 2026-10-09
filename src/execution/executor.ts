@@ -465,6 +465,21 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       e.attributes['aria-pressed'],
       e.attributes.value,
       e.attributes['data-state'],
+      // Public view switches can change an unchanged control's meaning. Output text alone
+      // does not invalidate every measured control or consume the per-page sample again.
+      latestSlim?.elements
+        .filter((n) =>
+          ['aria-selected', 'aria-pressed', 'aria-expanded', 'data-state'].some(
+            (k) => n.attributes[k] !== undefined,
+          ),
+        )
+        .map((n) => [
+          n.selector,
+          n.attributes['aria-selected'],
+          n.attributes['aria-pressed'],
+          n.attributes['aria-expanded'],
+          n.attributes['data-state'],
+        ]),
     ])
   const productLocalCount = (url: string) =>
     inspection
@@ -925,6 +940,10 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
             ),
           ])
         : null
+    const revisitedVersion =
+      pending.revisitDocument && landedAt === pending.beforeUrl
+        ? await readExplorationVersion(worker!.page, [])
+        : undefined
     const navigated =
       fresh &&
       !pending.actionError &&
@@ -932,8 +951,9 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       (landedAt !== pending.beforeUrl ||
         (pending.revisitDocument &&
           pending.landedUrls.includes(landedAt) &&
-          (await readExplorationVersion(worker!.page, [])).planning?.documentId !==
-            pending.revisitDocument)) &&
+          revisitedVersion?.reusable &&
+          revisitedVersion.planning &&
+          revisitedVersion.planning.documentId !== pending.revisitDocument)) &&
       integrity.epoch() === 0
     const outcome = measurement?.outcome ?? (navigated ? 'verified' : 'unverified')
     const reasonCode = pending.actionError
@@ -1018,6 +1038,13 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     })
     if (resolved)
       uiActionChecks.set(pending.actionId, { itemId: resolved.itemId, target: pending.target })
+    if (
+      resolved &&
+      pending.revisitDocument &&
+      outcome === 'verified' &&
+      inspection.revisitPending()
+    )
+      await inspection.settleRevisit(pending.actionId, resolved.itemId)
     if (resolved && programActionItems) programActionItems.push(resolved.itemId)
     if (resolved && measurement?.outcome === 'failed')
       await publishInteractionFinding({
@@ -2471,7 +2498,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           input.type === 'navigate' &&
           input.url === productNavigationProposal &&
           (visitedPages.includes(input.url!) || input.url === page.url()) &&
-          inspection.completionGaps().length === 0
+          inspection.completionGaps().every((g) => g.reasonCode === 'r1-revisit-pending')
         ) {
           const admission = admitOptionalScope({
             remaining: {
@@ -5268,7 +5295,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
             await inspection!.recordGap({
               reasonCode: decision.reason,
               detail:
-                'R1 exploration stopped at its frozen budget; remaining public branches were not checked.',
+                'R1 exploration stopped at a budget or dispatch boundary; remaining public branches were not checked.',
             })
           }
           if (productHost && (await closeCoveredUiScope())) break

@@ -1,5 +1,5 @@
 import { afterEach, expect, it } from 'vitest'
-import { mkdtemp, rm, readdir } from 'node:fs/promises'
+import { mkdtemp, rm, readdir, readFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { productJevConfiguration, createProductJevScore } from './product-jev.ts'
@@ -93,6 +93,10 @@ it('binds one synthetic receipt to the exact frame, counts a model call, settles
   })
   expect(x.counts()).toEqual({ calls: 1, keys: 1, fetches: 1 })
   expect(x.saved.map((x) => x.kind)).toEqual(['r1-jev-request', 'r1-jev-response'])
+  expect(JSON.parse(x.saved[0].body).provider).toEqual({
+    allow_fallbacks: false,
+    only: ['TypeSafe'],
+  })
   expect(x.events[0]).toMatchObject({ dispatched: true, actualUsd: 0.001 })
   const session = await openCampaignSession(x.directory, '1')
   try {
@@ -119,7 +123,9 @@ it('an existing unknown blocks credential access and dispatch; it remains unknow
   })
   await session.ledger.markUnknown('old', 'simulated-old-unknown')
   await session.close()
+  const before = await readFile(join(x.directory, 'campaign.db'))
   await expect(x.score(x.frame, new AbortController().signal)).rejects.toThrow('account-stopped')
+  expect(await readFile(join(x.directory, 'campaign.db'))).toEqual(before)
   expect(x.counts()).toEqual({ calls: 0, keys: 0, fetches: 0 })
   const reread = await openCampaignSession(x.directory, '1')
   try {

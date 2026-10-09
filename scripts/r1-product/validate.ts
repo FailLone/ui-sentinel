@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 /** Normal product server + API + workbench + Chromium. The only provider always hands back partial. */
 import { createServer } from 'node:http'
 import { spawn, execFileSync } from 'node:child_process'
@@ -7,7 +8,7 @@ import { build } from 'esbuild'
 import { build as viteBuild } from 'vite'
 import { chromium } from 'playwright'
 import { strict as assert } from 'node:assert'
-import { fixtures, page as html } from './fixtures.ts'
+import { fixtures, documentFor, pathFor, fixtureAt } from './fixtures.ts'
 const root = resolve('data/r1-product', new Date().toISOString().replace(/[:.]/g, '-'))
 await mkdir(root, { recursive: true })
 const save = (name: string, value: unknown) =>
@@ -30,8 +31,10 @@ const fixture = createServer((req, res) => {
     res.writeHead(204).end()
     return
   }
-  const body = fixtures[(req.url ?? '').slice(1) as keyof typeof fixtures]
-  res.writeHead(body ? 200 : 404, { 'content-type': 'text/html' }).end(html(body ?? 'Not found'))
+  const name = fixtureAt(req.url ?? '')
+  res
+    .writeHead(name ? 200 : 404, { 'content-type': 'text/html' })
+    .end(name ? documentFor(name) : 'Not found')
 })
 const origin = await listen(fixture)
 const provider = createServer(async (req, res) => {
@@ -137,7 +140,7 @@ try {
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({
       kind: 'ui-scan',
-      entryUrl: origin + '/fairness',
+      entryUrl: origin + pathFor('fairness'),
       exploration: { mode: 'program', jev: true },
     }),
   })
@@ -150,7 +153,7 @@ try {
       await page
         .getByRole('radio', { name: '网址 UI 检查（匿名、有界，不需要业务适配器）', exact: true })
         .check()
-      await page.getByRole('textbox', { name: '网址', exact: true }).fill(origin + '/' + name)
+      await page.getByRole('textbox', { name: '网址', exact: true }).fill(origin + pathFor(name))
       await page.getByRole('checkbox', { name: 'R1 有界探索', exact: false }).check()
       const response = page.waitForResponse(
         (r) => r.request().method() === 'POST' && new URL(r.url()).pathname === '/api/runs',
@@ -163,16 +166,18 @@ try {
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
           kind: 'ui-scan',
-          entryUrl: origin + '/' + name,
+          entryUrl: origin + pathFor(name),
           exploration: { mode: 'program', jev: false },
           ...(name === 'budget' ? { budget: { maxActions: 1 } } : {}),
-          ...(name === 'fairness'
-            ? { goal: 'Inspect "Primary".' }
-            : name === 'refresh'
-              ? { goal: 'Refresh the page after inspecting its public controls.' }
-              : name === 'return-start'
-                ? { goal: 'Return to the previous page after visiting details.' }
-                : {}),
+          ...(name === 'view-context'
+            ? { goal: 'Inspect "Read panel".' }
+            : name === 'fairness'
+              ? { goal: 'Inspect "Primary".' }
+              : name === 'refresh' || name === 'refresh-unbindable'
+                ? { goal: 'Refresh the page after inspecting its public controls.' }
+                : name === 'return-start'
+                  ? { goal: 'Return to the previous page after visiting details.' }
+                  : {}),
         }),
       }).then((r) => r.json())
     assert(created.runId, JSON.stringify(created))
@@ -187,6 +192,26 @@ try {
       await new Promise((r) => setTimeout(r, 100))
     }
     await save(name + '-report.json', report)
+    const evidenceDirectory = resolve(root, 'evidence', name)
+    await mkdir(evidenceDirectory, { recursive: true })
+    const evidence = []
+    for (const artifact of report.artifacts) {
+      const response = await fetch(base + artifact.url)
+      assert(response.ok, 'original artifact exists')
+      const bytes = Buffer.from(await response.arrayBuffer())
+      await writeFile(resolve(evidenceDirectory, artifact.id), bytes)
+      evidence.push({
+        id: artifact.id,
+        bytes: bytes.length,
+        sha256: createHash('sha256').update(bytes).digest('hex'),
+      })
+      if (name === 'boundary-input' && artifact.kind === 'generic-interaction') {
+        const receipt = JSON.parse(bytes.toString())
+        assert.deepEqual(receipt.nativeConstraint?.values, ['xxx', 'xxx'])
+        assert.equal(receipt.nativeConstraint.maximum, 3)
+      }
+    }
+    await save(name + '-evidence-index.json', evidence)
     const row = {
       name,
       runId: created.runId,
@@ -216,18 +241,22 @@ try {
     assert.notEqual(report.status, 'execution-error', name)
     const exploration = report.uiScan.exploration,
       checks = report.uiScan.checkCounts
-    const partial = ['ambiguous', 'recovery', 'budget'].includes(name)
+    const partial = ['ambiguous', 'recovery', 'budget', 'refresh-unbindable'].includes(name)
     assert.equal(report.status, partial ? 'blocked' : 'completed', name)
     const actionCounts: Record<string, number> = {
+      'menu-healthy': 1,
+      'layout-pair': 2,
       'three-step-defect': 3,
       'three-step-healthy': 3,
       'state-cycle': 2,
+      'view-context': 3,
       fairness: 3,
       'boundary-input': 1,
       ambiguous: 0,
       recovery: 1,
       budget: 1,
       refresh: 3,
+      'refresh-unbindable': 0,
       'return-start': 2,
       'repeat-defect': 2,
       'tabs-defect': 1,
@@ -239,11 +268,12 @@ try {
       fairness: 2,
       'repeat-defect': 1,
       'tabs-defect': 1,
+      'view-context': 1,
     }
     assert.equal(checks.requiredEffectFailedCount, failures[name] ?? 0, name + ' effect failures')
     assert.equal(
       report.findings.filter((f: any) => f.validationStatus === 'supported').length,
-      failures[name] ?? 0,
+      name === 'layout-pair' ? 1 : (failures[name] ?? 0),
       name + ' supported findings',
     )
     assert.equal(exploration.usage.jevCalls, 0)
@@ -263,7 +293,26 @@ try {
         ['Primary', 'Secondary', 'Quiet control'],
       )
     if (name === 'repeat-defect') assert.equal(checks.requiredEffectVerifiedCount, 1)
-    if (name === 'three-step-healthy') assert.equal(checks.requiredEffectVerifiedCount, 1)
+    if (name === 'three-step-healthy' || name === 'menu-healthy')
+      assert.equal(checks.requiredEffectVerifiedCount, 1)
+    assert(
+      !report.events.some(
+        (e: any) => e.type === 'rule:evaluated' && e.payload.ruleId === 'text-contrast',
+      ),
+      'D004 remains off',
+    )
+    if (name === 'layout-pair') {
+      assert(
+        report.findings.some(
+          (f: any) => f.ruleId === 'control-text-clipping' && f.validationStatus === 'supported',
+        ),
+      )
+      assert(
+        !report.findings.some(
+          (f: any) => f.ruleId === 'control-text-overlap' && f.validationStatus === 'supported',
+        ),
+      )
+    }
     if (name === 'state-cycle' || name === 'refresh')
       assert.equal(
         new Set(
@@ -285,7 +334,9 @@ try {
       await page.getByRole('region', { name: 'R1 路径与检查' }).waitFor()
       await page.reload()
       await page.getByRole('region', { name: 'R1 路径与检查' }).waitFor()
-      await page.screenshot({ path: resolve(root, 'workbench-history.png'), fullPage: true })
+      await page
+        .getByRole('region', { name: 'R1 路径与检查' })
+        .screenshot({ path: resolve(root, 'workbench-history.png') })
       const history = await fetch(base + `/api/runs/${created.runId}/report`).then((r) => r.json())
       assert.deepEqual(history.uiScan.exploration, exploration, 'historical projection')
     }

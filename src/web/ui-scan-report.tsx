@@ -65,6 +65,7 @@ function Coverage({ report, runId }: { report: UiScanReport; runId: string }) {
               <tr>
                 <th>目标</th>
                 <th>动作</th>
+                <th>状态转移</th>
                 <th>原事项测量</th>
               </tr>
             </thead>
@@ -73,6 +74,12 @@ function Coverage({ report, runId }: { report: UiScanReport; runId: string }) {
                 <tr key={a.actionId}>
                   <td>{a.label}</td>
                   <td>{a.action}</td>
+                  <td>
+                    状态 {report.exploration!.visitedStates.indexOf(a.from) + 1} →{' '}
+                    {a.to
+                      ? '状态 ' + (report.exploration!.visitedStates.indexOf(a.to) + 1)
+                      : '尚未测量'}
+                  </td>
                   <td>
                     {a.measurement === 'verified'
                       ? '已测量'
@@ -90,6 +97,38 @@ function Coverage({ report, runId }: { report: UiScanReport; runId: string }) {
               ))}
             </tbody>
           </table>
+          <details>
+            <summary>探索策略与未检查分支</summary>
+            <ul>
+              {report.exploration.strategies
+                .filter((s: any) => s.applicable)
+                .map((s: any) => (
+                  <li key={s.strategyId}>
+                    {(
+                      {
+                        'boundary-input': '公开输入边界',
+                        'return-refresh': '返回或刷新',
+                        'repeat-operation': '重复操作',
+                        'state-switch': '公开状态切换',
+                        recovery: '有限恢复',
+                      } as Record<string, string>
+                    )[s.strategyId] ?? s.strategyId}
+                    ：{s.proposable ? '当前事实支持该建议' : '当前条件不足'}
+                    。建议是否执行，以原事项测量为准。
+                  </li>
+                ))}
+            </ul>
+            <p>仍未探索 {report.exploration.unexplored.length} 个分支。</p>
+            {report.exploration.counterexample && (
+              <p>
+                反例调查：
+                {report.exploration.counterexample.kind === 'compare-healthy'
+                  ? '建议比较其他同类控件，健康与否需原始测量'
+                  : '当前没有可负担的合法比较路径，保留进一步调查需求'}
+                。
+              </p>
+            )}
+          </details>
           {report.exploration.handoffs.map((h) => (
             <p key={h.eventId}>交回原因：{h.reason}</p>
           ))}

@@ -107,8 +107,14 @@ export function r1Report(
     paths,
     handoffs,
     unexplored: Array.isArray(progress?.unexplored) ? progress.unexplored : [],
-    strategies: progress?.strategies ?? [],
-    counterexample: progress?.counterexample ?? null,
+    strategies: Array.isArray(progress?.strategies) ? progress.strategies : [],
+    counterexample:
+      progress?.counterexample &&
+      typeof progress.counterexample === 'object' &&
+      'kind' in progress.counterexample &&
+      typeof progress.counterexample.kind === 'string'
+        ? { kind: progress.counterexample.kind }
+        : null,
     omittedItemIds: items.filter((i) => !i.selected).map((i) => i.itemId),
     usage: {
       totalModelCalls: run.usage.modelCalls,

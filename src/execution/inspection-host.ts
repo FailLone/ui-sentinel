@@ -141,6 +141,26 @@ export function createInspectionHost(options: InspectionHostOptions) {
       detail:
         'The nonempty goal is outside the finite public source/focus grammar; fulfillment is not claimed',
     })
+  const revisitIntent = options.exploration && explorationRevisitIntent(options.goal)
+  const revisitItem = revisitIntent
+    ? scope.createItem({
+        category: 'investigation',
+        pageId: 'contract',
+        stateId: 'contract',
+        url: options.entryUrl,
+        observationVersion: 'contract',
+        basis: `R1 requested ${revisitIntent}: requires a fresh navigation measurement`,
+        targetSource: 'executor',
+      })
+    : undefined
+  if (revisitItem)
+    scope.resolveItem(revisitItem.itemId, {
+      status: 'unverified',
+      reasonCode: 'r1-revisit-pending',
+      evidenceRefs: [],
+      eventIds: [],
+      detail: 'The requested revisit has not been measured',
+    })
   let candidates: readonly CandidateItem[] = []
   /** Candidate refs from each observation, so an action's ref resolves against the snapshot it named. */
   const offeredBySnapshot = new Map<string, readonly CandidateItem[]>()
@@ -1006,6 +1026,29 @@ export function createInspectionHost(options: InspectionHostOptions) {
         )
     },
     recordGap,
+    /** Executor-only settlement after an actual bounded revisit; never exposed as an agent tool. */
+    async settleRevisit(actionId: string, navigationItemId: string) {
+      const measured = items().find((i) => i.itemId === navigationItemId)
+      if (
+        !revisitItem ||
+        !measured ||
+        measured.category !== 'navigation' ||
+        measured.status !== 'verified' ||
+        measured.evidenceRefs.length === 0
+      )
+        throw Error('r1-revisit-measurement-required')
+      scope.resolveItem(revisitItem.itemId, {
+        status: 'verified',
+        reasonCode: 'r1-revisit-observed',
+        evidenceRefs: measured.evidenceRefs,
+        eventIds: measured.eventIds,
+        detail: `Original navigation ${navigationItemId}, action ${actionId}; observed URL/document only, no history/session restoration assertion`,
+      })
+      await persist()
+    },
+    revisitPending: () =>
+      !!revisitItem &&
+      items().some((i) => i.itemId === revisitItem.itemId && i.status !== 'verified'),
     selectItems,
     excludeItem,
     leavePage,

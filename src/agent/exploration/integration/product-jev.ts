@@ -1,3 +1,4 @@
+import { DatabaseSync } from 'node:sqlite'
 /** Explicit product opt-in, using the existing durable campaign account, not a second inspection ledger. */
 import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -72,6 +73,29 @@ export function createProductJevScore(options: {
       readFileSync(resolve(options.configuration.directory, 'campaign-id.json'), 'utf8'),
     )
     if (typeof account.campaignId !== 'string') throw Error('r1-existing-account-required')
+    // Reject a stopped account without acquiring a lease or changing its database bytes.
+    const readOnly = new DatabaseSync(resolve(options.configuration.directory, 'campaign.db'), {
+      readOnly: true,
+    })
+    try {
+      const campaign = readOnly
+        .prepare('SELECT limit_usd FROM campaigns WHERE campaign_id=?')
+        .get(account.campaignId)
+      const stopped = readOnly
+        .prepare('SELECT COUNT(*) AS count FROM ledger_stop_events WHERE campaign_id=?')
+        .get(account.campaignId)
+      const unknown = readOnly
+        .prepare(
+          "SELECT COUNT(*) AS count FROM ledger_requests WHERE campaign_id=? AND status='unknown'",
+        )
+        .get(account.campaignId)
+      if (!campaign || Number(campaign.limit_usd) !== options.configuration.limitUsd)
+        throw Error('r1-existing-account-required')
+      if (Number(stopped?.count) || Number(unknown?.count))
+        throw Error('r1-scoring-account-stopped')
+    } finally {
+      readOnly.close()
+    }
     // Metadata is public and read before obtaining the private provider credential.
     await (
       options.quote ??
@@ -132,13 +156,20 @@ export function createProductJevScore(options: {
       options.configuration.directory,
       String(options.configuration.limitUsd),
     )
+    const stopped = new AbortController()
+    let unwatch = () => {}
     const combined = AbortSignal.any([
       signal,
+      stopped.signal,
       AbortSignal.timeout(Math.min(15000, options.timeRemaining())),
     ])
     try {
+      if (session.campaignId !== account.campaignId) throw Error('r1-existing-account-changed')
       const state = await session.ledger.stopState()
       if (state.epoch || state.unknownCount) throw Error('r1-scoring-account-stopped')
+      unwatch = session.ledger.watchStop(state.epoch, () =>
+        stopped.abort(new Error('r1-scoring-account-stopped')),
+      )
       const key = options.configuration.key()
       const transport = createJevTransport({
         profile,
@@ -194,6 +225,9 @@ export function createProductJevScore(options: {
       if (digest(receipt) !== digest((envelope as any).receipt))
         throw Error('r1-scoring-receipt-mismatch')
       if (cost === null) throw Error('r1-scoring-unknown-cost')
+      const current = await session.ledger.stopState()
+      if (current.epoch !== state.epoch || current.unknownCount)
+        throw Error('r1-scoring-account-stopped')
       combined.throwIfAborted()
       if (receipt.kind === 'handoff')
         return {
@@ -239,6 +273,7 @@ export function createProductJevScore(options: {
         if (sent && (cost === null || (await session.ledger.spending()).exceeded))
           throw Error('r1-scoring-account-stopped')
       } finally {
+        unwatch()
         await session.close()
       }
     }

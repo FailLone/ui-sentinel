@@ -468,6 +468,8 @@ export function createProductHost(
         source.length >= 2 &&
         source.length <= 3
       ) {
+        if (Buffer.byteLength(JSON.stringify(frame)) > 30000)
+          return handoff(raw, 'scoring-frame-too-large')
         if (scoreCalls >= policy.maxJevCalls) return handoff(raw, 'jev-call-limit')
         scoreCalls++
         const score = await options.score(frame, signal)

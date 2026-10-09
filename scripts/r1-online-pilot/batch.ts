@@ -2,7 +2,7 @@ import { appendFileSync, existsSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import type { CampaignLedger, ReserveInput } from '../../evaluation/support/campaign-ledger.ts'
 import type { GatewayLedger } from '../../evaluation/support/model-gateway.ts'
-import { POLICY, AGENT, type Manifest } from './manifest.ts'
+import { POLICY, AGENT, type Mode } from './manifest.ts'
 import {
   digest,
   onlinePriority,
@@ -39,12 +39,24 @@ const systemClock: BatchClock = {
     return () => clearTimeout(timer)
   },
 }
+export type BatchRow = {
+  id: string
+  scenario: string
+  mode: Mode
+  maxAgentRequests: number
+  maxJevRequests: number
+}
 export function createBatch(
   ledger: CampaignLedger,
-  manifest: Manifest,
+  manifest: { priceSourceSha: string },
   directory: string,
   clock: BatchClock = systemClock,
   continuationGuard: () => void = () => {},
+  limits = {
+    mainRequests: Number(POLICY.agent.batchRequests),
+    jevRequests: Number(POLICY.jev.batchRequests),
+    windowMs: Number(POLICY.batchWindowMs),
+  },
 ) {
   const stopPath = join(directory, 'stop.json')
   let stopped = existsSync(stopPath) ? 'previously-stopped' : '',
@@ -79,12 +91,12 @@ export function createBatch(
       throw error
     }
     if (stopped || existsSync(stopPath)) throw Error('online-batch-stopped')
-    if (clock.now() - started >= POLICY.batchWindowMs) {
+    if (clock.now() - started >= limits.windowMs) {
       stop('batch-window')
       throw Error('online-batch-stopped')
     }
   }
-  const clearWindowTimer = clock.schedule(() => stop('batch-window'), POLICY.batchWindowMs)
+  const clearWindowTimer = clock.schedule(() => stop('batch-window'), limits.windowMs)
   const adapter: GatewayLedger = {
     stopState: () => ledger.stopState(),
     watchStop: (epoch, listener) => {
@@ -110,7 +122,7 @@ export function createBatch(
         (r) => r.runId === input.runId && r.model === input.model,
       ).length
       const all = [...requests.values()].filter((r) => r.model === input.model).length
-      if (count >= limit || all >= (jev ? POLICY.jev.batchRequests : POLICY.agent.batchRequests)) {
+      if (count >= limit || all >= (jev ? limits.jevRequests : limits.mainRequests)) {
         stop('request-limit')
         return { ok: false, reason: 'campaign-stopped' }
       }
@@ -175,7 +187,7 @@ export function createBatch(
     dispose() {
       clearWindowTimer()
     },
-    activate(row: Manifest['rows'][number], runId: string, origin: string) {
+    activate(row: BatchRow, runId: string, origin: string) {
       guard()
       if (active) throw Error('run-already-active')
       active = { row, runId, origin, jevBusy: false }
