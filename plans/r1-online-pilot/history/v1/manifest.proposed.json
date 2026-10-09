@@ -1,9 +1,9 @@
 {
-  "version": "r1-online-pilot-2",
-  "sourceSha": "de54a7ee7c141e719f212852e774b304162cd3dc",
+  "version": "r1-online-pilot-1",
+  "sourceSha": "218204235ed44b1a6c6d77ca432af10d8907bc57",
   "baseSha": "aa35a9544d11dd57b85d7efcc4088dc8538977cc",
   "policy": {
-    "revision": "r1-online-pilot-2",
+    "revision": "r1-online-pilot-1",
     "candidateSource": "original-executor-selected-local-public-frame",
     "actions": 6,
     "modelCalls": 8,

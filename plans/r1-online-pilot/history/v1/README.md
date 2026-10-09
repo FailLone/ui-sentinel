@@ -1,8 +1,8 @@
 # R1 在线三组接线：唯一交付入口
 
-2026-10-09。本轮交付是在线 runner、共享费用停止入口和免费接线证据；不是旧八状态任务，也不是 R1 阶段验收。运行候选 **de54a7ee7c141e719f212852e774b304162cd3dc**，基线 aa35a9544d11dd57b85d7efcc4088dc8538977cc，分支 codex/r1-jev-closeout。交付文档提交在候选之后，不改变运行源码身份。
+2026-10-09。本轮交付是在线 runner、共享费用停止入口和免费接线证据；不是旧八状态任务，也不是 R1 阶段验收。运行候选 **218204235ed44b1a6c6d77ca432af10d8907bc57**，基线 aa35a9544d11dd57b85d7efcc4088dc8538977cc，分支 codex/r1-jev-closeout。交付文档提交在候选之后，不改变运行源码身份。
 
-**三项有限缺口已修复并免费验证；新在线真实验证未执行、未授权。** 本轮只修复报价、窗口停止接线和指标命名；没有浏览器运行、真实 HTTP 或付费调用，不 push/main 合并。默认关闭。旧2182042候选及bc41f90交付原样保存在Git，旧草案/说明/索引副本见 `history/v1/`。当前任务锚点见 [CURRENT-TASK.md](CURRENT-TASK.md)，全部证据身份与摘要见 [evidence-index.json](evidence-index.json)。
+**接线已实现，限定免费验证有证据；新在线真实验证未执行、未授权。** 只收尾既有成果，不新增能力、浏览器运行、真实 HTTP 或付费调用，不 push/main 合并。默认关闭。当前任务锚点见 [CURRENT-TASK.md](CURRENT-TASK.md)，全部证据身份与摘要见 [evidence-index.json](evidence-index.json)。
 
 ## 执行链与实验范围
 
@@ -53,43 +53,33 @@ unknown、超额、请求上限、批次到时、传输/协议失败、执行错
 
 共 8 次定向运行，只有 3 个场景，不能汇总成 8 场景覆盖或最终候选完整矩阵。每个 server.mjs 的 source map 内 133 份源码均核对到该轮提交；前 5 轮构建摘要一致，后 3 轮构建摘要一致（详见索引）。final-trace 的 identity.sourceDirty=true 原样保留：运行前已有未跟踪旧 manifest 草案；当时及本次核对跟踪源码无修改，子构建 source map 与2182042匹配。父 runner 未另存运行时完整源码快照，因此身份依赖当时提交/工作区记录，不把 dirty 标记改成 false。
 
-e59db0f→ddc7357 的 host/server-entry 主要是格式调整，优先级及 fixture 不变；父 runner 实质增加主响应 provider 检查、两份报价门、Jev provider.only、评价与显式环境开关，不能只凭旧 5 轮宣称这些通过；由 final-smoke 和对应定向测试补覆盖。ddc7357→2182042 仅 batch/runner 增加 AsyncLocalStorage 逐派发身份、auditWire 及全批窗口定时取消（另加测试）；fixture/策略/评价/子构建不变，所以复用 final-smoke 的动作及测量证据，同时 final-trace 核对最新身份接线。以上是v1的证据边界；本轮用受控时钟闭合到期边界，见下节，不把它写成新的浏览器运行。
+e59db0f→ddc7357 的 host/server-entry 主要是格式调整，优先级及 fixture 不变；父 runner 实质增加主响应 provider 检查、两份报价门、Jev provider.only、评价与显式环境开关，不能只凭旧 5 轮宣称这些通过；由 final-smoke 和对应定向测试补覆盖。ddc7357→2182042 仅 batch/runner 增加 AsyncLocalStorage 逐派发身份、auditWire 及全批窗口定时取消（另加测试）；fixture/策略/评价/子构建不变，所以复用 final-smoke 的动作及测量证据，同时 final-trace 核对最新身份接线。30 分钟实际到时取消未实测，不能说最终候选所有时间边界都已验证。
 
 final-trace 的 blocked **是预期交回，不是通过场景**：固定 readiness=requires-agent-investigation，固定 Agent 随后 run_finish(unverified-scope)。0 动作、0 实测效果、2 项效果仍待检查、缺陷未发现；1 次 Jev + 1 次 Agent 同 parentRun，账本全 settled，已知费用0/held0/unknown0。证明交回和记账，不证明真实 Agent 能接住并完成任务。没有安全错误或虚假成功。
 
-`targeted-final-18.log`：11 项 online 定向测试 + 7 项受影响 host 测试通过；`typecheck-final-18.log` 类型检查通过。日志生成于2182042提交前的同一源码内容，归属候选按版本记录及新增测试内容确认，日志本身不内嵌源码SHA；不伪装成干净checkout重跑。早期17项日志只作历史，不替代18项记录。初次 typecheck 失败（重复stage展开）保留，已修复后通过。这是上轮收尾证据；本轮新增受影响的103项定向测试、类型检查和构建，未重跑浏览器或旧18+1。
+`targeted-final-18.log`：11 项 online 定向测试 + 7 项受影响 host 测试通过；`typecheck-final-18.log` 类型检查通过。日志生成于2182042提交前的同一源码内容，归属候选按版本记录及新增测试内容确认，日志本身不内嵌源码SHA；不伪装成干净checkout重跑。早期17项日志只作历史，不替代18项记录。初次 typecheck 失败（重复stage展开）保留，已修复后通过。此次收尾只做文件摘要、source-map、回执/账本对应及文档核对，不再执行测试或浏览器。
 
 继续复用旧 [18+1 受控闭环证据](../r1-controlled-loop-v1/README.md) 的原范围（恢复、预算、晚到来源等），不把它们标为新三组真实效果。aa35a95 的单帧真实 Jev 1请求/5题，实际 US$0.000250824、pending0，只证明那个协议响应兼容；旧 claim 已消费，不是本批授权，未重跑。
 
-## 三项修复出口与剩余边界
+## 未解决项与真实启动前门槛
 
-三项均在 `de54a7e` 闭合；原始命令、退出码、源码/构建及日志见 `evidence-index.json` 的 `gapClosure`，目录 `artifacts/r1-online-pilot/gaps-v2/`。
+1. 新的明确授权及对应 approval 文件尚无；US$3.834 草案不能启动。密钥只在实际获准运行时通过 R1_ONLINE_API_KEY 提供，不保存进源码、证据或示例。
+2. **报价校验存在具体实现缺口**：preflight.ts 对 Agent prompt/completion 和 Jev prompt 使用 `Number(x) > cap`，未显式验证有限且非负；字段缺失/非法字符串得到 NaN 时可能不拒绝。已保存正常报价不受此问题影响，但不能据此宣称所有未知报价均 fail-closed。本轮按收尾边界不改代码；真实启动前须定向修正并更新候选、manifest及相应证据，当前草案不能视为可直接放行版本。
+3. 30分钟定时器已接入，尚无到时触发的专门测试；最后一步新接线证据只覆盖正常清理及逐请求身份。真实模型/provider 限定和动态全帧兼容、交回后的真实 Agent 行为仍待实际验证。
+4. `firstSettledMeasurementMs` 当前取 generic-collected/effect-measured 最早事件，未严格限定“已结算效果”的首次时刻。它只能作为首次测量事件参考，不能直接宣称首次有效发现/检查时间；首次finding、具体measurementRefs及事件原文可供复核。无效读取有读取时仍保留 unknown，额外 finding 需人工证据复核，不自动算误报。正式效果比较前应澄清该指标，不能用字段名夸大。
+5. 三场景每模式一次是小型开发实验，非统计收益证明、完整产品出口或R1阶段通过。默认继续关闭。若实测无额外收益，保留负结论并结束预注册批次。
 
-| 出口 | 实现 | 实际免费验证 |
-| --- | --- | --- |
-| 报价fail-closed | preflight.ts严格验证Agent/Jev必需prompt/completion；拒绝缺失/null/空白/非法类型或字符串/NaN/Infinity/负数/超cap；校验model/provider/context及必需能力。可选计费项缺席保持缺席，出现时必须满足支持的零费用或缓存上限策略；未知计费项/非空阶梯拒绝 | preflight.test.ts共87项：四必需单价各19类无效值、合法原价/零值、四类超上限、可选项及provider/model反例；实际runner调用的preparePaidAccess证明失败先于密钥读取、claim消费与后续派发 |
-| 批次窗口 | batch.ts注入窄时钟；到期同一abort信号通知原网关和当前run取消，网关立即取消在途传输。lifecycle.ts复用原取消API，正常结束清理timer/listener | online.test.ts共13项（原11+新2）：在1,800,000ms边界到期，前1ms未停；拒绝新Agent/Jev、预留待派发及排队重试；两传输signal aborted，原run取消通知；迟到usage结算0.021测试美元、unknown清零后epoch仍1且批次仍停；正常清理不触发到时回调 |
-| 测量语义 | measurement.ts、evaluate.ts、runner.ts统一firstMeasurementEventMs/Seq/At；仅有有效时间及可用measurement/receipt引用的generic/effect事件入计时，不代表事项结算/有效发现 | measurement.test.ts共3项：无事件/无引用/无效或倒置时间为null；有测量事件但无已结算事项仍是partial、0有效发现；真实0ms与缺失null区别保留 |
-
-版本为 `r1-online-pilot-2`、`r1-online-result-2`、`r1-online-evaluation-2`，字段契约见 [measurement-fields-v2.schema.json](measurement-fields-v2.schema.json)。新结果不再输出误导性的firstSettledMeasurementMs或旧firstMeasuredSeq/At。旧报告/原字段不重写、不按v2含义回填；要查看旧测量时仍读旧事件与引用。首次finding仍需要原事项失败、measurement及finding证据，不以新的测量时间代替质量指标。
-
-最终候选103项测试（87报价+13在线+3测量）、类型检查及父runner/子入口构建全部退出0。仅免费mock与本地网关窄集成，注入时钟不实等30分钟、不启动浏览器。初轮同范围也通过；格式化后在已提交候选上作最终验证，全部原始日志保留。没有改高单价、预留或请求数量，没有新依赖。
-
-证据复用：2182042→de54a7e只改这三项及对应版本/启动顺序。fixture、权限、动作/后置检查、程序排序、完整帧与实际wire绑定、账本存储均未变，旧真实本地动作/测量/引用证据保留原身份；新报价门、到时取消与指标由上述新测试覆盖。旧4+1+2+1仍不是最终候选9run对照，不重算为新版模型能力成绩。
-
-剩余启动条件仅为**用户对准确新manifest的一次性付费授权**及实际运行环境准备；届时用合法私密凭据、干净候选和未消费claim目录，真实启动会再次校验公开报价。服务不可用、报价/模型改变或前检失败即停止，不自动扩scope/cap或花钱探测。本轮未读取真实密钥，未创建批准文件/claim，旧单frame授权已消耗。
-
-真实动态全帧兼容、真实Agent接手行为、三组效果仍未验证；这是授权批次要回答的问题，并非免费替身已证明。每模式每场景一次只能比较这3个开发场景的实测发现/覆盖、费用、调用与时间，不能推广完整R1收益。无增益则据实结束，不继续调参或扩样。默认保持关闭，R1阶段未通过。
+本批可声明“限定免费接线实现及定向验证完成”；真实在线协议、判断质量、三组整轮效果和R1阶段均未完成。以上缺口不追加本轮开发，以实际清单交给维护者裁定下一批。
 
 ## 精确复现与待授权运行命令
 
 机器索引路径以仓库根为基准。artifacts/r1-online-pilot 是保留的本地免费证据，不随Git提交；转交时只复制索引列出的文件，不能仅给开发机绝对路径。报告内旧绝对路径到包内文件的映射在索引 rows/artifactMappings。不依赖整个data目录、运行数据库、浏览器profile或密钥。
 
-当前 manifest 内容hash（对JSON.stringify(parsed)计算SHA256）为 **9f73f0d6e3140b2d891d043441053bb75579550d58fdbf850a081c0bdc56ba75**；文件字节SHA256在索引。原2182042草案hash14175ec1…在history/v1/完整保留，ddc7357更早草案仍在本地superseded记录；它们都不是新授权。下面的候选准备命令不是付费许可：
+当前 manifest 内容hash（对JSON.stringify(parsed)计算SHA256）为 **14175ec19499896c3d33c15b35e845fa55e33f18ff4f1c9df349362cbe3f0796**，与 final-trace 冻结配置一致；文件字节SHA256在索引。旧 ddc7357 草案hash794b5477…仅留作本地 superseded 记录，未覆盖旧运行manifest。下面是候选复现命令，**不是启动许可**，且第2项报价缺口修复后需要替换source/hash，不能绕过门槛执行旧候选：
 
 ```sh
 # 在持有上述提交的仓库内；用独立目录，保留当前工作区
-R1_SOURCE=de54a7ee7c141e719f212852e774b304162cd3dc
+R1_SOURCE=218204235ed44b1a6c6d77ca432af10d8907bc57
 R1_DELIVERY=$(git rev-parse HEAD) # 必须是包含本README/manifest的交付提交
 R1_RUNTIME=../ui-sentinel-r1-online-runtime
 git worktree add --detach "$R1_RUNTIME" "$R1_SOURCE"
@@ -103,7 +93,7 @@ pnpm install --frozen-lockfile
 pnpm exec playwright install chromium # 仅缺少对应浏览器时安装；本次未重装
 ```
 
-新manifest在候选de54a7e中尚未生成，因此必须从本次文档交付提交提取，不能在文档tip直接运行后声称sourceSha仍为de54a7e。源码及锁文件已包含所有运行依赖，没有本轮新依赖。
+manifest 在候选2182042中尚无成品文件，因此必须从文档交付提交提取，不能在文档tip直接运行后声称sourceSha仍为2182042。源码及锁文件已包含所有运行依赖，没有本轮新依赖。
 
 复现免费接线的既有命令如下（本轮不重新运行；对早期源码复现需checkout相应SHA，不能混写身份）：
 
@@ -116,7 +106,7 @@ pnpm exec vitest run scripts/r1-online-pilot/online.test.ts src/agent/exploratio
 pnpm typecheck
 ```
 
-未来 approval 结构：`approvedBy`、可追溯 `approvalReference`、准确 `manifestHash`、`maxCostUsd:3.834`、`maxRuns:9`、未来 `expiresAt`。当前未生成批准文件；旧freezeHash授权拒绝。只有取得准确新manifest的对应授权后才执行：
+未来 approval 结构：`approvedBy`、可追溯 `approvalReference`、准确 `manifestHash`、`maxCostUsd:3.834`、`maxRuns:9`、未来 `expiresAt`。当前未生成批准文件；旧freezeHash授权拒绝。必须解决上述启动门槛并取得对应新授权后才执行：
 
 ```sh
 # 私下提供R1_ONLINE_API_KEY；不得打印、提交或把.env复制进证据
@@ -125,11 +115,3 @@ pnpm exec tsx scripts/r1-online-pilot/runner.ts --run artifacts/r1-online-pilot/
 ```
 
 最后一项是该批唯一、跨工作区共用的本地claim目录，须事先选定并保持不变；不能换目录绕过一次性claim。runner不跨机器统一此目录，因此本批只允许一台指定机器一个进程，不能复制授权并行执行。未知或停止后不自动恢复，不消费旧单帧未用余额。
-
-本轮新增免费复核命令（已运行；无需为授权重复）：
-
-```sh
-pnpm exec vitest run scripts/r1-online-pilot/online.test.ts scripts/r1-online-pilot/preflight.test.ts scripts/r1-online-pilot/measurement.test.ts --reporter=verbose
-pnpm typecheck
-pnpm exec esbuild scripts/r1-online-pilot/runner.ts scripts/r1-online-pilot/server-entry.ts --outdir=artifacts/r1-online-pilot/gaps-v2/build --bundle --platform=node --format=esm --packages=external --sourcemap
-```

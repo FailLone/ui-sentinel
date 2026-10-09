@@ -1,9 +1,9 @@
 {
-  "version": "r1-online-pilot-evidence-2",
+  "version": "r1-online-pilot-evidence-1",
   "pathBase": "repository-root",
-  "runtimeSourceSha": "de54a7ee7c141e719f212852e774b304162cd3dc",
-  "manifestHash": "9f73f0d6e3140b2d891d043441053bb75579550d58fdbf850a081c0bdc56ba75",
-  "authorizationStatus": "NOT_AUTHORIZED; three finite gaps closed; awaiting explicit one-time authorization for this exact manifest",
+  "runtimeSourceSha": "218204235ed44b1a6c6d77ca432af10d8907bc57",
+  "manifestHash": "14175ec19499896c3d33c15b35e845fa55e33f18ff4f1c9df349362cbe3f0796",
+  "authorizationStatus": "NOT_AUTHORIZED; quotation validation gap must be fixed and manifest renewed before paid dispatch",
   "limits": {
     "runs": 9,
     "agentRequests": 72,
@@ -5409,13 +5409,15 @@
   },
   "reuse": {
     "e59_to_ddc": "fixture/policy/child semantics unchanged; provider/response/quote/environment/evaluation additions covered narrowly by final-smoke and targeted tests",
-    "ddc_to_218": "same fixture, evaluation, policy and child build; added per-dispatch AsyncLocalStorage and actual wire audit covered by final-trace + 18-test log; 30min timer expiry not directly tested",
-    "218_to_de54": "Only strict quote/startup gate, shared expiry cancellation notification and measurement event v2 semantics changed. Fixture/selected candidate/permission/action/check/evidence and ledger storage unchanged. Narrow 103 tests cover new seams; old 8 runs keep original identities, no new browser run."
+    "ddc_to_218": "same fixture, evaluation, policy and child build; added per-dispatch AsyncLocalStorage and actual wire audit covered by final-trace + 18-test log; 30min timer expiry not directly tested"
   },
   "unresolved": [
-    "Explicit one-time approval and private credential at authorized runtime absent",
-    "Fresh official price/provider availability must pass at runtime",
-    "Real dynamic protocol, Agent handoff and three-arm quality still untested; not R1 stage completion"
+    "Explicit new approval absent",
+    "preflight missing finite/nonnegative price validation",
+    "30 minute timer expiry lacks targeted runtime test",
+    "firstSettledMeasurementMs is first measurement event, not strictly first settled effect",
+    "Real dynamic protocol and Agent handoff ability untested",
+    "No real three-arm quality or R1 stage completion"
   ],
   "absolutePathMapping": {
     "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007": "repository-root"
@@ -7391,114 +7393,6 @@
       "purpose": "original stage output/configuration/account audit"
     },
     {
-      "path": "artifacts/r1-online-pilot/gaps-v2/build-final.exit",
-      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
-      "bytes": 2,
-      "purpose": "v2 narrow free validation/build/provenance"
-    },
-    {
-      "path": "artifacts/r1-online-pilot/gaps-v2/build-final.log",
-      "sha256": "797c622b4f39055f83eb40e804c2dcdf3c8f9f9b5defc7d39cc61c46be23e7fe",
-      "bytes": 303,
-      "purpose": "v2 narrow free validation/build/provenance"
-    },
-    {
-      "path": "artifacts/r1-online-pilot/gaps-v2/build/runner.js",
-      "sha256": "31bbd5d622b361664a1b0869c69b3102a3cf1cece582d0938188939ada76d00f",
-      "bytes": 117664,
-      "purpose": "v2 narrow free validation/build/provenance"
-    },
-    {
-      "path": "artifacts/r1-online-pilot/gaps-v2/build/runner.js.map",
-      "sha256": "21a79fa5f0b928455dcc8d54a8b21e8caffc53fad623c8ec18b3c9bfb4a61018",
-      "bytes": 232921,
-      "purpose": "v2 narrow free validation/build/provenance"
-    },
-    {
-      "path": "artifacts/r1-online-pilot/gaps-v2/build/server-entry.js",
-      "sha256": "53b3e9178b7821d26eeb63b75ef90f86c23445903c486295125cf295a8a3952d",
-      "bytes": 799799,
-      "purpose": "v2 narrow free validation/build/provenance"
-    },
-    {
-      "path": "artifacts/r1-online-pilot/gaps-v2/build/server-entry.js.map",
-      "sha256": "251d092750883e8bd92e48b97b5d8dd77ae84b9ccc703fc2edfd341500f6a2d4",
-      "bytes": 1568536,
-      "purpose": "v2 narrow free validation/build/provenance"
-    },
-    {
-      "path": "artifacts/r1-online-pilot/gaps-v2/format.log",
-      "sha256": "34d7a5c6b2b0a41be73b5b0a805f9878aa4f102f8e6e0d5e5bb6cd549da92db6",
-      "bytes": 43,
-      "purpose": "v2 narrow free validation/build/provenance"
-    },
-    {
-      "path": "artifacts/r1-online-pilot/gaps-v2/manifest-freeze.json",
-      "sha256": "2e813e47c3e8fc1f02f00c6877f90612056cf7efd7217b08ee234e330fcd6800",
-      "bytes": 181,
-      "purpose": "v2 narrow free validation/build/provenance"
-    },
-    {
-      "path": "artifacts/r1-online-pilot/gaps-v2/node-version.txt",
-      "sha256": "f2ec568164f99546161909b0189b57bb5be3e80f8e2ccd8a51a4aed8c4055a04",
-      "bytes": 9,
-      "purpose": "v2 narrow free validation/build/provenance"
-    },
-    {
-      "path": "artifacts/r1-online-pilot/gaps-v2/pnpm-version.txt",
-      "sha256": "c80fb2957f0e465d46d7c3c183a9b37cbe53d65f09f127610918fdbcfff76e9c",
-      "bytes": 8,
-      "purpose": "v2 narrow free validation/build/provenance"
-    },
-    {
-      "path": "artifacts/r1-online-pilot/gaps-v2/seal-evidence.py",
-      "sha256": "e01379f94ffbd7df5a068767c0ada1724f82ffa3fd198699ff6e9d556a73af3e",
-      "bytes": 5949,
-      "purpose": "v2 narrow free validation/build/provenance"
-    },
-    {
-      "path": "artifacts/r1-online-pilot/gaps-v2/targeted-final.exit",
-      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
-      "bytes": 2,
-      "purpose": "v2 narrow free validation/build/provenance"
-    },
-    {
-      "path": "artifacts/r1-online-pilot/gaps-v2/targeted-final.log",
-      "sha256": "d4956b9f597475c66e122b1ea8269f94d8b06ad81049c99b1823c2266ce13834",
-      "bytes": 13607,
-      "purpose": "v2 narrow free validation/build/provenance"
-    },
-    {
-      "path": "artifacts/r1-online-pilot/gaps-v2/targeted-initial.log",
-      "sha256": "57f28dffa4137316951ab8d7fe919e4950a37a284787fbaa189ebf86bfff5e31",
-      "bytes": 234,
-      "purpose": "v2 narrow free validation/build/provenance"
-    },
-    {
-      "path": "artifacts/r1-online-pilot/gaps-v2/typecheck-final.exit",
-      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
-      "bytes": 2,
-      "purpose": "v2 narrow free validation/build/provenance"
-    },
-    {
-      "path": "artifacts/r1-online-pilot/gaps-v2/typecheck-final.log",
-      "sha256": "e8e9f4bd33dda8ba135d10319f60bc934890fa129091f190c87a8bb26cd83128",
-      "bytes": 117,
-      "purpose": "v2 narrow free validation/build/provenance"
-    },
-    {
-      "path": "artifacts/r1-online-pilot/gaps-v2/typecheck-initial.log",
-      "sha256": "e8e9f4bd33dda8ba135d10319f60bc934890fa129091f190c87a8bb26cd83128",
-      "bytes": 117,
-      "purpose": "v2 narrow free validation/build/provenance"
-    },
-    {
-      "path": "artifacts/r1-online-pilot/gaps-v2/verification.json",
-      "sha256": "319a1952b0b57eac603ad34906343146ea7b996caa381bb17f1216e23fa24d0f",
-      "bytes": 11625,
-      "purpose": "v2 narrow free validation/build/provenance"
-    },
-    {
       "path": "artifacts/r1-online-pilot/targeted-final-18.log",
       "sha256": "68d121efd91a7e6fe1e23cde8b3df7969932cb7e291d53e307405ec78c3eb8e2",
       "bytes": 232,
@@ -7542,373 +7436,28 @@
     },
     {
       "path": "plans/r1-online-pilot/CURRENT-TASK.md",
-      "sha256": "05e7259b5825a59979d02cb619e2b69d0118397c677ab8333d478befbdbdd459",
-      "bytes": 3817,
-      "purpose": "current delivery contract, scope or proposed manifest"
+      "sha256": "9eb94c33eba4ff21fccb2b50282722308d7d3ad73a7b20ee84af2b39b18b2f1d",
+      "bytes": 2301,
+      "purpose": "delivery manifest/quote/scope/documentation"
     },
     {
       "path": "plans/r1-online-pilot/README.md",
-      "sha256": "ab81767cce6b06368e12d2d32cff5ec0bae3896732777172ace93115e9224b22",
-      "bytes": 17553,
-      "purpose": "current delivery contract, scope or proposed manifest"
-    },
-    {
-      "path": "plans/r1-online-pilot/history/v1/CURRENT-TASK.md",
-      "sha256": "9eb94c33eba4ff21fccb2b50282722308d7d3ad73a7b20ee84af2b39b18b2f1d",
-      "bytes": 2301,
-      "purpose": "exact bc41f90 archived document; resolve its original paths at that commit or via this history directory for document files"
-    },
-    {
-      "path": "plans/r1-online-pilot/history/v1/README.md",
       "sha256": "e315307b856da78ecbe9f443a53436368c3a91a218252b82fb458a2c8f6a93e1",
       "bytes": 15090,
-      "purpose": "exact bc41f90 archived document; resolve its original paths at that commit or via this history directory for document files"
-    },
-    {
-      "path": "plans/r1-online-pilot/history/v1/evidence-index.json",
-      "sha256": "3da060954903cb81dedd28a0d97c299480658e9112e1f6c1de5af18947d87865",
-      "bytes": 334744,
-      "purpose": "exact bc41f90 archived document; resolve its original paths at that commit or via this history directory for document files"
-    },
-    {
-      "path": "plans/r1-online-pilot/history/v1/manifest.proposed.json",
-      "sha256": "731661287485cd5993363af71c8cb1b74b7d702a53395a51296285e7c6734fc4",
-      "bytes": 3915,
-      "purpose": "exact bc41f90 archived document; resolve its original paths at that commit or via this history directory for document files"
+      "purpose": "delivery manifest/quote/scope/documentation"
     },
     {
       "path": "plans/r1-online-pilot/manifest.proposed.json",
-      "sha256": "3c85a4c38510f7b3d0336d849e837ca88a816d90aec09e11c1d65b02923b0de6",
+      "sha256": "731661287485cd5993363af71c8cb1b74b7d702a53395a51296285e7c6734fc4",
       "bytes": 3915,
-      "purpose": "current delivery contract, scope or proposed manifest"
-    },
-    {
-      "path": "plans/r1-online-pilot/measurement-fields-v2.schema.json",
-      "sha256": "448d6d00e339df12c4ceb08193610ce1c89e07a6edae0684614c9ae3e422e6de",
-      "bytes": 1165,
-      "purpose": "current delivery contract, scope or proposed manifest"
+      "purpose": "delivery manifest/quote/scope/documentation"
     },
     {
       "path": "plans/r1-online-pilot/price-source.json",
       "sha256": "5cf76ede8fab9dd8bf7b23a1278602d8011fa909f20eabf367ebecb4f8499431",
       "bytes": 2942,
       "purpose": "delivery manifest/quote/scope/documentation"
-    },
-    {
-      "path": "plans/r1-roadmap-status-update.md",
-      "sha256": "213ff4d6ca1856183961ef9fb586ce3d3be0e726f3740e3040c0bb5e92d99dc3",
-      "bytes": 11075,
-      "purpose": "current roadmap suggestion; no main roadmap mutation"
     }
   ],
-  "previousDeliverySha": "bc41f9009c4c125ff27d70344935c8eb5fd1e588",
-  "gapClosure": {
-    "sourceSha": "de54a7ee7c141e719f212852e774b304162cd3dc",
-    "manifestHash": "9f73f0d6e3140b2d891d043441053bb75579550d58fdbf850a081c0bdc56ba75",
-    "implementationFilesMatchCommit": [
-      {
-        "path": "evaluation/support/approved-retry.test.ts",
-        "sha256": "e09eb4c2148aa9e925ce9fea8823ef179b00d85b42593f5a8e8fd1f577c693d4"
-      },
-      {
-        "path": "evaluation/support/approved-retry.ts",
-        "sha256": "18c956c2d0061c689dad13402af83aa653fcec1a29e9a1d8d5d9dc58227def14"
-      },
-      {
-        "path": "evaluation/support/audit-compare.test.ts",
-        "sha256": "3bb85284f8db026fb41bd8b08c54e0ad97a1fd6c136de7337d89255b1a015bde"
-      },
-      {
-        "path": "evaluation/support/audit-compare.ts",
-        "sha256": "192593425fc0eb3397984bef5253d3b40b5a9ca90695fe09ae4c8c53a70f9397"
-      },
-      {
-        "path": "evaluation/support/batch-timing.test.ts",
-        "sha256": "0695dcaf05b4d75fae44f1242812a6be3a60943238c482924700cae44f06c80b"
-      },
-      {
-        "path": "evaluation/support/batch-timing.ts",
-        "sha256": "8fc8669b8b5926a9bf546df8571cabd550ab7a8939657102a89ef39875cb2128"
-      },
-      {
-        "path": "evaluation/support/build-identity.test.ts",
-        "sha256": "c4b56ed5428a140777c0503f117cc329b91b75142cf7353af2668ebaf0602218"
-      },
-      {
-        "path": "evaluation/support/build-identity.ts",
-        "sha256": "78595f505ad07e7202bd4fc194d89f4adaf2123ed11f7748dc83735d1e140c5e"
-      },
-      {
-        "path": "evaluation/support/business-stage.test.ts",
-        "sha256": "bb94fb794debf12156c5a47c8e3de2db5d1ecf972d93ccef0aa0828635d65324"
-      },
-      {
-        "path": "evaluation/support/business-stage.ts",
-        "sha256": "bf47c1ffc2cc80479b9e5dc5c29b18f8fb1f855a959d4ce3a97a2539f7b6b7e9"
-      },
-      {
-        "path": "evaluation/support/campaign-evidence.test.ts",
-        "sha256": "d253dd4d3cd85254aca5b1a3a980d5a398b377e0ce6d007c02fcbe69d7f14879"
-      },
-      {
-        "path": "evaluation/support/campaign-evidence.ts",
-        "sha256": "8adc1ccc31a2044a1e46db07d6a7d36ac2d7cdf1068ccdb509de11f57331f74d"
-      },
-      {
-        "path": "evaluation/support/campaign-ledger.test.ts",
-        "sha256": "f4d545fe01aca14779659d074ca94e15be5e8295f480ed31d71ef292e25ba22f"
-      },
-      {
-        "path": "evaluation/support/campaign-ledger.ts",
-        "sha256": "c291bdfdf5c46a170afcf1c098008ce7c007d97d83b303f8bc7ada4a069a885c"
-      },
-      {
-        "path": "evaluation/support/campaign-session.test.ts",
-        "sha256": "0ab23c58457262b7b97bd56a81c6b9f58afd506babfd0050c0f65ea586f12627"
-      },
-      {
-        "path": "evaluation/support/campaign-session.ts",
-        "sha256": "5e8e66ba18e26c5bfcec65e3a54e2fbcf77d1f947cb9a2f05e9291ed185ff7b4"
-      },
-      {
-        "path": "evaluation/support/cost-reconciliation.test.ts",
-        "sha256": "52ede756cc0ae7e26a7ba371ef666472ed9e8b1251a9b84a846c2a5324b40d83"
-      },
-      {
-        "path": "evaluation/support/cost-reconciliation.ts",
-        "sha256": "fc63cf2a34b7683ea874c4f557cbab6f75895a30205ac094e7966a4b3b099d5f"
-      },
-      {
-        "path": "evaluation/support/evidence-protocol.test.ts",
-        "sha256": "f4cc6859ed7b0c0e087f8d15bc84b95cb3afd3bed5613f08832cf075b1060fc9"
-      },
-      {
-        "path": "evaluation/support/evidence-protocol.ts",
-        "sha256": "3b1c29a185698c4da4668c4aa955a12cf7051e437a2fd512fd99dcb817ceb0a2"
-      },
-      {
-        "path": "evaluation/support/execution-plan.test.ts",
-        "sha256": "faba1a91cf05eed9d20f785ea4116a146a4e0cdee0058867afc00051a46e9000"
-      },
-      {
-        "path": "evaluation/support/execution-plan.ts",
-        "sha256": "7079b8b44808621e3bbcbc4eb6dc50e8e74e5affe47154e78437fb15acfc518b"
-      },
-      {
-        "path": "evaluation/support/fixture-revision.ts",
-        "sha256": "7847a784ae9f20eca067b560eb62667f8d26c95c32b7188a90a2a0885ffbdfc9"
-      },
-      {
-        "path": "evaluation/support/formal-source.test.ts",
-        "sha256": "2ebce825568c903eb639df2730e9fb76647c8cb29d9e578e596801cf7875b282"
-      },
-      {
-        "path": "evaluation/support/formal-source.ts",
-        "sha256": "4bac4231d87fa992b6b9b3091104b7a14560707ed02448a7f72a8a2fb1144a72"
-      },
-      {
-        "path": "evaluation/support/freeze-identity.test.ts",
-        "sha256": "03e0e184fb1eacc620e4d40855273b6592d31fcea899e549226f31a0ef5c8dba"
-      },
-      {
-        "path": "evaluation/support/freeze-identity.ts",
-        "sha256": "63cdf4d0d40e0135699b5b3994add212a2481a8c1d6ef12464db5f4b7b514edd"
-      },
-      {
-        "path": "evaluation/support/gateway-evidence.test.ts",
-        "sha256": "fe63fa9011076fdf851252c1efe6011e9bf642c1786017c24ebaa067246aed07"
-      },
-      {
-        "path": "evaluation/support/gateway-evidence.ts",
-        "sha256": "e641c4c19c59ec2ac8b3d1dba54b0edd5008f1964f348b6ad39fe3ede8dfe0a0"
-      },
-      {
-        "path": "evaluation/support/interrupt-guard.test.ts",
-        "sha256": "dd3c950041ebb7b149a59d4594f9ba7f8fec540f6a49ca21f8eaa0d15df07c6a"
-      },
-      {
-        "path": "evaluation/support/interrupt-guard.ts",
-        "sha256": "46f25738f6946ab2460823cafbac04e77505c3ed8999e65c849c161f7c08602e"
-      },
-      {
-        "path": "evaluation/support/model-gateway-provider.test.ts",
-        "sha256": "e62db08c272af22a76f9dea90056477cc9a577b5e4345a0a987ca7d83a4250dd"
-      },
-      {
-        "path": "evaluation/support/model-gateway.test.ts",
-        "sha256": "c5659589b2d9d8b02c245e47072ded01e166c2f9a3d849b74e239478a7936610"
-      },
-      {
-        "path": "evaluation/support/model-gateway.ts",
-        "sha256": "0c15ebf6afae3e3737cac49f6ee9ed7706a153e50ccd46b95fa11df880f0399d"
-      },
-      {
-        "path": "evaluation/support/module-graph.test.ts",
-        "sha256": "4dd25532b00b67e9fddc0b44a8b6a7e767b57bb64174a7d93dbb55773af52dc8"
-      },
-      {
-        "path": "evaluation/support/module-graph.ts",
-        "sha256": "167c18b965007a8a31288910fc80e5f71baf7be1657a7964e460b56f5fe17672"
-      },
-      {
-        "path": "evaluation/support/png.ts",
-        "sha256": "568ff42a05b5ae4dd8af4b607ab77b33b5d382e936eb71e845cfc528acb5a7ba"
-      },
-      {
-        "path": "evaluation/support/program-replay.test.ts",
-        "sha256": "5d0eb5094dba93348251d4882385ee0db6f539080199a831462e56e70385d9dc"
-      },
-      {
-        "path": "evaluation/support/program-replay.ts",
-        "sha256": "eae2bfbdffb634565b196aea246201ff7acd4734202415c695c2bddd960820f2"
-      },
-      {
-        "path": "evaluation/support/request-stop.test.ts",
-        "sha256": "fa4a3fda5cac9dbf3870909d921dad7190c7553a65973b323690afa26d1bfb3a"
-      },
-      {
-        "path": "evaluation/support/row-runner.test.ts",
-        "sha256": "6f7a06f47250311e3bd35d422108d18222c71849d40ef5d865573eb9122f4b2a"
-      },
-      {
-        "path": "evaluation/support/row-runner.ts",
-        "sha256": "eefa974721678a228afd616f2028f2d11676ea67dae344abc41d4a08102573c3"
-      },
-      {
-        "path": "evaluation/support/runner-profile.test.ts",
-        "sha256": "515a26a89580fea235b10f69ca523d838fa92044f8917c9ba6fd1d2e244f434d"
-      },
-      {
-        "path": "evaluation/support/runner-profile.ts",
-        "sha256": "2d8858af108ee107ab005a1581e19668735a7f871429361a466c70cc37d08765"
-      },
-      {
-        "path": "evaluation/support/stage-seal.ts",
-        "sha256": "17bd508ff9363cf719b686a5858961753121be94d5bd24e17416c0e5b3304f85"
-      },
-      {
-        "path": "package.json",
-        "sha256": "c3056b6b5f110ee0a6fa41206a395d9bd78beb1627409c63047bbc2d4236669f"
-      },
-      {
-        "path": "pnpm-lock.yaml",
-        "sha256": "a83d99f740493e28ea5a0da4072cd87bf3b89f59e638970893cbc17ca6858701"
-      },
-      {
-        "path": "scripts/r1-online-pilot/batch.ts",
-        "sha256": "887d5d39d9301f912e390fa30a9db4888088587e08196a8f93f46790566370f9"
-      },
-      {
-        "path": "scripts/r1-online-pilot/evaluate.ts",
-        "sha256": "1a52a006b41b46264c7b09f9a1c0d1fcd062df1abf2c75b6cd2bbb840e87a241"
-      },
-      {
-        "path": "scripts/r1-online-pilot/lifecycle.ts",
-        "sha256": "8082f84c825f5e2dc1a80246202e0c548ee0aee2bfec0479c7970f0e2a48032b"
-      },
-      {
-        "path": "scripts/r1-online-pilot/manifest.ts",
-        "sha256": "2df7b0cb89ef4f2b1701d65af0222a39ebd460ee7e6a3f2b5a439d903dc35b7f"
-      },
-      {
-        "path": "scripts/r1-online-pilot/measurement.test.ts",
-        "sha256": "59e83d230b10640d1cb73e5e4f17c72e2cb8616fef406cc34730a5fb53d096c5"
-      },
-      {
-        "path": "scripts/r1-online-pilot/measurement.ts",
-        "sha256": "16bd2e4b0a086363e2d18e1589fd53079a2a6a19f5d9f41321b15fccc61ddc65"
-      },
-      {
-        "path": "scripts/r1-online-pilot/online.test.ts",
-        "sha256": "97301c6b799f183fec6e6ea6d0a90248d5cf280ca61fb79aea8672a20b60b70e"
-      },
-      {
-        "path": "scripts/r1-online-pilot/preflight.test.ts",
-        "sha256": "37a8bdec93a45adefbb2becd355da3f24b1ecad6982c28048cf3167b4857ae90"
-      },
-      {
-        "path": "scripts/r1-online-pilot/preflight.ts",
-        "sha256": "d073d80fa997fbf7572eda4c3db3852605d52d726fb82f46f262c6a22d86e4d8"
-      },
-      {
-        "path": "scripts/r1-online-pilot/runner.ts",
-        "sha256": "46a80d9e767bef30dfb7d01af9948bbb8e39f8faaee95a7ccffc1ca5cd083c2d"
-      },
-      {
-        "path": "scripts/r1-online-pilot/server-entry.ts",
-        "sha256": "51dbd10c827e8092d079929e0eb057b8bb4bc4c9c4d80e76dd2a89d18eae2b47"
-      },
-      {
-        "path": "src/agent/exploration/integration/host.test.ts",
-        "sha256": "b77235c90e4987d6674afa2991ad830212d21bd9119bcc3b6a23680f9fb858ab"
-      },
-      {
-        "path": "src/agent/exploration/integration/host.ts",
-        "sha256": "9c35b61172578a7b6908dd031af7c034ac8b7231c3dbf0393ae03ee8fea40c5d"
-      },
-      {
-        "path": "src/agent/exploration/integration/jev.ts",
-        "sha256": "67ac46c10946f74bbac3f929f9e5f08d7e1754d9a4c9b1c17cde3e6209c11e01"
-      }
-    ],
-    "workingTreeNote": "Only delivery documents modified during final verification; all indexed implementation/dependency files match committed candidate.",
-    "runtime": {
-      "node": "v24.21.0",
-      "pnpm": "10.17.1"
-    },
-    "commands": [
-      {
-        "command": "pnpm exec vitest run scripts/r1-online-pilot/online.test.ts scripts/r1-online-pilot/preflight.test.ts scripts/r1-online-pilot/measurement.test.ts --reporter=verbose",
-        "exitCode": 0,
-        "sourceSha": "de54a7ee7c141e719f212852e774b304162cd3dc",
-        "log": "artifacts/r1-online-pilot/gaps-v2/targeted-final.log",
-        "exitCodeFile": "artifacts/r1-online-pilot/gaps-v2/targeted-final.exit"
-      },
-      {
-        "command": "pnpm typecheck",
-        "exitCode": 0,
-        "sourceSha": "de54a7ee7c141e719f212852e774b304162cd3dc",
-        "log": "artifacts/r1-online-pilot/gaps-v2/typecheck-final.log",
-        "exitCodeFile": "artifacts/r1-online-pilot/gaps-v2/typecheck-final.exit"
-      },
-      {
-        "command": "pnpm exec esbuild scripts/r1-online-pilot/runner.ts scripts/r1-online-pilot/server-entry.ts --outdir=artifacts/r1-online-pilot/gaps-v2/build --bundle --platform=node --format=esm --packages=external --sourcemap",
-        "exitCode": 0,
-        "sourceSha": "de54a7ee7c141e719f212852e774b304162cd3dc",
-        "log": "artifacts/r1-online-pilot/gaps-v2/build-final.log",
-        "exitCodeFile": "artifacts/r1-online-pilot/gaps-v2/build-final.exit"
-      }
-    ],
-    "tests": {
-      "total": 103,
-      "pricing": 87,
-      "onlineIncludingTwoNewWindowTests": 13,
-      "measurement": 3
-    },
-    "builds": [
-      {
-        "path": "artifacts/r1-online-pilot/gaps-v2/build/runner.js",
-        "sha256": "31bbd5d622b361664a1b0869c69b3102a3cf1cece582d0938188939ada76d00f",
-        "sourceMapMatchedFiles": 22
-      },
-      {
-        "path": "artifacts/r1-online-pilot/gaps-v2/build/server-entry.js",
-        "sha256": "53b3e9178b7821d26eeb63b75ef90f86c23445903c486295125cf295a8a3952d",
-        "sourceMapMatchedFiles": 133
-      }
-    ],
-    "fixtureRowsBudgetAndQuotesUnchanged": true,
-    "originalEvidenceUnchanged": true,
-    "realProviderHttpRequests": 0,
-    "realCredentialReads": 0,
-    "browserRuns": 0,
-    "claimsCreated": 0,
-    "authorization": "NOT_AUTHORIZED"
-  },
-  "historyDocumentPathMapping": {
-    "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/plans/r1-online-pilot/CURRENT-TASK.md": "plans/r1-online-pilot/history/v1/CURRENT-TASK.md",
-    "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/plans/r1-online-pilot/README.md": "plans/r1-online-pilot/history/v1/README.md",
-    "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/plans/r1-online-pilot/manifest.proposed.json": "plans/r1-online-pilot/history/v1/manifest.proposed.json",
-    "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/plans/r1-online-pilot/evidence-index.json": "plans/r1-online-pilot/history/v1/evidence-index.json"
-  }
+  "deliveryMaterialsCommit": "3711856150207ac91d3c0851831d2e0079b2ddad"
 }
