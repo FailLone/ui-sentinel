@@ -1,54 +1,96 @@
 import { readFileSync } from 'node:fs'
-import { POLICY } from './manifest.ts'
-/** Public metadata only, run after authorization and before credentials/claims. No inference probe. */
+import { POLICY, authorize, type Manifest } from './manifest.ts'
+
+/** Do not let JS coercion turn absent, null, blank or compound values into a free quote. */
+function price(value: unknown, cap: number, label: string): number {
+  if (
+    (typeof value !== 'number' &&
+      !(typeof value === 'string' && /^(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$/.test(value))) ||
+    !Number.isFinite(Number(value)) ||
+    Number(value) < 0 ||
+    Number(value) > cap
+  )
+    throw Error(label + '-invalid-price')
+  return Number(value)
+}
+function pricing(raw: unknown, promptCap: number, completionCap: number, label: string) {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) throw Error(label + '-invalid-price')
+  const p = raw as Record<string, unknown>
+  price(p.prompt, promptCap, label)
+  price(p.completion, completionCap, label)
+  // Absent optional components remain absent. Present unsupported fees must be explicit zero;
+  // unknown components/tiers cannot silently inherit zero or the current reservation.
+  for (const [key, value] of Object.entries(p)) {
+    if (key === 'prompt' || key === 'completion') continue
+    if (key === 'input_cache_read') price(value, promptCap, label)
+    else if (['request', 'image', 'input_cache_write', 'discount'].includes(key))
+      price(value, 0, label)
+    else if (key === 'overrides' && Array.isArray(value) && value.length === 0) continue
+    else throw Error(label + '-unsupported-pricing-component')
+  }
+}
+function endpoint(payload: any, provider: string, model: string, name: string, label: string) {
+  const endpoints = payload?.data?.endpoints
+  if (!Array.isArray(endpoints)) throw Error(label + '-endpoints-missing')
+  const found = endpoints.filter((e: any) => e?.provider_name === provider && e?.status === 0)
+  if (found.length !== 1 || found[0].model_id !== model || found[0].name !== name)
+    throw Error(label + '-provider-model-unavailable-or-ambiguous')
+  return found[0]
+}
+/** Public metadata only. Called before credential access, claim creation or inference. */
 export async function checkPublishedPrice(read: typeof fetch = fetch) {
   const source = JSON.parse(readFileSync('plans/r1-online-pilot/price-source.json', 'utf8'))
   const response = await read(source.url, { signal: AbortSignal.timeout(15000), redirect: 'error' })
   if (!response.ok) throw Error('price-check-unavailable')
-  const payload: any = await response.json()
-  const found = payload.data?.endpoints?.filter(
-    (e: any) => e.provider_name === POLICY.agent.provider && e.status === 0,
+  const e = endpoint(
+    await response.json(),
+    POLICY.agent.provider,
+    POLICY.agent.model,
+    'Wafer | deepseek/deepseek-v4.1-flash-20260910',
+    'agent-price',
   )
-  if (found?.length !== 1) throw Error('pinned-provider-unavailable-or-ambiguous')
-  const e = found[0],
-    p = e.pricing
+  pricing(e.pricing, POLICY.agent.inputPerTokenUsd, POLICY.agent.outputPerTokenUsd, 'agent-price')
   if (
-    Number(p.prompt) > POLICY.agent.inputPerTokenUsd ||
-    Number(p.completion) > POLICY.agent.outputPerTokenUsd ||
-    Number(p.request ?? 0) ||
-    Number(p.image ?? 0) ||
-    Number(p.input_cache_write ?? 0) ||
-    p.overrides?.length ||
     e.context_length !== POLICY.agent.contextTokens ||
+    !Array.isArray(e.supported_parameters) ||
     !e.supported_parameters.includes('tools')
   )
-    throw Error('price-or-capability-changed')
+    throw Error('agent-price-capability-changed')
   const jevResponse = await read(source.jev.url, {
     signal: AbortSignal.timeout(15000),
     redirect: 'error',
   })
   if (!jevResponse.ok) throw Error('jev-price-check-unavailable')
-  const jev: any = await jevResponse.json()
-  const endpoints = jev.data?.endpoints?.filter(
-    (e: any) => e.provider_name === 'TypeSafe' && e.status === 0,
+  const j = endpoint(
+    await jevResponse.json(),
+    POLICY.jev.provider,
+    POLICY.jev.model,
+    'TypeSafe | ' + POLICY.jev.expectedModel,
+    'jev-price',
   )
-  if (endpoints?.length !== 1) throw Error('jev-provider-unavailable')
-  const jp = endpoints[0].pricing
-  if (
-    Number(jp.prompt) > 0.000000042 ||
-    Number(jp.completion) !== 0 ||
-    Number(jp.request ?? 0) ||
-    Number(jp.input_cache_write ?? 0) ||
-    jp.overrides?.length ||
-    endpoints[0].context_length !== 64000 ||
-    endpoints[0].name !== 'TypeSafe | typesafe/jev-1.13-20260917'
-  )
+  pricing(j.pricing, 0.000000042, 0, 'jev-price')
+  if (j.context_length !== 64000 || j.max_prompt_tokens !== 32000)
     throw Error('jev-price-or-version-changed')
   return {
     checkedAt: new Date().toISOString(),
     source: source.url,
     endpoint: e,
     jevSource: source.jev.url,
-    jevEndpoint: endpoints[0],
+    jevEndpoint: j,
   }
+}
+
+/** Actual runner startup ordering, injectable solely to test that invalid quotes cannot spend. */
+export async function preparePaidAccess(
+  manifest: Manifest,
+  approval: unknown,
+  sourceSha: string,
+  access: { read?: typeof fetch; credential(): string | undefined; claim(): void },
+) {
+  authorize(manifest, approval, sourceSha)
+  const priceCheck = await checkPublishedPrice(access.read)
+  const key = access.credential()
+  if (!key || /[\r\n]/.test(key)) throw Error('online-credential-missing')
+  access.claim()
+  return { priceCheck, key }
 }

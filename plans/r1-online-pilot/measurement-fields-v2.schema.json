@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "R1 online v2 row/evaluation measurement fields",
+  "description": "Shared fields in r1-online-result-2 rows and r1-online-evaluation-2. Evidence-linked event timing, not completion, effectiveness or settlement. Does not describe the batch summary.",
+  "type": "object",
+  "required": ["version", "firstMeasurementEventMs", "firstMeasurementEventSeq", "firstMeasurementEventAt", "measurementEventMeaning"],
+  "properties": {
+    "version": { "enum": ["r1-online-result-2", "r1-online-evaluation-2"] },
+    "firstMeasurementEventMs": { "type": ["number", "null"], "minimum": 0 },
+    "firstMeasurementEventSeq": { "type": ["integer", "null"] },
+    "firstMeasurementEventAt": { "type": ["string", "null"], "format": "date-time" },
+    "measurementEventMeaning": { "const": "first evidence-linked generic/effect measurement event; not settled-check success or quality benefit" }
+  },
+  "not": {
+    "anyOf": [
+      { "required": ["firstSettledMeasurementMs"] },
+      { "required": ["firstMeasuredSeq"] },
+      { "required": ["firstMeasuredAt"] }
+    ]
+  },
+  "additionalProperties": true
+}

@@ -27,12 +27,29 @@ const compileOnline: typeof compileFrame = (request, profile, maxBytes) => {
   return { ...c, wire, byteLength, wireDigest: sha256(wire) }
 }
 
-export function createBatch(ledger: CampaignLedger, manifest: Manifest, directory: string) {
+export interface BatchClock {
+  now(): number
+  schedule(callback: () => void, delayMs: number): () => void
+}
+const systemClock: BatchClock = {
+  now: () => Date.now(),
+  schedule(callback, delayMs) {
+    const timer = setTimeout(callback, delayMs)
+    timer.unref()
+    return () => clearTimeout(timer)
+  },
+}
+export function createBatch(
+  ledger: CampaignLedger,
+  manifest: Manifest,
+  directory: string,
+  clock: BatchClock = systemClock,
+) {
   const stopPath = join(directory, 'stop.json')
   let stopped = existsSync(stopPath) ? 'previously-stopped' : '',
     active: any = null
   const requests = new Map<string, ReserveInput>()
-  const started = Date.now()
+  const started = clock.now()
   const controller = new AbortController()
   const dispatchContext = new AsyncLocalStorage<ReserveInput>()
   const late = new Set<Promise<any>>()
@@ -55,20 +72,24 @@ export function createBatch(ledger: CampaignLedger, manifest: Manifest, director
   }
   const guard = () => {
     if (stopped || existsSync(stopPath)) throw Error('online-batch-stopped')
-    if (Date.now() - started >= POLICY.batchWindowMs) {
+    if (clock.now() - started >= POLICY.batchWindowMs) {
       stop('batch-window')
       throw Error('online-batch-stopped')
     }
   }
-  const windowTimer = setTimeout(() => stop('batch-window'), POLICY.batchWindowMs)
-  windowTimer.unref()
+  const clearWindowTimer = clock.schedule(() => stop('batch-window'), POLICY.batchWindowMs)
   const adapter: GatewayLedger = {
     stopState: () => ledger.stopState(),
-    watchStop: (epoch, listener) =>
-      ledger.watchStop(epoch, (reason) => {
-        stop(reason)
-        listener(reason)
-      }),
+    watchStop: (epoch, listener) => {
+      const onStop = () => listener(stopped)
+      controller.signal.addEventListener('abort', onStop, { once: true })
+      const unwatch = ledger.watchStop(epoch, stop)
+      if (controller.signal.aborted) onStop()
+      return () => {
+        unwatch()
+        controller.signal.removeEventListener('abort', onStop)
+      }
+    },
     async reserve(input) {
       guard()
       if (!active || active.runId !== input.runId) throw Error('parent-run-binding')
@@ -145,7 +166,7 @@ export function createBatch(ledger: CampaignLedger, manifest: Manifest, director
       })
     },
     dispose() {
-      clearTimeout(windowTimer)
+      clearWindowTimer()
     },
     activate(row: Manifest['rows'][number], runId: string, origin: string) {
       guard()

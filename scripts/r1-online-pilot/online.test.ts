@@ -4,7 +4,8 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { openCampaignSession } from '../../evaluation/support/campaign-session.ts'
 import { startGateway } from '../../evaluation/support/model-gateway.ts'
-import { createBatch } from './batch.ts'
+import { createBatch, type BatchClock } from './batch.ts'
+import { bindRunCancellation } from './lifecycle.ts'
 import { makeManifest, POLICY, authorize, AGENT } from './manifest.ts'
 import {
   onlinePriority,
@@ -22,11 +23,11 @@ function frame() {
       c.checks.effects = [{ state: 'pending', late: false }]
   return f
 }
-async function setup(limit: number = POLICY.batchMaxUsd) {
+async function setup(limit: number = POLICY.batchMaxUsd, clock?: BatchClock) {
   const dir = mkdtempSync(join(tmpdir(), 'r1-online-'))
   const session = await openCampaignSession(join(dir, 'account'), String(limit))
   const m = makeManifest('test-source'),
-    batch = createBatch(session.ledger, m, dir),
+    batch = createBatch(session.ledger, m, dir, clock),
     f = frame()
   batch.activate(
     m.rows.find((r) => r.id === 'ambiguity-jev')!,
@@ -382,6 +383,187 @@ it('an already-dispatched Agent reply settles late after Jev unknown; no new req
     expect(() => t.batch.guard()).toThrow()
   } finally {
     await gateway.close()
+    await t.close()
+  }
+})
+
+function controlledClock() {
+  let now = 0
+  const pending = new Map<() => void, number>()
+  const clock: BatchClock = {
+    now: () => now,
+    schedule(callback, delay) {
+      pending.set(callback, now + delay)
+      return () => {
+        pending.delete(callback)
+      }
+    },
+  }
+  return {
+    clock,
+    pending,
+    advance(ms: number) {
+      now += ms
+      for (const [callback, deadline] of pending)
+        if (deadline <= now) {
+          pending.delete(callback)
+          callback()
+        }
+    },
+  }
+}
+it('batch window cancels current run and both transports, fences queued dispatch and late reconciliation', async () => {
+  const timer = controlledClock(),
+    t = await setup(POLICY.batchMaxUsd, timer.clock)
+  let cancelledRun = '',
+    agentSignal: AbortSignal | undefined,
+    jevSignal: AbortSignal | undefined
+  let agentResolve!: (r: Response) => void, jevResolve!: (r: Response) => void
+  let agentReady!: () => void, jevReady!: () => void, jevBody: any
+  const mainStarted = new Promise<void>((r) => {
+    agentReady = r
+  })
+  const jevStarted = new Promise<void>((r) => {
+    jevReady = r
+  })
+  const unbind = bindRunCancellation(
+    t.batch.signal,
+    () => ({ api: 'http://local.invalid', runId: 'run-test' }),
+    (async (url, init) => {
+      cancelledRun = String(url)
+      expect(init?.method).toBe('POST')
+      return new Response()
+    }) as typeof fetch,
+  )
+  const gateway = await startGateway(
+    'test-key',
+    t.dir,
+    (async (_url, init) => {
+      agentSignal = init?.signal as AbortSignal
+      agentReady()
+      return new Promise<Response>((r) => {
+        agentResolve = r
+      })
+    }) as typeof fetch,
+    {
+      limitUsd: POLICY.batchMaxUsd,
+      ledger: t.batch.ledger,
+      estimateCost: t.batch.estimate,
+      providers: { agent: 'Wafer', vision: 'disabled' },
+    },
+  )
+  gateway.begin('run-test', 8, 30000)
+  const request = () =>
+    fetch(gateway.url + '/chat/completions', {
+      method: 'POST',
+      headers: { authorization: 'Bearer ' + gateway.token, 'content-type': 'application/json' },
+      body: JSON.stringify({ model: AGENT, messages: [] }),
+    })
+  try {
+    expect([...timer.pending.values()]).toEqual([POLICY.batchWindowMs])
+    timer.advance(POLICY.batchWindowMs - 1)
+    expect(t.batch.signal.aborted).toBe(false)
+    const main = request().then((r) => r.text())
+    await mainStarted
+    const jev = t.batch.score(
+      t.f,
+      'run-test',
+      new AbortController().signal,
+      'test-key',
+      async (_url, init) => {
+        jevSignal = init.signal as AbortSignal
+        jevBody = JSON.parse(String(init.body))
+        jevReady()
+        return new Promise<Response>((r) => {
+          jevResolve = r
+        })
+      },
+    )
+    await jevStarted
+    // A request reserved before expiry must not begin after expiry, including a queued retry.
+    const queued = {
+      requestId: 'queued',
+      runId: 'run-test',
+      phase: 'test',
+      model: AGENT,
+      provider: 'Wafer',
+      reservedUsd: 0.053,
+      priceSource: 'test',
+      stopEpoch: 0,
+    }
+    expect((await t.batch.ledger.reserve(queued)).ok).toBe(true)
+    timer.advance(1)
+    expect(t.batch.status().stopped).toBe('batch-window')
+    expect(cancelledRun).toBe('http://local.invalid/api/runs/run-test/cancel')
+    expect(agentSignal?.aborted).toBe(true)
+    expect(jevSignal?.aborted).toBe(true)
+    let dispatches = 0
+    await expect(
+      t.batch.ledger.dispatch('queued', 0, () => {
+        dispatches++
+        return true
+      }),
+    ).rejects.toThrow()
+    await expect(t.batch.ledger.reserve({ ...queued, requestId: 'retry' })).rejects.toThrow()
+    await expect(
+      t.batch.score(t.f, 'run-test', new AbortController().signal, 'test-key', async () => {
+        dispatches++
+        throw Error('not-sent')
+      }),
+    ).rejects.toThrow()
+    expect((await request()).status).toBe(429)
+    expect((await jev).kind).toBe('handoff')
+    expect((await t.session.ledger.spending()).unknownCount).toBe(1)
+    // Fixed transports deliberately ignore abort and deliver usage late.
+    agentResolve(
+      Response.json({
+        id: 'late-agent',
+        model: AGENT,
+        provider: 'Wafer',
+        choices: [],
+        usage: { cost: 0.02 },
+      }),
+    )
+    jevResolve(jsonResponse(replyFor(jevBody)))
+    await main
+    await t.batch.drain()
+    await gateway.end()
+    await t.batch.ledger.release('queued', 'never-dispatched')
+    expect((await t.session.ledger.spending()).knownCostUsd).toBeCloseTo(0.021)
+    expect((await t.session.ledger.spending()).unknownCount).toBe(0)
+    expect((await t.session.ledger.stopState()).epoch).toBe(1)
+    expect(() => t.batch.guard()).toThrow()
+    expect(dispatches).toBe(0)
+    expect(t.batch.status().stopped).toBe('batch-window')
+  } finally {
+    unbind()
+    await gateway.close()
+    await t.close()
+  }
+})
+it('normal batch disposal removes its timer and run cancellation listener', async () => {
+  const timer = controlledClock(),
+    t = await setup(POLICY.batchMaxUsd, timer.clock)
+  try {
+    expect(timer.pending.size).toBe(1)
+    t.batch.end()
+    t.batch.dispose()
+    expect(timer.pending.size).toBe(0)
+    timer.advance(POLICY.batchWindowMs + 1)
+    expect(t.batch.signal.aborted).toBe(false)
+    let calls = 0
+    const unbind = bindRunCancellation(
+      t.batch.signal,
+      () => ({ api: 'unused', runId: 'run' }),
+      (async () => {
+        calls++
+        return new Response()
+      }) as typeof fetch,
+    )
+    unbind()
+    t.batch.stop('test-after-dispose')
+    expect(calls).toBe(0)
+  } finally {
     await t.close()
   }
 })

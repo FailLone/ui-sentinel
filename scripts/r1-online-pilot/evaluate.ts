@@ -1,3 +1,4 @@
+import { EVALUATION_VERSION, firstMeasurementEvent } from './measurement.ts'
 /** Frozen fixture evaluation. Ranking choice is never a success criterion. */
 export function evaluate(report: any, scenario: string, artifactIds: Set<string>) {
   const items = report.uiScan.inspection.items
@@ -32,9 +33,6 @@ export function evaluate(report: any, scenario: string, artifactIds: Set<string>
     }
   })
   const events = report.events
-  const measured = events.filter((e: any) =>
-    ['interaction:generic-collected-v2', 'interaction:effect-measured-v2'].includes(e.type),
-  )
   const start = events.find((e: any) => e.type === 'run:started')?.timestamp
   const reads = events.filter(
     (e: any) =>
@@ -46,6 +44,8 @@ export function evaluate(report: any, scenario: string, artifactIds: Set<string>
     .map((e: any) => e.payload.target)
   const concluded = report.status === 'completed'
   return {
+    version: EVALUATION_VERSION,
+    ...firstMeasurementEvent(report, artifactIds),
     reference: 'fixture behavior; development reference, not a preferred candidate label',
     expectedDefects: defectControl ? 1 : 0,
     evidenceBackedExpectedFindings: findings.length,
@@ -55,8 +55,6 @@ export function evaluate(report: any, scenario: string, artifactIds: Set<string>
     unmatchedFindingPolicy: 'requires evidence review; not automatically labeled false or ignored',
     settledEffects: settled.length,
     checkedAndRemaining: report.uiScan.inspection.counts,
-    firstSettledMeasurementMs:
-      start && measured[0] ? Date.parse(measured[0].timestamp) - Date.parse(start) : null,
     firstFindingMs:
       start && findings[0] ? Date.parse(findings[0].createdAt) - Date.parse(start) : null,
     explicitReads: reads.length,

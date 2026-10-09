@@ -8,7 +8,7 @@ export const CASES = ['semantic', 'ambiguity', 'expanded'] as const
 export type Case = (typeof CASES)[number]
 export const AGENT = 'deepseek/deepseek-v4.1-flash'
 export const POLICY = {
-  revision: 'r1-online-pilot-1',
+  revision: 'r1-online-pilot-2',
   candidateSource: 'original-executor-selected-local-public-frame',
   actions: 6,
   modelCalls: 8,

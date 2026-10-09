@@ -7,12 +7,14 @@ import { build } from 'esbuild'
 import { startGateway, AGENT_MODEL, VISION_MODEL } from '../../evaluation/support/model-gateway.ts'
 import { openCampaignSession } from '../../evaluation/support/campaign-session.ts'
 import { createBatch } from './batch.ts'
-import { authorize, makeManifest, fixture, goal, POLICY, type Manifest } from './manifest.ts'
+import { makeManifest, fixture, goal, POLICY, type Manifest } from './manifest.ts'
 import { createControlledHost, digest } from '../../src/agent/exploration/integration/host.ts'
 import { replyFor, jsonResponse } from '../r1-jev-real/test-support.ts'
 import { sha256 } from '../../src/agent/decisions/jev-provider/profile.ts'
-import { checkPublishedPrice } from './preflight.ts'
+import { preparePaidAccess } from './preflight.ts'
+import { bindRunCancellation } from './lifecycle.ts'
 import { evaluate } from './evaluate.ts'
+import { RESULT_VERSION, firstMeasurementEvent } from './measurement.ts'
 
 const [mode, outputArg, ...args] = process.argv.slice(2)
 if (!['--free', '--free-handoff', '--run'].includes(mode))
@@ -31,22 +33,22 @@ const manifest: Manifest = free
   ? makeManifest(sourceSha)
   : JSON.parse(readFileSync(args[0], 'utf8'))
 const approval = free ? null : JSON.parse(readFileSync(args[1], 'utf8'))
-if (!free) authorize(manifest, approval, sourceSha)
 if (existsSync(output)) throw Error('new-output-required')
-const priceCheck = free ? { mode: 'fixed-only-no-price-http' } : await checkPublishedPrice()
-const key = free ? 'fixed-not-a-real-key' : process.env.R1_ONLINE_API_KEY
-if (!key || /[\r\n]/.test(key)) throw Error('online-credential-missing')
-// Separate online claim namespace. Never accept or consume the old single-frame approval.
-if (!free) {
-  const claims = resolve(args[2] ?? '')
-  if (!args[2]) throw Error('explicit-canonical-claim-directory-required')
-  mkdirSync(claims, { recursive: true })
-  writeFileSync(
-    join(claims, digest(manifest) + '.claim'),
-    JSON.stringify({ manifestHash: digest(manifest), output, approval }),
-    { flag: 'wx', mode: 0o600, flush: true },
-  )
-}
+const { priceCheck, key } = free
+  ? { priceCheck: { mode: 'fixed-only-no-price-http' }, key: 'fixed-not-a-real-key' }
+  : await preparePaidAccess(manifest, approval, sourceSha, {
+      credential: () => process.env.R1_ONLINE_API_KEY,
+      claim() {
+        if (!args[2]) throw Error('explicit-canonical-claim-directory-required')
+        const claims = resolve(args[2])
+        mkdirSync(claims, { recursive: true })
+        writeFileSync(
+          join(claims, digest(manifest) + '.claim'),
+          JSON.stringify({ manifestHash: digest(manifest), output, approval }),
+          { flag: 'wx', mode: 0o600, flush: true },
+        )
+      },
+    })
 mkdirSync(output, { recursive: false })
 const save = (path: string, value: unknown) =>
   writeFileSync(join(output, path), JSON.stringify(value, null, 2) + '\n')
@@ -164,7 +166,7 @@ const gateway = await startGateway(key, output, upstream, {
   estimateCost: batch.estimate,
   ledger: batch.ledger,
   providers: { agent: POLICY.agent.provider, vision: 'disabled' },
-  phase: 'r1-online-pilot-1',
+  phase: POLICY.revision,
 })
 const broker = createServer(async (req, res) => {
   const reply = (status: number, value: unknown) => {
@@ -194,10 +196,7 @@ const broker = createServer(async (req, res) => {
   }
 })
 const brokerUrl = await listen(broker)
-batch.signal.addEventListener('abort', () => {
-  if (api && actualRunId)
-    void fetch(`${api}/api/runs/${actualRunId}/cancel`, { method: 'POST' }).catch(() => {})
-})
+const unbindCancel = bindRunCancellation(batch.signal, () => ({ api, runId: actualRunId }))
 try {
   const rows =
     free && args.length ? manifest.rows.filter((r) => args.includes(r.id)) : manifest.rows
@@ -330,11 +329,9 @@ try {
       const requests = await gateway.end()
       const events = report.events,
         counts = report.uiScan.checkCounts
-      const measured = events.filter((e: any) =>
-        ['interaction:generic-collected-v2', 'interaction:effect-measured-v2'].includes(e.type),
-      )
-      const first = measured[0]
       const result = {
+        version: RESULT_VERSION,
+        ...firstMeasurementEvent(report, new Set(evidence.map((e) => e.id))),
         row: current.id,
         scenario: current.scenario,
         mode: current.mode,
@@ -346,8 +343,6 @@ try {
         actions: report.usage.actions,
         mainRequests: requests.length,
         elapsedMs: Date.now() - start,
-        firstMeasuredSeq: first?.seq ?? null,
-        firstMeasuredAt: first?.timestamp ?? null,
         reads: events.filter(
           (e: any) =>
             e.type === 'tool:started' &&
@@ -407,6 +402,7 @@ try {
   await gateway.close()
   await batch.drain()
   batch.dispose()
+  unbindCancel()
   await new Promise<void>((r) => broker.close(() => r()))
   await new Promise<void>((r) => fixtureServer.close(() => r()))
   save('fixture-requests.json', fixtureRequests)
@@ -420,6 +416,7 @@ try {
   })
   await session.close()
   save('result-summary.json', {
+    version: RESULT_VERSION,
     completedRows: results.length,
     expectedRows: free && args.length ? args.length : 9,
     free,
