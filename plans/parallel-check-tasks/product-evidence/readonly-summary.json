@@ -1,0 +1,456 @@
+{
+  "paidRequests": 0,
+  "mastraToolCalls": [
+    {
+      "scenario": "parallel",
+      "name": "check_task_submit",
+      "args": {
+        "version": 1,
+        "key": "child-0",
+        "kind": "element-measurement",
+        "purpose": "Measure independent viewport 0",
+        "target": {
+          "selector": "#target"
+        },
+        "start": {
+          "url": "http://127.0.0.1:57725/",
+          "viewport": {
+            "width": 320,
+            "height": 480
+          },
+          "prerequisites": []
+        },
+        "publicFacts": [],
+        "evidenceRefs": [],
+        "permissions": {
+          "session": "anonymous",
+          "writes": "none",
+          "actions": "none"
+        },
+        "quota": {
+          "actions": 0,
+          "modelCalls": 0,
+          "reads": 2
+        },
+        "deadlineAt": 1791570694730
+      }
+    },
+    {
+      "scenario": "parallel",
+      "name": "check_task_submit",
+      "args": {
+        "version": 1,
+        "key": "child-1",
+        "kind": "element-measurement",
+        "purpose": "Measure independent viewport 1",
+        "target": {
+          "selector": "#target"
+        },
+        "start": {
+          "url": "http://127.0.0.1:57725/",
+          "viewport": {
+            "width": 640,
+            "height": 480
+          },
+          "prerequisites": []
+        },
+        "publicFacts": [],
+        "evidenceRefs": [],
+        "permissions": {
+          "session": "anonymous",
+          "writes": "none",
+          "actions": "none"
+        },
+        "quota": {
+          "actions": 0,
+          "modelCalls": 0,
+          "reads": 2
+        },
+        "deadlineAt": 1791570694730
+      }
+    },
+    {
+      "scenario": "parallel",
+      "name": "check_task_wait",
+      "args": {
+        "waitMs": 1000
+      }
+    },
+    {
+      "scenario": "parallel",
+      "name": "run_finish",
+      "args": {
+        "reason": "scope-covered"
+      }
+    },
+    {
+      "scenario": "parallel",
+      "name": "run_finish",
+      "args": {
+        "reason": "unverified-scope"
+      }
+    },
+    {
+      "scenario": "failure",
+      "name": "check_task_submit",
+      "args": {
+        "version": 1,
+        "key": "child-0",
+        "kind": "element-measurement",
+        "purpose": "Measure independent viewport 0",
+        "target": {
+          "selector": "["
+        },
+        "start": {
+          "url": "http://127.0.0.1:57725/",
+          "viewport": {
+            "width": 320,
+            "height": 480
+          },
+          "prerequisites": []
+        },
+        "publicFacts": [],
+        "evidenceRefs": [],
+        "permissions": {
+          "session": "anonymous",
+          "writes": "none",
+          "actions": "none"
+        },
+        "quota": {
+          "actions": 0,
+          "modelCalls": 0,
+          "reads": 2
+        },
+        "deadlineAt": 1791570696793
+      }
+    },
+    {
+      "scenario": "failure",
+      "name": "check_task_submit",
+      "args": {
+        "version": 1,
+        "key": "child-1",
+        "kind": "element-measurement",
+        "purpose": "Measure independent viewport 1",
+        "target": {
+          "selector": "#target"
+        },
+        "start": {
+          "url": "http://127.0.0.1:57725/",
+          "viewport": {
+            "width": 640,
+            "height": 480
+          },
+          "prerequisites": []
+        },
+        "publicFacts": [],
+        "evidenceRefs": [],
+        "permissions": {
+          "session": "anonymous",
+          "writes": "none",
+          "actions": "none"
+        },
+        "quota": {
+          "actions": 0,
+          "modelCalls": 0,
+          "reads": 2
+        },
+        "deadlineAt": 1791570696793
+      }
+    },
+    {
+      "scenario": "failure",
+      "name": "check_task_wait",
+      "args": {
+        "waitMs": 1000
+      }
+    },
+    {
+      "scenario": "failure",
+      "name": "run_finish",
+      "args": {
+        "reason": "scope-covered"
+      }
+    },
+    {
+      "scenario": "failure",
+      "name": "run_finish",
+      "args": {
+        "reason": "unverified-scope"
+      }
+    },
+    {
+      "scenario": "boundary",
+      "name": "check_task_submit",
+      "args": {
+        "version": 1,
+        "key": "child-0",
+        "kind": "element-measurement",
+        "purpose": "Measure independent viewport 0",
+        "target": {
+          "selector": "#target"
+        },
+        "start": {
+          "url": "http://127.0.0.1:57725/",
+          "viewport": {
+            "width": 320,
+            "height": 480
+          },
+          "prerequisites": []
+        },
+        "publicFacts": [],
+        "evidenceRefs": [],
+        "permissions": {
+          "session": "anonymous",
+          "writes": "none",
+          "actions": "none"
+        },
+        "quota": {
+          "actions": 0,
+          "modelCalls": 0,
+          "reads": 2
+        },
+        "deadlineAt": 1791570698626
+      }
+    },
+    {
+      "scenario": "boundary",
+      "name": "check_task_submit",
+      "args": {
+        "version": 1,
+        "key": "child-1",
+        "kind": "element-measurement",
+        "purpose": "Measure independent viewport 1",
+        "target": {
+          "selector": "#target"
+        },
+        "start": {
+          "url": "http://127.0.0.1:57725/",
+          "viewport": {
+            "width": 640,
+            "height": 480
+          },
+          "prerequisites": []
+        },
+        "publicFacts": [],
+        "evidenceRefs": [],
+        "permissions": {
+          "session": "anonymous",
+          "writes": "none",
+          "actions": "none"
+        },
+        "quota": {
+          "actions": 0,
+          "modelCalls": 0,
+          "reads": 2
+        },
+        "deadlineAt": 1791570698626
+      }
+    },
+    {
+      "scenario": "boundary",
+      "name": "check_task_wait",
+      "args": {
+        "waitMs": 1000
+      }
+    },
+    {
+      "scenario": "boundary",
+      "name": "run_finish",
+      "args": {
+        "reason": "scope-covered"
+      }
+    },
+    {
+      "scenario": "boundary",
+      "name": "run_finish",
+      "args": {
+        "reason": "unverified-scope"
+      }
+    },
+    {
+      "scenario": "cancel",
+      "name": "check_task_submit",
+      "args": {
+        "version": 1,
+        "key": "child-0",
+        "kind": "element-measurement",
+        "purpose": "Measure independent viewport 0",
+        "target": {
+          "selector": "#target"
+        },
+        "start": {
+          "url": "http://127.0.0.1:57725/",
+          "viewport": {
+            "width": 320,
+            "height": 480
+          },
+          "prerequisites": []
+        },
+        "publicFacts": [],
+        "evidenceRefs": [],
+        "permissions": {
+          "session": "anonymous",
+          "writes": "none",
+          "actions": "none"
+        },
+        "quota": {
+          "actions": 0,
+          "modelCalls": 0,
+          "reads": 2
+        },
+        "deadlineAt": 1791570700417
+      }
+    },
+    {
+      "scenario": "cancel",
+      "name": "check_task_submit",
+      "args": {
+        "version": 1,
+        "key": "child-1",
+        "kind": "element-measurement",
+        "purpose": "Measure independent viewport 1",
+        "target": {
+          "selector": "#target"
+        },
+        "start": {
+          "url": "http://127.0.0.1:57725/",
+          "viewport": {
+            "width": 640,
+            "height": 480
+          },
+          "prerequisites": []
+        },
+        "publicFacts": [],
+        "evidenceRefs": [],
+        "permissions": {
+          "session": "anonymous",
+          "writes": "none",
+          "actions": "none"
+        },
+        "quota": {
+          "actions": 0,
+          "modelCalls": 0,
+          "reads": 2
+        },
+        "deadlineAt": 1791570700417
+      }
+    },
+    {
+      "scenario": "cancel",
+      "name": "check_task_wait",
+      "args": {
+        "waitMs": 1000
+      }
+    },
+    {
+      "scenario": "serial",
+      "name": "run_finish",
+      "args": {
+        "reason": "scope-covered"
+      }
+    },
+    {
+      "scenario": "serial",
+      "name": "run_finish",
+      "args": {
+        "reason": "unverified-scope"
+      }
+    },
+    {
+      "scenario": "serial",
+      "name": "run_finish",
+      "args": {
+        "reason": "unverified-scope"
+      }
+    }
+  ],
+  "overlap": [
+    {
+      "id": "a498da47-b056-4dd7-a20f-fb8db5467902",
+      "start": 1791570635583,
+      "end": 1791570636272,
+      "text": "visits=1;width=320"
+    },
+    {
+      "id": "9e499b99-9302-4744-a857-69736d8f25fe",
+      "start": 1791570635676,
+      "end": 1791570636282,
+      "text": "visits=1;width=640"
+    }
+  ],
+  "parentCancel": true,
+  "originalNetworkBoundary": true,
+  "childFailure": true,
+  "evidenceIsolation": true,
+  "falseCoveredRefused": true,
+  "defaultSerial": true,
+  "pageRequests": [
+    {
+      "at": 1791570634889,
+      "method": "GET",
+      "path": "/"
+    },
+    {
+      "at": 1791570635885,
+      "method": "GET",
+      "path": "/"
+    },
+    {
+      "at": 1791570635893,
+      "method": "GET",
+      "path": "/"
+    },
+    {
+      "at": 1791570636933,
+      "method": "GET",
+      "path": "/"
+    },
+    {
+      "at": 1791570637685,
+      "method": "GET",
+      "path": "/"
+    },
+    {
+      "at": 1791570637770,
+      "method": "GET",
+      "path": "/"
+    },
+    {
+      "at": 1791570638767,
+      "method": "GET",
+      "path": "/"
+    },
+    {
+      "at": 1791570639499,
+      "method": "GET",
+      "path": "/"
+    },
+    {
+      "at": 1791570639584,
+      "method": "GET",
+      "path": "/"
+    },
+    {
+      "at": 1791570640556,
+      "method": "GET",
+      "path": "/"
+    },
+    {
+      "at": 1791570641687,
+      "method": "GET",
+      "path": "/"
+    },
+    {
+      "at": 1791570642619,
+      "method": "GET",
+      "path": "/"
+    },
+    {
+      "at": 1791570643734,
+      "method": "GET",
+      "path": "/"
+    }
+  ],
+  "output": "/Users/xietian/.codex/worktrees/parallel-check-tasks/ui-sentinel/data/parallel-check-tasks/2026-10-09T18-30-33-922Z"
+}

@@ -1,5 +1,7 @@
 # 并发检查宿主交付
 
+> 第二轮已完成原动作/Jev 产品整合，当前使用与交付见 [INTEGRATION.md](INTEGRATION.md)。本文件保留第一轮记录。
+
 2026-10-10（Asia/Shanghai）。宿主代码提交 `c86dab2b38c77beb5ef64b854c926a1bad2a2a3e`；基线 `3f21842`；分支 `codex/parallel-check-tasks`。证据补充提交包含本文件。未推送或合并 main，未改旧脏工作区、其他 Agent 工作区、旧费用账户或 Roadmap。
 
 已完成普通父扫描 Agent 的真实 Mastra 工具委派闭环：至多两个独立只读检查子任务，并行受控调度，独立受保护 Chromium Context/进程，统一预算和取消，原测量及原证据表汇总，工作台可读。顶层 run 默认串行。公共接口见 [CONTRACT.md](CONTRACT.md)，工具/API/免费复现见 [API-EXAMPLE.md](API-EXAMPLE.md)。

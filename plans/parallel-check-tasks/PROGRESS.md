@@ -21,3 +21,7 @@ Compatibility command: `node --import tsx scripts/validation/parallel-popup-comp
 Shared files: `executor.ts` (host/tools/input/finish/final cleanup plus network shared budget); `browser.ts` (exception-safe, idempotent cleanup); `network/boundary.ts` and `session.ts` (optional shared budget/narrower scope); `completion-integrity.ts`; `run-phase.ts`; report builders and `web/ui-scan-report.tsx`. `run-queue.ts`, HTTP request schemas, popup directories, maintainer roadmap and all prior accounts/claims are unchanged.
 
 Merge order: independently review this branch's new check-task/network-budget modules; merge the popup candidate independently; reconcile small executor, completion/report/workbench hunks by preserving BOTH sets of additions (do not take a whole file from either branch). Then add a separately reviewed popup adapter against its committed runtime, enabling original action/model reservations only with parent held-quota checks and existing fee-account ownership; repeat a small free browser adapter test. Do not enable paid semantic validation implicitly.
+
+## 第二轮冻结整合（2026-10-10）
+
+完整合入弹窗 `3225754`，原 executor 子运行、原 Jev/动作/测量/持久化/报告、父配额预留、账户共享独占会话及 drain 全部接通，实现 SHA `e7139716ca9c902a84846f2a70ed9c1373870b6e`。产品免费脚本与旧只读回归通过；TypeScript 和构建通过。21 文件 172 项相关测试通过，另 32 项 DNS 隔离通过；组合复跑存在原 DNS 计数波动，原失败日志保留。详细边界与用法见 [INTEGRATION.md](INTEGRATION.md)，本轮证据单独存放 `product-evidence/`；第一轮证据未覆盖。

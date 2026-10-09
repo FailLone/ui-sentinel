@@ -1,5 +1,7 @@
 # Check task contract v1
 
+> 第二轮已完成原动作/Jev 产品整合，当前使用与交付见 [INTEGRATION.md](INTEGRATION.md)。本文件保留第一轮记录。
+
 Host source: `src/execution/check-tasks/contract.ts`; Mastra tools: `src/agent/check-tasks/tools.ts`.
 
 A parent UI run exposes `check_task_submit`, `check_task_status`, `check_task_wait`, `check_task_cancel`. Submit returns immediately after durable acceptance, then independent children execute concurrently (maximum TWO total, one level). Identity is parent run + caller idempotency key; changed input under the same key is rejected. Status/wait return executor results, never model-authored coverage. Wait is bounded and may return running.

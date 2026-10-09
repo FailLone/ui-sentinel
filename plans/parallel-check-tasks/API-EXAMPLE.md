@@ -1,5 +1,7 @@
 # Ordinary entry and free reproduction
 
+> 第二轮已完成原动作/Jev 产品整合，当前使用与交付见 [INTEGRATION.md](INTEGRATION.md)。本文件保留第一轮记录。
+
 Enable `EXECUTION_URL_SCAN=1` and `EXECUTION_PARALLEL_CHECK_TASKS=1` on the server. The latter defaults off; there is no injected provider or task handler in HTTP input. Existing normal UI-scan runs then expose the four delegation tools to their real Mastra parent Agent. No special worker/CLI run type is introduced.
 
 Normal request (requires the deployment's existing model configuration; this example itself is not a paid test authorization):

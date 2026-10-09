@@ -1,0 +1,31 @@
+
+ RUN  v5.0.1 /Users/xietian/.codex/worktrees/parallel-check-tasks/ui-sentinel
+
+stderr | src/execution/network/resolver.test.ts
+◇ injected env (0) from .env
+
+ ❯ src/execution/network/resolver.test.ts (32 tests | 2 failed) 858ms
+   × fails closed for resolver response question 6ms
+   × fails closed for resolver response empty 12ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/execution/network/resolver.test.ts > fails closed for resolver response question
+ FAIL  src/execution/network/resolver.test.ts > fails closed for resolver response empty
+AssertionError: expected 3 to be less than or equal to 2
+ ❯ src/execution/network/resolver.test.ts:193:24
+    191|       })
+    192|   await expect(resolver().resolve('entry.invalid')).rejects.toThrow('r…
+    193|   expect(calls.length).toBeLessThanOrEqual(2)
+       |                        ^
+    194| })
+    195| it('reports TLS identity failure and unavailable bootstrap, without fa…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed | 21 passed (22)
+      Tests  2 failed | 202 passed (204)
+   Start at  02:33:05
+   Duration  6.34s (tests 72%, import 19%, transform 9%, worker 1%)
+
