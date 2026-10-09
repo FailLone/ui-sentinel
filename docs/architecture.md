@@ -63,3 +63,5 @@ main提供[固定六状态公开包](../plans/r0-r1-dependency-v2/README.md)和�
 规则分支已通过 `5e3255b` 合入 main。执行器的 `createUiRuleObservation` 复用同次页面观察和截图，在网址检查中自动评价 D005 原生控件文字消失，并持久化 R005 缺图审查材料；报告与历史恢复共用保存的证据。R005 不产生缺陷或健康 pass，D005 仅在限定绘制条件下判定；未知与省略单列。D004 图片比例仍需明确保形依据，默认关闭。普通业务任务不自动启用上述补充检查，全局 `EXECUTION_URL_SCAN` 默认值不变。
 
 部署可显式配置有界 DoH；默认仍走 system DNS。DoH 只允许配置的精确域名，连接前复查全部地址并固定地址连接，保留 Host/SNI/TLS 和私网拒绝；不提供任意代理或 fake-IP 绕过。支持范围及已知性能/证据局限见[规则整合交接](rule-library/rules-main-integration-handoff.md)和[DNS 说明](network-dns-compat.md)。
+
+D001/D002后续通过 `3350042` 合入main，沿同一适配器自动测量原生单行文字的有限垂直裁切/兄弟控件遮盖。几何只筛候选，同次截图与隔离参考字形对照才支持像素结论；参考图不冒充目标页面截图。正常滚动、省略、弹层或未确认的脚本/交互恢复路径不会仅凭越界判缺陷。历史报告新增可选layout字段并校验布局证据摘要，旧记录兼容。详见[范围、验证与合并](rule-library/rules-clipping-overlap-delivery.md)。
