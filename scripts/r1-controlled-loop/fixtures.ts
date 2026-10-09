@@ -1,17 +1,17 @@
 /** Small variations of r0-default-check-v2's Reveal/Other/late/unfinished fixture. No remote assets. */
 export const cases = [
-  { id: 'healthy', goal: 'Inspect public local controls.', actions: 6 },
-  { id: 'semantic', goal: 'Inspect Reveal first, then the remaining public controls.', actions: 6 },
+  { id: 'healthy', goal: undefined, actions: 6 },
+  { id: 'semantic', goal: 'After clicking "Reveal", show text "Ready".', actions: 6 },
   {
     id: 'expanded',
-    goal: 'Inspect public local controls including newly revealed controls.',
+    goal: undefined,
     actions: 6,
   },
   { id: 'recovery', goal: 'After clicking "Reveal", show text "Ready".', actions: 6 },
-  { id: 'late', goal: 'Inspect public local controls.', actions: 6 },
+  { id: 'late', goal: undefined, actions: 6 },
   {
     id: 'budget',
-    goal: 'Inspect public local controls including newly revealed controls.',
+    goal: undefined,
     actions: 1,
   },
 ] as const

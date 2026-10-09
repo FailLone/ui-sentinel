@@ -54,6 +54,7 @@ export function frameOf(raw: any, binding: string, dispatched: ReadonlySet<strin
         open.has(c.itemId) &&
         checks.has(c.itemId) &&
         checks.get(c.itemId)!.generic.state === 'pending' &&
+        checks.get(c.itemId)!.sourceReview.state === 'sealed' &&
         !dispatched.has(c.itemId),
     )
     .flatMap((c: any) => {
@@ -252,7 +253,7 @@ export function createControlledHost(
       dispatched.add(chosen.id) // A failed/unknown dispatch is not replayable in this host.
       return tool(
         'page_act',
-        { type: 'click', ref: context.ref },
+        { type: 'click', role: chosen.role === 'a' ? 'link' : 'button', name: chosen.text },
         {
           itemId: chosen.id,
           frameHash: digest(frame),

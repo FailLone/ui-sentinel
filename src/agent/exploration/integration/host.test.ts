@@ -52,9 +52,9 @@ describe('controlled host', () => {
     expect(await host.decide(a, context())).toMatchObject({
       kind: 'tool',
       tool: 'page_act',
-      args: { ref: 'e2' },
+      args: { name: 'Reveal' },
     })
-    expect(await host.decide(a, context())).toMatchObject({ kind: 'tool', args: { ref: 'e1' } })
+    expect(await host.decide(a, context())).toMatchObject({ kind: 'tool', args: { name: 'Other' } })
     expect(await host.decide(a, context())).toMatchObject({ kind: 'handoff' })
   })
   it('does not score singleton or a public tie', async () => {

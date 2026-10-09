@@ -67,7 +67,7 @@ const model = createServer(async (req, res) => {
 const endpoint = await listen(model)
 let child: ReturnType<typeof spawn> | undefined
 try {
-  for (arm of ['agent-fixed', 'program', 'jev-fixed']) {
+  for (arm of process.argv[3] ? [process.argv[3]] : ['agent-fixed', 'program', 'jev-fixed']) {
     const dir = join(output, arm)
     await mkdir(dir)
     const portServer = createServer(),
@@ -127,6 +127,7 @@ try {
         await new Promise((r) => setTimeout(r, 100))
       }
       for (const c of cases) {
+        if (process.argv[4] && c.id !== process.argv[4]) continue
         scenario = c.id
         turn = 0
         agentHost = createControlledHost()
