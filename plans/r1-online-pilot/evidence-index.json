@@ -94,10 +94,10 @@
       "interpretation": "See unified README for scope and provenance; not an additional acceptance run."
     },
     {
-      "path": "plans/r1-online-pilot/product/evidence/audit-candidate.ts",
+      "path": "plans/r1-online-pilot/product/evidence/audit-candidate.ts.txt",
       "bytes": 1560,
       "sha256": "2821047fa04baa144f4149d53961fe989d0acbe533237041db7257d0b2a402be",
-      "interpretation": "See unified README for scope and provenance; not an additional acceptance run."
+      "interpretation": "Archived source of the audit executed from data/r1-product/checks; relative imports apply there. Text snapshot, not an executable repository entry."
     },
     {
       "path": "plans/r1-online-pilot/product/evidence/boundaries-recheck.log",
