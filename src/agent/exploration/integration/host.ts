@@ -43,6 +43,7 @@ export function frameOf(raw: any, binding: string, dispatched: ReadonlySet<strin
     evidenceIntegrity: raw.evidenceIntegrity,
     budgetRemaining: raw.budgetRemaining,
     activeTools: raw.activeTools,
+    historyWindow: raw.historyWindow,
   }
   const scope = raw.inspectionScope
   const open = new Set(scope.outstanding.map((c: any) => c.itemId))
@@ -120,8 +121,24 @@ export function semanticCompetition(f: PublicFrame) {
   )
   return matches.length > 1 && matches.some(Boolean) && matches.some((x) => !x)
 }
+/** Online pilot only: never spend Jev on a unique explicit public target or effect obligation. */
+export function onlinePriority(f: PublicFrame) {
+  const ids = [...rankCandidates(f.input).orderedCandidateIds]
+  const quoted = [...f.input.task.goal.matchAll(/"([^"]+)"/g)].map(m => m[1].toLowerCase())
+  const priority = (id: string) => {
+    const c = f.input.candidates.find(c => c.id === id)!
+    const checks = f.facts.inspectionScope?.checks?.find((x: any) => x.itemId === id)?.checks
+    return (quoted.includes(c.text.toLowerCase()) ? 10 : 0) +
+      (checks?.effects?.some((e: any) => !e.late && ['pending', 'unverified'].includes(e.state)) ? 1 : 0)
+  }
+  ids.sort((a, b) => priority(b) - priority(a))
+  const ambiguity = ids.length > 1 && priority(ids[0]) === priority(ids[1]) &&
+    new Set(f.input.candidates.map(c => c.text)).size > 1 &&
+    Boolean(f.facts.observation?.pageText || f.facts.observation?.a11yTree)
+  return { ids, ambiguity }
+}
 export function createControlledHost(
-  options: { score?: Score; onFrame?: (frame: PublicFrame) => void; maxSteps?: number } = {},
+  options: { score?: Score; onFrame?: (frame: PublicFrame) => void; maxSteps?: number; onlinePolicy?: boolean } = {},
 ): ExperimentalHost {
   const dispatched = new Set<string>(),
     selectionAttempted = new Set<string>(),
@@ -237,7 +254,9 @@ export function createControlledHost(
         return handoff('no-safe-new-action')
       }
       let ids = rankCandidates(frame.input).orderedCandidateIds
-      if (options.score && semanticCompetition(frame)) {
+      const online = options.onlinePolicy ? onlinePriority(frame) : undefined
+      if (online) ids = online.ids
+      if (options.score && (online ? online.ambiguity : semanticCompetition(frame))) {
         const response = await options.score(frame, signal)
         signal.throwIfAborted()
         if (response.binding !== frame.binding || response.packetHash !== digest(frame))

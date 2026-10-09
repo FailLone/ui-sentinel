@@ -9,8 +9,8 @@ export type ExperimentalHost = {
     context: { signal: AbortSignal; version: ObservationVersion },
   ): Promise<ExperimentalDecision>
 }
-let factory: ((runId: string) => ExperimentalHost) | undefined
-export function installExperimentalHost(value: (runId: string) => ExperimentalHost) {
+let factory: ((runId: string) => ExperimentalHost | undefined) | undefined
+export function installExperimentalHost(value: (runId: string) => ExperimentalHost | undefined) {
   if (factory) throw new Error('experimental-host-already-installed')
   factory = value
   return () => {
