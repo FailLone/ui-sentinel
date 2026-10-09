@@ -1,0 +1,73 @@
+{
+  "version": "r1-v2-development-reference-1",
+  "status": "development-only; public facts reviewed before baseline; not independent blind review",
+  "criteria": "PROTOCOL.md",
+  "states": [
+    {
+      "stateId": "V01",
+      "reasonableCandidateIds": [
+        "item-7dcf4768-55aa-4d44-a1a5-4b6b7bb79e3d"
+      ],
+      "handoffAllowed": false,
+      "rationale": "generic pending",
+      "support": "source/public/V01.json#registeredChecks",
+      "preferenceOrder": null,
+      "executionPath": "unknown"
+    },
+    {
+      "stateId": "V02",
+      "reasonableCandidateIds": [],
+      "handoffAllowed": true,
+      "rationale": "no frozen selected local candidates; handoff to scope selection",
+      "support": "source/public/V02.json#registeredChecks",
+      "preferenceOrder": null,
+      "executionPath": "unknown"
+    },
+    {
+      "stateId": "V03",
+      "reasonableCandidateIds": [
+        "item-9e4cea0f-9acc-405b-91f2-66fc75f421de",
+        "item-3384edb5-d7a8-45b8-8a97-ddd799a291a0",
+        "item-033a20ec-9c58-488f-ac3d-bf1612519380"
+      ],
+      "handoffAllowed": false,
+      "rationale": "all three selected generic pending; no public superiority established; tie",
+      "support": "source/public/V03.json#registeredChecks",
+      "preferenceOrder": null,
+      "executionPath": "unknown"
+    },
+    {
+      "stateId": "V04",
+      "reasonableCandidateIds": [
+        "item-183bce7f-e123-40f5-9922-8d5d61a99fd7"
+      ],
+      "handoffAllowed": false,
+      "rationale": "Reveal generic settled; selected native select still pending; investigate only",
+      "support": "source/public/V04.json#registeredChecks",
+      "preferenceOrder": null,
+      "executionPath": "unknown"
+    },
+    {
+      "stateId": "V05",
+      "reasonableCandidateIds": [
+        "item-bea1f6fc-4a89-41ee-8f3c-db991a3007d5"
+      ],
+      "handoffAllowed": false,
+      "rationale": "generic collected but required effect pending at cutoff",
+      "support": "source/public/V05.json#registeredChecks",
+      "preferenceOrder": null,
+      "executionPath": "unknown"
+    },
+    {
+      "stateId": "V06",
+      "reasonableCandidateIds": [
+        "item-50d6f321-8754-4b11-830e-742b27f32004"
+      ],
+      "handoffAllowed": true,
+      "rationale": "generic collected but source unresolved and late effect unverified; investigation only, no replay",
+      "support": "source/public/V06.json#registeredChecks",
+      "preferenceOrder": null,
+      "executionPath": "unknown"
+    }
+  ]
+}
