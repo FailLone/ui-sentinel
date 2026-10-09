@@ -50,7 +50,8 @@ export function acceptanceFor(newBudgetUsd: number) {
   }
 }
 
-// The injected I/O is solely for free tests; no CLI/config option can replace the pinned lineage.
+// Injected filesystem/pin fixtures are solely for free tests. The runner always uses the
+// fixed defaults; no CLI/config option can replace the pinned lineage.
 export function createContinuation(
   manifestHash: string,
   claims: string,
@@ -60,6 +61,7 @@ export function createContinuation(
     realpath: (p: string) => realpathSync(p),
     exists: (p: string) => existsSync(p),
     write: writeFileSync,
+    pins: CONTINUATION.pins as readonly { path: string; sha256: string }[],
   },
 ) {
   const riskClaim = join(
@@ -71,7 +73,7 @@ export function createContinuation(
   const checkSource = () => {
     if (io.realpath(claims) !== io.realpath(CONTINUATION.canonicalClaims))
       throw Error('canonical-continuation-claims-required')
-    for (const p of CONTINUATION.pins) {
+    for (const p of io.pins) {
       if (createHash('sha256').update(io.read(p.path)).digest('hex') !== p.sha256)
         throw Error('continuation-source-changed')
     }

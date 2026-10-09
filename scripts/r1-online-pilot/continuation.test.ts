@@ -1,4 +1,5 @@
 import { expect, it, vi } from 'vitest'
+import { createHash } from 'node:crypto'
 import { readFileSync, mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
@@ -11,14 +12,15 @@ import { createBatch } from './batch.ts'
 import { startGateway } from '../../evaluation/support/model-gateway.ts'
 
 function memoryIO() {
-  // Existing immutable evidence bytes only; no writes to source DB or canonical claims.
-  const copies = [
-    'artifacts/r1-online-pilot/authorized-batch-1/account/campaign.db',
-    'artifacts/r1-online-pilot/authorized-batch-1/authorization-claim.json',
-    CONTINUATION.pins[2].path,
-  ]
-  const files = new Map(CONTINUATION.pins.map((p, i) => [p.path, readFileSync(copies[i])]))
+  // Portable fixture bytes, using real SHA-256. No original DB or canonical claim I/O.
+  const files = new Map(
+    CONTINUATION.pins.map((p, i) => [p.path, Buffer.from(`preserved-fixture-${i}`)]),
+  )
   const io = {
+    pins: CONTINUATION.pins.map((p) => ({
+      path: p.path,
+      sha256: createHash('sha256').update(files.get(p.path)!).digest('hex'),
+    })),
     read: (p: string) => {
       const b = files.get(p)
       if (!b) throw Error('missing')
