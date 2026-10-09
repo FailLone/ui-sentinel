@@ -110,6 +110,8 @@ try {
         RUN_TOTAL_TIMEOUT_MS: '60000',
         RUN_MAX_MODEL_CALLS: '12',
         RUN_MAX_ACTIONS: '6',
+        TOOL_TIMEOUT_MS: '5000',
+        MODEL_REQUEST_TIMEOUT_MS: '5000',
       },
       stdio: ['ignore', 'pipe', 'pipe'],
     })

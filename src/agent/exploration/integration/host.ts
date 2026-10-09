@@ -124,6 +124,7 @@ export function createControlledHost(
   options: { score?: Score; onFrame?: (frame: PublicFrame) => void; maxSteps?: number } = {},
 ): ExperimentalHost {
   const dispatched = new Set<string>(),
+    selectionAttempted = new Set<string>(),
     recoveries = new Map<string, number>(),
     inspected = new Set<string>()
   let steps = 0
@@ -217,7 +218,8 @@ export function createControlledHost(
               !dispatched.has(c.itemId),
           )
           .slice(0, 3)
-        if (fresh.length)
+        if (fresh.length) {
+          fresh.forEach((c: any) => selectionAttempted.add(c.itemId))
           return tool(
             'exploration_update',
             {
@@ -230,6 +232,7 @@ export function createControlledHost(
             },
             { publicCandidates: fresh },
           )
+        }
         return handoff('no-safe-new-action')
       }
       let ids = rankCandidates(frame.input).orderedCandidateIds

@@ -557,6 +557,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
   }
   let closeCoveredUiScope: () => Promise<boolean> = async () => false
   let closing = false
+  const experimentalAdmissions = new Set<string>()
   const explicitScope = !!uiScan?.samplingPolicy || uiScan?.requiredChecks !== undefined
   async function refuseOptionalScope(target: string) {
     guard()
@@ -2346,7 +2347,15 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
             )
         if (
           !returningForRequired &&
-          !inspection.isRequiredTarget(actingRef, actionSnapshotPage, category)
+          !inspection.isRequiredTarget(actingRef, actionSnapshotPage, category) &&
+          !inspection
+            .candidateItems()
+            .some(
+              (c) =>
+                c.ref === actingRef &&
+                c.snapshotId === actionSnapshotPage &&
+                experimentalAdmissions.has(c.itemId),
+            )
         )
           return refuseOptionalScope(input.url ?? actingRef ?? input.type)
       }
@@ -4338,8 +4347,42 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
                     candidate.snapshotId,
                     candidate.category as 'local-interaction' | 'navigation',
                   )
-                )
-                  return refuseOptionalScope(entry.itemId)
+                ) {
+                  const extension =
+                    experimentalScopeExpansionEnabled() &&
+                    candidate.category === 'local-interaction' &&
+                    input.selectItems?.length === 1 &&
+                    inspection.completionGaps().length === 0 &&
+                    experimentalAdmissions.size < 1
+                      ? admitOptionalScope({
+                          remaining: {
+                            actions: budget.maxActions - usage.actions,
+                            modelCalls: budget.maxModelCalls - usage.modelCalls,
+                            timeMs: budget.totalTimeoutMs - (Date.now() - startedAt),
+                          },
+                          requiredBound: { actions: 0, modelCalls: 0, timeMs: 0 },
+                          extensionBound: {
+                            actions: 1,
+                            modelCalls: 4,
+                            timeMs:
+                              4 * config.budget.toolTimeoutMs +
+                              4 * config.budget.modelRequestTimeoutMs,
+                          },
+                          closingReserve: {
+                            actions: 0,
+                            modelCalls: 2,
+                            timeMs: Math.min(60000, budget.totalTimeoutMs * 0.2),
+                          },
+                        })
+                      : undefined
+                  if (!extension?.admitted) return refuseOptionalScope(entry.itemId)
+                  experimentalAdmissions.add(entry.itemId)
+                  await appendEvent(runId, 'r1:scope-admitted', {
+                    itemId: entry.itemId,
+                    ...extension,
+                    policy: 'one-local-extension-1',
+                  })
+                }
                 if (uiScan?.samplingPolicy) continue
                 const slot = `${candidate.category}:${candidate.category === 'local-interaction' ? item!.url : ''}`
                 if (defaultSlots.has(slot)) return refuseOptionalScope(entry.itemId)
@@ -4361,6 +4404,8 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
                     basis: entry.basis,
                   })),
                 )
+              if (input.selectItems?.some((e) => experimentalAdmissions.has(e.itemId)))
+                await observe()
               if (input.recordGap) await ledger.recordGap(input.recordGap)
               const candidates = ledger.candidateItems()
               await appendEvent(runId, 'exploration:coverage-updated', {
