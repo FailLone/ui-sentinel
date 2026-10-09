@@ -1,3 +1,4 @@
+import { checkTaskArtifactIssues } from '../../execution/check-tasks/report.ts'
 import { projectUiRuleReports } from './ui-rule-report.ts'
 import { defaultCheckArtifactIssues } from '../../inspection/check-artifacts.ts'
 import { interactionFindingIssues } from '../../execution/interaction-finding-proof.ts'
@@ -309,6 +310,16 @@ export async function buildReport(runId: string) {
     }),
   )
   const readable = new Set(artifacts.filter((a) => a.available).map((a) => a.id))
+  issues.push(
+    ...(await checkTaskArtifactIssues(
+      events,
+      artifactRows.rows.map((row) => ({
+        id: String(row.id),
+        path: String(row.file_path),
+        metadata: JSON.parse(String(row.metadata)),
+      })),
+    )),
+  )
   if (settled && run.spec.kind === 'ui-scan')
     issues.push(...inspectionHistoryIssues(run, events, readable))
   issues.push(

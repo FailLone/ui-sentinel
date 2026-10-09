@@ -47,31 +47,46 @@ export async function launchBrowser(options?: {
       throw error
     })
 
-  const context = await browser.newContext({
-    viewport: options?.viewport ?? { width: 1280, height: 768 },
-    serviceWorkers: 'block',
-  })
+  let context: BrowserContext | undefined
+  let closing: Promise<void> | undefined
+  const close = () =>
+    (closing ??= (async () => {
+      try {
+        await context?.close()
+      } finally {
+        try {
+          await browser.close()
+        } finally {
+          if (denyServer) await new Promise<void>((resolve) => denyServer.close(() => resolve()))
+        }
+      }
+    })())
+  try {
+    context = await browser.newContext({
+      viewport: options?.viewport ?? { width: 1280, height: 768 },
+      serviceWorkers: 'block',
+    })
 
-  // tsx compiles with esbuild keepNames:true, injecting __name() wrappers
-  // around named functions. The helper lives at module scope in Node but is
-  // absent inside Playwright's browser evaluate context. String form avoids
-  // the same transform being applied to this polyfill.
-  await context.addInitScript(
-    'if(typeof __name==="undefined"){window.__name=function(fn){return fn}}',
-  )
+    // tsx compiles with esbuild keepNames:true, injecting __name() wrappers
+    // around named functions. The helper lives at module scope in Node but is
+    // absent inside Playwright's browser evaluate context. String form avoids
+    // the same transform being applied to this polyfill.
+    await context.addInitScript(
+      'if(typeof __name==="undefined"){window.__name=function(fn){return fn}}',
+    )
 
-  const page = await context.newPage()
-  if (options?.collectImageResources) installImageResourceCollector(page)
+    const page = await context.newPage()
+    if (options?.collectImageResources) installImageResourceCollector(page)
 
-  return {
-    browser,
-    context,
-    page,
-    async close() {
-      await context.close()
-      await browser.close()
-      if (denyServer) await new Promise<void>((resolve) => denyServer.close(() => resolve()))
-    },
+    return {
+      browser,
+      context,
+      page,
+      close,
+    }
+  } catch (error) {
+    await close()
+    throw error
   }
 }
 

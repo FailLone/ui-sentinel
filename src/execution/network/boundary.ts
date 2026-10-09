@@ -1,3 +1,4 @@
+import type { SharedNetworkBudget } from './shared-budget.ts'
 import type { BrowserContext, Page, Request } from 'playwright'
 import type { BusinessRuntime } from '../../business/runtime.ts'
 import type { BusinessFact } from '../../business/adapters/types.ts'
@@ -28,6 +29,8 @@ import { config } from '../../shared/config.ts'
  */
 
 export interface RunNetworkBoundaryDeps {
+  readonly sharedBudget?: SharedNetworkBudget
+  readonly narrowedScope?: { maxPages: number; maxDepth: number }
   readonly uiScan: UiContractSnapshot | null
   readonly page: Page
   readonly context: BrowserContext
@@ -109,6 +112,14 @@ async function installUiBoundary(
    * configuration. The contract names the origins the caller declared; the configuration names the
    * local origins an operator vouched for. Neither can be widened by page content or model output.
    */
+  const scope = deps.narrowedScope ?? contract.scope
+  if (
+    scope.maxPages < 1 ||
+    scope.maxDepth < 0 ||
+    scope.maxPages > contract.scope.maxPages ||
+    scope.maxDepth > contract.scope.maxDepth
+  )
+    throw Error('network-scope-widening-refused')
   const policy = createNetworkPolicy({
     entryUrl: contract.entryUrl,
     resourceOrigins: contract.access.resourceOrigins,
@@ -195,7 +206,8 @@ async function installUiBoundary(
     context: deps.context,
     page: deps.page,
     policy,
-    scope: contract.scope,
+    scope,
+    sharedBudget: deps.sharedBudget,
     signal: deps.signal,
     isFinished: deps.isFinished,
     onDecision: record,
@@ -219,6 +231,8 @@ async function installUiBoundary(
     policyRevision: policy.policyRevision,
     contractHash: contract.hash,
     dnsMode: config.urlScan.dns.mode,
+    effectiveScope: scope,
+    sharedParentBudget: !!deps.sharedBudget,
     entryOrigin: policy.entryOrigin,
     resourceOrigins: contract.access.resourceOrigins,
     dataOrigins: contract.access.dataOrigins,

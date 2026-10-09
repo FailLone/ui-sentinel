@@ -1,3 +1,4 @@
+import { checkTaskReport } from '../../execution/check-tasks/report.ts'
 import { r1Report } from './r1-report.ts'
 import { summary as checkSummary } from '../../execution/default-check-runtime.ts'
 import type { ItemChecks } from '../../inspection/check-contract.ts'
@@ -27,6 +28,7 @@ import type { Run, RunEvent } from '../../shared/types.ts'
 export type UiCoverage = 'covered' | 'partial' | 'not-started'
 
 export interface UiScanReport {
+  readonly checkTasks?: ReturnType<typeof checkTaskReport>
   readonly exploration?: ReturnType<typeof r1Report>
   readonly reportRevision?: 'ui-check-report-2'
   readonly checkCounts?: {
@@ -128,7 +130,9 @@ export function uiScanSummary(
   const accepted = [...events].reverse().find((e) => e.type === 'finish:accepted')
   const proof = (accepted?.payload.inspectionProof as InspectionProof | undefined) ?? null
   const proofVerified =
-    additionalIssues.length === 0 && inspectionHistoryIssues(run, events, readable).length === 0
+    additionalIssues.length === 0 &&
+    (proof?.claim !== 'scope-covered' || checkTaskReport(events, readable).issues.length === 0) &&
+    inspectionHistoryIssues(run, events, readable).length === 0
   const finishReasonCode = (accepted?.payload.reasonCode as string | undefined) ?? null
 
   const coverage: UiCoverage =
@@ -149,6 +153,9 @@ export function uiScanSummary(
     }))
 
   return {
+    ...(events.some((e) => e.type.startsWith('check-task:'))
+      ? { checkTasks: checkTaskReport(events, readable, additionalIssues) }
+      : {}),
     ...(contract.exploration
       ? { exploration: r1Report(run, events, snapshot.items, readable) }
       : {}),

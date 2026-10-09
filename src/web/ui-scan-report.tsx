@@ -51,6 +51,32 @@ function Coverage({ report, runId }: { report: UiScanReport; runId: string }) {
         边界：匿名会话 · 不提交业务操作 · 仅支持 GET 型数据 · 有界采样（最多{' '}
         {report.contract.scope.maxPages} 页，深度 {report.contract.scope.maxDepth}）
       </p>
+      {report.checkTasks && (
+        <section aria-label="并行检查子任务">
+          <h3>并行检查子任务</h3>
+          <p>子任务测量保留独立证据；原有必查和已选事项仍需各自验证。</p>
+          <ul>
+            {report.checkTasks.tasks.map((s) => (
+              <li key={s.task.childTaskId}>
+                {s.task.purpose}：{s.status}；读取 {s.usage.reads} 次，耗时 {s.usage.elapsedMs} ms
+                {s.result?.unchecked.map((item) => (
+                  <p key={item}>未检查：{item}</p>
+                ))}
+                {s.error && <p>{s.error}</p>}
+                {(s.evidenceRefs ?? s.result?.evidenceRefs)?.map((ref) => (
+                  <a key={ref} href={artifactUrl(runId, ref)}>
+                    {' '}
+                    证据{' '}
+                  </a>
+                ))}
+              </li>
+            ))}
+          </ul>
+          {report.checkTasks.issues.map((issue) => (
+            <p key={issue}>{issue}</p>
+          ))}
+        </section>
+      )}
       {report.exploration && (
         <section aria-label="R1 路径与检查">
           <h3>R1 路径与检查</h3>

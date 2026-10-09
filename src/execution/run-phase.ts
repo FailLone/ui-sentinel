@@ -58,6 +58,9 @@ export function createPhaseTracker(budget: RunBudget) {
           ? null
           : 'only one existing investigation can be measured during finalization'
       return [
+        'check_task_status',
+        'check_task_wait',
+        'check_task_cancel',
         'run_finish',
         'findings_submit',
         'element_details',

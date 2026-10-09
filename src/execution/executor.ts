@@ -1,3 +1,5 @@
+import { createProductCheckHost, parallelChecksEnabled } from './check-tasks/host.ts'
+import { checkTaskTools } from '../agent/check-tasks/tools.ts'
 import {
   createProductJevScore,
   productJevConfiguration,
@@ -294,6 +296,17 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     modelInputTokens: 0,
     modelOutputTokens: 0,
   }
+  const checkTasks =
+    uiScan && parallelChecksEnabled()
+      ? createProductCheckHost({
+          runId,
+          contract: uiScan,
+          signal,
+          deadlineAt: startedAt + budget.totalTimeoutMs,
+          usage,
+        })
+      : undefined
+  let checkTaskStorageFailure = false
   let modelUsageAvailable = true,
     reportedModelCalls = 0
   let businessResult: BusinessResult = uiScan ? 'not-applicable' : 'unknown',
@@ -1755,6 +1768,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     )
     networkBoundary = await installRunNetworkBoundary({
       uiScan,
+      sharedBudget: checkTasks?.networkBudget,
       page,
       context: worker.context,
       entryUrl: run.spec.entryUrl,
@@ -3272,6 +3286,18 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
      * partial suggestion: a run that may not claim coverage is not left with no way to end.
      */
     async function uiCompletionDecision(reason: string) {
+      const childGaps = checkTasks?.gaps() ?? []
+      if (reason === 'scope-covered' && childGaps.length)
+        return {
+          accepted: false as const,
+          reasonCode: 'delegated-checks-incomplete',
+          missingFacts: childGaps,
+          missingItems: [],
+          partialAdvice: 'Wait for delegated checks or finish with unverified-scope.',
+          outcome: undefined,
+          proof: undefined,
+        }
+
       const facts = inspection!.completionFacts()
       return decideInspectionCompletion({
         reason: reason as Parameters<typeof decideInspectionCompletion>[0]['reason'],
@@ -3345,8 +3371,16 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       if (!completion.accepted) throw Error('ui-finalization-facts-changed')
       return true
     }
+    const recordedChildGaps = new Set<string>()
     async function finishUiScan(parsed: { reason: string }) {
       guard()
+      if (parsed.reason === 'unverified-scope') {
+        for (const gap of checkTasks?.gaps() ?? []) {
+          if (recordedChildGaps.has(gap)) continue
+          await inspection!.recordGap({ reasonCode: 'delegated-check-unverified', detail: gap })
+          recordedChildGaps.add(gap)
+        }
+      }
       await networkBoundary?.flush?.()
       await drainResponses()
       guard()
@@ -3597,6 +3631,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       }
     }
     const tools = {
+      ...(checkTasks ? checkTaskTools(checkTasks, serial) : {}),
       ...(uiScan
         ? {
             interaction_verify: createTool({
@@ -5069,6 +5104,16 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           : {}),
         ...(contractRepairAdvice ? { contractRepairAdvice } : {}),
         ...(remainingObligationGuidance ? { remainingObligationGuidance } : {}),
+        ...(checkTasks
+          ? {
+              checkTasks: {
+                deadlineAt: startedAt + budget.totalTimeoutMs,
+                entryUrl: uiScan!.entryUrl,
+                tasks: checkTasks.status(),
+                note: 'Optional independent read-only checks. At most two. Completed children do not clear parent obligations.',
+              },
+            }
+          : {}),
         budgetRemaining: {
           actions: budget.maxActions - usage.actions,
           modelCalls: budget.maxModelCalls - usage.modelCalls,
@@ -5534,6 +5579,12 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     clearTimeout(timer)
     // Invalidate all in-flight tools before persisting the terminal report.
     if (!signal.aborted) active.abortController.abort(new Error('run-ended'))
+    try {
+      await checkTasks?.close()
+    } catch {
+      checkTaskStorageFailure = true
+      queue.requireReconciliation()
+    }
     await visualFocus?.dispose().catch(() => {})
     await closeResponses()
     await temporalInvestigator?.close()
@@ -5545,7 +5596,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     if (worker) await worker.close().catch(() => {})
     await queue.commitRun(
       runId,
-      sideEffectPending ? 'reconciliation-required' : stopReason,
+      sideEffectPending || checkTaskStorageFailure ? 'reconciliation-required' : stopReason,
       async (reason) => {
         stopReason = reason
         try {
