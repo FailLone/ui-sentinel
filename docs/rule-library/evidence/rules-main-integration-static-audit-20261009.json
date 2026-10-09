@@ -1,0 +1,845 @@
+{
+  "version": "rules-main-integration-static-audit-1",
+  "date": "2026-10-09",
+  "reviewKind": "implementer-static-self-check; not independent review",
+  "sourceRoot": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel",
+  "sourceHeadBeforeHandoff": "fae4819094f79e5e84cdafc0ebdb27a7a2080fff",
+  "targetRoot": "/Users/xietian/.codex/worktrees/r0-main-integration/ui-sentinel",
+  "targetHead": "60c315a04e30b84356381763e33dd976a3ace836",
+  "mergeBase": "60c315a04e30b84356381763e33dd976a3ace836",
+  "implementationCommit": "156ffbea3bdbeb0ee7e4a8ace0bbe56efd3d9a44",
+  "codeDeltaSinceImplementation": [],
+  "originalTaskSnapshot": {
+    "path": "docs/rule-library/evidence/rules-main-integration-current-task-before-20261009.md",
+    "bytes": 3423,
+    "sha256": "83bd7ecb3249845cb8ceda6c2c1bc1ae68a7e72b44283f749ed17b74c577d7b3"
+  },
+  "mainRoadmap": {
+    "status": " M docs/product-roadmap.md",
+    "action": "read-only fingerprint; never staged or edited",
+    "initialObservedSha256": "477540078dbe024653de4aa7cb78b913d2ac5b45cf7b94044d1339e46df0eb4f",
+    "laterObservedSha256": "c708ca535760f7eb946fdaae66047f489111454a5a846a102e387398fb2a9faa",
+    "concurrentChange": "Fingerprint changed between read-only checks while target HEAD/status stayed unchanged. No writes by this task; external edits preserved, no restoration attempted."
+  },
+  "initialUntrackedNonIgnored": [],
+  "initialIgnoredPaths": [
+    "arena/checkout/dist/",
+    "arena/checkout/node_modules",
+    "arena/export/dist/",
+    "arena/export/node_modules",
+    "data/",
+    "dist/",
+    "midscene_run/",
+    "node_modules/"
+  ],
+  "categories": {
+    "runtime-and-config": 31,
+    "delivery-docs-and-evidence": 19,
+    "knowledge-baseline": 27,
+    "historical-experiment-material": 10,
+    "tests-and-fixtures": 14,
+    "cli-and-validation-tools": 4
+  },
+  "branchDeltaFiles": [
+    {
+      "path": ".env.example",
+      "status": "M",
+      "category": "runtime-and-config",
+      "sourceBytes": 2360,
+      "sourceSha256": "72f14a3bcfa52cac66914fec4bd71c65743d8dd5cc8631f1649d19ba48813e89"
+    },
+    {
+      "path": "docs/evidence/network-dns-compat.json",
+      "status": "A",
+      "category": "delivery-docs-and-evidence",
+      "sourceBytes": 31174,
+      "sourceSha256": "727b1402bb4cedfff6004dbfee757b4b8db69083b5587d83e2118eed37121daf"
+    },
+    {
+      "path": "docs/network-dns-compat.md",
+      "status": "A",
+      "category": "delivery-docs-and-evidence",
+      "sourceBytes": 14860,
+      "sourceSha256": "4c671505dd031556905b653a6b61875766ec017a0d47211fb179259245ae594c"
+    },
+    {
+      "path": "docs/rule-library/README.md",
+      "status": "A",
+      "category": "delivery-docs-and-evidence",
+      "sourceBytes": 7090,
+      "sourceSha256": "b2a4876ad0af0e7f010e4f95e33831b7a968dfc52169d0e82a27a4a086ad542e"
+    },
+    {
+      "path": "docs/rule-library/dedup-log.md",
+      "status": "A",
+      "category": "knowledge-baseline",
+      "sourceBytes": 9814,
+      "sourceSha256": "0312bb914a5be64a0db12c5d2e14b34ad05425a9f9d63bd25d800ced61783a8e"
+    },
+    {
+      "path": "docs/rule-library/evidence/image-binding-diagnosis-20261009.json",
+      "status": "A",
+      "category": "delivery-docs-and-evidence",
+      "sourceBytes": 66553,
+      "sourceSha256": "8738cdd2d6a29f0949fa1c134bdccab906f3087af7a662441b52a31236186ec5"
+    },
+    {
+      "path": "docs/rule-library/evidence/image-binding-diagnosis-cli-sample-20261009.json",
+      "status": "A",
+      "category": "delivery-docs-and-evidence",
+      "sourceBytes": 12496,
+      "sourceSha256": "e1453d081a2bbb50b9ab182971a4c5d45568d6c113dc78b191080557cd44e607"
+    },
+    {
+      "path": "docs/rule-library/evidence/image-bindings-public-20261008.json",
+      "status": "A",
+      "category": "historical-experiment-material",
+      "sourceBytes": 14815,
+      "sourceSha256": "6ffc859afb178868d183f87296dcef4ad9d008619a03a19d4d8d70e4b86a7fd8"
+    },
+    {
+      "path": "docs/rule-library/evidence/image-bindings-public-doh-20261009.json",
+      "status": "A",
+      "category": "historical-experiment-material",
+      "sourceBytes": 137352,
+      "sourceSha256": "47fbb9596708f60a850a73e822211e22fd41d5ca4f0072fe0a599de41a9f1f14"
+    },
+    {
+      "path": "docs/rule-library/evidence/image-caret-control-20261009.json",
+      "status": "A",
+      "category": "historical-experiment-material",
+      "sourceBytes": 38121,
+      "sourceSha256": "592d79098f551494b250bac2dd4802af3e299bc627da4b0d33649a5d453cca16"
+    },
+    {
+      "path": "docs/rule-library/evidence/image-public-current-20261009.json",
+      "status": "A",
+      "category": "historical-experiment-material",
+      "sourceBytes": 20577,
+      "sourceSha256": "849d24516766d16a73bbac474bccfac99e6a97ba3a55c984391fce089a8e2ad6"
+    },
+    {
+      "path": "docs/rule-library/evidence/image-visibility-bounded-20261009.json",
+      "status": "A",
+      "category": "historical-experiment-material",
+      "sourceBytes": 135112,
+      "sourceSha256": "5a80fe22d296e7dae3ea600a2c9ea48984dd4bfb6832c3058e219f53f71d73b5"
+    },
+    {
+      "path": "docs/rule-library/evidence/rules-batch2-20261009.json",
+      "status": "A",
+      "category": "delivery-docs-and-evidence",
+      "sourceBytes": 33182,
+      "sourceSha256": "ae35f847c88004215dcd0e04c765187e1caecf4f84de82780293a3b168bfc09a"
+    },
+    {
+      "path": "docs/rule-library/evidence/rules-batch2-cli-sample-20261009.json",
+      "status": "A",
+      "category": "delivery-docs-and-evidence",
+      "sourceBytes": 7984,
+      "sourceSha256": "446fe4f0f4e338723cce52cf2b0821db7d8f7dd1aa83224c6cca53f7a78889d7"
+    },
+    {
+      "path": "docs/rule-library/evidence/rules-scan-integration-20261009.json",
+      "status": "A",
+      "category": "delivery-docs-and-evidence",
+      "sourceBytes": 58726,
+      "sourceSha256": "6e78bf4ace51e5df6818227f9f8b4b36560558addca875278be1e97fb0873ef0"
+    },
+    {
+      "path": "docs/rule-library/evidence/rules-scan-workbench-20261009.png",
+      "status": "A",
+      "category": "delivery-docs-and-evidence",
+      "sourceBytes": 156062,
+      "sourceSha256": "b7ae9acb5c4b9538e827720547e038f1b9860c58c56e2dbf7497f295644c3701"
+    },
+    {
+      "path": "docs/rule-library/image-binding-diagnosis.md",
+      "status": "A",
+      "category": "delivery-docs-and-evidence",
+      "sourceBytes": 11061,
+      "sourceSha256": "f8e148e34654d897a5eae54bf25552261613944f00aed33bf24e65ac3b5ee34e"
+    },
+    {
+      "path": "docs/rule-library/image-binding-experiment.md",
+      "status": "A",
+      "category": "delivery-docs-and-evidence",
+      "sourceBytes": 9795,
+      "sourceSha256": "3143fe26c9bd9891dda5d82e052b00a0acd42c7532a3ebe2246fa3aec7551e7a"
+    },
+    {
+      "path": "docs/rule-library/image-binding-public-doh-validation.md",
+      "status": "A",
+      "category": "historical-experiment-material",
+      "sourceBytes": 15921,
+      "sourceSha256": "5dcccb6e552b177f4abbaf4f724d100541590d40507755d0b87da6689f8f28d1"
+    },
+    {
+      "path": "docs/rule-library/image-binding-public-validation.md",
+      "status": "A",
+      "category": "historical-experiment-material",
+      "sourceBytes": 7841,
+      "sourceSha256": "bc20a2fb6f7f07ec7ca26d151789d2c0a63a30e82c4e9ad0c9b6e0290f60de92"
+    },
+    {
+      "path": "docs/rule-library/image-caret-control.md",
+      "status": "A",
+      "category": "delivery-docs-and-evidence",
+      "sourceBytes": 8263,
+      "sourceSha256": "be740c3095f025f42b2a7ff95d2ef2563aecf51de883e719b93db540025879d0"
+    },
+    {
+      "path": "docs/rule-library/image-diagnosis-current-task.md",
+      "status": "A",
+      "category": "historical-experiment-material",
+      "sourceBytes": 1778,
+      "sourceSha256": "05ba3060d67988c4d42df1ceee79bbae5e9cded1b49ec0035ae23deb9d6a93e5"
+    },
+    {
+      "path": "docs/rule-library/image-public-current-validation.md",
+      "status": "A",
+      "category": "historical-experiment-material",
+      "sourceBytes": 6471,
+      "sourceSha256": "9ff95bade124913d6611d68bf59ab1f3f5f001da40b01a76b0b6c7c638534061"
+    },
+    {
+      "path": "docs/rule-library/image-shape-candidate.md",
+      "status": "A",
+      "category": "delivery-docs-and-evidence",
+      "sourceBytes": 10114,
+      "sourceSha256": "487c04cf696d947d6f55536815d84e5d1a3be6758543cc063ca1a41539151380"
+    },
+    {
+      "path": "docs/rule-library/image-visibility-bounded.md",
+      "status": "A",
+      "category": "delivery-docs-and-evidence",
+      "sourceBytes": 11590,
+      "sourceSha256": "346d9e86d94aef8177abb96ba05266bc0e8e8b45e74a3ffa3ec5ed0158ee5de9"
+    },
+    {
+      "path": "docs/rule-library/open-questions.md",
+      "status": "A",
+      "category": "knowledge-baseline",
+      "sourceBytes": 6771,
+      "sourceSha256": "952fcb6ac2c26ac086ad4c105b11c801766f18ea2f66d908abdd8356e80fc0e5"
+    },
+    {
+      "path": "docs/rule-library/rule-catalog.md",
+      "status": "A",
+      "category": "knowledge-baseline",
+      "sourceBytes": 9173,
+      "sourceSha256": "a5855faaed5a21f4ee035eca1f4c1ef24d047668cc68ee45ff8183545bbeb8b7"
+    },
+    {
+      "path": "docs/rule-library/rules-batch2-current-task.md",
+      "status": "A",
+      "category": "historical-experiment-material",
+      "sourceBytes": 2046,
+      "sourceSha256": "a6e6d36c1c6c523a8093c95ea7cd44b980ade860ac04c1d1f34d67363789d175"
+    },
+    {
+      "path": "docs/rule-library/rules-batch2.md",
+      "status": "A",
+      "category": "delivery-docs-and-evidence",
+      "sourceBytes": 14151,
+      "sourceSha256": "d29f600f236742ed4a020e3df96df381f8c6e9e3805db4e866933e739d65dc8c"
+    },
+    {
+      "path": "docs/rule-library/rules-scan-integration-current-task.md",
+      "status": "A",
+      "category": "delivery-docs-and-evidence",
+      "sourceBytes": 2513,
+      "sourceSha256": "f6394653ce1b5a3d93909833cd7b32a79b0372b08716d8df18c9020fd421baf2"
+    },
+    {
+      "path": "docs/rule-library/rules-scan-integration.md",
+      "status": "A",
+      "category": "delivery-docs-and-evidence",
+      "sourceBytes": 10988,
+      "sourceSha256": "4f499cbaa269b182f4696fe057314f5e05604eba6375fdf948a7935a72bb8ffb"
+    },
+    {
+      "path": "docs/rule-library/rules/UIK-D001.md",
+      "status": "A",
+      "category": "knowledge-baseline",
+      "sourceBytes": 8304,
+      "sourceSha256": "fbe16061a6a4ddfca5401f63e78fac039436658392f4dab9030bf7788e2861f8"
+    },
+    {
+      "path": "docs/rule-library/rules/UIK-D002.md",
+      "status": "A",
+      "category": "knowledge-baseline",
+      "sourceBytes": 7572,
+      "sourceSha256": "a2d975f129c996f6bd9a710260b9a696fd48e3d25a38791b0fe7119fb709b72b"
+    },
+    {
+      "path": "docs/rule-library/rules/UIK-D003.md",
+      "status": "A",
+      "category": "knowledge-baseline",
+      "sourceBytes": 4872,
+      "sourceSha256": "01e2e74d675281e49fc5b91c338430e29619c42cde9b6ee9c625d356e456bab0"
+    },
+    {
+      "path": "docs/rule-library/rules/UIK-D004.md",
+      "status": "A",
+      "category": "knowledge-baseline",
+      "sourceBytes": 6895,
+      "sourceSha256": "07a8cd5fac26664ee5b7fbd7f66c6617017491bbf6ea0d55a8d7ce74a84816ee"
+    },
+    {
+      "path": "docs/rule-library/rules/UIK-D005.md",
+      "status": "A",
+      "category": "knowledge-baseline",
+      "sourceBytes": 6505,
+      "sourceSha256": "101ee7bbe5a34e20c32608602d6c7256678ab4e5e23560e2a8cdd280d42a234b"
+    },
+    {
+      "path": "docs/rule-library/rules/UIK-D006.md",
+      "status": "A",
+      "category": "knowledge-baseline",
+      "sourceBytes": 4721,
+      "sourceSha256": "88f394414447801166d9b7153b85594f6db21a24ece3bf18902bfb64f7f71792"
+    },
+    {
+      "path": "docs/rule-library/rules/UIK-D007.md",
+      "status": "A",
+      "category": "knowledge-baseline",
+      "sourceBytes": 4196,
+      "sourceSha256": "b4cb70fc4cef3f5a4aae7d0c5dbddf3c11888254e5b0665ba94604068d6139e2"
+    },
+    {
+      "path": "docs/rule-library/rules/UIK-D008.md",
+      "status": "A",
+      "category": "knowledge-baseline",
+      "sourceBytes": 5282,
+      "sourceSha256": "4b09e4df274115862c66e6900bbb3280651de30b99b0421704f6d6985cf37fdf"
+    },
+    {
+      "path": "docs/rule-library/rules/UIK-D009.md",
+      "status": "A",
+      "category": "knowledge-baseline",
+      "sourceBytes": 5126,
+      "sourceSha256": "743a7f0cb523ff7935d8ff4b31f434f7368aba5ba79a879e7f6022ded8a35907"
+    },
+    {
+      "path": "docs/rule-library/rules/UIK-D010.md",
+      "status": "A",
+      "category": "knowledge-baseline",
+      "sourceBytes": 6565,
+      "sourceSha256": "537459889f80d2d6eea5fd68c618b9291ade577fe449b316821fe97247f77329"
+    },
+    {
+      "path": "docs/rule-library/rules/UIK-D011.md",
+      "status": "A",
+      "category": "knowledge-baseline",
+      "sourceBytes": 4499,
+      "sourceSha256": "f6978c403256cb586a3e035f120f566069754ed8fbc034e9833626954b7f8537"
+    },
+    {
+      "path": "docs/rule-library/rules/UIK-R001.md",
+      "status": "A",
+      "category": "knowledge-baseline",
+      "sourceBytes": 8681,
+      "sourceSha256": "b9fa38d9df9a6cf241285b3ede6da5f31b6c0efb5667234514fb44a6f96a27ac"
+    },
+    {
+      "path": "docs/rule-library/rules/UIK-R002.md",
+      "status": "A",
+      "category": "knowledge-baseline",
+      "sourceBytes": 24182,
+      "sourceSha256": "158ab77d994a28498bc21baff75bf4e66c31cf30ab16fff4214e1d5962aecad1"
+    },
+    {
+      "path": "docs/rule-library/rules/UIK-R003.md",
+      "status": "A",
+      "category": "knowledge-baseline",
+      "sourceBytes": 34356,
+      "sourceSha256": "47ba1b487c75e2f2607bb72a6d34a5e2dcfdf7eb2da9258f82f28269cb23e316"
+    },
+    {
+      "path": "docs/rule-library/rules/UIK-R004.md",
+      "status": "A",
+      "category": "knowledge-baseline",
+      "sourceBytes": 10138,
+      "sourceSha256": "bcc0cf828c5d8505fc81f1103ce539778073b28038c475995020334946174b98"
+    },
+    {
+      "path": "docs/rule-library/rules/UIK-R005.md",
+      "status": "A",
+      "category": "knowledge-baseline",
+      "sourceBytes": 8953,
+      "sourceSha256": "9113fbad393f7bd37afee344c9df043691e14e930f1cb83411bb99959a3837cc"
+    },
+    {
+      "path": "docs/rule-library/rules/UIK-R006.md",
+      "status": "A",
+      "category": "knowledge-baseline",
+      "sourceBytes": 6472,
+      "sourceSha256": "21b0a67f281c562156e5c22af2f5640a70dc5ffe9cf396a81226eca4812e0ce8"
+    },
+    {
+      "path": "docs/rule-library/rules/UIK-R007.md",
+      "status": "A",
+      "category": "knowledge-baseline",
+      "sourceBytes": 6567,
+      "sourceSha256": "0ae3628062b1568e90880c9cd37b9882d8eb928351d975fe1edda97507f1ebe2"
+    },
+    {
+      "path": "docs/rule-library/rules/UIK-R008.md",
+      "status": "A",
+      "category": "knowledge-baseline",
+      "sourceBytes": 5504,
+      "sourceSha256": "aadf238331e0e919daff052a0649e79702a2f5b16d6f488dd2a17a1983b1aaf5"
+    },
+    {
+      "path": "docs/rule-library/rules/UIK-R009.md",
+      "status": "A",
+      "category": "knowledge-baseline",
+      "sourceBytes": 7071,
+      "sourceSha256": "a704fffd98d9bf07a2399ceab0bf90c9c42b1c72d5a8a3bd3086bbb9c14ce3bd"
+    },
+    {
+      "path": "docs/rule-library/rules/UIK-R010.md",
+      "status": "A",
+      "category": "knowledge-baseline",
+      "sourceBytes": 4726,
+      "sourceSha256": "4ac24df03b2bc380f1bb83d070f11ff727a6a3309b5b1363e51a4e49b4c41d20"
+    },
+    {
+      "path": "docs/rule-library/rules/UIK-R011.md",
+      "status": "A",
+      "category": "knowledge-baseline",
+      "sourceBytes": 5241,
+      "sourceSha256": "7861547e5c32019123f132b84c8821b702fd1a2fdae662450e34125469161505"
+    },
+    {
+      "path": "docs/rule-library/rules/UIK-R012.md",
+      "status": "A",
+      "category": "knowledge-baseline",
+      "sourceBytes": 4496,
+      "sourceSha256": "68f176470d9701537c142e41258bfa73ef9cff4b27a6c7bbc262232340793fc6"
+    },
+    {
+      "path": "docs/rule-library/ticket-mapping.md",
+      "status": "A",
+      "category": "knowledge-baseline",
+      "sourceBytes": 383000,
+      "sourceSha256": "c9e21070abe29f61b10623c092c842af7978493be723fceb5f1fbe2d5ad84e16"
+    },
+    {
+      "path": "docs/rules-and-rule-library.md",
+      "status": "M",
+      "category": "delivery-docs-and-evidence",
+      "sourceBytes": 8785,
+      "sourceSha256": "f7e04d829589a26f48cd962dbf44d5c7bb3e6f6b674d9ed59b80aed30d7d1ec4"
+    },
+    {
+      "path": "evaluation/fixtures/image-shape.ts",
+      "status": "A",
+      "category": "tests-and-fixtures",
+      "sourceBytes": 2440,
+      "sourceSha256": "06df27a2172685259f76533d69f2e71f148115d55023bdca52eaaacd8b120daa"
+    },
+    {
+      "path": "package.json",
+      "status": "M",
+      "category": "runtime-and-config",
+      "sourceBytes": 2452,
+      "sourceSha256": "6e718e6f750d5f8e879ea7b4ed5ad029554cc331c35cd86e0b6c20ff71f0022c"
+    },
+    {
+      "path": "plans/network-dns-compat-handoff.md",
+      "status": "A",
+      "category": "delivery-docs-and-evidence",
+      "sourceBytes": 15930,
+      "sourceSha256": "cc73c5f1886ef5af6691a236ae909a27bd12288a459225f38e3eb21e4c0598c1"
+    },
+    {
+      "path": "pnpm-lock.yaml",
+      "status": "M",
+      "category": "runtime-and-config",
+      "sourceBytes": 196647,
+      "sourceSha256": "917980b6c33a6475a027ddc66920d33293d6499d2b8134fca31a69f5f6e284da"
+    },
+    {
+      "path": "scripts/experiments/image-bindings.ts",
+      "status": "A",
+      "category": "cli-and-validation-tools",
+      "sourceBytes": 4606,
+      "sourceSha256": "87ae9c9b4511932d44ac4c01ad5c93ef4c3ba68c761e8e772c12002e51a9bb06"
+    },
+    {
+      "path": "scripts/experiments/rules-batch2.ts",
+      "status": "A",
+      "category": "cli-and-validation-tools",
+      "sourceBytes": 2088,
+      "sourceSha256": "5b8acd6de0b7a74ce85ef6bfc8ca9b042a639e6863570d990ed753a57b66b8b3"
+    },
+    {
+      "path": "scripts/validation/network-dns-public.ts",
+      "status": "A",
+      "category": "cli-and-validation-tools",
+      "sourceBytes": 4198,
+      "sourceSha256": "ce6ee19dc17bbb35c4e9955c7ac5382915b36fe155c3091ef1b6b43f21ad6bb7"
+    },
+    {
+      "path": "scripts/validation/rules-scan-integration.ts",
+      "status": "A",
+      "category": "cli-and-validation-tools",
+      "sourceBytes": 12069,
+      "sourceSha256": "dd970d34d4f5b98067d774082386e8db831e4bc1e1fb9693918d5857fbaf9c4b"
+    },
+    {
+      "path": "src/execution/browser.ts",
+      "status": "M",
+      "category": "runtime-and-config",
+      "sourceBytes": 15740,
+      "sourceSha256": "3d67f02fd9e49214406e66eaa0162a94198385ccfb326dc2050e802a1dd4e5b8"
+    },
+    {
+      "path": "src/execution/executor.test.ts",
+      "status": "M",
+      "category": "tests-and-fixtures",
+      "sourceBytes": 118772,
+      "sourceSha256": "2ea9eac6ea3bc831d09e81db6360ade1be182dde91f1112b102476270119b02e"
+    },
+    {
+      "path": "src/execution/executor.ts",
+      "status": "M",
+      "category": "runtime-and-config",
+      "sourceBytes": 229846,
+      "sourceSha256": "31b6d04f6a164230a65e4763d0837505c31a2a40e0cefeae49383d7ac6196b02"
+    },
+    {
+      "path": "src/execution/image-paint.test.ts",
+      "status": "A",
+      "category": "tests-and-fixtures",
+      "sourceBytes": 12865,
+      "sourceSha256": "c276371ffae7d1543c103739f61a16b7fb2a96fc9184f1372304f1c614d8cb56"
+    },
+    {
+      "path": "src/execution/image-paint.ts",
+      "status": "A",
+      "category": "runtime-and-config",
+      "sourceBytes": 16026,
+      "sourceSha256": "33e0f932435f088d4dcc1591c67a05a75c78cb79b0ef4c46997d485f5870bf6f"
+    },
+    {
+      "path": "src/execution/image-request-observer.ts",
+      "status": "A",
+      "category": "runtime-and-config",
+      "sourceBytes": 1624,
+      "sourceSha256": "c55b97faeabcca14c0f23052bf2675588741f6f971372eec11ccbda1da1287d1"
+    },
+    {
+      "path": "src/execution/image-visibility.test.ts",
+      "status": "A",
+      "category": "tests-and-fixtures",
+      "sourceBytes": 12270,
+      "sourceSha256": "b8797e5fd22afeb4f2d37c3c029560bc0028ede629b3d67fd5751e7435653f25"
+    },
+    {
+      "path": "src/execution/interaction-verification.test.ts",
+      "status": "M",
+      "category": "tests-and-fixtures",
+      "sourceBytes": 8407,
+      "sourceSha256": "3a12df2e69d2e69449ba24cd12df8a8c88bbbfe7bcbf70c7ccf70136ae3a21d9"
+    },
+    {
+      "path": "src/execution/network/boundary-dns.test.ts",
+      "status": "A",
+      "category": "tests-and-fixtures",
+      "sourceBytes": 1946,
+      "sourceSha256": "2f3c16222ef366cf35480544ec1e8f79212a91193c5af7fe69762716981da0f8"
+    },
+    {
+      "path": "src/execution/network/boundary.ts",
+      "status": "M",
+      "category": "runtime-and-config",
+      "sourceBytes": 14292,
+      "sourceSha256": "b19fdd1f50ae89917cd01dd05c2463eb22b675c528fbcd50d621ff472f22bd54"
+    },
+    {
+      "path": "src/execution/network/resolver.test.ts",
+      "status": "A",
+      "category": "tests-and-fixtures",
+      "sourceBytes": 11997,
+      "sourceSha256": "389d97335b11de00f64e2d9d6dcb8360dc6488c75d2162f65f8499ea71a2946d"
+    },
+    {
+      "path": "src/execution/network/resolver.ts",
+      "status": "A",
+      "category": "runtime-and-config",
+      "sourceBytes": 6181,
+      "sourceSha256": "932ab7c3ad08520dc286efae48a8ead525f83758f5f01b2c7fd89c9193b0ccdf"
+    },
+    {
+      "path": "src/execution/network/session-dns.test.ts",
+      "status": "A",
+      "category": "tests-and-fixtures",
+      "sourceBytes": 5013,
+      "sourceSha256": "e39186ffc74ab050f0de7cd22a592c727af5f75986b68e93f2d15eb6313dc764"
+    },
+    {
+      "path": "src/execution/network/session.ts",
+      "status": "M",
+      "category": "runtime-and-config",
+      "sourceBytes": 13039,
+      "sourceSha256": "983ba0c5358d7033ce51a18ad006bc53e58f1d4dff99b08f32fb26d92e017eec"
+    },
+    {
+      "path": "src/execution/network/transport.ts",
+      "status": "M",
+      "category": "runtime-and-config",
+      "sourceBytes": 6346,
+      "sourceSha256": "6cf2fa39e4b3bcb0cd30f2dd1604bfe9c95cba85ee55d844f3342448d2109217"
+    },
+    {
+      "path": "src/execution/ui-rule-integration.test.ts",
+      "status": "A",
+      "category": "tests-and-fixtures",
+      "sourceBytes": 2691,
+      "sourceSha256": "6fb62025d0020fd146339073aaf61632fd77204c02238e5bbe6533e020938ad3"
+    },
+    {
+      "path": "src/execution/ui-rule-observation.ts",
+      "status": "A",
+      "category": "runtime-and-config",
+      "sourceBytes": 9639,
+      "sourceSha256": "1b8a1440539b046434a68d817092cef7e8654ed663cea9229914541228b2e7f1"
+    },
+    {
+      "path": "src/experiments/batch2-facts.ts",
+      "status": "A",
+      "category": "runtime-and-config",
+      "sourceBytes": 21264,
+      "sourceSha256": "3859e24c5ca2709be5679f1f18627ca0bb9fec27473bd8ad8f910bbe5d06b5c3"
+    },
+    {
+      "path": "src/experiments/image-binding-host.ts",
+      "status": "A",
+      "category": "runtime-and-config",
+      "sourceBytes": 4600,
+      "sourceSha256": "bdcaab0c945b9a0f31d6d41ebbd26483dd3f7bddaed33f9bae1f585b4bd1bf62"
+    },
+    {
+      "path": "src/experiments/image-bindings.test.ts",
+      "status": "A",
+      "category": "tests-and-fixtures",
+      "sourceBytes": 32895,
+      "sourceSha256": "bd5cda1c419c5b30eb57098d8d7912c335c77963cc412bb02f9a782b0e2deb2a"
+    },
+    {
+      "path": "src/experiments/image-bindings.ts",
+      "status": "A",
+      "category": "runtime-and-config",
+      "sourceBytes": 31132,
+      "sourceSha256": "5fd24acc9c273f1df036aa161a88a0f5dbab3407a8031e647940dcdb74fbbfae"
+    },
+    {
+      "path": "src/experiments/image-fallback-review.ts",
+      "status": "A",
+      "category": "runtime-and-config",
+      "sourceBytes": 4587,
+      "sourceSha256": "de905f633554c1915904e39b68a928605f2daa691ce47a279ae7a9c5b7ffb21c"
+    },
+    {
+      "path": "src/experiments/rules-batch2-host.ts",
+      "status": "A",
+      "category": "runtime-and-config",
+      "sourceBytes": 4389,
+      "sourceSha256": "2dde13c3b6d35544664b00e58b654a79a93ceb84ec1d477bf6899f49ae2bf198"
+    },
+    {
+      "path": "src/experiments/rules-batch2.test.ts",
+      "status": "A",
+      "category": "tests-and-fixtures",
+      "sourceBytes": 17465,
+      "sourceSha256": "b183a52e50256615f312eeca6674b63d8fe3237b6f6ef62e72d4f392d605968c"
+    },
+    {
+      "path": "src/experiments/rules-batch2.ts",
+      "status": "A",
+      "category": "runtime-and-config",
+      "sourceBytes": 8378,
+      "sourceSha256": "2a18b1aecee8d7002925a0f5b3968193438e743bf0c60ea17d95f14465584207"
+    },
+    {
+      "path": "src/rules/builtin/control-text-disappearance.ts",
+      "status": "A",
+      "category": "runtime-and-config",
+      "sourceBytes": 5489,
+      "sourceSha256": "f597a49bb32079fe3e109540726d037b930f55329d538fca8f4e866529d0c54c"
+    },
+    {
+      "path": "src/rules/builtin/image-shape-distortion.ts",
+      "status": "A",
+      "category": "runtime-and-config",
+      "sourceBytes": 7375,
+      "sourceSha256": "4706c7dfebf599013c285d0cfe491da57c9b0009aa2890c781cba33631ec66aa"
+    },
+    {
+      "path": "src/rules/builtin/index.ts",
+      "status": "M",
+      "category": "runtime-and-config",
+      "sourceBytes": 910,
+      "sourceSha256": "4f02306cc1e022d68b4b0f3d828e136a46f82f5b83ccf467e9761d7dabb23316"
+    },
+    {
+      "path": "src/rules/engine.test.ts",
+      "status": "M",
+      "category": "tests-and-fixtures",
+      "sourceBytes": 6998,
+      "sourceSha256": "4bc7cc5d7c0d4219eeb65b52e71c0dd404a8a43816669e55920f70a6e47ef707"
+    },
+    {
+      "path": "src/rules/image-shape.ts",
+      "status": "A",
+      "category": "runtime-and-config",
+      "sourceBytes": 1763,
+      "sourceSha256": "c7c32b01234f42c5c7c70d6a27ae4208a3aae780af3b7c2fcdeeb296b0b489d1"
+    },
+    {
+      "path": "src/rules/routing.ts",
+      "status": "M",
+      "category": "runtime-and-config",
+      "sourceBytes": 3890,
+      "sourceSha256": "20d6ee9325e974d96b9d44a097b132f1129528f18fe7147a8e1d630f120ea620"
+    },
+    {
+      "path": "src/rules/types.ts",
+      "status": "M",
+      "category": "runtime-and-config",
+      "sourceBytes": 3997,
+      "sourceSha256": "35ce49d08bf189f7aa0a0960d45e3474db87f30458ffdb03d1a7c962755792f9"
+    },
+    {
+      "path": "src/server/reports/run-report.ts",
+      "status": "M",
+      "category": "runtime-and-config",
+      "sourceBytes": 21399,
+      "sourceSha256": "16ebd583c5046413a503484be923dd0d06404f42278c68f09ba1d3f10e1a9999"
+    },
+    {
+      "path": "src/server/reports/ui-rule-report.ts",
+      "status": "A",
+      "category": "runtime-and-config",
+      "sourceBytes": 2361,
+      "sourceSha256": "6bc5c4ba05fd2de99e26013b2334827c315b41b3bd4a5d9eb06de5a6f23d465b"
+    },
+    {
+      "path": "src/server/routes/ui-scan-address.test.ts",
+      "status": "A",
+      "category": "tests-and-fixtures",
+      "sourceBytes": 874,
+      "sourceSha256": "033e922d59d3e4c518cd98251b960a4266cce7807e8cdc2f33df3594ec60a66d"
+    },
+    {
+      "path": "src/server/routes/ui-scan-address.ts",
+      "status": "M",
+      "category": "runtime-and-config",
+      "sourceBytes": 721,
+      "sourceSha256": "73d6a1ac8c242df2f48a9a0fb227e8a1fea9c0464ea72ca468fd517f96965d1b"
+    },
+    {
+      "path": "src/server/routes/ui-scan-runs.test.ts",
+      "status": "M",
+      "category": "tests-and-fixtures",
+      "sourceBytes": 10475,
+      "sourceSha256": "d81a07d45f6193ced660a40eddf6a40fcf2015783d6aca6802bef1460d3952fa"
+    },
+    {
+      "path": "src/shared/config.ts",
+      "status": "M",
+      "category": "runtime-and-config",
+      "sourceBytes": 5463,
+      "sourceSha256": "b145cd09e5876787316b3a57e010647d52be8d48adbc959bd73700424d74f552"
+    },
+    {
+      "path": "src/shared/dns-config.ts",
+      "status": "A",
+      "category": "runtime-and-config",
+      "sourceBytes": 2124,
+      "sourceSha256": "fc098bfdb2b7b5bb85269d1e5431e150096581e8c1a9c1c9915dbd5416d79f67"
+    },
+    {
+      "path": "src/web/main.tsx",
+      "status": "M",
+      "category": "runtime-and-config",
+      "sourceBytes": 31089,
+      "sourceSha256": "6914613acbc993439acc8f7ca4c6ec4a5b483ec0a1d7e052e9293a0139e39081"
+    },
+    {
+      "path": "src/web/ui-rule-report.tsx",
+      "status": "A",
+      "category": "runtime-and-config",
+      "sourceBytes": 6757,
+      "sourceSha256": "b9c6bc57bc100358908bfea390f092c262a43eff3ee3836af319297af37ac4df"
+    }
+  ],
+  "evidenceHashChecks": [
+    {
+      "index": "docs/rule-library/evidence/rules-scan-integration-20261009.json",
+      "section": "sourceIdentity",
+      "entriesChecked": 9,
+      "issues": []
+    },
+    {
+      "index": "docs/rule-library/evidence/rules-scan-integration-20261009.json",
+      "section": "buildIdentity",
+      "entriesChecked": 5,
+      "issues": []
+    },
+    {
+      "index": "docs/rule-library/evidence/rules-scan-integration-20261009.json",
+      "section": "localFiles",
+      "entriesChecked": 155,
+      "issues": []
+    },
+    {
+      "index": "docs/rule-library/evidence/rules-scan-integration-20261009.json",
+      "section": "logs",
+      "entriesChecked": 4,
+      "issues": []
+    },
+    {
+      "index": "docs/rule-library/evidence/rules-batch2-20261009.json",
+      "section": "sourceIdentity",
+      "entriesChecked": 8,
+      "issues": []
+    },
+    {
+      "index": "docs/rule-library/evidence/rules-batch2-20261009.json",
+      "section": "finalLocalFiles",
+      "entriesChecked": 52,
+      "issues": []
+    },
+    {
+      "index": "docs/rule-library/evidence/rules-batch2-20261009.json",
+      "section": "logFiles",
+      "entriesChecked": 9,
+      "issues": []
+    },
+    {
+      "index": "docs/rule-library/evidence/image-binding-diagnosis-20261009.json",
+      "section": "sourceIdentity",
+      "entriesChecked": 4,
+      "issues": []
+    },
+    {
+      "index": "docs/rule-library/evidence/image-binding-diagnosis-20261009.json",
+      "section": "localFiles",
+      "entriesChecked": 83,
+      "issues": []
+    }
+  ],
+  "executionThisTask": {
+    "tests": 0,
+    "builds": 0,
+    "browsers": 0,
+    "publicRequests": 0,
+    "modelCalls": 0,
+    "mergeOrPush": false
+  },
+  "scopeNote": "File inventory is the complete committed main..fae4819 delta before this documentation-only handoff. No runtime claims for ignored outputs; paths in older indexes resolve relative to sourceRoot. Existing evidence counts overlap and must not be added as unique files/tests."
+}

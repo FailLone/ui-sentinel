@@ -15,6 +15,8 @@
 
 ## 文件与维护入口
 
+- [main 整合交接](rules-main-integration-handoff.md)：完整分支依赖、自检、证据范围及整合/回退步骤；[当前唯一任务入口](rules-scan-integration-current-task.md)已完成并停止。
+
 - [D005/R005 普通网址扫描接入](rules-scan-integration.md)：本独立候选的已开启 ui-scan 默认参与，工作台直接展示；不等于 main 已上线。
 
 - [第二批 D005/R005](rules-batch2.md)：原生文字消失检查与缺图替代表达审查，独立默认关闭入口及证据。
