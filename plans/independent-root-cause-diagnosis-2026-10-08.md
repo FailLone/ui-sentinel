@@ -1,5 +1,7 @@
 # UI Sentinel 历史提效与 R0 失败的独立诊断
 
+> 历史诊断，原文精确副本保存在提交8e8c07a。本次集成仅将三条ignored data链接显式指向保留的本机原材料；Git不包含这些大文件。当前状态见[R0最终交付](../docs/r0-delivery.md)。
+
 2026-10-08，第一轮，只依据既有 Git、代码和本地产物。基准为 `08acc95` 的真实诊断；不采用正在修改的 R0/R1 文件或新导出的决策状态。未运行测试、验收、浏览器或付费模型，未改产品、Roadmap、评分器和历史结果。
 
 **结论：历史优化解决了有明确命题的原子调查，以及证据充分后的业务阻断收尾；R0 的主要耗时发生在这些能力之前——把必须检查的控件转成可执行、可验证的下一步。** 原始输入支持“验证选择困难、局部事实交付损失和预算调度共同作用”，尚不支持单一模型能力、上下文丢失或架构回归的归因。维护交接中的“义务调度稳定性不足”可以描述结果，不能单独解释机制。
@@ -47,7 +49,7 @@
 
 两失败行全部工具回执为 success，没有参数拒绝或工具超时。三行工具耗时合计分别 625/841/305ms，模型网关请求合计 118.389/255.309/267.986 秒，运行总时长 119.912/256.889/269.953 秒，约 99% 在模型请求区间。这包含生成、服务及传输，不能全部叫“思考时间”。三行均无 `remaining-obligation-guidance`，也无达到三次连续无进展的 `run:no-progress` 事件；现有提醒未能在这些现场介入。新 DOM 事实可以构成进展，义务却仍未推进；它是保护触发口径的局限线索，不是已证明的计数 bug。
 
-第 3 行 timeout 后仍发出一次自动重试，违反本批 unknown 优先停止要求；这是独立的请求准入缺口。它扩大了这行耗时并造成批次停止，但不能解释重试前已有约 150 秒的只读轨迹，更不能解释健康第 2 行。[既有停止证据](../data/r0-08acc95-resume/unknown-stop-gap.json)
+第 3 行 timeout 后仍发出一次自动重试，违反本批 unknown 优先停止要求；这是独立的请求准入缺口。它扩大了这行耗时并造成批次停止，但不能解释重试前已有约 150 秒的只读轨迹，更不能解释健康第 2 行。[既有停止证据](/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-08acc95-resume/unknown-stop-gap.json)
 
 ## 按证据强弱排序的根因假设
 
@@ -86,7 +88,7 @@
 
 ## 复核定位
 
-- H：[D8 原始目录](../data/oss-compare/2026-09-24T10-14-38-366Z/)。`requests.jsonl` 第16/20/47/48行对应上述 Jev、基线、原子调查和结束节点；`responses.jsonl`、`ledger.jsonl` 按 run+seq 连接。请求文件 SHA256：`fee4072233ab5b34728fff3edc5e0b0765660784b5687788e8d2383d9dd893da`。
+- H：[D8 原始目录](/Users/xietian/Documents/ChatGPT/ui-sentinel/data/oss-compare/2026-09-24T10-14-38-366Z/)。`requests.jsonl` 第16/20/47/48行对应上述 Jev、基线、原子调查和结束节点；`responses.jsonl`、`ledger.jsonl` 按 run+seq 连接。请求文件 SHA256：`fee4072233ab5b34728fff3edc5e0b0765660784b5687788e8d2383d9dd893da`。
 - 历史扩展材料：`data/oss-compare/2026-09-24T05-29-48-781Z`、`06-29-30-605Z`、`06-59-24-059Z`、`10-41-01-941Z`（后三者同为2026-09-24日期前缀）；`data/jev-replay/2026-09-24T09-50-57-535Z`；`data/acceptance/2026-09-24T10-49-59-321Z`；`data/learning/2026-09-24T10-57-41-736Z`。汇总结论以 `48419bc` 历史文档为索引，不将所有历史批次宣称为本轮逐事件再审。
-- R：[原始批次](../data/r0-08acc95-resume/candidate/data/r0-url-campaign/r0-ui-diagnostic-08acc95-default3-01/)。请求第4/12/16/17/23/24行对应当前代表节点；三行 `runs.db` 的 `run_events` 是工具时序及结束依据。请求文件 SHA256：`1723f5b51c0fd7da1c583c110e66bbdf0f88279cfe42c57e80e1db0527f82826`。现成原始包 SHA256：`8fdf7d074e6473656a3dc429e2d5d2134130ca7441f798eaf22e9f3cdb2cd7eb`。
+- R：[原始批次](/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-08acc95-resume/candidate/data/r0-url-campaign/r0-ui-diagnostic-08acc95-default3-01/)。请求第4/12/16/17/23/24行对应当前代表节点；三行 `runs.db` 的 `run_events` 是工具时序及结束依据。请求文件 SHA256：`1723f5b51c0fd7da1c583c110e66bbdf0f88279cfe42c57e80e1db0527f82826`。现成原始包 SHA256：`8fdf7d074e6473656a3dc429e2d5d2134130ca7441f798eaf22e9f3cdb2cd7eb`。
 - 代码均以 `git show 08acc95:<path>` 为准：`src/agent/policy.ts` 的 uiScanPolicy；`src/agent/context/decision-memory.ts` 的 receipt/decisionMemory；`src/execution/executor.ts` 的 UI 收尾、Jev eligibility 和 progressFacts；`src/execution/run-phase.ts` 的60秒预留。历史记忆对照为 `e2fdcf5:src/execution/decision-memory.ts`，路径重组不代表机制新增。
