@@ -124,21 +124,32 @@ export function semanticCompetition(f: PublicFrame) {
 /** Online pilot only: never spend Jev on a unique explicit public target or effect obligation. */
 export function onlinePriority(f: PublicFrame) {
   const ids = [...rankCandidates(f.input).orderedCandidateIds]
-  const quoted = [...f.input.task.goal.matchAll(/"([^"]+)"/g)].map(m => m[1].toLowerCase())
+  const quoted = [...f.input.task.goal.matchAll(/"([^"]+)"/g)].map((m) => m[1].toLowerCase())
   const priority = (id: string) => {
-    const c = f.input.candidates.find(c => c.id === id)!
+    const c = f.input.candidates.find((c) => c.id === id)!
     const checks = f.facts.inspectionScope?.checks?.find((x: any) => x.itemId === id)?.checks
-    return (quoted.includes(c.text.toLowerCase()) ? 10 : 0) +
-      (checks?.effects?.some((e: any) => !e.late && ['pending', 'unverified'].includes(e.state)) ? 1 : 0)
+    return (
+      (quoted.includes(c.text.toLowerCase()) ? 10 : 0) +
+      (checks?.effects?.some((e: any) => !e.late && ['pending', 'unverified'].includes(e.state))
+        ? 1
+        : 0)
+    )
   }
   ids.sort((a, b) => priority(b) - priority(a))
-  const ambiguity = ids.length > 1 && priority(ids[0]) === priority(ids[1]) &&
-    new Set(f.input.candidates.map(c => c.text)).size > 1 &&
+  const ambiguity =
+    ids.length > 1 &&
+    priority(ids[0]) === priority(ids[1]) &&
+    new Set(f.input.candidates.map((c) => c.text)).size > 1 &&
     Boolean(f.facts.observation?.pageText || f.facts.observation?.a11yTree)
   return { ids, ambiguity }
 }
 export function createControlledHost(
-  options: { score?: Score; onFrame?: (frame: PublicFrame) => void; maxSteps?: number; onlinePolicy?: boolean } = {},
+  options: {
+    score?: Score
+    onFrame?: (frame: PublicFrame) => void
+    maxSteps?: number
+    onlinePolicy?: boolean
+  } = {},
 ): ExperimentalHost {
   const dispatched = new Set<string>(),
     selectionAttempted = new Set<string>(),
