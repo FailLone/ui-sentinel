@@ -98,3 +98,7 @@ pnpm exec biome format src/experiments scripts/experiments
 2026-10-08 实际结果：新增场景 **9/9**，复用第一轮绘制测试 **31/31**，合计 **40/40** 通过；类型检查、4 个新增 TypeScript 文件的 Biome 格式检查和 `git diff --check` 通过。未调用模型，未运行无关全量验收。
 
 本地额外保留了实际生成的合成输出 `data/experiments/image-bindings-round2/candidates.json` 与 `manifest.json`（未纳入 Git）；单张静态 PNG 的机器字段均已自动取得，缺项恰为 intent 和 basis 的三个字段，图片只请求一次。会话已关闭，输出是历史样本，不能作为活绑定；确认人仍为 null，没有生成语义判错或原 Jira 复现声明。
+
+## 无语义声明的诊断补充（2026-10-09）
+
+现已提供独立 `diagnose <candidateId>` / `host.diagnose({ candidateId, observationId })`，在同一开放会话中分开查看机器绑定、网络、证据与缺失语义依据。它不生成合同或规则结果，不替换候选，也不绕过普通 check。使用、六项实际场景和完整边界统一见 [本轮诊断交付](image-binding-diagnosis.md)。

@@ -1,0 +1,358 @@
+{
+  "version": "image-binding-diagnosis-1",
+  "runId": "run-86a33a61-ca78-4134-b0b4-975646aa3882",
+  "diagnosticId": "image-diagnosis-71a3add7-ef94-4b4d-b2e6-1cc49d1a741e",
+  "diagnosticObservationId": "image-diagnostic-observation-244a223c-4684-43e5-9d7a-ad3a9cade479",
+  "observedAt": "2026-10-09T06:12:19.096Z",
+  "request": {
+    "candidateId": "image-f9b1e17a-eec3-4987-acdb-267da4f26d77",
+    "observationId": "image-observation-0ec318ef-a163-4c64-b695-69bef5abdbf9"
+  },
+  "sourceCandidate": {
+    "candidateId": "image-f9b1e17a-eec3-4987-acdb-267da4f26d77",
+    "observationId": "image-observation-0ec318ef-a163-4c64-b695-69bef5abdbf9",
+    "artifactRef": "807b50c8-38c5-497d-b802-ad0d81dc8a14.json",
+    "status": "facts-ready",
+    "expiresAt": "2026-10-09T06:17:19.063Z"
+  },
+  "lifecycle": {
+    "candidateReplaced": false,
+    "confirmationTransferred": false,
+    "newCandidateId": null,
+    "freshReadPerformed": true
+  },
+  "sections": {
+    "identity": {
+      "status": "available",
+      "reasons": [],
+      "evidenceRefs": [
+        "807b50c8-38c5-497d-b802-ad0d81dc8a14.json",
+        "33eedd13-1e34-4cc0-b858-4453f553e47a.png",
+        "021174f7-d57a-49a8-8a6c-cdf9f17ef611.json",
+        "c39bb27b-3033-431a-819b-19db109e12b9.json",
+        "15e222a7-c995-4fd2-9ecb-13f52d74eeea.png",
+        "2528d3c5-b17c-418a-89b0-ae84363fc475.json",
+        "39da3553-7f73-4185-b5d8-68070db369bd.json"
+      ],
+      "facts": {
+        "sameTargetBefore": true,
+        "sameTargetAfter": true,
+        "source": {
+          "nodeId": 1,
+          "documentId": "0.5dx31hb95oi",
+          "selector": "#mark"
+        },
+        "current": {
+          "nodeId": 1,
+          "documentId": "0.5dx31hb95oi",
+          "selector": "#mark",
+          "matchCount": 1
+        }
+      }
+    },
+    "resource": {
+      "status": "available",
+      "reasons": [],
+      "evidenceRefs": [
+        "807b50c8-38c5-497d-b802-ad0d81dc8a14.json",
+        "33eedd13-1e34-4cc0-b858-4453f553e47a.png",
+        "021174f7-d57a-49a8-8a6c-cdf9f17ef611.json",
+        "c39bb27b-3033-431a-819b-19db109e12b9.json",
+        "15e222a7-c995-4fd2-9ecb-13f52d74eeea.png",
+        "2528d3c5-b17c-418a-89b0-ae84363fc475.json",
+        "39da3553-7f73-4185-b5d8-68070db369bd.json"
+      ],
+      "facts": {
+        "source": {
+          "id": "image-f9b1e17a-eec3-4987-acdb-267da4f26d77",
+          "pageUrl": "http://127.0.0.1:59519/page",
+          "viewport": {
+            "width": 1280,
+            "height": 768
+          },
+          "selector": "#mark",
+          "resourceUrl": "http://127.0.0.1:59519/image.png",
+          "resourceSha256": "05b0ec210e1eeebf0f1b77a97c8e3ab187b0d38bf4270485560a9726f2078eba"
+        },
+        "current": {
+          "url": "http://127.0.0.1:59519/image.png",
+          "resource": {
+            "sha256": "05b0ec210e1eeebf0f1b77a97c8e3ab187b0d38bf4270485560a9726f2078eba",
+            "format": "png",
+            "evidenceRef": "39da3553-7f73-4185-b5d8-68070db369bd.json"
+          },
+          "complete": true,
+          "decoded": true
+        },
+        "matchesSource": true
+      }
+    },
+    "paint": {
+      "status": "available",
+      "reasons": [],
+      "evidenceRefs": [
+        "807b50c8-38c5-497d-b802-ad0d81dc8a14.json",
+        "33eedd13-1e34-4cc0-b858-4453f553e47a.png",
+        "021174f7-d57a-49a8-8a6c-cdf9f17ef611.json",
+        "c39bb27b-3033-431a-819b-19db109e12b9.json",
+        "15e222a7-c995-4fd2-9ecb-13f52d74eeea.png",
+        "2528d3c5-b17c-418a-89b0-ae84363fc475.json",
+        "39da3553-7f73-4185-b5d8-68070db369bd.json"
+      ],
+      "facts": {
+        "current": {
+          "selector": "#mark",
+          "matchCount": 1,
+          "visibilityScan": {
+            "version": "bounded-layers-1",
+            "complete": true,
+            "visited": 8,
+            "rectangleReads": 8,
+            "candidates": 3,
+            "intersectionChecks": 6
+          },
+          "documentId": "0.5dx31hb95oi",
+          "mutationEpoch": 0,
+          "decoded": true,
+          "nodeId": 1,
+          "currentSrc": "http://127.0.0.1:59519/image.png",
+          "complete": true,
+          "naturalWidth": 120,
+          "naturalHeight": 60,
+          "contentWidth": 240,
+          "contentHeight": 60,
+          "objectFit": "fill",
+          "objectPosition": "50% 50%",
+          "bounds": {
+            "x": 38,
+            "y": 30,
+            "width": 240,
+            "height": 60
+          },
+          "matrix": [
+            1,
+            0,
+            0,
+            1
+          ],
+          "unsupported": [],
+          "stable": true,
+          "resource": {
+            "sha256": "05b0ec210e1eeebf0f1b77a97c8e3ab187b0d38bf4270485560a9726f2078eba",
+            "format": "png",
+            "evidenceRef": "39da3553-7f73-4185-b5d8-68070db369bd.json"
+          }
+        },
+        "source": {
+          "selector": "#mark",
+          "matchCount": 1,
+          "visibilityScan": {
+            "version": "bounded-layers-1",
+            "complete": true,
+            "visited": 8,
+            "rectangleReads": 8,
+            "candidates": 3,
+            "intersectionChecks": 6
+          },
+          "documentId": "0.5dx31hb95oi",
+          "mutationEpoch": 0,
+          "decoded": true,
+          "nodeId": 1,
+          "currentSrc": "http://127.0.0.1:59519/image.png",
+          "complete": true,
+          "naturalWidth": 120,
+          "naturalHeight": 60,
+          "contentWidth": 240,
+          "contentHeight": 60,
+          "objectFit": "fill",
+          "objectPosition": "50% 50%",
+          "bounds": {
+            "x": 38,
+            "y": 30,
+            "width": 240,
+            "height": 60
+          },
+          "matrix": [
+            1,
+            0,
+            0,
+            1
+          ],
+          "unsupported": [],
+          "stable": true,
+          "resource": {
+            "sha256": "05b0ec210e1eeebf0f1b77a97c8e3ab187b0d38bf4270485560a9726f2078eba",
+            "format": "png",
+            "evidenceRef": "c39bb27b-3033-431a-819b-19db109e12b9.json"
+          }
+        },
+        "unmodifiedPageEstablished": true
+      }
+    },
+    "evidence": {
+      "status": "available",
+      "reasons": [],
+      "evidenceRefs": [
+        "807b50c8-38c5-497d-b802-ad0d81dc8a14.json",
+        "33eedd13-1e34-4cc0-b858-4453f553e47a.png",
+        "021174f7-d57a-49a8-8a6c-cdf9f17ef611.json",
+        "c39bb27b-3033-431a-819b-19db109e12b9.json",
+        "15e222a7-c995-4fd2-9ecb-13f52d74eeea.png",
+        "2528d3c5-b17c-418a-89b0-ae84363fc475.json",
+        "39da3553-7f73-4185-b5d8-68070db369bd.json"
+      ],
+      "facts": {
+        "expired": false,
+        "originalArtifactChecks": [
+          {
+            "ref": "807b50c8-38c5-497d-b802-ad0d81dc8a14.json",
+            "expectedSha256": "98ab988238cc5458fb3a8f4f8f84ae15f0e5e667b2a4ee83332b2632d71f168c",
+            "actualSha256": "98ab988238cc5458fb3a8f4f8f84ae15f0e5e667b2a4ee83332b2632d71f168c"
+          },
+          {
+            "ref": "33eedd13-1e34-4cc0-b858-4453f553e47a.png",
+            "expectedSha256": "42ea10952151e940e3d1773fc341656f8b46584ca5c5a0fa0c010059d8b9affa",
+            "actualSha256": "42ea10952151e940e3d1773fc341656f8b46584ca5c5a0fa0c010059d8b9affa"
+          },
+          {
+            "ref": "021174f7-d57a-49a8-8a6c-cdf9f17ef611.json",
+            "expectedSha256": "9cf2235356ca68450bf6732243628dc8f1bb76602da873e6416ef1fa48f16710",
+            "actualSha256": "9cf2235356ca68450bf6732243628dc8f1bb76602da873e6416ef1fa48f16710"
+          },
+          {
+            "ref": "c39bb27b-3033-431a-819b-19db109e12b9.json",
+            "expectedSha256": "4d82c2efe35a3fcc1ec88449484cc420aa11b6afc96448a8ca26efa35ea24bda",
+            "actualSha256": "4d82c2efe35a3fcc1ec88449484cc420aa11b6afc96448a8ca26efa35ea24bda"
+          }
+        ],
+        "liveEvidenceRefs": [
+          "15e222a7-c995-4fd2-9ecb-13f52d74eeea.png",
+          "2528d3c5-b17c-418a-89b0-ae84363fc475.json"
+        ],
+        "originalExpiresAt": "2026-10-09T06:17:19.063Z"
+      }
+    },
+    "network": {
+      "status": "available",
+      "reasons": [],
+      "evidenceRefs": [
+        "807b50c8-38c5-497d-b802-ad0d81dc8a14.json",
+        "33eedd13-1e34-4cc0-b858-4453f553e47a.png",
+        "021174f7-d57a-49a8-8a6c-cdf9f17ef611.json",
+        "c39bb27b-3033-431a-819b-19db109e12b9.json",
+        "15e222a7-c995-4fd2-9ecb-13f52d74eeea.png",
+        "2528d3c5-b17c-418a-89b0-ae84363fc475.json",
+        "39da3553-7f73-4185-b5d8-68070db369bd.json"
+      ],
+      "facts": {
+        "integrity": {
+          "version": 1,
+          "status": "clean",
+          "interventionIds": []
+        },
+        "capturedThroughSeq": 3,
+        "comparedResourceUrl": "http://127.0.0.1:59519/image.png",
+        "urlBasis": "current-measurement",
+        "directResourceRequests": [
+          {
+            "id": "evt-875cf64d-03ab-49df-9fe9-988c4409958a",
+            "seq": 1,
+            "type": "network:decision",
+            "timestamp": "2026-10-09T06:12:19.012Z",
+            "payload": {
+              "requestId": "interception-job-2.0",
+              "actionId": null,
+              "method": "GET",
+              "url": "http://127.0.0.1:59519/image.png",
+              "destination": "image",
+              "redirectFrom": null,
+              "policyRevision": "url-scan-network-1",
+              "allow": true,
+              "reasonCode": "allowed",
+              "dnsMode": "system",
+              "networkStage": "complete",
+              "resolvedAddresses": [
+                "127.0.0.1"
+              ],
+              "selectedAddress": "127.0.0.1",
+              "connectedAddress": "127.0.0.1",
+              "elapsedMs": 1,
+              "experiment": "image-bindings-1"
+            }
+          }
+        ],
+        "directResourceDenials": [],
+        "otherDenials": [],
+        "targetImpact": "no-recorded-intervention",
+        "limitation": "URL/redirect equality proves a request relation only. Other requests, including telemetry, may affect rendering; no independence or permission is inferred. The global intervention remains binding."
+      }
+    },
+    "semantics": {
+      "status": "unknown",
+      "reasons": [
+        "no-explicit-basis-provided-to-diagnostic"
+      ],
+      "evidenceRefs": [
+        "807b50c8-38c5-497d-b802-ad0d81dc8a14.json",
+        "33eedd13-1e34-4cc0-b858-4453f553e47a.png",
+        "021174f7-d57a-49a8-8a6c-cdf9f17ef611.json",
+        "c39bb27b-3033-431a-819b-19db109e12b9.json",
+        "15e222a7-c995-4fd2-9ecb-13f52d74eeea.png",
+        "2528d3c5-b17c-418a-89b0-ae84363fc475.json",
+        "39da3553-7f73-4185-b5d8-68070db369bd.json"
+      ],
+      "facts": {
+        "missingForThisRequest": [
+          "intent",
+          "basis.reference",
+          "basis.statement",
+          "basis.confirmedBy"
+        ],
+        "approval": false,
+        "priorConfirmationsNotReused": true
+      }
+    },
+    "machineBinding": {
+      "status": "available",
+      "reasons": [],
+      "evidenceRefs": [
+        "807b50c8-38c5-497d-b802-ad0d81dc8a14.json",
+        "33eedd13-1e34-4cc0-b858-4453f553e47a.png",
+        "021174f7-d57a-49a8-8a6c-cdf9f17ef611.json",
+        "c39bb27b-3033-431a-819b-19db109e12b9.json",
+        "15e222a7-c995-4fd2-9ecb-13f52d74eeea.png",
+        "2528d3c5-b17c-418a-89b0-ae84363fc475.json",
+        "39da3553-7f73-4185-b5d8-68070db369bd.json"
+      ],
+      "facts": {
+        "sourceObservationId": "image-observation-0ec318ef-a163-4c64-b695-69bef5abdbf9",
+        "currentPage": "http://127.0.0.1:59519/page",
+        "currentViewport": {
+          "width": 1280,
+          "height": 768
+        },
+        "error": null
+      }
+    }
+  },
+  "consumption": {
+    "canConsumeNow": false,
+    "checkInvoked": false,
+    "ruleEvaluated": false,
+    "actualInputGateReasons": [
+      "missing-or-invalid-explicit-basis"
+    ],
+    "machineGateReasons": [],
+    "limitation": "This is a diagnostic receipt, not a contract, approval, RuleResult or replacement facts-ready state. A later check must supply a real basis and revalidate all gates."
+  },
+  "evidenceRefs": [
+    "807b50c8-38c5-497d-b802-ad0d81dc8a14.json",
+    "33eedd13-1e34-4cc0-b858-4453f553e47a.png",
+    "021174f7-d57a-49a8-8a6c-cdf9f17ef611.json",
+    "c39bb27b-3033-431a-819b-19db109e12b9.json",
+    "15e222a7-c995-4fd2-9ecb-13f52d74eeea.png",
+    "2528d3c5-b17c-418a-89b0-ae84363fc475.json",
+    "39da3553-7f73-4185-b5d8-68070db369bd.json"
+  ],
+  "artifactRef": "c4c108d0-7682-4549-92af-1b617cd9dd57.json"
+}

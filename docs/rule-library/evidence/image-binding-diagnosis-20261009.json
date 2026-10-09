@@ -1,0 +1,1570 @@
+{
+  "version": "image-binding-diagnosis-evidence-1",
+  "date": "2026-10-09",
+  "baselineCommit": "ea23bfc2a1debccace4b03b1c055e02d0e4a6ede",
+  "implementationCommit": "36e008f54d32d8f5ee1e185e4d7c6daabc57d478",
+  "branch": "codex/rule-image-proportion",
+  "sourceIdentity": [
+    {
+      "path": "scripts/experiments/image-bindings.ts",
+      "bytes": 4606,
+      "sha256": "87ae9c9b4511932d44ac4c01ad5c93ef4c3ba68c761e8e772c12002e51a9bb06"
+    },
+    {
+      "path": "src/experiments/image-binding-host.ts",
+      "bytes": 4600,
+      "sha256": "bdcaab0c945b9a0f31d6d41ebbd26483dd3f7bddaed33f9bae1f585b4bd1bf62"
+    },
+    {
+      "path": "src/experiments/image-bindings.ts",
+      "bytes": 31132,
+      "sha256": "5fd24acc9c273f1df036aa161a88a0f5dbab3407a8031e647940dcdb74fbbfae"
+    },
+    {
+      "path": "src/experiments/image-bindings.test.ts",
+      "bytes": 32895,
+      "sha256": "bd5cda1c419c5b30eb57098d8d7912c335c77963cc412bb02f9a782b0e2deb2a"
+    }
+  ],
+  "validation": {
+    "uniqueScenarios": 6,
+    "directedLog": "directed-1.log",
+    "directedResult": "6 passed, 14 skipped",
+    "finalIdentityLog": "identity-final.log",
+    "finalIdentityResult": "2 passed, 18 skipped; repeats of the valid/replaced scenarios after identity-material guard",
+    "typecheckLog": "typecheck-final.log",
+    "typecheckResult": "completed without diagnostics; retained log does not encode exit status",
+    "coverageNote": "Six-scenario receipts predate the final nonempty documentId/nodeId guard. The two affected scenarios ran again after that guard. Final source additionally corrects one API comment. No source snapshot was saved with the first run; current committed file identities are not claimed to be contemporaneous run snapshots.",
+    "closeoutReruns": 0,
+    "publicVisits": 0,
+    "paidModelCalls": 0,
+    "fixtures": "Local synthetic PNG/browser fixtures, not Jira reproductions"
+  },
+  "scenarios": [
+    {
+      "name": "diagnostic-gates",
+      "receipt": {
+        "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-gates/receipt.json",
+        "bytes": 71312,
+        "sha256": "f80db67bcfca9bd79112764d9ebab352c739c3eeb8e9ad7a947ff994bea24b35"
+      },
+      "runId": "run-086a6715-f75a-4b8a-aec0-a80e7e6c1f46",
+      "diagnoses": {
+        "diagnosis": {
+          "diagnosticId": "image-diagnosis-76bbb621-2033-4697-9c4e-3196b00d527d",
+          "diagnosticObservationId": "image-diagnostic-observation-f8d66b2c-e2ac-424b-b6be-6e0cedc5c96d",
+          "request": {
+            "candidateId": "image-c094d1a8-43d0-4a62-85ac-e7ef163e54f4",
+            "observationId": "image-observation-86c8fe6b-307e-4d69-90ec-f2353bc1e3f7"
+          },
+          "lifecycle": {
+            "candidateReplaced": false,
+            "confirmationTransferred": false,
+            "newCandidateId": null,
+            "freshReadPerformed": true
+          },
+          "statuses": {
+            "identity": "available",
+            "resource": "available",
+            "paint": "available",
+            "evidence": "available",
+            "network": "available",
+            "semantics": "unknown",
+            "machineBinding": "available"
+          },
+          "consumption": {
+            "canConsumeNow": false,
+            "checkInvoked": false,
+            "ruleEvaluated": false,
+            "actualInputGateReasons": [
+              "missing-or-invalid-explicit-basis"
+            ],
+            "machineGateReasons": [],
+            "limitation": "This is a diagnostic receipt, not a contract, approval, RuleResult or replacement facts-ready state. A later check must supply a real basis and revalidate all gates."
+          },
+          "identity": {
+            "sameTargetBefore": true,
+            "sameTargetAfter": true,
+            "source": {
+              "nodeId": 1,
+              "documentId": "0.zt6ognzgsw",
+              "selector": "#mark"
+            },
+            "current": {
+              "nodeId": 1,
+              "documentId": "0.zt6ognzgsw",
+              "selector": "#mark",
+              "matchCount": 1
+            }
+          },
+          "network": {
+            "integrity": {
+              "version": 1,
+              "status": "clean",
+              "interventionIds": []
+            },
+            "capturedThroughSeq": 0,
+            "comparedResourceUrl": "http://127.0.0.1:59519/image.png",
+            "urlBasis": "current-measurement",
+            "directResourceRequests": [],
+            "directResourceDenials": [],
+            "otherDenials": [],
+            "targetImpact": "no-recorded-intervention",
+            "limitation": "URL/redirect equality proves a request relation only. Other requests, including telemetry, may affect rendering; no independence or permission is inferred. The global intervention remains binding."
+          }
+        },
+        "changed": {
+          "diagnosticId": "image-diagnosis-980db836-b7e9-46bc-afc0-060bcb6c22c8",
+          "diagnosticObservationId": "image-diagnostic-observation-0cb1c4d5-f076-4516-86e8-55efa2847b1a",
+          "request": {
+            "candidateId": "image-c094d1a8-43d0-4a62-85ac-e7ef163e54f4",
+            "observationId": "image-observation-86c8fe6b-307e-4d69-90ec-f2353bc1e3f7"
+          },
+          "lifecycle": {
+            "candidateReplaced": false,
+            "confirmationTransferred": false,
+            "newCandidateId": null,
+            "freshReadPerformed": true
+          },
+          "statuses": {
+            "identity": "available",
+            "resource": "available",
+            "paint": "available",
+            "evidence": "unavailable",
+            "network": "available",
+            "semantics": "unknown",
+            "machineBinding": "unavailable"
+          },
+          "consumption": {
+            "canConsumeNow": false,
+            "checkInvoked": false,
+            "ruleEvaluated": false,
+            "actualInputGateReasons": [
+              "missing-or-invalid-explicit-basis"
+            ],
+            "machineGateReasons": [
+              "evidence-changed"
+            ],
+            "limitation": "This is a diagnostic receipt, not a contract, approval, RuleResult or replacement facts-ready state. A later check must supply a real basis and revalidate all gates."
+          },
+          "identity": {
+            "sameTargetBefore": true,
+            "sameTargetAfter": true,
+            "source": {
+              "nodeId": 1,
+              "documentId": "0.zt6ognzgsw",
+              "selector": "#mark"
+            },
+            "current": {
+              "nodeId": 1,
+              "documentId": "0.zt6ognzgsw",
+              "selector": "#mark",
+              "matchCount": 1
+            }
+          },
+          "network": {
+            "integrity": {
+              "version": 1,
+              "status": "clean",
+              "interventionIds": []
+            },
+            "capturedThroughSeq": 2,
+            "comparedResourceUrl": "http://127.0.0.1:59519/image.png",
+            "urlBasis": "current-measurement",
+            "directResourceRequests": [],
+            "directResourceDenials": [],
+            "otherDenials": [],
+            "targetImpact": "no-recorded-intervention",
+            "limitation": "URL/redirect equality proves a request relation only. Other requests, including telemetry, may affect rendering; no independence or permission is inferred. The global intervention remains binding."
+          }
+        },
+        "expired": {
+          "diagnosticId": "image-diagnosis-f6203b44-3a19-4b2f-97c8-5af496e18dc8",
+          "diagnosticObservationId": "image-diagnostic-observation-a36151d5-68e7-4b97-a5b3-f8136c4e28d6",
+          "request": {
+            "candidateId": "image-c094d1a8-43d0-4a62-85ac-e7ef163e54f4",
+            "observationId": "image-observation-86c8fe6b-307e-4d69-90ec-f2353bc1e3f7"
+          },
+          "lifecycle": {
+            "candidateReplaced": false,
+            "confirmationTransferred": false,
+            "newCandidateId": null,
+            "freshReadPerformed": true
+          },
+          "statuses": {
+            "identity": "available",
+            "resource": "available",
+            "paint": "available",
+            "evidence": "unavailable",
+            "network": "available",
+            "semantics": "unknown",
+            "machineBinding": "unavailable"
+          },
+          "consumption": {
+            "canConsumeNow": false,
+            "checkInvoked": false,
+            "ruleEvaluated": false,
+            "actualInputGateReasons": [
+              "missing-or-invalid-explicit-basis"
+            ],
+            "machineGateReasons": [
+              "evidence-expired",
+              "evidence-changed"
+            ],
+            "limitation": "This is a diagnostic receipt, not a contract, approval, RuleResult or replacement facts-ready state. A later check must supply a real basis and revalidate all gates."
+          },
+          "identity": {
+            "sameTargetBefore": true,
+            "sameTargetAfter": true,
+            "source": {
+              "nodeId": 1,
+              "documentId": "0.zt6ognzgsw",
+              "selector": "#mark"
+            },
+            "current": {
+              "nodeId": 1,
+              "documentId": "0.zt6ognzgsw",
+              "selector": "#mark",
+              "matchCount": 1
+            }
+          },
+          "network": {
+            "integrity": {
+              "version": 1,
+              "status": "clean",
+              "interventionIds": []
+            },
+            "capturedThroughSeq": 3,
+            "comparedResourceUrl": "http://127.0.0.1:59519/image.png",
+            "urlBasis": "current-measurement",
+            "directResourceRequests": [],
+            "directResourceDenials": [],
+            "otherDenials": [],
+            "targetImpact": "no-recorded-intervention",
+            "limitation": "URL/redirect equality proves a request relation only. Other requests, including telemetry, may affect rendering; no independence or permission is inferred. The global intervention remains binding."
+          }
+        },
+        "superseded": {
+          "diagnosticId": "image-diagnosis-e8b5f793-ab3b-462c-b0ed-731af37e8aa2",
+          "diagnosticObservationId": null,
+          "request": {
+            "candidateId": "image-c094d1a8-43d0-4a62-85ac-e7ef163e54f4",
+            "observationId": "image-observation-86c8fe6b-307e-4d69-90ec-f2353bc1e3f7"
+          },
+          "lifecycle": {
+            "candidateReplaced": false,
+            "confirmationTransferred": false,
+            "newCandidateId": null,
+            "freshReadPerformed": false
+          },
+          "statuses": {
+            "identity": "unavailable",
+            "resource": "unknown",
+            "paint": "unknown",
+            "evidence": "unknown",
+            "network": "available",
+            "semantics": "unknown",
+            "machineBinding": "unavailable"
+          },
+          "consumption": {
+            "canConsumeNow": false,
+            "checkInvoked": false,
+            "ruleEvaluated": false,
+            "actualInputGateReasons": [
+              "missing-or-invalid-explicit-basis"
+            ],
+            "machineGateReasons": [
+              "unknown-or-superseded-candidate"
+            ],
+            "limitation": "This is a diagnostic receipt, not a contract, approval, RuleResult or replacement facts-ready state. A later check must supply a real basis and revalidate all gates."
+          },
+          "identity": {
+            "sameTargetBefore": null,
+            "sameTargetAfter": null,
+            "source": null,
+            "current": null
+          },
+          "network": {
+            "integrity": {
+              "version": 1,
+              "status": "clean",
+              "interventionIds": []
+            },
+            "capturedThroughSeq": 5,
+            "comparedResourceUrl": null,
+            "urlBasis": "source-candidate-or-missing",
+            "directResourceRequests": [],
+            "directResourceDenials": [],
+            "otherDenials": [],
+            "targetImpact": "no-recorded-intervention",
+            "limitation": "URL/redirect equality proves a request relation only. Other requests, including telemetry, may affect rendering; no independence or permission is inferred. The global intervention remains binding."
+          }
+        }
+      },
+      "measuredCounters": {},
+      "ordinaryCheck": {
+        "ruleId": "image-shape-distortion",
+        "ruleRevision": "0.1.0",
+        "verdict": "fail",
+        "severity": "warning",
+        "title": "Contract-bound raster image shape",
+        "expected": "The identified raster retains its source shape under the cited design contract",
+        "actual": "image-c094d1a8-43d0-4a62-85ac-e7ef163e54f4: fail (nonuniform-content-transform)",
+        "evidenceRefs": [
+          "dd804938-ade3-485e-a1a7-745bc1ee6da6.json",
+          "ac1f7c20-12ef-4a3d-b7a0-a8bfc1342813.png",
+          "54d3957c-15f2-42b4-972a-324a20eb0261.json",
+          "3042f812-42cc-474c-a81f-1cda0abe27b0.json",
+          "0741b365-deb5-46be-b61b-5d2b4eb6d9b5.png",
+          "b379b62f-5c9a-4b10-a81d-7d51787cb277.json",
+          "df61ffce-40dc-454d-b271-fa34d9175582.json",
+          "202a1ef3-29a7-4a0a-9559-f81c0d536c35.json"
+        ],
+        "confidence": 0.95,
+        "details": {
+          "knowledgeId": "UIK-D004",
+          "method": "static-raster-content-transform",
+          "rows": [
+            {
+              "contract": {
+                "id": "image-c094d1a8-43d0-4a62-85ac-e7ef163e54f4",
+                "pageUrl": "http://127.0.0.1:59519/page",
+                "selector": "#mark",
+                "resourceUrl": "http://127.0.0.1:59519/image.png",
+                "resourceSha256": "05b0ec210e1eeebf0f1b77a97c8e3ab187b0d38bf4270485560a9726f2078eba",
+                "viewport": {
+                  "width": 1280,
+                  "height": 768
+                },
+                "intent": "preserve",
+                "basis": {
+                  "reference": "evaluation/fixtures/image-shape.ts",
+                  "statement": "For this synthetic design, preserve the circular mark in this exact raster; cropping is permitted. Not Jira evidence.",
+                  "confirmedBy": "synthetic fixture author"
+                }
+              },
+              "verdict": "fail",
+              "reason": "nonuniform-content-transform",
+              "fact": {
+                "selector": "#mark",
+                "matchCount": 1,
+                "visibilityScan": {
+                  "version": "bounded-layers-1",
+                  "complete": true,
+                  "visited": 5,
+                  "rectangleReads": 5,
+                  "candidates": 3,
+                  "intersectionChecks": 3
+                },
+                "documentId": "0.zt6ognzgsw",
+                "mutationEpoch": 0,
+                "decoded": true,
+                "nodeId": 1,
+                "currentSrc": "http://127.0.0.1:59519/image.png",
+                "complete": true,
+                "naturalWidth": 120,
+                "naturalHeight": 60,
+                "contentWidth": 240,
+                "contentHeight": 60,
+                "objectFit": "fill",
+                "objectPosition": "50% 50%",
+                "bounds": {
+                  "x": 38,
+                  "y": 30,
+                  "width": 240,
+                  "height": 60
+                },
+                "matrix": [
+                  1,
+                  0,
+                  0,
+                  1
+                ],
+                "unsupported": [],
+                "stable": true,
+                "resource": {
+                  "sha256": "05b0ec210e1eeebf0f1b77a97c8e3ab187b0d38bf4270485560a9726f2078eba",
+                  "format": "png",
+                  "evidenceRef": "df61ffce-40dc-454d-b271-fa34d9175582.json"
+                }
+              },
+              "measurement": {
+                "ratio": 2,
+                "contentScale": [
+                  2,
+                  1
+                ],
+                "minScale": 1,
+                "maxScale": 2,
+                "paintedSize": {
+                  "width": 240,
+                  "height": 60
+                }
+              }
+            }
+          ],
+          "scope": "CSS deformation relative to the cited original only; no source-artwork, cropping, identity or QR usability judgment",
+          "resolution": {
+            "passMaxRatio": 1.001,
+            "failMinRatio": 1.02,
+            "between": "unknown"
+          },
+          "candidateBinding": {
+            "version": "image-bindings-1",
+            "candidateId": "image-c094d1a8-43d0-4a62-85ac-e7ef163e54f4",
+            "observationId": "image-observation-86c8fe6b-307e-4d69-90ec-f2353bc1e3f7",
+            "reviewRef": "202a1ef3-29a7-4a0a-9559-f81c0d536c35.json",
+            "reasons": []
+          }
+        }
+      },
+      "artifactsVerified": 25
+    },
+    {
+      "name": "diagnostic-image-denied",
+      "receipt": {
+        "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-image-denied/receipt.json",
+        "bytes": 23003,
+        "sha256": "b6f45382ed3e9048e788ff0c1f63fb534ed620d76b5233fea2f150dce15c5c35"
+      },
+      "runId": "run-54050d9c-1c4e-4569-bc34-f7018566cdba",
+      "diagnoses": {
+        "diagnosis": {
+          "diagnosticId": "image-diagnosis-1d326d33-7fb5-42b7-9f17-139537e8d6fd",
+          "diagnosticObservationId": "image-diagnostic-observation-f27071d9-d177-4376-80c4-575bda9f877d",
+          "request": {
+            "candidateId": "image-74de8e7b-ce51-4ab0-8afa-0441508e3d23",
+            "observationId": "image-observation-9dbc2cdc-181d-4600-bd7f-06fb7cad68ba"
+          },
+          "lifecycle": {
+            "candidateReplaced": false,
+            "confirmationTransferred": false,
+            "newCandidateId": null,
+            "freshReadPerformed": true
+          },
+          "statuses": {
+            "identity": "available",
+            "resource": "unavailable",
+            "paint": "unknown",
+            "evidence": "available",
+            "network": "unavailable",
+            "semantics": "unknown",
+            "machineBinding": "unavailable"
+          },
+          "consumption": {
+            "canConsumeNow": false,
+            "checkInvoked": false,
+            "ruleEvaluated": false,
+            "actualInputGateReasons": [
+              "missing-or-invalid-explicit-basis"
+            ],
+            "machineGateReasons": [
+              "image-not-loaded",
+              "supported-resource-bytes-unavailable",
+              "evidence-intervened"
+            ],
+            "limitation": "This is a diagnostic receipt, not a contract, approval, RuleResult or replacement facts-ready state. A later check must supply a real basis and revalidate all gates."
+          },
+          "identity": {
+            "sameTargetBefore": true,
+            "sameTargetAfter": true,
+            "source": {
+              "nodeId": 1,
+              "documentId": "0.88tm0ysxthg",
+              "selector": "#mark"
+            },
+            "current": {
+              "nodeId": 1,
+              "documentId": "0.88tm0ysxthg",
+              "selector": "#mark",
+              "matchCount": 1
+            }
+          },
+          "network": {
+            "integrity": {
+              "version": 1,
+              "status": "intervened",
+              "interventionIds": [
+                "intervention-de303038-14c2-4cb5-848d-cfd3b4afb00a"
+              ]
+            },
+            "capturedThroughSeq": 3,
+            "comparedResourceUrl": "http://127.0.0.1:54321/image.png",
+            "urlBasis": "current-measurement",
+            "directResourceRequests": [
+              {
+                "id": "evt-1914a730-310b-4465-89cb-58b202229511",
+                "seq": 1,
+                "type": "network:decision",
+                "timestamp": "2026-10-09T06:12:17.338Z",
+                "payload": {
+                  "requestId": "interception-job-2.0",
+                  "actionId": null,
+                  "method": "GET",
+                  "url": "http://127.0.0.1:54321/image.png",
+                  "destination": "image",
+                  "redirectFrom": null,
+                  "policyRevision": "url-scan-network-1",
+                  "dnsMode": "system",
+                  "networkStage": "policy",
+                  "resolvedAddresses": [],
+                  "elapsedMs": 1,
+                  "allow": false,
+                  "reasonCode": "private-address",
+                  "experiment": "image-bindings-1"
+                }
+              }
+            ],
+            "directResourceDenials": [
+              {
+                "id": "evt-1914a730-310b-4465-89cb-58b202229511",
+                "seq": 1,
+                "type": "network:decision",
+                "timestamp": "2026-10-09T06:12:17.338Z",
+                "payload": {
+                  "requestId": "interception-job-2.0",
+                  "actionId": null,
+                  "method": "GET",
+                  "url": "http://127.0.0.1:54321/image.png",
+                  "destination": "image",
+                  "redirectFrom": null,
+                  "policyRevision": "url-scan-network-1",
+                  "dnsMode": "system",
+                  "networkStage": "policy",
+                  "resolvedAddresses": [],
+                  "elapsedMs": 1,
+                  "allow": false,
+                  "reasonCode": "private-address",
+                  "experiment": "image-bindings-1"
+                }
+              }
+            ],
+            "otherDenials": [],
+            "targetImpact": "unknown",
+            "limitation": "URL/redirect equality proves a request relation only. Other requests, including telemetry, may affect rendering; no independence or permission is inferred. The global intervention remains binding."
+          }
+        }
+      },
+      "measuredCounters": {},
+      "ordinaryCheck": null,
+      "artifactsVerified": 6
+    },
+    {
+      "name": "diagnostic-other-denied",
+      "receipt": {
+        "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-other-denied/receipt.json",
+        "bytes": 46930,
+        "sha256": "e7a49c481d4c681e39948611e8324212a2821991aa33312eb76bb479b587f96f"
+      },
+      "runId": "run-95237967-0103-4ad6-8a8f-9e244491f71c",
+      "diagnoses": {
+        "first": {
+          "diagnosticId": "image-diagnosis-b8ece4e7-4945-402d-9f9f-205b159ab163",
+          "diagnosticObservationId": "image-diagnostic-observation-610f5c5f-645a-46dd-b643-db1a57ac1de8",
+          "request": {
+            "candidateId": "image-5b378556-d891-409a-8a64-3ddec5c97947",
+            "observationId": "image-observation-f6823e66-bc1f-4554-ad7a-36882d36eb66"
+          },
+          "lifecycle": {
+            "candidateReplaced": false,
+            "confirmationTransferred": false,
+            "newCandidateId": null,
+            "freshReadPerformed": true
+          },
+          "statuses": {
+            "identity": "available",
+            "resource": "available",
+            "paint": "available",
+            "evidence": "available",
+            "network": "unavailable",
+            "semantics": "unknown",
+            "machineBinding": "unavailable"
+          },
+          "consumption": {
+            "canConsumeNow": false,
+            "checkInvoked": false,
+            "ruleEvaluated": false,
+            "actualInputGateReasons": [
+              "missing-or-invalid-explicit-basis"
+            ],
+            "machineGateReasons": [
+              "evidence-intervened"
+            ],
+            "limitation": "This is a diagnostic receipt, not a contract, approval, RuleResult or replacement facts-ready state. A later check must supply a real basis and revalidate all gates."
+          },
+          "identity": {
+            "sameTargetBefore": true,
+            "sameTargetAfter": true,
+            "source": {
+              "nodeId": 1,
+              "documentId": "0.8qoqjjlbdxl",
+              "selector": "#mark"
+            },
+            "current": {
+              "nodeId": 1,
+              "documentId": "0.8qoqjjlbdxl",
+              "selector": "#mark",
+              "matchCount": 1
+            }
+          },
+          "network": {
+            "integrity": {
+              "version": 1,
+              "status": "intervened",
+              "interventionIds": [
+                "intervention-96314462-fc24-4034-8702-1a78cdb74f0f"
+              ]
+            },
+            "capturedThroughSeq": 4,
+            "comparedResourceUrl": "http://127.0.0.1:59519/image.png",
+            "urlBasis": "current-measurement",
+            "directResourceRequests": [
+              {
+                "id": "evt-51d7437d-9330-40cb-a8c9-56d20c5e7b6f",
+                "seq": 1,
+                "type": "network:decision",
+                "timestamp": "2026-10-09T06:12:17.747Z",
+                "payload": {
+                  "requestId": "interception-job-2.0",
+                  "actionId": null,
+                  "method": "GET",
+                  "url": "http://127.0.0.1:59519/image.png",
+                  "destination": "image",
+                  "redirectFrom": null,
+                  "policyRevision": "url-scan-network-1",
+                  "allow": true,
+                  "reasonCode": "allowed",
+                  "dnsMode": "system",
+                  "networkStage": "complete",
+                  "resolvedAddresses": [
+                    "127.0.0.1"
+                  ],
+                  "selectedAddress": "127.0.0.1",
+                  "connectedAddress": "127.0.0.1",
+                  "elapsedMs": 1,
+                  "experiment": "image-bindings-1"
+                }
+              }
+            ],
+            "directResourceDenials": [],
+            "otherDenials": [
+              {
+                "id": "evt-fad6b3b4-9f9f-49c2-a2a7-3c035e65eb0c",
+                "seq": 2,
+                "type": "network:decision",
+                "timestamp": "2026-10-09T06:12:17.750Z",
+                "payload": {
+                  "requestId": "interception-job-3.0",
+                  "actionId": null,
+                  "method": "POST",
+                  "url": "http://127.0.0.1:59519/diagnostic-test-read",
+                  "destination": "xhr",
+                  "redirectFrom": null,
+                  "policyRevision": "url-scan-network-1",
+                  "dnsMode": "system",
+                  "networkStage": "policy",
+                  "resolvedAddresses": [],
+                  "elapsedMs": 0,
+                  "allow": false,
+                  "reasonCode": "unsupported-data-method",
+                  "experiment": "image-bindings-1"
+                }
+              }
+            ],
+            "targetImpact": "unknown",
+            "limitation": "URL/redirect equality proves a request relation only. Other requests, including telemetry, may affect rendering; no independence or permission is inferred. The global intervention remains binding."
+          }
+        },
+        "second": {
+          "diagnosticId": "image-diagnosis-451cbf73-5596-4edc-85e7-c267a50bac4f",
+          "diagnosticObservationId": "image-diagnostic-observation-145c564b-e13c-4797-a532-b94386bde1e7",
+          "request": {
+            "candidateId": "image-5b378556-d891-409a-8a64-3ddec5c97947",
+            "observationId": "image-observation-f6823e66-bc1f-4554-ad7a-36882d36eb66"
+          },
+          "lifecycle": {
+            "candidateReplaced": false,
+            "confirmationTransferred": false,
+            "newCandidateId": null,
+            "freshReadPerformed": true
+          },
+          "statuses": {
+            "identity": "available",
+            "resource": "available",
+            "paint": "available",
+            "evidence": "available",
+            "network": "unavailable",
+            "semantics": "unknown",
+            "machineBinding": "unavailable"
+          },
+          "consumption": {
+            "canConsumeNow": false,
+            "checkInvoked": false,
+            "ruleEvaluated": false,
+            "actualInputGateReasons": [
+              "missing-or-invalid-explicit-basis"
+            ],
+            "machineGateReasons": [
+              "evidence-intervened"
+            ],
+            "limitation": "This is a diagnostic receipt, not a contract, approval, RuleResult or replacement facts-ready state. A later check must supply a real basis and revalidate all gates."
+          },
+          "identity": {
+            "sameTargetBefore": true,
+            "sameTargetAfter": true,
+            "source": {
+              "nodeId": 1,
+              "documentId": "0.8qoqjjlbdxl",
+              "selector": "#mark"
+            },
+            "current": {
+              "nodeId": 1,
+              "documentId": "0.8qoqjjlbdxl",
+              "selector": "#mark",
+              "matchCount": 1
+            }
+          },
+          "network": {
+            "integrity": {
+              "version": 1,
+              "status": "intervened",
+              "interventionIds": [
+                "intervention-96314462-fc24-4034-8702-1a78cdb74f0f"
+              ]
+            },
+            "capturedThroughSeq": 5,
+            "comparedResourceUrl": "http://127.0.0.1:59519/image.png",
+            "urlBasis": "current-measurement",
+            "directResourceRequests": [
+              {
+                "id": "evt-51d7437d-9330-40cb-a8c9-56d20c5e7b6f",
+                "seq": 1,
+                "type": "network:decision",
+                "timestamp": "2026-10-09T06:12:17.747Z",
+                "payload": {
+                  "requestId": "interception-job-2.0",
+                  "actionId": null,
+                  "method": "GET",
+                  "url": "http://127.0.0.1:59519/image.png",
+                  "destination": "image",
+                  "redirectFrom": null,
+                  "policyRevision": "url-scan-network-1",
+                  "allow": true,
+                  "reasonCode": "allowed",
+                  "dnsMode": "system",
+                  "networkStage": "complete",
+                  "resolvedAddresses": [
+                    "127.0.0.1"
+                  ],
+                  "selectedAddress": "127.0.0.1",
+                  "connectedAddress": "127.0.0.1",
+                  "elapsedMs": 1,
+                  "experiment": "image-bindings-1"
+                }
+              }
+            ],
+            "directResourceDenials": [],
+            "otherDenials": [
+              {
+                "id": "evt-fad6b3b4-9f9f-49c2-a2a7-3c035e65eb0c",
+                "seq": 2,
+                "type": "network:decision",
+                "timestamp": "2026-10-09T06:12:17.750Z",
+                "payload": {
+                  "requestId": "interception-job-3.0",
+                  "actionId": null,
+                  "method": "POST",
+                  "url": "http://127.0.0.1:59519/diagnostic-test-read",
+                  "destination": "xhr",
+                  "redirectFrom": null,
+                  "policyRevision": "url-scan-network-1",
+                  "dnsMode": "system",
+                  "networkStage": "policy",
+                  "resolvedAddresses": [],
+                  "elapsedMs": 0,
+                  "allow": false,
+                  "reasonCode": "unsupported-data-method",
+                  "experiment": "image-bindings-1"
+                }
+              }
+            ],
+            "targetImpact": "unknown",
+            "limitation": "URL/redirect equality proves a request relation only. Other requests, including telemetry, may affect rendering; no independence or permission is inferred. The global intervention remains binding."
+          }
+        }
+      },
+      "measuredCounters": {
+        "imageRequests": 1,
+        "writes": 0
+      },
+      "ordinaryCheck": null,
+      "artifactsVerified": 13
+    },
+    {
+      "name": "diagnostic-replaced",
+      "receipt": {
+        "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-replaced/receipt.json",
+        "bytes": 28448,
+        "sha256": "af129db6b357a56ee62c2aaade1e2c5f32842269b86a062ac7d84c0fc820f851"
+      },
+      "runId": "run-bdd4fd8a-45aa-4cc8-b86c-838c29008fe9",
+      "diagnoses": {
+        "diagnosis": {
+          "diagnosticId": "image-diagnosis-1ab9a169-ee14-43c4-b116-e72741d1342a",
+          "diagnosticObservationId": "image-diagnostic-observation-6b56d072-94bb-4356-a93e-8436619bba1f",
+          "request": {
+            "candidateId": "image-5965d487-bf12-4e52-a604-aa80fe552bb0",
+            "observationId": "image-observation-f9cf4d72-b623-482b-9c46-00583a5262f9"
+          },
+          "lifecycle": {
+            "candidateReplaced": false,
+            "confirmationTransferred": false,
+            "newCandidateId": null,
+            "freshReadPerformed": true
+          },
+          "statuses": {
+            "identity": "unavailable",
+            "resource": "available",
+            "paint": "available",
+            "evidence": "available",
+            "network": "available",
+            "semantics": "unknown",
+            "machineBinding": "unavailable"
+          },
+          "consumption": {
+            "canConsumeNow": false,
+            "checkInvoked": false,
+            "ruleEvaluated": false,
+            "actualInputGateReasons": [
+              "missing-or-invalid-explicit-basis"
+            ],
+            "machineGateReasons": [
+              "target-lost-or-ambiguous",
+              "observation-facts-changed"
+            ],
+            "limitation": "This is a diagnostic receipt, not a contract, approval, RuleResult or replacement facts-ready state. A later check must supply a real basis and revalidate all gates."
+          },
+          "identity": {
+            "sameTargetBefore": false,
+            "sameTargetAfter": false,
+            "source": {
+              "nodeId": 1,
+              "documentId": "0.bjyf4qyeh9g",
+              "selector": "#mark"
+            },
+            "current": {
+              "nodeId": 2,
+              "documentId": "0.bjyf4qyeh9g",
+              "selector": "#mark",
+              "matchCount": 1
+            }
+          },
+          "network": {
+            "integrity": {
+              "version": 1,
+              "status": "clean",
+              "interventionIds": []
+            },
+            "capturedThroughSeq": 0,
+            "comparedResourceUrl": "http://127.0.0.1:59519/image.png",
+            "urlBasis": "current-measurement",
+            "directResourceRequests": [],
+            "directResourceDenials": [],
+            "otherDenials": [],
+            "targetImpact": "no-recorded-intervention",
+            "limitation": "URL/redirect equality proves a request relation only. Other requests, including telemetry, may affect rendering; no independence or permission is inferred. The global intervention remains binding."
+          }
+        },
+        "closed": {
+          "diagnosticId": "image-diagnosis-7aab8b42-0896-4ad1-bb6b-da96f811f0d0",
+          "diagnosticObservationId": null,
+          "request": {
+            "candidateId": "image-5965d487-bf12-4e52-a604-aa80fe552bb0",
+            "observationId": "image-observation-f9cf4d72-b623-482b-9c46-00583a5262f9"
+          },
+          "lifecycle": {
+            "candidateReplaced": false,
+            "confirmationTransferred": false,
+            "newCandidateId": null,
+            "freshReadPerformed": false
+          },
+          "statuses": {
+            "identity": "unavailable",
+            "resource": "unknown",
+            "paint": "unknown",
+            "evidence": "unknown",
+            "network": "available",
+            "semantics": "unknown",
+            "machineBinding": "unavailable"
+          },
+          "consumption": {
+            "canConsumeNow": false,
+            "checkInvoked": false,
+            "ruleEvaluated": false,
+            "actualInputGateReasons": [
+              "session-closed"
+            ],
+            "machineGateReasons": [
+              "session-closed"
+            ],
+            "limitation": "This is a diagnostic receipt, not a contract, approval, RuleResult or replacement facts-ready state. A later check must supply a real basis and revalidate all gates."
+          },
+          "identity": {
+            "sameTargetBefore": null,
+            "sameTargetAfter": null,
+            "source": null,
+            "current": null
+          },
+          "network": {
+            "integrity": {
+              "version": 1,
+              "status": "clean",
+              "interventionIds": []
+            },
+            "capturedThroughSeq": 2,
+            "comparedResourceUrl": null,
+            "urlBasis": "source-candidate-or-missing",
+            "directResourceRequests": [],
+            "directResourceDenials": [],
+            "otherDenials": [],
+            "targetImpact": "no-recorded-intervention",
+            "limitation": "URL/redirect equality proves a request relation only. Other requests, including telemetry, may affect rendering; no independence or permission is inferred. The global intervention remains binding."
+          }
+        }
+      },
+      "measuredCounters": {},
+      "ordinaryCheck": {
+        "ruleId": "image-shape-distortion",
+        "ruleRevision": "0.1.0",
+        "verdict": "unknown",
+        "severity": "info",
+        "title": "Image candidate binding incomplete or stale",
+        "expected": "Explicit design basis bound to unchanged current image evidence",
+        "actual": "target-lost-or-ambiguous",
+        "confidence": 0,
+        "evidenceRefs": [
+          "85ce0df3-e817-4358-9535-a7dbae41d89b.json",
+          "a0a11481-6c13-429a-b3ba-df89abefc862.png",
+          "2f539faa-d77b-4db7-956d-7027b1f012f7.json",
+          "be895ac6-dec4-45c8-bc2a-4c51027538ec.json",
+          "dcf66ad9-daae-4bfc-92a1-962ef091b31f.json"
+        ],
+        "details": {
+          "candidateBinding": {
+            "version": "image-bindings-1",
+            "candidateId": "image-5965d487-bf12-4e52-a604-aa80fe552bb0",
+            "observationId": "image-observation-f9cf4d72-b623-482b-9c46-00583a5262f9",
+            "reviewRef": "dcf66ad9-daae-4bfc-92a1-962ef091b31f.json",
+            "reasons": [
+              "target-lost-or-ambiguous"
+            ]
+          }
+        }
+      },
+      "artifactsVerified": 9
+    },
+    {
+      "name": "diagnostic-valid",
+      "receipt": {
+        "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-valid/receipt.json",
+        "bytes": 21505,
+        "sha256": "963a733a63a193c6daf47a0cee050777e56b1557c5e2c0d368ac6aaf015d29d1"
+      },
+      "runId": "run-f9c6c925-7997-445b-a5df-6ad40a8faee4",
+      "diagnoses": {
+        "diagnosis": {
+          "diagnosticId": "image-diagnosis-7238a0bc-f5f5-4ce6-bdd3-cbe5de372486",
+          "diagnosticObservationId": "image-diagnostic-observation-3da0263a-1ba0-47af-97bb-b53f5dfab44f",
+          "request": {
+            "candidateId": "image-8b1d795a-f12e-45e1-8371-e63ca8f35ac6",
+            "observationId": "image-observation-10dbdc78-b8fe-4f0c-b82d-ecb95b6af423"
+          },
+          "lifecycle": {
+            "candidateReplaced": false,
+            "confirmationTransferred": false,
+            "newCandidateId": null,
+            "freshReadPerformed": true
+          },
+          "statuses": {
+            "identity": "available",
+            "resource": "available",
+            "paint": "available",
+            "evidence": "available",
+            "network": "available",
+            "semantics": "unknown",
+            "machineBinding": "available"
+          },
+          "consumption": {
+            "canConsumeNow": false,
+            "checkInvoked": false,
+            "ruleEvaluated": false,
+            "actualInputGateReasons": [
+              "missing-or-invalid-explicit-basis"
+            ],
+            "machineGateReasons": [],
+            "limitation": "This is a diagnostic receipt, not a contract, approval, RuleResult or replacement facts-ready state. A later check must supply a real basis and revalidate all gates."
+          },
+          "identity": {
+            "sameTargetBefore": true,
+            "sameTargetAfter": true,
+            "source": {
+              "nodeId": 1,
+              "documentId": "0.2le8pf5toz7",
+              "selector": "#mark"
+            },
+            "current": {
+              "nodeId": 1,
+              "documentId": "0.2le8pf5toz7",
+              "selector": "#mark",
+              "matchCount": 1
+            }
+          },
+          "network": {
+            "integrity": {
+              "version": 1,
+              "status": "clean",
+              "interventionIds": []
+            },
+            "capturedThroughSeq": 0,
+            "comparedResourceUrl": "http://127.0.0.1:59519/image.png",
+            "urlBasis": "current-measurement",
+            "directResourceRequests": [],
+            "directResourceDenials": [],
+            "otherDenials": [],
+            "targetImpact": "no-recorded-intervention",
+            "limitation": "URL/redirect equality proves a request relation only. Other requests, including telemetry, may affect rendering; no independence or permission is inferred. The global intervention remains binding."
+          }
+        }
+      },
+      "measuredCounters": {
+        "imageRequests": 1,
+        "writes": 0,
+        "mutations": []
+      },
+      "ordinaryCheck": null,
+      "artifactsVerified": 8
+    },
+    {
+      "name": "diagnostic-cli",
+      "receipt": {
+        "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-cli/diagnosis-2.json",
+        "bytes": 12496,
+        "sha256": "e1453d081a2bbb50b9ab182971a4c5d45568d6c113dc78b191080557cd44e607"
+      },
+      "diagnosis": {
+        "diagnosticId": "image-diagnosis-71a3add7-ef94-4b4d-b2e6-1cc49d1a741e",
+        "diagnosticObservationId": "image-diagnostic-observation-244a223c-4684-43e5-9d7a-ad3a9cade479",
+        "request": {
+          "candidateId": "image-f9b1e17a-eec3-4987-acdb-267da4f26d77",
+          "observationId": "image-observation-0ec318ef-a163-4c64-b695-69bef5abdbf9"
+        },
+        "lifecycle": {
+          "candidateReplaced": false,
+          "confirmationTransferred": false,
+          "newCandidateId": null,
+          "freshReadPerformed": true
+        },
+        "statuses": {
+          "identity": "available",
+          "resource": "available",
+          "paint": "available",
+          "evidence": "available",
+          "network": "available",
+          "semantics": "unknown",
+          "machineBinding": "available"
+        },
+        "consumption": {
+          "canConsumeNow": false,
+          "checkInvoked": false,
+          "ruleEvaluated": false,
+          "actualInputGateReasons": [
+            "missing-or-invalid-explicit-basis"
+          ],
+          "machineGateReasons": [],
+          "limitation": "This is a diagnostic receipt, not a contract, approval, RuleResult or replacement facts-ready state. A later check must supply a real basis and revalidate all gates."
+        },
+        "identity": {
+          "sameTargetBefore": true,
+          "sameTargetAfter": true,
+          "source": {
+            "nodeId": 1,
+            "documentId": "0.5dx31hb95oi",
+            "selector": "#mark"
+          },
+          "current": {
+            "nodeId": 1,
+            "documentId": "0.5dx31hb95oi",
+            "selector": "#mark",
+            "matchCount": 1
+          }
+        },
+        "network": {
+          "integrity": {
+            "version": 1,
+            "status": "clean",
+            "interventionIds": []
+          },
+          "capturedThroughSeq": 3,
+          "comparedResourceUrl": "http://127.0.0.1:59519/image.png",
+          "urlBasis": "current-measurement",
+          "directResourceRequests": [
+            {
+              "id": "evt-875cf64d-03ab-49df-9fe9-988c4409958a",
+              "seq": 1,
+              "type": "network:decision",
+              "timestamp": "2026-10-09T06:12:19.012Z",
+              "payload": {
+                "requestId": "interception-job-2.0",
+                "actionId": null,
+                "method": "GET",
+                "url": "http://127.0.0.1:59519/image.png",
+                "destination": "image",
+                "redirectFrom": null,
+                "policyRevision": "url-scan-network-1",
+                "allow": true,
+                "reasonCode": "allowed",
+                "dnsMode": "system",
+                "networkStage": "complete",
+                "resolvedAddresses": [
+                  "127.0.0.1"
+                ],
+                "selectedAddress": "127.0.0.1",
+                "connectedAddress": "127.0.0.1",
+                "elapsedMs": 1,
+                "experiment": "image-bindings-1"
+              }
+            }
+          ],
+          "directResourceDenials": [],
+          "otherDenials": [],
+          "targetImpact": "no-recorded-intervention",
+          "limitation": "URL/redirect equality proves a request relation only. Other requests, including telemetry, may affect rendering; no independence or permission is inferred. The global intervention remains binding."
+        }
+      },
+      "sample": {
+        "path": "docs/rule-library/evidence/image-binding-diagnosis-cli-sample-20261009.json",
+        "bytes": 12496,
+        "sha256": "e1453d081a2bbb50b9ab182971a4c5d45568d6c113dc78b191080557cd44e607"
+      },
+      "note": "Exact historical CLI output; closed local synthetic session, not a usable live candidate."
+    }
+  ],
+  "localFiles": [
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/directed-1.log",
+      "bytes": 227,
+      "sha256": "9d3bce25165bb2848564937f0c37928978662b745a1c80795ce9005867f24d20"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/identity-final.log",
+      "bytes": 229,
+      "sha256": "2a642fdaf84ac8877b3dcc213c7bdac59b65370d650f1342bfb68dde3a70ff6d"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-cli/artifacts/021174f7-d57a-49a8-8a6c-cdf9f17ef611.json",
+      "bytes": 3122,
+      "sha256": "9cf2235356ca68450bf6732243628dc8f1bb76602da873e6416ef1fa48f16710"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-cli/artifacts/15e222a7-c995-4fd2-9ecb-13f52d74eeea.png",
+      "bytes": 10240,
+      "sha256": "42ea10952151e940e3d1773fc341656f8b46584ca5c5a0fa0c010059d8b9affa"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-cli/artifacts/2528d3c5-b17c-418a-89b0-ae84363fc475.json",
+      "bytes": 3122,
+      "sha256": "1ad1a78bf4c4b519fbb2ab489455ab38664c07673de0e9db15b98ff52192432c"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-cli/artifacts/33eedd13-1e34-4cc0-b858-4453f553e47a.png",
+      "bytes": 10240,
+      "sha256": "42ea10952151e940e3d1773fc341656f8b46584ca5c5a0fa0c010059d8b9affa"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-cli/artifacts/39da3553-7f73-4185-b5d8-68070db369bd.json",
+      "bytes": 636,
+      "sha256": "4d82c2efe35a3fcc1ec88449484cc420aa11b6afc96448a8ca26efa35ea24bda"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-cli/artifacts/807b50c8-38c5-497d-b802-ad0d81dc8a14.json",
+      "bytes": 1911,
+      "sha256": "98ab988238cc5458fb3a8f4f8f84ae15f0e5e667b2a4ee83332b2632d71f168c"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-cli/artifacts/c39bb27b-3033-431a-819b-19db109e12b9.json",
+      "bytes": 636,
+      "sha256": "4d82c2efe35a3fcc1ec88449484cc420aa11b6afc96448a8ca26efa35ea24bda"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-cli/artifacts/c4c108d0-7682-4549-92af-1b617cd9dd57.json",
+      "bytes": 8851,
+      "sha256": "46b28078ee64f2f8b1ecdcdb87cddec1c11bfd969cdecebecc2b453dee532b46"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-cli/candidates-1.json",
+      "bytes": 3000,
+      "sha256": "5f32dd82e3a6158a4cb72a8e75683307b068ba231a81c74c51ab8d9c10ea6bc2"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-cli/diagnosis-2.json",
+      "bytes": 12496,
+      "sha256": "e1453d081a2bbb50b9ab182971a4c5d45568d6c113dc78b191080557cd44e607"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-cli/experiment.db",
+      "bytes": 73728,
+      "sha256": "365db635ac079cfa2f2359f1289653faf8d57f74357ed180b1111e04172691c5"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-cli/review-template.json",
+      "bytes": 208,
+      "sha256": "7928f9cdfe8ec5e1cb372c11b566415e464473b17d4296e7d28ab1b7e2b7934a"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-cli/stdout.log",
+      "bytes": 923,
+      "sha256": "572b1717df196ae867090b17a704805b3806d2874adcbbf702e883a7e02145fc"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-gates/0741b365-deb5-46be-b61b-5d2b4eb6d9b5.png",
+      "bytes": 4879,
+      "sha256": "58c521914cfef2a915e3110e88ccbcbba09fb0e0e8925d26a95f98ed5a3b0978"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-gates/10a3c704-c8ac-4778-8d28-55ca3b89ee54.json",
+      "bytes": 8304,
+      "sha256": "361202a0a3a40e70d14f3a45ed490ea5b9f72e68c74edd7fd2fb127b4ffa0d63"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-gates/1acdfed4-8f3e-48ad-ac88-9dfa1d7ac389.json",
+      "bytes": 636,
+      "sha256": "4d82c2efe35a3fcc1ec88449484cc420aa11b6afc96448a8ca26efa35ea24bda"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-gates/202a1ef3-29a7-4a0a-9559-f81c0d536c35.json",
+      "bytes": 824,
+      "sha256": "968849c5b0be8b5239fb41bfc155b566ec60c956d4379d41a101585d12254933"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-gates/26ac602c-519d-4cb4-b081-4ee6c6d41e74.json",
+      "bytes": 1021,
+      "sha256": "2d2a5def539d1cb51960012955362a5e516ce49b6eee838ebad991684480c276"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-gates/3042f812-42cc-474c-a81f-1cda0abe27b0.json",
+      "bytes": 636,
+      "sha256": "4d82c2efe35a3fcc1ec88449484cc420aa11b6afc96448a8ca26efa35ea24bda"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-gates/337d0278-879b-46d3-b68a-783424897e74.json",
+      "bytes": 8377,
+      "sha256": "bd0bedb748d3d2aa7bab30ea1a999af4d8104d6dbe8b900eee7a29eddcf54887"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-gates/4f2ddbe6-3e6c-4900-bac4-5b105cd37b8b.png",
+      "bytes": 4879,
+      "sha256": "58c521914cfef2a915e3110e88ccbcbba09fb0e0e8925d26a95f98ed5a3b0978"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-gates/5219cb05-77af-4fc8-a210-fdf4272ce3f5.png",
+      "bytes": 4879,
+      "sha256": "58c521914cfef2a915e3110e88ccbcbba09fb0e0e8925d26a95f98ed5a3b0978"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-gates/54d3957c-15f2-42b4-972a-324a20eb0261.json",
+      "bytes": 1021,
+      "sha256": "cd0086ba438414493540d1fb1e4e23ca6d30e55c25c6318658ef77b3331b9c65"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-gates/573410d2-39d7-4954-be35-e1256a36b8c9.json",
+      "bytes": 2637,
+      "sha256": "720359904013c713a67157270822d3df14ed6958df8247fce85256f1dc98148c"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-gates/622f5589-83d9-434c-b147-4de55e8a5f29.json",
+      "bytes": 636,
+      "sha256": "4d82c2efe35a3fcc1ec88449484cc420aa11b6afc96448a8ca26efa35ea24bda"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-gates/9e338034-9252-4f69-ba9d-7cd9bc775b73.png",
+      "bytes": 4879,
+      "sha256": "58c521914cfef2a915e3110e88ccbcbba09fb0e0e8925d26a95f98ed5a3b0978"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-gates/ac1f7c20-12ef-4a3d-b7a0-a8bfc1342813.png",
+      "bytes": 17,
+      "sha256": "a0b965cc2855ab79ca4f35e90466553595e4224d9ac6ad7fd96ee90d9cf7414f"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-gates/b00153b2-7fc9-441b-a0d0-b59fe3121e42.json",
+      "bytes": 8414,
+      "sha256": "2898546d0078b3534ddf5b45a7d11b3393e0419cd493cb21b0fd45a3c3ba49c5"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-gates/b0ab5c87-4813-4650-a15e-6476bfa80f21.json",
+      "bytes": 636,
+      "sha256": "4d82c2efe35a3fcc1ec88449484cc420aa11b6afc96448a8ca26efa35ea24bda"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-gates/b379b62f-5c9a-4b10-a81d-7d51787cb277.json",
+      "bytes": 1021,
+      "sha256": "f4dedf616e1e11b17d45bca2db77b67e16344c2c176a2463ffd295e8ec721fad"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-gates/d2fa0d35-6aff-4d91-aa96-cfbb543ca7c4.json",
+      "bytes": 636,
+      "sha256": "4d82c2efe35a3fcc1ec88449484cc420aa11b6afc96448a8ca26efa35ea24bda"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-gates/d82f614e-bb59-4323-9485-9f1f0109407d.json",
+      "bytes": 1021,
+      "sha256": "58c7ff0d1984f4729c54237258722e9fda260b53fe48cecc4eca718fdc76c285"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-gates/dd804938-ade3-485e-a1a7-745bc1ee6da6.json",
+      "bytes": 1910,
+      "sha256": "a7680b2bebc67590fd56ee7fb1f4ac5cff9fbdd376f8ae1c4078d52603adf8cb"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-gates/de5f95c8-b5bd-4438-9a37-89eb63bf6897.json",
+      "bytes": 1910,
+      "sha256": "9bdfe981bdf26ccd71e44d52522a27e3c8ce04d899c459cbf30b44a5276f3d54"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-gates/df61ffce-40dc-454d-b271-fa34d9175582.json",
+      "bytes": 636,
+      "sha256": "4d82c2efe35a3fcc1ec88449484cc420aa11b6afc96448a8ca26efa35ea24bda"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-gates/f4dfea33-d302-435e-b90b-ea7bf8a18769.png",
+      "bytes": 4879,
+      "sha256": "58c521914cfef2a915e3110e88ccbcbba09fb0e0e8925d26a95f98ed5a3b0978"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-gates/f54030f1-ad33-4900-976d-dc7193e5ea1c.json",
+      "bytes": 1021,
+      "sha256": "b4ca8d341de9340fc8ae5d8e58539a44fc3e1967cb6cea23bef0e2695bc112d5"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-gates/f695b50d-0213-4cfc-83fd-58318ff2a8bf.json",
+      "bytes": 1021,
+      "sha256": "f38986859bc7b5c937c666f50325d85f8a8a9ce17fcb5ecd33d72f1926e0f146"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-gates/receipt.json",
+      "bytes": 71312,
+      "sha256": "f80db67bcfca9bd79112764d9ebab352c739c3eeb8e9ad7a947ff994bea24b35"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-image-denied/1a34f030-811d-4d71-9256-b5f232870d1c.png",
+      "bytes": 7227,
+      "sha256": "92f321b517c18943fcdacfbc4bd5f32f6eb3cc892a86de7f6cf8ea15d2da45c2"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-image-denied/9c87d467-e27b-41fa-b8ab-4135ccf38c9a.png",
+      "bytes": 7227,
+      "sha256": "92f321b517c18943fcdacfbc4bd5f32f6eb3cc892a86de7f6cf8ea15d2da45c2"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-image-denied/a3ff969c-a411-4e0b-8ec8-05117d61506f.json",
+      "bytes": 914,
+      "sha256": "a93e948e2ab107ef5d59d5065be6256a1157dcbded441140803a7f843bb21b1c"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-image-denied/a4928a4c-675b-4793-a0b4-0da930a47e9d.json",
+      "bytes": 8091,
+      "sha256": "77aff6d8b437d8e6fb7795960c141ea7be09a785d6b78d3b512bed54c00a8eea"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-image-denied/cdc7bcfc-fc44-4949-a86b-86d1523e67a9.json",
+      "bytes": 1776,
+      "sha256": "d8bbc4d90b7f611f2ce4c21cfe8914e57629eff6a974306b153bbe19ad7d78cd"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-image-denied/fe6c2363-8f1a-4969-a4b9-59b3108d6f30.json",
+      "bytes": 914,
+      "sha256": "9381010d9f6ddb9340a8cd2546d4afec4936ed9683f7fed72475bf753b8b67c0"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-image-denied/receipt.json",
+      "bytes": 23003,
+      "sha256": "b6f45382ed3e9048e788ff0c1f63fb534ed620d76b5233fea2f150dce15c5c35"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-other-denied/2adfc846-de78-42c5-95df-302cb0c5e37a.json",
+      "bytes": 1971,
+      "sha256": "b6b821e777f4d60576eb85a25a3d6faef73f69c8c11dc23a8363b6283037a6ca"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-other-denied/5deb033c-3a28-4dcc-932c-cdeac0935013.json",
+      "bytes": 636,
+      "sha256": "4d82c2efe35a3fcc1ec88449484cc420aa11b6afc96448a8ca26efa35ea24bda"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-other-denied/61dd6da9-0c95-44ae-b801-ab49ade27528.json",
+      "bytes": 9459,
+      "sha256": "bddd3d68aaa707aec411b0fa1e3a80ad507e68fc4f919311ed4b7147871ff1f0"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-other-denied/861d4c80-8b35-49a2-85d7-70cb219b89e9.json",
+      "bytes": 1078,
+      "sha256": "7d37e39c3fc537fd650cd4e134d1d58303564e872b981447ab0e7f33762d4f86"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-other-denied/92cf2f31-eb60-4899-afa1-a8a6efe7bb8b.json",
+      "bytes": 1078,
+      "sha256": "22b289983ff314ff33529925639d2356d487219b6685338d0c131394bb9edd1c"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-other-denied/a39698ef-f765-41cc-8c56-0c97c9195148.png",
+      "bytes": 4879,
+      "sha256": "58c521914cfef2a915e3110e88ccbcbba09fb0e0e8925d26a95f98ed5a3b0978"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-other-denied/adf8a734-8df1-455c-8b05-5632c3477ad9.png",
+      "bytes": 4879,
+      "sha256": "58c521914cfef2a915e3110e88ccbcbba09fb0e0e8925d26a95f98ed5a3b0978"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-other-denied/b184c97d-81ce-48d7-9612-ea5412384f8c.png",
+      "bytes": 4879,
+      "sha256": "58c521914cfef2a915e3110e88ccbcbba09fb0e0e8925d26a95f98ed5a3b0978"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-other-denied/bfc6d967-636e-45f8-be37-5c5bc80925bb.json",
+      "bytes": 636,
+      "sha256": "4d82c2efe35a3fcc1ec88449484cc420aa11b6afc96448a8ca26efa35ea24bda"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-other-denied/c4132ce6-be12-4f60-98b4-60ae6d40f1f2.json",
+      "bytes": 714,
+      "sha256": "c8506e452330fc6849bf1f09d1951090d9be3ef34d35517907bd9e4533be6705"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-other-denied/f3bf424a-a5df-48de-9e5f-4a907122c175.json",
+      "bytes": 636,
+      "sha256": "4d82c2efe35a3fcc1ec88449484cc420aa11b6afc96448a8ca26efa35ea24bda"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-other-denied/f911c83f-e4bd-45f2-82d5-7032f1e4b7ea.json",
+      "bytes": 9459,
+      "sha256": "819b1ffb83342273c56913bffb9a06bcc5473910b52a5f7b5b8c7dee19d9771c"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-other-denied/fe352e62-38e5-4b32-ac5b-9c56d2fd8bcf.json",
+      "bytes": 1078,
+      "sha256": "bcf9e8627411e51c6234014d88134cf09f49a076be22b43aac4f514b2a78be0b"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-other-denied/receipt.json",
+      "bytes": 46930,
+      "sha256": "e7a49c481d4c681e39948611e8324212a2821991aa33312eb76bb479b587f96f"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-replaced/2f539faa-d77b-4db7-956d-7027b1f012f7.json",
+      "bytes": 1022,
+      "sha256": "63a267a322c5fad3972f03b09ef163a908daa313fa11e2fa88e83d4b8c4a0796"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-replaced/36d397e6-3bf2-48bc-b5a7-fd7921c67ea2.json",
+      "bytes": 8453,
+      "sha256": "353b4f6b47d5ef1383b60fa9451065bdf7044d77ece11e7d45a95e7f478417a4"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-replaced/85ce0df3-e817-4358-9535-a7dbae41d89b.json",
+      "bytes": 1911,
+      "sha256": "b17728194c2492f06d79e1b07a866c6c064230090a7dc88d2a2f8bf1beb31cb6"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-replaced/a0a11481-6c13-429a-b3ba-df89abefc862.png",
+      "bytes": 4879,
+      "sha256": "58c521914cfef2a915e3110e88ccbcbba09fb0e0e8925d26a95f98ed5a3b0978"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-replaced/b4b3cc9c-84bc-475e-aaf9-adbfdd85fda7.json",
+      "bytes": 636,
+      "sha256": "4d82c2efe35a3fcc1ec88449484cc420aa11b6afc96448a8ca26efa35ea24bda"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-replaced/be895ac6-dec4-45c8-bc2a-4c51027538ec.json",
+      "bytes": 636,
+      "sha256": "4d82c2efe35a3fcc1ec88449484cc420aa11b6afc96448a8ca26efa35ea24bda"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-replaced/dcf66ad9-daae-4bfc-92a1-962ef091b31f.json",
+      "bytes": 719,
+      "sha256": "d5cfc5bd0cafd6f08a882f9725681093298fe503dcd45d0ce64027dccd48499f"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-replaced/e47248d3-04bc-410a-b0e0-85ce531f6ffa.png",
+      "bytes": 4879,
+      "sha256": "58c521914cfef2a915e3110e88ccbcbba09fb0e0e8925d26a95f98ed5a3b0978"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-replaced/f51bfb62-1798-4f4e-8514-b3ceaf889ae7.json",
+      "bytes": 1022,
+      "sha256": "1b616badc0caad458dca699962964562d87295146da6f174efe4e6bbe16c103c"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-replaced/receipt.json",
+      "bytes": 28448,
+      "sha256": "af129db6b357a56ee62c2aaade1e2c5f32842269b86a062ac7d84c0fc820f851"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-valid/2f17abde-d7b7-4fb8-8d3b-d488bc70d04a.json",
+      "bytes": 3124,
+      "sha256": "24156f5e9604160f2c8e9e2529a73b1e12d4b1ff44350d891a78a862d4586e75"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-valid/65d10d02-a522-4109-afd1-c30d85a46782.json",
+      "bytes": 3124,
+      "sha256": "65df6a247e9bb33f9c5444d2a8314af82c05dba5a9ddc5f190e56e00e915c7a3"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-valid/66cd26f7-9a5c-4a8b-a815-747b4f82c8d3.json",
+      "bytes": 636,
+      "sha256": "4d82c2efe35a3fcc1ec88449484cc420aa11b6afc96448a8ca26efa35ea24bda"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-valid/6abf3a36-9cd5-40b8-b0ec-0f8af045af80.png",
+      "bytes": 11014,
+      "sha256": "34ee51186a7f16af91ba5150994f4926b4093a892b528ee864674c5d1d84b1b0"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-valid/6de1535f-e5ce-4fdc-a04d-78ec80eac777.json",
+      "bytes": 1913,
+      "sha256": "a65010e1c66049e69ae02fde3f2d89294f75e1696c25accb77a35478aef23674"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-valid/6e6b45ce-9623-40b3-8230-5f576c825071.json",
+      "bytes": 8312,
+      "sha256": "7f708a94e6770c684ec638175d27f4eedec635b404c6989ec42eec02bd186ca8"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-valid/716a6974-0493-4760-853e-6d14cbd48764.png",
+      "bytes": 11014,
+      "sha256": "34ee51186a7f16af91ba5150994f4926b4093a892b528ee864674c5d1d84b1b0"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-valid/af432fe1-e98e-472d-95c1-e93c93e2f106.json",
+      "bytes": 636,
+      "sha256": "4d82c2efe35a3fcc1ec88449484cc420aa11b6afc96448a8ca26efa35ea24bda"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/scenarios/diagnostic-valid/receipt.json",
+      "bytes": 21505,
+      "sha256": "963a733a63a193c6daf47a0cee050777e56b1557c5e2c0d368ac6aaf015d29d1"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/typecheck-1.log",
+      "bytes": 113,
+      "sha256": "d4ec4609054221ed4c16d6d39eadeb42e5cbc98686f33549e819de3b8a900214"
+    },
+    {
+      "path": "data/experiments/image-diagnosis-20261009-ea23bfc/typecheck-final.log",
+      "bytes": 113,
+      "sha256": "d4ec4609054221ed4c16d6d39eadeb42e5cbc98686f33549e819de3b8a900214"
+    }
+  ],
+  "retention": "Raw files remain local and ignored by Git. This index and exact CLI JSON sample are committed. Original temporary paths/run artifact paths may have been removed; use localFiles paths for retained copies. The gates scenario intentionally tampers one screenshot; its saved bytes hash authenticates the altered test artifact, not an intact PNG."
+}
