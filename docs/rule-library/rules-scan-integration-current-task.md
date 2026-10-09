@@ -1,14 +1,10 @@
-# 当前唯一入口：规则分支 main 整合准备（已完成）
+# 当前任务：D001 裁切 / D002 破坏性重叠普通扫描交付
 
-2026-10-09（Asia/Shanghai）。本轮只整理现有规则分支为可审查、可合并的交付。已完成完整分支清点、实现者静态自检和交接；建议整体合入，未发现明确代码整合阻塞。没有功能修改，无需重跑测试。提交本轮文档后停止。
+2026-10-09。当前任务是开发并接入限定 D001/D002，不再执行旧静态整合安排。
 
-- 唯一交接：[rules-main-integration-handoff.md](rules-main-integration-handoff.md)。包含完整源/目标 SHA、依赖、实际检查、局限、维护者整合及回退步骤。
-- 接手源：`fae4819094f79e5e84cdafc0ebdb27a7a2080fff`，分支 `codex/rule-image-proportion`；实际 main：`60c315a04e30b84356381763e33dd976a3ace836`，也是 merge-base。保留 fae4819 历史。
-- 既有产品实现/运行：`156ffbea3bdbeb0ee7e4a8ace0bbe56efd3d9a44`；交付证据：`1c89b2166075a689d0ddda089cfdc1869fe55103`；产品交付基线：`ea38712ecb747759c0b57d863c4d889bb0045b46`。到接手 HEAD 无代码差异，本轮也没有改代码。
-- [原产品说明](rules-scan-integration.md)和既有6场景/2定向测试、早期8算法证据继续使用；6场景不是6次完整扫描通过。此次只有静态检查和文件摘要核对，不冒称独立复核。
-- [本轮静态索引](evidence/rules-main-integration-static-audit-20261009.json)：完整105文件清单、分类、摘要检查及现场信息。
-- 接手时已有未提交正文已先逐字备份：[原任务说明快照](evidence/rules-main-integration-current-task-before-20261009.md)。快照、旧任务锚点及公网说明均为历史，不构成新任务。
-
-普通入口仍仅在已启用 ui-scan 中自动使用 D005/R005；D004默认关闭，R005不是缺陷或健康pass。全局开关、业务默认、既有R0完成门保持。维护者 main 的未提交 Roadmap 未修改/提交；未在主目录开发，未触碰 R1。
-
-本轮新增文档/快照/索引均纳入本地 Git 提交，原始大数据保持本地忽略状态。通过 `git log -1 --format=%H -- docs/rule-library/rules-main-integration-handoff.md` 取得交付完整 SHA。未合并 main、未push、未删除分支或证据；不新增规则、不重跑公网/DNS/全量、不调用付费模型、不全局启用扫描、不自动继续下一轮。
+- 基线 main：`280bcd54ebe36f3d22f8e1c06fa47c14f79516cd`。旧规则分支 `codex/rule-image-proportion@723185ea62141239de38546d621c1cd7bb6d3f3b` 保留。
+- 现场原 worktree 已不存在；本轮在原路径从上述基线新建 `codex/rules-clipping-overlap`，没有重置旧分支、删除资料或切换主目录分支。
+- 目标：自动公开角色/结构适用、同次截图的真实绘制证据、限定异常及健康测量、unknown/正常例外、生命周期、普通报告与历史恢复。
+- 当前：实现限定子集。D001 先针对原生控件唯一文字名称的字形被实际裁掉；有意省略/滚动/替代表达未确认时保留unknown。D002 针对公开共同操作组中同时呈现的独立原生控件文字被另一成员实色绘制覆盖，另行排除弹层/动画等，不等同于D010指针拦截。
+- 复用执行器、截图、证据和报告；不改全局扫描开关、业务默认、D004默认关闭或原完成门。不新增模型，不调DNS、不跑旧公网矩阵、不碰R1或Roadmap、不push/合main/派发其他会话。
+- 交付入口将为 `rules-clipping-overlap-delivery.md`；本地免费定向夹具、普通产品链路、必要类型/构建通过并提交后停止。

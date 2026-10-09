@@ -1,3 +1,9 @@
+import { readLayoutFacts, measureLayoutPixels } from './layout-facts.ts'
+import {
+  createControlLayoutRule,
+  type LayoutReceipt,
+  type LayoutRow,
+} from '../rules/builtin/control-layout.ts'
 import type { Page } from 'playwright'
 import { readFile } from 'node:fs/promises'
 import { createHash } from 'node:crypto'
@@ -29,6 +35,13 @@ export interface UiRuleReportBody {
     completeMs: number
     evaluateMs: number
     addedMs: number
+  }
+  layout?: {
+    results: { ruleId: string; verdict: string; rows: LayoutRow[] }[]
+    totalObserved: number
+    omitted: number
+    enumerationComplete: boolean
+    evidenceDigests: Record<string, string>
   }
   controls: {
     total: number
@@ -67,17 +80,22 @@ export function createUiRuleObservation(
   let current:
     | {
         receipt: ControlTextReceipt
+        layout: LayoutReceipt
+        layoutDigests: Record<string, string>
         images: NonNullable<Awaited<ReturnType<typeof observePage>>['snapshot']['imagePaint']>
         screenshotSha256: string
         timing: { prepareMs: number; completeMs: number; sharedObservationMs: number }
       }
     | undefined
-  let last: { key: string; result: RuleResult; body: UiRuleReportBody } | undefined
+  let last:
+    | { key: string; result: RuleResult; layoutResults: RuleResult[]; body: UiRuleReportBody }
+    | undefined
   const metadata = () => ({ evidenceIntegrity: integrity() })
   async function prepare() {
     const start = performance.now()
     const before = await readBatch2Facts(page)
-    return { before, prepareMs: performance.now() - start }
+    const layoutBefore = await readLayoutFacts(page)
+    return { before, layoutBefore, prepareMs: performance.now() - start }
   }
   async function complete(
     prepared: Awaited<ReturnType<typeof prepare>>,
@@ -96,6 +114,8 @@ export function createUiRuleObservation(
     })
     if (owned.rows.length !== 1) throw Error('ui-rule-owned-screenshot-unavailable')
     const png = await readFile(String(owned.rows[0]!.file_path))
+    const layoutAfter = await readLayoutFacts(page)
+    const layoutProof = await measureLayoutPixels(page, png, layoutAfter)
     const pixels = await screenshotInk(page, png, after.controls)
     const observedAt = observation.snapshot.observedAt
     const receipt: ControlTextReceipt = {
@@ -131,8 +151,43 @@ export function createUiRuleObservation(
       metadata(),
     )
     receipt.evidenceRefs.push(factsRef)
+    const layoutRefs = [receipt.screenshotRef]
+    const layoutDigests: Record<string, string> = {
+      [receipt.screenshotRef]: createHash('sha256').update(png).digest('hex'),
+    }
+    if (layoutProof.referencePng) {
+      const ref = await saveEvidence(runId, 'screenshot', layoutProof.referencePng, {
+        ...metadata(),
+        purpose: 'isolated-layout-reference; not target page',
+      })
+      layoutRefs.push(ref)
+      layoutDigests[ref] = createHash('sha256').update(layoutProof.referencePng).digest('hex')
+    }
+    const layout: LayoutReceipt = {
+      runId,
+      observedAt,
+      expiresAt: receipt.expiresAt,
+      screenshotRef: receipt.screenshotRef,
+      facts: layoutAfter,
+      pixels: layoutProof.pixels,
+      stable: JSON.stringify(prepared.layoutBefore) === JSON.stringify(layoutAfter),
+      issues: [],
+      evidenceRefs: layoutRefs,
+      evidenceIntegrity: integrity(),
+    }
+    const layoutSerialized = JSON.stringify({ receipt: layout, before: prepared.layoutBefore })
+    const layoutRef = await saveEvidence(
+      runId,
+      'control-layout-facts',
+      layoutSerialized,
+      metadata(),
+    )
+    layout.evidenceRefs.push(layoutRef)
+    layoutDigests[layoutRef] = createHash('sha256').update(layoutSerialized).digest('hex')
     current = {
       receipt,
+      layout,
+      layoutDigests,
       images: observation.snapshot.imagePaint ?? [],
       screenshotSha256: createHash('sha256').update(png).digest('hex'),
       timing: {
@@ -152,14 +207,41 @@ export function createUiRuleObservation(
       controls: receipt.dom.controls.map((c) => c.selector),
       images: receipt.dom.images.map((i) => i.selector),
     })
+    const layoutLive = await readLayoutFacts(page)
+    const layoutEvidenceIssues: string[] = []
+    for (const [ref, sha] of Object.entries(current.layoutDigests)) {
+      try {
+        const found = await getDbClient().execute({
+          sql: 'SELECT file_path FROM artifacts WHERE run_id=? AND id=?',
+          args: [runId, ref],
+        })
+        if (
+          found.rows.length !== 1 ||
+          createHash('sha256')
+            .update(await readFile(String(found.rows[0]!.file_path)))
+            .digest('hex') !== sha
+        )
+          layoutEvidenceIssues.push('layout-evidence-missing-or-changed')
+      } catch {
+        layoutEvidenceIssues.push('layout-evidence-missing-or-changed')
+      }
+    }
     const fresh = identity(live) === identity(receipt.dom)
     const key = JSON.stringify([
       receipt.screenshotRef,
       identity(live),
+      layoutLive,
+      layoutEvidenceIssues,
       integrity(),
       Date.now() < Date.parse(receipt.expiresAt),
     ])
-    if (last?.key === key) return { result: last.result, reused: true, body: last.body }
+    if (last?.key === key)
+      return {
+        result: last.result,
+        layoutResults: last.layoutResults,
+        reused: true,
+        body: last.body,
+      }
     const input = { ...receipt, stable: receipt.stable && fresh, evidenceIntegrity: integrity() }
     let result = (
       await cache.evaluate(createControlTextDisappearanceRule(input), {
@@ -177,6 +259,36 @@ export function createUiRuleObservation(
       context.snapshot.screenshotPath === input.screenshotRef
     if (result.verdict === 'unknown' && capabilityLimit)
       result = { ...result, unchecked: { reasonCode: 'control-text-supported-scope-limit' } }
+    const layoutInput = {
+      ...current.layout,
+      stable:
+        current.layout.stable &&
+        JSON.stringify(layoutLive) === JSON.stringify(current.layout.facts),
+      issues: layoutEvidenceIssues,
+      evidenceIntegrity: integrity(),
+    }
+    const layoutResults = await Promise.all(
+      (['clipping', 'overlap'] as const).map((kind) =>
+        createControlLayoutRule(kind, layoutInput).evaluate({
+          ...context,
+          timestamp: new Date().toISOString(),
+          snapshot: { ...context.snapshot, evidenceIntegrity: integrity() },
+        }),
+      ),
+    )
+    for (const item of layoutResults)
+      for (const row of item.details.rows as LayoutRow[]) {
+        const target = context.snapshot.elements.find((e) => e.selector === row.selector)
+        if (target?.hitSamples?.some((s) => s.relation === 'unrelated'))
+          row.relatedRuleIds.push('overlay-blocking')
+        const other = layoutResults.find((r) => r.ruleId !== item.ruleId)
+        if (
+          (other?.details.rows as LayoutRow[])?.some(
+            (r) => r.selector === row.selector && r.verdict === 'fail',
+          )
+        )
+          row.relatedRuleIds.push(other!.ruleId)
+      }
     const requests = ledger.snapshot()
     const review = reviewImageFallbacks({
       dom: input.dom,
@@ -207,7 +319,18 @@ export function createUiRuleObservation(
       observedAt: input.observedAt,
       screenshotSha256: current.screenshotSha256,
       screenshotRef: input.screenshotRef,
-      evidenceRefs: [...input.evidenceRefs, reviewRef],
+      evidenceRefs: [...input.evidenceRefs, reviewRef, ...current.layout.evidenceRefs],
+      layout: {
+        results: layoutResults.map((r) => ({
+          ruleId: r.ruleId,
+          verdict: r.verdict,
+          rows: r.details.rows as LayoutRow[],
+        })),
+        totalObserved: current.layout.facts.totalObserved,
+        omitted: current.layout.facts.omitted,
+        enumerationComplete: current.layout.facts.enumerationComplete,
+        evidenceDigests: current.layoutDigests,
+      },
       timing: {
         ...current.timing,
         evaluateMs: performance.now() - start,
@@ -260,8 +383,8 @@ export function createUiRuleObservation(
       },
       { evidenceRefs: [artifactRef, ...body.evidenceRefs] },
     )
-    last = { key, result, body }
-    return { result, reused: false, body }
+    last = { key, result, layoutResults, body }
+    return { result, layoutResults, reused: false, body }
   }
   return { prepare, complete, evaluate, close: ledger.close }
 }
