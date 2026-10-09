@@ -1,0 +1,880 @@
+{
+  "version": "rules-batch2-evidence-1",
+  "date": "2026-10-09",
+  "baselineCommit": "35dccaf3657af503a93cad1d6819f4d019651552",
+  "implementationCommit": "5fa18aa9ed7bedb90ec1a9b5982e0c3605b712fc",
+  "branch": "codex/rule-image-proportion",
+  "sourceIdentity": [
+    {
+      "path": "scripts/experiments/rules-batch2.ts",
+      "bytes": 2088,
+      "sha256": "5b8acd6de0b7a74ce85ef6bfc8ca9b042a639e6863570d990ed753a57b66b8b3"
+    },
+    {
+      "path": "src/experiments/batch2-facts.ts",
+      "bytes": 21264,
+      "sha256": "3859e24c5ca2709be5679f1f18627ca0bb9fec27473bd8ad8f910bbe5d06b5c3"
+    },
+    {
+      "path": "src/experiments/image-fallback-review.ts",
+      "bytes": 4587,
+      "sha256": "de905f633554c1915904e39b68a928605f2daa691ce47a279ae7a9c5b7ffb21c"
+    },
+    {
+      "path": "src/experiments/rules-batch2-host.ts",
+      "bytes": 4389,
+      "sha256": "2dde13c3b6d35544664b00e58b654a79a93ceb84ec1d477bf6899f49ae2bf198"
+    },
+    {
+      "path": "src/experiments/rules-batch2.test.ts",
+      "bytes": 17465,
+      "sha256": "b183a52e50256615f312eeca6674b63d8fe3237b6f6ef62e72d4f392d605968c"
+    },
+    {
+      "path": "src/experiments/rules-batch2.ts",
+      "bytes": 8378,
+      "sha256": "2a18b1aecee8d7002925a0f5b3968193438e743bf0c60ea17d95f14465584207"
+    },
+    {
+      "path": "src/rules/builtin/control-text-disappearance.ts",
+      "bytes": 5489,
+      "sha256": "f597a49bb32079fe3e109540726d037b930f55329d538fca8f4e866529d0c54c"
+    },
+    {
+      "path": "src/rules/builtin/index.ts",
+      "bytes": 910,
+      "sha256": "4f02306cc1e022d68b4b0f3d828e136a46f82f5b83ccf467e9761d7dabb23316"
+    }
+  ],
+  "validation": {
+    "finalDirected": "8 passed (8), 3.27s, directed-final.log",
+    "typecheck": {
+      "exitCode": 0,
+      "log": "typecheck-final.log",
+      "receipt": "typecheck-exit.json"
+    },
+    "initialFailures": [
+      "Initial TypeScript errors in animation state, readonly arrays and inferred snapshot types corrected.",
+      "directed-1: 4 failed / 2 passed; string-form screenshot evaluation had not invoked the decoder.",
+      "directed-2: 3 failed / 3 passed; pseudo background default incorrectly flagged and healthy link fixture wrapped; unrelated shadow guards retained."
+    ],
+    "intermediate": "directed-3: 7 passed; one additional node-replacement test then passed; final guard changes validated all 8 together.",
+    "models": 0,
+    "publicVisits": 0,
+    "acceptanceClaim": false,
+    "fixtureScope": "Synthetic local browser scenes, not Jira reproductions; final tests exercise pinned network policy; one pending response and one intentionally rejected POST."
+  },
+  "scenarios": [
+    {
+      "name": "image-deferred",
+      "runId": "run-11f9d465-8daf-4688-8b8b-9e4e6bb61961",
+      "receipt": {
+        "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/image-deferred/receipt.json",
+        "bytes": 22156,
+        "sha256": "8eff08524ace5258be636476895e35022fe9e8a8a8b0c28f85cb0d708597b8c2"
+      },
+      "artifactCount": 5,
+      "imageRequests": 1,
+      "businessWrites": 0,
+      "ruleVerdict": "unknown",
+      "textRows": [],
+      "reviewRows": [
+        {
+          "selector": "#pending",
+          "resourceState": "loading",
+          "disposition": "unknown",
+          "measurement": "observed",
+          "reasons": [],
+          "association": {
+            "confidence": "structural-only",
+            "identityEquivalence": "unknown",
+            "textVisibility": "DOM layout/style only; not verified legibility or lack of occlusion",
+            "replacementImageMeaning": "unknown"
+          }
+        },
+        {
+          "selector": "#lazy",
+          "resourceState": "lazy-no-request-observed",
+          "disposition": "unknown",
+          "measurement": "observed",
+          "reasons": [],
+          "association": {
+            "confidence": "structural-only",
+            "identityEquivalence": "unknown",
+            "textVisibility": "DOM layout/style only; not verified legibility or lack of occlusion",
+            "replacementImageMeaning": "unknown"
+          }
+        }
+      ],
+      "report": {
+        "evaluations": 1,
+        "reviewArtifacts": 1,
+        "findings": 0
+      }
+    },
+    {
+      "name": "image-states",
+      "runId": "run-76faa9e0-909a-4b73-a7b2-be1ac9ac6f3d",
+      "receipt": {
+        "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/image-states/receipt.json",
+        "bytes": 39327,
+        "sha256": "2fb599935223da34f4112dc780eea76fd9048d8e01c357afbb5f116be30aa44a"
+      },
+      "artifactCount": 6,
+      "imageRequests": 3,
+      "businessWrites": 0,
+      "ruleVerdict": "unknown",
+      "textRows": [],
+      "reviewRows": [
+        {
+          "selector": "#broken",
+          "resourceState": "http-failed",
+          "disposition": "review-needed",
+          "measurement": "observed",
+          "reasons": [],
+          "association": {
+            "confidence": "structural-only",
+            "identityEquivalence": "unknown",
+            "textVisibility": "DOM layout/style only; not verified legibility or lack of occlusion",
+            "replacementImageMeaning": "unknown"
+          }
+        },
+        {
+          "selector": "#alternative",
+          "resourceState": "loaded",
+          "disposition": "not-applicable",
+          "measurement": "observed",
+          "reasons": [],
+          "association": {
+            "confidence": "structural-only",
+            "identityEquivalence": "unknown",
+            "textVisibility": "DOM layout/style only; not verified legibility or lack of occlusion",
+            "replacementImageMeaning": "unknown"
+          }
+        },
+        {
+          "selector": "#absent",
+          "resourceState": "source-absent",
+          "disposition": "review-needed",
+          "measurement": "observed",
+          "reasons": [],
+          "association": {
+            "confidence": "structural-only",
+            "identityEquivalence": "unknown",
+            "textVisibility": "DOM layout/style only; not verified legibility or lack of occlusion",
+            "replacementImageMeaning": "unknown"
+          }
+        },
+        {
+          "selector": "#presentation",
+          "resourceState": "http-failed",
+          "disposition": "not-applicable",
+          "measurement": "observed",
+          "reasons": [],
+          "association": {
+            "confidence": "structural-only",
+            "identityEquivalence": "unknown",
+            "textVisibility": "DOM layout/style only; not verified legibility or lack of occlusion",
+            "replacementImageMeaning": "unknown"
+          }
+        },
+        {
+          "selector": "#bad",
+          "resourceState": "load-or-decode-failed",
+          "disposition": "review-needed",
+          "measurement": "observed",
+          "reasons": [],
+          "association": {
+            "confidence": "structural-only",
+            "identityEquivalence": "unknown",
+            "textVisibility": "DOM layout/style only; not verified legibility or lack of occlusion",
+            "replacementImageMeaning": "unknown"
+          }
+        }
+      ],
+      "report": {
+        "evaluations": 1,
+        "reviewArtifacts": 1,
+        "findings": 0
+      }
+    },
+    {
+      "name": "intervention",
+      "runId": "run-081f39e3-cb9f-4d8a-b450-088df7682def",
+      "receipt": {
+        "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/intervention/receipt.json",
+        "bytes": 32724,
+        "sha256": "615abae50f739ae5f4268a408123298db5004d528348237edc7dd74c3d0065b4"
+      },
+      "artifactCount": 5,
+      "imageRequests": 0,
+      "businessWrites": 0,
+      "ruleVerdict": "unknown",
+      "textRows": [
+        {
+          "selector": "#white",
+          "verdict": "unknown",
+          "reason": "evidence-intervened-or-missing",
+          "pixel": {
+            "selector": "#white",
+            "samples": 1768,
+            "backgroundPixels": 1768,
+            "foregroundPixels": 0,
+            "otherPixels": 0
+          }
+        }
+      ],
+      "reviewRows": [
+        {
+          "selector": "#denied",
+          "resourceState": "request-failed",
+          "disposition": "unknown",
+          "measurement": "incomplete",
+          "reasons": [
+            "evidence-intervened-or-missing"
+          ],
+          "association": {
+            "confidence": "structural-only",
+            "identityEquivalence": "unknown",
+            "textVisibility": "DOM layout/style only; not verified legibility or lack of occlusion",
+            "replacementImageMeaning": "unknown"
+          }
+        }
+      ],
+      "report": {
+        "evaluations": 1,
+        "reviewArtifacts": 1,
+        "findings": 0
+      }
+    },
+    {
+      "name": "node-replaced",
+      "runId": "run-5d55ccc0-6ddc-4ee1-88c0-ce990795dc67",
+      "receipt": {
+        "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/node-replaced/receipt.json",
+        "bytes": 27620,
+        "sha256": "a0c517f93c9cd6fedc92b2dd27acff46346deda636588442d60e997d5df34045"
+      },
+      "artifactCount": 5,
+      "imageRequests": 0,
+      "businessWrites": 0,
+      "ruleVerdict": "unknown",
+      "textRows": [
+        {
+          "selector": "#target",
+          "verdict": "unknown",
+          "reason": "observation-changed",
+          "pixel": {
+            "selector": "#target",
+            "samples": 1836,
+            "backgroundPixels": 1836,
+            "foregroundPixels": 0,
+            "otherPixels": 0
+          }
+        }
+      ],
+      "reviewRows": [
+        {
+          "selector": "#missing",
+          "resourceState": "source-absent",
+          "disposition": "unknown",
+          "measurement": "incomplete",
+          "reasons": [
+            "observation-changed"
+          ],
+          "association": {
+            "confidence": "structural-only",
+            "identityEquivalence": "unknown",
+            "textVisibility": "DOM layout/style only; not verified legibility or lack of occlusion",
+            "replacementImageMeaning": "unknown"
+          }
+        }
+      ],
+      "report": {
+        "evaluations": 1,
+        "reviewArtifacts": 1,
+        "findings": 0
+      }
+    },
+    {
+      "name": "text-boundaries",
+      "runId": "run-b8c565c2-d5aa-427f-9aa6-73936799fa15",
+      "receipt": {
+        "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/text-boundaries/receipt.json",
+        "bytes": 53803,
+        "sha256": "ebfbecc9f5383a54025d463e068cdd710a4e41c66ada02170c917a85f647d167"
+      },
+      "artifactCount": 5,
+      "imageRequests": 0,
+      "businessWrites": 0,
+      "ruleVerdict": "fail",
+      "textRows": [
+        {
+          "selector": "#layer",
+          "verdict": "fail",
+          "reason": "sole-native-text-name-has-no-distinguishable-paint",
+          "pixel": {
+            "selector": "#layer",
+            "samples": 1462,
+            "backgroundPixels": 1462,
+            "foregroundPixels": 0,
+            "otherPixels": 0
+          }
+        },
+        {
+          "selector": "#covered",
+          "verdict": "unknown",
+          "reason": "intersecting-content",
+          "pixel": {
+            "selector": "#covered",
+            "samples": 2108,
+            "backgroundPixels": 2108,
+            "foregroundPixels": 0,
+            "otherPixels": 0
+          }
+        },
+        {
+          "selector": "#icon",
+          "verdict": "unknown",
+          "reason": "non-simple-text-or-alternative-expression; text-layout-not-contained-single-line; intersecting-content; hit-target-not-confirmed",
+          "pixel": {
+            "selector": "#icon",
+            "samples": 1020,
+            "backgroundPixels": 577,
+            "foregroundPixels": 142,
+            "otherPixels": 301
+          }
+        },
+        {
+          "selector": "#same",
+          "verdict": "unknown",
+          "reason": "missing-or-ambiguous-target",
+          "pixel": {
+            "selector": "#same",
+            "samples": 0,
+            "backgroundPixels": 0,
+            "foregroundPixels": 0,
+            "otherPixels": 0
+          }
+        },
+        {
+          "selector": "#same",
+          "verdict": "unknown",
+          "reason": "missing-or-ambiguous-target",
+          "pixel": {
+            "selector": "#same",
+            "samples": 0,
+            "backgroundPixels": 0,
+            "foregroundPixels": 0,
+            "otherPixels": 0
+          }
+        }
+      ],
+      "reviewRows": [],
+      "report": {
+        "evaluations": 1,
+        "reviewArtifacts": 1,
+        "findings": 1
+      }
+    },
+    {
+      "name": "text-effects",
+      "runId": "run-c69837d7-143c-4bfd-a56f-22315b859245",
+      "receipt": {
+        "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/text-effects/receipt.json",
+        "bytes": 53621,
+        "sha256": "1df3ae1d38f2c358cd9513a8253ac29ef446955fe6fb312ea7a04c4d68683e57"
+      },
+      "artifactCount": 5,
+      "imageRequests": 0,
+      "businessWrites": 0,
+      "ruleVerdict": "unknown",
+      "textRows": [
+        {
+          "selector": "#shadow",
+          "verdict": "unknown",
+          "reason": "stroke-shadow-or-decoration",
+          "pixel": {
+            "selector": "#shadow",
+            "samples": 2074,
+            "backgroundPixels": 1448,
+            "foregroundPixels": 0,
+            "otherPixels": 626
+          }
+        },
+        {
+          "selector": "#stroke",
+          "verdict": "unknown",
+          "reason": "stroke-shadow-or-decoration; external-paint-effect; pseudo-text-style",
+          "pixel": {
+            "selector": "#stroke",
+            "samples": 1904,
+            "backgroundPixels": 809,
+            "foregroundPixels": 0,
+            "otherPixels": 1095
+          }
+        },
+        {
+          "selector": "#gradient",
+          "verdict": "unknown",
+          "reason": "complex-compositing; external-paint-effect",
+          "pixel": {
+            "selector": "#gradient",
+            "samples": 2142,
+            "backgroundPixels": 222,
+            "foregroundPixels": 0,
+            "otherPixels": 1920
+          }
+        },
+        {
+          "selector": "#pseudo",
+          "verdict": "unknown",
+          "reason": "text-layout-not-contained-single-line; external-paint-effect; pseudo-text-style",
+          "pixel": {
+            "selector": "#pseudo",
+            "samples": 2040,
+            "backgroundPixels": 1853,
+            "foregroundPixels": 0,
+            "otherPixels": 187
+          }
+        }
+      ],
+      "reviewRows": [],
+      "report": {
+        "evaluations": 1,
+        "reviewArtifacts": 1,
+        "findings": 0
+      }
+    },
+    {
+      "name": "text-matrix",
+      "runId": "run-39d728f4-09bb-42ba-bcb1-171d32b5d912",
+      "receipt": {
+        "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/text-matrix/receipt.json",
+        "bytes": 70447,
+        "sha256": "9493e05bf805dbbb5c3f0d61c135bc02a24f65df08ce1f0e999240bfb8223220"
+      },
+      "artifactCount": 5,
+      "imageRequests": 0,
+      "businessWrites": 0,
+      "ruleVerdict": "fail",
+      "textRows": [
+        {
+          "selector": "#white",
+          "verdict": "fail",
+          "reason": "sole-native-text-name-has-no-distinguishable-paint",
+          "pixel": {
+            "selector": "#white",
+            "samples": 1768,
+            "backgroundPixels": 1768,
+            "foregroundPixels": 0,
+            "otherPixels": 0
+          }
+        },
+        {
+          "selector": "#alpha",
+          "verdict": "fail",
+          "reason": "sole-native-text-name-has-no-distinguishable-paint",
+          "pixel": {
+            "selector": "#alpha",
+            "samples": 1802,
+            "backgroundPixels": 1802,
+            "foregroundPixels": 0,
+            "otherPixels": 0
+          }
+        },
+        {
+          "selector": "#healthy",
+          "verdict": "pass",
+          "reason": "opaque-black-white-text-ink-observed",
+          "pixel": {
+            "selector": "#healthy",
+            "samples": 2040,
+            "backgroundPixels": 1203,
+            "foregroundPixels": 207,
+            "otherPixels": 630
+          }
+        },
+        {
+          "selector": "#link",
+          "verdict": "pass",
+          "reason": "opaque-black-white-text-ink-observed",
+          "pixel": {
+            "selector": "#link",
+            "samples": 1309,
+            "backgroundPixels": 792,
+            "foregroundPixels": 122,
+            "otherPixels": 395
+          }
+        },
+        {
+          "selector": "#disabled",
+          "verdict": "not-applicable",
+          "reason": "disabled-or-inert",
+          "pixel": {
+            "selector": "#disabled",
+            "samples": 2176,
+            "backgroundPixels": 2176,
+            "foregroundPixels": 0,
+            "otherPixels": 0
+          }
+        },
+        {
+          "selector": "#near",
+          "verdict": "unknown",
+          "reason": "outside-exact-disappearance-or-black-white-witness",
+          "pixel": {
+            "selector": "#near",
+            "samples": 1700,
+            "backgroundPixels": 1225,
+            "foregroundPixels": 475,
+            "otherPixels": 0
+          }
+        }
+      ],
+      "reviewRows": [],
+      "report": {
+        "evaluations": 1,
+        "reviewArtifacts": 1,
+        "findings": 1
+      }
+    },
+    {
+      "name": "cli",
+      "runId": "run-cff94d4b-e593-440d-baf3-79edae5dc1eb",
+      "receipt": {
+        "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/cli/batch2.json",
+        "bytes": 7984,
+        "sha256": "446fe4f0f4e338723cce52cf2b0821db7d8f7dd1aa83224c6cca53f7a78889d7"
+      },
+      "sample": {
+        "path": "docs/rule-library/evidence/rules-batch2-cli-sample-20261009.json",
+        "bytes": 7984,
+        "sha256": "446fe4f0f4e338723cce52cf2b0821db7d8f7dd1aa83224c6cca53f7a78889d7"
+      },
+      "ruleVerdict": "fail",
+      "reviewRows": [
+        {
+          "resourceState": "http-failed",
+          "disposition": "review-needed"
+        }
+      ],
+      "report": {
+        "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/cli/report.json",
+        "bytes": 16016,
+        "sha256": "611502d16b5cf100eee1432c715046296dd08a72dab820c57aefe1bf694d7d2c"
+      },
+      "closedHistoricalSession": true
+    }
+  ],
+  "finalLocalFiles": [
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/cli/artifacts/219ef79a-d4c4-450b-97ea-d1168a07e663.json",
+      "bytes": 3453,
+      "sha256": "5537d3a608fd4cfa0e4086258ccb74ffe5d9cb9ab5786d668fa6415fe6993eeb"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/cli/artifacts/4b2a7de3-8d15-4ac5-a558-e1d7a7240cd1.json",
+      "bytes": 2839,
+      "sha256": "61967263fca8e9fbf4247bfb7ae57a15de104905d03e403b0898c657f7245a05"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/cli/artifacts/751d5f82-d1b3-4c61-b08b-dbeaa0245fd9.png",
+      "bytes": 5351,
+      "sha256": "6fca5c8ddd868aeaf6686b8f064d40a17b77405e7d911dfcc6134f808c50a136"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/cli/artifacts/d7edaaa6-a037-4185-b64b-8bee380fcb74.json",
+      "bytes": 1922,
+      "sha256": "aa5b0b8e64e3c1bfe2871038a49a8264f6a0bbba2f969c2215124ce4fe3d2391"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/cli/artifacts/f2edfeb4-206e-46b2-b545-ddcc0d0567bc.json",
+      "bytes": 2547,
+      "sha256": "f09a42b3574c0e6f956769541d7f2aeecf057b8cdab56f0ca0771fba583fb8d8"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/cli/batch2.json",
+      "bytes": 7984,
+      "sha256": "446fe4f0f4e338723cce52cf2b0821db7d8f7dd1aa83224c6cca53f7a78889d7"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/cli/experiment.db",
+      "bytes": 73728,
+      "sha256": "9d4c10580e446316af75f10e44414ba2fe904313b418a0220fab17464d249c76"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/cli/report.json",
+      "bytes": 16016,
+      "sha256": "611502d16b5cf100eee1432c715046296dd08a72dab820c57aefe1bf694d7d2c"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/cli/stdout.log",
+      "bytes": 126,
+      "sha256": "8ff31eeed186dc1c9ec590833e40e48cbd39e0ac8976c9c087543d9494a02e1b"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/image-deferred/13661b41-ba27-404f-8c20-718d3b7b65c8.json",
+      "bytes": 1382,
+      "sha256": "012ba6663063e71dbe76825d9ab8b947fc283b7b555a8a3e7cb92c64a04e7f24"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/image-deferred/5bc2730d-d016-404b-8032-4b180dfd57e5.png",
+      "bytes": 4530,
+      "sha256": "28973f650d298a346c185b9996c1d3c9c120f65d25381a397644cd061871d6e0"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/image-deferred/5cbab311-a65f-49af-aee1-fe7cc1d0ebba.json",
+      "bytes": 3351,
+      "sha256": "137ac95f4b349e9a91c1bea455471f9ca95a31b0fbae3079ee9dba942352c213"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/image-deferred/649b2837-a5c5-4e4a-aa14-85a28635234d.json",
+      "bytes": 2463,
+      "sha256": "ff00a8c5fdce3d473144b54698cf0e66fc15890670540e0218f563be70a55b79"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/image-deferred/cd9b9952-fe0a-4bb5-b121-9f473113ecf8.json",
+      "bytes": 4005,
+      "sha256": "471eff1f2b66ea27017749e138159dd3d3870cb4c8c4db16e0250921e7f230b4"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/image-deferred/receipt.json",
+      "bytes": 22156,
+      "sha256": "8eff08524ace5258be636476895e35022fe9e8a8a8b0c28f85cb0d708597b8c2"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/image-states/0f95473a-5105-40e3-92f7-2283f1d178d9.json",
+      "bytes": 3160,
+      "sha256": "aa4f890b0cb0a25f7d471febee6c0e228143e8fb6bb3691ec28f3af1a2f5919f"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/image-states/850f6b55-f1dc-4ff2-a710-4549794df877.png",
+      "bytes": 11078,
+      "sha256": "c0eed110d63325a8621235ee69fa374719ff32f7c1f9654e3c706e36a1067985"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/image-states/99708401-664c-45f3-820a-47f6480ab592.json",
+      "bytes": 12504,
+      "sha256": "de681fab2f0dcdb2ee2f63ac8e6984f19282aaafc3a8321fbcd14f6cd7af4487"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/image-states/9f7c7b8b-7858-459d-bf9a-beb1db4c3447.json",
+      "bytes": 6273,
+      "sha256": "dcfc53eeb46f798958daf371b91f2505167fdc143ade059d64ca0bb2b100d240"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/image-states/a819b8b9-907a-48bc-8966-3de10b01d255.json",
+      "bytes": 10861,
+      "sha256": "2eba014b7081a6523e09b9b88f5ba2aa83e6061be2c260d58f34d1d3c1ca9e7a"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/image-states/dd7e718a-bcb4-419f-aac6-7e1c31daa5e4.json",
+      "bytes": 633,
+      "sha256": "c9acffd30fb9eed4c76958ee4f9e878f4c68e49fdecca8d4ea4dc9e9cee0c528"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/image-states/receipt.json",
+      "bytes": 39327,
+      "sha256": "2fb599935223da34f4112dc780eea76fd9048d8e01c357afbb5f116be30aa44a"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/intervention/206d0301-09cc-40e2-a719-53dcba69cdc4.json",
+      "bytes": 2604,
+      "sha256": "3dda3f23f17a0ab47d1cb61f926d3f64e98d4f4803bb401d5f43c6582d418a08"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/intervention/6ac40329-01ea-4edb-8c3e-964186aac086.json",
+      "bytes": 1990,
+      "sha256": "b626696e58e9c380ae28d7b5ee2a9a0f5ff780d115fac1131eb404496931bcaf"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/intervention/addcc095-a02c-4ee4-b8c0-764f0587a0af.png",
+      "bytes": 5351,
+      "sha256": "6fca5c8ddd868aeaf6686b8f064d40a17b77405e7d911dfcc6134f808c50a136"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/intervention/ce18da43-bd03-458a-94c2-6f86821128e6.json",
+      "bytes": 2633,
+      "sha256": "1133f1ba1accab2e3453aaeb9cbd4871b64a11e2944bbd5a7f48d5a4cdb58935"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/intervention/f0460876-05aa-4966-a11e-01ef4d3a34f8.json",
+      "bytes": 3424,
+      "sha256": "29598e9e8ced2768b43dbf3042faddf0bd599e73056705d57936710e90aa90b5"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/intervention/receipt.json",
+      "bytes": 32724,
+      "sha256": "615abae50f739ae5f4268a408123298db5004d528348237edc7dd74c3d0065b4"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/node-replaced/0a551c40-deb9-4771-b52c-6a44b129bd19.json",
+      "bytes": 1858,
+      "sha256": "d456d5825e2e5fe3faf05902a577de2c5eb3d1083ff9a5dce907783e309e72b6"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/node-replaced/711ae17d-5543-402d-ae48-4d843c002c56.json",
+      "bytes": 2272,
+      "sha256": "b6bb8625188614573a5446e7f50d8b30922714f2aba77fb2c7adf5828ad9f39f"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/node-replaced/90a55f9e-2be8-46a6-a845-6a596f0e55d8.json",
+      "bytes": 3193,
+      "sha256": "309587bf459512d692f42d9a66bb11f8a8ba25658fbf1d3739cb305cba7cda9f"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/node-replaced/df796e0c-9b4b-4b64-9f9c-442692e533cb.png",
+      "bytes": 4654,
+      "sha256": "9d6f989d85e1e37c44897c37b55881f88ae30dc7a4940c7cf5ac022bb39bb777"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/node-replaced/fce19e02-21a0-46aa-bd5f-078674320972.json",
+      "bytes": 2477,
+      "sha256": "fb14e96fbd419bb59051d74fbafe684c8117351d19866ca6e4b648c9995aad11"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/node-replaced/receipt.json",
+      "bytes": 27620,
+      "sha256": "a0c517f93c9cd6fedc92b2dd27acff46346deda636588442d60e997d5df34045"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/text-boundaries/1b84997d-654e-4e58-bcc8-a6f1fbd5c6fa.json",
+      "bytes": 5699,
+      "sha256": "4215b28afcd5dba2f0b7892c5ab924d049c6fbc6c68af05178a620dc9e0966ec"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/text-boundaries/21befa77-01cd-445a-aaa4-ea5caa1e1444.png",
+      "bytes": 10285,
+      "sha256": "550ef142840555edab86a179f08e25bf7d3a62278d886528bd6b6594ce6cbba0"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/text-boundaries/265aa805-61f6-4e5b-bf76-991a8be42e68.json",
+      "bytes": 3921,
+      "sha256": "6149a9741b84fcd52083800622b9b801c027dd29c45f0b431012a8a7887dbb33"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/text-boundaries/5b705d2d-a02a-4395-8d6e-bbf65ff88637.json",
+      "bytes": 5615,
+      "sha256": "5e3b56859e35e8b51cc4801ce6626d7fa09de17cabd20a292ac1095c81518459"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/text-boundaries/81ccb417-f053-448b-a831-2b46e30bff3a.json",
+      "bytes": 517,
+      "sha256": "fef8046678b75d6a90bdaa8cf3da7ee6e5a98d2234e6005456f2c58927b68383"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/text-boundaries/receipt.json",
+      "bytes": 53803,
+      "sha256": "ebfbecc9f5383a54025d463e068cdd710a4e41c66ada02170c917a85f647d167"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/text-effects/005f3025-84d3-4586-ae4d-bf99477e8130.json",
+      "bytes": 517,
+      "sha256": "052d239e250eefb17f1fdf94fabc3238c06384299f26770a17ae41c0a865dcdc"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/text-effects/887a770c-0235-4167-a225-84dc3c10e1c5.png",
+      "bytes": 12905,
+      "sha256": "206556f97b1c2c10b4e7215998b2bb919ac37ab02abf22f90b13d9deea5e9ce3"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/text-effects/9ca68154-60f9-4d0d-aeac-ff99fa637022.json",
+      "bytes": 5835,
+      "sha256": "ee28a3e55f710493f33fe1fd3b619c296cdb40726801160cb7482adae1fdb811"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/text-effects/b5747147-8213-406a-83d8-5ad907be27a5.json",
+      "bytes": 3952,
+      "sha256": "b50177204ef39facf20f4542e3ed4411278b215c3be057be1635945ae47c49a9"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/text-effects/d76cfb6d-1b33-4d35-8c7b-932a1bc8b624.json",
+      "bytes": 4480,
+      "sha256": "0220d319d4f2caf91acbb0c31291399cc829b819dd7a0004764ece31aa438277"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/text-effects/receipt.json",
+      "bytes": 53621,
+      "sha256": "1df3ae1d38f2c358cd9513a8253ac29ef446955fe6fb312ea7a04c4d68683e57"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/text-matrix/03207a00-426a-4252-8ebe-9eb8ca128512.png",
+      "bytes": 9182,
+      "sha256": "629784fb5c71923a6a0d5745941d14d4c2831bddd8932141057db5aadab584dd"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/text-matrix/517788e3-da5a-41f7-b0f6-b6e0d6ac5dd0.json",
+      "bytes": 6542,
+      "sha256": "d717690944de01f7b93e9e0a33717a4c9adc18432fc9b8e6515cab9bd825f1f0"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/text-matrix/5e50ed4e-7648-456f-bd94-f014870550be.json",
+      "bytes": 4975,
+      "sha256": "d34e0a7979945d8bffd0fb62c92d90d3ce4f60ae344df02a7dc15bd84d3eef08"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/text-matrix/6a78628e-b681-4481-bf10-749f4be48c77.json",
+      "bytes": 7689,
+      "sha256": "73f592f223a8a7634f1304f4b85d09433b44729ecd51c949e2f94a284ed29339"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/text-matrix/7323c92c-ded7-43db-b5a0-f32c1d7c0155.json",
+      "bytes": 517,
+      "sha256": "3840993f72305aa187e00660a9f60f86b1533b057be9e369da27f73a2a806a44"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/final-guards/text-matrix/receipt.json",
+      "bytes": 70447,
+      "sha256": "9493e05bf805dbbb5c3f0d61c135bc02a24f65df08ce1f0e999240bfb8223220"
+    }
+  ],
+  "logFiles": [
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/directed-1.log",
+      "bytes": 3666,
+      "sha256": "e2b26dd23805d4a869edbb4d411a1a3287d7a48cc46f3c8781c47c259c2ae9f9"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/directed-2.log",
+      "bytes": 13484,
+      "sha256": "eeee4257451aca3d309cf7c5645297cfdefac7f971979c11edaca4675a0c26b8"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/directed-3.log",
+      "bytes": 213,
+      "sha256": "60baf8e976891fb961e70a772b7047a05370ecb18ed317bc912792f2749befa6"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/directed-final.log",
+      "bytes": 213,
+      "sha256": "0c043ff6fa5cc77ce252ae5d4e68234bb65493128deac3347526b60da9ddfee0"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/node-replacement.log",
+      "bytes": 227,
+      "sha256": "80db0070f4a42b2537f623187ab3737b4134e08768c1e2c1b6846be71df87bef"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/typecheck-2.log",
+      "bytes": 362,
+      "sha256": "45f8b70d05fc0b168be92f63ed3b3c46b8ada7b217c530535aad34fc326e814b"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/typecheck-3.log",
+      "bytes": 113,
+      "sha256": "d4ec4609054221ed4c16d6d39eadeb42e5cbc98686f33549e819de3b8a900214"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/typecheck-exit.json",
+      "bytes": 16,
+      "sha256": "982b9e9bfb10ffe83cad665807abcfd3fa97b37822db5ab7831157a499548a9e"
+    },
+    {
+      "path": "data/experiments/rules-batch2-20261009-35dccaf/typecheck-final.log",
+      "bytes": 113,
+      "sha256": "d4ec4609054221ed4c16d6d39eadeb42e5cbc98686f33549e819de3b8a900214"
+    }
+  ],
+  "retention": "Final raw receipts, PNGs, resources, database and report copies remain local under data/. This manifest and the exact CLI result sample are committed. Earlier failed/intermediate outputs are retained separately and not counted as final proof. Candidate IDs/artifact API URLs from closed sessions are historical; retained files are located through this manifest."
+}

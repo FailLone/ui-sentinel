@@ -1,4 +1,5 @@
 import 'dotenv/config'
+import { readDnsConfig } from './dns-config.ts'
 
 function bounded(name: string, fallback: number, max: number): number {
   const value = Number(process.env[name] ?? fallback)
@@ -79,6 +80,7 @@ export const config = Object.freeze({
   /** Address boundary for `ui-scan`. Server-owned so a request body can never widen it. */
   urlScan: {
     trustedOrigins: trustedOrigins(),
+    dns: readDnsConfig(process.env),
   },
 
   completionReview: {

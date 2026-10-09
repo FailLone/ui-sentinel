@@ -1,3 +1,4 @@
+import { projectUiRuleReports } from './ui-rule-report.ts'
 import { defaultCheckArtifactIssues } from '../../inspection/check-artifacts.ts'
 import { interactionFindingIssues } from '../../execution/interaction-finding-proof.ts'
 import { stat, readFile } from 'node:fs/promises'
@@ -521,6 +522,14 @@ export async function buildReport(runId: string) {
     // The `ui-scan` section, projected from this run's own persisted events. Absent entirely for a
     // business or legacy record, so a reader can tell "no UI scan" from "a UI scan with no items".
     uiScan: uiScanSummary(run, events, readable, issues),
+    uiRules:
+      resolveRunKind(run.spec).kind === 'ui-scan'
+        ? await projectUiRuleReports(
+            runId,
+            events,
+            artifactRows.rows as unknown as { id: unknown; file_path: unknown }[],
+          )
+        : [],
     events,
     hypotheses,
     artifacts,
