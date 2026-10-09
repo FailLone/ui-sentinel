@@ -1,3 +1,4 @@
+import { popupFocusIntent } from '../shared/popup-policy.ts'
 import { explorationRevisitIntent, type ExplorationPolicy } from '../shared/r1-policy.ts'
 import { emptyChecks, parsePublicRelation } from '../inspection/check-contract.ts'
 import type { UiSamplingPolicy } from '../shared/ui-sampling-policy.ts'
@@ -117,10 +118,7 @@ export function createInspectionHost(options: InspectionHostOptions) {
     boundItemId: undefined as string | undefined,
   }))
   const goalRelation = options.checkPolicy
-    ? (options.popupCheck &&
-        ['检查弹窗是否超出视口', 'Check whether popups exceed the viewport'].includes(
-          options.goal.trim(),
-        )) ||
+    ? (options.popupCheck && popupFocusIntent(options.goal)) ||
       (options.exploration && explorationRevisitIntent(options.goal))
       ? { focus: true, sync: false, name: undefined }
       : parsePublicRelation(options.goal)

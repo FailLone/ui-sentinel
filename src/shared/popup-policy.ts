@@ -19,3 +19,10 @@ export function validPopupPolicy(value: unknown): value is PopupPolicy {
     Object.entries(POPUP_POLICY).every(([k, v]) => (value as any)[k] === v)
   )
 }
+
+/** Explicit geometry focus is not a functional effect assertion. Other goals retain source review. */
+export function popupFocusIntent(text: string) {
+  return ['检查弹窗是否超出视口', 'Check whether popups exceed the viewport'].includes(
+    text.trim().replace(/[.!。]$/, ''),
+  )
+}

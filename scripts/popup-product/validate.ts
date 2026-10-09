@@ -33,7 +33,16 @@ const documents: Record<string, string> = {
 const fixture = createServer((req, res) => {
   const name = req.url?.slice(1) ?? ''
   if (name === 'favicon.ico') return void res.writeHead(204).end()
-  const html = documents[name === 'budget' ? 'custom' : name === 'handoff' ? 'ambiguous' : name]
+  const html =
+    documents[
+      name === 'budget'
+        ? 'custom'
+        : name === 'handoff'
+          ? 'ambiguous'
+          : name === 'goal'
+            ? 'normal'
+            : name
+    ]
   res
     .writeHead(html ? 200 : 404, { 'content-type': 'text/html' })
     .end(
@@ -156,7 +165,7 @@ try {
   }
   const names = process.argv.slice(2).length
     ? process.argv.slice(2)
-    : [...Object.keys(documents), 'budget', 'handoff']
+    : [...Object.keys(documents), 'budget', 'handoff', 'goal']
   const rejected = await fetch(base + '/api/runs', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
@@ -191,6 +200,7 @@ try {
           entryUrl: origin + '/' + name,
           popupCheck: { mode: 'popup-viewport' },
           ...(name === 'budget' ? { budget: { maxActions: 1 } } : {}),
+          ...(name === 'goal' ? { goal: '检查弹窗是否超出视口。' } : {}),
         }),
       }).then((r) => r.json())
     assert(created.runId, JSON.stringify(created))
@@ -214,7 +224,7 @@ try {
     console.log(name, report.status, popup?.verdict, popup?.reason, popup?.attempts?.length)
     assert(popup, 'popup report absent')
     const expected =
-      name === 'clipped' ? 'fail' : ['normal', 'custom'].includes(name) ? 'pass' : 'unknown'
+      name === 'clipped' ? 'fail' : ['normal', 'custom', 'goal'].includes(name) ? 'pass' : 'unknown'
     assert.equal(popup.verdict, expected, JSON.stringify(popup))
     assert.equal(popup.attempts.length, name === 'custom' ? 2 : 1)
     assert(
