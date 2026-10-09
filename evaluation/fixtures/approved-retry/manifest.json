@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "id": "approved-retry-v1",
+  "proposalId": "proposal-fc30e9bb-46bc-40ec-b88b-ff52f0565607",
+  "ruleConfigSha256": "f3ac227c94ea3c16471bbf00ee4e2f811d3b005600049520271979bf1792161e",
+  "source": {
+    "batch": "2026-09-24T10-57-41-736Z",
+    "databaseSha256": "d93b3c0126e605ba2da6ee0cce73824d48e6b791e57de0bf3084c0d95b4bdb70",
+    "historyCommit": "48419bc",
+    "approvalAt": "2026-09-23T08:27:07.432Z",
+    "exportKind": "selected-records",
+    "eventTypes": [
+      "business:response",
+      "transition:observed"
+    ],
+    "note": "Portable subset of existing approved records, not a complete historical run or a new approval. Artifact bytes and rule declaration are unchanged; absolute artifact paths and archive directory metadata are relocated."
+  },
+  "files": [
+    {
+      "path": "approval-inherited.json",
+      "bytes": 158,
+      "sha256": "919c15e25ef8a472935f0b52606b63af968086f935dedfbe16d327d2e1aceafb"
+    },
+    {
+      "path": "approval.json",
+      "bytes": 128,
+      "sha256": "1e756f9850ca5fc7222ac15d96f75950cc9c2028717d00d884da204d80575997"
+    },
+    {
+      "path": "artifacts/3df823e7-01ee-4d52-b663-f1e0ee70b2d9.png",
+      "bytes": 28795,
+      "sha256": "d75adf634e8714d3188bcc63d58c0a62a35cca15a11686ada5500f39ffbeab65"
+    },
+    {
+      "path": "artifacts/400f90cd-e3be-455d-98cc-0eb42b07fd79.json",
+      "bytes": 13718,
+      "sha256": "d6160fab9603a2670da9c8e811148e4fe7223171c3eeb40f69eecbc88a74b236"
+    },
+    {
+      "path": "artifacts/6bc02ad4-83f6-4add-93c6-a76b954c7fa4.json",
+      "bytes": 1753,
+      "sha256": "e7a39ce42f1ae9080ef0bba2f2176a85bbad9441de16ac3351a3c164f076c6c2"
+    },
+    {
+      "path": "artifacts/a0271a3f-aacc-4eb4-9b4c-96d4bcca2c15.png",
+      "bytes": 28795,
+      "sha256": "d75adf634e8714d3188bcc63d58c0a62a35cca15a11686ada5500f39ffbeab65"
+    },
+    {
+      "path": "artifacts/ad31a52a-e09c-4f1f-a23b-9f157e324707.json",
+      "bytes": 13718,
+      "sha256": "7557df6e95478ec13bb2b775ccff31f5362dab12c7b0969a0359500e304ecfe0"
+    },
+    {
+      "path": "healthy-counterexample.json",
+      "bytes": 4051,
+      "sha256": "295b129758c84df18e08ccc03868fe1b1ce44c39260b79c61b2bc739bbe78ec9"
+    },
+    {
+      "path": "healthy-counterexample.png",
+      "bytes": 28373,
+      "sha256": "d787eda3887f58c8a2ca4af5d819cc596911a91f2302e3a4241c19325a455445"
+    },
+    {
+      "path": "prepared.json",
+      "bytes": 12051,
+      "sha256": "5078c69247eb29a026386580b935ed16bc2b46791caef06639befed15b8b2006"
+    },
+    {
+      "path": "recheck-summary.json",
+      "bytes": 2228,
+      "sha256": "d28e0cd1d5dfe418c51d874281d9115eacec7d204a590c70ab995dab3294516c"
+    },
+    {
+      "path": "records.json",
+      "bytes": 15338,
+      "sha256": "3a060ac85f293917a5b3c8d0a3007bd6423ea5ba42a5b5fdc6ce9e906f3a54f9"
+    },
+    {
+      "path": "rule.json",
+      "bytes": 1073,
+      "sha256": "060a1cd814a3ed774c914a769254ec59793346facb3eeb668bb7bb7db834f790"
+    },
+    {
+      "path": "source.json",
+      "bytes": 707,
+      "sha256": "d536c024d9f56e75d14c9d65b6fb5190536f21ee25b16c3e3f7dc5833b41f8dd"
+    }
+  ]
+}

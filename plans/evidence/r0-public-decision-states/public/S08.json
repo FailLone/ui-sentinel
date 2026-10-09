@@ -1,0 +1,913 @@
+{
+  "stateId": "S08",
+  "runId": "run-b512ca6c-b967-443b-825d-28503381c967",
+  "eventCutoffSeq": 87,
+  "at": "2026-10-08T05:54:43.019Z",
+  "page": {
+    "url": "http://127.0.0.1:58226/overlay?category=books",
+    "title": "Product catalog",
+    "text": "Product catalog\n\nChoose a sort order and apply it. Prices are numeric.\n\nSort \nPrice\nName\n Apply sort\n20 · Blue widget\n5 · Amber gadget\n12 · Cyan sprocket\nFilters\nAbout this catalog",
+    "viewport": {
+      "width": 1280,
+      "height": 768
+    },
+    "observedAt": "2026-10-08T05:51:27.726Z",
+    "elements": [
+      {
+        "selector": "html > body:nth-of-type(1) > h1:nth-of-type(1)",
+        "tag": "h1",
+        "text": "Product catalog",
+        "visible": true,
+        "enabled": true,
+        "bounds": {
+          "x": 220,
+          "y": 81.4375,
+          "width": 840,
+          "height": 73
+        },
+        "attributes": {},
+        "hitSamples": [
+          {
+            "x": 640,
+            "y": 117.9375,
+            "relation": "self",
+            "hitSelector": "html > body:nth-of-type(1) > h1:nth-of-type(1)",
+            "blockerBounds": {
+              "x": 220,
+              "y": 81.4375,
+              "width": 840,
+              "height": 73
+            }
+          },
+          {
+            "x": 388,
+            "y": 96.0375,
+            "relation": "self",
+            "hitSelector": "html > body:nth-of-type(1) > h1:nth-of-type(1)",
+            "blockerBounds": {
+              "x": 220,
+              "y": 81.4375,
+              "width": 840,
+              "height": 73
+            }
+          },
+          {
+            "x": 892,
+            "y": 96.0375,
+            "relation": "self",
+            "hitSelector": "html > body:nth-of-type(1) > h1:nth-of-type(1)",
+            "blockerBounds": {
+              "x": 220,
+              "y": 81.4375,
+              "width": 840,
+              "height": 73
+            }
+          },
+          {
+            "x": 388,
+            "y": 139.8375,
+            "relation": "self",
+            "hitSelector": "html > body:nth-of-type(1) > h1:nth-of-type(1)",
+            "blockerBounds": {
+              "x": 220,
+              "y": 81.4375,
+              "width": 840,
+              "height": 73
+            }
+          },
+          {
+            "x": 892,
+            "y": 139.8375,
+            "relation": "self",
+            "hitSelector": "html > body:nth-of-type(1) > h1:nth-of-type(1)",
+            "blockerBounds": {
+              "x": 220,
+              "y": 81.4375,
+              "width": 840,
+              "height": 73
+            }
+          }
+        ]
+      },
+      {
+        "selector": "html > body:nth-of-type(1) > p:nth-of-type(1)",
+        "tag": "p",
+        "text": "Choose a sort order and apply it. Prices are numeric.",
+        "visible": true,
+        "enabled": true,
+        "bounds": {
+          "x": 220,
+          "y": 175.875,
+          "width": 840,
+          "height": 18
+        },
+        "attributes": {},
+        "hitSamples": [
+          {
+            "x": 640,
+            "y": 184.875,
+            "relation": "self",
+            "hitSelector": "html > body:nth-of-type(1) > p:nth-of-type(1)",
+            "blockerBounds": {
+              "x": 220,
+              "y": 175.875,
+              "width": 840,
+              "height": 18
+            }
+          },
+          {
+            "x": 388,
+            "y": 179.475,
+            "relation": "self",
+            "hitSelector": "html > body:nth-of-type(1) > p:nth-of-type(1)",
+            "blockerBounds": {
+              "x": 220,
+              "y": 175.875,
+              "width": 840,
+              "height": 18
+            }
+          },
+          {
+            "x": 892,
+            "y": 179.475,
+            "relation": "self",
+            "hitSelector": "html > body:nth-of-type(1) > p:nth-of-type(1)",
+            "blockerBounds": {
+              "x": 220,
+              "y": 175.875,
+              "width": 840,
+              "height": 18
+            }
+          },
+          {
+            "x": 388,
+            "y": 190.275,
+            "relation": "self",
+            "hitSelector": "html > body:nth-of-type(1) > p:nth-of-type(1)",
+            "blockerBounds": {
+              "x": 220,
+              "y": 175.875,
+              "width": 840,
+              "height": 18
+            }
+          },
+          {
+            "x": 892,
+            "y": 190.275,
+            "relation": "self",
+            "hitSelector": "html > body:nth-of-type(1) > p:nth-of-type(1)",
+            "blockerBounds": {
+              "x": 220,
+              "y": 175.875,
+              "width": 840,
+              "height": 18
+            }
+          }
+        ]
+      },
+      {
+        "selector": "html > body:nth-of-type(1) > label:nth-of-type(1) > select:nth-of-type(1)",
+        "tag": "select",
+        "text": "PriceName",
+        "visible": true,
+        "enabled": true,
+        "bounds": {
+          "x": 261.796875,
+          "y": 217.875,
+          "width": 81,
+          "height": 44
+        },
+        "attributes": {
+          "aria-label": "Sort"
+        },
+        "hitSamples": [
+          {
+            "x": 302.296875,
+            "y": 239.875,
+            "relation": "self",
+            "hitSelector": "html > body:nth-of-type(1) > label:nth-of-type(1) > select:nth-of-type(1)",
+            "blockerBounds": {
+              "x": 261.796875,
+              "y": 217.875,
+              "width": 81,
+              "height": 44
+            }
+          },
+          {
+            "x": 277.996875,
+            "y": 226.675,
+            "relation": "self",
+            "hitSelector": "html > body:nth-of-type(1) > label:nth-of-type(1) > select:nth-of-type(1)",
+            "blockerBounds": {
+              "x": 261.796875,
+              "y": 217.875,
+              "width": 81,
+              "height": 44
+            }
+          },
+          {
+            "x": 326.596875,
+            "y": 226.675,
+            "relation": "self",
+            "hitSelector": "html > body:nth-of-type(1) > label:nth-of-type(1) > select:nth-of-type(1)",
+            "blockerBounds": {
+              "x": 261.796875,
+              "y": 217.875,
+              "width": 81,
+              "height": 44
+            }
+          },
+          {
+            "x": 277.996875,
+            "y": 253.075,
+            "relation": "self",
+            "hitSelector": "html > body:nth-of-type(1) > label:nth-of-type(1) > select:nth-of-type(1)",
+            "blockerBounds": {
+              "x": 261.796875,
+              "y": 217.875,
+              "width": 81,
+              "height": 44
+            }
+          },
+          {
+            "x": 326.596875,
+            "y": 253.075,
+            "relation": "self",
+            "hitSelector": "html > body:nth-of-type(1) > label:nth-of-type(1) > select:nth-of-type(1)",
+            "blockerBounds": {
+              "x": 261.796875,
+              "y": 217.875,
+              "width": 81,
+              "height": 44
+            }
+          }
+        ]
+      },
+      {
+        "selector": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+        "tag": "button",
+        "text": "Apply sort",
+        "visible": true,
+        "enabled": true,
+        "bounds": {
+          "x": 363.25,
+          "y": 218.875,
+          "width": 87.28125,
+          "height": 43
+        },
+        "attributes": {
+          "type": "button"
+        },
+        "hitSamples": [
+          {
+            "x": 406.890625,
+            "y": 240.375,
+            "relation": "self",
+            "hitSelector": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+            "blockerBounds": {
+              "x": 363.25,
+              "y": 218.875,
+              "width": 87.28125,
+              "height": 43
+            }
+          },
+          {
+            "x": 380.70625,
+            "y": 227.475,
+            "relation": "self",
+            "hitSelector": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+            "blockerBounds": {
+              "x": 363.25,
+              "y": 218.875,
+              "width": 87.28125,
+              "height": 43
+            }
+          },
+          {
+            "x": 433.075,
+            "y": 227.475,
+            "relation": "self",
+            "hitSelector": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+            "blockerBounds": {
+              "x": 363.25,
+              "y": 218.875,
+              "width": 87.28125,
+              "height": 43
+            }
+          },
+          {
+            "x": 380.70625,
+            "y": 253.275,
+            "relation": "self",
+            "hitSelector": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+            "blockerBounds": {
+              "x": 363.25,
+              "y": 218.875,
+              "width": 87.28125,
+              "height": 43
+            }
+          },
+          {
+            "x": 433.075,
+            "y": 253.275,
+            "relation": "self",
+            "hitSelector": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+            "blockerBounds": {
+              "x": 363.25,
+              "y": 218.875,
+              "width": 87.28125,
+              "height": 43
+            }
+          }
+        ]
+      },
+      {
+        "selector": "html > body:nth-of-type(1) > span:nth-of-type(1) > button:nth-of-type(1)",
+        "tag": "button",
+        "text": "Filters",
+        "visible": true,
+        "enabled": true,
+        "bounds": {
+          "x": 228,
+          "y": 507.875,
+          "width": 64.296875,
+          "height": 43
+        },
+        "attributes": {
+          "type": "button"
+        },
+        "hitSamples": [
+          {
+            "x": 260.1484375,
+            "y": 529.375,
+            "relation": "unrelated",
+            "hitSelector": "html > body:nth-of-type(1) > span:nth-of-type(1) > span:nth-of-type(1)",
+            "blockerBounds": {
+              "x": 220,
+              "y": 499.875,
+              "width": 80.296875,
+              "height": 59
+            }
+          },
+          {
+            "x": 240.859375,
+            "y": 516.475,
+            "relation": "unrelated",
+            "hitSelector": "html > body:nth-of-type(1) > span:nth-of-type(1) > span:nth-of-type(1)",
+            "blockerBounds": {
+              "x": 220,
+              "y": 499.875,
+              "width": 80.296875,
+              "height": 59
+            }
+          },
+          {
+            "x": 279.4375,
+            "y": 516.475,
+            "relation": "unrelated",
+            "hitSelector": "html > body:nth-of-type(1) > span:nth-of-type(1) > span:nth-of-type(1)",
+            "blockerBounds": {
+              "x": 220,
+              "y": 499.875,
+              "width": 80.296875,
+              "height": 59
+            }
+          },
+          {
+            "x": 240.859375,
+            "y": 542.275,
+            "relation": "unrelated",
+            "hitSelector": "html > body:nth-of-type(1) > span:nth-of-type(1) > span:nth-of-type(1)",
+            "blockerBounds": {
+              "x": 220,
+              "y": 499.875,
+              "width": 80.296875,
+              "height": 59
+            }
+          },
+          {
+            "x": 279.4375,
+            "y": 542.275,
+            "relation": "unrelated",
+            "hitSelector": "html > body:nth-of-type(1) > span:nth-of-type(1) > span:nth-of-type(1)",
+            "blockerBounds": {
+              "x": 220,
+              "y": 499.875,
+              "width": 80.296875,
+              "height": 59
+            }
+          }
+        ]
+      },
+      {
+        "selector": "html > body:nth-of-type(1) > a:nth-of-type(1)",
+        "tag": "a",
+        "text": "About this catalog",
+        "visible": true,
+        "enabled": true,
+        "bounds": {
+          "x": 220,
+          "y": 578.875,
+          "width": 840,
+          "height": 18
+        },
+        "attributes": {
+          "href": "/info"
+        },
+        "hitSamples": [
+          {
+            "x": 640,
+            "y": 587.875,
+            "relation": "self",
+            "hitSelector": "html > body:nth-of-type(1) > a:nth-of-type(1)",
+            "blockerBounds": {
+              "x": 220,
+              "y": 578.875,
+              "width": 840,
+              "height": 18
+            }
+          },
+          {
+            "x": 388,
+            "y": 582.475,
+            "relation": "self",
+            "hitSelector": "html > body:nth-of-type(1) > a:nth-of-type(1)",
+            "blockerBounds": {
+              "x": 220,
+              "y": 578.875,
+              "width": 840,
+              "height": 18
+            }
+          },
+          {
+            "x": 892,
+            "y": 582.475,
+            "relation": "self",
+            "hitSelector": "html > body:nth-of-type(1) > a:nth-of-type(1)",
+            "blockerBounds": {
+              "x": 220,
+              "y": 578.875,
+              "width": 840,
+              "height": 18
+            }
+          },
+          {
+            "x": 388,
+            "y": 593.275,
+            "relation": "self",
+            "hitSelector": "html > body:nth-of-type(1) > a:nth-of-type(1)",
+            "blockerBounds": {
+              "x": 220,
+              "y": 578.875,
+              "width": 840,
+              "height": 18
+            }
+          },
+          {
+            "x": 892,
+            "y": 593.275,
+            "relation": "self",
+            "hitSelector": "html > body:nth-of-type(1) > a:nth-of-type(1)",
+            "blockerBounds": {
+              "x": 220,
+              "y": 578.875,
+              "width": 840,
+              "height": 18
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "registeredChecks": [
+    {
+      "itemId": "item-114b4307-fc89-406d-9ec5-8aa33cca650e",
+      "category": "investigation",
+      "url": "http://127.0.0.1:58226/overlay?category=books",
+      "selected": true,
+      "status": "verified",
+      "reasonCode": null,
+      "pageId": "contract",
+      "stateId": "contract",
+      "observationVersion": "contract",
+      "documentVersion": "contract",
+      "evidenceRefs": [
+        "c9ef221f-350f-4dfd-8962-d2692c542388.png",
+        "3b979a93-5970-4d71-b47c-73e023dfa31f.json"
+      ]
+    },
+    {
+      "itemId": "item-fed745ad-2f14-4dac-834a-2473908cb4a9",
+      "category": "entry-observation",
+      "url": "http://127.0.0.1:58226/overlay?category=books",
+      "selected": true,
+      "status": "verified",
+      "reasonCode": null,
+      "pageId": "s1",
+      "stateId": "s1",
+      "observationVersion": "unobserved",
+      "documentVersion": "unobserved",
+      "evidenceRefs": [
+        "c9ef221f-350f-4dfd-8962-d2692c542388.png",
+        "3b979a93-5970-4d71-b47c-73e023dfa31f.json"
+      ]
+    },
+    {
+      "itemId": "item-9245d6f9-1fdd-40da-8e16-affbcc6fa8af",
+      "category": "local-interaction",
+      "url": "http://127.0.0.1:58226/overlay?category=books",
+      "selected": true,
+      "status": "pending",
+      "reasonCode": null,
+      "pageId": "s1",
+      "stateId": "s1",
+      "observationVersion": "unobserved",
+      "documentVersion": "unobserved",
+      "evidenceRefs": []
+    },
+    {
+      "itemId": "item-e739fb19-aa7e-44cf-af1c-7de6a0fc9219",
+      "category": "local-interaction",
+      "url": "http://127.0.0.1:58226/overlay?category=books",
+      "selected": true,
+      "status": "pending",
+      "reasonCode": null,
+      "pageId": "s1",
+      "stateId": "s1",
+      "observationVersion": "unobserved",
+      "documentVersion": "unobserved",
+      "evidenceRefs": []
+    },
+    {
+      "itemId": "item-b366131a-776f-4b2d-92fb-d644194fcac4",
+      "category": "local-interaction",
+      "url": "http://127.0.0.1:58226/overlay?category=books",
+      "selected": true,
+      "status": "pending",
+      "reasonCode": null,
+      "pageId": "s1",
+      "stateId": "s1",
+      "observationVersion": "unobserved",
+      "documentVersion": "unobserved",
+      "evidenceRefs": []
+    },
+    {
+      "itemId": "item-23f1219b-5af9-4b84-ad35-c54306a7931d",
+      "category": "navigation",
+      "url": "http://127.0.0.1:58226/overlay?category=books",
+      "selected": false,
+      "status": "pending",
+      "reasonCode": null,
+      "pageId": "s1",
+      "stateId": "s1",
+      "observationVersion": "unobserved",
+      "documentVersion": "unobserved",
+      "evidenceRefs": []
+    },
+    {
+      "itemId": "item-be5c317e-849f-4e4c-8950-66cd3643d24f",
+      "category": "investigation",
+      "url": "http://127.0.0.1:58226/overlay?category=books",
+      "selected": true,
+      "status": "verified",
+      "reasonCode": null,
+      "pageId": "s1",
+      "stateId": "s1",
+      "observationVersion": "unobserved",
+      "documentVersion": "unobserved",
+      "evidenceRefs": [
+        "c9ef221f-350f-4dfd-8962-d2692c542388.png",
+        "3b979a93-5970-4d71-b47c-73e023dfa31f.json"
+      ]
+    },
+    {
+      "itemId": "item-b264cc1f-7f67-43e8-a021-fd097ec5a17c",
+      "category": "investigation",
+      "url": "http://127.0.0.1:58226/overlay?category=books",
+      "selected": true,
+      "status": "pending",
+      "reasonCode": null,
+      "pageId": "s1",
+      "stateId": "s1",
+      "observationVersion": "unobserved",
+      "documentVersion": "unobserved",
+      "evidenceRefs": []
+    },
+    {
+      "itemId": "item-b5b3efe3-3424-4560-8408-fe13f1dfb7cf",
+      "category": "automatic-check",
+      "url": "http://127.0.0.1:58226/overlay?category=books",
+      "selected": true,
+      "status": "failed",
+      "reasonCode": null,
+      "pageId": "s1",
+      "stateId": "s1",
+      "observationVersion": "unobserved",
+      "documentVersion": "unobserved",
+      "evidenceRefs": [
+        "c9ef221f-350f-4dfd-8962-d2692c542388.png",
+        "3b979a93-5970-4d71-b47c-73e023dfa31f.json"
+      ]
+    },
+    {
+      "itemId": "item-c93de06f-be19-4102-a924-65792b920fe0",
+      "category": "entry-observation",
+      "url": "http://127.0.0.1:58226/overlay?category=books",
+      "selected": true,
+      "status": "verified",
+      "reasonCode": null,
+      "pageId": "s2",
+      "stateId": "s2",
+      "observationVersion": "unobserved",
+      "documentVersion": "unobserved",
+      "evidenceRefs": [
+        "d869356e-08fa-46ac-b664-9bd5103aedf0.png",
+        "569ead48-35cf-4b2d-b54d-76e72b931cb4.json"
+      ]
+    },
+    {
+      "itemId": "item-060faf7a-d1a5-4bfa-92b8-f2a84dd1c5e1",
+      "category": "automatic-check",
+      "url": "http://127.0.0.1:58226/overlay?category=books",
+      "selected": true,
+      "status": "failed",
+      "reasonCode": null,
+      "pageId": "s2",
+      "stateId": "s2",
+      "observationVersion": "unobserved",
+      "documentVersion": "unobserved",
+      "evidenceRefs": [
+        "d869356e-08fa-46ac-b664-9bd5103aedf0.png",
+        "569ead48-35cf-4b2d-b54d-76e72b931cb4.json"
+      ]
+    }
+  ],
+  "frozenSampling": [
+    {
+      "url": "http://127.0.0.1:58226/overlay?category=books",
+      "itemId": "item-be5c317e-849f-4e4c-8950-66cd3643d24f",
+      "pool": [
+        "item-9245d6f9-1fdd-40da-8e16-affbcc6fa8af",
+        "item-e739fb19-aa7e-44cf-af1c-7de6a0fc9219",
+        "item-b366131a-776f-4b2d-92fb-d644194fcac4"
+      ],
+      "count": 3,
+      "snapshotId": "s1",
+      "policy": {
+        "revision": "bounded-ui-sampling-1",
+        "candidateLimit": 8,
+        "localSamplesPerVisitedPage": 3,
+        "navigationSamplesPerRun": 1,
+        "goalMode": "focus"
+      }
+    },
+    {
+      "url": "http://127.0.0.1:58226/overlay?category=books",
+      "itemId": "item-b264cc1f-7f67-43e8-a021-fd097ec5a17c",
+      "pool": [
+        "item-23f1219b-5af9-4b84-ad35-c54306a7931d"
+      ],
+      "count": 1,
+      "snapshotId": "s1"
+    }
+  ],
+  "operations": [
+    {
+      "eventSeq": 60,
+      "tool": "page_observe",
+      "args": {},
+      "status": "unknown"
+    },
+    {
+      "eventSeq": 60,
+      "tool": "page_inspect",
+      "args": {
+        "selector": "select, button, ul, li, a",
+        "offset": 0
+      },
+      "status": "unknown"
+    },
+    {
+      "eventSeq": 66,
+      "tool": "element_details",
+      "args": {
+        "refs": [
+          "e9",
+          "e10",
+          "e11"
+        ]
+      },
+      "status": "unknown"
+    },
+    {
+      "eventSeq": 71,
+      "tool": "page_inspect",
+      "args": {
+        "selector": "select, option, list, li, span",
+        "offset": 0
+      },
+      "status": "unknown"
+    },
+    {
+      "eventSeq": 78,
+      "tool": "page_inspect",
+      "args": {
+        "selector": "body > span, body > span > span, body > span > button, body > span > span *",
+        "offset": 0
+      },
+      "status": "unknown"
+    },
+    {
+      "eventSeq": 78,
+      "tool": "rules_search",
+      "args": {
+        "offset": 0
+      },
+      "status": "unknown"
+    },
+    {
+      "eventSeq": 85,
+      "tool": "page_inspect",
+      "args": {
+        "selector": "option, ul, ol, ul li, ol li, [role=list], [role=listitem]",
+        "offset": 0
+      },
+      "status": "unknown"
+    },
+    {
+      "eventSeq": 85,
+      "tool": "page_inspect",
+      "args": {
+        "selector": "select, label",
+        "offset": 0
+      },
+      "status": "unknown"
+    }
+  ],
+  "repeatedOperations": [
+    {
+      "operation": {
+        "tool": "page_observe",
+        "args": {}
+      },
+      "count": 1
+    },
+    {
+      "operation": {
+        "tool": "page_inspect",
+        "args": {
+          "selector": "select, button, ul, li, a",
+          "offset": 0
+        }
+      },
+      "count": 1
+    },
+    {
+      "operation": {
+        "tool": "element_details",
+        "args": {
+          "refs": [
+            "e9",
+            "e10",
+            "e11"
+          ]
+        }
+      },
+      "count": 1
+    },
+    {
+      "operation": {
+        "tool": "page_inspect",
+        "args": {
+          "selector": "select, option, list, li, span",
+          "offset": 0
+        }
+      },
+      "count": 1
+    },
+    {
+      "operation": {
+        "tool": "page_inspect",
+        "args": {
+          "selector": "body > span, body > span > span, body > span > button, body > span > span *",
+          "offset": 0
+        }
+      },
+      "count": 1
+    },
+    {
+      "operation": {
+        "tool": "rules_search",
+        "args": {
+          "offset": 0
+        }
+      },
+      "count": 1
+    },
+    {
+      "operation": {
+        "tool": "page_inspect",
+        "args": {
+          "selector": "option, ul, ol, ul li, ol li, [role=list], [role=listitem]",
+          "offset": 0
+        }
+      },
+      "count": 1
+    },
+    {
+      "operation": {
+        "tool": "page_inspect",
+        "args": {
+          "selector": "select, label",
+          "offset": 0
+        }
+      },
+      "count": 1
+    }
+  ],
+  "actionDispatches": [],
+  "nativeTargetRepeats": [],
+  "budget": {
+    "remainingActions": 20,
+    "remainingDecisions": 24,
+    "remainingMs": 88593,
+    "maxRequestMs": 60000,
+    "remainingCostUsd": 17.88384599
+  },
+  "financialBudget": {
+    "asOf": "2026-10-08T05:54:43.019Z",
+    "limitUsd": 20.0,
+    "knownCostUsd": 2.09535021,
+    "heldReservedUsd": 0.020803799999999997,
+    "unknownReservedUsd": 0.0,
+    "unknownCount": 0,
+    "remainingAdmissibleUsd": 17.88384599,
+    "newRequestAllowedByCost": true,
+    "asOfRowsSha256": "6f8ff9f1b2871143ca38d7ad290b03b4f6a0b0520c3f1790693e1cfa405e6e9f",
+    "asOfRequestCount": 820
+  },
+  "remainingTimeBoundsMs": {
+    "lower": 88593,
+    "upper": 88597,
+    "exactTimerOrigin": "unknown/not persisted",
+    "r1Uses": "conservative lower bound, not additional time"
+  },
+  "lastSentPromptBudget": {
+    "requestId": "f66a155b9da372494d17eba9",
+    "startedAt": "2026-10-08T05:53:43.019Z",
+    "budgetRemaining": {
+      "actions": 20,
+      "modelCalls": 25,
+      "timeMs": 148608
+    },
+    "sourceRequestSha256": "41f38d37cbb91b64ea8da542cdc1b5aa568b9d28e9e961935ea30cd6f8df3312",
+    "authoritativeAtCutoff": false
+  },
+  "permissions": {
+    "session": "anonymous",
+    "origin": "http://127.0.0.1:58226",
+    "scope": {
+      "maxPages": 3,
+      "maxDepth": 1
+    },
+    "access": {
+      "resourceOrigins": [],
+      "dataOrigins": []
+    },
+    "businessWrites": "none",
+    "availableCapabilities": [
+      "entry-observation",
+      "automatic-rules",
+      "local-interaction",
+      "bounded-navigation",
+      "dom-investigation",
+      "temporal-investigation",
+      "get-data-request"
+    ],
+    "unsupportedCapabilities": [
+      "authenticated-session",
+      "business-write",
+      "post-data-query",
+      "graphql-post",
+      "file-upload",
+      "file-download",
+      "new-window",
+      "websocket",
+      "service-worker"
+    ]
+  },
+  "unknowns": {
+    "liveTargetValidity": "unknown",
+    "futureProviderCostUsd": "unknown",
+    "optionalExpansionCostUpperBoundUsd": "unknown",
+    "cacheReuseSafe": false
+  },
+  "source": {
+    "database": "data/r0-08acc95-resume/candidate/data/r0-url-campaign/r0-ui-diagnostic-08acc95-default3-01/row-3/runs.db",
+    "databaseSha256": "54ac0362add81355c72591b03621d9fe1573b3c575de07f5a8ecc6cdd84b6d78",
+    "sourcePrefixSha256": "04f43f9e0c13181de96a256492c3c1b6efd52bf6e746626dc56da3b3d46c8807",
+    "snapshotRef": "569ead48-35cf-4b2d-b54d-76e72b931cb4.json",
+    "snapshotSha256": "9abaa4b0db747aea4bf79125ec360c3a781dd4649d1452dcac7bdcb6bdae604a",
+    "snapshotEventSeq": 43
+  }
+}

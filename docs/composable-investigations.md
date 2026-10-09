@@ -75,3 +75,13 @@ Agent 从公开需求、页面状态和交互提出假设，选择目标并声�
 网址模式的收尾**不**沿用业务完成契约：它用自己的检查账本与 `scope-covered` 证明，`businessResult` 恒为 `not-applicable`（不是 `unknown`，也不是 `success`）。业务任务（含旧记录）仍走原业务完成契约，整体报告可能为 blocked / business unknown，即使页面调查及显式收尾已经完成。验证器分别检查调查覆盖、真实计算结果和 run_finish，不把它们改写成业务成功，也不把网址任务的「检查完成」读成「网站合格」。
 
 当前三类回归为菜单裁切、视口外反馈、异步内容挤出关键按钮。程序曾产生错误预期和错误目标绑定，异常页上的 fail 不足以证明其可复用；正常对照必须通过。尚未实现自动恢复前置状态、跨页面重新绑定与通用候选发布，新增测量介质仍需要开发通用原语。
+
+## 动作控件与结果绑定
+
+`targets[].binding` 可选 `node`（默认）或 `post-action`。默认目标首次绑定后始终检查同一 DOM 节点身份，适用于同节点前后对比；节点被替换仍 unknown。预计由动作重建的结果目标应显式使用 `post-action`，并在最后一个 `act` 后、用于断言的 `measure` 前加入 `{op: 'bind_results'}`。该步骤记录当前结果节点的 selector 和文本；结果目标不能作为动作目标，也不能用于绑定前的断言。截图期间发生替换仍不能通过。
+
+此能力不改写旧调查的 unknown，不把重新运行的成功程序视为旧 gap 已解决，也不允许为取得新结果重放业务写入。UI `page_act.verify` 的只读恢复另见执行引擎文档。
+
+UI 扫描还在执行前检查结果契约：动作后才用于断言、且不是操作目标的结果节点，必须声明 `binding: 'post-action'` 和 `bind_results`；如果问题确实关乎原节点身份，使用同节点前后比较，或在目标的 `identityBasis` 中说明为什么必须保留原节点。无用途的 before 样本不代表身份比较。契约缺失返回 `ambiguous-result-binding`，不会派发动作、创建 hypothesis 或删除已有 unknown。业务调查仍保持旧默认节点语义。
+
+交互测量区分 select 的 DOM value 和选项标签：`value-equals` 精确比较内部值，`selected-label-equals` 比较单选控件当前选中项的公开标签（多选或非 select 返回 unverified）。UI 动作前若预期只匹配选项标签而不匹配任何 option.value，会返回 `verification-value-is-label` 要求明确契约，不自动翻译预期，也不会先操作再误报失败。

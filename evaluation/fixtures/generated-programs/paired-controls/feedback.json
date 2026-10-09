@@ -1,0 +1,42 @@
+{
+  "provenance": {
+    "mode": "real-model-generated",
+    "runId": "run-cd1884b2-9b1b-4cc6-b364-1e25d7ca740f",
+    "sourceBuildHash": "260e0c27ef0397664adc6a730d39a8562aeeddc20091ee6069928f96ab7e2426",
+    "agentModel": "deepseek/deepseek-v4.1-flash",
+    "provider": "Alibaba",
+    "sourceDirectory": "data/program-validation/2026-10-06T12-59-59-100Z",
+    "note": "Program copied verbatim from saved receipt. These programs come from two diagnostic batches, not one final six-case matrix. Evaluator setup is recorded separately for measurement-only programs."
+  },
+  "program": {
+    "version": 1,
+    "phenomenon": "The incomplete-address explanation is rendered far below the viewport instead of inside the current viewport.",
+    "basis": "The page states the explanation for an incomplete address must appear in the current viewport without scrolling; the alert was measured at y=1116 with viewportFraction 0 after the address check.",
+    "targets": [
+      {
+        "name": "alert",
+        "selector": "html > body:nth-of-type(1) > p:nth-of-type(2)"
+      }
+    ],
+    "steps": [
+      {
+        "op": "measure",
+        "name": "afterCheck"
+      }
+    ],
+    "assertions": [
+      {
+        "expectation": "The explanation is present within the current viewport (viewportFraction > 0).",
+        "left": {
+          "sample": "afterCheck",
+          "target": "alert",
+          "metric": "viewportFraction"
+        },
+        "operator": "gte",
+        "right": {
+          "value": 0.5
+        }
+      }
+    ]
+  }
+}

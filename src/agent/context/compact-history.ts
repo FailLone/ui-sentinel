@@ -29,6 +29,12 @@ export interface ToolSummary {
   readonly actionType?: string
   readonly noNewFacts?: boolean
   readonly staleWarning?: string
+  readonly verdict?: string
+  readonly validationStatus?: string
+  readonly hypothesisId?: string
+  readonly nextStep?: string
+  readonly targetIssues?: unknown
+  readonly verification?: { itemId?: string; outcome?: string; reasonCode?: string | null }
 }
 
 export interface HistoryCompressionConfig {
@@ -93,9 +99,14 @@ const KEEP_KEYS = new Set([
   'receiptRef',
   'programRef',
   'assertions',
+  'targetIssues',
+  'resultBindings',
+  'recoverableInteractions',
+  'checkRef',
   'scope',
   'omitted',
   'chunk',
+  'evidenceBearing',
   'offset',
   'nextOffset',
   'totalChars',
@@ -110,6 +121,7 @@ const KEEP_KEYS = new Set([
   'operationId',
   'reused',
   'inspection',
+  'verification',
   'matching',
   'declaration',
   'routing',
@@ -118,6 +130,8 @@ const KEEP_KEYS = new Set([
   'nextStep',
   'reason',
   'completed',
+  'effectTested',
+  'exploratoryInteractions',
 ])
 
 /** One projection, also accepts its own output. Never discard action arguments. */
@@ -131,7 +145,15 @@ export function extractToolSummary(item: Record<string, unknown>): ToolSummary {
   function copy(value: unknown) {
     if (!value || typeof value !== 'object') return
     for (const [key, field] of Object.entries(value)) {
-      if (KEEP_KEYS.has(key)) summary[key] = field
+      if (key === 'error' && field) {
+        const message = (value as Record<string, unknown>).message
+        summary.error =
+          typeof field === 'string'
+            ? field
+            : typeof message === 'string'
+              ? message
+              : JSON.stringify(field)
+      } else if (KEEP_KEYS.has(key)) summary[key] = field
       if (key === 'pageText') summary.outcomeText = field
     }
   }

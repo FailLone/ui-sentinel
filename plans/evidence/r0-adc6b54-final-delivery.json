@@ -1,0 +1,589 @@
+{
+  "schemaVersion": "r0-final-delivery-1",
+  "candidate": "adc6b540b7c25c06cbcad7d3e8b657d480bec474",
+  "date": "2026-10-08",
+  "timezone": "Asia/Shanghai",
+  "verdict": "not-passed",
+  "r0Complete": false,
+  "build": {
+    "dist": "1a26f780a560a7876e1633f9045e9cd92bf3acad031279881891e9d514276770",
+    "src": "d0767424eca3de0552d2c852dcd0230ba14f59f793d2a547e155a474d4b26e03",
+    "scripts": "856a58c449b1193598ee37c8c6adcc0115d65023ae40091839fdfd744cfaca97"
+  },
+  "businessBuildHash": "47dd20c15b2303d4fcf910d05d334731f8cea59da060e6d0f440fa8b9b3b6e59",
+  "buildUnchangedDuringExecution": true,
+  "productEdits": false,
+  "workspace": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-adc6b54-resume/candidate",
+  "branch": "codex/r0-closeout",
+  "authorization": "plans/evidence/r0-adc6b54-execution-authorization.json",
+  "authorizationEndedOnStageFailure": true,
+  "stages": [
+    {
+      "id": "K4-1",
+      "name": "ui-diagnostic",
+      "batch": "r0-ui-diagnostic-adc6b54-01",
+      "manifestHash": "ab448ba92a0de68ee1ec4687e7a81186619e37a1cf7e5d0fdbfa209a9426b395",
+      "planned": 6,
+      "executed": 6,
+      "passed": 5,
+      "failed": 1,
+      "unknown": 0,
+      "notRun": 0,
+      "smokePlanned": 1,
+      "smokeExecuted": 1,
+      "smokePassed": true,
+      "archiveVerified": true,
+      "exitAccepted": false,
+      "exitReview": "plans/evidence/r0-adc6b54-diagnostic-exit.json",
+      "evidenceDirectory": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-adc6b54-resume/candidate/data/r0-url-campaign/r0-ui-diagnostic-adc6b54-01"
+    },
+    {
+      "id": "K4-2",
+      "name": "ui-formal",
+      "planned": 15,
+      "executed": 0,
+      "notRun": 15,
+      "smokePlanned": 1,
+      "smokeExecuted": 0,
+      "reason": "K4-1 did not pass; no admission"
+    },
+    {
+      "id": "K5-1",
+      "name": "business-diagnostic",
+      "planned": 5,
+      "executed": 0,
+      "notRun": 5,
+      "smokeGroups": 1,
+      "smokeExecuted": 0,
+      "reason": "prior gate not passed"
+    },
+    {
+      "id": "K5-2",
+      "name": "business-formal",
+      "planned": 45,
+      "groups": {
+        "A": 15,
+        "B": 6,
+        "C": 18,
+        "D": 6
+      },
+      "executed": 0,
+      "notRun": 45,
+      "reason": "prior gate not passed"
+    }
+  ],
+  "totalPlannedTasks": 71,
+  "totalExecutedTasks": 6,
+  "totalNotRunTasks": 65,
+  "rows": [
+    {
+      "row": 1,
+      "sampleId": "healthy-catalog",
+      "runId": "run-1c25ec0a-b5f8-47cf-aa00-fc4b04304312",
+      "passed": true,
+      "facts": {
+        "row": 1,
+        "sampleId": "healthy-catalog",
+        "runId": "run-1c25ec0a-b5f8-47cf-aa00-fc4b04304312",
+        "automaticallyPassed": true,
+        "terminal": [
+          "completed",
+          "goal-reached",
+          "not-applicable"
+        ],
+        "contractRepairEvents": [],
+        "remainingGuidanceEvents": [],
+        "probeMeasurements": [],
+        "sortSnapshots": [
+          {
+            "sort": "name",
+            "values": [
+              "5 · Amber gadget",
+              "20 · Blue widget",
+              "12 · Cyan sprocket"
+            ],
+            "observedAt": "2026-10-07T18:46:50.210Z"
+          },
+          {
+            "sort": "name",
+            "values": [
+              "5 · Amber gadget",
+              "20 · Blue widget",
+              "12 · Cyan sprocket"
+            ],
+            "observedAt": "2026-10-07T18:46:54.466Z"
+          }
+        ],
+        "filterExpanded": true,
+        "navigationObserved": true,
+        "rawFactsAccepted": true
+      },
+      "archive": {
+        "sample": "healthy-catalog",
+        "runId": "run-1c25ec0a-b5f8-47cf-aa00-fc4b04304312",
+        "terminal": [
+          "completed",
+          "not-applicable",
+          "goal-reached"
+        ],
+        "artifactCount": 21,
+        "eventCount": 169,
+        "selectedUnresolved": [],
+        "hypothesisStatuses": [],
+        "supportedFindings": 0,
+        "issues": [],
+        "archiveVerified": true,
+        "complete": true
+      }
+    },
+    {
+      "row": 2,
+      "sampleId": "overlay-healthy",
+      "runId": "run-57cd3a75-61bd-4791-9f1a-337335280e31",
+      "passed": true,
+      "facts": {
+        "row": 2,
+        "sampleId": "overlay-healthy",
+        "runId": "run-57cd3a75-61bd-4791-9f1a-337335280e31",
+        "automaticallyPassed": true,
+        "terminal": [
+          "completed",
+          "goal-reached",
+          "not-applicable"
+        ],
+        "contractRepairEvents": [],
+        "remainingGuidanceEvents": [],
+        "probeMeasurements": [
+          {
+            "seq": 378,
+            "outcome": "actionable",
+            "itemId": "item-b485bbed-0ab2-4b38-a06e-2685abd802d8"
+          }
+        ],
+        "sortSnapshots": [
+          {
+            "sort": "price",
+            "values": [
+              "5 · Amber gadget",
+              "12 · Cyan sprocket",
+              "20 · Blue widget"
+            ],
+            "observedAt": "2026-10-07T18:47:39.682Z"
+          },
+          {
+            "sort": "price",
+            "values": [
+              "5 · Amber gadget",
+              "12 · Cyan sprocket",
+              "20 · Blue widget"
+            ],
+            "observedAt": "2026-10-07T18:47:51.974Z"
+          },
+          {
+            "sort": "price",
+            "values": [
+              "5 · Amber gadget",
+              "12 · Cyan sprocket",
+              "20 · Blue widget"
+            ],
+            "observedAt": "2026-10-07T18:47:52.032Z"
+          },
+          {
+            "sort": "price",
+            "values": [
+              "5 · Amber gadget",
+              "12 · Cyan sprocket",
+              "20 · Blue widget"
+            ],
+            "observedAt": "2026-10-07T18:48:14.806Z"
+          },
+          {
+            "sort": "price",
+            "values": [
+              "5 · Amber gadget",
+              "12 · Cyan sprocket",
+              "20 · Blue widget"
+            ],
+            "observedAt": "2026-10-07T18:48:14.881Z"
+          },
+          {
+            "sort": "price",
+            "values": [
+              "5 · Amber gadget",
+              "12 · Cyan sprocket",
+              "20 · Blue widget"
+            ],
+            "observedAt": "2026-10-07T18:48:14.922Z"
+          },
+          {
+            "sort": "name",
+            "values": [
+              "5 · Amber gadget",
+              "20 · Blue widget",
+              "12 · Cyan sprocket"
+            ],
+            "observedAt": "2026-10-07T18:48:15.032Z"
+          },
+          {
+            "sort": "name",
+            "values": [
+              "5 · Amber gadget",
+              "20 · Blue widget",
+              "12 · Cyan sprocket"
+            ],
+            "observedAt": "2026-10-07T18:48:20.708Z"
+          },
+          {
+            "sort": "name",
+            "values": [
+              "5 · Amber gadget",
+              "20 · Blue widget",
+              "12 · Cyan sprocket"
+            ],
+            "observedAt": "2026-10-07T18:48:29.218Z"
+          },
+          {
+            "sort": "name",
+            "values": [
+              "5 · Amber gadget",
+              "20 · Blue widget",
+              "12 · Cyan sprocket"
+            ],
+            "observedAt": "2026-10-07T18:48:44.894Z"
+          }
+        ],
+        "filterExpanded": true,
+        "navigationObserved": true,
+        "rawFactsAccepted": true
+      },
+      "archive": {
+        "sample": "overlay-healthy",
+        "runId": "run-57cd3a75-61bd-4791-9f1a-337335280e31",
+        "terminal": [
+          "completed",
+          "not-applicable",
+          "goal-reached"
+        ],
+        "artifactCount": 62,
+        "eventCount": 492,
+        "selectedUnresolved": [],
+        "hypothesisStatuses": [
+          "refuted"
+        ],
+        "supportedFindings": 0,
+        "issues": [],
+        "archiveVerified": true,
+        "complete": true
+      }
+    },
+    {
+      "row": 3,
+      "sampleId": "overlay-defect",
+      "runId": "run-7934cd7f-2a0a-478a-b038-982504554ed0",
+      "passed": true,
+      "facts": {
+        "row": 3,
+        "sampleId": "overlay-defect",
+        "runId": "run-7934cd7f-2a0a-478a-b038-982504554ed0",
+        "automaticallyPassed": true,
+        "terminal": [
+          "completed",
+          "goal-reached",
+          "not-applicable"
+        ],
+        "contractRepairEvents": [],
+        "remainingGuidanceEvents": [],
+        "probeMeasurements": [],
+        "replayFinding": "foreground-control-covered",
+        "defectReproduced": true,
+        "healthyCounterexample": true,
+        "supportedFindings": [
+          "finding-04107cb0-ad5e-40da-b2ed-f57f64bdee5a"
+        ],
+        "rawFactsAccepted": true
+      },
+      "archive": {
+        "sample": "overlay-defect",
+        "runId": "run-7934cd7f-2a0a-478a-b038-982504554ed0",
+        "terminal": [
+          "completed",
+          "not-applicable",
+          "goal-reached"
+        ],
+        "artifactCount": 28,
+        "eventCount": 188,
+        "selectedUnresolved": [],
+        "hypothesisStatuses": [],
+        "supportedFindings": 1,
+        "issues": [],
+        "archiveVerified": true,
+        "complete": true
+      }
+    },
+    {
+      "row": 4,
+      "sampleId": "dom-healthy",
+      "runId": "run-d3c02c56-5066-47f9-be6a-2e9b2e0f5805",
+      "passed": false,
+      "facts": {
+        "row": 4,
+        "sampleId": "dom-healthy",
+        "runId": "run-d3c02c56-5066-47f9-be6a-2e9b2e0f5805",
+        "automaticallyPassed": false,
+        "terminal": [
+          "blocked",
+          "blocked",
+          "not-applicable"
+        ],
+        "contractRepairEvents": [],
+        "remainingGuidanceEvents": [],
+        "probeMeasurements": [],
+        "sortSnapshots": [
+          {
+            "sort": "name",
+            "values": [
+              "5 · Amber gadget",
+              "20 · Blue widget",
+              "12 · Cyan sprocket"
+            ],
+            "observedAt": "2026-10-07T18:53:55.140Z"
+          },
+          {
+            "sort": "name",
+            "values": [
+              "5 · Amber gadget",
+              "20 · Blue widget",
+              "12 · Cyan sprocket"
+            ],
+            "observedAt": "2026-10-07T18:54:05.172Z"
+          }
+        ],
+        "filterExpanded": true,
+        "navigationObserved": true,
+        "rawFactsAccepted": false
+      },
+      "archive": {
+        "sample": "dom-healthy",
+        "runId": "run-d3c02c56-5066-47f9-be6a-2e9b2e0f5805",
+        "terminal": [
+          "blocked",
+          "not-applicable",
+          "blocked"
+        ],
+        "artifactCount": 26,
+        "eventCount": 269,
+        "selectedUnresolved": [
+          "item-2c2b8b11-0ff7-4503-a3ae-2c4a0116031a",
+          "item-ce7a0b39-b488-4603-9249-45a6a1af9d64"
+        ],
+        "hypothesisStatuses": [],
+        "supportedFindings": 0,
+        "issues": [],
+        "archiveVerified": true,
+        "complete": false
+      }
+    },
+    {
+      "row": 5,
+      "sampleId": "dom-investigation-defect",
+      "runId": "run-c1b4458c-cebb-4c3e-be51-da94297426e3",
+      "passed": true,
+      "facts": {
+        "row": 5,
+        "sampleId": "dom-investigation-defect",
+        "runId": "run-c1b4458c-cebb-4c3e-be51-da94297426e3",
+        "automaticallyPassed": true,
+        "terminal": [
+          "completed",
+          "goal-reached",
+          "not-applicable"
+        ],
+        "contractRepairEvents": [],
+        "remainingGuidanceEvents": [],
+        "probeMeasurements": [],
+        "replayFinding": "sort-ignores-selection",
+        "defectReproduced": true,
+        "healthyCounterexample": true,
+        "supportedFindings": [
+          "finding-b0f52486-7704-4898-84cd-91166c43e52c"
+        ],
+        "rawFactsAccepted": true
+      },
+      "archive": {
+        "sample": "dom-investigation-defect",
+        "runId": "run-c1b4458c-cebb-4c3e-be51-da94297426e3",
+        "terminal": [
+          "completed",
+          "not-applicable",
+          "goal-reached"
+        ],
+        "artifactCount": 32,
+        "eventCount": 246,
+        "selectedUnresolved": [],
+        "hypothesisStatuses": [
+          "supported"
+        ],
+        "supportedFindings": 1,
+        "issues": [],
+        "archiveVerified": true,
+        "complete": true
+      }
+    },
+    {
+      "row": 6,
+      "sampleId": "boundary-diagnostic",
+      "runId": "run-058fe7a8-09d7-4e2c-a8e6-6fcbc4579f2c",
+      "passed": true,
+      "facts": {
+        "row": 6,
+        "sampleId": "boundary-diagnostic",
+        "runId": "run-058fe7a8-09d7-4e2c-a8e6-6fcbc4579f2c",
+        "automaticallyPassed": true,
+        "terminal": [
+          "blocked",
+          "blocked",
+          "not-applicable"
+        ],
+        "contractRepairEvents": [],
+        "remainingGuidanceEvents": [],
+        "probeMeasurements": [],
+        "rawFactsAccepted": true
+      },
+      "archive": {
+        "sample": "boundary-diagnostic",
+        "runId": "run-058fe7a8-09d7-4e2c-a8e6-6fcbc4579f2c",
+        "terminal": [
+          "blocked",
+          "not-applicable",
+          "blocked"
+        ],
+        "artifactCount": 2,
+        "eventCount": 43,
+        "selectedUnresolved": [
+          "item-e458b305-bdb9-46d2-a76a-071ed6e23c76",
+          "item-c3f6e33d-3d70-4c43-97c7-45fdcaae31d0",
+          "item-0d18e3b0-abce-4ad7-91d0-edec3e9bb7be"
+        ],
+        "hypothesisStatuses": [],
+        "supportedFindings": 0,
+        "issues": [],
+        "archiveVerified": true,
+        "complete": false
+      }
+    }
+  ],
+  "failure": {
+    "row": 4,
+    "runId": "run-d3c02c56-5066-47f9-be6a-2e9b2e0f5805",
+    "classification": "real-model completion/scope-expansion stability failure under frozen time budget",
+    "coverage": "partial",
+    "proofClaim": "unverified-scope",
+    "proofVerified": true,
+    "usage": {
+      "actions": 4,
+      "modelCalls": 18,
+      "elapsedMs": 272857,
+      "modelInputTokens": 227984,
+      "modelOutputTokens": 30712
+    },
+    "parameterValidationErrors": 0,
+    "contractRepairEvents": 0,
+    "f1GuidanceEvents": 0,
+    "nextMinimalSuggestion": "Review budget-aware scope selection and finish readiness after existing checks are verified, using this exact late additional-check trace. Do not discard selected obligations, backfill completion, increase time or start a paid retry without separate authorization.",
+    "unresolvedItemIds": [
+      "item-2c2b8b11-0ff7-4503-a3ae-2c4a0116031a",
+      "item-ce7a0b39-b488-4603-9249-45a6a1af9d64"
+    ],
+    "minimumTrace": "raw archive minimal-failure.json and row-4 report/database",
+    "paidRetried": false
+  },
+  "actualRepairObservations": {
+    "row5": "One conflicting locator input rejected by SDK; model naturally corrected and completed; no contract-repair advice event",
+    "row2": "Positive Filters probe at seq378 did not resolve original item; real click seq413 and measurement seq433 verified same item",
+    "negativeProbeNotExercisedInThisBatch": true,
+    "f1AdviceNotExercisedInThisBatch": true
+  },
+  "cost": {
+    "knownBeforeUsd": "1.91502588",
+    "newCostUsd": "0.10388787",
+    "sharedKnownUsd": "2.01891375",
+    "remainingUsd": "17.98108625",
+    "sharedCeilingUsd": "20",
+    "historicalOtherLedgerUsd": "0.03722460",
+    "r0TotalKnownUsd": "2.05613835",
+    "newSettledRequests": 64,
+    "taskRequests": 63,
+    "smokeRequests": 1,
+    "requestsByModel": [
+      [
+        "deepseek/deepseek-v4.1-flash",
+        "Alibaba",
+        64,
+        0.10388787
+      ]
+    ],
+    "unknownCount": 0,
+    "unknownReservedUsd": "0",
+    "heldReservedUsd": "0",
+    "leaseCount": 0,
+    "campaignId": "0946f830-00b6-4f46-af69-79bd2166ef9d"
+  },
+  "rawArchive": {
+    "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-adc6b54-resume/r0-adc6b54-diagnostic-delivery-evidence.tar.gz",
+    "bytes": 4289474,
+    "sha256": "917cff4843a4147f3646369d6c19b9313a1f7d6d577906460de93e30597ca54c",
+    "filesVerified": 252,
+    "credentialsIncluded": false,
+    "availability": "local only; not pushed to Git"
+  },
+  "evidenceReviewMethod": [
+    "Existing independent Python SQLite/artifact/event/type/owner/probe-seal audit",
+    "Raw healthy sorting requests/snapshots, filters and navigation compared",
+    "Defect/healthy replay JSON and paired PNGs inspected",
+    "All accepted proofs and event order/terminal values verified, including valid partial row4 and genuine boundary row6",
+    "Cost request IDs matched original batch log to shared ledger; no replay or extra model call"
+  ],
+  "separateAgentBlindReview": false,
+  "environmentAdjustment": "Isolated checkout local main ref created at pre-existing origin/main commit solely for existing business-formal merge-base; no candidate/source/build/scorer/permission changes",
+  "priorEvidenceReuse": [
+    {
+      "index": "plans/evidence/r0-action-contract-delivery.json",
+      "scope": "57 targeted, 5 business and 8 API accepted; not rerun"
+    },
+    {
+      "index": "plans/evidence/r0-adc6b54-readonly-review.json",
+      "scope": "accepted bounded action compatibility/pre-refusal effects/no renewal review"
+    },
+    {
+      "index": "plans/evidence/r0-f12-delivery.json",
+      "scope": "unchanged accepted F1/F2 sealing/binding and prior contract mapping"
+    },
+    {
+      "index": "plans/evidence/r0-e13c535-final-delivery.json",
+      "scope": "retain historical 5/6 failure and costs, no rows used to fill current batch"
+    }
+  ],
+  "currentPaidDenominatorUsesOnlyCurrentBatch": true,
+  "support": {
+    "trial": "Anonymous bounded same-origin UI scan, DOM investigation, evidence reports and truthful partial/blocked results",
+    "limits": [
+      "Incomplete autonomous completion and no formal repeat stability proof",
+      "Current formal UI and K5 stages unexecuted",
+      "Already-seen layout, no unseen-site generalization claim",
+      "No login/write/unbounded cross-origin/arbitrary-visual coverage"
+    ],
+    "startupAndReportInstructions": "plans/r0-adc6b54-final-handoff.md",
+    "r1GateSatisfied": false
+  },
+  "roadmap": {
+    "modifiedOrCommittedByAgent": false,
+    "updateMaterial": "plans/r0-adc6b54-final-handoff.md final paragraph",
+    "crossThreadMessages": false
+  },
+  "handoff": "plans/r0-adc6b54-final-handoff.md",
+  "fileHashes": {
+    "plans/evidence/r0-adc6b54-execution-authorization.json": "1a41b741c01134f57f382981c1936e7c93bbfbf7de1525401a14aebbc81f2ff8",
+    "plans/evidence/r0-adc6b54-diagnostic-exit.json": "c50683fb1411bcd34ce4150368d63c4068388c6a7c0e3c92f68cc69688cd7e76",
+    "plans/r0-adc6b54-final-handoff.md": "e9f3a114d6633ebbf1e0a7573a2383ee56009ab623afe5c10e1b1d40ee962ced"
+  }
+}

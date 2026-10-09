@@ -1,3 +1,5 @@
+import { defaultCheckArtifactIssues } from '../inspection/check-artifacts.ts'
+import { interactionFindingIssues } from './interaction-finding-proof.ts'
 import { createClient } from '@libsql/client'
 import { config } from '../shared/config.ts'
 import type { Run, RunEvent } from '../shared/types.ts'
@@ -5,6 +7,8 @@ import { getRunSnapshot } from './run-manager.ts'
 import { resolveRunKind } from '../inspection/run-kind.ts'
 import { inspectionHistoryIssues } from '../inspection/proof-history.ts'
 import { stat } from 'node:fs/promises'
+import { recoveryArtifactIssues } from '../inspection/recovery-history.ts'
+import { probeArtifactIssues } from '../inspection/probe-history.ts'
 
 /** A terminal row alone cannot prove that the execution evidence was committed. */
 export function completionIssues(run: Run, events: readonly RunEvent[]): string[] {
@@ -69,7 +73,47 @@ export async function verifyCompletionCommit(expected: {
         } catch {}
       }
       issues.push(...inspectionHistoryIssues(snapshot.run, snapshot.events, readable))
+      issues.push(
+        ...(await interactionFindingIssues(
+          snapshot.run.id,
+          snapshot.events,
+          snapshot.artifactRows.rows.map((r) => ({
+            id: String(r.id),
+            type: String(r.type),
+            path: String(r.file_path),
+            metadata: JSON.parse(String(r.metadata)),
+          })),
+        )),
+      )
+
+      issues.push(
+        ...(await probeArtifactIssues(
+          snapshot.events,
+          new Map(
+            snapshot.artifactRows.rows.map((r) => [
+              String(r.id),
+              { path: String(r.file_path), type: String(r.type) },
+            ]),
+          ),
+        )),
+        ...(await recoveryArtifactIssues(
+          snapshot.events,
+          new Map(snapshot.artifactRows.rows.map((r) => [String(r.id), String(r.file_path)])),
+        )),
+      )
     }
+    issues.push(
+      ...(await defaultCheckArtifactIssues(
+        snapshot.run,
+        snapshot.events,
+        snapshot.artifactRows.rows.map((r) => ({
+          id: String(r.id),
+          type: String(r.type),
+          path: String(r.file_path),
+          metadata: JSON.parse(String(r.metadata)),
+        })),
+      )),
+    )
     if (
       snapshot.events.length !== expected.eventIds.length ||
       snapshot.events.some((event, index) => event.id !== expected.eventIds[index])

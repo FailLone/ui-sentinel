@@ -1,0 +1,77 @@
+import { it, expect } from 'vitest'
+import { createProgressDetector, type ProgressFacts } from './progress-detector.ts'
+const facts: ProgressFacts = {
+  pageUrl: 'http://localhost/shop',
+  pageFingerprint: 'button disabled',
+  hypothesisFacts: [],
+  findingFacts: [],
+  measurementFacts: [],
+}
+it('requires changed facts, not repeated actions or fresh record IDs', () => {
+  const d = createProgressDetector()
+  expect(d.check(facts).isProgress).toBe(true)
+  for (let i = 0; i < 6; i++) expect(d.check(facts).isProgress).toBe(false)
+  expect(d.check({ ...facts, pageFingerprint: 'button enabled' }).isProgress).toBe(true)
+})
+it('tracks new hypothesis semantics and resolutions instead of database IDs', () => {
+  const d = createProgressDetector()
+  d.check(facts)
+  expect(d.check({ ...facts, hypothesisFacts: ['blocked:open'] }).isProgress).toBe(true)
+  expect(d.check({ ...facts, hypothesisFacts: ['blocked:open', 'blocked:open'] }).isProgress).toBe(
+    false,
+  )
+  expect(d.check({ ...facts, hypothesisFacts: ['blocked:refuted'] }).isProgress).toBe(true)
+})
+it('does not give later rounds credit for facts already observed together', () => {
+  const d = createProgressDetector(),
+    all = {
+      ...facts,
+      hypothesisFacts: ['h'],
+      findingFacts: ['f'],
+      measurementFacts: ['measured 5 seconds disabled'],
+    }
+  d.check(all)
+  expect(d.check(all).isProgress).toBe(false)
+  expect(d.check({ ...all, measurementFacts: ['measured 5 seconds enabled'] }).isProgress).toBe(
+    true,
+  )
+})
+it('does not reset no-progress on page cycling or repeated measurements', () => {
+  const d = createProgressDetector()
+  d.check(facts)
+  d.check({ ...facts, pageFingerprint: 'cart' })
+  expect(d.check(facts).isProgress).toBe(false)
+})
+
+it('new geometric facts count once; rereading a subset or returning to old geometry does not', () => {
+  const d = createProgressDetector()
+  const before = JSON.stringify({
+    source: 'dom-inspection',
+    selector: 'button',
+    y: 40,
+    viewportFraction: 1,
+  })
+  const after = JSON.stringify({
+    source: 'dom-inspection',
+    selector: 'button',
+    y: 900,
+    viewportFraction: 0,
+  })
+  d.check({ ...facts, measurementFacts: [before] })
+  expect(d.check({ ...facts, measurementFacts: [before, after] }).isProgress).toBe(true)
+  expect(d.check({ ...facts, measurementFacts: [before, after, before] }).isProgress).toBe(false)
+})
+
+it('counts a newly selected public control once without confusing it with verified progress', () => {
+  const detector = createProgressDetector()
+  detector.check(facts)
+  expect(detector.check({ ...facts, selectionFacts: ['control-a'] })).toMatchObject({
+    isProgress: true,
+    basis: 'New selection facts',
+  })
+  for (let i = 0; i < 4; i++)
+    expect(detector.check({ ...facts, selectionFacts: ['control-a'] }).isProgress).toBe(false)
+  expect(detector.check({ ...facts, selectionFacts: ['control-a', 'control-b'] }).isProgress).toBe(
+    true,
+  )
+})

@@ -1,0 +1,291 @@
+{
+  "candidate": "e13c535009695ee70c3794868224ac3842090f79",
+  "buildHash": "1829cce652b1d67ff3e7d9e8d63c09babfe127acd671c95bd407292011eccb7a",
+  "manifestHash": "18290a7d9ad81619dc61b6d0a84bdf83a98b87b99789bee85442123ffd963746",
+  "batch": "r0-ui-diagnostic-e13c535-01",
+  "reviewedAt": "2026-10-07T17:22:56.871474+00:00",
+  "reviewer": "Current R0 agent, direct raw-evidence review; no separate Agent or blind-review claim",
+  "method": [
+    "Independent Python SQLite and every artifact byte/type/owner audit",
+    "Independently checked terminal, accepted proof hash, event order and raw healthy sorting snapshots/requests",
+    "Defect/healthy Playwright replay values compared and row3/row5 paired PNGs visually inspected",
+    "Boundary prior blocker digest, no server write and durable proof asserted",
+    "Original row5 upstream tool-call arguments inspected; no model calls during review"
+  ],
+  "rows": [
+    {
+      "row": 1,
+      "sampleId": "healthy-catalog",
+      "runId": "run-da532d2f-410e-4553-b3e9-1d33f16de5ce",
+      "passed": true,
+      "facts": {
+        "archiveVerified": true,
+        "terminal": [
+          "completed",
+          "goal-reached",
+          "not-applicable"
+        ],
+        "supportedFindings": 0,
+        "acceptedProofVerified": true,
+        "rawSortMeasurements": [
+          {
+            "snapshot": null,
+            "order": "name",
+            "values": [
+              "5 · Amber gadget",
+              "20 · Blue widget",
+              "12 · Cyan sprocket"
+            ]
+          },
+          {
+            "snapshot": null,
+            "order": "name",
+            "values": [
+              "5 · Amber gadget",
+              "20 · Blue widget",
+              "12 · Cyan sprocket"
+            ]
+          },
+          {
+            "snapshot": null,
+            "order": "price",
+            "values": [
+              "5 · Amber gadget",
+              "12 · Cyan sprocket",
+              "20 · Blue widget"
+            ]
+          },
+          {
+            "snapshot": null,
+            "order": "price",
+            "values": [
+              "5 · Amber gadget",
+              "12 · Cyan sprocket",
+              "20 · Blue widget"
+            ]
+          },
+          {
+            "snapshot": null,
+            "order": "price",
+            "values": [
+              "5 · Amber gadget",
+              "12 · Cyan sprocket",
+              "20 · Blue widget"
+            ]
+          }
+        ],
+        "navigationRequestObserved": true
+      }
+    },
+    {
+      "row": 2,
+      "sampleId": "overlay-healthy",
+      "runId": "run-6370ffc5-0982-4a6e-a4cf-345467db6532",
+      "passed": true,
+      "facts": {
+        "archiveVerified": true,
+        "terminal": [
+          "completed",
+          "goal-reached",
+          "not-applicable"
+        ],
+        "supportedFindings": 0,
+        "acceptedProofVerified": true,
+        "rawSortMeasurements": [
+          {
+            "snapshot": null,
+            "order": "name",
+            "values": [
+              "5 · Amber gadget",
+              "20 · Blue widget",
+              "12 · Cyan sprocket"
+            ]
+          },
+          {
+            "snapshot": null,
+            "order": "name",
+            "values": [
+              "5 · Amber gadget",
+              "20 · Blue widget",
+              "12 · Cyan sprocket"
+            ]
+          },
+          {
+            "snapshot": null,
+            "order": "name",
+            "values": [
+              "5 · Amber gadget",
+              "20 · Blue widget",
+              "12 · Cyan sprocket"
+            ]
+          },
+          {
+            "snapshot": null,
+            "order": "name",
+            "values": [
+              "5 · Amber gadget",
+              "20 · Blue widget",
+              "12 · Cyan sprocket"
+            ]
+          },
+          {
+            "snapshot": null,
+            "order": "name",
+            "values": [
+              "5 · Amber gadget",
+              "20 · Blue widget",
+              "12 · Cyan sprocket"
+            ]
+          }
+        ],
+        "navigationRequestObserved": true
+      }
+    },
+    {
+      "row": 3,
+      "sampleId": "overlay-defect",
+      "runId": "run-5eef0614-ba15-4467-9c41-b7c97f138824",
+      "passed": true,
+      "facts": {
+        "archiveVerified": true,
+        "terminal": [
+          "completed",
+          "goal-reached",
+          "not-applicable"
+        ],
+        "supportedFindings": 1,
+        "acceptedProofVerified": true,
+        "independentlyValidFinding": "foreground-control-covered"
+      }
+    },
+    {
+      "row": 4,
+      "sampleId": "dom-healthy",
+      "runId": "run-e59c67c0-c136-47b7-b2e2-557e2c7c829f",
+      "passed": true,
+      "facts": {
+        "archiveVerified": true,
+        "terminal": [
+          "completed",
+          "goal-reached",
+          "not-applicable"
+        ],
+        "supportedFindings": 0,
+        "acceptedProofVerified": true,
+        "rawSortMeasurements": [
+          {
+            "snapshot": null,
+            "order": "price",
+            "values": [
+              "5 · Amber gadget",
+              "12 · Cyan sprocket",
+              "20 · Blue widget"
+            ]
+          },
+          {
+            "snapshot": null,
+            "order": "price",
+            "values": [
+              "5 · Amber gadget",
+              "12 · Cyan sprocket",
+              "20 · Blue widget"
+            ]
+          },
+          {
+            "snapshot": null,
+            "order": "price",
+            "values": [
+              "5 · Amber gadget",
+              "12 · Cyan sprocket",
+              "20 · Blue widget"
+            ]
+          },
+          {
+            "snapshot": null,
+            "order": "price",
+            "values": [
+              "5 · Amber gadget",
+              "12 · Cyan sprocket",
+              "20 · Blue widget"
+            ]
+          },
+          {
+            "snapshot": null,
+            "order": "name",
+            "values": [
+              "5 · Amber gadget",
+              "20 · Blue widget",
+              "12 · Cyan sprocket"
+            ]
+          },
+          {
+            "snapshot": null,
+            "order": "name",
+            "values": [
+              "5 · Amber gadget",
+              "20 · Blue widget",
+              "12 · Cyan sprocket"
+            ]
+          }
+        ],
+        "navigationRequestObserved": true
+      }
+    },
+    {
+      "row": 5,
+      "sampleId": "dom-investigation-defect",
+      "runId": "run-ce606f5b-af3a-4cac-ae86-e2c4edcac56e",
+      "passed": false,
+      "facts": {
+        "archiveVerified": true,
+        "terminal": [
+          "execution-error",
+          "execution-error",
+          "not-applicable"
+        ],
+        "supportedFindings": 1,
+        "acceptedProofVerified": false,
+        "independentlyValidFinding": "sort-ignores-selection",
+        "failure": {
+          "eventSeq": 137,
+          "error": "Error: navigation denied: a destination is required",
+          "remainingItemIds": [
+            "item-d54c7a23-47b6-4856-862c-73b088ca740b"
+          ],
+          "violatedAcceptance": "Abnormal sample requires complete terminal and accepted durable proof; finding alone insufficient"
+        }
+      }
+    },
+    {
+      "row": 6,
+      "sampleId": "boundary-diagnostic",
+      "runId": "run-5df7d001-164c-43bc-ae23-7999ea5ef061",
+      "passed": true,
+      "facts": {
+        "archiveVerified": true,
+        "terminal": [
+          "blocked",
+          "blocked",
+          "not-applicable"
+        ],
+        "supportedFindings": 0,
+        "acceptedProofVerified": true,
+        "blocker": "pre-finish POST unsupported-data-method, no write reached fixture"
+      }
+    }
+  ],
+  "passed": false,
+  "passedRows": 5,
+  "plannedRows": 6,
+  "acceptedForNextStage": false,
+  "r0Accepted": false,
+  "spending": {
+    "limitUsd": 20,
+    "knownCostUsd": 1.9150258799999977,
+    "unknownReservedUsd": 0,
+    "heldReservedUsd": 0,
+    "accountedUsd": 1.9150258799999977,
+    "unknownCount": 0,
+    "exceeded": false
+  }
+}

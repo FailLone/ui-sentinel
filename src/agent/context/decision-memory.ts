@@ -2,6 +2,16 @@ import { extractToolSummary, type HistoryEntry } from './compact-history.ts'
 
 export const MEMORY_BUDGET_BYTES = 8000
 const bytes = (value: unknown) => Buffer.byteLength(JSON.stringify(value))
+function boundedText(value: unknown, limit: number) {
+  if (value === undefined) return undefined
+  const text = typeof value === 'string' ? value : JSON.stringify(value)
+  let result = ''
+  for (const char of text ?? '') {
+    if (Buffer.byteLength(JSON.stringify(result + char)) > limit) break
+    result += char
+  }
+  return result
+}
 export function rawTools(entry: HistoryEntry): Record<string, unknown>[] {
   try {
     const result = JSON.parse(entry.toolResults)
@@ -22,17 +32,58 @@ function projection(item: Record<string, unknown>, receiptRef: string) {
     receiptRef,
   }
 }
+/** DOM offsets count matched elements, not the JSON characters used by tool_result_read. */
+function domLocator(summary: ReturnType<typeof projection>, queryBudget = 256) {
+  if (summary.tool !== 'page_inspect') return {}
+  const args =
+    summary.args && typeof summary.args === 'object'
+      ? (summary.args as Record<string, unknown>)
+      : {}
+  const query: { selector?: string; offset?: number } = {}
+  const exactQuery = typeof args.selector === 'string' && bytes(args.selector) <= queryBudget
+  // Never truncate a CSS selector into another query, or guess a missing default.
+  if (exactQuery) query.selector = args.selector as string
+  if (Number.isSafeInteger(args.offset) && Number(args.offset) >= 0)
+    query.offset = Number(args.offset)
+  const data = summary as Record<string, unknown>
+  return {
+    ...(Object.keys(query).length ? { args: query } : {}),
+    ...(!exactQuery ? { queryOmitted: true } : {}),
+    ...(Number.isSafeInteger(data.total) && Number(data.total) >= 0
+      ? { total: Number(data.total) }
+      : {}),
+    ...(data.nextOffset === null ||
+    (Number.isSafeInteger(data.nextOffset) && Number(data.nextOffset) >= 0)
+      ? { nextOffset: data.nextOffset as number | null }
+      : {}),
+  }
+}
 function receipt(item: Record<string, unknown>, resultRef: string, budget: number) {
   const summary = projection(item, resultRef)
   if (bytes(summary) <= budget) return summary
   // Never make a missing payload look like an empty successful result.
   const short = {
-    tool: summary.tool.slice(0, 80),
+    tool: boundedText(summary.tool, 40)!,
     resultRef,
     omitted: true,
-    status: summary.status?.slice(0, 80),
-    id: summary.id?.slice(0, 100),
+    status: boundedText(summary.status, 40),
+    ...(summary.verification
+      ? {
+          verification: {
+            itemId: boundedText(summary.verification.itemId, 80),
+            outcome: boundedText(summary.verification.outcome, 30),
+            reasonCode: boundedText(summary.verification.reasonCode, 80),
+          },
+        }
+      : {}),
+    id: boundedText(summary.id, 80),
     accepted: summary.accepted,
+    verdict: boundedText(summary.verdict, 30),
+    validationStatus: boundedText(summary.validationStatus, 30),
+    hypothesisId: boundedText(summary.hypothesisId, 80),
+    error: boundedText(summary.error, 80),
+    nextStep: boundedText(summary.nextStep, 160),
+    ...domLocator(summary),
     hint: 'Payload exceeds this page. Use tool_result_read(resultRef) for the original result.',
   }
   return short
@@ -62,6 +113,14 @@ export function readToolResult(history: readonly HistoryEntry[], ref: string, of
   const entry = history[Number(match[1])]
   const item = entry && rawTools(entry)[Number(match[2])]
   if (!item) return { error: 'Unknown resultRef' }
+  const summary = extractToolSummary(item)
+  if (summary.tool === 'tool_result_read' || summary.tool === 'history_read')
+    return {
+      error:
+        summary.tool === 'tool_result_read'
+          ? `This is a retrieval receipt, not an original payload. Read resultRef ${summary.resultRef ?? 'from its returned cursor'} with the original nextOffset; do not retrieve receiptRef ${ref}.`
+          : `This is a history retrieval receipt. Use an original resultRef from its entries, not receiptRef ${ref}.`,
+    }
   const raw = JSON.stringify(item)
   if (offset < 0 || offset > raw.length) return { error: 'Offset outside result' }
   let chunk = '',
@@ -74,7 +133,8 @@ export function readToolResult(history: readonly HistoryEntry[], ref: string, of
   }
   const next = offset + chunk.length
   return {
-    resultRef: ref,
+    resultRef: `${Number(match[1])}.${Number(match[2])}`,
+    evidenceBearing: !summary.error && !!summary.evidenceRefs?.length,
     offset,
     totalChars: raw.length,
     chunk,
@@ -98,6 +158,9 @@ export function boundedHistoryPage(history: readonly HistoryEntry[], start: numb
       receiptRef: 'receiptRef' in t ? t.receiptRef : t.resultRef,
       omitted: true,
       id: t.id && Buffer.byteLength(t.id) <= 100 ? t.id : undefined,
+      verdict: t.verdict,
+      validationStatus: t.validationStatus,
+      ...domLocator(t as ReturnType<typeof projection>, 80),
     }))
   }
   if (bytes(page) > 1800) throw new Error('history-page-budget-contract')

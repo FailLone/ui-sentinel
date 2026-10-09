@@ -1,0 +1,1594 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-09",
+  "timezone": "Asia/Shanghai",
+  "status": "r0-stage-delivery-complete-limited-internal-trial-formal-acceptance-pending",
+  "freeDeliveryComplete": true,
+  "allF01ToF14Closed": false,
+  "r0FormallyPassed": false,
+  "paidAuthorized": false,
+  "authorization": "Explicit recovery handoff authorizes D1-D6 free continuation; historical plan approval wording does not revoke this authorization.",
+  "workspace": "/Users/xietian/.codex/worktrees/r0-default-check-v2/ui-sentinel",
+  "branch": "codex/r0-default-check-v2",
+  "commits": {
+    "baseline": "d636d7e",
+    "plan": "ea5f5ac",
+    "implementation": "d978bc958fc2193ed15c916205d1361b53dffd19",
+    "productCandidate": "27614b7a60293a80f3be7b321d164d3599dd0964",
+    "recoveryValidation": "fa10d9b8351c359459cdf1521d1f85353d3ee699",
+    "delivery": "Git commit containing this file; no self-referential hash",
+    "productChangedDuringRecovery": false
+  },
+  "versions": {
+    "contract": "url-scan-default-4",
+    "sampling": "bounded-ui-sampling-2",
+    "checks": "default-check-contract-2",
+    "source": "public-effect-sources-1",
+    "item": "item-checks-2",
+    "proof": "inspection-proof-4",
+    "report": "ui-check-report-2",
+    "toolContract": "29",
+    "scoring": "ui-default-checks-3",
+    "fixture": "ui-contract-v2-fixtures-1"
+  },
+  "build": {
+    "successfulBuildLog": {
+      "path": "data/r0-default-check-v2/build-active-report-corrected.log",
+      "bytes": 1322,
+      "sha256": "bc3ef741f7335157fddf08b39e0b9feffc9e8c4c9773dfd6a9ed4c00556a1326"
+    },
+    "buildTimeLocal": "2026-10-09 around 04:02; before saved candidate commit, source identity independently reconciled",
+    "retainedServer": {
+      "path": "data/r0-default-check-v2/final-free-2026-10-08T20-46-41-537Z/server.mjs",
+      "bytes": 762550,
+      "sha256": "d6d4042aa6b53607a9c1fada34dbcf4eb81788a0a0ce81ef10d42b9b2a21844f"
+    },
+    "distServer": {
+      "path": "dist/server/index.js",
+      "bytes": 762548,
+      "sha256": "860d1356481f87a81169112c6935c1ae4f33d317ea6e4dc7409f82cc5d90792c"
+    },
+    "maps": [
+      {
+        "path": "data/r0-default-check-v2/final-free-2026-10-08T20-46-41-537Z/server.mjs.map",
+        "bytes": 1499167,
+        "sha256": "7c479e4463ad9786d63bb75bb5b53878f8ec76cb36dedd082293d337a456c8cd",
+        "matchedSourceCount": 126,
+        "mismatchedSources": []
+      },
+      {
+        "path": "dist/server/index.js.map",
+        "bytes": 1498789,
+        "sha256": "a657b065089d14750d7777be38a964eb36852414b56be1e55c482ed2a7e069bb",
+        "matchedSourceCount": 126,
+        "mismatchedSources": []
+      }
+    ],
+    "serverDifference": "Only sourceMappingURL filename differs; code bytes otherwise equal",
+    "distInventory": {
+      "path": "data/r0-default-check-v2/audit-2026-10-09T00-36-06-518819Z/dist-inventory.json",
+      "bytes": 1366,
+      "sha256": "1c778ea947c280c7a08cafb42f00cd51d1535a6f0b55e40c58ee06b5f03066b8"
+    },
+    "rebuiltDuringRecovery": false,
+    "sourceIdentityFiles": [
+      {
+        "path": "pnpm-lock.yaml",
+        "bytes": 195824,
+        "sha256": "a83d99f740493e28ea5a0da4072cd87bf3b89f59e638970893cbc17ca6858701"
+      },
+      {
+        "path": "package.json",
+        "bytes": 2391,
+        "sha256": "a3218c2389bea4c595e42dc469a379419b105a2bda3988a5697276b33d5437ca"
+      },
+      {
+        "path": "src/execution/versions.ts",
+        "bytes": 768,
+        "sha256": "44bfd9cbe6b3cceb7b739e135e712549494725f47a10cebce24f6daae4c22d21"
+      },
+      {
+        "path": "src/shared/ui-sampling-policy.ts",
+        "bytes": 2465,
+        "sha256": "d8cf78eb539d0512ba5d815f79bb9e32b900bfc5024aebccf1cbcb1e42189863"
+      },
+      {
+        "path": "evaluation/ui-default-checks-v2.ts",
+        "bytes": 15203,
+        "sha256": "c3815a47a3ac74e35c3bc91a279bd72e958a26ba73d4b71ad49bd9da77e0f8f3"
+      },
+      {
+        "path": "evaluation/ui-contract-v2-fixtures.ts",
+        "bytes": 3874,
+        "sha256": "fc827333e50c460bac9d441c44b9c2a3f929d41c21288b396ba6e3d95f7716af"
+      }
+    ],
+    "externalDependencies": "packages external; lockfile hash recorded, historical installed dependency bytes/runtime not independently attested"
+  },
+  "validation": {
+    "candidateUnit": {
+      "evidence": {
+        "path": "data/r0-default-check-v2/unit-candidate.json",
+        "bytes": 26607,
+        "sha256": "e185cab7b860f8c64ea297f47e7befbd96ebb8af7189ea2e07921c4604b374f9"
+      },
+      "passed": 73,
+      "total": 73,
+      "originalStage": "d978bc9 candidate, before last report fix",
+      "reuseBasis": "27614b7 changes only product check-artifacts.ts plus validation scripts; report fix separately replayed on final actual evidence. Not a 73-test final-HEAD rerun."
+    },
+    "typecheck": {
+      "evidence": {
+        "path": "data/r0-default-check-v2/typecheck-recovery.log",
+        "bytes": 111,
+        "sha256": "9356a08b2e17ab8d6e52cebfd1bc095d4d9f6581585fb09a82a54ad669ad8caa"
+      },
+      "exitCode": 0,
+      "node": "24.21.0"
+    },
+    "finalBatch": {
+      "manifest": {
+        "path": "data/r0-default-check-v2/final-free-2026-10-08T20-46-41-537Z/manifest.json",
+        "bytes": 793,
+        "sha256": "b8be70f22d49987eba6e75428b6ec449c7868bc1c6273b46d0351a3b3c0b60e2"
+      },
+      "results": {
+        "path": "data/r0-default-check-v2/final-free-2026-10-08T20-46-41-537Z/results.json",
+        "bytes": 138215,
+        "sha256": "e26cb807cac81e4fc9f4a2af0abe7fd3e4438d7cbe46160e247f02e759f67c34"
+      },
+      "expectedCases": 28,
+      "recordedCases": 28,
+      "statusCounts": {
+        "completed": 14,
+        "blocked": 11,
+        "cancelled": 1,
+        "execution-error": 2
+      },
+      "allTerminal": true,
+      "historicalExitCode": "not retained",
+      "cases": [
+        {
+          "mode": "workbench",
+          "runId": "run-b5535cc3-7c62-496f-9246-5b87cdb21e57",
+          "status": "completed",
+          "coverage": "covered",
+          "proof": "inspection-proof-4",
+          "proofVerified": true,
+          "counts": {
+            "effectUnspecifiedCount": 1,
+            "requiredEffectPendingCount": 0,
+            "genericIncompleteCount": 0,
+            "requiredEffectVerifiedCount": 0,
+            "requiredEffectFailedCount": 0,
+            "sourceUnresolvedCount": 0
+          },
+          "actions": 1,
+          "findings": 0,
+          "databaseStatus": "completed",
+          "events": 91,
+          "artifacts": 19,
+          "reportEvents": 91,
+          "exactEventMatch": true,
+          "reportIsExactPrefix": true,
+          "databaseOnlyTail": [],
+          "actualDispatches": 1,
+          "toolFailures": [],
+          "uiHistoryRestored": true
+        },
+        {
+          "mode": "workbench-partial",
+          "runId": "run-4648e72e-9779-44d4-a170-234787803e25",
+          "status": "blocked",
+          "coverage": "partial",
+          "proof": "inspection-proof-4",
+          "proofVerified": true,
+          "counts": {
+            "effectUnspecifiedCount": 0,
+            "requiredEffectPendingCount": 0,
+            "genericIncompleteCount": 1,
+            "requiredEffectVerifiedCount": 0,
+            "requiredEffectFailedCount": 0,
+            "sourceUnresolvedCount": 2
+          },
+          "actions": 0,
+          "findings": 0,
+          "databaseStatus": "blocked",
+          "events": 77,
+          "artifacts": 8,
+          "reportEvents": 77,
+          "exactEventMatch": true,
+          "reportIsExactPrefix": true,
+          "databaseOnlyTail": [],
+          "actualDispatches": 0,
+          "toolFailures": [],
+          "uiHistoryRestored": true
+        },
+        {
+          "mode": "workbench-defect",
+          "runId": "run-6d456fb4-52ce-4022-b5d4-83c30c51760c",
+          "status": "completed",
+          "coverage": "covered",
+          "proof": "inspection-proof-4",
+          "proofVerified": true,
+          "counts": {
+            "effectUnspecifiedCount": 0,
+            "requiredEffectPendingCount": 0,
+            "genericIncompleteCount": 0,
+            "requiredEffectVerifiedCount": 0,
+            "requiredEffectFailedCount": 1,
+            "sourceUnresolvedCount": 0
+          },
+          "actions": 1,
+          "findings": 1,
+          "databaseStatus": "completed",
+          "events": 98,
+          "artifacts": 21,
+          "reportEvents": 98,
+          "exactEventMatch": true,
+          "reportIsExactPrefix": true,
+          "databaseOnlyTail": [],
+          "actualDispatches": 1,
+          "toolFailures": [],
+          "uiHistoryRestored": true
+        },
+        {
+          "mode": "neutral-change",
+          "runId": "run-9fc9677f-1eb7-41f6-93a1-c14b80e4def9",
+          "status": "completed",
+          "coverage": "covered",
+          "proof": "inspection-proof-4",
+          "proofVerified": true,
+          "counts": {
+            "effectUnspecifiedCount": 1,
+            "requiredEffectPendingCount": 0,
+            "genericIncompleteCount": 0,
+            "requiredEffectVerifiedCount": 0,
+            "requiredEffectFailedCount": 0,
+            "sourceUnresolvedCount": 0
+          },
+          "actions": 1,
+          "findings": 0,
+          "databaseStatus": "completed",
+          "events": 91,
+          "artifacts": 19,
+          "reportEvents": 91,
+          "exactEventMatch": true,
+          "reportIsExactPrefix": true,
+          "databaseOnlyTail": [],
+          "actualDispatches": 1,
+          "toolFailures": [],
+          "uiHistoryRestored": null
+        },
+        {
+          "mode": "neutral-no-change",
+          "runId": "run-eccaf1c5-34f0-4e67-a68e-1ed80069badb",
+          "status": "completed",
+          "coverage": "covered",
+          "proof": "inspection-proof-4",
+          "proofVerified": true,
+          "counts": {
+            "effectUnspecifiedCount": 1,
+            "requiredEffectPendingCount": 0,
+            "genericIncompleteCount": 0,
+            "requiredEffectVerifiedCount": 0,
+            "requiredEffectFailedCount": 0,
+            "sourceUnresolvedCount": 0
+          },
+          "actions": 1,
+          "findings": 0,
+          "databaseStatus": "completed",
+          "events": 88,
+          "artifacts": 17,
+          "reportEvents": 88,
+          "exactEventMatch": true,
+          "reportIsExactPrefix": true,
+          "databaseOnlyTail": [],
+          "actualDispatches": 1,
+          "toolFailures": [],
+          "uiHistoryRestored": null
+        },
+        {
+          "mode": "explicit-pass",
+          "runId": "run-b21f699f-41fe-4738-b9f1-4c2bf2933e96",
+          "status": "completed",
+          "coverage": "covered",
+          "proof": "inspection-proof-4",
+          "proofVerified": true,
+          "counts": {
+            "effectUnspecifiedCount": 0,
+            "requiredEffectPendingCount": 0,
+            "genericIncompleteCount": 0,
+            "requiredEffectVerifiedCount": 1,
+            "requiredEffectFailedCount": 0,
+            "sourceUnresolvedCount": 0
+          },
+          "actions": 1,
+          "findings": 0,
+          "databaseStatus": "completed",
+          "events": 96,
+          "artifacts": 21,
+          "reportEvents": 96,
+          "exactEventMatch": true,
+          "reportIsExactPrefix": true,
+          "databaseOnlyTail": [],
+          "actualDispatches": 1,
+          "toolFailures": [],
+          "uiHistoryRestored": null
+        },
+        {
+          "mode": "explicit-fail",
+          "runId": "run-29bf0eaf-44b3-4267-8317-4d9d3a6d551e",
+          "status": "completed",
+          "coverage": "covered",
+          "proof": "inspection-proof-4",
+          "proofVerified": true,
+          "counts": {
+            "effectUnspecifiedCount": 0,
+            "requiredEffectPendingCount": 0,
+            "genericIncompleteCount": 0,
+            "requiredEffectVerifiedCount": 0,
+            "requiredEffectFailedCount": 1,
+            "sourceUnresolvedCount": 0
+          },
+          "actions": 1,
+          "findings": 1,
+          "databaseStatus": "completed",
+          "events": 98,
+          "artifacts": 21,
+          "reportEvents": 98,
+          "exactEventMatch": true,
+          "reportIsExactPrefix": true,
+          "databaseOnlyTail": [],
+          "actualDispatches": 1,
+          "toolFailures": [],
+          "uiHistoryRestored": null
+        },
+        {
+          "mode": "explicit-unfinished",
+          "runId": "run-41c42bbc-8467-4eef-943d-7fac20d5adee",
+          "status": "blocked",
+          "coverage": "partial",
+          "proof": "inspection-proof-4",
+          "proofVerified": true,
+          "counts": {
+            "effectUnspecifiedCount": 0,
+            "requiredEffectPendingCount": 1,
+            "genericIncompleteCount": 0,
+            "requiredEffectVerifiedCount": 0,
+            "requiredEffectFailedCount": 0,
+            "sourceUnresolvedCount": 0
+          },
+          "actions": 1,
+          "findings": 0,
+          "databaseStatus": "blocked",
+          "events": 104,
+          "artifacts": 19,
+          "reportEvents": 104,
+          "exactEventMatch": true,
+          "reportIsExactPrefix": true,
+          "databaseOnlyTail": [],
+          "actualDispatches": 1,
+          "toolFailures": [],
+          "uiHistoryRestored": null
+        },
+        {
+          "mode": "numeric-pass",
+          "runId": "run-7cb60dc2-abf2-4f43-98b7-22f1c4073ae1",
+          "status": "completed",
+          "coverage": "covered",
+          "proof": "inspection-proof-4",
+          "proofVerified": true,
+          "counts": {
+            "effectUnspecifiedCount": 0,
+            "requiredEffectPendingCount": 0,
+            "genericIncompleteCount": 0,
+            "requiredEffectVerifiedCount": 1,
+            "requiredEffectFailedCount": 0,
+            "sourceUnresolvedCount": 0
+          },
+          "actions": 1,
+          "findings": 0,
+          "databaseStatus": "completed",
+          "events": 98,
+          "artifacts": 21,
+          "reportEvents": 98,
+          "exactEventMatch": true,
+          "reportIsExactPrefix": true,
+          "databaseOnlyTail": [],
+          "actualDispatches": 1,
+          "toolFailures": [],
+          "uiHistoryRestored": null
+        },
+        {
+          "mode": "numeric-fail",
+          "runId": "run-70c83f29-1845-4f9e-8542-8011a07791e3",
+          "status": "completed",
+          "coverage": "covered",
+          "proof": "inspection-proof-4",
+          "proofVerified": true,
+          "counts": {
+            "effectUnspecifiedCount": 0,
+            "requiredEffectPendingCount": 0,
+            "genericIncompleteCount": 0,
+            "requiredEffectVerifiedCount": 0,
+            "requiredEffectFailedCount": 1,
+            "sourceUnresolvedCount": 0
+          },
+          "actions": 1,
+          "findings": 1,
+          "databaseStatus": "completed",
+          "events": 94,
+          "artifacts": 19,
+          "reportEvents": 94,
+          "exactEventMatch": true,
+          "reportIsExactPrefix": true,
+          "databaseOnlyTail": [],
+          "actualDispatches": 1,
+          "toolFailures": [],
+          "uiHistoryRestored": null
+        },
+        {
+          "mode": "unsupported-goal",
+          "runId": "run-47fb87d3-c935-4bb3-9d97-5830f3905930",
+          "status": "blocked",
+          "coverage": "partial",
+          "proof": "inspection-proof-4",
+          "proofVerified": true,
+          "counts": {
+            "effectUnspecifiedCount": 0,
+            "requiredEffectPendingCount": 0,
+            "genericIncompleteCount": 1,
+            "requiredEffectVerifiedCount": 0,
+            "requiredEffectFailedCount": 0,
+            "sourceUnresolvedCount": 2
+          },
+          "actions": 0,
+          "findings": 0,
+          "databaseStatus": "blocked",
+          "events": 77,
+          "artifacts": 8,
+          "reportEvents": 77,
+          "exactEventMatch": true,
+          "reportIsExactPrefix": true,
+          "databaseOnlyTail": [],
+          "actualDispatches": 0,
+          "toolFailures": [],
+          "uiHistoryRestored": null
+        },
+        {
+          "mode": "late-source",
+          "runId": "run-c4355ade-240e-45b1-b42d-1d1b3cb0c1dd",
+          "status": "blocked",
+          "coverage": "partial",
+          "proof": "inspection-proof-4",
+          "proofVerified": true,
+          "counts": {
+            "effectUnspecifiedCount": 0,
+            "requiredEffectPendingCount": 1,
+            "genericIncompleteCount": 0,
+            "requiredEffectVerifiedCount": 0,
+            "requiredEffectFailedCount": 0,
+            "sourceUnresolvedCount": 1
+          },
+          "actions": 1,
+          "findings": 0,
+          "databaseStatus": "blocked",
+          "events": 104,
+          "artifacts": 21,
+          "reportEvents": 104,
+          "exactEventMatch": true,
+          "reportIsExactPrefix": true,
+          "databaseOnlyTail": [],
+          "actualDispatches": 1,
+          "toolFailures": [],
+          "uiHistoryRestored": null
+        },
+        {
+          "mode": "missing-operation",
+          "runId": "run-447e5ab7-fcd8-462c-8faa-8af062976871",
+          "status": "blocked",
+          "coverage": "partial",
+          "proof": "inspection-proof-4",
+          "proofVerified": true,
+          "counts": {
+            "effectUnspecifiedCount": 1,
+            "requiredEffectPendingCount": 0,
+            "genericIncompleteCount": 1,
+            "requiredEffectVerifiedCount": 0,
+            "requiredEffectFailedCount": 0,
+            "sourceUnresolvedCount": 0
+          },
+          "actions": 0,
+          "findings": 0,
+          "databaseStatus": "blocked",
+          "events": 76,
+          "artifacts": 8,
+          "reportEvents": 76,
+          "exactEventMatch": true,
+          "reportIsExactPrefix": true,
+          "databaseOnlyTail": [],
+          "actualDispatches": 0,
+          "toolFailures": [],
+          "uiHistoryRestored": null
+        },
+        {
+          "mode": "positive-probe",
+          "runId": "run-15df64f9-cfa1-4508-9a8a-44bf7cceebb4",
+          "status": "blocked",
+          "coverage": "partial",
+          "proof": "inspection-proof-4",
+          "proofVerified": true,
+          "counts": {
+            "effectUnspecifiedCount": 1,
+            "requiredEffectPendingCount": 0,
+            "genericIncompleteCount": 1,
+            "requiredEffectVerifiedCount": 0,
+            "requiredEffectFailedCount": 0,
+            "sourceUnresolvedCount": 0
+          },
+          "actions": 1,
+          "findings": 0,
+          "databaseStatus": "blocked",
+          "events": 87,
+          "artifacts": 12,
+          "reportEvents": 87,
+          "exactEventMatch": true,
+          "reportIsExactPrefix": true,
+          "databaseOnlyTail": [],
+          "actualDispatches": 1,
+          "toolFailures": [],
+          "uiHistoryRestored": null
+        },
+        {
+          "mode": "unrelated-program",
+          "runId": "run-f82e6f60-0d77-46b1-a31a-3f9074ca8403",
+          "status": "blocked",
+          "coverage": "partial",
+          "proof": "inspection-proof-4",
+          "proofVerified": true,
+          "counts": {
+            "effectUnspecifiedCount": 0,
+            "requiredEffectPendingCount": 1,
+            "genericIncompleteCount": 0,
+            "requiredEffectVerifiedCount": 0,
+            "requiredEffectFailedCount": 0,
+            "sourceUnresolvedCount": 0
+          },
+          "actions": 1,
+          "findings": 0,
+          "databaseStatus": "blocked",
+          "events": 121,
+          "artifacts": 27,
+          "reportEvents": 121,
+          "exactEventMatch": true,
+          "reportIsExactPrefix": true,
+          "databaseOnlyTail": [],
+          "actualDispatches": 1,
+          "toolFailures": [],
+          "uiHistoryRestored": null
+        },
+        {
+          "mode": "repeat",
+          "runId": "run-16e88146-2176-4ed4-8928-99c337df970c",
+          "status": "completed",
+          "coverage": "covered",
+          "proof": "inspection-proof-4",
+          "proofVerified": true,
+          "counts": {
+            "effectUnspecifiedCount": 1,
+            "requiredEffectPendingCount": 0,
+            "genericIncompleteCount": 0,
+            "requiredEffectVerifiedCount": 0,
+            "requiredEffectFailedCount": 0,
+            "sourceUnresolvedCount": 0
+          },
+          "actions": 2,
+          "findings": 0,
+          "databaseStatus": "completed",
+          "events": 141,
+          "artifacts": 23,
+          "reportEvents": 141,
+          "exactEventMatch": true,
+          "reportIsExactPrefix": true,
+          "databaseOnlyTail": [],
+          "actualDispatches": 2,
+          "toolFailures": [],
+          "uiHistoryRestored": null
+        },
+        {
+          "mode": "native",
+          "runId": "run-3b7da37e-5552-4006-b41f-c19da33349f1",
+          "status": "completed",
+          "coverage": "covered",
+          "proof": "inspection-proof-4",
+          "proofVerified": true,
+          "counts": {
+            "effectUnspecifiedCount": 2,
+            "requiredEffectPendingCount": 0,
+            "genericIncompleteCount": 0,
+            "requiredEffectVerifiedCount": 0,
+            "requiredEffectFailedCount": 0,
+            "sourceUnresolvedCount": 0
+          },
+          "actions": 3,
+          "findings": 0,
+          "databaseStatus": "completed",
+          "events": 220,
+          "artifacts": 38,
+          "reportEvents": 220,
+          "exactEventMatch": true,
+          "reportIsExactPrefix": true,
+          "databaseOnlyTail": [],
+          "actualDispatches": 3,
+          "toolFailures": [],
+          "uiHistoryRestored": null
+        },
+        {
+          "mode": "advanced",
+          "runId": "run-80dec9db-4389-45ba-ad35-88c763b03461",
+          "status": "completed",
+          "coverage": "covered",
+          "proof": "inspection-proof-4",
+          "proofVerified": true,
+          "counts": {
+            "effectUnspecifiedCount": 0,
+            "requiredEffectPendingCount": 0,
+            "genericIncompleteCount": 0,
+            "requiredEffectVerifiedCount": 1,
+            "requiredEffectFailedCount": 0,
+            "sourceUnresolvedCount": 0
+          },
+          "actions": 2,
+          "findings": 0,
+          "databaseStatus": "completed",
+          "events": 142,
+          "artifacts": 25,
+          "reportEvents": 142,
+          "exactEventMatch": true,
+          "reportIsExactPrefix": true,
+          "databaseOnlyTail": [],
+          "actualDispatches": 2,
+          "toolFailures": [],
+          "uiHistoryRestored": null
+        },
+        {
+          "mode": "more-than-three",
+          "runId": "run-1d2774e9-0fac-4692-82b9-c5af037c0c43",
+          "status": "completed",
+          "coverage": "covered",
+          "proof": "inspection-proof-4",
+          "proofVerified": true,
+          "counts": {
+            "effectUnspecifiedCount": 3,
+            "requiredEffectPendingCount": 0,
+            "genericIncompleteCount": 0,
+            "requiredEffectVerifiedCount": 0,
+            "requiredEffectFailedCount": 0,
+            "sourceUnresolvedCount": 0
+          },
+          "actions": 4,
+          "findings": 0,
+          "databaseStatus": "completed",
+          "events": 256,
+          "artifacts": 47,
+          "reportEvents": 256,
+          "exactEventMatch": true,
+          "reportIsExactPrefix": true,
+          "databaseOnlyTail": [],
+          "actualDispatches": 4,
+          "toolFailures": [],
+          "uiHistoryRestored": null
+        },
+        {
+          "mode": "post-denied",
+          "runId": "run-651561c1-0253-44b2-800b-5a6c9ca23ac4",
+          "status": "blocked",
+          "coverage": "partial",
+          "proof": "inspection-proof-4",
+          "proofVerified": true,
+          "counts": {
+            "effectUnspecifiedCount": 1,
+            "requiredEffectPendingCount": 0,
+            "genericIncompleteCount": 1,
+            "requiredEffectVerifiedCount": 0,
+            "requiredEffectFailedCount": 0,
+            "sourceUnresolvedCount": 0
+          },
+          "actions": 1,
+          "findings": 0,
+          "databaseStatus": "blocked",
+          "events": 82,
+          "artifacts": 10,
+          "reportEvents": 82,
+          "exactEventMatch": true,
+          "reportIsExactPrefix": true,
+          "databaseOnlyTail": [],
+          "actualDispatches": 1,
+          "toolFailures": [],
+          "uiHistoryRestored": null
+        },
+        {
+          "mode": "cancel",
+          "runId": "run-65c9ba02-1eb6-4d43-9ec9-2f0f9371b0e1",
+          "status": "cancelled",
+          "coverage": "partial",
+          "proofVerified": false,
+          "counts": {
+            "effectUnspecifiedCount": 1,
+            "requiredEffectPendingCount": 0,
+            "genericIncompleteCount": 1,
+            "requiredEffectVerifiedCount": 0,
+            "requiredEffectFailedCount": 0,
+            "sourceUnresolvedCount": 0
+          },
+          "actions": 1,
+          "findings": 0,
+          "databaseStatus": "cancelled",
+          "events": 74,
+          "artifacts": 14,
+          "reportEvents": 73,
+          "exactEventMatch": false,
+          "reportIsExactPrefix": true,
+          "databaseOnlyTail": [
+            {
+              "id": "evt-53009f37-9b76-4cbd-9e39-71834ad711a3",
+              "runId": "run-65c9ba02-1eb6-4d43-9ec9-2f0f9371b0e1",
+              "seq": 73,
+              "type": "tool:finished",
+              "timestamp": "2026-10-08T20:47:24.134Z",
+              "stepId": null,
+              "actionId": null,
+              "payload": {
+                "attemptId": "d3038b3e-c471-4bde-a440-50b558fd5f30",
+                "toolCallId": "c475b91b-c5dc-404b-bcab-f24232ae5970",
+                "tool": "page_act",
+                "status": "error",
+                "error": "Error: cancelled",
+                "durationMs": 1253
+              },
+              "evidenceRefs": []
+            }
+          ],
+          "actualDispatches": 1,
+          "toolFailures": [],
+          "uiHistoryRestored": null
+        },
+        {
+          "mode": "execution-fault",
+          "runId": "run-5493da37-2c00-493e-bed3-6abfcce4436e",
+          "status": "execution-error",
+          "coverage": "partial",
+          "proofVerified": false,
+          "counts": {
+            "effectUnspecifiedCount": 1,
+            "requiredEffectPendingCount": 0,
+            "genericIncompleteCount": 1,
+            "requiredEffectVerifiedCount": 0,
+            "requiredEffectFailedCount": 0,
+            "sourceUnresolvedCount": 0
+          },
+          "actions": 1,
+          "findings": 0,
+          "databaseStatus": "execution-error",
+          "events": 59,
+          "artifacts": 8,
+          "reportEvents": 59,
+          "exactEventMatch": true,
+          "reportIsExactPrefix": true,
+          "databaseOnlyTail": [],
+          "actualDispatches": 1,
+          "toolFailures": [],
+          "uiHistoryRestored": null
+        },
+        {
+          "mode": "intercepted",
+          "runId": "run-ad67fac8-09fa-44bd-ad26-5918491f1e57",
+          "status": "completed",
+          "coverage": "covered",
+          "proof": "inspection-proof-4",
+          "proofVerified": true,
+          "counts": {
+            "effectUnspecifiedCount": 1,
+            "requiredEffectPendingCount": 0,
+            "genericIncompleteCount": 0,
+            "requiredEffectVerifiedCount": 0,
+            "requiredEffectFailedCount": 0,
+            "sourceUnresolvedCount": 0
+          },
+          "actions": 1,
+          "findings": 1,
+          "databaseStatus": "completed",
+          "events": 76,
+          "artifacts": 12,
+          "reportEvents": 76,
+          "exactEventMatch": true,
+          "reportIsExactPrefix": true,
+          "databaseOnlyTail": [],
+          "actualDispatches": 1,
+          "toolFailures": [],
+          "uiHistoryRestored": null
+        },
+        {
+          "mode": "recovery-budget",
+          "runId": "run-b56bd5dd-2a58-409b-b1b5-9222c0889f8c",
+          "status": "blocked",
+          "coverage": "partial",
+          "proof": "inspection-proof-4",
+          "proofVerified": true,
+          "counts": {
+            "effectUnspecifiedCount": 0,
+            "requiredEffectPendingCount": 1,
+            "genericIncompleteCount": 0,
+            "requiredEffectVerifiedCount": 0,
+            "requiredEffectFailedCount": 0,
+            "sourceUnresolvedCount": 0
+          },
+          "actions": 1,
+          "findings": 0,
+          "databaseStatus": "blocked",
+          "events": 123,
+          "artifacts": 23,
+          "reportEvents": 123,
+          "exactEventMatch": true,
+          "reportIsExactPrefix": true,
+          "databaseOnlyTail": [],
+          "actualDispatches": 1,
+          "toolFailures": [],
+          "uiHistoryRestored": null
+        },
+        {
+          "mode": "replaced-result",
+          "runId": "run-b3ae6cb6-da5c-4f55-90b4-0bc9338f3f56",
+          "status": "blocked",
+          "coverage": "partial",
+          "proof": "inspection-proof-4",
+          "proofVerified": true,
+          "counts": {
+            "effectUnspecifiedCount": 0,
+            "requiredEffectPendingCount": 1,
+            "genericIncompleteCount": 0,
+            "requiredEffectVerifiedCount": 0,
+            "requiredEffectFailedCount": 0,
+            "sourceUnresolvedCount": 0
+          },
+          "actions": 1,
+          "findings": 0,
+          "databaseStatus": "blocked",
+          "events": 122,
+          "artifacts": 26,
+          "reportEvents": 122,
+          "exactEventMatch": true,
+          "reportIsExactPrefix": true,
+          "databaseOnlyTail": [],
+          "actualDispatches": 1,
+          "toolFailures": [],
+          "uiHistoryRestored": null
+        },
+        {
+          "mode": "other-action",
+          "runId": "run-f6d036f9-43eb-45c2-b4ff-6c6ec9fe3cbe",
+          "status": "blocked",
+          "coverage": "partial",
+          "proof": "inspection-proof-4",
+          "proofVerified": true,
+          "counts": {
+            "effectUnspecifiedCount": 1,
+            "requiredEffectPendingCount": 1,
+            "genericIncompleteCount": 0,
+            "requiredEffectVerifiedCount": 0,
+            "requiredEffectFailedCount": 0,
+            "sourceUnresolvedCount": 0
+          },
+          "actions": 2,
+          "findings": 0,
+          "databaseStatus": "blocked",
+          "events": 229,
+          "artifacts": 34,
+          "reportEvents": 229,
+          "exactEventMatch": true,
+          "reportIsExactPrefix": true,
+          "databaseOnlyTail": [],
+          "actualDispatches": 2,
+          "toolFailures": [],
+          "uiHistoryRestored": null
+        },
+        {
+          "mode": "incidental-clock",
+          "runId": "run-2d7d1fdc-d52e-4f86-bc76-0b0889a53f24",
+          "status": "completed",
+          "coverage": "covered",
+          "proof": "inspection-proof-4",
+          "proofVerified": true,
+          "counts": {
+            "effectUnspecifiedCount": 1,
+            "requiredEffectPendingCount": 0,
+            "genericIncompleteCount": 0,
+            "requiredEffectVerifiedCount": 0,
+            "requiredEffectFailedCount": 0,
+            "sourceUnresolvedCount": 0
+          },
+          "actions": 1,
+          "findings": 0,
+          "databaseStatus": "completed",
+          "events": 90,
+          "artifacts": 17,
+          "reportEvents": 90,
+          "exactEventMatch": true,
+          "reportIsExactPrefix": true,
+          "databaseOnlyTail": [],
+          "actualDispatches": 1,
+          "toolFailures": [],
+          "uiHistoryRestored": null
+        },
+        {
+          "mode": "changed-evidence",
+          "runId": "run-2ebe70ba-6ede-4260-8449-5fc16c5510ed",
+          "status": "execution-error",
+          "coverage": "partial",
+          "proof": "inspection-proof-4",
+          "proofVerified": false,
+          "counts": {
+            "effectUnspecifiedCount": 0,
+            "requiredEffectPendingCount": 1,
+            "genericIncompleteCount": 0,
+            "requiredEffectVerifiedCount": 0,
+            "requiredEffectFailedCount": 0,
+            "sourceUnresolvedCount": 0
+          },
+          "actions": 1,
+          "findings": 0,
+          "databaseStatus": "interrupted",
+          "events": 115,
+          "artifacts": 23,
+          "reportEvents": 115,
+          "exactEventMatch": true,
+          "reportIsExactPrefix": true,
+          "databaseOnlyTail": [],
+          "actualDispatches": 1,
+          "toolFailures": [],
+          "uiHistoryRestored": null
+        }
+      ]
+    },
+    "independentScore": {
+      "evidence": {
+        "path": "data/r0-default-check-v2/score-2026-10-09T00-38-06-919Z/results.json",
+        "bytes": 11141,
+        "sha256": "77b93d03199e0d110ba927170f5d3e8470165b2924d21c8ed079d0e384af9b07"
+      },
+      "baseAccepted": 6,
+      "attacksRejected": 38,
+      "scorerImportsProductionVerifier": false,
+      "separateProductionPrefixChecks": [
+        {
+          "mode": "explicit-fail",
+          "cutoffSeq": 73,
+          "issues": []
+        },
+        {
+          "mode": "numeric-fail",
+          "cutoffSeq": 67,
+          "issues": []
+        }
+      ],
+      "metadataCorrection": "Replay wrapper imports production verifier; original wrapper incorrectly marked importsProductionVerifier=false. Corrected metadata distinguishes independent evaluator from production regression."
+    },
+    "reportRegression": {
+      "evidence": {
+        "path": "data/r0-default-check-v2/report-regression-2026-10-09T00-34-12-913Z/results.json",
+        "bytes": 4167,
+        "sha256": "481e681d0b64ca7f2d00293e9bdb1d87c88ab1ba4a9a7de544ecd042a3d952c9"
+      },
+      "passed": 16,
+      "total": 16,
+      "usesOriginalArtifactMetadata": true,
+      "includes": "active and settled positives, mismatched actionId, missing dispatch/artifact/feedback/source review negatives; separate from independent score"
+    },
+    "evidenceAudit": {
+      "evidence": {
+        "path": "data/r0-default-check-v2/audit-2026-10-09T00-36-06-518819Z/summary.json",
+        "bytes": 26782,
+        "sha256": "67c7999bce63ccb7bc9560ea7e58134d03e228229d1ac6f07f0f12cb60a1ff2d"
+      },
+      "exitCode": 1,
+      "issues": [
+        "cancel:sqlite-report-events-mismatch"
+      ],
+      "exactEventMatchRuns": 27,
+      "totalRuns": 28,
+      "databaseEvents": 3129,
+      "reportEvents": 3128,
+      "artifactsReadableAndCopyByteMatched": 561,
+      "sqliteIntegrity": "ok",
+      "contractProjectionMatches": 28,
+      "statusProjectionNote": "changed-evidence persisted interrupted -> report execution-error intentionally; no covered claim"
+    },
+    "uiVisualReview": {
+      "screenshots": [
+        {
+          "path": "data/r0-default-check-v2/final-free-2026-10-08T20-46-41-537Z/workbench-summary.png",
+          "bytes": 114444,
+          "sha256": "42b930f4a780d7d09890f0d0f3cbd56499b6133c2741ac52394eb7e86f17d5fd"
+        },
+        {
+          "path": "data/r0-default-check-v2/final-free-2026-10-08T20-46-41-537Z/workbench-partial-summary.png",
+          "bytes": 112099,
+          "sha256": "1dfdc5891fc607b2dfbeac5808af8d1a4dcc1d78b6d93ca89b28efbff95c7116"
+        },
+        {
+          "path": "data/r0-default-check-v2/final-free-2026-10-08T20-46-41-537Z/workbench-defect-summary.png",
+          "bytes": 118810,
+          "sha256": "04eaec744b787fa545a4689018b70f7d095e566fc1964fa329c9b6011a385cc4"
+        }
+      ],
+      "result": "Reviewed existing screenshots: completed/partial/defect with both dimensions and functional unknown visible; all 3 UI historyRestored=true, errors=[]; no new browser execution"
+    }
+  },
+  "development": [
+    {
+      "id": "D1",
+      "implementation": [
+        "src/shared/ui-sampling-policy.ts",
+        "src/inspection/contract.ts",
+        "src/agent/policy.ts",
+        "src/execution/versions.ts"
+      ],
+      "evidence": [
+        "F01",
+        "F13"
+      ],
+      "status": "implemented; compatibility evidence bounded"
+    },
+    {
+      "id": "D2",
+      "implementation": [
+        "src/inspection/check-contract.ts",
+        "src/inspection/scope.ts",
+        "src/execution/inspection-host.ts"
+      ],
+      "evidence": [
+        "F02",
+        "F03",
+        "F04",
+        "F05",
+        "F08"
+      ],
+      "status": "implemented; source attack combinations not exhaustive"
+    },
+    {
+      "id": "D3",
+      "implementation": [
+        "src/execution/default-check-runtime.ts",
+        "src/execution/executor.ts",
+        "src/execution/tool-inputs.ts"
+      ],
+      "evidence": [
+        "F01",
+        "F05",
+        "F06",
+        "F07",
+        "F08",
+        "F09",
+        "F10"
+      ],
+      "status": "implemented; dispatch/recovery paths evidenced with stated gaps"
+    },
+    {
+      "id": "D4",
+      "implementation": [
+        "src/inspection/check-artifacts.ts",
+        "src/inspection/completion.ts",
+        "src/inspection/proof-history.ts",
+        "src/server/reports/ui-scan-report.ts",
+        "src/web/ui-scan-report.tsx"
+      ],
+      "evidence": [
+        "F11",
+        "F12",
+        "F13"
+      ],
+      "status": "implemented; cancellation tail discrepancy and F12 coverage remain open"
+    },
+    {
+      "id": "D5",
+      "implementation": [
+        "evaluation/ui-default-checks-v2.ts",
+        "evaluation/ui-contract-v2-fixtures.ts",
+        "scripts/validation/r0-v2-score-replay.ts"
+      ],
+      "evidence": [
+        "F14"
+      ],
+      "status": "independent scorer, public matrix and unexecuted manifest draft delivered; no formal acceptance"
+    },
+    {
+      "id": "D6",
+      "implementation": [
+        "plans/r0-default-check-v2-handoff.md",
+        "plans/evidence/r0-default-check-v2-delivery.json"
+      ],
+      "evidence": [
+        "all mapped with gaps"
+      ],
+      "status": "free handoff delivered with qualifications; paid blocked"
+    }
+  ],
+  "coverage": [
+    {
+      "id": "F01",
+      "coverage": "scoped-evidence-with-explicit-limits",
+      "finalCases": [
+        "neutral-change",
+        "neutral-no-change",
+        "missing-operation",
+        "positive-probe"
+      ],
+      "additionalEvidence": [
+        "check-contract.test.ts",
+        "report-regression"
+      ],
+      "verified": "完整通用回执、有/无变化、零误报、缺派发及缺反馈产物拒绝；effects为空仍未知。",
+      "notCovered": "未逐一删除两次后态的每个字段；没有陌生网站泛化结论。",
+      "exhaustive": false
+    },
+    {
+      "id": "F02",
+      "coverage": "scoped-evidence-with-explicit-limits",
+      "finalCases": [
+        "explicit-pass",
+        "explicit-fail",
+        "explicit-unfinished",
+        "numeric-pass",
+        "numeric-fail"
+      ],
+      "additionalEvidence": [
+        "check-contract.test.ts",
+        "independent-score"
+      ],
+      "verified": "同item效果verified/failed+发现/unverified；未完成要求保持partial。",
+      "notCovered": "有界文本/数值场景；非所有现有谓词。",
+      "exhaustive": false
+    },
+    {
+      "id": "F03",
+      "coverage": "scoped-evidence-with-explicit-limits",
+      "finalCases": [
+        "numeric-pass",
+        "numeric-fail",
+        "advanced",
+        "explicit-pass",
+        "unrelated-program"
+      ],
+      "additionalEvidence": [
+        "check-contract.test.ts",
+        "independent-score"
+      ],
+      "verified": "原目标、页面公开数值声明、高级要求、自动规则来源；拒无关系/裸字面；源码/产物哈希核对。",
+      "notCovered": "伪造来源hash、跨run来源、每种多工具入口的真实API攻击未全部单列执行。",
+      "exhaustive": false
+    },
+    {
+      "id": "F04",
+      "coverage": "scoped-evidence-with-explicit-limits",
+      "finalCases": [
+        "unsupported-goal",
+        "late-source"
+      ],
+      "additionalEvidence": [
+        "check-contract.test.ts"
+      ],
+      "verified": "无法编译目标与晚到来源保持gap；缺描述/截断/歧义、冲突/超12条及不删义务由单测覆盖。",
+      "notCovered": "分页遗漏、冲突/overflow没有各自真实浏览器场景；不把单测当实际页面证据。",
+      "exhaustive": false
+    },
+    {
+      "id": "F05",
+      "coverage": "scoped-evidence-with-explicit-limits",
+      "finalCases": [
+        "unrelated-program",
+        "incidental-clock"
+      ],
+      "additionalEvidence": [
+        "check-contract.test.ts",
+        "independent-score"
+      ],
+      "verified": "无关稳定段落不能核销效果；时钟变化不充当控件功能；不伪造发现。",
+      "notCovered": "body存在、焦点、原本为真谓词与所有UI工具入口的交叉负例未全部覆盖。",
+      "exhaustive": false
+    },
+    {
+      "id": "F06",
+      "coverage": "scoped-evidence-with-explicit-limits",
+      "finalCases": [
+        "repeat",
+        "recovery-budget"
+      ],
+      "additionalEvidence": [
+        "check-contract.test.ts"
+      ],
+      "verified": "重复本地click拒绝（2次实际派发是原click+导航）；混合purpose共用两次恢复，第三次seq101明确exhausted。",
+      "notCovered": "换checkRef/别名的全部API变体未穷举；没有重设预算。",
+      "exhaustive": false
+    },
+    {
+      "id": "F07",
+      "coverage": "scoped-evidence-with-explicit-limits",
+      "finalCases": [
+        "replaced-result",
+        "other-action",
+        "changed-evidence",
+        "explicit-pass"
+      ],
+      "additionalEvidence": [
+        "report-regression"
+      ],
+      "verified": "结果节点替换、另一动作、证据篡改保持未完成；合法动态新结果可验证；效果/动作错绑拒绝。",
+      "notCovered": "动作前控制节点替换、跨文档恢复未新跑v2专项。",
+      "exhaustive": false
+    },
+    {
+      "id": "F08",
+      "coverage": "scoped-evidence-with-explicit-limits",
+      "finalCases": [
+        "more-than-three",
+        "native",
+        "advanced"
+      ],
+      "additionalEvidence": [
+        "default-check-sampling.test.ts",
+        "default-sampling.test.ts"
+      ],
+      "verified": "固定三项、未选不算通过、真实导航；单测覆盖小池全选、失败不换样、重访、池外高级要求。",
+      "notCovered": "部分选样边界仅宿主/ledger单测，未各跑真实API；沿用既有8候选/3页面上限。",
+      "exhaustive": false
+    },
+    {
+      "id": "F09",
+      "coverage": "scoped-evidence-with-explicit-limits",
+      "finalCases": [
+        "native",
+        "advanced",
+        "explicit-pass"
+      ],
+      "additionalEvidence": [],
+      "verified": "原select的fill局部状态和按钮效果分开；高级明确结果槽与直接路径单动作取证。",
+      "notCovered": "独立文本input/其他native类型未单列新v2浏览器行。",
+      "exhaustive": false
+    },
+    {
+      "id": "F10",
+      "coverage": "scoped-evidence-with-explicit-limits",
+      "finalCases": [
+        "intercepted",
+        "positive-probe",
+        "neutral-no-change"
+      ],
+      "additionalEvidence": [
+        "independent-score"
+      ],
+      "verified": "拦截有supported发现；健康probe不抵操作；无反馈健康零误报。",
+      "notCovered": "不是所有物理拦截/规则组合；独立评分回放未纳入A2整页未来fixture。",
+      "exhaustive": false
+    },
+    {
+      "id": "F11",
+      "coverage": "scoped-evidence-with-explicit-limits",
+      "finalCases": [
+        "cancel",
+        "execution-fault",
+        "post-denied",
+        "changed-evidence"
+      ],
+      "additionalEvidence": [
+        "check-contract.test.ts",
+        "report-regression",
+        "evidence-audit"
+      ],
+      "verified": "取消/执行错误/POST干预不变covered；proof4缺facet及缺产物拒绝。",
+      "notCovered": "开放CANCEL-TAIL-1：报告73事件、最终库74事件；未重跑旧持久失配，不能关闭旧故障。",
+      "exhaustive": false
+    },
+    {
+      "id": "F12",
+      "coverage": "scoped-evidence-with-explicit-limits",
+      "finalCases": [
+        "late-source",
+        "more-than-three"
+      ],
+      "additionalEvidence": [
+        "check-contract.test.ts",
+        "report-regression"
+      ],
+      "verified": "未闭合来源不能完成；缺页来源审查离线拒绝；已有proof4缺facet/取消否决单测。",
+      "notCovered": "未专门构造同响应末动作之后排队导航/新增来源、未结规则、伪造empty-source的完整API组合；此行部分覆盖。",
+      "exhaustive": false
+    },
+    {
+      "id": "F13",
+      "coverage": "scoped-evidence-with-explicit-limits",
+      "finalCases": [
+        "workbench",
+        "workbench-partial",
+        "workbench-defect"
+      ],
+      "additionalEvidence": [
+        "contract.test.ts",
+        "check-contract.test.ts",
+        "ui-scan-report.test.ts",
+        "evidence-audit"
+      ],
+      "verified": "真实普通POST、三类报告和历史恢复，无脚本/requiredChecks；UI截图两维及未知；27/28报告事件与最终SQLite全等。",
+      "notCovered": "仅workbench健康行为网址+空目标；partial/defect使用公开目标；旧三协议/proof2/3历史UI未实际重开，旧合同/展示仅单测复用；取消尾差异保留。",
+      "exhaustive": false
+    },
+    {
+      "id": "F14",
+      "coverage": "scoped-evidence-with-explicit-limits",
+      "finalCases": [
+        "neutral-change",
+        "neutral-no-change",
+        "explicit-pass",
+        "explicit-fail",
+        "numeric-pass",
+        "numeric-fail"
+      ],
+      "additionalEvidence": [
+        "independent-score"
+      ],
+      "verified": "独立评分6基线接纳、38攻击拒绝：删样本/规格、伪造回执、小分母、全部unknown、无效发现和健康误报。",
+      "notCovered": "这是实际API证据的离线攻击，不是未来H0–B1完整fixture运行；A2/B1独立评分整行未执行。",
+      "exhaustive": false
+    }
+  ],
+  "reuse": [
+    {
+      "from": "d978bc9 unit-candidate 73/73",
+      "to": [
+        "D1",
+        "D2",
+        "D3",
+        "D4"
+      ],
+      "basis": "Same relevant source/tests; last production delta isolated to check-artifacts and tested separately",
+      "notClaimed": "No new full-suite or historical unit provenance inferred solely from a later Git hash"
+    },
+    {
+      "from": "27614b7 final-free batch",
+      "to": [
+        "F01",
+        "F02",
+        "F03",
+        "F04",
+        "F05",
+        "F06",
+        "F07",
+        "F08",
+        "F09",
+        "F10",
+        "F11",
+        "F12",
+        "F13",
+        "F14"
+      ],
+      "basis": "Manifest identity plus 126 embedded sources match current candidate; original run IDs and measurements retained",
+      "notClaimed": "28 cases do not exhaust every F subcase; cancellation mismatch retained"
+    },
+    {
+      "from": "5f41285 historical 66 related tests, 5 cancel/unknown-write regressions, 14 deterministic interface negatives and legacy guard",
+      "to": [
+        "unchanged permission/persistence historical background"
+      ],
+      "basis": "Plan-listed historical references only; not rerun or freshly audited during recovery",
+      "notClaimed": "Not numerical credit for candidate or proof4, not closure of persistence fault"
+    },
+    {
+      "from": "candidate-final vs final-legacy-guard historical builds",
+      "to": [
+        "historical distinctions"
+      ],
+      "basis": "Keep separate identity and scores; no aggregate pass total",
+      "notClaimed": "No recalculation of old R0 scores"
+    }
+  ],
+  "failuresAndOpenIssues": [
+    {
+      "id": "CANCEL-TAIL-1",
+      "state": "open",
+      "report": "data/r0-default-check-v2/final-free-2026-10-08T20-46-41-537Z/cancel-report.json",
+      "runId": "run-65c9ba02-1eb6-4d43-9ec9-2f0f9371b0e1",
+      "reportEventCount": 73,
+      "databaseEventCount": 74,
+      "difference": [
+        {
+          "id": "evt-53009f37-9b76-4cbd-9e39-71834ad711a3",
+          "runId": "run-65c9ba02-1eb6-4d43-9ec9-2f0f9371b0e1",
+          "seq": 73,
+          "type": "tool:finished",
+          "timestamp": "2026-10-08T20:47:24.134Z",
+          "stepId": null,
+          "actionId": null,
+          "payload": {
+            "attemptId": "d3038b3e-c471-4bde-a440-50b558fd5f30",
+            "toolCallId": "c475b91b-c5dc-404b-bcab-f24232ae5970",
+            "tool": "page_act",
+            "status": "error",
+            "error": "Error: cancelled",
+            "durationMs": 1253
+          },
+          "evidenceRefs": []
+        }
+      ],
+      "effect": "exact report/settled-database equality not achieved for this row; cancelled/partial retained; no post-cancel action dispatch",
+      "next": "Before claiming F11/F13 closure, determine diagnostic tail lifecycle and capture settled historical report with separate evidence; do not rewrite retained report."
+    },
+    {
+      "id": "ORIGINAL-PERSISTENCE",
+      "state": "open",
+      "reference": "plans/r0-persistence-repair-handoff.md",
+      "effect": "No root-cause fix or closure; all paid/formal acceptance blocked."
+    },
+    {
+      "id": "DEV-UNIT",
+      "state": "retained failures, later candidate tests passed",
+      "evidence": "data/r0-default-check-v2/audit-2026-10-09T00-36-06-518819Z/unit-history.json",
+      "examples": [
+        "unit-second.json 53/54",
+        "sampling-v2.json 6/8",
+        "sampling-v2-corrected.json 7/8"
+      ],
+      "later": "sampling-v2-fixed.json 8/8; unit-candidate.json 73/73"
+    },
+    {
+      "id": "DEV-BUILD",
+      "state": "retained, corrected build successful",
+      "evidence": "data/r0-default-check-v2/build-active-report-fix.log",
+      "error": "TS2304 Cannot find name measured at check-artifacts.ts:164",
+      "later": "data/r0-default-check-v2/build-active-report-corrected.log"
+    },
+    {
+      "id": "INCOMPLETE-PRIOR-BATCHES",
+      "state": "retained; not pooled with final",
+      "batches": {
+        "candidate-free-2026-10-08T19-47-14-584Z": "2 of 28 result rows; defect UI polling failure investigated",
+        "dev-matrix-2026-10-08T19-01-54-875Z": "15 of 17 rows",
+        "dev-remaining-2026-10-08T18-40-28-811Z": "12 of 17 rows"
+      },
+      "otherAttempts": "All dev-* directories retained in inventory; names are not pass declarations."
+    },
+    {
+      "id": "RECOVERY-REGRESSION-FIRST",
+      "state": "retained test-expectation error; no product fix",
+      "evidence": "data/r0-default-check-v2/report-regression-2026-10-09T00-33-44-272Z/results.json",
+      "actual": "14/16; both missing feedback cases rejected by v2-feedback-sample-bytes-mismatch instead of expected generic artifact error",
+      "correction": "Assert exact feedback-specific rejection; subsequent 16/16. Original results unchanged."
+    },
+    {
+      "id": "RECOVERY-AUDIT-FIRST",
+      "state": "retained audit projection error plus real cancellation mismatch",
+      "evidence": "data/r0-default-check-v2/audit-2026-10-09T00-35-17-231049Z/summary.json",
+      "correction": "Report adds integrity and places budget at root; compare reconstructed contract. Final audit still exits 1 for actual cancellation tail mismatch."
+    }
+  ],
+  "futureAcceptance": {
+    "draft": "evaluation/ui-contract-v2-fixtures.ts#UI_V2_MANIFEST_DRAFT",
+    "status": "draft-not-executed-not-authorized",
+    "formalUiRows": 15,
+    "healthy": 9,
+    "anomaly": 6,
+    "businessDiagnostic": 5,
+    "businessFormal": 45,
+    "blockedBy": [
+      "Formal real-model/UI/business acceptance not executed in this round",
+      "Original persistence fault has no separate closure",
+      "New source/build/dependency/fixture/config freeze and independent review",
+      "New explicit paid authorization with existing cumulative ledger"
+    ],
+    "deferredCoverage": "F subcase gaps remain open in coverage; scheduled follow-up by risk or changed/touched path, not an infinite prerequisite to this internal stage delivery."
+  },
+  "rawEvidence": {
+    "localOnly": true,
+    "inGit": false,
+    "root": "/Users/xietian/.codex/worktrees/r0-default-check-v2/ui-sentinel/data/r0-default-check-v2",
+    "finalRoot": "/Users/xietian/.codex/worktrees/r0-default-check-v2/ui-sentinel/data/r0-default-check-v2/final-free-2026-10-08T20-46-41-537Z",
+    "originalArtifactRoot": "/Users/xietian/.codex/worktrees/r0-default-check-v2/ui-sentinel/data/artifacts",
+    "finalBatchInventory": {
+      "path": "data/r0-default-check-v2/audit-2026-10-09T00-36-06-518819Z/final-batch-inventory.json",
+      "bytes": 157682,
+      "sha256": "b5dc1ba4d3ce92b60dc70253158d5f3eb53be70e22011b2d29af8135fbb7292c"
+    },
+    "finalBatchFiles": 641,
+    "finalBatchBytes": 24579480,
+    "allPriorAttemptsInventory": {
+      "path": "data/r0-default-check-v2/audit-2026-10-09T00-36-06-518819Z/inventory.json",
+      "bytes": 480458,
+      "sha256": "eb05be215a866d1171a2bec85654241c6283055ea9ef6a8b74bd9cb85a1cff36"
+    },
+    "allPriorAttemptsFiles": 1984,
+    "allPriorAttemptsBytes": 130716433,
+    "inventoryBoundary": "Retained inventory is a point-in-time listing before later recovery documents/logs; final-batch-inventory separately covers every final-batch file. Hashes alone do not deliver files. No large archive added to Git."
+  },
+  "fees": {
+    "newRealModelCalls": 0,
+    "newPaidCostUsd": 0,
+    "historicalLedgerModified": false,
+    "finalFixtureModel": "loopback OpenAI-compatible deterministic local-fixed; SDK model request counters are synthetic local calls, not paid calls",
+    "recoveryBrowserRuns": 0
+  },
+  "restrictions": [
+    "Generic completion does not establish functional correctness.",
+    "Explicit unverified requirements remain incomplete.",
+    "No old results regraded; v2 scores remain separate.",
+    "Original persistence fault open; new free success cannot close it.",
+    "No push, merge, main/R0/R1/rule branch or main-workspace Roadmap edits.",
+    "No other agents or failed conversation resumed.",
+    "Phase completion is limited internal delivery; formal stability/real-model/UI/business acceptance remains pending. Deferred coverage is not a reason to withhold this stage."
+  ],
+  "stageDelivery": {
+    "complete": true,
+    "scope": "Trusted single-machine, anonymous bounded inspection demonstrated by retained deterministic local API/workbench evidence; explicit source grammar and generic/effect distinction.",
+    "formalAcceptancePassed": false,
+    "productionReliabilityGuaranteed": false,
+    "latestUserDirection": "Deliver usable stage now; defer uncovered low-risk subcases and unresolved historical diagnosis without new batches, product patches or paid execution.",
+    "noDefaultEnablement": true,
+    "stopAfterDelivery": true
+  },
+  "riskTriage": [
+    {
+      "id": "CURRENT-CRITICAL-PATH",
+      "kind": "evidence assessment, not reliability warranty",
+      "priority": "block affected capability if observed",
+      "evidence": "28 retained bounded cases, score attacks, and report regressions; no confirmed false covered/success, unauthorized POST egress, repeated original local click, or invalid effect association surviving these checks",
+      "restriction": "Source unresolved, missing required effect, invalid artifact/proof, cancellation, execution error and intervention must retain partial/error. Do not override them to use the capability.",
+      "escalateWhen": "Any reproducible false completion, unauthorized request, action replay or evidence corruption on a promised path: stop that path immediately and retain original evidence."
+    },
+    {
+      "id": "ORIGINAL-PERSISTENCE",
+      "kind": "confirmed historical product failure, root cause unknown",
+      "priority": "high known stability risk; formal reliability claim blocked",
+      "evidence": "Original seq49/action:executing persisted while later actual work lacked registration; persistence handoff retained",
+      "restriction": "No guaranteed durability, unattended repeated batches, or production reliability claim. Internal trial must be isolated, single run, reviewed; preserve existing stop/quarantine/no replay.",
+      "escalateWhen": "First write/read-back mismatch, stuck terminal persistence or unregistered artifact; stop affected service/queue and use existing capture tooling in a separately authorized diagnostic attempt."
+    },
+    {
+      "id": "CANCEL-TAIL-1",
+      "kind": "confirmed snapshot discrepancy",
+      "priority": "medium for exact report consistency; cancellation outcome remains intact",
+      "evidence": "Both cancelled; report 73 events exact prefix of database 74; only later cancelled tool:finished, no later action:executing",
+      "restriction": "Do not claim this saved report contains the complete settled event tail. Preserve cancelled/partial and no verified completion. Not proven fixed or severe database corruption.",
+      "escalateWhen": "Tail includes an actual action/requirement/status change, terminal report mislabels cancellation, or exact historical reconciliation is needed."
+    },
+    {
+      "id": "UNCOVERED-F-SUBCASES",
+      "kind": "validation gaps, not confirmed product defects",
+      "priority": "deferred targeted evidence",
+      "evidence": "Per-F notCovered fields, especially cross-run source/other tool entry, pre-action replacement/cross-document, F12 same-response queues, legacy historical UI",
+      "restriction": "Do not claim all F gates or old formal suites passed; current internal usage stays within evidenced finite grammar and scope.",
+      "escalateWhen": "Touch the related code, expand a source/tool/navigation capability, or observe a matching failure; run only the corresponding targeted case."
+    }
+  ],
+  "operations": {
+    "cwd": "/Users/xietian/.codex/worktrees/r0-default-check-v2/ui-sentinel",
+    "existingRuntime": "export PATH=/Users/xietian/.local/share/fnm/node-versions/v24.21.0/installation/bin:$PATH",
+    "previewCommand": "PORT=4119 EXECUTION_URL_SCAN=0 DATABASE_URL=file:./data/r0-v2-internal-view.db pnpm start",
+    "previewUrl": "http://127.0.0.1:4119",
+    "previewMeaning": "Starts retained dist against a separate local DB for workbench inspection; URL scan remains off; no model request is made merely by starting the service. Do not run business tasks with inherited real credentials.",
+    "oneFreeBoundedScanCommand": "pnpm exec tsx scripts/validation/r0-default-check-v2.ts internal-trial workbench",
+    "scanMeaning": "One selected ordinary UI empty-goal scan on a loopback fixture, using local-fixed deterministic provider and existing executor/Chromium; dedicated service/DB/evidence directory; not an arbitrary website or real-model capability acceptance. Harness bundles its own server into new data directory, leaving dist and original evidence alone. Not executed again during this handoff.",
+    "prerequisites": "Existing dependencies and Chromium, source frozen to product candidate; stop preview server with Ctrl-C when finished. No install or global/default configuration edits.",
+    "reports": {
+      "normal": "completed+covered+proofVerified=true with generic complete; functionally unspecified count remains unknown, not all functions correct",
+      "partial": "blocked/partial or unverified required effect/source/generic remains incomplete; do not retry automatically",
+      "defect": "completed/covered may legitimately include failed effect and supported finding; not site healthy",
+      "fault": "cancelled/execution-error/interrupted or proofVerified=false: no completion claim; inspect evidence and stop as appropriate"
+    },
+    "persistenceIncident": [
+      "Stop submitting new tasks; use cancel once if the run is still active, keep quarantine and refuse automatic replay.",
+      "Before restart or force termination, retain logs, run ID, original DB and any existing -wal/-shm/-journal side files, artifacts, report/event snapshots, version/config hashes. Copying live files is non-atomic and must be labelled; do not delete, checkpoint, clean or overwrite the source.",
+      "Stop the affected local service after collecting the available state if it continues to accept work; do not restart merely to try again, switch DB to evade quarantine, or clear run status.",
+      "Use existing scripts/validation/persistence-diagnosis.ts and support/persistence-trace-hook.mjs only for a separately chosen diagnostic run; no probe of the old failed run and no root-cause claim from a new success."
+    ],
+    "defaultEnabledByThisDelivery": false,
+    "newStartupOrScanExecuted": false
+  }
+}

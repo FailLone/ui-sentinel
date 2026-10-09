@@ -1,0 +1,42 @@
+{
+  "selectedBeforeExport": [
+    [
+      "V01",
+      "workbench",
+      0,
+      "one selected generic obligation"
+    ],
+    [
+      "V02",
+      "more-than-three",
+      0,
+      "observed controls before fixed selection"
+    ],
+    [
+      "V03",
+      "more-than-three",
+      1,
+      "three frozen selected obligations"
+    ],
+    [
+      "V04",
+      "native",
+      1,
+      "one concluded local item and one pending native item"
+    ],
+    [
+      "V05",
+      "explicit-unfinished",
+      1,
+      "generic collected, required effect unfinished"
+    ],
+    [
+      "V06",
+      "late-source",
+      1,
+      "late public source, requirement remains unfinished"
+    ]
+  ],
+  "selectionBasis": "structural public state differences, not outcome/score optimization",
+  "notBlind": "Author has inspected the retained batch; no independent preference labels supplied."
+}

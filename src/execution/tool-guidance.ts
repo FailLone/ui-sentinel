@@ -49,7 +49,8 @@ export function pageActDescription(
     `${limits}` +
     ' Prefer role+name from the a11y tree (e.g. role="button", name from that tree).' +
     ' Use selector as fallback from element_details. Use visualDescription only if neither works.' +
-    ' Pre-action evidence is always captured. Never repeat an uncertain write.'
+    ' click/probe/fill require a target; choose one of role+name, selector, visualDescription, or a UI observed ref. A ref may cross-check one locator. nth requires role+name. fill requires an explicit value (empty string clears). navigate requires an explicit absolute HTTP(S) url and no target fields; use click for an observed link, including selected navigation. scroll requires explicit scrollY and no target. Only click/fill accept verify. Unused fields must be absent/null. Invalid inputs are rejected before browser operations and can use the one bounded contract repair; no URL or action type is inferred.' +
+    ' Pre-action evidence is captured for valid actions. Never repeat an uncertain write.'
   )
 }
 

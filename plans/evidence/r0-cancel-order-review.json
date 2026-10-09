@@ -1,0 +1,41 @@
+{
+  "candidate": "97d39eda8fcbae9a6e163c6dfc5219668d67043d",
+  "verdict": "passed-within-K1-K3-contract-review",
+  "previousP1": "closed",
+  "paidRequests": 0,
+  "sourceChangesByReviewer": false,
+  "dist": "fcfc9b78ee6027fba7fd84cacf61377250c0d8b06e36b7dde03c87d28e2175ba",
+  "source": "bd11757cac74ea901bc19b44e248f67af479f1a47bb6a2f22e212217c71cc4a3",
+  "identityFilesMatch": true,
+  "independentFocusedTests": {
+    "filesPassed": 2,
+    "testsPassed": 10,
+    "testsSkippedByFilter": 73,
+    "log": "data/r0-k123-independent-review/cancel-order-review-tests.log"
+  },
+  "independentRawAudit": "data/r0-k123-independent-review/cancel-order-raw-audit.json",
+  "reviewedBrowserEvidence": "data/r0-cancel-order-browser/2026-10-07T14-34-54-970Z",
+  "reviewedK123Regression": "data/r0-k123-browser/2026-10-07T14-35-15-679Z",
+  "newBlockingFindings": [],
+  "limits": [
+    "Single-process lifecycle queue only; not distributed locking",
+    "No real-model capability acceptance or R0 completion conclusion",
+    "No exhaustive proof of all browser/OS/storage crash schedules",
+    "terminalOwners retains one entry per terminal run for process lifetime, a non-blocking long-lived service memory consideration"
+  ],
+  "reviewer": "/root/review_k123",
+  "evidence": [
+    {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-k123-independent-review/cancel-order-review.json",
+      "sha256": "75a6c831ae1aac821947bfac64f21420c1f14827019cc70d305f3c8d846b098b"
+    },
+    {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-k123-independent-review/cancel-order-review-tests.log",
+      "sha256": "e74c14aaa5e12688334adcaba9572b5157452dbadbf4c936ec7c8e2a4b44289f"
+    },
+    {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-k123-independent-review/cancel-order-raw-audit.json",
+      "sha256": "c218b4b2642f9f709b98dc1e0baa4502462ddfd3de4d1b779240619658cedc1f"
+    }
+  ]
+}

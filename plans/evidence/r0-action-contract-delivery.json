@@ -1,0 +1,256 @@
+{
+  "schemaVersion": "r0-action-contract-delivery-1",
+  "candidate": "adc6b540b7c25c06cbcad7d3e8b657d480bec474",
+  "date": "2026-10-08",
+  "timezone": "Asia/Shanghai",
+  "scope": "Action-specific pre-dispatch parameter validation and existing bounded contract repair only",
+  "selfTest": "passed-limited-scope",
+  "separateAgentReview": false,
+  "r0Complete": false,
+  "paidRequests": 0,
+  "newPaidAuthorization": false,
+  "identity": {
+    "dist": "1a26f780a560a7876e1633f9045e9cd92bf3acad031279881891e9d514276770",
+    "src": "d0767424eca3de0552d2c852dcd0230ba14f59f793d2a547e155a474d4b26e03",
+    "scripts": "856a58c449b1193598ee37c8c6adcc0115d65023ae40091839fdfd744cfaca97"
+  },
+  "testIdentityMapping": "Tests ran on dirty source at parent HEAD; after commit, all source/script/build tree bytes match test identity. No claim of a post-commit rerun.",
+  "testParent": "290079d0870f5b13c0250b31ab05356f7bba0eee",
+  "environment": "Node 24.21.0 / pnpm10.17.1",
+  "build": "passed",
+  "targetedTests": {
+    "sixFiles": 50,
+    "nestedActions": 7,
+    "businessBoundary": 5,
+    "unselectedExecutorTests": 70
+  },
+  "api": {
+    "directory": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-action-contract/2026-10-07T18-13-29-654Z",
+    "planned": 8,
+    "passed": 8,
+    "rows": [
+      {
+        "mode": "matrix-correct",
+        "runId": "run-42d12188-36f7-4933-83a5-0f789d07a7bc",
+        "passed": true,
+        "status": "completed",
+        "actions": 2,
+        "modelCalls": 5,
+        "validationErrors": 6,
+        "contractRepairs": 0
+      },
+      {
+        "mode": "repair-click",
+        "runId": "run-b00d04de-189b-47a6-9df4-c6b5a4f2d5ce",
+        "passed": true,
+        "status": "completed",
+        "actions": 2,
+        "modelCalls": 7,
+        "validationErrors": 3,
+        "contractRepairs": 1
+      },
+      {
+        "mode": "repair-url",
+        "runId": "run-62e8b43c-af1c-4bb7-a6fc-dd5f6191f66e",
+        "passed": true,
+        "status": "completed",
+        "actions": 2,
+        "modelCalls": 7,
+        "validationErrors": 3,
+        "contractRepairs": 1
+      },
+      {
+        "mode": "repeat-error",
+        "runId": "run-1e28dc16-d912-4254-813c-d3613bec2633",
+        "passed": true,
+        "status": "blocked",
+        "actions": 0,
+        "modelCalls": 5,
+        "validationErrors": 4,
+        "contractRepairs": 1
+      },
+      {
+        "mode": "selected-link",
+        "runId": "run-c6453347-22e6-4352-b11a-4dad7f6dfc7c",
+        "passed": true,
+        "status": "completed",
+        "actions": 2,
+        "modelCalls": 5,
+        "validationErrors": 0,
+        "contractRepairs": 0
+      },
+      {
+        "mode": "execute-error",
+        "runId": "run-ddde6f5e-63b0-44e2-b787-89f0c93e1bc9",
+        "passed": true,
+        "status": "execution-error",
+        "actions": 1,
+        "modelCalls": 5,
+        "validationErrors": 3,
+        "contractRepairs": 1
+      },
+      {
+        "mode": "cancel-repair",
+        "runId": "run-048d64fd-3caa-4fc3-a4e7-2b83aca5ad1a",
+        "passed": true,
+        "status": "cancelled",
+        "actions": 0,
+        "modelCalls": 5,
+        "validationErrors": 3,
+        "contractRepairs": 1
+      },
+      {
+        "mode": "after-normal",
+        "runId": "run-f86c3f5b-5ae3-4549-9e83-7c85555b5d45",
+        "passed": true,
+        "status": "completed",
+        "actions": 2,
+        "modelCalls": 4,
+        "validationErrors": 0,
+        "contractRepairs": 0
+      }
+    ],
+    "realModel": false,
+    "model": "Local scripted server; remote child-process keys explicitly blank",
+    "browserNoOpsWindowVerified": true,
+    "databaseHistoryVerified": true
+  },
+  "rawAudit": {
+    "path": "data/r0-action-contract-delivery/raw-audit.json",
+    "passed": true,
+    "method": "Direct Python read-only SQLite + artifact bytes/types/owners + full event payloads + terminal/proof comparison; current Agent self-audit, no blind reviewer claim"
+  },
+  "contract": {
+    "click": {
+      "required": [
+        "target"
+      ],
+      "allowed": [
+        "verify"
+      ]
+    },
+    "probe": {
+      "required": [
+        "target"
+      ],
+      "allowed": []
+    },
+    "fill": {
+      "required": [
+        "target",
+        "value"
+      ],
+      "emptyString": "explicit clear",
+      "allowed": [
+        "verify"
+      ]
+    },
+    "navigate": {
+      "required": [
+        "absolute HTTP(S) url"
+      ],
+      "targetFieldsAllowed": false,
+      "urlInferred": false,
+      "substitutedClick": false
+    },
+    "scroll": {
+      "required": [
+        "scrollY"
+      ],
+      "range": [
+        -1000,
+        1000
+      ],
+      "default": null
+    },
+    "target": "one of role+name, selector, visualDescription, or UI observed ref; ref may accompany one locator method; nth requires role+name",
+    "optionalNull": "absence only, never an inferred operand",
+    "nestedProgramActions": "validated before any program browser work",
+    "contextualTargetValidation": "business ref alone cannot locate a target"
+  },
+  "boundedRepair": {
+    "existingMechanismReused": true,
+    "maxAllowancesPerRun": 1,
+    "allowance": "one-model-turn",
+    "errorsAreProgress": false,
+    "extraF1AfterUnchangedRepair": false
+  },
+  "safety": {
+    "cancelPriorityPreserved": true,
+    "actualClickFailureAfterSuccessfulTrialRemainsExecutionError": true,
+    "unknownWriteQuarantinePreserved": true,
+    "noFalseDispatchState": true,
+    "unresolvedSelectedItemsPreserved": true,
+    "selectedLinkMustActuallyClick": true
+  },
+  "ledger": {
+    "knownUsd": 1.91502588,
+    "requestCount": 733,
+    "statuses": [
+      [
+        "settled",
+        733
+      ]
+    ],
+    "leases": [],
+    "newPaidRequestsThisWork": 0
+  },
+  "archive": {
+    "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-action-contract-delivery/r0-action-contract-evidence.tar.gz",
+    "bytes": 2535092,
+    "sha256": "4e7397d5de51836945178dc9e02c9853960a88ac2dd3ed92a249048918951edb",
+    "verifiedFiles": 269,
+    "credentialsIncluded": false,
+    "availability": "local only; not pushed to Git"
+  },
+  "retainedIntermediateEvidence": [
+    {
+      "directory": "data/r0-action-contract/2026-10-07T18-05-49-354Z",
+      "verdict": "harness assertion failed after actual completed ref-only click; original preserved"
+    },
+    {
+      "directory": "data/r0-action-contract/2026-10-07T18-08-29-094Z",
+      "verdict": "8/8 earlier free proof; final proof strengthens genuine click failure; not combined into final denominator"
+    }
+  ],
+  "reusedEvidence": [
+    {
+      "index": "plans/evidence/r0-f12-delivery.json",
+      "scope": "accepted F1/F2 binding/sealing and unchanged adjacent contracts; affected shared input and repair paths get new targeted proof"
+    },
+    {
+      "index": "plans/evidence/r0-e13c535-final-delivery.json",
+      "scope": "historical 5/6 failure/fees and original raw counterexample retained; not changed to passed"
+    }
+  ],
+  "changes": [
+    "unified action schema",
+    "internal action preflight before browser/write-permission state",
+    "nested program action preflight",
+    "no implicit missing value/scroll operands",
+    "unchanged contract repair gets no extra F1 allowance",
+    "generic field guidance and free targeted tests"
+  ],
+  "limitations": [
+    "Free scripted model proves wiring/contracts, not real-model correction reliability",
+    "Current R0 real diagnostic remains 5/6 not passed; K4 formal/K5 not executed",
+    "No full suite or new paid batch",
+    "Dynamic target/browser errors and network permissions retain original rules"
+  ],
+  "handoff": "plans/r0-action-contract-handoff.md",
+  "maintainerRoadmapModifiedOrCommittedByThisWork": false,
+  "sourceHashes": {
+    "plans/r0-action-contract-handoff.md": "ccb4cf9b84c993cb94fdec09febf7d846fcaf43ff7516336483f6c1c36c16c63",
+    "docs/execution-engine.md": "001a9678e7d4dd5a1c61e65d53c73ee0ddb0bc61a4251f1e18d3794c6a48d64e"
+  },
+  "evidenceHashes": {
+    "data/r0-action-contract/2026-10-07T18-13-29-654Z/summary.json": "35f803c3b9a6856d40ba8443cc03c05dc7994c8b0a8a00c5fc30feac0daa4484",
+    "data/r0-action-contract/2026-10-07T18-13-29-654Z/identity.json": "10dc3fd0794c6b3c3ceedc7e6aea41e94f3a4864f9394601461624d90a489f23",
+    "data/r0-action-contract-delivery/raw-audit.json": "8cf1d8c9bb236950709637daffbfcc26555f3062a20ad9c87b33fed873f2ff62",
+    "data/r0-action-contract-delivery/identity-audit.json": "6dcedda8b2ecc34bff441ad9cc448e437b89a3cc87a0fe8655b23085d479b53d",
+    "data/r0-action-contract-delivery/logs/build-final.log": "cf6eaf7b4e9daf1c9e36a039b2de2ff4cd96453f06e98958748f3c2f5011ceb6",
+    "data/r0-action-contract-delivery/logs/targeted-authorized.log": "65edb873ccb7819612c2fedf28492dbb65d672133aeab8cc0777d8bfb3d1b18b",
+    "data/r0-action-contract-delivery/logs/nested-action.log": "2372d2376f4d7090eeb059785c80e97a2e26c5a1f21471ad111e24edb800dfc2",
+    "data/r0-action-contract-delivery/logs/business-boundary-authorized.log": "96e1c49980fa07de9bc3fedc3294af062519614278b75d9dbb8a99f1da211773"
+  }
+}

@@ -11,7 +11,7 @@ import { startRunExecution, cancelRunExecution } from '../../execution/executor.
 import { getDbClient } from '../../storage/database.ts'
 import { listPublicProfiles } from '../../business/registry.ts'
 import { selectBusinessContract, selectionError } from '../../business/selection.ts'
-import { resolveUiScanContract } from '../../inspection/contract.ts'
+import { resolveUiScanContract, uiScanRequestSchema } from '../../inspection/contract.ts'
 import { classifyHost } from '../../inspection/url.ts'
 import type { Context } from 'hono'
 
@@ -59,6 +59,7 @@ const inputSchema = z
 const uiScanBodySchema = z
   .object({
     kind: z.literal('ui-scan'),
+    requiredChecks: uiScanRequestSchema.shape.requiredChecks,
     entryUrl: z.string().min(1).max(4096),
     goal: z.string().trim().max(2000).optional(),
     scope: z
@@ -307,7 +308,14 @@ runRoutes.post('/api/runs/:id/cancel', async (c) => {
   if (terminals.has(run.status))
     return c.json({ accepted: false, reason: `run already in terminal state: ${run.status}` })
   const accepted = await cancelRunExecution(run.id)
-  return c.json({ accepted })
+  return c.json(
+    accepted
+      ? { accepted }
+      : {
+          accepted,
+          reason: 'run terminal submission already owns the lifecycle or the run has ended',
+        },
+  )
 })
 
 runRoutes.get('/api/runs/:id/events', async (c) => {

@@ -1,6 +1,21 @@
+import { checkHash } from '../inspection/check-contract.ts'
+import { createDefaultCheckRuntime, summary as checkSummary } from './default-check-runtime.ts'
+import { admitOptionalScope } from './scope-admission.ts'
+import { actionInputValidationError } from './action-input.ts'
+import { publishInteractionFinding } from './interaction-finding.ts'
+import { measureUiProbe } from './ui-probe.ts'
+import { createRemainingObligationGuidance } from './remaining-obligation-guidance.ts'
+import { createToolContractRepair } from './tool-contract-repair.ts'
 import { uiActionRefusal } from './ui-action-boundary.ts'
-import { measureInteraction, type InteractionVerification } from './interaction-verification.ts'
-import { inspectInput, programInput } from './investigation/program.ts'
+import { createInteractionRecovery, recoveryDigest } from './interaction-recovery.ts'
+import { createInteractionExploration } from './interaction-exploration.ts'
+import { measureElement } from './investigation/measure.ts'
+import {
+  measureInteraction,
+  assertInteractionExpectation,
+  type InteractionVerification,
+} from './interaction-verification.ts'
+import { inspectInput, programInput, assertUiProgramBindings } from './investigation/program.ts'
 import { inspectElements } from './investigation/measure.ts'
 import { investigateProgram } from './investigation/service.ts'
 import { createVisualFocusRuntime, VISUAL_FOCUS_VERSION } from './visual-focus-runtime.ts'
@@ -140,6 +155,7 @@ import type { SlimSnapshot } from './observation-slim.ts'
 import { createStaleDetector } from './stale-detector.ts'
 import { extractToolSummary, type HistoryEntry } from '../agent/context/compact-history.ts'
 import { executeModelRequest, guardModelAttempt, beginAttemptTool } from '../agent/model/request.ts'
+import { collectUiBlockers } from '../inspection/blocker-evidence.ts'
 import { createTaskState } from './task-state.ts'
 import {
   decisionMemory,
@@ -175,62 +191,41 @@ async function executeRun(runId: string): Promise<void> {
 }
 
 async function executeProfiledRun(runId: string, profile: ExecutionProfile): Promise<void> {
-  const run = await getRun(runId)
-  if (!run || run.status !== 'queued' || queue.isCancellationRequested(runId)) return
-  if (queue.requiresReconciliation()) {
-    await updateRunStatus(runId, 'interrupted', { stopReason: 'reconciliation-required' })
-    await appendEvent(runId, 'run:completed', {
-      status: 'interrupted',
-      stopReason: 'reconciliation-required',
-    })
-    return
-  }
-  const check = checkModelConfig()
-  if (!check.ready) {
-    await updateRunStatus(runId, 'execution-error', { stopReason: 'execution-error' })
-    await appendEvent(runId, 'run:error', {
-      error: 'configuration-missing',
-      missing: check.missing,
-    })
-    return
-  }
-  const legacyUnversioned = !run.spec.businessContract
-  /**
-   * Which kind of run this is, and the contract it is governed by (plan 3.1).
-   *
-   * This is the executor's single branch point. A `ui-scan` run has no adapter, so it is not a
-   * business run with the profile filed off: it never resolves a legacy contract, never builds a
-   * BusinessRuntime and never runs the side-effect policy. Reading the kind from the persisted spec
-   * (rather than from a flag or the live registry) is what keeps a queued run's permissions frozen.
-   */
-  const runKind = resolveRunKind(run.spec)
-  if (runKind.kind === 'invalid') {
-    await appendEvent(runId, 'execution:stopped', {
-      reason: 'execution-error',
-      error: `invalid-run-kind:${runKind.reasonCode}`,
-      message: runKind.message,
-    })
-    await updateRunStatus(runId, 'execution-error', { stopReason: 'execution-error' })
-    await appendEvent(runId, 'run:completed', {
-      status: 'execution-error',
-      businessResult: 'unknown',
-      stopReason: 'execution-error',
-    })
-    return
-  }
-  const uiScan = runKind.kind === 'ui-scan' ? runKind.contract : null
-  let businessRuntime: BusinessRuntime | null = null
-  if (runKind.kind === 'business')
-    try {
-      const contract = runKind.contract ?? legacyCompatibleContract(run.spec.entryUrl)
-      if (!verifyContractSnapshot(contract)) throw Error('business-contract-hash-mismatch')
-      if (contract.environment.publicOrigin !== new URL(run.spec.entryUrl).origin)
-        throw Error('business-contract-origin-mismatch')
-      businessRuntime = createBusinessRuntime(contract)
-    } catch (error) {
+  const prepared = await queue.withRunLifecycle(runId, async () => {
+    const run = await getRun(runId)
+    if (!run || run.status !== 'queued' || queue.isCancellationRequested(runId)) return
+    if (queue.requiresReconciliation()) {
+      await updateRunStatus(runId, 'interrupted', { stopReason: 'reconciliation-required' })
+      await appendEvent(runId, 'run:completed', {
+        status: 'interrupted',
+        stopReason: 'reconciliation-required',
+      })
+      return
+    }
+    const check = checkModelConfig()
+    if (!check.ready) {
+      await updateRunStatus(runId, 'execution-error', { stopReason: 'execution-error' })
+      await appendEvent(runId, 'run:error', {
+        error: 'configuration-missing',
+        missing: check.missing,
+      })
+      return
+    }
+    const legacyUnversioned = !run.spec.businessContract
+    /**
+     * Which kind of run this is, and the contract it is governed by (plan 3.1).
+     *
+     * This is the executor's single branch point. A `ui-scan` run has no adapter, so it is not a
+     * business run with the profile filed off: it never resolves a legacy contract, never builds a
+     * BusinessRuntime and never runs the side-effect policy. Reading the kind from the persisted spec
+     * (rather than from a flag or the live registry) is what keeps a queued run's permissions frozen.
+     */
+    const runKind = resolveRunKind(run.spec)
+    if (runKind.kind === 'invalid') {
       await appendEvent(runId, 'execution:stopped', {
         reason: 'execution-error',
-        error: String(error),
+        error: `invalid-run-kind:${runKind.reasonCode}`,
+        message: runKind.message,
       })
       await updateRunStatus(runId, 'execution-error', { stopReason: 'execution-error' })
       await appendEvent(runId, 'run:completed', {
@@ -240,8 +235,34 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       })
       return
     }
-  const active = registerActiveRun(runId),
-    signal = active.abortController.signal
+    const uiScan = runKind.kind === 'ui-scan' ? runKind.contract : null
+    let businessRuntime: BusinessRuntime | null = null
+    if (runKind.kind === 'business')
+      try {
+        const contract = runKind.contract ?? legacyCompatibleContract(run.spec.entryUrl)
+        if (!verifyContractSnapshot(contract)) throw Error('business-contract-hash-mismatch')
+        if (contract.environment.publicOrigin !== new URL(run.spec.entryUrl).origin)
+          throw Error('business-contract-origin-mismatch')
+        businessRuntime = createBusinessRuntime(contract)
+      } catch (error) {
+        await appendEvent(runId, 'execution:stopped', {
+          reason: 'execution-error',
+          error: String(error),
+        })
+        await updateRunStatus(runId, 'execution-error', { stopReason: 'execution-error' })
+        await appendEvent(runId, 'run:completed', {
+          status: 'execution-error',
+          businessResult: 'unknown',
+          stopReason: 'execution-error',
+        })
+        return
+      }
+    const active = registerActiveRun(runId)
+    return { run, legacyUnversioned, runKind, uiScan, businessRuntime, active }
+  })
+  if (!prepared) return
+  const { run, legacyUnversioned, runKind, uiScan, businessRuntime, active } = prepared
+  const signal = active.abortController.signal
   const startedAt = Date.now(),
     budget = run.spec.budget
   let timedOut = false,
@@ -287,6 +308,9 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         runId,
         entryUrl: uiScan.entryUrl,
         goal: uiScan.goal,
+        requiredChecks: uiScan.requiredChecks,
+        samplingPolicy: uiScan.samplingPolicy,
+        checkPolicy: uiScan.checkPolicy,
         currentSnapshotId: () => latestSlim?.snapshotId,
         currentUrl: () => latest?.snapshot.url ?? uiScan.entryUrl,
         currentObservationVersion: () => observationVersion?.key,
@@ -389,9 +413,30 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
    * is gathered from the browser and turned into scope without the caller having to thread a dozen
    * locals through the failure paths. An unsettled action is always settled before the next one starts.
    */
+  const uiActionChecks = new Map<string, { itemId: string; target: string }>()
+  const uiActionReceipt = (actionId: string) => {
+    const check = uiActionChecks.get(actionId)
+    const item = check && inspection?.snapshot().items.find((item) => item.itemId === check.itemId)
+    return item && check
+      ? {
+          actionId,
+          itemId: item.itemId,
+          target: check.target,
+          outcome: item.status,
+          reasonCode: item.reasonCode,
+          evidenceRefs: item.evidenceRefs,
+        }
+      : undefined
+  }
+  let checkRuntime: ReturnType<typeof createDefaultCheckRuntime> | null = null
+  let preparedV2: any = null
   let programActionItems: string[] | null = null
+  let programExploration:
+    | import('./investigation/program.ts').InvestigationProgram['exploration']
+    | null = null
   const candidateBindings = new Map<string, import('playwright').ElementHandle<Element>>()
   let activeAction: {
+    actionId: string
     type: string
     ref: string
     target: string
@@ -403,7 +448,57 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     settled: boolean
     verify?: InteractionVerification
     actionError?: string
+    exploration?: {
+      before: Awaited<ReturnType<ReturnType<typeof createInteractionExploration>['capture']>>
+      itemId: string
+    }
+    probe?: {
+      outcome: 'actionable' | 'intercepted'
+      itemId: string
+      receiptRef: string
+      evidenceRefs: string[]
+    }
   } | null = null
+  const interactionRecovery = createInteractionRecovery({
+    page: () => worker!.page,
+    actionVersion: () => usage.actions,
+    clean: () => integrity.epoch() === 0,
+    guard: () => guard(),
+    hashEvidence: async (refs) => {
+      const hashes: Record<string, string> = {}
+      for (const ref of refs) {
+        const rows = await getDbClient().execute({
+          sql: 'SELECT file_path FROM artifacts WHERE id=? AND run_id=?',
+          args: [ref, runId],
+        })
+        if (rows.rows.length !== 1) throw Error('recovery-evidence-not-owned')
+        hashes[ref] = createHash('sha256')
+          .update(await readFile(String(rows.rows[0]!.file_path)))
+          .digest('hex')
+      }
+      return hashes
+    },
+  })
+  const interactionExploration = createInteractionExploration({
+    page: () => worker!.page,
+    actionVersion: () => usage.actions,
+    clean: () => integrity.epoch() === 0,
+    guard: () => guard(),
+    hashEvidence: async (refs) => {
+      const hashes: Record<string, string> = {}
+      for (const ref of refs) {
+        const rows = await getDbClient().execute({
+          sql: 'SELECT file_path FROM artifacts WHERE id=? AND run_id=?',
+          args: [ref, runId],
+        })
+        if (rows.rows.length !== 1) throw Error('exploration-evidence-not-owned')
+        hashes[ref] = createHash('sha256')
+          .update(await readFile(String(rows.rows[0]!.file_path)))
+          .digest('hex')
+      }
+      return hashes
+    },
+  })
   /** True after the first observation, which is the point the bounded scan may run from. */
   let visualScanEligible = false
   let visualFocus: ReturnType<typeof createVisualFocusRuntime> | undefined
@@ -451,6 +546,39 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     if (usage.modelCalls >= budget.maxModelCalls) throw new Error('budget-exhausted')
     usage.modelCalls++
   }
+  let closeCoveredUiScope: () => Promise<boolean> = async () => false
+  let closing = false
+  const explicitScope = !!uiScan?.samplingPolicy || uiScan?.requiredChecks !== undefined
+  async function refuseOptionalScope(target: string) {
+    guard()
+    const remaining = {
+      actions: budget.maxActions - usage.actions,
+      modelCalls: budget.maxModelCalls - usage.modelCalls,
+      timeMs: Math.max(0, budget.totalTimeoutMs - (Date.now() - startedAt)),
+    }
+    // No trustworthy bound exists for an agent's new exploratory branch. Do not guess its cost.
+    const decision = admitOptionalScope({
+      remaining,
+      closingReserve: {
+        actions: 0,
+        modelCalls: 2,
+        timeMs: Math.min(60000, budget.totalTimeoutMs * 0.2),
+      },
+    })
+    await inspection!.recordUnsupported(`optional-not-checked:${target}`, decision.reason)
+    await appendEvent(runId, 'scope:admission-refused', {
+      target,
+      ...decision,
+      source: 'live-executor-budget',
+    })
+    return {
+      error: decision.reason,
+      status: 'denied',
+      dispatched: false,
+      notChecked: target,
+      remaining,
+    }
+  }
   let toolTail: Promise<unknown> = Promise.resolve()
   function serial<T>(tool: string, fn: () => Promise<T>, reviewedDecisionId?: string): Promise<T> {
     // Captured by AsyncLocalStorage from the originating generate attempt.
@@ -468,7 +596,11 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       } as T)
     const p = toolTail.then(async () => {
       guard()
+      if (uiScan && (closing || finished))
+        return { error: 'scope-closing', status: 'denied', dispatched: false } as T
       if (finished) throw new Error('run already finished')
+      if (tool !== 'run_finish' && (await closeCoveredUiScope()))
+        return { error: 'scope-closing', status: 'denied', dispatched: false } as T
       const denied = phaseTracker.authorizeTool(tool, taskState.hasOpenHypotheses())
       if (denied) return { error: denied, status: 'denied' } as T
       const toolCallId = randomUUID(),
@@ -649,6 +781,53 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     pending.settled = true
     activeAction = null
     const observed = latest
+    if (checkRuntime && preparedV2 && !pending.probe) {
+      if (!pending.actionError && integrity.epoch() === 0 && !sideEffectPending) {
+        const prepared = preparedV2
+        preparedV2 = null
+        const result = await checkRuntime.settle(prepared, pending.actionId)
+        uiActionChecks.set(pending.actionId, { itemId: result.itemId, target: pending.target })
+      }
+      return
+    }
+    if (pending.probe) {
+      // Positive actionability does not establish the control's effect. A conclusive
+      // interception can fail only the original pending local check, never a new proxy.
+      const probe = pending.probe
+      if (
+        probe.outcome === 'intercepted' &&
+        integrity.epoch() === 0 &&
+        inspection.snapshot().items.some((i) => i.itemId === probe.itemId && i.status === 'pending')
+      ) {
+        if (checkRuntime) {
+          await checkRuntime.physicalFailure(
+            probe.itemId,
+            pending.actionId,
+            probe.receiptRef,
+            [...pending.beforeRefs, ...probe.evidenceRefs],
+            (await getEvents(runId)).find(
+              (e) => e.type === 'probe:measured' && e.actionId === pending.actionId,
+            )!.id,
+          )
+          uiActionChecks.set(pending.actionId, { itemId: probe.itemId, target: pending.target })
+          return
+        }
+        const resolved = await inspection.resolveInteraction({
+          ref: pending.ref,
+          snapshotId: pending.snapshotPage,
+          target: pending.target,
+          url: pending.beforeUrl,
+          category: 'local-interaction',
+          outcome: 'failed',
+          reasonCode: 'probe-intercepted',
+          detail: probe.receiptRef,
+          evidenceRefs: [...pending.beforeRefs, ...probe.evidenceRefs],
+        })
+        if (resolved?.itemId !== probe.itemId) throw Error('probe-item-association-mismatch')
+        uiActionChecks.set(pending.actionId, { itemId: resolved.itemId, target: pending.target })
+      }
+      return
+    }
     // The address the browser reports, not the one the last snapshot happened to carry: this settles
     // as soon as the document has moved, which is *before* the observation that follows it.
     const landedAt = worker?.page.url() ?? pending.beforeUrl
@@ -656,7 +835,15 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       !!observed && observed.evidenceRefs.some((ref) => !pending.beforeRefs.includes(ref))
     const measurement =
       fresh && !pending.actionError && pending.verify && integrity.epoch() === 0
-        ? await measureInteraction(worker!.page, pending.verify)
+        ? await measureInteraction(worker!.page, pending.verify, async () => [
+            await saveEvidence(
+              runId,
+              'screenshot',
+              await worker!.page.screenshot({ timeout: 3000 }),
+              evidenceMetadata(),
+              guard,
+            ),
+          ])
         : null
     const navigated =
       fresh &&
@@ -670,12 +857,50 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       : (measurement?.reasonCode ??
         (navigated ? 'navigation-observed' : 'postcondition-not-verified'))
     const measurementRefs: string[] = []
+    if (
+      pending.exploration &&
+      !pending.actionError &&
+      fresh &&
+      !navigated &&
+      integrity.epoch() === 0 &&
+      !sideEffectPending
+    ) {
+      const item = inspection.scope
+        .snapshot()
+        .items.find((i) => i.itemId === pending.exploration!.itemId)
+      if (!item?.selected || item.status !== 'pending')
+        throw Error('exploration-original-item-changed')
+      const refs = [...new Set([...pending.beforeRefs, ...observed!.evidenceRefs])]
+      const check = await interactionExploration.register(
+        pending.exploration.before,
+        { actionId: pending.actionId, itemId: item.itemId },
+        refs,
+      )
+      const event = await appendEvent(
+        runId,
+        'interaction:explored',
+        { ...check, effectTested: false },
+        { actionId: pending.actionId, evidenceRefs: refs },
+      )
+      guard()
+      inspection.scope.appendPendingEvidence(item.itemId, {
+        reasonCode: 'exploration-effect-not-verified',
+        evidenceRefs: refs,
+        eventIds: [event.id],
+        detail: `Evidence collection from original action ${pending.actionId}; no effect verdict`,
+      })
+      await inspection.flush()
+      uiActionChecks.set(pending.actionId, { itemId: item.itemId, target: pending.target })
+      return
+    }
     if (measurement) {
+      measurementRefs.push(...measurement.evidenceRefs)
       const ref = await saveEvidence(
         runId,
         'interaction-measurement',
         JSON.stringify({
           ...measurement,
+          actionId: pending.actionId,
           target: pending.target,
           sourceSnapshot: pending.snapshotPage,
           url: landedAt,
@@ -688,7 +913,10 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         runId,
         'interaction:measured',
         { target: pending.target, sourceSnapshot: pending.snapshotPage, outcome, reasonCode },
-        { evidenceRefs: [ref, ...observed!.evidenceRefs] },
+        {
+          actionId: pending.actionId,
+          evidenceRefs: [ref, ...measurement.evidenceRefs, ...observed!.evidenceRefs],
+        },
       )
     }
     const resolved = await inspection.resolveInteraction({
@@ -704,7 +932,41 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       category: pending.navigated ? 'navigation' : 'local-interaction',
       ...(pending.snapshotPage ? { snapshotId: pending.snapshotPage } : {}),
     })
+    if (resolved)
+      uiActionChecks.set(pending.actionId, { itemId: resolved.itemId, target: pending.target })
     if (resolved && programActionItems) programActionItems.push(resolved.itemId)
+    if (resolved && measurement?.outcome === 'failed')
+      await publishInteractionFinding({
+        runId,
+        actionId: pending.actionId,
+        itemId: resolved.itemId,
+        receiptRef: measurementRefs.at(-1)!,
+        evidenceRefs: resolved.evidenceRefs,
+        measurement,
+        metadata: evidenceMetadata(),
+        guard,
+      })
+
+    if (
+      resolved &&
+      measurement?.outcome === 'unverified' &&
+      pending.verify &&
+      !pending.navigated &&
+      !pending.actionError &&
+      integrity.epoch() === 0
+    ) {
+      const source = await interactionRecovery.register(
+        { actionId: pending.actionId, itemId: resolved.itemId, input: pending.verify },
+        resolved.evidenceRefs,
+      )
+      guard()
+      await appendEvent(
+        runId,
+        'interaction:verification-opened',
+        { ...source, sourceHash: recoveryDigest(source) },
+        { actionId: pending.actionId, evidenceRefs: [...resolved.evidenceRefs] },
+      )
+    }
     // The document being left is finished, and this happens *after* the action's own item was
     // resolved: a navigation fulfils the candidate it was aimed at, so closing that candidate as
     // abandoned would turn the run's own successful move into an unfinished check. Its stale
@@ -923,11 +1185,24 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       )
       .map((element) => ({
         ref: element.ref,
+        samplingKey: JSON.stringify([
+          pageUrl,
+          element.selector,
+          element.tag,
+          element.text,
+          element.attributes.type,
+          element.attributes.name,
+          element.attributes.role,
+          element.attributes['aria-label'],
+          element.attributes.href,
+        ]),
         description: `${element.tag}${element.attributes.type ? `[${element.attributes.type}]` : ''} "${element.text.replace(/\s+/g, ' ').trim().slice(0, 60)}"`,
         category: (element.tag === 'a' ? 'navigation' : 'local-interaction') as
           | 'navigation'
           | 'local-interaction',
       }))
+    const previousCandidates = [...inspection.selectedCandidates(), ...inspection.candidateItems()]
+    const continuedItems = new Map<string, string>()
     for (const candidate of offered) {
       const detail = elementStore.getDetail(candidate.ref)
       if (!detail.found) continue
@@ -935,12 +1210,48 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         .locator(detail.element.selector)
         .elementHandle()
         .catch(() => null)
-      if (handle)
+      if (handle) {
+        for (const previous of previousCandidates) {
+          const bound = candidateBindings.get(previous.ref)
+          if (
+            previous.category === candidate.category &&
+            bound &&
+            (await bound
+              .evaluate((node, current) => node.isConnected && node === current, handle)
+              .catch(() => false))
+          ) {
+            continuedItems.set(candidate.ref, previous.itemId)
+            break
+          }
+        }
         candidateBindings.set(candidate.ref, handle as import('playwright').ElementHandle<Element>)
+      }
+    }
+    const requiredIds = new Map<string, string[]>()
+    if (explicitScope && pageUrl === uiScan!.entryUrl) {
+      for (const check of uiScan!.requiredChecks ?? []) {
+        const target = worker!.page.locator(check.selector)
+        if ((await target.count().catch(() => 0)) !== 1) continue
+        const actual = await target.elementHandle().catch(() => null)
+        if (!actual) continue
+        for (const candidate of offered) {
+          if ((candidate.category === 'navigation') !== (check.action === 'link')) continue
+          const binding = candidateBindings.get(candidate.ref)
+          if (
+            binding &&
+            (await binding
+              .evaluate((node, other) => node.isConnected && node === other, actual)
+              .catch(() => false))
+          )
+            requiredIds.set(candidate.ref, [...(requiredIds.get(candidate.ref) ?? []), check.id])
+        }
+        await actual.dispose()
+      }
     }
     const categories = [...new Set(offered.map((o) => o.category))]
     await inspection.recordObservation({
       url: pageUrl,
+      clean: cleanEvidenceIntegrity(latest.snapshot.evidenceIntegrity) && integrity.epoch() === 0,
       // Both refs, so a covered claim cites a readable snapshot and a screenshot rather than the
       // fact that a page happened to load (plan 6.2.1).
       evidenceRefs: [...latest.evidenceRefs],
@@ -948,11 +1259,27 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         ? `${offered.length} operable control(s) offered by the observation`
         : 'the observation offered no operable control within this run’s scope',
       candidateCategories: categories,
-      candidateItems: offered,
+      candidateItems: offered.map((candidate) => ({
+        ...candidate,
+        continuedItemId: continuedItems.get(candidate.ref),
+        requiredCheckIds: requiredIds.get(candidate.ref),
+      })),
     })
+    if (checkRuntime)
+      await checkRuntime.reviewSelected(
+        inspection!
+          .selectedCandidates()
+          .filter((c) => c.category === 'local-interaction')
+          .flatMap((c) => {
+            const d = elementStore.getDetail(c.ref)
+            return d.found ? [{ itemId: c.itemId, selector: d.element.selector }] : []
+          }),
+      )
   }
   try {
+    guard()
     await updateRunStatus(runId, 'running')
+    await inspection?.flush()
     await appendEvent(runId, 'run:started', {
       goal: run.spec.goal,
       versions: executionVersions(),
@@ -971,6 +1298,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       },
       tokenUsage: 'unavailable-until-reported',
     })
+    guard()
     worker = await launchBrowser({ viewport: run.spec.viewport, uiScan: !!uiScan })
     guard()
     const page = worker.page
@@ -999,8 +1327,10 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     const detachedResponses = new Set<import('playwright').Request>()
     const policyDenied = new Set<import('playwright').Request>()
     const pendingWrites = new Set<import('playwright').Request>()
+    // Only the business boundary dispatches writes. UI's CDP read transport owns its
+    // refusals; a browser POST event is not proof that a business write left the process.
     page.on('request', (request) => {
-      if (!['GET', 'HEAD', 'OPTIONS'].includes(request.method())) {
+      if (businessRuntime && !['GET', 'HEAD', 'OPTIONS'].includes(request.method())) {
         pendingWrites.add(request)
         networkWrites++
       }
@@ -1303,6 +1633,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         inspection?.recordUnsupported(dimension, reasonCode),
     })
     await page.goto(run.spec.entryUrl, { waitUntil: 'domcontentloaded' })
+    if (uiScan) await networkBoundary.flush?.()
     await observe()
     let activeVisionId: string | undefined
     let activeVisionHandle: ReturnType<RequestTracker['startRequest']> | null = null
@@ -1679,6 +2010,115 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           ),
       ).length
     }
+    if (uiScan?.checkPolicy && inspection)
+      checkRuntime = createDefaultCheckRuntime({
+        contract: uiScan,
+        inspection,
+        page: () => page,
+        version: () => usage.actions,
+        documentVersion: () => observationVersion?.key ?? 'unobserved',
+        ruleSources: () =>
+          getEnabledRules().flatMap((rule) => {
+            const matches = inspection
+              .snapshot()
+              .items.filter(
+                (i) =>
+                  i.category === 'automatic-check' &&
+                  i.selected &&
+                  i.basis === `automatic rule ${rule.id} applies to the observed state`,
+              )
+            return matches.length
+              ? [
+                  {
+                    ruleId: rule.id,
+                    revision: rule.revision,
+                    contentHash: checkHash({
+                      id: rule.id,
+                      revision: rule.revision,
+                      name: rule.name,
+                      description: rule.description,
+                      declaration: rule.declaration,
+                    }),
+                    approvalRef: `installed-registry:${rule.id}:${rule.revision}`,
+                    scopeItemIds: matches.map((i) => i.itemId),
+                    evidenceRefs: [...new Set(matches.flatMap((i) => i.evidenceRefs))],
+                  },
+                ]
+              : []
+          }),
+        clean: () => integrity.epoch() === 0,
+        guard,
+        rulesPending: async () =>
+          (await pendingKnownRules()) +
+          inspection
+            .snapshot()
+            .items.filter(
+              (i) =>
+                i.selected &&
+                i.category === 'automatic-check' &&
+                ['pending', 'unverified'].includes(i.status),
+            ).length,
+        observe: () => performObservation(false),
+        save: (type, body) => saveEvidence(runId, type, body, evidenceMetadata(), guard),
+        hashRefs: async (refs) => {
+          const out: Record<string, string> = {}
+          for (const ref of refs) {
+            const r = await getDbClient().execute({
+              sql: 'SELECT file_path FROM artifacts WHERE id=? AND run_id=?',
+              args: [ref, runId],
+            })
+            if (r.rows.length !== 1) throw Error('v2-evidence-not-owned')
+            out[ref] = createHash('sha256')
+              .update(await readFile(String(r.rows[0]!.file_path)))
+              .digest('hex')
+          }
+          return out
+        },
+        emit: (type, payload, refs = [], actionId) =>
+          appendEvent(runId, type, payload, { evidenceRefs: refs, actionId }),
+        publishFailure: async (requirement, original, measurementRef, measurement, refs) => {
+          const finding = await submitFinding(
+            {
+              runId,
+              source: 'agent',
+              ruleId: null,
+              ruleRevision: null,
+              hypothesisId: null,
+              validationStatus: 'supported',
+              severity: 'warning',
+              title: 'Measured independent public requirement violated',
+              expected: requirement.sourceText,
+              actual: JSON.stringify(measurement),
+              stepId: null,
+              evidenceRefs: refs,
+            },
+            guard,
+          )
+          await appendEvent(
+            runId,
+            'finding:submitted',
+            {
+              findingId: finding.id,
+              requirementId: requirement.requirementId,
+              itemId: original.itemId,
+              actionId: original.actionId,
+              contract: 'default-check-contract-2',
+            },
+            { evidenceRefs: refs, actionId: original.actionId },
+          )
+          return finding.id
+        },
+      })
+    if (checkRuntime && inspection && latestSlim)
+      await checkRuntime.reviewSelected(
+        inspection
+          .selectedCandidates()
+          .filter((c) => c.category === 'local-interaction')
+          .flatMap((c) => {
+            const d = elementStore.getDetail(c.ref)
+            return d.found ? [{ itemId: c.itemId, selector: d.element.selector }] : []
+          }),
+      )
     // Both approved rules and autonomous investigations can measure the same current blocker.
     // Require the original trigger, operation and DOM node; the reviewer still judges alternatives.
     const measuredRetryBlocker = async () => {
@@ -1741,6 +2181,9 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     })
     async function performAction(input: z.infer<typeof actionInput>) {
       guard()
+      if (checkRuntime) preparedV2 = null
+      const invalid = actionInputValidationError(input, { allowRefOnly: !!inspection })
+      if (invalid) return invalid
       if (phaseTracker.phase === 'finalizing')
         return {
           error: 'page_act blocked: system is in finalizing phase. Call run_finish instead.',
@@ -1748,6 +2191,8 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         }
       if (sideEffectPending) throw new Error('reconciliation-required')
       if (usage.actions >= budget.maxActions) throw new Error('budget-exhausted')
+      // Lift business read-only protection only after the complete input contract is valid.
+      sideEffectPolicy?.setReadOnly(false)
       stepId = `action-${usage.actions + 1}`
       await observe(true)
       let resolvedLocator: import('playwright').Locator | undefined
@@ -1856,6 +2301,46 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           }
         }
       }
+      if (inspection && explicitScope) {
+        const selectionError = inspection.assertSamplingSelectionReady()
+        if (selectionError)
+          return {
+            error: true,
+            message: selectionError,
+            validationErrors: { errors: [selectionError] },
+            dispatched: false,
+          }
+        const requiredError = inspection.requiredActionError(actingRef, actionSnapshotPage, input)
+        if (requiredError)
+          return {
+            error: true,
+            message: requiredError,
+            validationErrors: { errors: [requiredError] },
+            dispatched: false,
+          }
+        const category =
+          resolvedLocator &&
+          (await resolvedLocator.evaluate((node) => node instanceof HTMLAnchorElement))
+            ? 'navigation'
+            : 'local-interaction'
+        const returningForRequired =
+          input.type === 'navigate' &&
+          input.url === uiScan!.entryUrl &&
+          inspection
+            .requiredChecks()
+            .some(
+              (r) =>
+                !r.boundItemId &&
+                inspection
+                  .snapshot()
+                  .items.some((i) => i.itemId === r.itemId && i.status === 'pending'),
+            )
+        if (
+          !returningForRequired &&
+          !inspection.isRequiredTarget(actingRef, actionSnapshotPage, category)
+        )
+          return refuseOptionalScope(input.url ?? actingRef ?? input.type)
+      }
       if (uiScan && resolvedLocator && input.type !== 'probe') {
         const refusal = await uiActionRefusal(resolvedLocator, input.type)
         if (refusal) {
@@ -1872,6 +2357,143 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         }
       }
       guard()
+      if (
+        uiScan &&
+        input.verify &&
+        (input.type === 'navigate' ||
+          (resolvedLocator &&
+            (await resolvedLocator.evaluate((node) => node instanceof HTMLAnchorElement))))
+      )
+        throw Error(
+          'navigation-verification-is-separate: no action dispatched. Omit verify for navigation; the executor verifies the actual link and destination. Inspect the destination after arriving before composing a separate content check grounded in known requirements. Never infer exact destination text from a link label.',
+        )
+      if (inspection) {
+        const destination =
+          input.type === 'navigate' && input.url && URL.canParse(input.url, page.url())
+            ? new URL(input.url, page.url()).href
+            : input.type === 'click' && resolvedLocator
+              ? await resolvedLocator.evaluate((node) =>
+                  node instanceof HTMLAnchorElement ? node.href : null,
+                )
+              : null
+        if (destination) inspection.assertMayNavigate(destination)
+      }
+      if (inspection && input.type === 'navigate' && input.url) {
+        const destination = URL.canParse(input.url, page.url())
+          ? new URL(input.url, page.url()).href
+          : null
+        for (const candidate of inspection.selectedCandidates()) {
+          if (candidate.category !== 'navigation') continue
+          const binding = candidateBindings.get(candidate.ref)
+          const href = await binding
+            ?.evaluate((node) =>
+              node.isConnected && node instanceof HTMLAnchorElement ? node.href : null,
+            )
+            .catch(() => null)
+          if (destination !== null && href === destination)
+            throw Error(
+              `selected-navigation-requires-click: no navigation dispatched. A selected link is still pending; use page_act click with its current observed ref to test the link itself. Direct URL navigation cannot verify that link.`,
+            )
+        }
+      }
+      if (inspection)
+        inspection.assertActionSelectable(
+          actingRef,
+          actionSnapshotPage,
+          ['click', 'fill', 'probe'].includes(input.type) &&
+            !!resolvedLocator &&
+            !(await resolvedLocator.evaluate((node) => node instanceof HTMLAnchorElement)),
+        )
+      const probeCandidate =
+        uiScan && input.type === 'probe'
+          ? [...inspection!.selectedCandidates(), ...inspection!.candidateItems()].find(
+              (c) =>
+                c.ref === actingRef &&
+                c.snapshotId === actionSnapshotPage &&
+                c.category === 'local-interaction',
+            )
+          : undefined
+      if (uiScan && input.type === 'probe' && (!probeCandidate || input.verify))
+        throw Error('probe-requires-observed-local-target-without-postcondition')
+      if (uiScan && input.verify) await assertInteractionExpectation(page, input.verify)
+      if (
+        uiScan &&
+        !checkRuntime &&
+        !programActionItems &&
+        !input.verify &&
+        ['click', 'fill'].includes(input.type) &&
+        resolvedLocator
+      ) {
+        const isLink =
+          input.type === 'click' &&
+          (await resolvedLocator.evaluate(
+            (node) => node instanceof HTMLAnchorElement && !!node.getAttribute('href'),
+          ))
+        if (!isLink)
+          throw Error(
+            'postcondition-required: no action dispatched. Declare page_act.verify from public facts, or compose an investigation_run with explicit post-action measurement. Read current DOM before choosing the result selector.',
+          )
+      }
+      const boundCandidate =
+        inspection &&
+        [...inspection.selectedCandidates(), ...inspection.candidateItems()].find(
+          (c) => c.ref === actingRef && c.snapshotId === actionSnapshotPage,
+        )
+      if (!checkRuntime && boundCandidate && ['click', 'fill'].includes(input.type))
+        interactionExploration.assertNotRepeated(boundCandidate.itemId)
+      if (
+        checkRuntime &&
+        ['click', 'fill'].includes(input.type) &&
+        boundCandidate?.category === 'local-interaction'
+      ) {
+        const detail = elementStore.getDetail(actingRef)
+        if (!detail.found) throw Error('v2-target-not-observed')
+        preparedV2 = await checkRuntime.prepare(
+          boundCandidate.itemId,
+          detail.element.selector,
+          input,
+        )
+      } else if (
+        checkRuntime &&
+        input.type === 'click' &&
+        resolvedLocator &&
+        !(await resolvedLocator.evaluate((n) => n instanceof HTMLAnchorElement))
+      )
+        throw Error('v2-original-selected-control-required')
+      let explorationSource:
+        | { before: Awaited<ReturnType<typeof interactionExploration.capture>>; itemId: string }
+        | undefined
+      if (programExploration && !checkRuntime) {
+        const item =
+          boundCandidate &&
+          inspection!.scope.snapshot().items.find((i) => i.itemId === boundCandidate.itemId)
+        if (
+          !uiScan ||
+          input.type !== 'click' ||
+          boundCandidate?.category !== 'local-interaction' ||
+          !item?.selected ||
+          item.status !== 'pending'
+        )
+          throw Error('exploration-requires-original-selected-pending-local-control')
+        explorationSource = {
+          itemId: item.itemId,
+          before: await interactionExploration.capture(
+            run.spec.goal,
+            programExploration.expectedEffect,
+          ),
+        }
+      }
+      if (checkRuntime && preparedV2 && boundCandidate) {
+        const binding = candidateBindings.get(actingRef)
+        if (
+          !binding ||
+          !(await binding.evaluate(
+            (n, selector) => n.isConnected && document.querySelector(selector) === n,
+            preparedV2.sourceSelector,
+          ))
+        )
+          throw Error('v2-source-control-replaced-before-dispatch')
+      }
       const actionId = randomUUID()
       let dispatchTime = Date.now()
       const beforeText = await page.locator('body').innerText()
@@ -1930,12 +2552,18 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       await appendEvent(
         runId,
         'action:executing',
-        { type: input.type, target: targetDesc, dispatchTime },
+        {
+          type: input.type,
+          target: targetDesc,
+          dispatchTime,
+          ...(input.verify ? { verification: input.verify } : {}),
+        },
         { stepId, actionId, evidenceRefs: latest!.evidenceRefs },
       )
       // The action is now on the record and in flight; everything the browser reports from here is
       // gathered into it and turned into scope by `settleActionLedger`.
       activeAction = {
+        actionId,
         type: input.type,
         ref: actingRef,
         target: targetDesc,
@@ -1946,6 +2574,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         landedUrls: [],
         settled: false,
         ...(input.verify ? { verify: input.verify } : {}),
+        ...(explorationSource ? { exploration: explorationSource } : {}),
       }
       if (inspection) {
         // The address an in-page move lands on. A same-document hash change is part of the action
@@ -1965,7 +2594,60 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       }
       try {
         guard()
-        if (input.type === 'click' || input.type === 'probe') {
+        if (uiScan && input.type === 'probe') {
+          if (!resolvedLocator || !probeCandidate) throw Error('probe-target-missing')
+          const measured = await measureUiProbe(
+            resolvedLocator,
+            { handle: candidateBindings.get(actingRef), url: beforeUrl },
+            guard,
+            Math.min(3000, config.budget.toolTimeoutMs / 3),
+          )
+          guard()
+          const screenshotBytes = await page.screenshot({ timeout: 3000 })
+          const screenshot = await saveEvidence(
+            runId,
+            'screenshot',
+            screenshotBytes,
+            evidenceMetadata(),
+            guard,
+          )
+          const receipt = {
+            ...measured,
+            runId,
+            actionId,
+            itemId: probeCandidate.itemId,
+            target: targetDesc,
+            ref: actingRef,
+            sourceSnapshot: actionSnapshotPage,
+            evidenceRefs: [screenshot],
+            evidenceHashes: {
+              [screenshot]: createHash('sha256').update(screenshotBytes).digest('hex'),
+            },
+          }
+          const raw = JSON.stringify(receipt)
+          const receiptRef = await saveEvidence(
+            runId,
+            'probe-measurement',
+            raw,
+            evidenceMetadata(),
+            guard,
+          )
+          await appendEvent(
+            runId,
+            'probe:measured',
+            { ...receipt, receiptRef, sha256: createHash('sha256').update(raw).digest('hex') },
+            { actionId, stepId, evidenceRefs: [receiptRef, screenshot] },
+          )
+          activeAction!.probe = {
+            outcome: measured.outcome,
+            itemId: probeCandidate.itemId,
+            receiptRef,
+            evidenceRefs: [receiptRef, screenshot],
+          }
+          measurementFacts.add(
+            JSON.stringify(['probe', measured.url, targetDesc, measured.outcome, measured.after]),
+          )
+        } else if (input.type === 'click' || input.type === 'probe') {
           if (!resolvedLocator)
             throw new Error('target required: provide role+name, selector, or visualDescription')
           await resolvedLocator.click({
@@ -1974,15 +2656,15 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           })
           guard()
           if (input.type === 'click') {
-            sideEffectPending = true
+            sideEffectPending = !!businessRuntime
             dispatchTime = Date.now()
             await resolvedLocator.click()
           }
         } else if (input.type === 'fill') {
           if (!resolvedLocator) throw new Error('target required')
           if (uiScan && (await resolvedLocator.evaluate((element) => element.tagName === 'SELECT')))
-            await resolvedLocator.selectOption(input.value ?? '')
-          else await resolvedLocator.fill(input.value ?? '')
+            await resolvedLocator.selectOption(input.value!)
+          else await resolvedLocator.fill(input.value!)
         } else if (input.type === 'navigate') {
           if (!input.url) throw new Error('navigation denied: a destination is required')
           // A UI run's destination was already judged by its own navigation scope before this point,
@@ -1992,7 +2674,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           if (!uiScan && !isAllowedNavigationUrl(input.url, run!.spec.entryUrl))
             throw new Error('navigation denied')
           await page.goto(input.url, { waitUntil: 'domcontentloaded' })
-        } else await page.mouse.wheel(0, input.scrollY ?? 500)
+        } else await page.mouse.wheel(0, input.scrollY!)
         const responseDeadline = Date.now() + config.budget.toolTimeoutMs
         while (pendingWrites.size) {
           guard()
@@ -2000,6 +2682,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           await new Promise((r) => setTimeout(r, 50))
         }
         await drainResponses()
+        if (uiScan) await networkBoundary?.flush?.()
         guard()
         if (mutationFailed) throw new Error('reconciliation-required')
         sideEffectPending = false
@@ -2145,6 +2828,12 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           active.abortController.abort(new Error('reconciliation-required'))
           throw new Error('reconciliation-required')
         }
+        if (uiScan) {
+          // A dispatched action failing is an execution failure, even when a policy
+          // intervention also exists. Never let the next loop turn turn it into partial.
+          active.abortController.abort(new Error('ui-action-execution-error'))
+          throw error
+        }
         guard()
         staleDetector.recordAction()
         await observe()
@@ -2154,6 +2843,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           ...(integrity.epoch() ? { limitation: interventionLimitation } : {}),
           action: input,
           status: 'failed',
+          ...(inspection ? { verification: uiActionReceipt(actionId) } : {}),
           elements: referenceIndex(),
           url: latest!.snapshot.url,
           a11yTree: latestA11y!,
@@ -2167,11 +2857,15 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         actionNavigationListener = null
       }
       await persistUsage()
+      const probeMeasurement = activeAction?.probe
       await observe()
       return {
         action: input,
         status: 'completed',
+        ...(probeMeasurement ? { probeMeasurement, effectTested: false } : {}),
+        ...(inspection ? { verification: uiActionReceipt(actionId) } : {}),
         inspection: inspectionSummary(),
+        recoverableInteractions: interactionRecovery.available(),
         elements: referenceIndex(),
         url: latest!.snapshot.url,
         a11yTree: latestA11y!,
@@ -2226,7 +2920,8 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           await observe()
           // Every network receipt is written before the claim that reads them, so a refusal cannot
           // land after the decision it should have changed.
-          await networkBoundary?.settle()
+          if (uiScan) await networkBoundary?.flush?.()
+          else await networkBoundary?.settle()
           if (uiScan && inspection) return finishUiScan(parsed as { reason: string })
           const pendingRules = await pendingKnownRules()
           const gaps = [
@@ -2361,15 +3056,18 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
      * so a run cannot assemble a favourable case for its own completion. A refusal keeps its usable
      * partial suggestion: a run that may not claim coverage is not left with no way to end.
      */
-    async function finishUiScan(parsed: { reason: string }) {
+    async function uiCompletionDecision(reason: string) {
       const facts = inspection!.completionFacts()
-      const decision = decideInspectionCompletion({
-        reason: parsed.reason as Parameters<typeof decideInspectionCompletion>[0]['reason'],
+      return decideInspectionCompletion({
+        reason: reason as Parameters<typeof decideInspectionCompletion>[0]['reason'],
         facts: {
           kind: 'ui-scan',
           featureEnabled: !!config.features?.urlScan,
           spec: run!.spec,
-          contractValid: !!uiScan && verifyUiContractSnapshot(uiScan),
+          contractValid:
+            !!uiScan &&
+            verifyUiContractSnapshot(uiScan) &&
+            inspection!.requiredRegistrationComplete(),
           contractHash: uiScan!.hash,
           entryObserved: facts.entryObserved,
           entryEvidenceRefs: facts.entryEvidenceRefs,
@@ -2382,6 +3080,50 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           blockerEvidence: await uiBlockerEvidence(),
         },
       })
+    }
+    closeCoveredUiScope = async () => {
+      if (
+        !explicitScope ||
+        !inspection ||
+        finished ||
+        closing ||
+        activeAction ||
+        programActionItems ||
+        sideEffectPending ||
+        pendingWrites.size ||
+        mutationFailed ||
+        integrity.epoch() !== 0
+      )
+        return false
+      guard()
+      await networkBoundary?.flush?.()
+      await drainResponses()
+      guard()
+      if (integrity.epoch() !== 0) return false
+      const decision = await uiCompletionDecision('scope-covered')
+      if (!decision.accepted) return false
+      closing = true // Serialize the fence before seal/recheck; queued extensions never run.
+      await appendEvent(runId, 'scope:closing', {
+        reason: 'required-scope-covered',
+        source: 'same-completion-function',
+        notChecked: inspection
+          .snapshot()
+          .items.filter((i) => !i.selected && ['pending', 'unverified'].includes(i.status))
+          .map((i) => ({ itemId: i.itemId, basis: i.basis })),
+      })
+      const completion = await finishUiScan({ reason: 'scope-covered' })
+      if (!completion.accepted) throw Error('ui-finalization-facts-changed')
+      return true
+    }
+    async function finishUiScan(parsed: { reason: string }) {
+      guard()
+      await networkBoundary?.flush?.()
+      await drainResponses()
+      guard()
+      if (sideEffectPending || pendingWrites.size || mutationFailed)
+        throw new Error('reconciliation-required')
+      const decide = () => uiCompletionDecision(parsed.reason)
+      let decision = await decide()
       if (!decision.accepted) {
         const reply = {
           accepted: false,
@@ -2394,6 +3136,14 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         await appendEvent(runId, 'finish:rejected', reply)
         return reply
       }
+      // Only an admissible finish closes the read session. Drain the shutdown receipts and
+      // re-evaluate the same facts: a concurrent failure or cancellation cannot be hidden.
+      await networkBoundary?.seal?.()
+      await drainResponses()
+      guard()
+      decision = await decide()
+      if (!decision.accepted) throw Error('ui-finalization-facts-changed')
+      const facts = inspection!.completionFacts()
       // Preserve the exact persisted ledger used by the proof, including pending gaps.
       const transition = phaseTracker.enterFinalizing('agent-ready')
       if (transition.changed)
@@ -2431,27 +3181,238 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         { reasonCode: decision.reasonCode, businessResult: 'not-applicable' },
         { stepId, evidenceRefs: [...facts.entryEvidenceRefs] },
       )
+      guard()
       return { accepted: true, reasonCode: decision.reasonCode, proof: decision.proof }
     }
     /**
      * Measured facts that can substantiate a blocker.
      *
-     * A blocker is a failure that actually prevented progress - an unreachable page, a tool error, a
-     * refused navigation that left the run with nothing to inspect. An ordinary quality finding is
-     * not one, which is why the ledger's own refusals are collected here rather than the findings.
+     * Only durable policy refusals / unsupported channels qualify. Allowed requests,
+     * execution errors and model descriptions cannot substantiate this reason.
      */
-    async function uiBlockerEvidence(): Promise<readonly string[]> {
-      const events = await getEvents(runId)
-      return events
-        .filter(
-          (event) =>
-            event.type === 'network:decision' ||
-            event.type === 'network:channel-denied' ||
-            event.type === 'execution:intervention',
+    async function uiBlockerEvidence() {
+      return collectUiBlockers(runId, await getEvents(runId))
+    }
+    async function recoverInteraction(checkRef: string) {
+      if (!inspection || !uiScan) return { error: 'ui-recovery-unavailable' }
+      try {
+        return await interactionRecovery.run(checkRef, async (check, assertCurrent) => {
+          const item = inspection!.scope.snapshot().items.find((i) => i.itemId === check.itemId)
+          if (!item || item.status !== 'unverified' || item.category !== 'local-interaction')
+            throw Error('recovery-item-not-unverified')
+          await observe()
+          await assertCurrent()
+          const observationRefs = [...latest!.evidenceRefs]
+          const measurement = await measureInteraction(page, check.input, async () => [
+            await saveEvidence(
+              runId,
+              'screenshot',
+              await page.screenshot({ timeout: 3000 }),
+              evidenceMetadata(),
+              guard,
+            ),
+          ])
+          await assertCurrent()
+          const body = {
+            ...measurement,
+            checkRef,
+            actionId: check.actionId,
+            itemId: check.itemId,
+            sourceHash: recoveryDigest(check),
+            observationRefs,
+          }
+          const receiptRef = await saveEvidence(
+            runId,
+            'interaction-measurement',
+            JSON.stringify(body),
+            evidenceMetadata(),
+            guard,
+          )
+          const refs = [
+            ...new Set([
+              ...Object.keys(check.evidenceHashes),
+              ...observationRefs,
+              ...measurement.evidenceRefs,
+              receiptRef,
+            ]),
+          ]
+          const event = await appendEvent(
+            runId,
+            'interaction:recovered',
+            { ...body, receiptRef, receiptHash: recoveryDigest(body) },
+            { actionId: check.actionId, evidenceRefs: refs },
+          )
+          await assertCurrent()
+          inspection!.scope.resolveItem(check.itemId, {
+            status: measurement.outcome,
+            reasonCode: 'interaction-recovery-measured',
+            evidenceRefs: refs,
+            eventIds: [event.id],
+            detail: `Original action ${check.actionId}; frozen expectation: ${check.input.basis}`,
+          })
+          await inspection!.settleRequired(check.itemId)
+          await inspection!.flush()
+          if (measurement.outcome === 'failed')
+            await publishInteractionFinding({
+              runId,
+              actionId: check.actionId,
+              itemId: check.itemId,
+              receiptRef,
+              evidenceRefs: refs,
+              measurement,
+              metadata: evidenceMetadata(),
+              guard,
+            })
+          return { ...body, evidenceRefs: refs }
+        })
+      } catch (error) {
+        guard()
+        await appendEvent(runId, 'interaction:recovery-rejected', {
+          checkRef,
+          reason: String(error),
+        })
+        return { error: String(error), outcome: 'unverified' as const }
+      }
+    }
+    async function verifyExploration(checkRef: string, selector?: string) {
+      if (!inspection || !uiScan) return { error: 'ui-exploration-unavailable' }
+      try {
+        return await interactionExploration.run(
+          checkRef,
+          selector,
+          async (check, input, assertCurrent) => {
+            const item = inspection!.scope.snapshot().items.find((i) => i.itemId === check.itemId)
+            if (
+              !item?.selected ||
+              item.status !== 'pending' ||
+              item.category !== 'local-interaction'
+            )
+              throw Error('exploration-original-item-not-pending')
+            await assertCurrent()
+            const measurement = await measureInteraction(page, input, async () => [
+              await saveEvidence(
+                runId,
+                'screenshot',
+                await page.screenshot({ timeout: 3000 }),
+                evidenceMetadata(),
+                guard,
+              ),
+            ])
+            await assertCurrent()
+            const body = {
+              ...measurement,
+              checkRef,
+              actionId: check.actionId,
+              itemId: check.itemId,
+              sourceHash: recoveryDigest(check),
+              sourceGoalHash: check.goalHash,
+            }
+            const receiptRef = await saveEvidence(
+              runId,
+              'interaction-measurement',
+              JSON.stringify(body),
+              evidenceMetadata(),
+              guard,
+            )
+            const refs = [
+              ...new Set([
+                ...Object.keys(check.evidenceHashes),
+                ...measurement.evidenceRefs,
+                receiptRef,
+              ]),
+            ]
+            const event = await appendEvent(
+              runId,
+              'interaction:exploration-measured',
+              { ...body, receiptRef },
+              { actionId: check.actionId, evidenceRefs: refs },
+            )
+            await assertCurrent()
+            const update = {
+              reasonCode: 'original-exploration-effect-measured',
+              evidenceRefs: refs,
+              eventIds: [event.id],
+              detail: `Original action ${check.actionId}; expectation frozen before operation: ${input.basis}`,
+            }
+            if (measurement.outcome === 'unverified')
+              inspection!.scope.appendPendingEvidence(check.itemId, update)
+            else
+              inspection!.scope.resolveItem(check.itemId, {
+                ...update,
+                status: measurement.outcome,
+              })
+            await inspection!.settleRequired(check.itemId)
+            await inspection!.flush()
+            if (measurement.outcome === 'failed')
+              await publishInteractionFinding({
+                runId,
+                actionId: check.actionId,
+                itemId: check.itemId,
+                receiptRef,
+                evidenceRefs: refs,
+                measurement,
+                metadata: evidenceMetadata(),
+                guard,
+              })
+            return { ...body, evidenceRefs: refs }
+          },
         )
-        .map((event) => event.id)
+      } catch (error) {
+        guard()
+        await appendEvent(runId, 'interaction:exploration-rejected', {
+          checkRef,
+          reason: String(error),
+        })
+        return { error: String(error), outcome: 'unverified' as const }
+      }
     }
     const tools = {
+      ...(uiScan
+        ? {
+            interaction_verify: createTool({
+              id: 'interaction.verify',
+              description: checkRuntime
+                ? 'Read-only v2 verification. purpose collect-interaction rechecks the original generic receipt with NO selector/expectation. purpose verify-effect uses original checkRef plus registered requirementId and actually inspected result selector. Both share two attempts; no action replay, changed source, other action or late requirement can discharge it.'
+                : 'Read-only verification of an original UI action. Fixed recovery uses checkRef from recoverableInteractions and forbids changing its selector/expectation. Evidence collection uses checkRef from exploratoryInteractions plus a selector actually read by page_inspect after that action; only the independently frozen original-goal expectation can be evaluated. Unknown expectations remain pending. Never repeat the action or use another action’s evidence. Use checkRef from recoverableInteractions for fixed recovery. Reads and explicitly binds current result nodes; never repeats the action, changes its target or expected result. At most two attempts, same document, no intervening action, clean original evidence required. Old unknown evidence remains recorded.',
+              inputSchema: z
+                .object({
+                  checkRef: z.string().uuid(),
+                  purpose: z.enum(['collect-interaction', 'verify-effect']).optional(),
+                  requirementId: z.string().max(80).optional(),
+                  selector: z
+                    .string()
+                    .min(1)
+                    .max(500)
+                    .nullish()
+                    .transform((v) => v ?? undefined)
+                    .optional(),
+                })
+                .strict(),
+              execute: ({ checkRef, selector, purpose, requirementId }) =>
+                serial('interaction_verify', async () => {
+                  if (checkRuntime?.owns(checkRef)) {
+                    try {
+                      return await checkRuntime.recover(
+                        checkRef,
+                        purpose ?? 'verify-effect',
+                        requirementId,
+                        selector,
+                      )
+                    } catch (error) {
+                      return { error: String(error), outcome: 'unverified' }
+                    }
+                  }
+                  if (purpose || requirementId)
+                    return { error: 'v2-purpose-requires-v2-original-action' }
+                  if (interactionExploration.owns(checkRef))
+                    return await verifyExploration(checkRef, selector)
+                  if (selector)
+                    return { error: 'fixed-recovery-expectation-cannot-change-selector' }
+                  return await recoverInteraction(checkRef)
+                }),
+            }),
+          }
+        : {}),
       page_inspect: createTool({
         id: 'page.inspect',
         description:
@@ -2472,19 +3433,46 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
               evidenceMetadata(),
               guard,
             )
+            await interactionExploration.noteInspected(
+              result.elements.map((e) => ({ selector: e.selector, text: e.text })),
+            )
+            await checkRuntime?.noteInspected(
+              result.elements.map((e) => ({ selector: e.selector, text: e.text })),
+              ref,
+            )
             return { ...result, evidenceRefs: [ref] }
           }),
       }),
       investigation_run: createTool({
         id: 'investigation.run',
-        description:
-          'Execute an Agent-authored bounded version 1 investigation program. Declare CSS targets, measure/wait/act steps and comparisons of measured metrics. Acts use the normal business action policy and budget; do not repeat a write. Saves program, screenshots, measurements and a bounded comparison finding automatically. Unsupported/ambiguous/replaced targets or intervention yield unknown. No arbitrary JS, no automatic global rule approval. See schema for composition; expectation applicability remains Agent-declared.',
+        description: checkRuntime
+          ? 'Execute a bounded UI program through the original executor. exploration:{} is one permitted selected click and assertions:[] for generic evidence collection. Registered source requirements are enforced regardless of tool or requirementIds omission; naked expectedEffect is refused. Other comparisons are saved observations, not authority to publish a functional finding or clear an effect. Same action/time budgets.'
+          : 'Execute an Agent-authored bounded version 1 investigation program. Declare CSS targets, measure/wait/act steps and comparisons of measured metrics. At most THREE actions and 4000ms total wait; bind_results must follow the FINAL action, then measure. Split separate action/result phases into separate bounded programs. Acts use the normal business action policy and budget; do not repeat a write. Saves program, screenshots, measurements and a bounded comparison finding automatically. Unsupported/ambiguous/replaced targets or intervention yield unknown. No arbitrary JS, no automatic global rule approval. See schema for composition; expectation applicability remains Agent-declared.',
         inputSchema: programInput,
         execute: (input) =>
           serial('investigation_run', async () => {
+            if (uiScan) assertUiProgramBindings(input)
+            if (checkRuntime && input.exploration?.expectedEffect)
+              throw Error('v2-use-registered-requirement-not-bare-expectedEffect')
+            if (input.exploration && !uiScan) throw Error('exploration-is-ui-only')
             programActionItems = []
+            programExploration = input.exploration ?? null
+            const priorResults = new Map<string, Awaited<ReturnType<typeof measureElement>>>()
             let result: Awaited<ReturnType<typeof investigateProgram>>
             try {
+              if (uiScan && !input.exploration)
+                for (const target of input.targets.filter((t) => t.binding === 'post-action')) {
+                  const h = await page
+                    .locator(`css=${target.selector}`)
+                    .elementHandle({ timeout: 1000 })
+                  if (h) {
+                    try {
+                      priorResults.set(target.name, await measureElement(h))
+                    } finally {
+                      await h.dispose()
+                    }
+                  }
+                }
               result = await investigateProgram(input, {
                 page,
                 runId,
@@ -2503,13 +3491,13 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
                   ),
                 act: async (action) => {
                   guard()
-                  sideEffectPolicy?.setReadOnly(false)
                   try {
                     return await performAction(action)
                   } finally {
                     sideEffectPolicy?.setReadOnly(true)
                   }
                 },
+                observationsOnly: !!checkRuntime,
                 registered: (id, phenomenon) => {
                   knownHypothesisIds.add(id)
                   taskState.recordHypothesis(id, phenomenon, 'always')
@@ -2519,33 +3507,83 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
                 },
               })
               const lastAct = input.steps.map((step) => step.op === 'act').lastIndexOf(true)
-              const postconditionMeasured =
-                lastAct >= 0 &&
-                input.assertions.some(
-                  (assertion) =>
-                    input.steps.findIndex(
-                      (step) => step.op === 'measure' && step.name === assertion.left.sample,
-                    ) > lastAct,
-                )
+              const related =
+                !checkRuntime &&
+                !input.exploration &&
+                input.steps.filter((s) => s.op === 'act').length === 1 &&
+                lastAct >= 0
+                  ? result.assertions.filter((assertion) => {
+                      const target = input.targets.find((t) => t.name === assertion.left.target)
+                      const action = input.steps.find((s) => s.op === 'act')
+                      const acted =
+                        action?.op === 'act'
+                          ? input.targets.find((t) => t.name === action.target)
+                          : undefined
+                      if (
+                        target?.binding !== 'post-action' ||
+                        target.selector === acted?.selector ||
+                        ![
+                          'text',
+                          'displayed',
+                          'viewportFraction',
+                          'unclippedFraction',
+                          'hitFraction',
+                        ].includes(assertion.left.metric) ||
+                        !('value' in assertion.right) ||
+                        input.steps.findIndex(
+                          (s) => s.op === 'measure' && s.name === assertion.left.sample,
+                        ) <= lastAct
+                      )
+                        return false
+                      const old = priorResults.get(assertion.left.target)?.[assertion.left.metric]
+                      if (
+                        priorResults.has(assertion.left.target) &&
+                        (old === null || old === undefined)
+                      )
+                        return false
+                      return (
+                        old === undefined ||
+                        !(assertion.operator === 'eq'
+                          ? old === assertion.right.value
+                          : typeof old === 'number' &&
+                            typeof assertion.right.value === 'number' &&
+                            (assertion.operator === 'gte'
+                              ? old >= assertion.right.value
+                              : old <= assertion.right.value))
+                      )
+                    })
+                  : []
+              const relatedVerdict = related.some((a) => a.verdict === 'unknown')
+                ? 'unknown'
+                : related.some((a) => a.verdict === 'fail')
+                  ? 'fail'
+                  : 'pass'
               if (
                 inspection &&
-                postconditionMeasured &&
+                related.length > 0 &&
                 integrity.epoch() === 0 &&
-                result.verdict !== 'unknown'
+                result.verdict !== 'unknown' &&
+                relatedVerdict !== 'unknown'
               ) {
                 for (const itemId of programActionItems ?? [])
                   inspection.scope.resolveItem(itemId, {
-                    status: result.verdict === 'pass' ? 'verified' : 'failed',
+                    status: relatedVerdict === 'pass' ? 'verified' : 'failed',
                     reasonCode: 'program-postcondition-measured',
                     evidenceRefs: result.evidenceRefs,
                     eventIds: [],
-                    detail: `Bounded program result ${result.verdict}; public basis: ${input.basis}`,
+                    detail: `Related changed result ${relatedVerdict}; public basis: ${input.basis}`,
                   })
                 await inspection.flush()
               }
-              return result
+              return {
+                ...result,
+                ...(input.exploration
+                  ? { exploratoryInteractions: interactionExploration.available() }
+                  : {}),
+              }
             } finally {
               programActionItems = null
+              programExploration = null
             }
           }),
       }),
@@ -2558,6 +3596,11 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
               inputSchema: temporalInvestigationInput,
               execute: (input) =>
                 serial('investigation_check', async () => {
+                  if (checkRuntime)
+                    return {
+                      error: 'v2-effect-checks-use-registered-requirements-and-original-checkRef',
+                      verdict: 'unknown',
+                    }
                   const refs = input.evidenceRefs ?? []
                   const owned = await getDbClient().execute({
                     sql: 'SELECT id FROM artifacts WHERE run_id=?',
@@ -2663,6 +3706,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
             for (const e of result.entries)
               for (const t of e.tools) {
                 if (
+                  !uiScan &&
                   inspectedResultRefs.size < 3 &&
                   !['history_read', 'tool_result_read'].includes(t.tool)
                 )
@@ -2686,8 +3730,13 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         execute: (input) =>
           serial('tool_result_read', async () => {
             const result = readToolResult(history, input.resultRef, input.offset ?? 0)
-            if (!('error' in result) && inspectedResultRefs.size < 3)
-              inspectedResultRefs.add(`${input.resultRef}:${input.offset}`)
+            if (
+              !('error' in result) &&
+              result.chunk &&
+              (!uiScan || result.evidenceBearing) &&
+              inspectedResultRefs.size < 3
+            )
+              inspectedResultRefs.add(`${result.resultRef}:${result.offset}`)
             return result
           }),
       }),
@@ -2801,9 +3850,6 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         execute: (input) =>
           serial('page_act', () => {
             guard()
-            // A UI run has no write permission to arm, so there is no read-only barrier to lift:
-            // every write is refused by its network policy rather than by this policy's budget.
-            sideEffectPolicy?.setReadOnly(false)
             return performAction(input)
           }),
       }),
@@ -3101,15 +4147,23 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         inputSchema: findingInput,
         execute: (input) =>
           serial('findings_submit', async () => {
+            if (checkRuntime && input.validationStatus === 'supported')
+              return {
+                error: 'v2-supported-effect-findings-are-executor-derived-from-registered-sources',
+              }
             const db = getDbClient(),
               h = await db.execute({
                 sql: 'SELECT id FROM hypotheses WHERE id=? AND run_id=?',
                 args: [input.hypothesisId, runId],
               })
             if (!h.rows.length) throw new Error('hypothesis not owned by run')
-            if ((await hypothesisClass(runId, input.hypothesisId)).kind === 'program')
+            if (
+              ['program', 'ui-interaction'].includes(
+                (await hypothesisClass(runId, input.hypothesisId)).kind ?? '',
+              )
+            )
               throw Error(
-                'program investigation already saves its computed result; do not resubmit or relabel its finding',
+                'Executor measurement already saves its computed result; do not resubmit or relabel its finding',
               )
             const owned = await db.execute({
               sql: 'SELECT id,type FROM artifacts WHERE run_id=?',
@@ -3219,11 +4273,57 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       exploration_update: createTool({
         id: 'exploration.update',
         description: uiScan
-          ? 'Record the state you have reached and select the targets this run will check. selectItems chooses among the candidate items returned with the current observation, each with your basis; recordGap states a genuinely unfinished item and why. Only the executor concludes that a check is verified, so an item reaches a verified status through a saved measurement rather than through this call. Selections are additive: an item already reported as a gap stays reported.'
+          ? 'Record the state you have reached and select the targets this run will check. selectItems chooses among the candidate items returned with the current observation, each with your basis; recordGap declares permanent extra unverified scope, not planned or deferred work: it is refused while selected controls/navigation are pending, unless the executor already intervened. Use selectItems for work you will still measure; navigation does not spend local-control sampling capacity. Only the executor concludes that a check is verified, so an item reaches a verified status through a saved measurement rather than through this call. Selections are additive: an item already reported as a gap stays reported.'
           : 'Record reached states and unfinished branches. Give every branch its actual trigger; use always only for an unconditional obligation. The server derives whether a condition triggered. Untriggered branches are reported separately and do not block completion. Send an empty list to clear previously recorded branches after checking them.',
         inputSchema: explorationInput,
         execute: (input) =>
           serial('exploration_update', async () => {
+            if (input.sourceCandidates?.length) {
+              if (!checkRuntime) return { error: 'source-candidates-require-v2' }
+              for (const candidate of input.sourceCandidates) {
+                const item = inspection
+                  ?.snapshot()
+                  .items.find((i) => i.itemId === candidate.itemId && i.selected)
+                if (
+                  !item?.checks?.effects.some(
+                    (e) =>
+                      e.sourceRefs.includes(candidate.sourceRef) &&
+                      e.sourceHash === candidate.sourceHash &&
+                      e.sourceSpan[0] === candidate.sourceSpan[0] &&
+                      e.sourceSpan[1] === candidate.sourceSpan[1],
+                  )
+                )
+                  return {
+                    error: 'source-proposal-not-an-admitted-public-relation',
+                    dispatched: false,
+                  }
+              }
+            }
+
+            if (uiScan && inspection && input.recordGap && integrity.epoch() === 0)
+              inspection.assertAgentGapReady(input.selectItems?.length ?? 0)
+            if (explicitScope && inspection) {
+              const defaultSlots = new Set<string>()
+              for (const entry of input.selectItems ?? []) {
+                const candidate = inspection.candidateItems().find((c) => c.itemId === entry.itemId)
+                const item = inspection.snapshot().items.find((i) => i.itemId === entry.itemId)
+                if (item?.selected) continue
+                if (!candidate || !['local-interaction', 'navigation'].includes(candidate.category))
+                  throw Error('selection-requires-current-observed-candidate')
+                if (
+                  !inspection.isRequiredTarget(
+                    candidate.ref,
+                    candidate.snapshotId,
+                    candidate.category as 'local-interaction' | 'navigation',
+                  )
+                )
+                  return refuseOptionalScope(entry.itemId)
+                if (uiScan?.samplingPolicy) continue
+                const slot = `${candidate.category}:${candidate.category === 'local-interaction' ? item!.url : ''}`
+                if (defaultSlots.has(slot)) return refuseOptionalScope(entry.itemId)
+                defaultSlots.add(slot)
+              }
+            }
             notes.push(input)
             taskState.setBranches(input.unexploredBranches)
             await appendEvent(runId, 'exploration:state-reached', { state: input.state })
@@ -3250,6 +4350,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
                 task: taskState.snapshot(),
                 selected: ledger.snapshot().counts.selected,
                 candidateItems: candidates,
+                localSampling: ledger.localSampling(),
                 missingFacts: [
                   ...completionGaps(),
                   ...ledger.completionGaps().map((g) => g.reason),
@@ -3294,6 +4395,12 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       businessContract ?? undefined,
       uiScan,
     )
+    const contractRepair = createToolContractRepair()
+    let contractRepairAdvice: ReturnType<typeof contractRepair.take>
+    let uiRecoveryUsed = false
+    const remainingGuidance = createRemainingObligationGuidance()
+    let remainingObligationGuidance: ReturnType<typeof remainingGuidance.take>
+    let guidanceExhausted = false
     const reviewedStates = new Set<string>()
     const refreshedReviewVersions = new Set<string>()
     const agent = new Agent({
@@ -3310,12 +4417,122 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     })
     if (visualScanEligible && config.features?.visualDiscovery) await visualFocus.scan()
     while (!finished) {
+      if (uiScan && inspection) {
+        guard()
+        await networkBoundary?.flush?.()
+        guard()
+        if (integrity.epoch() > 0) {
+          const completion = await finishUiScan({ reason: 'observed-blocker' })
+          if (!completion.accepted) throw Error('ui-blocker-proof-unavailable')
+          break
+        }
+      }
+      if (await closeCoveredUiScope()) break
+      if (uiScan && inspection && noToolStreak >= 3) {
+        if (!uiRecoveryUsed) {
+          uiRecoveryUsed = true
+          const before = JSON.stringify([latest?.snapshot.url, latest?.snapshot.text, latestA11y])
+          await observe()
+          const recovery = interactionRecovery.available()[0]
+          const result = recovery ? await recoverInteraction(recovery.checkRef) : undefined
+          const changed =
+            before !== JSON.stringify([latest?.snapshot.url, latest?.snapshot.text, latestA11y]) ||
+            result?.outcome === 'verified' ||
+            result?.outcome === 'failed'
+          await appendEvent(runId, 'execution:bounded-recovery', {
+            changed,
+            checkRef: recovery?.checkRef ?? null,
+            outcome: result?.outcome ?? null,
+            actionsReplayed: 0,
+          })
+          if (changed) {
+            noToolStreak = 0
+            continue
+          }
+        }
+        contractRepairAdvice = guidanceExhausted ? undefined : contractRepair.take()
+        if (contractRepairAdvice) {
+          await appendEvent(runId, 'execution:contract-repair', contractRepairAdvice)
+          noToolStreak = 2
+          continue
+        }
+        const reserve = phaseTracker.shouldFinalize({
+          elapsedMs: Date.now() - startedAt,
+          modelCallsUsed: usage.modelCalls,
+          noProgressStreak: 0,
+        })
+        if (
+          !guidanceExhausted &&
+          !reserve.should &&
+          phaseTracker.phase !== 'finalizing' &&
+          usage.actions < budget.maxActions &&
+          !sideEffectPending &&
+          integrity.epoch() === 0
+        ) {
+          const pending = new Set(
+            inspection
+              .snapshot()
+              .items.filter((i) => i.selected && i.status === 'pending')
+              .map((i) => i.itemId),
+          )
+          const connected = []
+          for (const c of inspection.candidateItems()) {
+            if (
+              pending.has(c.itemId) &&
+              (await candidateBindings
+                .get(c.ref)
+                ?.evaluate((n) => n.isConnected && n.ownerDocument === document))
+            )
+              connected.push(c)
+          }
+          guard()
+          remainingObligationGuidance = remainingGuidance.take(connected)
+          if (remainingObligationGuidance)
+            await appendEvent(
+              runId,
+              'execution:remaining-obligation-guidance',
+              remainingObligationGuidance,
+            )
+        }
+        // No-progress is a scheduling fact, not an unverified UI dimension. An already
+        // covered run must pass the same durable verifier before adding a genuine gap.
+        if (!remainingObligationGuidance) {
+          const completion = await finishUiScan({ reason: 'scope-covered' })
+          if (completion.accepted) break
+          await inspection.recordGap({
+            reasonCode: 'no-progress',
+            detail: 'Repeated reads added no relevant facts; bounded recovery exhausted.',
+          })
+          await finishUiScan({ reason: 'unverified-scope' })
+          break
+        }
+      }
       const finCheck = phaseTracker.shouldFinalize({
         elapsedMs: Date.now() - startedAt,
         modelCallsUsed: usage.modelCalls,
-        noProgressStreak: noToolStreak,
+        noProgressStreak: remainingObligationGuidance ? 0 : noToolStreak,
       })
       if (finCheck.should) {
+        if (
+          uiScan &&
+          inspection &&
+          usage.modelCalls > 0 &&
+          (finCheck.reason === 'time-budget-reserve' ||
+            (finCheck.reason === 'model-budget-reserve' &&
+              budget.maxModelCalls > 2 &&
+              usage.modelCalls < budget.maxModelCalls))
+        ) {
+          const completion = await finishUiScan({ reason: 'scope-covered' })
+          if (!completion.accepted) {
+            await inspection.recordGap({
+              reasonCode: finCheck.reason,
+              detail:
+                'Reserved remaining budget for durable partial completion; no further exploration or model request.',
+            })
+            await finishUiScan({ reason: 'unverified-scope' })
+          }
+          break
+        }
         const transition = phaseTracker.enterFinalizing(finCheck.reason)
         if (transition.changed) {
           await appendEvent(runId, 'run:phase-changed', {
@@ -3376,6 +4593,12 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         return true
       })
       const agentInput = {
+        ...(uiScan
+          ? {
+              recoverableInteractions: interactionRecovery.available(),
+              localSampling: inspection?.localSampling(),
+            }
+          : {}),
         activeTools,
         goal: run.spec.goal,
         availableJourneys: availableJourneys()
@@ -3446,6 +4669,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           .map((h) => h.id),
         submittedFindings: findingMemory(await getFindings(runId)),
         latestToolResults: memory.latestToolResults,
+        ...(uiScan ? { exploratoryInteractions: interactionExploration.available() } : {}),
         history: recentHistory,
         historyWindow: {
           total: history.length,
@@ -3461,14 +4685,28 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           ? {
               inspectionScope: {
                 candidates: inspection.candidateItems(),
+                requiredChecks: inspection.requiredChecks(),
+                defaultSampling: inspection.defaultSampling(),
+                recentChecks: [...uiActionChecks.keys()].slice(-6).map(uiActionReceipt),
                 counts: inspection.snapshot().counts,
+                ...(checkRuntime
+                  ? {
+                      checks: inspection
+                        .snapshot()
+                        .items.filter((i) => i.selected && i.checks)
+                        .map((i) => ({ itemId: i.itemId, checks: checkSummary(i.checks!) })),
+                      checkInteractions: checkRuntime.available(),
+                    }
+                  : {}),
                 outstanding: inspection.completionGaps().map((gap) => ({
                   itemId: gap.itemId,
                   category: gap.category,
                   reason: gap.reason,
                 })),
                 unsupported: inspection.snapshot().unsupported.map((u) => u.dimension),
-                note: 'Select the targets this run will check with exploration_update.selectItems, using their itemId. Only you decide relevance; the executor decides whether a check is verified.',
+                note: explicitScope
+                  ? 'Public required checks are registered by the executor. Missing targets remain obligations. New optional checks require budget admission; measurements alone resolve items.'
+                  : 'Select the targets this run will check with exploration_update.selectItems, using their itemId. Only you decide relevance; the executor decides whether a check is verified.',
               },
             }
           : {}),
@@ -3527,6 +4765,8 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
               ).trim(),
             }
           : {}),
+        ...(contractRepairAdvice ? { contractRepairAdvice } : {}),
+        ...(remainingObligationGuidance ? { remainingObligationGuidance } : {}),
         budgetRemaining: {
           actions: budget.maxActions - usage.actions,
           modelCalls: budget.maxModelCalls - usage.modelCalls,
@@ -3760,6 +5000,9 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           },
         },
       )
+      contractRepair.observe(result.toolResults ?? [])
+      const repairingContract = !!contractRepairAdvice
+      contractRepairAdvice = undefined
       const record = lastRecord!
       const u = result.usage
       const classification = classifyResponse({
@@ -3782,12 +5025,26 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
             e.hit.blocked,
           ]),
         }),
+        selectionFacts: inspection?.selectionFacts() ?? [],
         hypothesisFacts: taskState.facts(),
         findingFacts: [...findingFacts],
         measurementFacts: [...measurementFacts],
+        // Bounded first access to original evidence can inform a decision; it is not a new verification.
         retrievedFacts: [...inspectedResultRefs],
       }
       const progressCheck = progressDetector.check(progressFacts)
+      // A failed contract repair gets no second scheduling allowance from F1. Input errors
+      // themselves are not progress and never replenish the existing one-turn repair.
+      if (repairingContract && !progressCheck.isProgress) guidanceExhausted = true
+      if (remainingObligationGuidance) {
+        guidanceExhausted = !progressCheck.isProgress
+        await appendEvent(runId, 'execution:remaining-obligation-guidance-result', {
+          newFacts: progressCheck.isProgress,
+          basis: progressCheck.basis,
+          previousNoProgressStreak: noToolStreak,
+        })
+        remainingObligationGuidance = undefined
+      }
       noToolStreak = progressCheck.isProgress ? 0 : noToolStreak + 1
       if (!progressCheck.isProgress) noProgressDecisions++
       if (noToolStreak === 3) {
@@ -3843,92 +5100,106 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     await visualFocus?.dispose().catch(() => {})
     await closeResponses()
     await temporalInvestigator?.close()
+    await interactionRecovery.dispose()
+    await interactionExploration.dispose()
+    await checkRuntime?.dispose()
     await Promise.allSettled(investigationBlockers.map((cached) => cached.handle.dispose()))
     if (worker) await worker.close().catch(() => {})
-    if (stopReason === 'reconciliation-required') queue.requireReconciliation()
-    const finalReason = stopReason as StopReason
-    const status =
-      finalReason === 'goal-reached'
-        ? 'completed'
-        : finalReason === 'blocked'
-          ? 'blocked'
-          : finalReason === 'cancelled'
-            ? 'cancelled'
-            : finalReason === 'budget-exhausted'
-              ? 'timed-out'
-              : finalReason === 'reconciliation-required'
-                ? 'interrupted'
-                : finalReason === 'no-progress' || finalReason === 'finish-incomplete'
-                  ? 'blocked'
-                  : 'execution-error'
-    usage.elapsedMs = Date.now() - startedAt
-    await updateRunStatus(runId, status, { businessResult, stopReason, usage: reportedUsage() })
-    await appendEvent(runId, 'run:completed', {
-      status,
-      businessResult,
-      stopReason,
-      usage,
-      tokenUsage:
-        modelUsageAvailable && reportedModelCalls === usage.modelCalls
-          ? 'available'
-          : 'unavailable',
-    })
-    requestTracker.finishPending('Run ended before request completion')
-    const requestSummary = requestTracker.summarize()
-    const progressSummary = summarizeProgress(classifications)
-    await appendEvent(runId, 'execution:profile', profile.finish(requestSummary.records))
-    const lastEvent = await appendEvent(runId, 'run:statistics', {
-      requests: {
-        total: requestSummary.totalRequests,
-        agent: requestSummary.agentRequests,
-        vision: requestSummary.visionRequests,
-        success: requestSummary.successCount,
-        error: requestSummary.errorCount,
-        totalInputTokens: requestSummary.totalInputTokens,
-        totalOutputTokens: requestSummary.totalOutputTokens,
-        totalDurationMs: requestSummary.totalDurationMs,
-        avgInputTokensPerCall: requestSummary.avgInputTokensPerCall,
+    await queue.commitRun(
+      runId,
+      sideEffectPending ? 'reconciliation-required' : stopReason,
+      async (reason) => {
+        stopReason = reason
+        try {
+          if (stopReason === 'reconciliation-required') queue.requireReconciliation()
+          const finalReason = stopReason as StopReason
+          const status =
+            finalReason === 'goal-reached'
+              ? 'completed'
+              : finalReason === 'blocked'
+                ? 'blocked'
+                : finalReason === 'cancelled'
+                  ? 'cancelled'
+                  : finalReason === 'budget-exhausted'
+                    ? 'timed-out'
+                    : finalReason === 'reconciliation-required'
+                      ? 'interrupted'
+                      : finalReason === 'no-progress' || finalReason === 'finish-incomplete'
+                        ? 'blocked'
+                        : 'execution-error'
+          usage.elapsedMs = Date.now() - startedAt
+          await updateRunStatus(runId, status, {
+            businessResult,
+            stopReason,
+            usage: reportedUsage(),
+          })
+          await appendEvent(runId, 'run:completed', {
+            status,
+            businessResult,
+            stopReason,
+            usage,
+            tokenUsage:
+              modelUsageAvailable && reportedModelCalls === usage.modelCalls
+                ? 'available'
+                : 'unavailable',
+          })
+          requestTracker.finishPending('Run ended before request completion')
+          const requestSummary = requestTracker.summarize()
+          const progressSummary = summarizeProgress(classifications)
+          await appendEvent(runId, 'execution:profile', profile.finish(requestSummary.records))
+          const lastEvent = await appendEvent(runId, 'run:statistics', {
+            requests: {
+              total: requestSummary.totalRequests,
+              agent: requestSummary.agentRequests,
+              vision: requestSummary.visionRequests,
+              success: requestSummary.successCount,
+              error: requestSummary.errorCount,
+              totalInputTokens: requestSummary.totalInputTokens,
+              totalOutputTokens: requestSummary.totalOutputTokens,
+              totalDurationMs: requestSummary.totalDurationMs,
+              avgInputTokensPerCall: requestSummary.avgInputTokensPerCall,
+            },
+            progress: { ...progressSummary, noProgressDecisions },
+            observations: { total: observeCount, ...staleDetector.getStats() },
+            perRequest: requestSummary.records.map((r) => ({
+              seq: r.seq,
+              purpose: r.purpose,
+              model: r.model,
+              durationMs: r.durationMs,
+              inputTokens: r.inputTokens,
+              outputTokens: r.outputTokens,
+              status: r.status,
+              ...(r.error ? { error: r.error } : {}),
+            })),
+            perResponse: classifications.map((c, i) => ({
+              seq: i + 1,
+              category: c.category,
+              basis: c.basis,
+              toolsCalled: c.toolsCalled,
+            })),
+          })
+          await verifyCompletionCommit({
+            runId,
+            status,
+            businessResult,
+            stopReason,
+            lastEvent,
+            eventIds: [...active.eventIds],
+          })
+        } catch (error) {
+          queue.requireReconciliation()
+          // No model retry or business replay follows an uncertain commit.
+          await updateRunStatus(runId, 'interrupted', { stopReason: 'reconciliation-required' })
+          await appendEvent(runId, 'run:storage-inconsistent', {
+            error: String(error),
+            replayAllowed: false,
+          })
+          throw error
+        } finally {
+          removeActiveRun(runId)
+        }
       },
-      progress: { ...progressSummary, noProgressDecisions },
-      observations: { total: observeCount, ...staleDetector.getStats() },
-      perRequest: requestSummary.records.map((r) => ({
-        seq: r.seq,
-        purpose: r.purpose,
-        model: r.model,
-        durationMs: r.durationMs,
-        inputTokens: r.inputTokens,
-        outputTokens: r.outputTokens,
-        status: r.status,
-        ...(r.error ? { error: r.error } : {}),
-      })),
-      perResponse: classifications.map((c, i) => ({
-        seq: i + 1,
-        category: c.category,
-        basis: c.basis,
-        toolsCalled: c.toolsCalled,
-      })),
-    })
-    try {
-      await verifyCompletionCommit({
-        runId,
-        status,
-        businessResult,
-        stopReason,
-        lastEvent,
-        eventIds: [...active.eventIds],
-      })
-    } catch (error) {
-      queue.requireReconciliation()
-      // No model retry or business replay follows an uncertain commit.
-      await updateRunStatus(runId, 'interrupted', { stopReason: 'reconciliation-required' })
-      await appendEvent(runId, 'run:storage-inconsistent', {
-        error: String(error),
-        replayAllowed: false,
-      })
-      throw error
-    } finally {
-      removeActiveRun(runId)
-    }
+    )
   }
 }
 

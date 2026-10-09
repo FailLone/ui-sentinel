@@ -1,0 +1,114 @@
+{
+  "provenance": {
+    "mode": "real-model-generated",
+    "runId": "run-542074a8-c04c-4d91-a671-d6e60506a485",
+    "sourceBuildHash": "a6faf0d46257e463dd58d939aefe3de264d186d20d1306bfd3f4c977ede4275b",
+    "agentModel": "deepseek/deepseek-v4.1-flash",
+    "provider": "Alibaba",
+    "sourceDirectory": "data/program-validation/2026-10-06T12-38-54-786Z",
+    "note": "Program copied verbatim from saved receipt; evaluator prepares public state for measurement-only recipes."
+  },
+  "program": {
+    "version": 1,
+    "phenomenon": "With the \"Delivery times\" list open, the Afternoon and Evening options are clipped by an ancestor and not hit-testable, so not every offered delivery time is readable/selectable while the list is open.",
+    "basis": "Page requirement (untrusted text): \"Choose a delivery time. Every offered time must be readable and selectable when the list is open.\" Page_inspect measured the open options container (240x156 at y=185) with unclippedFraction 0.346 and hitFraction 0.333; option \"Morning\" unclippedFraction 1 / hitFraction 1; \"Afternoon\" unclippedFraction 0.038 / hitFraction 0; \"Evening\" unclippedFraction 0 / hitFraction 0. The accessibility observation also reports 5 blocked sample points on Afternoon and Evening. This tests whether all three offered times are fully unclipped and pointer-actionable while the list is open.",
+    "targets": [
+      {
+        "name": "listbox",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1)"
+      },
+      {
+        "name": "morning",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > button:nth-of-type(1)"
+      },
+      {
+        "name": "afternoon",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > button:nth-of-type(2)"
+      },
+      {
+        "name": "evening",
+        "selector": "html > body:nth-of-type(1) > div:nth-of-type(1) > div:nth-of-type(1) > button:nth-of-type(3)"
+      }
+    ],
+    "steps": [
+      {
+        "op": "measure",
+        "name": "listbox"
+      },
+      {
+        "op": "measure",
+        "name": "morning"
+      },
+      {
+        "op": "measure",
+        "name": "afternoon"
+      },
+      {
+        "op": "measure",
+        "name": "evening"
+      }
+    ],
+    "assertions": [
+      {
+        "expectation": "Afternoon option is fully unclipped while the list is open",
+        "left": {
+          "sample": "afternoon",
+          "target": "afternoon",
+          "metric": "unclippedFraction"
+        },
+        "operator": "gte",
+        "right": {
+          "value": 0.99
+        }
+      },
+      {
+        "expectation": "Afternoon option is pointer-actionable while the list is open",
+        "left": {
+          "sample": "afternoon",
+          "target": "afternoon",
+          "metric": "hitFraction"
+        },
+        "operator": "gte",
+        "right": {
+          "value": 0.99
+        }
+      },
+      {
+        "expectation": "Evening option is fully unclipped while the list is open",
+        "left": {
+          "sample": "evening",
+          "target": "evening",
+          "metric": "unclippedFraction"
+        },
+        "operator": "gte",
+        "right": {
+          "value": 0.99
+        }
+      },
+      {
+        "expectation": "Evening option is pointer-actionable while the list is open",
+        "left": {
+          "sample": "evening",
+          "target": "evening",
+          "metric": "hitFraction"
+        },
+        "operator": "gte",
+        "right": {
+          "value": 0.99
+        }
+      },
+      {
+        "expectation": "Morning option remains fully unclipped",
+        "left": {
+          "sample": "morning",
+          "target": "morning",
+          "metric": "unclippedFraction"
+        },
+        "operator": "gte",
+        "right": {
+          "value": 0.99
+        }
+      }
+    ]
+  }
+}

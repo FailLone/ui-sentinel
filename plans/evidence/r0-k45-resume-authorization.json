@@ -1,0 +1,28 @@
+{
+  "authorizedAt": "2026-10-07T15:01:10.532737+00:00",
+  "humanReply": "授权",
+  "scopeDocumentCommit": "238dc52b93e2ea631b90aa223d6c21c7440ab230",
+  "scopeDocument": "plans/r0-k45-execution-plan.md",
+  "candidate": "97d39eda8fcbae9a6e163c6dfc5219668d67043d",
+  "stages": [
+    "UI diagnostic 6 + 1 smoke request",
+    "UI formal 15 + 1 smoke request",
+    "Business diagnostic 5 + existing smoke <=6 requests",
+    "Business formal 45"
+  ],
+  "totalRuns": 71,
+  "sharedLedgerCeilingUsd": 20,
+  "remainingAtAuthorizationUsd": 18.45305204,
+  "stageAdvance": "Only after actual preceding stage and independent exit pass",
+  "failurePolicy": "Stop and preserve all failures/unknown/not-run; no automatic patch or new batch",
+  "currentStageApproval": {
+    "manifestHash": "70a4aa00422daa82b7e0d892dd5f1a9a80b3bfac9ff599b9d6ff8d1c9d495e0f",
+    "batch": "r0-ui-diagnostic-97d39ed-11",
+    "mode": "diagnostic",
+    "paid": true,
+    "maxRuns": 6,
+    "ceilingUsd": 20,
+    "campaignDirectory": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-final-acceptance/2026-10-07/paid-ledger",
+    "smokeRequests": 1
+  }
+}

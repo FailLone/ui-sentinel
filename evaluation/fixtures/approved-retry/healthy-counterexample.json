@@ -1,0 +1,182 @@
+{
+  "observation": {
+    "eventType": "retryable-failure",
+    "condition": "element-actionable",
+    "fromState": "retryable-failure",
+    "toState": "retry-actionable",
+    "startedAtMs": 1790151768757,
+    "observedUntilMs": 1790151774186,
+    "samples": [
+      {
+        "atMs": 1790151768769,
+        "target": "Retry button",
+        "value": true
+      },
+      {
+        "atMs": 1790151768979,
+        "target": "Retry button",
+        "value": true
+      },
+      {
+        "atMs": 1790151769190,
+        "target": "Retry button",
+        "value": true
+      },
+      {
+        "atMs": 1790151769400,
+        "target": "Retry button",
+        "value": true
+      },
+      {
+        "atMs": 1790151769608,
+        "target": "Retry button",
+        "value": true
+      },
+      {
+        "atMs": 1790151769813,
+        "target": "Retry button",
+        "value": true
+      },
+      {
+        "atMs": 1790151770023,
+        "target": "Retry button",
+        "value": true
+      },
+      {
+        "atMs": 1790151770234,
+        "target": "Retry button",
+        "value": true
+      },
+      {
+        "atMs": 1790151770443,
+        "target": "Retry button",
+        "value": true
+      },
+      {
+        "atMs": 1790151770649,
+        "target": "Retry button",
+        "value": true
+      },
+      {
+        "atMs": 1790151770859,
+        "target": "Retry button",
+        "value": true
+      },
+      {
+        "atMs": 1790151771064,
+        "target": "Retry button",
+        "value": true
+      },
+      {
+        "atMs": 1790151771275,
+        "target": "Retry button",
+        "value": true
+      },
+      {
+        "atMs": 1790151771484,
+        "target": "Retry button",
+        "value": true
+      },
+      {
+        "atMs": 1790151771691,
+        "target": "Retry button",
+        "value": true
+      },
+      {
+        "atMs": 1790151771897,
+        "target": "Retry button",
+        "value": true
+      },
+      {
+        "atMs": 1790151772105,
+        "target": "Retry button",
+        "value": true
+      },
+      {
+        "atMs": 1790151772313,
+        "target": "Retry button",
+        "value": true
+      },
+      {
+        "atMs": 1790151772524,
+        "target": "Retry button",
+        "value": true
+      },
+      {
+        "atMs": 1790151772734,
+        "target": "Retry button",
+        "value": true
+      },
+      {
+        "atMs": 1790151772940,
+        "target": "Retry button",
+        "value": true
+      },
+      {
+        "atMs": 1790151773152,
+        "target": "Retry button",
+        "value": true
+      },
+      {
+        "atMs": 1790151773360,
+        "target": "Retry button",
+        "value": true
+      },
+      {
+        "atMs": 1790151773566,
+        "target": "Retry button",
+        "value": true
+      },
+      {
+        "atMs": 1790151773774,
+        "target": "Retry button",
+        "value": true
+      },
+      {
+        "atMs": 1790151773980,
+        "target": "Retry button",
+        "value": true
+      },
+      {
+        "atMs": 1790151774186,
+        "target": "Retry button",
+        "value": true
+      }
+    ],
+    "evidenceRefs": [
+      "healthy-counterexample.png",
+      "healthy-counterexample.json"
+    ]
+  },
+  "business": {
+    "success": false,
+    "orderId": "order-1790151768707-iw736l",
+    "status": "failed",
+    "message": "Payment processing failed. Please try again.",
+    "canRetry": true,
+    "retryAvailable": true
+  },
+  "backend": {
+    "variant": "C5",
+    "cartSize": 1,
+    "orderCount": 1,
+    "paymentRetryCount": 1,
+    "learningRetryAvailable": true,
+    "orders": [
+      {
+        "id": "order-1790151768707-iw736l",
+        "items": [
+          {
+            "productId": "prod-001",
+            "quantity": 1
+          }
+        ],
+        "total": 79.99,
+        "status": "failed",
+        "paymentMessage": "Payment processing failed. Please try again.",
+        "createdAt": "2026-09-23T08:22:48.707Z"
+      }
+    ]
+  },
+  "method": "Independent browser trial click (no dispatch), DOM hit testing and timed sampling; not a model-generated fixture."
+}

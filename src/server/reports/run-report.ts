@@ -1,6 +1,10 @@
+import { defaultCheckArtifactIssues } from '../../inspection/check-artifacts.ts'
+import { interactionFindingIssues } from '../../execution/interaction-finding-proof.ts'
 import { stat, readFile } from 'node:fs/promises'
 import { getRunSnapshot, isRunActive } from '../../execution/run-manager.ts'
 import { inspectionHistoryIssues } from '../../inspection/proof-history.ts'
+import { recoveryArtifactIssues } from '../../inspection/recovery-history.ts'
+import { probeArtifactIssues } from '../../inspection/probe-history.ts'
 import { completionIssues } from '../../execution/completion-integrity.ts'
 import { interventionLimitation } from '../../shared/evidence-integrity.ts'
 import { unresolvedAnalyses } from './legacy-analysis.ts'
@@ -306,6 +310,52 @@ export async function buildReport(runId: string) {
   const readable = new Set(artifacts.filter((a) => a.available).map((a) => a.id))
   if (settled && run.spec.kind === 'ui-scan')
     issues.push(...inspectionHistoryIssues(run, events, readable))
+  issues.push(
+    ...(await defaultCheckArtifactIssues(
+      run,
+      events,
+      artifactRows.rows.map((r) => ({
+        id: String(r.id),
+        type: String(r.type),
+        path: String(r.file_path),
+        metadata: JSON.parse(String(r.metadata)),
+      })),
+    )),
+  )
+  const recoveryIssues =
+    run.spec.kind === 'ui-scan'
+      ? await recoveryArtifactIssues(
+          events,
+          new Map(artifactRows.rows.map((r) => [String(r.id), String(r.file_path)])),
+        )
+      : []
+  issues.push(...recoveryIssues)
+  if (run.spec.kind === 'ui-scan')
+    issues.push(
+      ...(await probeArtifactIssues(
+        events,
+        new Map(
+          artifactRows.rows.map((r) => [
+            String(r.id),
+            { path: String(r.file_path), type: String(r.type) },
+          ]),
+        ),
+      )),
+    )
+  if (run.spec.kind === 'ui-scan')
+    issues.push(
+      ...(await interactionFindingIssues(
+        runId,
+        events,
+        artifactRows.rows.map((r) => ({
+          id: String(r.id),
+          type: String(r.type),
+          path: String(r.file_path),
+          metadata: JSON.parse(String(r.metadata)),
+        })),
+      )),
+    )
+
   const invalid = issues.length > 0
   const hypotheses = hypothesisRows.rows.map((row) => ({
     id: String(row.id),
@@ -470,7 +520,7 @@ export async function buildReport(runId: string) {
     business: businessSummary(run.spec),
     // The `ui-scan` section, projected from this run's own persisted events. Absent entirely for a
     // business or legacy record, so a reader can tell "no UI scan" from "a UI scan with no items".
-    uiScan: uiScanSummary(run, events, readable),
+    uiScan: uiScanSummary(run, events, readable, issues),
     events,
     hypotheses,
     artifacts,

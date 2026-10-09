@@ -74,6 +74,10 @@ export interface RunNetworkBoundaryDeps {
 export interface RunNetworkBoundary {
   /** Resolves once every decision seen so far is persisted. Await before a finish decision. */
   settle: () => Promise<void>
+  /** Persist decisions already made; never wait for unrelated reads to produce a response. */
+  flush?: () => Promise<void>
+  /** Close read admission after an admissible finish; never used for a refused claim. */
+  seal?: () => Promise<void>
   /** The refusals this run's UI policy produced, in the order they happened. */
   readonly decisions: readonly NetworkDecisionRecord[]
   readonly navigation?: ReturnType<
@@ -123,6 +127,7 @@ async function installUiBoundary(
    */
   let tail: Promise<unknown> = Promise.resolve()
   let persistenceFailure: unknown = null
+  let executionFailure: Error | null = null
   /**
    * The allowed requests, bounded.
    *
@@ -134,6 +139,16 @@ async function installUiBoundary(
   const allowed = new Map<string, { origin: string; destination: string; count: number }>()
   const record = (decision: NetworkDecisionRecord) => {
     decisions.push(decision)
+    if (decision.finalizationShutdown) {
+      tail = tail
+        .then(() => deps.appendEvent('network:shutdown-request', { ...decision }))
+        .catch((error) => {
+          persistenceFailure = error
+        })
+      return
+    }
+    if (decision.reasonCode === 'transport-error' || decision.reasonCode === 'execution-stopped')
+      executionFailure ??= new Error(`ui-network-${decision.reasonCode}`)
     if (decision.allow && !decision.truncated) {
       let origin = 'unparseable'
       try {
@@ -209,12 +224,36 @@ async function installUiBoundary(
   for (const dimension of contract.unsupportedCapabilities)
     await deps.recordUnsupported(dimension, 'unsupported-release-capability')
 
+  const flush = async () => {
+    let observed: Promise<unknown>
+    do {
+      observed = tail
+      await observed
+    } while (observed !== tail)
+    if (persistenceFailure) throw persistenceFailure
+    if (executionFailure) throw executionFailure
+  }
   return {
     navigation: session.navigation,
+    flush,
+    seal: async () => {
+      session.seal()
+      await session.settle()
+      await flush()
+      if (allowed.size)
+        await deps.appendEvent('network:allowed-summary', {
+          policyRevision: policy.policyRevision,
+          entries: [...allowed.values()],
+          total: [...allowed.values()].reduce((sum, entry) => sum + entry.count, 0),
+        })
+      await deps.appendEvent('network:sealed', {
+        reason: 'inspection-finalization',
+        abandonedReads: decisions.filter((d) => d.finalizationShutdown).length,
+      })
+    },
     settle: async () => {
       await session.settle()
-      await tail
-      if (persistenceFailure) throw persistenceFailure
+      await flush()
       if (allowed.size)
         await deps.appendEvent('network:allowed-summary', {
           policyRevision: policy.policyRevision,

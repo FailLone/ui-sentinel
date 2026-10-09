@@ -115,3 +115,75 @@ CDP 的请求类型先转换为统一枚举。UI 请求不再使用 `Fetch.conti
 当流式模型返回length且尚未执行任何工具时，执行器保留失败用量，并使用原有至多一次安全重试，不延长请求或任务时限。可通过AGENT_LENGTH_RECOVERY_WITHOUT_REASONING=1为支持可选推理的OpenAI兼容模型显式启用恢复模式：仅此重试传reasoningEffort=none，正常请求配置不变。默认关闭，不向其他提供方推断此能力。开始/结束事件记录reasoningRecovery=disabled和retryOf；模型仍选择下一工具，全部写入、结束与证据检查保持生效，不能用空响应当成功。
 
 此设置解决的是推理耗尽全部输出、没有产生工具调用的特定失败，不是增加调用预算，也不保证模型总能正确决策。[OpenRouter关于reasoning与max_tokens的说明](https://openrouter.ai/docs/guides/best-practices/reasoning-tokens)说明推理和可见输出共享上限，隐藏推理内容并不能减少其消耗。
+
+### UI 动作后的结果恢复
+
+动作目标与结果节点有不同身份约束。`page_act.verify` 在动作前固定 CSS selector、条件、预期和公开依据；后置测量显式读取当前匹配节点，并在截图前后验证文档、节点身份和测量值未变化。缺失、多匹配或不支持的度量仍为 unverified。
+
+纯 UI 检查对这样的未验证事项提供 `recoverableInteractions`。`interaction_verify({checkRef})` 只接受执行器发放的本次运行引用，不接受替代目标、预期或事项 ID。它重新观察、绑定当前结果并测量，最多两次，要求同文档、同 URL、无中间动作、无执行器干预及原证据字节完整。它不重放任何动作，也不开放给购物/导出业务。有效 verified/failed 回执追加到原 scope item，旧 unverified 事件保留；failed 表示检查已测出不符合预期，并不阻止其他范围完成。发现仍需现有调查工具的证据支持。
+
+`interaction:verification-opened`、`interaction:recovered` 和事项更新构成恢复链，记录 actionId、itemId、固定预期、原证据摘要、新观察与测量截图。完成校验和历史报告同时核对归属、顺序和产物内容；缺失或篡改不能产生可信完整证明。引用只存在于活动执行器内，重启仍 interrupted，不恢复动作。
+
+相同事实的重复读取不算进展。纯 UI 检查连续三个无进展轮次触发一次只读观察及至多一个已有事项恢复；出现新观察或可判定测量可继续；没有新事实时，可在下述严格条件内发放一次剩余义务引导，否则通过既有结束契约保存 partial。恢复与引导额度用完后再次耗尽无进展窗口直接 partial。进入时间/模型预算保留区时，执行器先尝试完整结束，存在缺口则保存 partial，不再花一轮模型生成结束措辞。不提高总预算；极小调用预算仍保持原 budget-exhausted 行为。partial 是诚实收尾，不能用于健康样本的完整通过。
+
+UI 扫描的待检查控件可以跨观察延续同一事项，但执行器必须确认相同 URL、类别及连接中的同一真实 DOM 节点，并追加 `scope:candidate-reobserved`。同名或同 selector 的替换节点不能继承身份；已执行的 unverified、verified、failed 不通过重新观察合并。旧 unknown 的恢复仍须使用原冻结验证引用。
+
+UI 本地 click/fill 在派发前须有 `page_act.verify` 或处于有测量契约的调查程序；缺失时 `postcondition-required` 拒绝，不执行动作。真实链接导航保留导航后观察校验。`localSampling` 将每页的既有采样上限、已选数量和剩余数量提供给 Agent，上限在派发前检查；业务写入和业务完成契约不受此 UI 前置约束影响。
+
+防循环的只读恢复没有新事实且不再有引导机会时，执行器向同一完整结束验证器申请 `scope-covered`；已有范围、调查、规则及证据确已满足时正常完成。被拒绝后才记录 no-progress 并 partial。因此重复读取本身既不能证明检查完成，也不会把已证实的完成降为 partial。历史检索不能递归读取检索回执自身；工具会返回原始结果引用指引，原历史保持不变。
+
+本地采样的 3 项限制按同页公开控件标识计数；同一控件的重复测量、重访不会重复占用控件额度，但各次测量和原 unknown 分别保留，且仍消耗总动作/模型/时间预算。`scope:candidate-bound` 记录 quotaOnly 的 samplingKey，它不能代替真实节点绑定或作为消除 gap 的依据。第四种控件仍在动作前拒绝。
+
+已选链接必须实际 click 才能验证其可操作性。若直接 URL navigate 对应当前仍待检查的已选链接，UI 执行器返回 `selected-navigation-requires-click`，保留页面与原事项，要求通过当前观察中的 link ref 操作。没有已选链接的直接 URL 导航照常支持；已离页造成的旧 gap 不会事后改为成功。
+
+UI 链接导航与目的页内容检查分开：导航动作不接受局部 `verify`，由执行器验证实际链接派发和目的页观察；到达后才能对已观察内容按已知需求另建调查，不能凭链接文案猜目的页文字。调查可选字段的 `null` 等同缺省，必需动作参数仍校验。程序仍限三次动作、四秒等待，结果绑定只能在最后动作之后。三轮无进展及只读恢复后，若最新调用确为输入校验失败，每运行最多提供一次契约修正模型轮次；该机会不计页面进展、不解除未验证事项，下一轮仍无新事实则 partial。
+
+`page_act.verification` 与 `inspectionScope.recentChecks` 返回既有账本的动作→item→验证状态投影；`status=completed` 仍只表示动作结束，不能替代验证。摘要省略大负载时仍保留 verification 的 itemId/outcome/reasonCode。UI 首次读取带证据的原始回执分片可获得最多三次信息访问进展，等价数字引用与缺省/零 offset 归一化，重复分片、空分片、输入错误及递归读取均不获进展；这不产生新页面事实、不解除任何未验证事项。
+
+已选择但仍 pending 的本页局部检查必须在可识别的跨文档导航前处理；前置拒绝不会派发动作。完成本页测量后可继续导航，无法完成则保留事项并 partial。路由身份沿用 query/fragment；pending 局部检查也须在 fragment 路由切换或重载前处理。未选控件及已如实记录的 unknown 不借此伪造验证或清除 gap。
+
+首次选择实际观察到的公开控件属于有界计划进展，允许执行随后测量；以公开 samplingKey 去重，每种控件只计一次，换 itemId 或重复选择不会续期。selectionFacts 只用于无进展调度，pending 仍是 pending，结束校验仍要求真实证据。
+
+UI 后置谓词的 `failed` 测量会由执行器保存 `ui-interaction` 类型发现，关联原 action、原 scope item、动作前预期、动作后当前结果绑定及截图。该发现只说明当前测量与声明预期不符，不证明预期适用于所有页面。提升、持久终态及历史报告均复核服务端封印、文件摘要和事件顺序；受干预、unknown 或无效证据不会产生 supported。`interaction_verify` 的失败恢复使用同一事项和原预期，保留旧 unknown，不重放动作。模型无需再次提交该发现。
+
+干净 UI 运行中，`exploration_update.recordGap` 与仍待测量的已选控件/导航计划分开：包含新选择或存在 pending 选择时，工具在任何记录写入前拒绝永久 gap 声明。先用 selectItems 计划并测量，或以 unverified-scope 保留 pending 结束；干预后可以继续记下实际无法验证范围。已经保存的 gap 不因空更新或后续成功而消失。导航不占局部控件采样额度，返回 localSampling 供计划核对。
+
+### UI 边界阻塞、终态与历史证明
+
+业务 Request 对象级 pendingWrites 及 click 的未知写入预留仅适用于业务运行。纯 UI 请求由原 CDP session 与固定地址只读传输负责；传输层在实际打开 socket 前再次限制 GET/HEAD。浏览器尝试 POST 后被拒绝，不等于业务写入已经发出。真正的业务未知回执仍优先进入 reconciliation-required、隔离后续任务且不重放，包括取消与实际写入并发的情况。
+
+UI 的 Agent 结束与确定性结束共用 finishUiScan：flush 已发生的网络决策及响应记录，检查取消、预算和未知写入，再读取真实 blocker；常规观察与动作不等待所有 GET 返回，保留动态结果的后续只读恢复。已受干预的正常循环可以不再调用模型，申请 observed-blocker；传输错误、动作执行失败、模型截断和取消各走其真实失败终态，不在异常 catch 补造 partial。结束预检接受后，网络 session 封闭新请求准入，取消尚未完成的只读请求并保存 network:shutdown-request / network:sealed，再排空记录、重新检查同一结束契约。终结取消不作为站点 blocker，也不解除旧 gap；真正执行错误或变化后的事实会拒绝过期证明。保留已放行请求汇总，后续关闭流量不能补写检查范围。
+
+inspection-proof-3 的 observed-blocker 保存真实拒绝/不支持通道事件的 ID 和完整事件摘要。普通 allow、execution-stopped、transport-error 或模型文字不能支撑 blocker。持久终态与历史报告重新验证同 run、先于 finish、事件语义、摘要及实际终态；取消和执行失败记录也会使新证明失效。原 proof-2 内容不迁移、不改写，covered 继续原校验；旧 observed-blocker 缺少可信封印时显示不可验证，不补造事实。需要受控重新检查才能取得新证明。
+
+独立边界验收同时核验 blocked / blocked / not-applicable、持久状态、结束事件及 blocker 摘要、服务器无写入、无污染误报。partial 字段本身不是通过条件，旧 C10 仍失败。免费契约回归入口为 `pnpm exec tsx scripts/validation/r0-k123.ts`；该脚本使用本地固定模型，证明接线与拒绝行为，不授予真实模型验收资格。
+
+### 取消受理与终态提交的顺序
+
+运行队列通过 per-run 生命周期仲裁统一启动认领、取消受理和终态提交。取消在仲裁内重新读取状态并持久请求后返回 accepted；终态提交在同一仲裁内取得唯一提交权，选择停止原因，直到持久写入和独立校验结束才释放。取消先受理时，无真实未知业务写入则终态为 cancelled；提交先取得顺序时，后来的取消不能穿越异步 SQL 窗口，返回未受理。早期配置/契约失败也使用同一仲裁，不能被旧 queued 快照取消覆盖。
+
+真实未知业务写入与真实持久化错误仍保留隔离，取消不解除它们；迟到工具仍受 abort / attempt guard、响应关闭和浏览器清理约束。此前保存的 finish 意图不删除，cancelled 的运行不能继续认证为完成。仲裁是单进程协议，不提供多实例并发写保证；进程中途崩溃仍由既有恢复和完整性校验保守处理。免费定向入口 `pnpm exec tsx scripts/validation/r0-cancel-order.ts` 使用测试专用IPC同步屏障，验证顺序而非依赖随机延时。
+
+### UI 只读 probe 与一次剩余义务引导（F2/F1）
+
+UI `page_act(type=probe)` 只接受实际观察到的局部控件，不带行为效果 verify。`ui-probe.ts` 复用观察阶段保存的原节点handle，locator只交叉核对唯一身份，不在probe入口重绑节点，在当前URL与连接身份保持时执行trial，并复用公开DOM几何测量。只有trial本身的Timeout且前后均可见、启用、完整位于视口/裁切内、采样命中率为0，才能返回intercepted；不依据异常文案推断遮挡。缺失、歧义、替换节点或浏览器故障不能产生有效阴性测量，取消仍优先。其余UI动作异常仍保留execution-error。业务probe及未知写入隔离路径不变。
+
+有效阴性probe保存原run/action/item/ref、测量、截图和文件摘要，通过`probe:measured`关联原pending局部检查为failed；已有规则发现保留。actionable仅是可点击性，没有实际点击，不把原行为效果检查标成verified。工具返回probeMeasurement及effectTested=false。旧unknown不会被该路径恢复，也不新建成功项绕过gap。历史报告和持久终态检查probe事件的原始绑定、动作归属、阴性事实、原事项更新以及测量JSON和所引用截图的字节摘要、产物类型；旧无probe记录不改判。
+
+`remaining-obligation-guidance.ts`只负责全运行一次调度机会。触发须是干净UI运行已达三轮无进展、既有只读恢复没有新事实、存在当前仍连接的已选pending控件/导航、动作预算可用且未进入时间/模型预算保留区。引导列原item/ref，模型仍使用原工具和权限，执行器不自动点击或重放；正常权限校验、取消、错误和写入隔离保持优先。提示及其事件不计入进展事实，不重置计数。下一轮无实际新事实即按原完成验证器完整结束或partial；有实际新事实可继续调查，但不补发引导。健康partial仍不能通过验收。
+
+## 动作参数的派发前契约
+
+`page_act` 在 SDK 输入校验阶段按动作类型检查参数；内部 `performAction` 调用也在观察、定位、写权限解锁、动作计账与 `activeAction` 建立之前复核。无效输入返回字段级 `validationErrors`，使用原全运行一次、单模型轮次的工具修正机会；输入错误不是测量或进展。修正轮次仍无真实新事实时进入原无进展收尾，不再叠加剩余义务引导。
+
+| type | 必填 | 合法附加字段 / 限制 |
+| --- | --- | --- |
+| click | 一个目标 | 可带 verify；不接受 value/url/scrollY |
+| probe | 一个目标 | 不接受 verify/value/url/scrollY；只测 actionability，不点击 |
+| fill | 一个目标、value | 空字符串明确清空；可带 verify；不接受 url/scrollY |
+| navigate | 明确的绝对 HTTP(S) url | 不接受目标字段、verify/value/scrollY；不从 ref/标签猜 URL |
+| scroll | 明确的 scrollY（-1000 至 1000） | 不接受目标字段、verify/value/url；不默认滚动500 |
+
+一个目标为 role+name、selector、visualDescription 三选一，UI 可只用已观察 ref；ref 可与一个定位方法交叉核对，nth 只用于 role+name。空白目标、不完整 role/name、互斥定位方法和未知字段拒绝。业务模式不把 ref 本身当成 locator。SDK 的可选 `null` 只表示字段未提供：fill 的 `value=null` 和 navigate 的 `url=null` 仍是缺参；不是默认值。`investigation_run` 的嵌套 click/fill/scroll 在整个程序开始前也复用此参数契约。
+
+该层只判断参数形状与组合。DOM 身份、后置测量公开依据、导航范围、写入权限及取消仍按原执行规则检查；不从字段合法推导目标存在或动作成功。已选链接仍须实际 click，直接 navigate 不能解决原导航事项。真正动作失败、取消与未知写入不被改成输入错误或自动重放。详细免费证据见 `plans/r0-action-contract-handoff.md`；R0 真实验收状态仍为未通过。

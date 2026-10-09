@@ -59,3 +59,15 @@ docs 描述当前能力、约束和明确标注的方向；plans 只保留下一
 ## R0 接手验证
 
 采用支持的 Node 24。`pnpm test` 包含网络真实浏览器反例、完成证明篡改/丢失历史和交互后置测量回归。`pnpm validate:url-scan -- --preflight` 使用 loopback 固定模型；`URL_SCAN_FREE_CAMPAIGN_TEST=1 pnpm exec vitest run scripts/validation/url-scan-campaign.test.ts` 额外执行六行免费 campaign，验证 runner 和失败保留。修改验收预期必须说明对应产品语义，禁止为变绿删除反例。见 [接手记录](r0-closeout.md)。
+
+### R0 动态结果整改自测
+
+`pnpm exec tsx scripts/validation/r0-remediation.ts` 在构建后启动本地固定模型、正式 API 和 Chromium，覆盖健康/异常动态反馈、错误引用和目标、过期动作、篡改证据、不可恢复、重复读取及新信息恢复。输出到 `data/r0-remediation/<timestamp>/`，包含构建和源代码哈希、完整模型输入、请求、报告、产物、SQLite、服务日志，以及健康/异常页面的独立浏览器回放。属于开发者 A/B 自测，不能代替独立 C 能力验收。
+
+费用未知后的只读核对命令：
+
+```sh
+pnpm exec tsx scripts/validation/reconcile-cost.ts <campaign-directory> <batch-directory> <request-id>
+```
+
+该命令需要原 campaign-id、manifest、ledger.jsonl 和 OpenRouter key，只 GET 已保存 generation 的元数据，不生成模型请求。generation ID、模型与提供方必须匹配；只允许原模型别名到同家族八位日期版本的窄映射，账单记录实际版本，不改变运行配置。终止原因为空时，仅有正生成时长、有效 completion token 数和正账单费用的已发布记录可核对；零值或不完整元数据继续 unknown。核对表按请求/generation 唯一追加；原 unknown 行及预留数字不变，有效费用在支出投影中只计一次，重复相同结果幂等，冲突/缺失保留未知。成功及失败另写 reconciliation-audit.jsonl。新表可直接创建于原 SQLite，无需改写历史。核对不会更新批次阶段、重写旧 summary、创建批准或恢复任务；即使成本已知仍须按新构建和样本重新冻结、授权。

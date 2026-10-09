@@ -1,0 +1,511 @@
+{
+  "schemaVersion": "r0-default-check-contract-v2-plan-1",
+  "status": "proposed-awaiting-review-not-implemented",
+  "date": "2026-10-09",
+  "timezone": "Asia/Shanghai",
+  "document": {
+    "path": "plans/r0-default-check-contract-v2-plan.md",
+    "sha256": "64a7476a907ee7c5dcb8ceae2ca4b8310a95a3442a66c96720f5ee4b56597f9d"
+  },
+  "baseline": {
+    "productCandidate": "5f41285b69c83387af76e5b85d3657d19fb0761d",
+    "latestHandoff": "d636d7e6ceea46ed22f43205a7164a149cb3600a",
+    "diagnosticTool": "a3aa1bc",
+    "branchObserved": "codex/r0-closeout",
+    "headObserved": "d636d7e6ceea46ed22f43205a7164a149cb3600a",
+    "srcSameAsProductCandidate": true
+  },
+  "authorization": {
+    "thisRound": "write only the two specified plan files",
+    "implementationAuthorizedByThisPlan": false,
+    "testsAuthorizedByThisPlan": false,
+    "paidAuthorizedByThisPlan": false,
+    "automaticResume": false,
+    "commitOrPush": false,
+    "agentMessagesOrDelegation": false
+  },
+  "executionThisRound": {
+    "productEdits": 0,
+    "scorerEdits": 0,
+    "historicalEvidenceEdits": 0,
+    "testsRun": 0,
+    "browserRuns": 0,
+    "modelApiCalls": 0,
+    "newPaidCostUsd": 0,
+    "R1Extended": false,
+    "roadmapEdited": false
+  },
+  "recommendation": "Same selected item: mandatory generic interaction evidence plus every independently sourced required effect; unspecified functional semantics remain explicitly unknown and do not alone block v2 coverage.",
+  "approvalRequiredBeforeDevelopment": [
+    {
+      "id": "P1",
+      "recommend": "accept",
+      "change": "Allow full default-check coverage for genuinely unspecified effects after all generic evidence and rules are complete; never label functionality correct."
+    },
+    {
+      "id": "P2",
+      "recommend": "accept",
+      "change": "Known explicit but uncompiled, conflicting or late requirements remain mandatory incomplete; arbitrary goal compilation is not promised."
+    },
+    {
+      "id": "P3",
+      "recommend": "accept",
+      "change": "New public fixtures and new scoring semantics establish a new future baseline; unchanged 15/15 count is not unchanged meaning."
+    }
+  ],
+  "proposedVersions": {
+    "uiContractSchemaVersion": "1",
+    "policyRevision": "url-scan-default-4",
+    "samplingRevision": "bounded-ui-sampling-2",
+    "checkPolicyRevision": "default-check-contract-2",
+    "sourceProfile": "public-effect-sources-1",
+    "itemChecksRevision": "item-checks-2",
+    "toolContract": "29",
+    "proofVersion": "inspection-proof-4",
+    "reportRevision": "ui-check-report-2",
+    "acceptanceProtocol": "ui-default-checks-3",
+    "fixtureRevision": "ui-contract-v2-fixtures-1",
+    "versionNamesSubjectToCollisionCheckAtFreeze": true
+  },
+  "unchangedBoundaries": {
+    "candidateLimit": 8,
+    "localSamplesPerVisitedRoute": "min(3,N)",
+    "navigationSamplesPerRun": 1,
+    "maxPages": 3,
+    "maxDepth": 1,
+    "defaultInput": [
+      "entryUrl",
+      "optional goal"
+    ],
+    "advancedRequiredChecks": "additive; never replaces defaults",
+    "sameSelectedItem": true,
+    "sameExecutorScopeClosingPersistence": true,
+    "businessAcceptanceUnchanged": true
+  },
+  "genericContract": {
+    "checks": [
+      "G1 selected current binding and permitted action; pre-state and frozen source review",
+      "G2 one real normal dispatch linked to original item/action",
+      "G3 durable before and two bounded after observations with integrity",
+      "G4 structured scoped feedback comparison",
+      "G5 applicable rules, anomalies and late sources settled before completion"
+    ],
+    "feedbackSampleOffsetsAfterActionMs": [
+      0,
+      1000
+    ],
+    "feedbackWindowIsFunctionalDeadline": false,
+    "feedback": [
+      "change-observed",
+      "no-change-observed",
+      "indeterminate"
+    ],
+    "indeterminateBlocksCompletion": true,
+    "oneClickOrScreenshotSufficient": false,
+    "positiveProbeSufficient": false,
+    "corroboratedPhysicalFailureCanConcludeGenericCheck": true,
+    "corroboratedFailureRequiresFindingAndOriginalEvidence": true,
+    "nativeValueCheckProvesApplicationEffect": false,
+    "allSamplingConsumesExistingBudget": true
+  },
+  "sources": {
+    "kinds": [
+      "default-policy",
+      "original-goal",
+      "required-check",
+      "approved-applicable-rule",
+      "pre-action-page-declaration"
+    ],
+    "identityFields": [
+      "sourceId",
+      "sourceHash",
+      "sourceRefs",
+      "sourceSpan",
+      "capturedSeq",
+      "documentVersion"
+    ],
+    "applicabilityFields": [
+      "controlBinding",
+      "actionContract",
+      "relationKind",
+      "predicate",
+      "evaluationPoint",
+      "resultBindingMode",
+      "requirementHash"
+    ],
+    "basisIsAuthorization": false,
+    "literalInGoalSufficient": false,
+    "maxEffectSources": 12,
+    "overflow": "mandatory unresolved gap; never silently truncate",
+    "sourceReviewRequiredBeforeDispatch": true,
+    "sourceUnionMonotonic": true,
+    "unrecognizedUserGoalRemainder": "goal-unresolved; prevents full contract coverage",
+    "goalFocus": "default neutral goal or supported bounded focus form only",
+    "profiles": [
+      "caller structured requiredChecks with effective result relationship",
+      "explicit target/action/show-text relation; contains unless exact equality stated",
+      "pre-action page relation from actual description or explicitly named unique control",
+      "explicit numeric direction plus unique controlled numeric list and evaluation point",
+      "native control mechanics and existing approved-rule applicability"
+    ],
+    "unsupportedExplicitRequirement": "retain unresolved mandatory requirement",
+    "lateSpecification": "append to original item; unverified; no automatic discharge of past action or replay",
+    "observedOutputCreatesExpectation": false,
+    "webContentGrantsPermissions": false
+  },
+  "itemModel": {
+    "authoritativeStore": "existing scope events",
+    "facets": [
+      "sourceReview",
+      "generic",
+      "effects[]"
+    ],
+    "sourceStates": [
+      "pending",
+      "sealed",
+      "unresolved"
+    ],
+    "genericStates": [
+      "pending",
+      "collected",
+      "failed",
+      "unverified"
+    ],
+    "effectStates": [
+      "pending",
+      "verified",
+      "failed",
+      "unverified"
+    ],
+    "unspecified": "derived only from sealed source review and zero effect requirements",
+    "aggregate": "any mandatory incomplete facet blocks; otherwise failed if any evidenced failure, else verified as check completion",
+    "requiredAlias": "requirementId to original itemId and specific effect; no generic-status shortcut",
+    "lateSourceBeforeSeal": "append and recompute unresolved aggregate, retain prior facts",
+    "afterTerminal": "no mutation or reopening",
+    "newDatabaseTables": false
+  },
+  "toolDelta": {
+    "investigation_run": "same exploration path; executor-issued requirementId; no invented assertion",
+    "page_act": "registered requirement or fixed native provenance for v2 verification",
+    "interaction_verify": {
+      "purposes": [
+        "collect-interaction",
+        "verify-effect"
+      ],
+      "oldOmittedPurpose": "legacy behavior",
+      "maxSharedReadOnlyAttemptsPerOriginalAction": 2,
+      "maxExploratoryDispatchesPerSelectedItem": 1,
+      "noNewExpectationOrSelectorForGenericCollection": true,
+      "sameDocumentNoInterveningActionCleanEvidence": true
+    },
+    "allUiMeasurementAndFindingRoutesUseSameAdmission": true,
+    "newPlanner": false
+  },
+  "completion": {
+    "scopeCoveredMeans": "all versioned mandatory generic/effect/rule/navigation obligations have admissible conclusions",
+    "measuredDefectCanHaveCompletedCoverage": true,
+    "requiredEffectUnverifiedBlocks": true,
+    "unspecifiedFunctionalSemanticsAloneBlocks": false,
+    "missingEvidenceOrSkippedMandatoryActionBlocks": true,
+    "existingCancellationFaultInterventionAndPersistencePriorityRetained": true,
+    "closingAndSealUseSameDecision": true,
+    "proof4MustRetainProof3CancellationAndExecutionFailureChecks": true
+  },
+  "report": {
+    "separate": [
+      "report available",
+      "default check coverage",
+      "individual required effect verification",
+      "functional semantics unknown",
+      "findings",
+      "unfinished mandatory work",
+      "unselected or truncated scope"
+    ],
+    "addedCounts": [
+      "effectUnspecifiedCount",
+      "requiredEffectPendingCount",
+      "genericIncompleteCount"
+    ],
+    "noGlobalFunctionalCorrectOrWebsiteHealthy": true,
+    "zeroEffectsDoesNotMean100PercentFunctionalPass": true,
+    "unknownReportRevision": "unsupported, never old green-success fallback"
+  },
+  "compatibility": {
+    "legacyPolicyRevisions": [
+      "url-scan-1",
+      "url-scan-scope-2",
+      "url-scan-default-3"
+    ],
+    "legacyProofVersions": [
+      "inspection-proof-2",
+      "inspection-proof-3"
+    ],
+    "legacyQueuedExecutionAndHashes": "unchanged",
+    "v2MissingFacets": "reject full coverage",
+    "legacyScoresRewritten": false,
+    "oldSuccessesMergedIntoNewRate": false,
+    "oldFailuresRewritten": false,
+    "oldPaidAuthorizationReused": false
+  },
+  "freeAcceptance": [
+    {
+      "id": "F01",
+      "cases": "unspecified effect with changed and unchanged feedback; missing dispatch or post evidence",
+      "requiredOutcome": "generic completed only with full evidence; semantic unknown disclosed; healthy zero false positives",
+      "status": "planned-not-run"
+    },
+    {
+      "id": "F02",
+      "cases": "explicit effect satisfied, violated and unfinished",
+      "requiredOutcome": "verified, failed with valid finding, and incomplete respectively; no downgrade",
+      "status": "planned-not-run"
+    },
+    {
+      "id": "F03",
+      "cases": "goal, required check, rule and page sources plus forged or unrelated sources",
+      "requiredOutcome": "identity, applicability and pre-action provenance validated; literal substring or basis alone never sufficient",
+      "status": "planned-not-run"
+    },
+    {
+      "id": "F04",
+      "cases": "incomplete source review, unsupported goal, conflict, overflow and late specification",
+      "requiredOutcome": "mandatory gap retained; no retrospective discharge or re-click",
+      "status": "planned-not-run"
+    },
+    {
+      "id": "F05",
+      "cases": "unrelated invariant, already true predicate, incidental change and all UI tool routes",
+      "requiredOutcome": "no required-effect discharge or unsupported defect promotion",
+      "status": "planned-not-run"
+    },
+    {
+      "id": "F06",
+      "cases": "repeat dispatch, checkRef or alias substitution, two recovery purposes",
+      "requiredOutcome": "one exploratory dispatch per item; two read-only recoveries total; unchanged budget",
+      "status": "planned-not-run"
+    },
+    {
+      "id": "F07",
+      "cases": "stale control, replaced result, intervening action, navigation and changed evidence",
+      "requiredOutcome": "original obligation remains incomplete; legitimate new result binding works",
+      "status": "planned-not-run"
+    },
+    {
+      "id": "F08",
+      "cases": "sampling quotas, selected and unselected, replacement after failure, revisits and advanced requirements",
+      "requiredOutcome": "original denominator and every mandatory requirement preserved",
+      "status": "planned-not-run"
+    },
+    {
+      "id": "F09",
+      "cases": "native control state versus application effect and direct known-result path",
+      "requiredOutcome": "one valid action may supply both facets; control value never substitutes for application effect",
+      "status": "planned-not-run"
+    },
+    {
+      "id": "F10",
+      "cases": "real interception and matched healthy control",
+      "requiredOutcome": "valid supported finding for defect; no false positive on healthy or unspecified no-feedback",
+      "status": "planned-not-run"
+    },
+    {
+      "id": "F11",
+      "cases": "cancellation, genuine execution error, POST intervention and persistence/proof4 negatives",
+      "requiredOutcome": "existing priority and isolation retained; no completed proof on failure",
+      "status": "planned-not-run"
+    },
+    {
+      "id": "F12",
+      "cases": "queued extension and new source around closing; unsettled rule and forged empty source set",
+      "requiredOutcome": "one completion gate; incomplete sources block; queued work denied after valid closing",
+      "status": "planned-not-run"
+    },
+    {
+      "id": "F13",
+      "cases": "workbench URL-only creation, full/partial/defect report and history restoration; legacy revisions",
+      "requiredOutcome": "actual request and durable evidence agree; two dimensions and unknown disclosed; legacy unchanged",
+      "status": "planned-not-run"
+    },
+    {
+      "id": "F14",
+      "cases": "independent scorer attacks: missing item/specification, forged receipt, all-unknown, invalid finding and healthy false positive",
+      "requiredOutcome": "reject every attack; unspecified only allowed where frozen public contract actually permits it",
+      "status": "planned-not-run"
+    }
+  ],
+  "reuse": {
+    "effectExplorationEvidence": "plans/evidence/r0-effect-exploration-delivery.json",
+    "historicalTargetedTests": 66,
+    "historicalUnknownWriteTests": 5,
+    "historicalDirectBrowserCases": 14,
+    "finalBuildCaveat": "candidate-final and final-legacy-guard differ; do not claim all 14 executed on final build",
+    "defaultEntryHistoricalBrowserCases": 12,
+    "reuseMeaning": "unchanged mechanism evidence and regression inputs only; touched v2 paths need new targeted evidence",
+    "persistenceDiagnosisTool": "a3aa1bc; optional one necessary free API observation, not repeat-until-pass"
+  },
+  "futureRealAcceptance": {
+    "status": "blocked-not-authorized",
+    "prerequisites": [
+      "user accepts commitments and authorizes development",
+      "same final candidate passes targeted free acceptance and build/typecheck",
+      "original persistence fault separately diagnosed, repaired and closure accepted",
+      "request-level unknown stop and cancellation evidence applicable to final candidate",
+      "new public/private requirements reviewed and frozen manifest and current prices",
+      "new explicit paid authorization with existing cumulative ledger"
+    ],
+    "diagnostic": {
+      "rows": 6,
+      "samples": [
+        "H0-unspecified-healthy",
+        "H1-explicit-numeric-healthy",
+        "H2-explicit-dynamic-text-healthy",
+        "A1-explicit-numeric-defect",
+        "A2-interception-defect",
+        "B1-boundary"
+      ]
+    },
+    "formalUi": {
+      "rows": 15,
+      "repeatsPerMainSample": 3,
+      "healthy": 9,
+      "anomaly": 6,
+      "allAnomaliesRequireValidFinding": true,
+      "workbenchAndHistoricalReportRequired": true
+    },
+    "newFixturePolicy": "separate version with public pre-action requirements; do not edit old Filters goal/page/results or feed oracle answers",
+    "models": {
+      "agent": "deepseek/deepseek-v4.1-flash",
+      "vision": "qwen/qwen3.7-plus",
+      "provider": "Alibaba",
+      "agentReasoning": "low",
+      "maxOutputTokens": 4096,
+      "uiBlockerReview": false
+    },
+    "uiBudget": {
+      "totalTimeoutMs": 300000,
+      "maxActions": 20,
+      "maxModelCalls": 30,
+      "toolTimeoutMs": 15000,
+      "modelTimeoutMs": 60000,
+      "retries": 1
+    },
+    "stop": "ordinary quality failure retains fixed current-stage denominator then blocks later stages; cancellation, unknown cost/write, persistence fault or budget stops immediately including before retries",
+    "automaticRestartOrPatchRerun": false,
+    "businessFollowingStages": {
+      "diagnostic": 5,
+      "formal": 45,
+      "unchanged": true
+    }
+  },
+  "developmentTasks": [
+    {
+      "id": "D1",
+      "scope": "Versioned contract, public description and legacy dispatch",
+      "acceptanceIds": [
+        "F13"
+      ],
+      "status": "awaiting-review-and-development-authorization"
+    },
+    {
+      "id": "D2",
+      "scope": "Source validation, same-item facets, source aliases and late-source events",
+      "acceptanceIds": [
+        "F02",
+        "F03",
+        "F04",
+        "F05",
+        "F08"
+      ],
+      "status": "awaiting-review-and-development-authorization"
+    },
+    {
+      "id": "D3",
+      "scope": "Existing executor evidence collection and shared recovery; all UI tools enforce source admission",
+      "acceptanceIds": [
+        "F01",
+        "F05",
+        "F06",
+        "F07",
+        "F09",
+        "F10"
+      ],
+      "status": "awaiting-review-and-development-authorization"
+    },
+    {
+      "id": "D4",
+      "scope": "Completion, proof4, report and history projection",
+      "acceptanceIds": [
+        "F11",
+        "F12",
+        "F13"
+      ],
+      "status": "awaiting-review-and-development-authorization"
+    },
+    {
+      "id": "D5",
+      "scope": "Independent new fixture/specification matrix and scorer; unexecuted manifest draft",
+      "acceptanceIds": [
+        "F14"
+      ],
+      "status": "awaiting-review-and-development-authorization"
+    },
+    {
+      "id": "D6",
+      "scope": "Final-candidate targeted free evidence and bounded handoff; no paid execution",
+      "acceptanceIds": [
+        "F01",
+        "F02",
+        "F03",
+        "F04",
+        "F05",
+        "F06",
+        "F07",
+        "F08",
+        "F09",
+        "F10",
+        "F11",
+        "F12",
+        "F13",
+        "F14"
+      ],
+      "status": "awaiting-review-and-development-authorization"
+    }
+  ],
+  "persistence": {
+    "status": "unresolved",
+    "thisPlanClaimsRootCause": false,
+    "thisPlanFixesIt": false,
+    "formalAdmissionBlocked": true,
+    "negativeDiagnosticRunsCloseFault": false
+  },
+  "inputs": [
+    {
+      "path": "plans/r0-default-entry-alignment.md",
+      "sha256": "4ae25d74d09c44f1fc864707bd9bf03071337d64765e931e2f25bbc8ebede0e7"
+    },
+    {
+      "path": "plans/r0-default-entry-handoff.md",
+      "sha256": "0702cec287e3ca5d5ad6cdad3d23810d432ddafc2d8aab4dd023880a2d0d284b"
+    },
+    {
+      "path": "plans/r0-filters-path-feasibility.md",
+      "sha256": "6aeb2bef6d3b463a341530eaad698394d5821c19f0fe028f00bcdf0a599ac26a"
+    },
+    {
+      "path": "plans/r0-effect-exploration-handoff.md",
+      "sha256": "b3a02a7d1cb265a6a8103920917962cc2f3393176301e847d7bb1b8541c94d73"
+    },
+    {
+      "path": "plans/evidence/r0-effect-exploration-delivery.json",
+      "sha256": "91cc5962c4f91e92a9cb8cd46728acea73d5bcffe3ba4eb74c3dd2932e5a3ef1"
+    },
+    {
+      "path": "plans/r0-persistence-filters-followup.md",
+      "sha256": "6bbf3446a96a6485744298af062c70d256670c90bb9e62fb46b881a48b6e5d75"
+    },
+    {
+      "path": "plans/r0-persistence-repair-handoff.md",
+      "sha256": "8bda21b0b7a4b25a932183897411fc6a163751574893e2f2c52b4e7d3d295e76"
+    }
+  ]
+}

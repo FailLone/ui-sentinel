@@ -32,6 +32,10 @@ export async function runProgram(raw: InvestigationProgram, host: ProgramHost) {
     screenshotRefs: string[] = [],
     log: { op: string; at: number; detail: string }[] = []
   const handles = new Map<string, ElementHandle<Element>>()
+  const targetIssues: { sample: string; target: string; reason: string }[] = []
+  const bindingIssues = new Map<string, string>()
+  let resultsBound = false
+  const resultBindings: { target: string; selector: string; text: string | null }[] = []
   const root = await host.page.locator('html').elementHandle({ timeout: 1000 })
   const url = host.page.url()
   const startedAt = Date.now()
@@ -46,13 +50,23 @@ export async function runProgram(raw: InvestigationProgram, host: ProgramHost) {
     )
       throw Error('program-document-changed')
   }
-  const bind = async (name: string) => {
+  const bind = async (name: string, explicitResultBinding = false) => {
     const target = program.targets.find((t) => t.name === name)!
+    if (
+      target.binding === 'post-action' &&
+      (!resultsBound || (!explicitResultBinding && !handles.has(name)))
+    ) {
+      bindingIssues.set(name, 'result-not-bound')
+      return null
+    }
     const count = await host.page.evaluate(
       (s) => document.querySelectorAll(s).length,
       target.selector,
     )
-    if (count !== 1) return null
+    if (count !== 1) {
+      bindingIssues.set(name, count === 0 ? 'target-missing' : 'target-ambiguous')
+      return null
+    }
     let h = handles.get(name)
     if (!h) {
       h =
@@ -66,8 +80,11 @@ export async function runProgram(raw: InvestigationProgram, host: ProgramHost) {
         (e, s) => e.isConnected && document.querySelector(s) === e,
         target.selector,
       ))
-    )
+    ) {
+      bindingIssues.set(name, h ? 'target-replaced-or-detached' : 'target-unavailable')
       return null
+    }
+    bindingIssues.delete(name)
     return h
   }
   try {
@@ -77,13 +94,39 @@ export async function runProgram(raw: InvestigationProgram, host: ProgramHost) {
         op: step.op,
         at: Date.now(),
         detail:
-          step.op === 'measure' ? step.name : step.op === 'wait' ? String(step.ms) : step.type,
+          step.op === 'measure'
+            ? step.name
+            : step.op === 'wait'
+              ? String(step.ms)
+              : step.op === 'bind_results'
+                ? 'current public result nodes'
+                : step.type,
       })
-      if (step.op === 'measure') {
+      if (step.op === 'bind_results') {
+        resultsBound = true
+        for (const target of program.targets.filter((t) => t.binding === 'post-action')) {
+          // Explicit, recorded rebinding applies only to declared result slots. Node targets retain identity.
+          await handles.get(target.name)?.dispose()
+          handles.delete(target.name)
+          const handle = await bind(target.name, true)
+          const facts = handle ? await measureElement(handle) : unknownMeasurement()
+          resultBindings.push({
+            target: target.name,
+            selector: target.selector,
+            text: typeof facts.text === 'string' ? facts.text : null,
+          })
+        }
+      } else if (step.op === 'measure') {
         const measured: Samples[string] = {}
         for (const t of program.targets) {
           const h = await bind(t.name)
           measured[t.name] = h ? await measureElement(h) : unknownMeasurement()
+          if (!h)
+            targetIssues.push({
+              sample: step.name,
+              target: t.name,
+              reason: bindingIssues.get(t.name) ?? 'target-unavailable',
+            })
         }
         const shot = await host.screenshot()
         await check()
@@ -144,6 +187,8 @@ export async function runProgram(raw: InvestigationProgram, host: ProgramHost) {
     startedAt,
     finishedAt: Date.now(),
     assertions: evaluated.assertions,
+    targetIssues,
+    resultBindings,
     verdict: error || !host.clean() ? ('unknown' as const) : evaluated.verdict,
     ...(error ? { error } : {}),
     scope:

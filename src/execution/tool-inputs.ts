@@ -1,35 +1,7 @@
 import { z } from 'zod'
-import { interactionVerificationInput } from './interaction-verification.ts'
 import { hypothesisTriggers } from './task-state.ts'
 
-export const actionInput = z.object({
-  type: z.enum(['click', 'probe', 'fill', 'navigate', 'scroll']),
-  verify: interactionVerificationInput
-    .optional()
-    .describe(
-      'UI checks: bounded post-action measurement grounded in public evidence. An action receipt alone does not verify an interaction.',
-    ),
-  ref: z
-    .string()
-    .max(40)
-    .optional()
-    .describe(
-      'The element ref this action targets, as the last observation listed it. Naming it ties the action to the exact control that observation offered.',
-    ),
-  role: z.string().optional(),
-  name: z.string().optional(),
-  nth: z
-    .number()
-    .int()
-    .min(0)
-    .optional()
-    .describe('0-based index when multiple elements match the same role+name'),
-  selector: z.string().optional(),
-  visualDescription: z.string().optional(),
-  value: z.string().optional(),
-  url: z.string().optional(),
-  scrollY: z.number().min(-1000).max(1000).optional(),
-})
+export { actionInput } from './action-input.ts'
 
 export const journeyInput = z.object({ journeyId: z.string(), revision: z.literal('1') })
 
@@ -91,6 +63,19 @@ export const findingInput = z.object({
 })
 
 export const explorationInput = z.object({
+  sourceCandidates: z
+    .array(
+      z
+        .object({
+          itemId: z.string(),
+          sourceRef: z.string().max(120),
+          sourceSpan: z.tuple([z.number().int().min(0), z.number().int().min(1)]),
+          sourceHash: z.string().regex(/^[a-f0-9]{64}$/),
+        })
+        .strict(),
+    )
+    .max(12)
+    .optional(),
   state: z.string(),
   unexploredBranches: z.array(
     z.object({ description: z.string(), trigger: z.enum(hypothesisTriggers) }),

@@ -1,0 +1,58 @@
+{
+  "schemaVersion": "r1-exploration-input-1",
+  "requestId": "V01",
+  "task": {
+    "goal": "Check this page and the UI interactions within the permitted scope, and report grounded problems and unverified scope.",
+    "localTask": "Public bounded inspection Reveal Unrelated stable text",
+    "revision": "url-scan-default-4"
+  },
+  "state": {
+    "pageId": "s1",
+    "url": "http://127.0.0.1:54599/",
+    "documentVersion": "unknown-live-document",
+    "observationVersion": "observation:631ec61cbedd66f6319bd39127eb9b154c97d9c08b486f937de6ee7380a01436",
+    "relatedStateVersion": "prefix:0ee9a53e9d972c3166b413d49057b3e15e9dae43b9e54e5058f34a6dd8d6ff36",
+    "cacheable": false
+  },
+  "candidates": [
+    {
+      "id": "item-7dcf4768-55aa-4d44-a1a5-4b6b7bb79e3d",
+      "targetKey": "item-7dcf4768-55aa-4d44-a1a5-4b6b7bb79e3d",
+      "observationVersion": "observation:631ec61cbedd66f6319bd39127eb9b154c97d9c08b486f937de6ee7380a01436",
+      "text": "Reveal",
+      "role": "button",
+      "publicState": {
+        "visible": true,
+        "enabled": true,
+        "expanded": null,
+        "selected": null
+      },
+      "geometry": null,
+      "context": "{\"bindingAuthorization\":\"unknown-until-live-validation\",\"blockedPoints\":0,\"category\":\"local-interaction\",\"costUpperBoundUsd\":\"unknown\",\"estimatedCostUnit\":\"one-atomic-tool-call-effort\",\"fillNotRepresentableInR1PublicActions\":false,\"hitTestLimit\":\"Raw request has blockedPoints, not exact sample relations; not reconstructed.\",\"nativeAction\":\"click\",\"observedHitTests\":{\"relations\":{},\"sampleCount\":0},\"permissions\":{\"businessWrites\":\"none\",\"origin\":\"http://127.0.0.1:54599\",\"scope\":{\"maxDepth\":1,\"maxPages\":3},\"session\":\"anonymous\"},\"r0V2\":{\"checks\":{\"effectSpecification\":\"unspecified\",\"effects\":[],\"generic\":{\"eventIds\":[],\"evidenceRefs\":[],\"state\":\"pending\"},\"revision\":\"item-checks-2\",\"sourceReviewReasons\":[],\"sourceReviewState\":\"sealed\"},\"directlyExecutable\":false,\"extensionVersion\":\"r0-v2-public-state-1\",\"fullPublicState\":{\"bytes\":12249,\"path\":\"public/V01.json\",\"sha256\":\"7a71c8f9df31fa93ad86b2edd69b23527e7c2a7cb7b4233a8151bbfcc0914ecf\"}},\"ref\":\"e2\",\"remainingBudget\":{\"maxRequestMs\":60000,\"remainingActions\":20,\"remainingCostUsd\":null,\"remainingDecisions\":30,\"remainingMs\":299702,\"revision\":\"historical:88d7007c4cb40a24b348dd216e7f712fc68afa2e33d90301426ca633759a84bb\"},\"selected\":true,\"snapshotId\":\"s1\",\"status\":\"pending\"}",
+      "allowedActions": [
+        "inspect"
+      ],
+      "estimatedCost": 1
+    }
+  ],
+  "history": [],
+  "scope": {
+    "revision": "r0-v2-public-state-1",
+    "executableCandidateIds": [
+      "item-7dcf4768-55aa-4d44-a1a5-4b6b7bb79e3d"
+    ]
+  },
+  "budget": {
+    "revision": "historical:88d7007c4cb40a24b348dd216e7f712fc68afa2e33d90301426ca633759a84bb",
+    "remainingDecisions": 30,
+    "remainingActions": 20,
+    "remainingMs": 299702,
+    "maxRequestMs": 60000,
+    "remainingCostUsd": null
+  },
+  "limits": {
+    "maxCandidates": 32,
+    "maxInputBytes": 32768,
+    "maxHistory": 32
+  }
+}

@@ -1,0 +1,193 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/*
+ * DataPort export workspace.
+ *
+ * Deliberately its own palette and type scale rather than a variant of the store: this is a
+ * different business with a different product, and the presentation variant (rewritten wording and
+ * option order) is the only difference a defect variant introduces.
+ */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #f3f6f4;
+  color: #1c2b25;
+  line-height: 1.55;
+}
+
+.app {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+header {
+  background: #14664a;
+  color: white;
+  padding: 14px 22px;
+  margin: -16px -16px 22px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+header h1 {
+  font-size: 1.25rem;
+  letter-spacing: 0.02em;
+}
+
+nav {
+  display: flex;
+  gap: 16px;
+}
+
+nav a {
+  color: #d7efe3;
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+
+nav a:hover {
+  color: white;
+}
+
+section h2 {
+  font-size: 1.35rem;
+  margin-bottom: 6px;
+}
+
+.muted {
+  color: #5c6f68;
+  font-size: 0.9rem;
+}
+
+fieldset {
+  border: 1px solid #cfdcd6;
+  border-radius: 8px;
+  padding: 18px;
+  margin: 18px 0;
+  background: white;
+}
+
+legend {
+  padding: 0 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.field {
+  margin-bottom: 16px;
+}
+
+.label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 6px;
+}
+
+.choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.choice {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid #cfdcd6;
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  background: #fbfdfc;
+}
+
+.choice:hover {
+  border-color: #14664a;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.btn {
+  border: none;
+  border-radius: 6px;
+  padding: 9px 18px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-primary {
+  background: #14664a;
+  color: white;
+}
+
+.btn-primary:disabled {
+  background: #9fb5ab;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background: #e4ece8;
+  color: #1c2b25;
+}
+
+.result {
+  border: 1px solid #cfdcd6;
+  border-left: 4px solid #14664a;
+  border-radius: 8px;
+  padding: 18px;
+  margin-top: 18px;
+  background: white;
+}
+
+.result h3 {
+  font-size: 1.1rem;
+  margin-bottom: 4px;
+}
+
+.notice {
+  margin: 10px 0;
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: #fdf4e3;
+  border: 1px solid #edd9b0;
+}
+
+.notice.error {
+  background: #fdecea;
+  border-color: #f3c2bc;
+}
+
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin: 14px 0;
+}
+
+.facts dt {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #5c6f68;
+}
+
+.facts dd {
+  font-weight: 600;
+}
+
+footer {
+  margin-top: 32px;
+  padding-top: 14px;
+  border-top: 1px solid #dde6e2;
+}

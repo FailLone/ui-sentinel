@@ -1,0 +1,299 @@
+{
+  "kind": "independent-exit-review",
+  "date": "2026-10-07",
+  "candidate": "26e5d91218688fc62c5287091d09d5c1cb637eb1",
+  "buildHash": "c454b0d4a6bcaf3b05c4594d7f9c33f4df597bd67d10f321ddfb25a0041b0fb4",
+  "batch": "r0-ui-diagnostic-26e5d91-10",
+  "manifestHash": "6f18e43b5dd0cea6b1601a03bd3d4b684c85fd41cee2ca48c687a0e489cb37a9",
+  "originalRawPassed": true,
+  "acceptedForFormal": false,
+  "r0Accepted": false,
+  "method": "Same agent; independent raw report/event/SQLite/artifact audit plus separate compiled-service/local-model/Chromium diagnostic. Not a second-person blind review. No production changes or paid calls in this review.",
+  "rejections": [
+    "boundary-terminal-interrupted",
+    "boundary-persistence-not-final",
+    "boundary-proof-missing",
+    "boundary-finish-not-accepted"
+  ],
+  "boundary": {
+    "runId": "run-5cc36382-2af2-436c-a2fe-25e17b8b0a56",
+    "status": "interrupted",
+    "stopReason": "reconciliation-required",
+    "businessResult": "not-applicable",
+    "persistence": {
+      "status": "not-final",
+      "issues": [],
+      "recordedStatus": "interrupted",
+      "recordedBusinessResult": "not-applicable",
+      "recordedStopReason": "reconciliation-required",
+      "readConsistency": "single-read-transaction"
+    },
+    "proofVerified": false,
+    "modelCalls": 2,
+    "actions": 0,
+    "elapsedMs": 36038,
+    "stopped": [
+      {
+        "id": "evt-5bd60968-6816-4754-bc6d-2d26fbdfbc04",
+        "runId": "run-5cc36382-2af2-436c-a2fe-25e17b8b0a56",
+        "seq": 46,
+        "type": "execution:stopped",
+        "timestamp": "2026-10-07T13:00:40.194Z",
+        "stepId": null,
+        "actionId": null,
+        "payload": {
+          "reason": "reconciliation-required",
+          "error": "model-stream-incomplete:length",
+          "sideEffectPending": true,
+          "task": {
+            "goal": "Inspect the catalog UI and its controls within the allowed scope. Report evidence-backed issues and anything left unverified.",
+            "hypotheses": [],
+            "conditions": [
+              {
+                "trigger": "payment-success",
+                "applicability": "pending"
+              },
+              {
+                "trigger": "payment-rejected",
+                "applicability": "pending"
+              },
+              {
+                "trigger": "business-success",
+                "applicability": "pending"
+              },
+              {
+                "trigger": "business-rejected",
+                "applicability": "pending"
+              },
+              {
+                "trigger": "retryable-failure",
+                "applicability": "pending"
+              },
+              {
+                "trigger": "overlay-present",
+                "applicability": "pending"
+              }
+            ],
+            "unexploredBranches": []
+          }
+        },
+        "evidenceRefs": []
+      }
+    ]
+  },
+  "diagnosticRows": [
+    {
+      "sampleId": "healthy-catalog",
+      "runId": "run-9ae1b869-35e1-4dd9-8fc2-654f2234b330",
+      "rawPassed": true,
+      "independentExitAccepted": true
+    },
+    {
+      "sampleId": "overlay-healthy",
+      "runId": "run-39670729-9887-4880-a999-ccc9581b02f0",
+      "rawPassed": true,
+      "independentExitAccepted": true
+    },
+    {
+      "sampleId": "overlay-defect",
+      "runId": "run-1bef0736-98d9-4210-936f-68c8a949f125",
+      "rawPassed": true,
+      "independentExitAccepted": true
+    },
+    {
+      "sampleId": "dom-healthy",
+      "runId": "run-d9335fd8-6249-42a4-841c-657341e21b0d",
+      "rawPassed": true,
+      "independentExitAccepted": true
+    },
+    {
+      "sampleId": "dom-investigation-defect",
+      "runId": "run-f55206b4-fcda-4bb9-8e58-96252a7377bc",
+      "rawPassed": true,
+      "independentExitAccepted": true
+    },
+    {
+      "sampleId": "boundary-diagnostic",
+      "runId": "run-5cc36382-2af2-436c-a2fe-25e17b8b0a56",
+      "rawPassed": true,
+      "independentExitAccepted": false
+    }
+  ],
+  "probeObservations": [
+    {
+      "mode": "clean-finish",
+      "runId": "run-6b541ced-94ae-4db2-bb5a-66be929afe0a",
+      "status": "blocked",
+      "stopReason": "blocked",
+      "persistence": {
+        "status": "verified",
+        "issues": [],
+        "recordedStatus": "blocked",
+        "recordedBusinessResult": "not-applicable",
+        "recordedStopReason": "blocked",
+        "readConsistency": "single-read-transaction"
+      },
+      "proofVerified": true,
+      "coverage": "partial",
+      "calls": 1,
+      "reachedWrites": []
+    },
+    {
+      "mode": "clean-length",
+      "runId": "run-e48b6d0f-8b78-4b46-b8e0-f3f7b6421c35",
+      "status": "execution-error",
+      "stopReason": "execution-error",
+      "persistence": {
+        "status": "not-final",
+        "issues": [],
+        "recordedStatus": "execution-error",
+        "recordedBusinessResult": "not-applicable",
+        "recordedStopReason": "execution-error",
+        "readConsistency": "single-read-transaction"
+      },
+      "proofVerified": false,
+      "coverage": "partial",
+      "calls": 2,
+      "reachedWrites": []
+    },
+    {
+      "mode": "denied-finish",
+      "runId": "run-3ec3db6a-7f1a-496f-964e-95a28124162a",
+      "status": "blocked",
+      "stopReason": "blocked",
+      "persistence": {
+        "status": "verified",
+        "issues": [],
+        "recordedStatus": "blocked",
+        "recordedBusinessResult": "not-applicable",
+        "recordedStopReason": "blocked",
+        "readConsistency": "single-read-transaction"
+      },
+      "proofVerified": true,
+      "coverage": "partial",
+      "calls": 1,
+      "reachedWrites": []
+    },
+    {
+      "mode": "denied-length",
+      "runId": "run-3acc7fcf-711f-4038-a2ac-1987193e5959",
+      "status": "interrupted",
+      "stopReason": "reconciliation-required",
+      "persistence": {
+        "status": "not-final",
+        "issues": [],
+        "recordedStatus": "interrupted",
+        "recordedBusinessResult": "not-applicable",
+        "recordedStopReason": "reconciliation-required",
+        "readConsistency": "single-read-transaction"
+      },
+      "proofVerified": false,
+      "coverage": "partial",
+      "calls": 1,
+      "reachedWrites": []
+    },
+    {
+      "mode": "after-denied-clean",
+      "runId": "run-0b0bf30f-656f-40ec-93dc-6edf43d7f349",
+      "status": "interrupted",
+      "stopReason": "reconciliation-required",
+      "persistence": {
+        "status": "not-final",
+        "issues": [],
+        "recordedStatus": "interrupted",
+        "recordedBusinessResult": "unknown",
+        "recordedStopReason": "reconciliation-required",
+        "readConsistency": "single-read-transaction"
+      },
+      "proofVerified": false,
+      "coverage": "not-started",
+      "calls": 0,
+      "reachedWrites": []
+    }
+  ],
+  "evidence": [
+    {
+      "path": "/Users/xietian/.codex/worktrees/r0-independent-acceptance/ui-sentinel/data/r0-url-campaign/r0-ui-diagnostic-26e5d91-10/manifest.json",
+      "sha256": "3199424b19bf2017497329fe7df0aa499489f0ced375387a9d334fb281a04a2a"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r0-independent-acceptance/ui-sentinel/data/r0-url-campaign/r0-ui-diagnostic-26e5d91-10/summary.json",
+      "sha256": "d2be6e9b24f83fe7ad314d5c12ba520781c4a76dd6c2fe7c98cba8d4f0d31928"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r0-independent-acceptance/ui-sentinel/data/r0-url-campaign/r0-ui-diagnostic-26e5d91-10/row-6/report.json",
+      "sha256": "edb73ace223ab18e3a91c2b4969f5cb0ea3e087885531692a9183f3ebe9432c5"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r0-independent-acceptance/ui-sentinel/data/r0-url-campaign/r0-ui-diagnostic-26e5d91-10/row-6/runs.db",
+      "sha256": "ed36bc1676aef64af6905cfaccff3ea22c63a24a10f0fb543b80c70ec8520a59"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r0-independent-acceptance/ui-sentinel/data/r0-url-campaign/r0-ui-diagnostic-26e5d91-10/row-6/page-requests.json",
+      "sha256": "071d8d9eeb668104d845bc8323cffd01621ee7d57e595dc478b8e1cab9e0ba0c"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r0-independent-acceptance/ui-sentinel/data/r0-url-campaign/r0-ui-diagnostic-26e5d91-10/independent-archive-audit.json",
+      "sha256": "62e475624f466ec0bcc2137ef90082b6caeb5ebd1f14c6c7e9a2687df5fc1a8e"
+    },
+    {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-state-contract/2026-10-07T13-20-10-910Z/identity.json",
+      "sha256": "b337abd809063f39c38096c663f7e95b0bac21b5ac18ab27b302236d8a01dc69"
+    },
+    {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-state-contract/2026-10-07T13-20-10-910Z/observations.json",
+      "sha256": "98f6f7bf5b99a581e0d3bba02e467e47513c02bfebd52a68354336bdd44d5220"
+    },
+    {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-state-contract/2026-10-07T13-20-10-910Z/runs.db",
+      "sha256": "a361ed100eb1569686e7e7a0443abbb442e491c2ffcdc719276efe6f7450ff61"
+    },
+    {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-state-contract/2026-10-07T13-20-10-910Z/after-denied-clean-report.json",
+      "sha256": "d52f0c6e15ddf65ce074b4783c61af417fbb9d8f54234fce3d9846a3574086c2"
+    },
+    {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-state-contract/2026-10-07T13-20-10-910Z/clean-finish-report.json",
+      "sha256": "c4e01ee458a8bd4d350474c998170385f80782a7b14fefdd165d327cc231e572"
+    },
+    {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-state-contract/2026-10-07T13-20-10-910Z/clean-length-report.json",
+      "sha256": "73f8cf870b72b75b0abba9fd2cc428b8fd0c0822666a5e1b60fced9c8004db75"
+    },
+    {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-state-contract/2026-10-07T13-20-10-910Z/denied-finish-report.json",
+      "sha256": "c2ee0f8ca2892f831e1a36ba69484a0652c74303268f049b90401896898d355e"
+    },
+    {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-state-contract/2026-10-07T13-20-10-910Z/denied-length-report.json",
+      "sha256": "23d3f8320c843c10ad4a10930a76ad41d59a47e53e7550eb73aa491edabde04d"
+    }
+  ],
+  "cost": {
+    "newLedgerKnownUsd": 1.5469479599999993,
+    "oldLedgerKnownUsd": 0.0372246,
+    "totalKnownUsd": 1.58417256,
+    "unknownCount": 0,
+    "newPaidRequestsDuringReview": 0
+  },
+  "nextAutomaticPaidBatchAllowed": false,
+  "policy": "Submit root-cause analysis before any repeated-root patch plus full campaign rerun; retain all prior scores, failures and not-run rows.",
+  "analysisValidation": {
+    "typecheck": {
+      "command": "pnpm typecheck",
+      "exitCode": 0
+    },
+    "format": {
+      "command": "pnpm exec biome format scripts/validation/r0-state-contract-probe.ts plans/evidence/r0-c10-state-review.json",
+      "exitCode": 0
+    },
+    "probe": {
+      "command": "pnpm exec tsx scripts/validation/r0-state-contract-probe.ts",
+      "exitCode": 0,
+      "meaning": "Diagnostic recorded, not an acceptance pass",
+      "sourceSha256": "1c863c5a1b2ba0b7e14d70c148c164232a6eb892cb1246be634b20d8cf39bb27"
+    },
+    "referencedEvidenceHashesVerified": true,
+    "productionCodeChanged": false
+  }
+}

@@ -1,0 +1,117 @@
+[
+  {
+    "stateId": "V01",
+    "sourceMode": "workbench",
+    "turn": 0,
+    "rationale": "one selected generic obligation",
+    "responseSeq": 80,
+    "actualSubsequentToolCalls": [
+      {
+        "tool": "page_act",
+        "args": {
+          "type": "click",
+          "ref": "e2"
+        }
+      }
+    ],
+    "evaluationLabel": "historical deterministic choice, not optimality truth; never include in advice inputs"
+  },
+  {
+    "stateId": "V02",
+    "sourceMode": "more-than-three",
+    "turn": 0,
+    "rationale": "observed controls before fixed selection",
+    "responseSeq": 52,
+    "actualSubsequentToolCalls": [
+      {
+        "tool": "exploration_update",
+        "args": {
+          "state": "fixed public sample",
+          "unexploredBranches": [],
+          "selectItems": [
+            {
+              "itemId": "item-9e4cea0f-9acc-405b-91f2-66fc75f421de",
+              "basis": "first three observed local controls"
+            },
+            {
+              "itemId": "item-3384edb5-d7a8-45b8-8a97-ddd799a291a0",
+              "basis": "first three observed local controls"
+            },
+            {
+              "itemId": "item-033a20ec-9c58-488f-ac3d-bf1612519380",
+              "basis": "first three observed local controls"
+            }
+          ]
+        }
+      }
+    ],
+    "evaluationLabel": "historical deterministic choice, not optimality truth; never include in advice inputs"
+  },
+  {
+    "stateId": "V03",
+    "sourceMode": "more-than-three",
+    "turn": 1,
+    "rationale": "three frozen selected obligations",
+    "responseSeq": 121,
+    "actualSubsequentToolCalls": [
+      {
+        "tool": "page_act",
+        "args": {
+          "type": "click",
+          "ref": "e2"
+        }
+      }
+    ],
+    "evaluationLabel": "historical deterministic choice, not optimality truth; never include in advice inputs"
+  },
+  {
+    "stateId": "V04",
+    "sourceMode": "native",
+    "turn": 1,
+    "rationale": "one concluded local item and one pending native item",
+    "responseSeq": 159,
+    "actualSubsequentToolCalls": [
+      {
+        "tool": "page_act",
+        "args": {
+          "type": "fill",
+          "ref": "e18",
+          "value": "b"
+        }
+      }
+    ],
+    "evaluationLabel": "historical deterministic choice, not optimality truth; never include in advice inputs"
+  },
+  {
+    "stateId": "V05",
+    "sourceMode": "explicit-unfinished",
+    "turn": 1,
+    "rationale": "generic collected, required effect unfinished",
+    "responseSeq": 100,
+    "actualSubsequentToolCalls": [
+      {
+        "tool": "run_finish",
+        "args": {
+          "reason": "unverified-scope"
+        }
+      }
+    ],
+    "evaluationLabel": "historical deterministic choice, not optimality truth; never include in advice inputs"
+  },
+  {
+    "stateId": "V06",
+    "sourceMode": "late-source",
+    "turn": 1,
+    "rationale": "late public source, requirement remains unfinished",
+    "responseSeq": 100,
+    "actualSubsequentToolCalls": [
+      {
+        "tool": "run_finish",
+        "args": {
+          "reason": "unverified-scope"
+        }
+      }
+    ],
+    "evaluationLabel": "historical deterministic choice, not optimality truth; never include in advice inputs"
+  }
+]

@@ -1,3 +1,6 @@
+import { summary as checkSummary } from '../../execution/default-check-runtime.ts'
+import type { ItemChecks } from '../../inspection/check-contract.ts'
+import { samplingFrames } from '../../inspection/sampling-history.ts'
 import { verifyUiContractSnapshot, type UiContractSnapshot } from '../../inspection/contract.ts'
 import { inspectionHistoryIssues } from '../../inspection/proof-history.ts'
 import { resolveRunKind } from '../../inspection/run-kind.ts'
@@ -23,6 +26,15 @@ import type { Run, RunEvent } from '../../shared/types.ts'
 export type UiCoverage = 'covered' | 'partial' | 'not-started'
 
 export interface UiScanReport {
+  readonly reportRevision?: 'ui-check-report-2'
+  readonly checkCounts?: {
+    effectUnspecifiedCount: number
+    requiredEffectPendingCount: number
+    genericIncompleteCount: number
+    requiredEffectVerifiedCount: number
+    requiredEffectFailedCount: number
+    sourceUnresolvedCount: number
+  }
   readonly kind: 'ui-scan'
   readonly businessResult: 'not-applicable'
   readonly contract: {
@@ -34,6 +46,10 @@ export interface UiScanReport {
     readonly origin: string
     readonly goal: string
     readonly goalSource: 'user' | 'default'
+    readonly requestedGoal?: string
+    readonly checkPolicy?: UiContractSnapshot['checkPolicy']
+    readonly requiredChecks?: UiContractSnapshot['requiredChecks']
+    readonly samplingPolicy?: UiContractSnapshot['samplingPolicy']
     readonly session: 'anonymous'
     readonly scope: { readonly maxPages: number; readonly maxDepth: number }
     readonly access: {
@@ -47,9 +63,11 @@ export interface UiScanReport {
     readonly policyRevision: string
   }
   readonly inspection: {
+    readonly sampling?: ReturnType<typeof samplingFrames>
     readonly coverage: UiCoverage
     readonly counts: ReturnType<ReturnType<typeof projectInspectionScope>['snapshot']>['counts']
     readonly items: readonly {
+      readonly checks?: ReturnType<typeof checkSummary>
       readonly itemId: string
       readonly category: string
       readonly url: string
@@ -97,6 +115,7 @@ export function uiScanSummary(
   run: Run,
   events: readonly RunEvent[],
   readable?: ReadonlySet<string>,
+  additionalIssues: readonly string[] = [],
 ): UiScanReport | undefined {
   const resolved = resolveRunKind(run.spec)
   if (resolved.kind !== 'ui-scan') return undefined
@@ -106,7 +125,8 @@ export function uiScanSummary(
   const snapshot = scope.snapshot()
   const accepted = [...events].reverse().find((e) => e.type === 'finish:accepted')
   const proof = (accepted?.payload.inspectionProof as InspectionProof | undefined) ?? null
-  const proofVerified = inspectionHistoryIssues(run, events, readable).length === 0
+  const proofVerified =
+    additionalIssues.length === 0 && inspectionHistoryIssues(run, events, readable).length === 0
   const finishReasonCode = (accepted?.payload.reasonCode as string | undefined) ?? null
 
   const coverage: UiCoverage =
@@ -127,6 +147,52 @@ export function uiScanSummary(
     }))
 
   return {
+    ...(contract.checkPolicy
+      ? {
+          reportRevision: 'ui-check-report-2' as const,
+          checkCounts: {
+            effectUnspecifiedCount: snapshot.items.filter(
+              (i) =>
+                i.selected &&
+                i.checks?.sourceReview.state === 'sealed' &&
+                i.checks.effects.length === 0,
+            ).length,
+            requiredEffectPendingCount:
+              snapshot.items.filter(
+                (i) =>
+                  i.selected &&
+                  i.basis.startsWith('public-required:') &&
+                  ['pending', 'unverified'].includes(i.status) &&
+                  !events.some(
+                    (e) =>
+                      e.type === 'scope:required-bound' && e.payload.requiredItemId === i.itemId,
+                  ),
+              ).length +
+              snapshot.items
+                .flatMap((i) => (i.selected ? (i.checks?.effects ?? []) : []))
+                .filter((e) => ['pending', 'unverified'].includes(e.state)).length,
+            genericIncompleteCount: snapshot.items.filter(
+              (i) =>
+                i.selected && i.checks && !['collected', 'failed'].includes(i.checks.generic.state),
+            ).length,
+            requiredEffectVerifiedCount: snapshot.items
+              .flatMap((i) => (i.selected ? (i.checks?.effects ?? []) : []))
+              .filter((e) => e.state === 'verified').length,
+            requiredEffectFailedCount: snapshot.items
+              .flatMap((i) => (i.selected ? (i.checks?.effects ?? []) : []))
+              .filter((e) => e.state === 'failed').length,
+            sourceUnresolvedCount:
+              snapshot.items.filter(
+                (i) =>
+                  i.basis === 'default-checks:goal-source-registration' &&
+                  ['pending', 'unverified'].includes(i.status),
+              ).length +
+              snapshot.items.filter(
+                (i) => i.selected && i.checks?.sourceReview.state !== 'sealed' && i.checks,
+              ).length,
+          },
+        }
+      : {}),
     kind: 'ui-scan',
     businessResult: 'not-applicable',
     contract: {
@@ -137,6 +203,11 @@ export function uiScanSummary(
       origin: contract.origin,
       goal: contract.goal,
       goalSource: contract.goalSource,
+      ...(contract.checkPolicy
+        ? { checkPolicy: contract.checkPolicy, requestedGoal: contract.requestedGoal }
+        : {}),
+      ...(contract.requiredChecks === undefined ? {} : { requiredChecks: contract.requiredChecks }),
+      ...(contract.samplingPolicy ? { samplingPolicy: contract.samplingPolicy } : {}),
       session: contract.session,
       scope: contract.scope,
       access: contract.access,
@@ -147,9 +218,11 @@ export function uiScanSummary(
       policyRevision: contract.policyRevision,
     },
     inspection: {
+      ...(contract.samplingPolicy ? { sampling: samplingFrames(events, snapshot) } : {}),
       coverage,
       counts: snapshot.counts,
       items: snapshot.items.map((item) => ({
+        ...(item.checks ? { checks: checkSummary(item.checks) } : {}),
         itemId: item.itemId,
         category: item.category,
         url: item.url,

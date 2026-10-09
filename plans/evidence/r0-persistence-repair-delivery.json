@@ -1,0 +1,390 @@
+{
+  "schemaVersion": 1,
+  "outcome": "bounded-diagnostic-capability-delivered; original-fault-not-closed",
+  "date": "2026-10-09",
+  "productCandidate": "5f41285b69c83387af76e5b85d3657d19fb0761d",
+  "diagnosticCandidate": "a3aa1bc61a76cf8d73064655b627f13141db4583",
+  "originalPersistenceFaultClosed": false,
+  "specificCausalProductDefectProven": false,
+  "productRepairApplied": false,
+  "srcChanged": false,
+  "productStorageOrCompletionChanged": false,
+  "realModelCalls": 0,
+  "newPaidCostUsd": 0,
+  "paidAcceptanceResumed": false,
+  "originalFailurePreserved": true,
+  "originalRunId": "run-effb12fc-bab6-4814-a1b4-a407ae4bda9e",
+  "originalSource": "data/r0-effect-exploration/verified-final-2026-10-08T14-39-34-880Z",
+  "originalPriorArchive": "data/r0-effect-exploration/r0-effect-exploration-all-evidence.tar.gz",
+  "originalCopiedScene": {
+    "path": "data/r0-persistence-repair/original-copy/copy-audit.json",
+    "bytes": 2821,
+    "sha256": "caecb35e4dade802c97b706c07b378bfc4e5279a8adf900b16af263f26ea2039"
+  },
+  "firstMissingLink": "post-action screenshot file -> artifacts INSERT acknowledgment/visibility -> subsequent events/terminal/error closeout",
+  "historicalCauseLimit": "original runtime connection, transaction, file-identity and WAL/SHM metadata unavailable; current copied main database alone cannot settle it",
+  "diagnosticEntrypoint": "scripts/validation/persistence-diagnosis.ts",
+  "preload": "scripts/validation/support/persistence-trace-hook.mjs",
+  "diagnosticCore": "scripts/validation/support/persistence-trace.ts",
+  "defaultEnabled": false,
+  "observedFields": [
+    "pid/thread/session",
+    "clientId/callId/native connectionId",
+    "normalized actual main database path",
+    "open and observed dev/ino,size,mtime",
+    "main/WAL/SHM",
+    "before/after transaction state",
+    "SQL shape hash and controlled record identity",
+    "changes",
+    "native SQL return versus client promise return",
+    "fresh query-only native observation per read-back event seq, observer transaction state",
+    "hashed bounded row projection"
+  ],
+  "notLogged": [
+    "SQL parameter values",
+    "full SQL text",
+    "user content",
+    "credentials"
+  ],
+  "diagnosticBounds": {
+    "maxRecordsDefault": 4000,
+    "maxRecordsAllowed": 10000,
+    "pendingTargetWindow": 32,
+    "captures": 1,
+    "capturePreflightBytes": 33554432,
+    "rawFileCopyAtomic": false,
+    "captureMeaning": "raw live file set; metadata before/after recorded; no requested checkpoint, not an atomic or guaranteed-complete SQLite snapshot",
+    "apiRunsPerInvocation": 1,
+    "pauseTimeoutMs": 10000,
+    "groupTimeoutMs": 70000,
+    "autoRetry": false
+  },
+  "mechanismExperiments": [
+    {
+      "hypothesis": "H1-uncommitted-or-rollback",
+      "control": "real BEGIN/INSERT then COMMIT or ROLLBACK in temporary database",
+      "detectorVerified": true,
+      "originalCauseProven": false
+    },
+    {
+      "hypothesis": "H2-stale-reader-snapshot",
+      "control": "real WAL reader transaction pinned before another writer commit",
+      "detectorVerified": true,
+      "originalCauseProven": false
+    },
+    {
+      "hypothesis": "H3-file-identity-split",
+      "control": "temporary database renamed/replaced; old connection/new path readers differ",
+      "detectorVerified": true,
+      "originalCauseProven": false
+    },
+    {
+      "hypothesis": "H4-zero-update",
+      "control": "missing-row UPDATE returns changes=0",
+      "detectorVerified": true,
+      "originalCauseProven": false
+    },
+    {
+      "hypothesis": "H5-client-versus-commit",
+      "control": "real client batch SQL/commit/promise correlated",
+      "detectorVerified": true,
+      "originalCauseProven": false
+    },
+    {
+      "hypothesis": "detector-controlled-same-file-loss",
+      "control": "test-only deletion between SQL-returned-row observation and independent read",
+      "firstMismatchCaptured": true,
+      "WALAndSHMPreserved": true,
+      "originalCauseProven": false
+    }
+  ],
+  "verification": {
+    "finalSelfCheck": {
+      "path": "data/r0-persistence-repair/self-check-2026-10-08T16-23-54-159Z/tests.json",
+      "bytes": 3410,
+      "sha256": "b6f2c68dab48e9b3a8d42746293c330bfd0cbee6cd8f5d637d58582edcbd5e04"
+    },
+    "selfCheckPassed": 8,
+    "selfCheckFailed": 0,
+    "selfCheckReuse": "core and test byte-identical between6454966 and a3aa1bc; later only CLI/preload contention synchronization changed",
+    "browserApiCases": [
+      {
+        "evidenceRoot": "data/r0-effect-exploration/persistence-capture-2026-10-08T16-23-41-097Z",
+        "runId": "run-384237f7-859e-4e61-a521-96064904f2dd",
+        "status": "completed",
+        "actions": 1,
+        "events": 93,
+        "artifactRows": 14,
+        "allArtifactsReadable": true,
+        "reportMatchesIndependentDatabase": true,
+        "proofVerified": true,
+        "dbIntegrity": "ok",
+        "compiledServerSha256": "deb30d8ef620a8f577e1f8156f0d3f65de8111e3291754bfd11f1a6162e16649"
+      },
+      {
+        "evidenceRoot": "data/r0-effect-exploration/persistence-capture-2026-10-08T16-29-53-373Z",
+        "runId": "run-07d4ac3f-ef32-4395-999a-e3cabf5b52e4",
+        "status": "completed",
+        "actions": 1,
+        "events": 93,
+        "artifactRows": 14,
+        "allArtifactsReadable": true,
+        "reportMatchesIndependentDatabase": true,
+        "proofVerified": true,
+        "dbIntegrity": "ok",
+        "compiledServerSha256": "deb30d8ef620a8f577e1f8156f0d3f65de8111e3291754bfd11f1a6162e16649"
+      }
+    ],
+    "traceAudits": [
+      {
+        "path": "data/r0-persistence-repair/api-2026-10-08T16-23-40-620Z/trace/trace-76304-0-1f1e456b-1e1a-4457-842a-23de8c47e2e7.jsonl",
+        "records": 1203,
+        "classifications": {
+          "visible-match": 181
+        },
+        "traceLimit": false,
+        "sqlWrites": 119,
+        "clientReturns": 333,
+        "connections": [
+          {
+            "seq": 2,
+            "pid": 76304,
+            "threadId": 0,
+            "session": "1f1e456b-1e1a-4457-842a-23de8c47e2e7",
+            "monotonicNs": "3018312902605166",
+            "at": "2026-10-08T16:23:41.926Z",
+            "event": "connection-open-observed",
+            "connectionId": 1,
+            "normalizedPath": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-effect-exploration/persistence-capture-2026-10-08T16-23-41-097Z/runs.db",
+            "openedIdentity": {
+              "dev": 16777233,
+              "ino": 103383598,
+              "size": 0,
+              "mtimeMs": 1791476621926.056
+            },
+            "files": {
+              "main": {
+                "dev": 16777233,
+                "ino": 103383598,
+                "size": 0,
+                "mtimeMs": 1791476621926.056
+              },
+              "wal": null,
+              "shm": null
+            },
+            "transaction": false
+          },
+          {
+            "seq": 1109,
+            "pid": 76304,
+            "threadId": 0,
+            "session": "1f1e456b-1e1a-4457-842a-23de8c47e2e7",
+            "monotonicNs": "3018313864609041",
+            "at": "2026-10-08T16:23:42.888Z",
+            "event": "connection-open-observed",
+            "connectionId": 2,
+            "normalizedPath": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-effect-exploration/persistence-capture-2026-10-08T16-23-41-097Z/runs.db",
+            "openedIdentity": {
+              "dev": 16777233,
+              "ino": 103383598,
+              "size": 167936,
+              "mtimeMs": 1791476622887.1436
+            },
+            "files": {
+              "main": {
+                "dev": 16777233,
+                "ino": 103383598,
+                "size": 167936,
+                "mtimeMs": 1791476622887.1436
+              },
+              "wal": null,
+              "shm": null
+            },
+            "transaction": false
+          }
+        ],
+        "runtime": {
+          "seq": 1,
+          "pid": 76304,
+          "threadId": 0,
+          "session": "1f1e456b-1e1a-4457-842a-23de8c47e2e7",
+          "monotonicNs": "3018312222864458",
+          "at": "2026-10-08T16:23:41.246Z",
+          "event": "trace-start",
+          "node": "v24.21.0",
+          "cwd": "/Users/xietian/Documents/ChatGPT/ui-sentinel",
+          "maxRecords": 4000,
+          "readBack": true,
+          "captureOnMismatch": true,
+          "queryBackChangesTiming": true,
+          "clientVersion": "0.18.0",
+          "clientSqliteJsSha256": "453ca868a8f8e9d87362e97ef1d2aabf2039b6afd82b92409c4fee5a5b5a98a0",
+          "nativeWrapperSha256": "cc6f0fb815d302185ba69d4f749b423dfe304add1c58d6ff687842f8c1e39152",
+          "lockfileSha256": "a83d99f740493e28ea5a0da4072cd87bf3b89f59e638970893cbc17ca6858701"
+        },
+        "unexpected": [],
+        "firstAttemptLimitation": "parallel test ended before first artifact: startup overlap only; does not exercise original failure window"
+      },
+      {
+        "path": "data/r0-persistence-repair/api-2026-10-08T16-29-52-946Z/trace/trace-77487-0-f87083de-6e06-4bad-b549-fadd899b339c.jsonl",
+        "records": 1227,
+        "classifications": {
+          "visible-match": 184
+        },
+        "traceLimit": false,
+        "sqlWrites": 119,
+        "clientReturns": 339,
+        "connections": [
+          {
+            "seq": 2,
+            "pid": 77487,
+            "threadId": 0,
+            "session": "f87083de-6e06-4bad-b549-fadd899b339c",
+            "monotonicNs": "3018684466612875",
+            "at": "2026-10-08T16:29:53.511Z",
+            "event": "connection-open-observed",
+            "connectionId": 1,
+            "normalizedPath": null,
+            "openedIdentity": null,
+            "files": {
+              "main": null,
+              "wal": null,
+              "shm": null
+            },
+            "transaction": false
+          },
+          {
+            "seq": 5,
+            "pid": 77487,
+            "threadId": 0,
+            "session": "f87083de-6e06-4bad-b549-fadd899b339c",
+            "monotonicNs": "3018685134811250",
+            "at": "2026-10-08T16:29:54.179Z",
+            "event": "connection-open-observed",
+            "connectionId": 2,
+            "normalizedPath": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-effect-exploration/persistence-capture-2026-10-08T16-29-53-373Z/runs.db",
+            "openedIdentity": {
+              "dev": 16777233,
+              "ino": 103386331,
+              "size": 0,
+              "mtimeMs": 1791476994179.1763
+            },
+            "files": {
+              "main": {
+                "dev": 16777233,
+                "ino": 103386331,
+                "size": 0,
+                "mtimeMs": 1791476994179.1763
+              },
+              "wal": null,
+              "shm": null
+            },
+            "transaction": false
+          },
+          {
+            "seq": 1140,
+            "pid": 77487,
+            "threadId": 0,
+            "session": "f87083de-6e06-4bad-b549-fadd899b339c",
+            "monotonicNs": "3018686543520375",
+            "at": "2026-10-08T16:29:55.588Z",
+            "event": "connection-open-observed",
+            "connectionId": 3,
+            "normalizedPath": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-effect-exploration/persistence-capture-2026-10-08T16-29-53-373Z/runs.db",
+            "openedIdentity": {
+              "dev": 16777233,
+              "ino": 103386331,
+              "size": 167936,
+              "mtimeMs": 1791476995587.227
+            },
+            "files": {
+              "main": {
+                "dev": 16777233,
+                "ino": 103386331,
+                "size": 167936,
+                "mtimeMs": 1791476995587.227
+              },
+              "wal": null,
+              "shm": null
+            },
+            "transaction": false
+          }
+        ],
+        "runtime": {
+          "seq": 1,
+          "pid": 77487,
+          "threadId": 0,
+          "session": "f87083de-6e06-4bad-b549-fadd899b339c",
+          "monotonicNs": "3018684464970625",
+          "at": "2026-10-08T16:29:53.509Z",
+          "event": "trace-start",
+          "node": "v24.21.0",
+          "cwd": "/Users/xietian/Documents/ChatGPT/ui-sentinel",
+          "maxRecords": 4000,
+          "readBack": true,
+          "captureOnMismatch": true,
+          "queryBackChangesTiming": true,
+          "clientVersion": "0.18.0",
+          "clientSqliteJsSha256": "453ca868a8f8e9d87362e97ef1d2aabf2039b6afd82b92409c4fee5a5b5a98a0",
+          "nativeWrapperSha256": "cc6f0fb815d302185ba69d4f749b423dfe304add1c58d6ff687842f8c1e39152",
+          "lockfileSha256": "a83d99f740493e28ea5a0da4072cd87bf3b89f59e638970893cbc17ca6858701"
+        },
+        "unexpected": [],
+        "synchronizedOverlap": {
+          "workerStart": "2026-10-08T16:29:55.309Z",
+          "workerEnd": "2026-10-08T16:29:55.494Z",
+          "release": "2026-10-08T16:29:55.321Z",
+          "artifactWritesDuringWorker": 7
+        }
+      }
+    ],
+    "parallelWorker": {
+      "path": "data/r0-persistence-repair/api-2026-10-08T16-29-52-946Z/worker-result.json",
+      "bytes": 90,
+      "sha256": "041126623509d64709649812841ec449080e6d8d467cbab9892ea95aa18fd7b8"
+    },
+    "typecheck": {
+      "path": "data/r0-persistence-repair/typecheck-barrier.log",
+      "bytes": 92,
+      "sha256": "bfa96c708c08e4d9d04e447b27e7afdb47c1b07c91b925104349515484e04134"
+    },
+    "typecheckPassed": true,
+    "defaultOff": {
+      "path": "data/r0-persistence-repair/disabled-preload.log",
+      "bytes": 20,
+      "sha256": "6b0f26193f195f7e2ec5ab380274fcb0c31411c6370c7330bed8c67ac9d8f9f6"
+    },
+    "newBrowserRuns": 2,
+    "uncontrolledFirstAttempt": "startup overlap only; parallel test ended before first artifact; retained, not counted as failure-window contention",
+    "controlledSecondAttempt": "first post-action artifact SQL paused once; worker ready then released;7 artifact writes overlapped;184 fresh read-back matches",
+    "formalResultsCombinedOrReplaced": false
+  },
+  "sourceIdentity": {
+    "path": "data/r0-persistence-repair/source-identity.json",
+    "bytes": 1197,
+    "sha256": "7f63c9c490717a2596ab63aaa4853aa1aa52e169c147e8e5e1f49b23ba8ae9a3"
+  },
+  "productBuildSha256": "deb30d8ef620a8f577e1f8156f0d3f65de8111e3291754bfd11f1a6162e16649",
+  "reusedEvidence": [
+    "5f41285:related cancellation, real fault, unknown write and terminal isolation evidence",
+    "e40a463:original durable failure/retained orphan screenshot, two prior no-reproduction cases"
+  ],
+  "allCurrentAttemptsPreserved": true,
+  "rawArchive": {
+    "path": "data/r0-persistence-repair/r0-persistence-repair-all-evidence.tar.gz",
+    "bytes": 1969657,
+    "sha256": "39932a0d95ad05aebb63e768de1fbe34375cfefcaa47a01648542b8315268f42"
+  },
+  "rawArchiveFiles": 177,
+  "rawArchiveInGit": false,
+  "otherMachineNeedsSeparateArchiveTransfer": true,
+  "nextRequiredObservation": "FIRST divergent SQL/caller acknowledgment versus fresh query-only read with same-call/connection transaction state, opened/current inode, row hash/changes and main/sidecar capture; no original replay",
+  "R1Changed": false,
+  "FiltersOrDefaultPolicyChanged": false,
+  "scorerOrHistoricalAcceptanceChanged": false,
+  "budgetOrModelChanged": false,
+  "roadmapModifiedByThisTask": false,
+  "remainingDefaultContract": "left to plan/acceptance work; not analyzed this turn",
+  "r0Acceptance": "not-passed; unchanged",
+  "handoff": "plans/r0-persistence-repair-handoff.md"
+}

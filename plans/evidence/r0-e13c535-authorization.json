@@ -1,0 +1,40 @@
+{
+  "candidate": "e13c535009695ee70c3794868224ac3842090f79",
+  "createdAt": "2026-10-07T16:54:28.667561+00:00",
+  "authorizationSource": "Current user prompt, 2026-10-08",
+  "maxTasks": 71,
+  "stages": [
+    {
+      "id": "ui-diagnostic",
+      "tasks": 6,
+      "smokeRequests": 1
+    },
+    {
+      "id": "ui-formal",
+      "tasks": 15,
+      "smokeRequests": 1
+    },
+    {
+      "id": "business-diagnostic",
+      "tasks": 5,
+      "smokeRequestsMax": 6
+    },
+    {
+      "id": "business-formal",
+      "tasks": 45,
+      "smokeRequests": 0
+    }
+  ],
+  "campaignId": "0946f830-00b6-4f46-af69-79bd2166ef9d",
+  "campaignDirectory": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-final-acceptance/2026-10-07/paid-ledger",
+  "cumulativeCeilingUsd": 20,
+  "knownBeforeUsd": 1.82777604,
+  "historicalOtherLedgerUsd": 0.0372246,
+  "protocol": "plans/r0-k45-execution-plan.md sections 1-4,6; current user prompt supersedes old candidate and authorization",
+  "stageGate": "Full pass plus raw-evidence review. Quality failures complete frozen stage; unknown costs, unknown writes, cancellation or budget stop immediately. No patch/retry/new paid batch after failure.",
+  "rebuild": false,
+  "environment": "Node 24.21.0 / pnpm 10.17.1",
+  "credentialReference": "/Users/xietian/Documents/ChatGPT/ui-sentinel/.env",
+  "workspace": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-e13c535-final/candidate",
+  "maintainerRoadmapSha256": "88a0095ac567a7b7459d0b3b75df17de1aa191d85176d7bbd0537a57590be10f"
+}

@@ -1,0 +1,10 @@
+{
+  "revision": "visual-holdout-2",
+  "purpose": "holdout",
+  "reviewedBy": "primary-agent",
+  "reviewedAt": "2026-10-06T08:30:52.295599+00:00",
+  "algorithmBaseCommit": "65f550246413d954936ac18d90a127a7500da792",
+  "reviewDocument": "plans/visual-focus-p4-plan.md",
+  "holdoutCases": ["D1", "D2", "H2"],
+  "diagnosticCases": ["D0", "H0", "H1"]
+}

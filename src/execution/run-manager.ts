@@ -1,3 +1,4 @@
+import { assertInteractionFindingProof } from './interaction-finding-proof.ts'
 import { assertProgramReceipt } from './investigation/promotion.ts'
 import { createHash } from 'node:crypto'
 import { deriveProbePoints } from './focus-geometry.ts'
@@ -372,7 +373,7 @@ export async function recordHypothesis(
      * measurement - never from agent-supplied wording. Persisted on the created event, which is
      * append-only, so a later status change cannot rewrite the class it was registered under.
      */
-    kind?: 'visual-focus' | 'program'
+    kind?: 'visual-focus' | 'program' | 'ui-interaction'
     /** The candidate a visual-focus hypothesis is bound to, for the promotion gate. */
     visualCandidateId?: string
   },
@@ -420,7 +421,10 @@ export async function recordHypothesis(
 export async function hypothesisClass(
   runId: string,
   hypothesisId: string,
-): Promise<{ kind: 'visual-focus' | 'program' | null; visualCandidateId: string | null }> {
+): Promise<{
+  kind: 'visual-focus' | 'program' | 'ui-interaction' | null
+  visualCandidateId: string | null
+}> {
   const db = getDbClient()
   const rows = await db.execute({
     sql: `SELECT payload FROM run_events WHERE run_id = ? AND type = 'hypothesis:created'`,
@@ -434,7 +438,12 @@ export async function hypothesisClass(
     }
     if (payload.hypothesisId !== hypothesisId) continue
     return {
-      kind: payload.kind === 'visual-focus' || payload.kind === 'program' ? payload.kind : null,
+      kind:
+        payload.kind === 'visual-focus' ||
+        payload.kind === 'program' ||
+        payload.kind === 'ui-interaction'
+          ? payload.kind
+          : null,
       visualCandidateId:
         typeof payload.visualCandidateId === 'string' ? payload.visualCandidateId : null,
     }
@@ -479,6 +488,25 @@ export async function assertPromotableHypothesis(
   evidenceRefs: readonly string[] = [],
 ): Promise<void> {
   const recorded = await hypothesisClass(runId, hypothesisId)
+  if (recorded.kind === 'ui-interaction') {
+    if (status !== 'supported') throw Error('interaction-finding-status-invalid')
+    const rows = await getDbClient().execute({
+      sql: 'SELECT id,type,file_path,metadata FROM artifacts WHERE run_id=?',
+      args: [runId],
+    })
+    return assertInteractionFindingProof(
+      runId,
+      await getEvents(runId),
+      rows.rows.map((r) => ({
+        id: String(r.id),
+        type: String(r.type),
+        path: String(r.file_path),
+        metadata: JSON.parse(String(r.metadata)),
+      })),
+      hypothesisId,
+      evidenceRefs,
+    )
+  }
   if (recorded.kind === 'program')
     return assertProgramReceipt(getDbClient(), runId, hypothesisId, status, evidenceRefs)
   if (recorded.kind !== 'visual-focus') return

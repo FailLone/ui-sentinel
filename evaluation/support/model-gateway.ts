@@ -1,0 +1,429 @@
+import { createServer } from 'node:http'
+import { randomBytes } from 'node:crypto'
+import { appendFile } from 'node:fs/promises'
+
+export const REVIEW_MODEL = 'typesafe/jev-1.13'
+export const AGENT_MODEL = 'deepseek/deepseek-v4.1-flash'
+export const VISION_MODEL = 'qwen/qwen3.7-plus'
+/**
+ * A conservative flat reservation for one bounded Jev review.
+ *
+ * OpenRouter's price list does not carry this model, so there is nothing to compute from. It is
+ * reserved at a fixed ceiling rather than at zero: a review that really happens must never be booked
+ * as free. One home for the number, so the paid entrypoints cannot drift apart on what a review costs.
+ */
+export const REVIEW_RESERVE_USD = 0.001344
+/**
+ * A cross-process cost ledger seam.
+ *
+ * When provided, every request reserves against the shared campaign ledger before it is sent and
+ * settles afterwards, so two processes cannot both spend the last of the balance and a reopened
+ * campaign keeps counting. Without it, the gateway falls back to its own in-process accounting, which
+ * is what the free preflights use.
+ */
+export interface GatewayLedger {
+  reserve(input: {
+    requestId: string
+    runId: string
+    phase: string
+    model: string
+    provider: string
+    reservedUsd: number
+    priceSource: string
+    stopEpoch?: number
+  }): Promise<{ ok: boolean; reason?: string }>
+  stopState(): Promise<{ epoch: number; unknownCount: number }>
+  watchStop(expectedEpoch: number, listener: (reason: string) => void): () => void
+  dispatch(
+    requestId: string,
+    expectedEpoch: number,
+    begin: () => boolean,
+  ): Promise<{ ok: boolean; reason?: string }>
+  settle(requestId: string, actualUsd: number): Promise<void>
+  markUnknown(requestId: string, reason: string): Promise<void>
+  release(requestId: string, reason: string): Promise<void>
+}
+
+export async function startGateway(
+  key: string,
+  directory: string,
+  upstreamFetch: typeof fetch = fetch,
+  spending?: {
+    limitUsd: number
+    estimateCost: (body: Record<string, unknown>) => number
+    ledger?: GatewayLedger
+    providers?: { agent: string; vision: string }
+    phase?: string
+  },
+) {
+  const token = randomBytes(24).toString('hex')
+  let active: {
+    id: string
+    limit: number
+    deadline: number
+    requests: any[]
+  } | null = null
+  const controllers = new Set<AbortController>()
+  const initialStop = await spending?.ledger?.stopState()
+  const stopEpoch = initialStop?.epoch ?? 0
+  let stopped: string | null = initialStop?.unknownCount ? 'cost-unknown' : null
+  const stop = (reason: string) => {
+    stopped ??= reason
+    for (const controller of controllers) controller.abort(new Error(stopped))
+  }
+  const unwatch = spending?.ledger?.watchStop(stopEpoch, stop)
+  let accountedUsd = 0
+  let reservedUsd = 0
+  let knownCostUsd = 0
+  let unknownReservedUsd = 0
+  let unknownCosts = 0
+  const redact = (value: string) =>
+    value.split(key).join('[redacted]').split(token).join('[local-token]')
+  const server = createServer(async (req, res) => {
+    const reply = (status: number, message: string) => {
+      res.writeHead(status, { 'content-type': 'application/json' })
+      res.end(JSON.stringify({ error: { message } }))
+    }
+    if (req.headers.authorization !== `Bearer ${token}`) return reply(401, 'Unauthorized')
+    const decisions = req.url === '/v1/decisions'
+    if ((!decisions && req.url !== '/v1/chat/completions') || req.method !== 'POST')
+      return reply(404, 'Only chat completions and decisions permitted')
+    const run = active
+    if (stopped) return reply(429, `validation-${stopped}`)
+    if (!run || run.requests.length >= run.limit || Date.now() >= run.deadline)
+      return reply(429, 'validation-budget-exhausted')
+    let body: any
+    try {
+      const chunks = []
+      for await (const chunk of req) chunks.push(chunk)
+      body = JSON.parse(Buffer.concat(chunks).toString())
+    } catch {
+      return reply(400, 'invalid JSON')
+    }
+    if (stopped) return reply(429, `validation-${stopped}`)
+    if (active !== run || run.requests.length >= run.limit || Date.now() >= run.deadline)
+      return reply(429, 'validation-budget-exhausted')
+    if (!(decisions ? [REVIEW_MODEL] : [AGENT_MODEL, VISION_MODEL]).includes(body.model))
+      return reply(400, 'Unexpected model; fallback disabled')
+    if (!decisions) {
+      // Fixed validation policy; preserve SDK-specific tool and message schemas.
+      body.max_tokens = 4096
+      delete body.max_completion_tokens
+      body.reasoning =
+        body.model === AGENT_MODEL && body.reasoning_effort !== 'none'
+          ? { effort: 'low' }
+          : { enabled: false }
+      delete body.reasoning_effort
+      const provider =
+        body.model === AGENT_MODEL
+          ? (spending?.providers?.agent ?? process.env.VALIDATION_AGENT_PROVIDER)
+          : (spending?.providers?.vision ?? process.env.VALIDATION_VISION_PROVIDER)
+      body.provider = {
+        allow_fallbacks: false,
+        require_parameters: true,
+        ...(provider ? { only: [provider] } : {}),
+      }
+      if (body.stream) body.stream_options = { include_usage: true }
+    } else {
+      if (body.stream || !body.state || !body.questions || Object.keys(body.questions).length !== 1)
+        return reply(400, 'Expected one non-streaming decision question')
+    }
+    let reservation: number
+    try {
+      reservation = spending?.estimateCost(body) ?? 0
+    } catch {
+      return reply(429, 'validation-price-unavailable')
+    }
+    if (spending && (!Number.isFinite(reservation) || reservation < 0))
+      return reply(429, 'validation-spending-limit')
+    const requestId = randomBytes(12).toString('hex')
+    if (spending && !spending.ledger) {
+      // In-process fallback for the free preflights.
+      if (accountedUsd + reservedUsd + reservation > spending.limitUsd)
+        return reply(429, 'validation-spending-limit')
+    }
+    if (spending?.ledger) {
+      let reserved
+      try {
+        reserved = await spending.ledger.reserve({
+          requestId,
+          runId: run.id,
+          phase: spending.phase ?? 'diagnostic',
+          model: body.model,
+          provider: (body.provider?.only?.[0] as string | undefined) ?? 'unknown',
+          reservedUsd: reservation,
+          priceSource: 'gateway-estimate',
+          stopEpoch,
+        })
+      } catch {
+        stop('ledger-unavailable')
+        return reply(503, 'validation-ledger-unavailable')
+      }
+      if (!reserved.ok) {
+        if (reserved.reason === 'cost-unknown' || reserved.reason === 'campaign-stopped')
+          stop(reserved.reason)
+        return reply(429, `validation-${reserved.reason ?? 'spending-limit'}`)
+      }
+    }
+    if (
+      stopped ||
+      active !== run ||
+      run.requests.length >= run.limit ||
+      Date.now() >= run.deadline ||
+      res.destroyed
+    ) {
+      await spending?.ledger?.release(requestId, 'not-sent-window-closed')
+      return reply(429, 'validation-budget-exhausted')
+    }
+    reservedUsd += reservation
+    const record: any = {
+      requestId,
+      phase: spending?.phase ?? null,
+      provider: body.provider?.only?.[0] ?? null,
+      run: run.id,
+      seq: run.requests.length + 1,
+      model: body.model,
+      startedAt: new Date().toISOString(),
+      inputBytes: Buffer.byteLength(JSON.stringify(body)),
+      status: 'pending',
+      usage: null,
+      transportComplete: false,
+      receivedBytes: 0,
+      firstStreamByteMs: null,
+      firstReasoningDeltaMs: null,
+      firstContentDeltaMs: null,
+      firstToolDeltaMs: null,
+    }
+    run.requests.push(record)
+    const start = Date.now(),
+      controller = new AbortController()
+    const downstreamClosed = () => {
+      if (!res.writableEnded) controller.abort(new Error('downstream-disconnected'))
+    }
+    res.once('close', downstreamClosed)
+    controllers.add(controller)
+    const timer = setTimeout(
+      () => controller.abort(),
+      Math.max(1, Math.min(60000, run.deadline - Date.now())),
+    )
+    let sent = false
+    const events: any[] = []
+    const decoder = new TextDecoder()
+    let pendingLine = ''
+    const acceptEvent = (event: any) => {
+      events.push(event)
+      if (event.usage)
+        record.usage = decisions
+          ? {
+              ...event.usage,
+              prompt_tokens: event.usage.input_tokens,
+              completion_tokens: event.usage.output_tokens,
+            }
+          : event.usage
+      if (event.model) record.actualModel = event.model
+      if (event.id) record.responseId = event.id
+      if (event.provider) record.provider = event.provider
+      const elapsed = Date.now() - start
+      for (const choice of event.choices ?? []) {
+        const delta = choice.delta ?? choice.message ?? {}
+        if (
+          (typeof delta.reasoning === 'string' && delta.reasoning.length > 0) ||
+          delta.reasoning_details?.some((d: any) => typeof d.text === 'string' && d.text.length > 0)
+        )
+          record.firstReasoningDeltaMs ??= elapsed
+        if (typeof delta.content === 'string' && delta.content.length > 0)
+          record.firstContentDeltaMs ??= elapsed
+        if (delta.tool_calls?.some((t: any) => t.function?.name || t.function?.arguments))
+          record.firstToolDeltaMs ??= elapsed
+      }
+    }
+    const readLines = (text: string, final = false) => {
+      const lines = (pendingLine + text).split('\n')
+      pendingLine = final ? '' : lines.pop()!
+      for (const line of lines) {
+        if (!line.startsWith('data:')) continue
+        const data = line.slice(5).trim()
+        if (!data || data === '[DONE]') continue
+        try {
+          acceptEvent(JSON.parse(data))
+        } catch {
+          // A truncated final event cannot supply usage or a valid tool call.
+        }
+      }
+    }
+    try {
+      await appendFile(
+        `${directory}/requests.jsonl`,
+        redact(JSON.stringify({ event: 'request', ...record, body })) + '\n',
+      )
+      let upstreamPromise: Promise<Response> | undefined
+      const beginDispatch = () => {
+        if (
+          stopped ||
+          active !== run ||
+          Date.now() >= run.deadline ||
+          res.destroyed ||
+          controller.signal.aborted
+        )
+          return false
+        // Synchronous initiation under the ledger write lock is the dispatch linearization point.
+        sent = true
+        record.dispatchedAt = new Date().toISOString()
+        upstreamPromise = upstreamFetch(
+          decisions
+            ? 'https://openrouter.ai/api/alpha/decisions'
+            : 'https://openrouter.ai/api/v1/chat/completions',
+          {
+            method: 'POST',
+            headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' },
+            body: JSON.stringify(body),
+            signal: controller.signal,
+          },
+        )
+        // Dispatch persistence may await I/O before the response is awaited. Observe an immediate
+        // transport rejection now, while preserving the original promise for normal accounting.
+        void upstreamPromise.catch(() => {})
+        return true
+      }
+      const admission = spending?.ledger
+        ? await spending.ledger.dispatch(requestId, stopEpoch, beginDispatch).catch((error) => {
+            stop('ledger-unavailable')
+            throw error
+          })
+        : { ok: beginDispatch() }
+      if (!admission.ok) {
+        record.status = 'not-sent'
+        record.rejection = admission.reason ?? stopped ?? 'window-closed'
+        if (admission.reason === 'cost-unknown' || admission.reason === 'campaign-stopped')
+          stop(admission.reason)
+        reply(429, `validation-${record.rejection}`)
+        return
+      }
+      const upstream = await upstreamPromise!
+      record.firstByteMs = Date.now() - start
+      record.httpStatus = upstream.status
+      const chunks: Uint8Array[] = []
+      if (body.stream)
+        res.writeHead(upstream.status, {
+          'content-type': upstream.headers.get('content-type') ?? 'application/json',
+        })
+      for await (const chunk of upstream.body!) {
+        chunks.push(chunk)
+        record.receivedBytes += chunk.byteLength
+        record.firstStreamByteMs ??= Date.now() - start
+        if (body.stream) {
+          readLines(decoder.decode(chunk, { stream: true }))
+          res.write(chunk)
+        }
+      }
+      record.transportComplete = true
+      const raw = Buffer.concat(chunks).toString()
+      // A streaming request can receive a non-SSE HTTP error; retain its diagnosis too.
+      if (!upstream.ok) record.error = redact(raw.slice(0, 4096))
+      if (!body.stream) acceptEvent(JSON.parse(raw))
+      else readLines(decoder.decode(), true)
+      record.status = upstream.ok && !events.some((e: any) => e.error) ? 'success' : 'error'
+      if (!body.stream) {
+        res.writeHead(upstream.status, { 'content-type': 'application/json' })
+        res.end(raw)
+      } else res.end()
+    } catch (error) {
+      record.status = 'error'
+      record.error = redact(String(error))
+      if (!res.destroyed) {
+        if (!res.headersSent) reply(502, 'upstream request failed; see redacted ledger')
+        else res.end()
+      }
+    } finally {
+      clearTimeout(timer)
+      res.removeListener('close', downstreamClosed)
+      if (body.stream && !record.transportComplete) readLines(decoder.decode(), true)
+      record.streamEventCount = events.length
+      record.durationMs = Date.now() - start
+      reservedUsd -= reservation
+      const cost = record.usage?.cost
+      const known = !sent || (typeof cost === 'number' && Number.isFinite(cost) && cost >= 0)
+      if (known) {
+        accountedUsd += sent ? cost! : 0
+        knownCostUsd += sent ? cost! : 0
+      } else {
+        stop('cost-unknown')
+        accountedUsd += reservation
+        unknownReservedUsd += reservation
+        unknownCosts++
+      }
+      try {
+        if (spending?.ledger) {
+          // Settle at the real cost, or keep the reservation as unknown - a provider call really
+          // happened, so it is never settled at zero.
+          if (!sent) await spending.ledger.release(requestId, 'not-sent-log-failed')
+          else if (known) await spending.ledger.settle(requestId, cost!)
+          else await spending.ledger.markUnknown(requestId, 'usage-unavailable')
+        }
+      } catch (error) {
+        stop('ledger-unavailable')
+        record.accountingError = String(error)
+        await spending?.ledger?.markUnknown(requestId, 'settlement-error').catch(() => {})
+      }
+      try {
+        // Keep received events even when cancellation/error prevents a final usage chunk.
+        await appendFile(
+          `${directory}/responses.jsonl`,
+          redact(
+            JSON.stringify({
+              requestId,
+              run: run.id,
+              seq: record.seq,
+              transportComplete: record.transportComplete,
+              events,
+            }),
+          ) + '\n',
+        )
+        await appendFile(`${directory}/ledger.jsonl`, JSON.stringify(record) + '\n')
+      } finally {
+        controllers.delete(controller)
+      }
+    }
+  })
+  await new Promise<void>((r) => server.listen(0, '127.0.0.1', r))
+  return {
+    url: `http://127.0.0.1:${(server.address() as any).port}/v1`,
+    token,
+    begin(id: string, limit = 30, durationMs = 300000) {
+      if (stopped) throw Error(`validation-${stopped}`)
+      if (active) throw Error('Previous validation run still active')
+      active = {
+        id,
+        limit,
+        deadline: Date.now() + durationMs,
+        requests: [],
+      }
+    },
+    async end() {
+      const result = active
+      active = null
+      for (const c of controllers) c.abort()
+      const until = Date.now() + 3000
+      while (controllers.size && Date.now() < until) await new Promise((r) => setTimeout(r, 20))
+      return result?.requests ?? []
+    },
+    async close() {
+      unwatch?.()
+      active = null
+      for (const c of controllers) c.abort()
+      const until = Date.now() + 5000
+      while (controllers.size && Date.now() < until) await new Promise((r) => setTimeout(r, 20))
+      server.closeAllConnections()
+      await new Promise<void>((r) => server.close(() => r()))
+    },
+    spending: () => ({
+      accountedUsd,
+      knownCostUsd,
+      unknownReservedUsd,
+      reservedUsd,
+      unknownCosts,
+      limitUsd: spending?.limitUsd ?? null,
+    }),
+    redact,
+  }
+}

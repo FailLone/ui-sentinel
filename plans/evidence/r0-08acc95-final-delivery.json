@@ -1,0 +1,877 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-08",
+  "status": "not-passed-final-delivery",
+  "r0Passed": false,
+  "candidate": "08acc95d7f67a1ac3cbcf3d9decc9add2f2907eb",
+  "freezeCommit": "bc67d7f",
+  "trees": {
+    "dist": "dc3d09736bf57fb51f646a71e97076e0c813ff3cca09e5c4926cdae5e5d27d1b",
+    "src": "5b4a1b8e0d4e6c05b060a39e6ab914980fa1e14da7126d0e63d0679c857e9f83",
+    "scripts": "484ea3af936b72a77662e7e111c3f22ea8fc6e5a2b3b09bf5e160f62c9273742"
+  },
+  "businessBuildHash": "5577c00044cddbda48ba2ee24fb849611ea6697ba053d2e3a855fd0415c352be",
+  "scorerHash": "97e85335011cbb89ee2c67fc70602ee0be46f688b36d61dfdd02bdaacc617a81",
+  "uiDiagnosticManifestHash": "44ecb6176abc6775e162bde26bcfdef9b7e141747189034a4632c21696676f1f",
+  "authorization": "plans/evidence/r0-08acc95-execution-authorization.json",
+  "executionClosed": true,
+  "stages": [
+    {
+      "name": "UI diagnostic",
+      "planned": 6,
+      "run": 3,
+      "passed": 1,
+      "qualityFailed": 2,
+      "notRun": 3,
+      "smokeRequests": 1,
+      "batch": "data/r0-08acc95-resume/candidate/data/r0-url-campaign/r0-ui-diagnostic-08acc95-default3-01"
+    },
+    {
+      "name": "UI formal",
+      "planned": 15,
+      "run": 0,
+      "notRun": 15,
+      "reason": "diagnostic exit refused"
+    },
+    {
+      "name": "Business diagnostic",
+      "planned": 5,
+      "run": 0,
+      "notRun": 5
+    },
+    {
+      "name": "Business formal",
+      "planned": 45,
+      "run": 0,
+      "notRun": 45
+    }
+  ],
+  "totalTasks": 71,
+  "totalRunTasks": 3,
+  "totalNotRunTasks": 68,
+  "paidGenerationRequests": 24,
+  "smokeGroupsRun": 1,
+  "qualityRows": [
+    {
+      "row": 1,
+      "runId": "run-1b87f757-d3b7-434f-a471-0c4e946482e1",
+      "status": "completed",
+      "proofVerified": true,
+      "persistence": {
+        "status": "verified",
+        "issues": [],
+        "recordedStatus": "completed",
+        "recordedBusinessResult": "not-applicable",
+        "recordedStopReason": "goal-reached",
+        "readConsistency": "single-read-transaction"
+      },
+      "coverage": "covered",
+      "usage": {
+        "actions": 3,
+        "modelCalls": 5,
+        "elapsedMs": 119912,
+        "modelInputTokens": 61578,
+        "modelOutputTokens": 7055
+      },
+      "remaining": [],
+      "actions": [
+        {
+          "seq": 69,
+          "type": "click",
+          "target": "button[Apply sort]",
+          "verification": {
+            "selector": "html > body:nth-of-type(1) > ul:nth-of-type(1) > li:nth-of-type(1)",
+            "condition": "text-contains",
+            "expected": "5",
+            "basis": "The page states 'Prices are numeric' and the Sort combobox shows Price selected; applying the sort should order ascending by price so the cheapest item (5 · Amber gadget) appears first."
+          }
+        },
+        {
+          "seq": 105,
+          "type": "fill",
+          "target": "combobox[Sort]",
+          "verification": {
+            "selector": "html > body:nth-of-type(1) > label:nth-of-type(1) > select:nth-of-type(1)",
+            "condition": "selected-label-equals",
+            "expected": "Name",
+            "basis": "The Sort combobox lists a 'Name' option; selecting it should make 'Name' the displayed selected option."
+          }
+        },
+        {
+          "seq": 141,
+          "type": "click",
+          "target": "link[About this catalog]",
+          "verification": null
+        }
+      ],
+      "tools": [
+        {
+          "seq": 38,
+          "tool": "page_inspect"
+        },
+        {
+          "seq": 43,
+          "tool": "element_details"
+        },
+        {
+          "seq": 46,
+          "tool": "exploration_update"
+        },
+        {
+          "seq": 55,
+          "tool": "page_act"
+        },
+        {
+          "seq": 90,
+          "tool": "page_act"
+        },
+        {
+          "seq": 126,
+          "tool": "page_act"
+        }
+      ],
+      "modelErrors": [],
+      "contractRepairCount": 0,
+      "remainingGuidanceCount": 0,
+      "closingSeqs": [
+        161
+      ],
+      "supportedFindings": []
+    },
+    {
+      "row": 2,
+      "runId": "run-2f9f51f3-a7f7-4f22-8f4d-6325de29c0ad",
+      "status": "blocked",
+      "proofVerified": true,
+      "persistence": {
+        "status": "verified",
+        "issues": [],
+        "recordedStatus": "blocked",
+        "recordedBusinessResult": "not-applicable",
+        "recordedStopReason": "blocked",
+        "readConsistency": "single-read-transaction"
+      },
+      "coverage": "partial",
+      "usage": {
+        "actions": 3,
+        "modelCalls": 11,
+        "elapsedMs": 256889,
+        "modelInputTokens": 143015,
+        "modelOutputTokens": 13836
+      },
+      "remaining": [
+        {
+          "itemId": "item-4db05551-3b79-40c5-98bb-195f1bd301a5",
+          "basis": "observed candidate: button[button] \"Filters\"",
+          "category": "local-interaction",
+          "status": "pending",
+          "reasonCode": null
+        },
+        {
+          "itemId": "item-9db23f5c-24c4-40e1-a32d-db26fa4bc36e",
+          "basis": "observed candidate: a \"About this catalog\"",
+          "category": "navigation",
+          "status": "pending",
+          "reasonCode": null
+        },
+        {
+          "itemId": "item-02d898c6-5719-4ed2-aeec-b94abaa92671",
+          "basis": "Reserved remaining budget for durable partial completion; no further exploration or model request.",
+          "category": "investigation",
+          "status": "unverified",
+          "reasonCode": "time-budget-reserve"
+        }
+      ],
+      "actions": [
+        {
+          "seq": 78,
+          "type": "fill",
+          "target": "combobox[Sort]",
+          "verification": {
+            "selector": "html > body:nth-of-type(1) > label:nth-of-type(1) > select:nth-of-type(1)",
+            "condition": "selected-label-equals",
+            "expected": "Name",
+            "basis": "The page offers a Sort select with visible options Price and Name; selecting Name should make Name the displayed selected option."
+          }
+        },
+        {
+          "seq": 121,
+          "type": "fill",
+          "target": "combobox[Sort]",
+          "verification": {
+            "selector": "html > body:nth-of-type(1) > label:nth-of-type(1) > select:nth-of-type(1)",
+            "condition": "selected-label-equals",
+            "expected": "Price",
+            "basis": "The page offers a Sort select with visible options Price and Name; choosing Price should make Price the displayed selected option, enabling a price-order application."
+          }
+        },
+        {
+          "seq": 159,
+          "type": "click",
+          "target": "button[Apply sort]",
+          "verification": {
+            "selector": "body > ul > li > span:nth-of-type(1)",
+            "condition": "numeric-ascending",
+            "basis": "The page states 'Prices are numeric' and offers a Sort select whose 'Price' option is selected; clicking the advertised 'Apply sort' button should order the listed prices numerically ascending."
+          }
+        }
+      ],
+      "tools": [
+        {
+          "seq": 41,
+          "tool": "page_inspect"
+        },
+        {
+          "seq": 46,
+          "tool": "element_details"
+        },
+        {
+          "seq": 52,
+          "tool": "exploration_update"
+        },
+        {
+          "seq": 58,
+          "tool": "page_inspect"
+        },
+        {
+          "seq": 63,
+          "tool": "page_act"
+        },
+        {
+          "seq": 100,
+          "tool": "page_inspect"
+        },
+        {
+          "seq": 105,
+          "tool": "page_act"
+        },
+        {
+          "seq": 144,
+          "tool": "page_act"
+        },
+        {
+          "seq": 181,
+          "tool": "page_observe"
+        },
+        {
+          "seq": 200,
+          "tool": "page_inspect"
+        },
+        {
+          "seq": 205,
+          "tool": "element_details"
+        },
+        {
+          "seq": 211,
+          "tool": "page_inspect"
+        }
+      ],
+      "modelErrors": [],
+      "contractRepairCount": 0,
+      "remainingGuidanceCount": 0,
+      "closingSeqs": [],
+      "supportedFindings": []
+    },
+    {
+      "row": 3,
+      "runId": "run-b512ca6c-b967-443b-825d-28503381c967",
+      "status": "blocked",
+      "proofVerified": true,
+      "persistence": {
+        "status": "verified",
+        "issues": [],
+        "recordedStatus": "blocked",
+        "recordedBusinessResult": "not-applicable",
+        "recordedStopReason": "blocked",
+        "readConsistency": "single-read-transaction"
+      },
+      "coverage": "partial",
+      "usage": {
+        "actions": 0,
+        "modelCalls": 7,
+        "elapsedMs": 269953,
+        "modelInputTokens": null,
+        "modelOutputTokens": null
+      },
+      "remaining": [
+        {
+          "itemId": "item-9245d6f9-1fdd-40da-8e16-affbcc6fa8af",
+          "basis": "observed candidate: select \"PriceName\"",
+          "category": "local-interaction",
+          "status": "pending",
+          "reasonCode": null
+        },
+        {
+          "itemId": "item-e739fb19-aa7e-44cf-af1c-7de6a0fc9219",
+          "basis": "observed candidate: button[button] \"Apply sort\"",
+          "category": "local-interaction",
+          "status": "pending",
+          "reasonCode": null
+        },
+        {
+          "itemId": "item-b366131a-776f-4b2d-92fb-d644194fcac4",
+          "basis": "observed candidate: button[button] \"Filters\"",
+          "category": "local-interaction",
+          "status": "pending",
+          "reasonCode": null
+        },
+        {
+          "itemId": "item-b264cc1f-7f67-43e8-a021-fd097ec5a17c",
+          "basis": "default-sampling:navigation",
+          "category": "investigation",
+          "status": "pending",
+          "reasonCode": null
+        },
+        {
+          "itemId": "item-b0302f3e-4481-4b8a-b6a0-c61a65e02888",
+          "basis": "Reserved remaining budget for durable partial completion; no further exploration or model request.",
+          "category": "investigation",
+          "status": "unverified",
+          "reasonCode": "time-budget-reserve"
+        }
+      ],
+      "actions": [],
+      "tools": [
+        {
+          "seq": 42,
+          "tool": "page_observe"
+        },
+        {
+          "seq": 57,
+          "tool": "page_inspect"
+        },
+        {
+          "seq": 62,
+          "tool": "element_details"
+        },
+        {
+          "seq": 68,
+          "tool": "page_inspect"
+        },
+        {
+          "seq": 73,
+          "tool": "page_inspect"
+        },
+        {
+          "seq": 75,
+          "tool": "rules_search"
+        },
+        {
+          "seq": 80,
+          "tool": "page_inspect"
+        },
+        {
+          "seq": 82,
+          "tool": "page_inspect"
+        },
+        {
+          "seq": 89,
+          "tool": "element_details"
+        }
+      ],
+      "modelErrors": [
+        {
+          "seq": 87,
+          "error": "model-request-timeout"
+        }
+      ],
+      "contractRepairCount": 0,
+      "remainingGuidanceCount": 0,
+      "closingSeqs": [],
+      "supportedFindings": [
+        {
+          "id": "finding-3f1173e5-aa63-4108-8bde-43daf2622486",
+          "ruleId": "overlay-blocking",
+          "title": "Visible action intercepted at all sampled points"
+        }
+      ]
+    }
+  ],
+  "rawArchiveAudit": {
+    "kind": "independent-archive-audit",
+    "method": "Read raw SQLite, every artifact byte, saved events and fixture request log; no production imports. This confirms archive integrity, not autonomous quality by itself.",
+    "batch": "r0-ui-diagnostic-08acc95-default3-01",
+    "results": [
+      {
+        "sample": "healthy-catalog",
+        "runId": "run-1b87f757-d3b7-434f-a471-0c4e946482e1",
+        "terminal": [
+          "completed",
+          "not-applicable",
+          "goal-reached"
+        ],
+        "artifactCount": 19,
+        "eventCount": 171,
+        "selectedUnresolved": [],
+        "hypothesisStatuses": [],
+        "supportedFindings": 0,
+        "issues": [],
+        "archiveVerified": true,
+        "complete": true
+      },
+      {
+        "sample": "overlay-healthy",
+        "runId": "run-2f9f51f3-a7f7-4f22-8f4d-6325de29c0ad",
+        "terminal": [
+          "blocked",
+          "not-applicable",
+          "blocked"
+        ],
+        "artifactCount": 27,
+        "eventCount": 227,
+        "selectedUnresolved": [
+          "item-4db05551-3b79-40c5-98bb-195f1bd301a5",
+          "item-9db23f5c-24c4-40e1-a32d-db26fa4bc36e",
+          "item-02d898c6-5719-4ed2-aeec-b94abaa92671"
+        ],
+        "hypothesisStatuses": [],
+        "supportedFindings": 0,
+        "issues": [],
+        "archiveVerified": true,
+        "complete": false
+      },
+      {
+        "sample": "overlay-defect",
+        "runId": "run-b512ca6c-b967-443b-825d-28503381c967",
+        "terminal": [
+          "blocked",
+          "not-applicable",
+          "blocked"
+        ],
+        "artifactCount": 11,
+        "eventCount": 106,
+        "selectedUnresolved": [
+          "item-9245d6f9-1fdd-40da-8e16-affbcc6fa8af",
+          "item-e739fb19-aa7e-44cf-af1c-7de6a0fc9219",
+          "item-b366131a-776f-4b2d-92fb-d644194fcac4",
+          "item-b264cc1f-7f67-43e8-a021-fd097ec5a17c",
+          "item-b0302f3e-4481-4b8a-b6a0-c61a65e02888"
+        ],
+        "hypothesisStatuses": [],
+        "supportedFindings": 1,
+        "issues": [],
+        "archiveVerified": true,
+        "complete": false
+      },
+      {
+        "sample": "dom-healthy",
+        "status": "not-run",
+        "complete": false
+      },
+      {
+        "sample": "dom-investigation-defect",
+        "status": "not-run",
+        "complete": false
+      },
+      {
+        "sample": "boundary-diagnostic",
+        "status": "not-run",
+        "complete": false
+      }
+    ],
+    "archiveVerified": false,
+    "allComplete": false
+  },
+  "factsReview": {
+    "method": "Independent read of original DB spec, timed sorting requests/snapshot values, navigation/filter facts, anomaly/healthy replay; terminal/proof and artifacts separately audited by existing tools. Current agent evidence review, no blind-Agent claim.",
+    "rows": [
+      {
+        "row": 1,
+        "sampleId": "healthy-catalog",
+        "runId": "run-1b87f757-d3b7-434f-a471-0c4e946482e1",
+        "automaticallyPassed": true,
+        "terminal": [
+          "completed",
+          "goal-reached",
+          "not-applicable"
+        ],
+        "contractRepairEvents": [],
+        "remainingGuidanceEvents": [],
+        "probeMeasurements": [],
+        "sortSnapshots": [
+          {
+            "sort": "price",
+            "values": [
+              "5 · Amber gadget",
+              "12 · Cyan sprocket",
+              "20 · Blue widget"
+            ],
+            "observedAt": "2026-10-08T05:46:17.242Z"
+          },
+          {
+            "sort": "price",
+            "values": [
+              "5 · Amber gadget",
+              "12 · Cyan sprocket",
+              "20 · Blue widget"
+            ],
+            "observedAt": "2026-10-08T05:46:44.382Z"
+          },
+          {
+            "sort": "price",
+            "values": [
+              "5 · Amber gadget",
+              "12 · Cyan sprocket",
+              "20 · Blue widget"
+            ],
+            "observedAt": "2026-10-08T05:46:44.448Z"
+          },
+          {
+            "sort": "price",
+            "values": [
+              "5 · Amber gadget",
+              "12 · Cyan sprocket",
+              "20 · Blue widget"
+            ],
+            "observedAt": "2026-10-08T05:46:51.254Z"
+          }
+        ],
+        "filterExpanded": true,
+        "navigationObserved": true,
+        "rawFactsAccepted": true
+      },
+      {
+        "row": 2,
+        "sampleId": "overlay-healthy",
+        "runId": "run-2f9f51f3-a7f7-4f22-8f4d-6325de29c0ad",
+        "automaticallyPassed": false,
+        "terminal": [
+          "blocked",
+          "blocked",
+          "not-applicable"
+        ],
+        "contractRepairEvents": [],
+        "remainingGuidanceEvents": [],
+        "probeMeasurements": [],
+        "sortSnapshots": [
+          {
+            "sort": "price",
+            "values": [
+              "5 · Amber gadget",
+              "12 · Cyan sprocket",
+              "20 · Blue widget"
+            ],
+            "observedAt": "2026-10-08T05:50:24.822Z"
+          },
+          {
+            "sort": "price",
+            "values": [
+              "5 · Amber gadget",
+              "12 · Cyan sprocket",
+              "20 · Blue widget"
+            ],
+            "observedAt": "2026-10-08T05:50:28.978Z"
+          }
+        ],
+        "filterExpanded": false,
+        "navigationObserved": false,
+        "rawFactsAccepted": false
+      },
+      {
+        "row": 3,
+        "sampleId": "overlay-defect",
+        "runId": "run-b512ca6c-b967-443b-825d-28503381c967",
+        "automaticallyPassed": false,
+        "terminal": [
+          "blocked",
+          "blocked",
+          "not-applicable"
+        ],
+        "contractRepairEvents": [],
+        "remainingGuidanceEvents": [],
+        "probeMeasurements": [],
+        "replayFinding": "foreground-control-covered",
+        "defectReproduced": true,
+        "healthyCounterexample": true,
+        "supportedFindings": [
+          "finding-3f1173e5-aa63-4108-8bde-43daf2622486"
+        ],
+        "rawFactsAccepted": false
+      },
+      {
+        "row": 4,
+        "sampleId": "dom-healthy",
+        "runId": null,
+        "automaticallyPassed": false,
+        "rawFactsAccepted": false,
+        "status": "not-run"
+      },
+      {
+        "row": 5,
+        "sampleId": "dom-investigation-defect",
+        "runId": null,
+        "automaticallyPassed": false,
+        "rawFactsAccepted": false,
+        "status": "not-run"
+      },
+      {
+        "row": 6,
+        "sampleId": "boundary-diagnostic",
+        "runId": null,
+        "automaticallyPassed": false,
+        "rawFactsAccepted": false,
+        "status": "not-run"
+      }
+    ],
+    "allFactsAccepted": false,
+    "paidRequests": 0
+  },
+  "defaultScopeAudit": {
+    "method": "Current agent independently reconstructs first public snapshot candidate pool and compares raw DB spec/frozen source/selected statuses; preserves not-run denominator",
+    "rows": [
+      {
+        "row": 1,
+        "sampleId": "healthy-catalog",
+        "runId": "run-1b87f757-d3b7-434f-a471-0c4e946482e1",
+        "sourceVerified": true,
+        "issues": [],
+        "pages": [
+          {
+            "url": "http://127.0.0.1:58126/catalog?category=books&sort=price",
+            "expected": 2,
+            "registered": 2,
+            "pool": [
+              "item-91e91ef0-5a18-40d9-ad9d-2caeebb6a1c3",
+              "item-b444fc13-a8b0-4732-960d-3862a13b13e9"
+            ],
+            "states": [
+              {
+                "itemId": "item-91e91ef0-5a18-40d9-ad9d-2caeebb6a1c3",
+                "basis": "observed candidate: select \"PriceName\"",
+                "status": "verified"
+              },
+              {
+                "itemId": "item-b444fc13-a8b0-4732-960d-3862a13b13e9",
+                "basis": "observed candidate: button[button] \"Apply sort\"",
+                "status": "verified"
+              }
+            ]
+          },
+          {
+            "url": "http://127.0.0.1:58126/info",
+            "expected": 0,
+            "registered": 0,
+            "pool": [],
+            "states": []
+          }
+        ],
+        "closingSeqs": [
+          161
+        ],
+        "postClosingDispatch": []
+      },
+      {
+        "row": 2,
+        "sampleId": "overlay-healthy",
+        "runId": "run-2f9f51f3-a7f7-4f22-8f4d-6325de29c0ad",
+        "sourceVerified": true,
+        "issues": [],
+        "pages": [
+          {
+            "url": "http://127.0.0.1:58167/overlay?category=books",
+            "expected": 3,
+            "registered": 3,
+            "pool": [
+              "item-8c6b372b-d0c9-4020-9567-f5f8178630e5",
+              "item-aada2056-83e7-48a6-9d62-d18ebf85412b",
+              "item-4db05551-3b79-40c5-98bb-195f1bd301a5"
+            ],
+            "states": [
+              {
+                "itemId": "item-8c6b372b-d0c9-4020-9567-f5f8178630e5",
+                "basis": "observed candidate: select \"PriceName\"",
+                "status": "verified"
+              },
+              {
+                "itemId": "item-aada2056-83e7-48a6-9d62-d18ebf85412b",
+                "basis": "observed candidate: button[button] \"Apply sort\"",
+                "status": "verified"
+              },
+              {
+                "itemId": "item-4db05551-3b79-40c5-98bb-195f1bd301a5",
+                "basis": "observed candidate: button[button] \"Filters\"",
+                "status": "pending"
+              }
+            ]
+          }
+        ],
+        "closingSeqs": [],
+        "postClosingDispatch": []
+      },
+      {
+        "row": 3,
+        "sampleId": "overlay-defect",
+        "runId": "run-b512ca6c-b967-443b-825d-28503381c967",
+        "sourceVerified": true,
+        "issues": [],
+        "pages": [
+          {
+            "url": "http://127.0.0.1:58226/overlay?category=books",
+            "expected": 3,
+            "registered": 3,
+            "pool": [
+              "item-9245d6f9-1fdd-40da-8e16-affbcc6fa8af",
+              "item-e739fb19-aa7e-44cf-af1c-7de6a0fc9219",
+              "item-b366131a-776f-4b2d-92fb-d644194fcac4"
+            ],
+            "states": [
+              {
+                "itemId": "item-9245d6f9-1fdd-40da-8e16-affbcc6fa8af",
+                "basis": "observed candidate: select \"PriceName\"",
+                "status": "pending"
+              },
+              {
+                "itemId": "item-e739fb19-aa7e-44cf-af1c-7de6a0fc9219",
+                "basis": "observed candidate: button[button] \"Apply sort\"",
+                "status": "pending"
+              },
+              {
+                "itemId": "item-b366131a-776f-4b2d-92fb-d644194fcac4",
+                "basis": "observed candidate: button[button] \"Filters\"",
+                "status": "pending"
+              }
+            ]
+          }
+        ],
+        "closingSeqs": [],
+        "postClosingDispatch": []
+      },
+      {
+        "row": 4,
+        "status": "not-run",
+        "sourceVerified": null
+      },
+      {
+        "row": 5,
+        "status": "not-run",
+        "sourceVerified": null
+      },
+      {
+        "row": 6,
+        "status": "not-run",
+        "sourceVerified": null
+      }
+    ],
+    "executedSourcesVerified": true
+  },
+  "executedArchiveVerified": true,
+  "fullMatrixArchivesPresent": false,
+  "notRunArtifactsNotClaimedMissing": true,
+  "stop": {
+    "originalUnknownCount": 1,
+    "requestId": "f66a155b9da372494d17eba9",
+    "reservationAtStopUsd": "0.02080380",
+    "stopAtNextRowCheckpoint": true,
+    "remainingDiagnosticRowsNotStarted": true,
+    "subsequentAutomaticRetryAfterUnknown": {
+      "kind": "request-level-unknown-stop-contract-gap",
+      "unknownRequestId": "f66a155b9da372494d17eba9",
+      "unknownTransitionAt": "2026-10-08T05:54:43.020Z",
+      "subsequentRequestId": "33c9db29053d687e65d20c3f",
+      "subsequentStartedAt": "2026-10-08T05:54:44.034Z",
+      "subsequentSettledAt": "2026-10-08T05:55:41.510Z",
+      "subsequentActualUsd": 0.00449526,
+      "method": "Raw original ledger created_at/settled_at compared with gateway run/seq records; no source edits or request replay",
+      "reason": "Gateway reserve checks budget but does not refuse new upstream requests on ledger unknown; row runner stops only at next row checkpoint. Frozen automatic retry=1 was admitted after unknown.",
+      "classification": "acceptance-tool stop/admission defect",
+      "paidRetryCountAfterUnknown": 1,
+      "automaticBatchResume": false,
+      "recommendedMinimum": "No further paid execution before request-level unknown gating/cancel propagation is repaired and verified with free targeted counterexamples; this turn makes no patch"
+    },
+    "reconciledWithMetadataGET": true,
+    "reconciliation": [
+      {
+        "requestId": "f66a155b9da372494d17eba9",
+        "generationId": "gen-1791438823-8Hu6ypQMh8A34fC8g6CQ",
+        "actualUsd": 0.0089589,
+        "evidence": {
+          "id": "gen-1791438823-8Hu6ypQMh8A34fC8g6CQ",
+          "model": "deepseek/deepseek-v4.1-flash-20260910",
+          "responseModel": "deepseek/deepseek-v4.1-flash",
+          "provider": "Alibaba",
+          "totalCost": 0.0089589
+        }
+      }
+    ],
+    "originalSummaryPreserved": true,
+    "automaticResume": false
+  },
+  "paid": {
+    "baselineSharedKnownUsd": "2.01891375",
+    "newKnownUsd": "0.08989062",
+    "sharedKnownUsd": "2.10880437",
+    "remainingUsd": "17.89119563",
+    "cumulativeCeilingUsd": "20",
+    "unknownEffective": 0,
+    "held": 0,
+    "leases": 0,
+    "effectiveProjection": "Fresh SQLite mode=ro, effective projection joining immutable reconciliation evidence as used by CampaignLedger.spending()",
+    "immutableOriginalUnknownRecordRetained": true,
+    "otherHistoricalLedgerUsd": "0.03722460",
+    "allHistoricalKnownUsd": "2.14602897"
+  },
+  "classification": {
+    "row2": "Exploration stability: repeated Sort measurements and reads, Filters/link pending at time reserve. No browser dispatch failure/cancellation/repair or F1 allowance.",
+    "row3": "Exploration stability and model transport: only read-only tools, long reasoning and request timeout, all three local controls/navigation unfinished. Rule finding retained, cannot count as completed scan.",
+    "stop": "Cost uncertainty at end of row3 triggered original campaign stop before row4; authoritative metadata subsequently reconciled, automaticResume=false.",
+    "stopAdmission": {
+      "kind": "request-level-unknown-stop-contract-gap",
+      "unknownRequestId": "f66a155b9da372494d17eba9",
+      "unknownTransitionAt": "2026-10-08T05:54:43.020Z",
+      "subsequentRequestId": "33c9db29053d687e65d20c3f",
+      "subsequentStartedAt": "2026-10-08T05:54:44.034Z",
+      "subsequentSettledAt": "2026-10-08T05:55:41.510Z",
+      "subsequentActualUsd": 0.00449526,
+      "method": "Raw original ledger created_at/settled_at compared with gateway run/seq records; no source edits or request replay",
+      "reason": "Gateway reserve checks budget but does not refuse new upstream requests on ledger unknown; row runner stops only at next row checkpoint. Frozen automatic retry=1 was admitted after unknown.",
+      "classification": "acceptance-tool stop/admission defect",
+      "paidRetryCountAfterUnknown": 1,
+      "automaticBatchResume": false,
+      "recommendedMinimum": "No further paid execution before request-level unknown gating/cancel propagation is repaired and verified with free targeted counterexamples; this turn makes no patch"
+    }
+  },
+  "remainingProblems": [
+    "healthy overlay did not finish Filters/navigation within frozen time",
+    "abnormal overlay rule finding valid but all mandatory local interactions/navigation unfinished",
+    "gateway accepted one configured retry 1.014s after ledger unknown; request-level stop contract unmet"
+  ],
+  "nextMinimum": [
+    "Before any future paid run, separately authorize and freely verify request-level unknown admission/cancel fence; this turn no patch",
+    "Then use saved read/repeated-Sort/long-reasoning traces to bound exploration and prioritize existing obligations without weakening completion/quota/budget; no paid rerun automatically"
+  ],
+  "reusedEvidence": {
+    "unitTests": 84,
+    "browserScenarios": 12,
+    "index": "plans/evidence/r0-default-entry-delivery.json",
+    "rawArchiveSha256": "b0ca5f3ad6728de774d6fa14d97f918734f5233f9deb710aff902a0f35ed93a6",
+    "archiveVerified": true
+  },
+  "oldFailedResultsPreserved": true,
+  "patches": 0,
+  "newTests": 0,
+  "paidBatchReruns": 0,
+  "modelConfigurationChanged": false,
+  "r1Included": false,
+  "trial": {
+    "command": "EXECUTION_URL_SCAN=1 pnpm start",
+    "workbench": "http://localhost:4111",
+    "input": "URL and optional goal; no checklist",
+    "report": "/api/runs/<runId>/report",
+    "limits": [
+      "anonymous bounded same-origin native candidate pool, default min(3,N), no full goal compilation or unseen-site generalization guarantee",
+      "real model completion stability not accepted; partial/blocked/unknown cannot be healthy success",
+      "business formal capabilities not validated for this candidate"
+    ]
+  },
+  "r1Impact": "Interfaces/scoped receipts can be trial-integrated, but R1 must not rely on R0 completion stability or request-level unknown-fee stopping as proven. Business paid evidence remains absent for this candidate.",
+  "roadmapUpdate": "R0 remains not passed; real default-3 diagnostic 1/6 (3 executed,2 quality failures,3 not-run), others0/65. Fee uncertainty reconciled without batch resumption. Stop gateway gap must close freely before another paid authorization; preserve maintainer roadmap edits.",
+  "evidenceArchive": {
+    "path": "data/r0-08acc95-resume/r0-08acc95-real-acceptance-evidence.tar.gz",
+    "bytes": 1612171,
+    "sha256": "8fdf7d074e6473656a3dc429e2d5d2134130ca7441f798eaf22e9f3cdb2cd7eb",
+    "files": 121,
+    "allPackedBytesVerified": true,
+    "credentialsIncluded": false,
+    "largeEvidenceLocalOnly": true
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "provenance": {
+    "mode": "real-model-generated",
+    "runId": "run-8d536f8b-1732-4ad3-8230-5b2af810b74e",
+    "sourceBuildHash": "77c436a49ffd724942ed043dedf7fb975e12e9d10512a57776fa82da00ce3035",
+    "agentModel": "deepseek/deepseek-v4.1-flash",
+    "provider": "Alibaba",
+    "sourceDirectory": "data/program-validation/2026-10-06T13-21-35-557Z",
+    "note": "Program copied verbatim from saved receipt. These programs come from two diagnostic batches, not one final six-case matrix. Evaluator setup is recorded separately for measurement-only programs."
+  },
+  "program": {
+    "version": 1,
+    "phenomenon": "The Continue button may be pushed out of the viewport after delivery details load.",
+    "basis": "The page's published requirement states Continue must remain in the current viewport while details load and after loading, with no scrolling required; I measure its viewport containment before and after activating Load details.",
+    "targets": [
+      {
+        "name": "continueBtn",
+        "selector": "html > body:nth-of-type(1) > button:nth-of-type(2)"
+      },
+      {
+        "name": "loadBtn",
+        "selector": "html > body:nth-of-type(1) > button:nth-of-type(1)"
+      }
+    ],
+    "steps": [
+      {
+        "op": "measure",
+        "name": "before"
+      },
+      {
+        "op": "act",
+        "type": "click",
+        "target": "loadBtn"
+      },
+      {
+        "op": "wait",
+        "ms": 1800
+      },
+      {
+        "op": "measure",
+        "name": "after"
+      }
+    ],
+    "assertions": [
+      {
+        "expectation": "Continue stays fully inside the viewport after details load",
+        "left": {
+          "sample": "after",
+          "target": "continueBtn",
+          "metric": "viewportFraction"
+        },
+        "operator": "gte",
+        "right": {
+          "value": 1
+        }
+      },
+      {
+        "expectation": "Continue is not clipped after details load",
+        "left": {
+          "sample": "after",
+          "target": "continueBtn",
+          "metric": "unclippedFraction"
+        },
+        "operator": "gte",
+        "right": {
+          "value": 1
+        }
+      }
+    ]
+  }
+}
