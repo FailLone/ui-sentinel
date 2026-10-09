@@ -1,0 +1,366 @@
+{
+  "revision": "r1-controlled-loop-1",
+  "binding": "ec492723fed3f75908af5d61d2bcbd5f402e3c870f17fbd270aa5e23ddbd9916",
+  "input": {
+    "schemaVersion": "r1-exploration-input-1",
+    "requestId": "ec492723fed3f75908af5d61d2bcbd5f402e3c870f17fbd270aa5e23ddbd9916",
+    "task": {
+      "goal": "After clicking \"Reveal\", show text \"Ready\".",
+      "localTask": "Collect registered pending evidence without replay",
+      "revision": "r1-controlled-loop-1"
+    },
+    "state": {
+      "pageId": "http://127.0.0.1:57981/",
+      "url": "http://127.0.0.1:57981/",
+      "documentVersion": "ec492723fed3f75908af5d61d2bcbd5f402e3c870f17fbd270aa5e23ddbd9916",
+      "observationVersion": "ec492723fed3f75908af5d61d2bcbd5f402e3c870f17fbd270aa5e23ddbd9916",
+      "relatedStateVersion": "ec492723fed3f75908af5d61d2bcbd5f402e3c870f17fbd270aa5e23ddbd9916",
+      "cacheable": false
+    },
+    "candidates": [
+      {
+        "id": "item-a16d894f-982a-493b-813a-5ef248fd97ac",
+        "targetKey": "item-a16d894f-982a-493b-813a-5ef248fd97ac",
+        "observationVersion": "ec492723fed3f75908af5d61d2bcbd5f402e3c870f17fbd270aa5e23ddbd9916",
+        "text": "Other",
+        "role": "button",
+        "publicState": {
+          "visible": true,
+          "enabled": true,
+          "expanded": null,
+          "selected": null
+        },
+        "geometry": null,
+        "context": "{\"ref\":\"e2\",\"snapshotId\":\"s1\",\"pending\":[\"generic\"]}",
+        "allowedActions": [
+          "click"
+        ],
+        "estimatedCost": 1
+      },
+      {
+        "id": "item-e46c7238-7f6f-4aff-b681-6bf1e70638a8",
+        "targetKey": "item-e46c7238-7f6f-4aff-b681-6bf1e70638a8",
+        "observationVersion": "ec492723fed3f75908af5d61d2bcbd5f402e3c870f17fbd270aa5e23ddbd9916",
+        "text": "Reveal",
+        "role": "button",
+        "publicState": {
+          "visible": true,
+          "enabled": true,
+          "expanded": null,
+          "selected": null
+        },
+        "geometry": null,
+        "context": "{\"ref\":\"e3\",\"snapshotId\":\"s1\",\"pending\":[\"generic\",\"effect:requirement:26c51383c92b15b5b81c7493\"]}",
+        "allowedActions": [
+          "click"
+        ],
+        "estimatedCost": 1
+      }
+    ],
+    "history": [],
+    "scope": {
+      "revision": "r1-controlled-loop-1",
+      "executableCandidateIds": [
+        "item-a16d894f-982a-493b-813a-5ef248fd97ac",
+        "item-e46c7238-7f6f-4aff-b681-6bf1e70638a8"
+      ]
+    },
+    "budget": {
+      "revision": "9486d406edb66d9b567aaadf1e709f0bc2552895b2ab71e7dda258ebb153119a",
+      "remainingDecisions": 12,
+      "remainingActions": 6,
+      "remainingMs": 59610,
+      "maxRequestMs": 30000,
+      "remainingCostUsd": null
+    },
+    "limits": {
+      "maxCandidates": 32,
+      "maxInputBytes": 32768,
+      "maxHistory": 32
+    }
+  },
+  "facts": {
+    "goal": "After clicking \"Reveal\", show text \"Ready\".",
+    "observation": {
+      "url": "http://127.0.0.1:57981/",
+      "title": "Public bounded inspection",
+      "a11yTree": "- heading \"Public bounded inspection\" [level=1]\n- button \"Other\"\n- button \"Reveal\"\n- region\n- paragraph: Unrelated stable text",
+      "elements": [
+        {
+          "ref": "e1",
+          "tag": "h1",
+          "text": "Public bounded inspection",
+          "enabled": true,
+          "visible": true,
+          "blockedPoints": 0
+        },
+        {
+          "ref": "e2",
+          "tag": "button",
+          "text": "Other",
+          "enabled": true,
+          "visible": true,
+          "blockedPoints": 0
+        },
+        {
+          "ref": "e3",
+          "tag": "button",
+          "text": "Reveal",
+          "enabled": true,
+          "visible": true,
+          "blockedPoints": 0
+        },
+        {
+          "ref": "e4",
+          "tag": "p",
+          "text": "Unrelated stable text",
+          "enabled": true,
+          "visible": true,
+          "blockedPoints": 0
+        }
+      ],
+      "pageText": "Public bounded inspection OtherReveal Unrelated stable text"
+    },
+    "inspectionScope": {
+      "candidates": [
+        {
+          "itemId": "item-a16d894f-982a-493b-813a-5ef248fd97ac",
+          "ref": "e2",
+          "description": "button \"Other\"",
+          "category": "local-interaction",
+          "snapshotId": "s1"
+        },
+        {
+          "itemId": "item-e46c7238-7f6f-4aff-b681-6bf1e70638a8",
+          "ref": "e3",
+          "description": "button \"Reveal\"",
+          "category": "local-interaction",
+          "snapshotId": "s1"
+        }
+      ],
+      "requiredChecks": [],
+      "defaultSampling": {
+        "policy": {
+          "revision": "bounded-ui-sampling-2",
+          "candidateLimit": 8,
+          "localSamplesPerVisitedPage": 3,
+          "navigationSamplesPerRun": 1,
+          "goalMode": "focus"
+        },
+        "pages": [
+          {
+            "url": "http://127.0.0.1:57981/",
+            "itemId": "item-deef09bc-0dd1-4cc2-abd9-ce55163526db",
+            "pool": [
+              "item-a16d894f-982a-493b-813a-5ef248fd97ac",
+              "item-e46c7238-7f6f-4aff-b681-6bf1e70638a8"
+            ],
+            "count": 2,
+            "refs": [
+              "4f883d79-01fa-4052-8e6b-8924de4afd94.png",
+              "53ee9008-6923-4fba-86ac-2fe3285589e6.json"
+            ],
+            "defaultSelected": {}
+          }
+        ]
+      },
+      "recentChecks": [],
+      "counts": {
+        "total": 8,
+        "selected": 8,
+        "pending": 2,
+        "verified": 6,
+        "failed": 0,
+        "unverified": 0,
+        "excluded": 0
+      },
+      "checks": [
+        {
+          "itemId": "item-a16d894f-982a-493b-813a-5ef248fd97ac",
+          "checks": {
+            "revision": "item-checks-2",
+            "sourceReview": {
+              "state": "sealed",
+              "revision": "public-effect-sources-1",
+              "refs": [
+                "7d3663b5-11b1-4434-bee9-337521a4fbcd.png",
+                "1bc5fda1-5796-469f-bc28-9ef0f48643e6.json"
+              ],
+              "reasons": [],
+              "goalHash": "39ceb4768bf29520a381aafadede83a9e0bc21e35e979b66d734ec4d522becd4",
+              "contractHash": "b90ac0bbea08dae83327588a69e6b74bd390ea7f642c626c3cc79d6e0d9e62d8",
+              "hash": "79097eb3a80dcf61f0c47d7c78d9a4cb3864d862e91f371b4aab01aab4d75c41",
+              "ruleChecks": [
+                {
+                  "ruleId": "overlay-blocking",
+                  "revision": "2.1.0",
+                  "contentHash": "c3acb6191549a481e1dbacd22655f6bde36459f78a0301e6f2ad2d88aa8ef424",
+                  "approvalRef": "installed-registry:overlay-blocking:2.1.0",
+                  "scopeItemIds": [
+                    "item-6605bfb6-0228-404b-bc1b-9566fab4461e"
+                  ],
+                  "evidenceRefs": [
+                    "4f883d79-01fa-4052-8e6b-8924de4afd94.png",
+                    "53ee9008-6923-4fba-86ac-2fe3285589e6.json"
+                  ]
+                }
+              ]
+            },
+            "generic": {
+              "state": "pending",
+              "evidenceRefs": [],
+              "eventIds": []
+            },
+            "effects": []
+          }
+        },
+        {
+          "itemId": "item-e46c7238-7f6f-4aff-b681-6bf1e70638a8",
+          "checks": {
+            "revision": "item-checks-2",
+            "sourceReview": {
+              "state": "sealed",
+              "revision": "public-effect-sources-1",
+              "refs": [
+                "7d3663b5-11b1-4434-bee9-337521a4fbcd.png",
+                "1bc5fda1-5796-469f-bc28-9ef0f48643e6.json"
+              ],
+              "reasons": [],
+              "goalHash": "39ceb4768bf29520a381aafadede83a9e0bc21e35e979b66d734ec4d522becd4",
+              "contractHash": "b90ac0bbea08dae83327588a69e6b74bd390ea7f642c626c3cc79d6e0d9e62d8",
+              "hash": "570e0cce866ff8167568d01b4d8a5256a03824dffb39edb7b843b2038c890400",
+              "ruleChecks": [
+                {
+                  "ruleId": "overlay-blocking",
+                  "revision": "2.1.0",
+                  "contentHash": "c3acb6191549a481e1dbacd22655f6bde36459f78a0301e6f2ad2d88aa8ef424",
+                  "approvalRef": "installed-registry:overlay-blocking:2.1.0",
+                  "scopeItemIds": [
+                    "item-6605bfb6-0228-404b-bc1b-9566fab4461e"
+                  ],
+                  "evidenceRefs": [
+                    "4f883d79-01fa-4052-8e6b-8924de4afd94.png",
+                    "53ee9008-6923-4fba-86ac-2fe3285589e6.json"
+                  ]
+                }
+              ]
+            },
+            "generic": {
+              "state": "pending",
+              "evidenceRefs": [],
+              "eventIds": []
+            },
+            "effects": [
+              {
+                "sourceKind": "original-goal",
+                "sourceId": "goal:39ceb4768bf29520a381aafadede83a9e0bc21e35e979b66d734ec4d522becd4",
+                "sourceHash": "ec70b8dfdd09967065c278d4fd34b83e8475d2e3b7467fbe2d7abb74100b852c",
+                "sourceRefs": [
+                  "7d3663b5-11b1-4434-bee9-337521a4fbcd.png",
+                  "1bc5fda1-5796-469f-bc28-9ef0f48643e6.json"
+                ],
+                "sourceSpan": [
+                  0,
+                  43
+                ],
+                "documentVersion": "49645577b7fe6e2eaa4f261238f2e73d6eddfb64a017cd91e959819216704ce0",
+                "controlBinding": {
+                  "selector": "#control",
+                  "name": "Reveal",
+                  "tag": "button"
+                },
+                "actionContract": {
+                  "type": "click"
+                },
+                "relationKind": "explicit-control-action-effect",
+                "predicate": {
+                  "condition": "text-contains",
+                  "expected": "Ready"
+                },
+                "evaluationPoint": "positive-only",
+                "requirementHash": "26c51383c92b15b5b81c749369ab42b863aad1f99b7d6e0e7c2c1e9c010643a3",
+                "requirementId": "requirement:26c51383c92b15b5b81c7493",
+                "late": false,
+                "state": "pending",
+                "measurementRefs": [],
+                "eventIds": []
+              }
+            ]
+          }
+        }
+      ],
+      "checkInteractions": [],
+      "outstanding": [
+        {
+          "itemId": "item-a16d894f-982a-493b-813a-5ef248fd97ac",
+          "category": "local-interaction",
+          "reason": "v2-mandatory-checks-incomplete"
+        },
+        {
+          "itemId": "item-e46c7238-7f6f-4aff-b681-6bf1e70638a8",
+          "category": "local-interaction",
+          "reason": "v2-mandatory-checks-incomplete"
+        }
+      ],
+      "unsupported": [
+        "authenticated-session",
+        "business-write",
+        "post-data-query",
+        "graphql-post",
+        "file-upload",
+        "file-download",
+        "new-window",
+        "websocket",
+        "service-worker"
+      ],
+      "note": "Public required checks are registered by the executor. Missing targets remain obligations. New optional checks require budget admission; measurements alone resolve items."
+    },
+    "knownRules": [
+      {
+        "id": "overlay-blocking",
+        "revision": "2.1.0",
+        "name": "Action hit testing",
+        "description": "Reports sampled interception of visible actions; never infers blocking from rectangle overlap.",
+        "execution": "automatic",
+        "applicability": "applicable",
+        "reason": "required event or page facts available",
+        "detailsAvailable": true
+      }
+    ],
+    "pendingKnownRuleChecks": 0,
+    "observedRuleTriggers": [],
+    "latestToolResults": null,
+    "evidenceRefs": [
+      "4f883d79-01fa-4052-8e6b-8924de4afd94.png",
+      "53ee9008-6923-4fba-86ac-2fe3285589e6.json"
+    ],
+    "evidenceIntegrity": {
+      "version": 1,
+      "status": "clean",
+      "interventionIds": []
+    },
+    "budgetRemaining": {
+      "actions": 6,
+      "modelCalls": 12,
+      "timeMs": 59610
+    },
+    "activeTools": [
+      "interaction_verify",
+      "page_inspect",
+      "investigation_run",
+      "investigation_check",
+      "rules_search",
+      "rule_details",
+      "history_read",
+      "tool_result_read",
+      "page_observe",
+      "checks_run",
+      "element_details",
+      "page_act",
+      "hypotheses_record",
+      "rule_check",
+      "exploration_update",
+      "run_finish"
+    ]
+  }
+}
