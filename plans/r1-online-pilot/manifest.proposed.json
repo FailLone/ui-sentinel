@@ -1,9 +1,9 @@
 {
-  "version": "r1-online-pilot-2",
-  "sourceSha": "de54a7ee7c141e719f212852e774b304162cd3dc",
+  "version": "r1-online-pilot-3",
+  "sourceSha": "1e78ea6dea5098944b5d53d6cbe4630c3b53c246",
   "baseSha": "aa35a9544d11dd57b85d7efcc4088dc8538977cc",
   "policy": {
-    "revision": "r1-online-pilot-2",
+    "revision": "r1-online-pilot-3",
     "candidateSource": "original-executor-selected-local-public-frame",
     "actions": 6,
     "modelCalls": 8,
@@ -22,9 +22,9 @@
       "provider": "Wafer",
       "maxOutputTokens": 4096,
       "contextTokens": 1048576,
-      "inputPerTokenUsd": 4.5e-8,
+      "inputPerTokenUsd": 5.5e-8,
       "outputPerTokenUsd": 0.0000012,
-      "reserveUsd": 0.053,
+      "reserveUsd": 0.063,
       "perRunRequests": 8,
       "batchRequests": 72
     },
@@ -43,12 +43,50 @@
       "reservationUsd": 0
     },
     "batchMaxRequests": 78,
-    "batchMaxUsd": 3.834,
+    "batchMaxUsd": 4.554,
     "batchWindowMs": 1800000,
     "noFallback": true,
     "scopeExpansion": "existing-one-local-extension-1"
   },
-  "priceSourceSha": "465cb69fa5033d613c5cd16e6243c0a797117cfd3974cbef1c76eae82f6cb70a",
+  "continuation": {
+    "version": "r1-explicit-unknown-continuation-1",
+    "sourceManifestHash": "9f73f0d6e3140b2d891d043441053bb75579550d58fdbf850a081c0bdc56ba75",
+    "sourceCampaignId": "2063928d-77c8-46ab-8b09-5811fc52e03e",
+    "sourceRequestId": "0ddb03d5250db453759b72ee",
+    "sourceStopEpoch": 1,
+    "knownActualUsd": 0,
+    "unknownReservedUsd": 0.053,
+    "unknownCount": 1,
+    "heldReservedUsd": 0,
+    "canonicalClaims": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-online-claims",
+    "pins": [
+      {
+        "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-online-runtime/artifacts/r1-online-pilot/authorized-batch-1/account/campaign.db",
+        "sha256": "e78f2588e8d163155c639d65c2f19ccdd127cc1342b327e11604b04457645936"
+      },
+      {
+        "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-online-claims/9f73f0d6e3140b2d891d043441053bb75579550d58fdbf850a081c0bdc56ba75.claim",
+        "sha256": "f1743a4d1952fd712c87a76388d5da820a8c44b3daccf2dda0d7c680d32a639b"
+      },
+      {
+        "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-online-claims/9f73f0d6e3140b2d891d043441053bb75579550d58fdbf850a081c0bdc56ba75.execution-lock",
+        "sha256": "4865494226f9b1456c91966d85b2fdea5dfad5b5a004b79ead37379986cac937"
+      }
+    ],
+    "preserveOldUnknownAndStop": true,
+    "stopOnAnyNewUnknown": true,
+    "acceptance": {
+      "policy": "r1-explicit-unknown-continuation-1",
+      "sourceManifestHash": "9f73f0d6e3140b2d891d043441053bb75579550d58fdbf850a081c0bdc56ba75",
+      "sourceRequestId": "0ddb03d5250db453759b72ee",
+      "sourceDbSha256": "e78f2588e8d163155c639d65c2f19ccdd127cc1342b327e11604b04457645936",
+      "acceptUnsettledRiskUsd": 0.053,
+      "maxCombinedAccountedUsd": 4.607,
+      "oldBatchRemainsStopped": true,
+      "stopOnAnyNewUnknown": true
+    }
+  },
+  "priceSourceSha": "30d91e85280db22e902b772e4a0a429d3136f5c261aa57376e45e387d5edc6f4",
   "fixtures": [
     {
       "id": "semantic",
@@ -73,7 +111,7 @@
       "mode": "agent",
       "maxAgentRequests": 8,
       "maxJevRequests": 0,
-      "reserveUsd": 0.424
+      "reserveUsd": 0.504
     },
     {
       "id": "semantic-program",
@@ -81,7 +119,7 @@
       "mode": "program",
       "maxAgentRequests": 8,
       "maxJevRequests": 0,
-      "reserveUsd": 0.424
+      "reserveUsd": 0.504
     },
     {
       "id": "semantic-jev",
@@ -89,7 +127,7 @@
       "mode": "jev",
       "maxAgentRequests": 8,
       "maxJevRequests": 2,
-      "reserveUsd": 0.43
+      "reserveUsd": 0.51
     },
     {
       "id": "ambiguity-agent",
@@ -97,7 +135,7 @@
       "mode": "agent",
       "maxAgentRequests": 8,
       "maxJevRequests": 0,
-      "reserveUsd": 0.424
+      "reserveUsd": 0.504
     },
     {
       "id": "ambiguity-program",
@@ -105,7 +143,7 @@
       "mode": "program",
       "maxAgentRequests": 8,
       "maxJevRequests": 0,
-      "reserveUsd": 0.424
+      "reserveUsd": 0.504
     },
     {
       "id": "ambiguity-jev",
@@ -113,7 +151,7 @@
       "mode": "jev",
       "maxAgentRequests": 8,
       "maxJevRequests": 2,
-      "reserveUsd": 0.43
+      "reserveUsd": 0.51
     },
     {
       "id": "expanded-agent",
@@ -121,7 +159,7 @@
       "mode": "agent",
       "maxAgentRequests": 8,
       "maxJevRequests": 0,
-      "reserveUsd": 0.424
+      "reserveUsd": 0.504
     },
     {
       "id": "expanded-program",
@@ -129,7 +167,7 @@
       "mode": "program",
       "maxAgentRequests": 8,
       "maxJevRequests": 0,
-      "reserveUsd": 0.424
+      "reserveUsd": 0.504
     },
     {
       "id": "expanded-jev",
@@ -137,7 +175,7 @@
       "mode": "jev",
       "maxAgentRequests": 8,
       "maxJevRequests": 2,
-      "reserveUsd": 0.43
+      "reserveUsd": 0.51
     }
   ],
   "smoke": "semantic-agent",

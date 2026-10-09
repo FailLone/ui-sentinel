@@ -1,0 +1,138 @@
+
+ RUN  v5.0.1 /Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007
+
+ ✓ scripts/r1-online-pilot/preflight.test.ts > agent.prompt rejects invalid quote #0 before credential, claim, or dispatch 8ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > agent.prompt rejects invalid quote #1 before credential, claim, or dispatch 1ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > agent.prompt rejects invalid quote #2 before credential, claim, or dispatch 1ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > agent.prompt rejects invalid quote #3 before credential, claim, or dispatch 1ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > agent.prompt rejects invalid quote #4 before credential, claim, or dispatch 1ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > agent.prompt rejects invalid quote #5 before credential, claim, or dispatch 1ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > agent.prompt rejects invalid quote #6 before credential, claim, or dispatch 1ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > agent.prompt rejects invalid quote #7 before credential, claim, or dispatch 1ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > agent.prompt rejects invalid quote #8 before credential, claim, or dispatch 1ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > agent.prompt rejects invalid quote #9 before credential, claim, or dispatch 2ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > agent.prompt rejects invalid quote #10 before credential, claim, or dispatch 2ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > agent.prompt rejects invalid quote #11 before credential, claim, or dispatch 1ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > agent.prompt rejects invalid quote #12 before credential, claim, or dispatch 2ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > agent.prompt rejects invalid quote #13 before credential, claim, or dispatch 1ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > agent.prompt rejects invalid quote #14 before credential, claim, or dispatch 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > agent.prompt rejects invalid quote #15 before credential, claim, or dispatch 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > agent.prompt rejects invalid quote #16 before credential, claim, or dispatch 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > agent.prompt rejects invalid quote #17 before credential, claim, or dispatch 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > agent.prompt rejects invalid quote #18 before credential, claim, or dispatch 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > agent.completion rejects invalid quote #0 before credential, claim, or dispatch 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > agent.completion rejects invalid quote #1 before credential, claim, or dispatch 1ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > agent.completion rejects invalid quote #2 before credential, claim, or dispatch 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > agent.completion rejects invalid quote #3 before credential, claim, or dispatch 1ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > agent.completion rejects invalid quote #4 before credential, claim, or dispatch 1ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > agent.completion rejects invalid quote #5 before credential, claim, or dispatch 1ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > agent.completion rejects invalid quote #6 before credential, claim, or dispatch 2ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > agent.completion rejects invalid quote #7 before credential, claim, or dispatch 2ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > agent.completion rejects invalid quote #8 before credential, claim, or dispatch 1ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > agent.completion rejects invalid quote #9 before credential, claim, or dispatch 2ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > agent.completion rejects invalid quote #10 before credential, claim, or dispatch 2ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > agent.completion rejects invalid quote #11 before credential, claim, or dispatch 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > agent.completion rejects invalid quote #12 before credential, claim, or dispatch 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > agent.completion rejects invalid quote #13 before credential, claim, or dispatch 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > agent.completion rejects invalid quote #14 before credential, claim, or dispatch 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > agent.completion rejects invalid quote #15 before credential, claim, or dispatch 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > agent.completion rejects invalid quote #16 before credential, claim, or dispatch 1ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > agent.completion rejects invalid quote #17 before credential, claim, or dispatch 1ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > agent.completion rejects invalid quote #18 before credential, claim, or dispatch 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > jev.prompt rejects invalid quote #0 before credential, claim, or dispatch 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > jev.prompt rejects invalid quote #1 before credential, claim, or dispatch 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > jev.prompt rejects invalid quote #2 before credential, claim, or dispatch 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > jev.prompt rejects invalid quote #3 before credential, claim, or dispatch 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > jev.prompt rejects invalid quote #4 before credential, claim, or dispatch 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > jev.prompt rejects invalid quote #5 before credential, claim, or dispatch 1ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > jev.prompt rejects invalid quote #6 before credential, claim, or dispatch 1ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > jev.prompt rejects invalid quote #7 before credential, claim, or dispatch 3ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > jev.prompt rejects invalid quote #8 before credential, claim, or dispatch 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > jev.prompt rejects invalid quote #9 before credential, claim, or dispatch 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > jev.prompt rejects invalid quote #10 before credential, claim, or dispatch 3ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > jev.prompt rejects invalid quote #11 before credential, claim, or dispatch 2ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > jev.prompt rejects invalid quote #12 before credential, claim, or dispatch 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > jev.prompt rejects invalid quote #13 before credential, claim, or dispatch 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > jev.prompt rejects invalid quote #14 before credential, claim, or dispatch 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > jev.prompt rejects invalid quote #15 before credential, claim, or dispatch 1ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > jev.prompt rejects invalid quote #16 before credential, claim, or dispatch 2ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > jev.prompt rejects invalid quote #17 before credential, claim, or dispatch 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > jev.prompt rejects invalid quote #18 before credential, claim, or dispatch 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > jev.completion rejects invalid quote #0 before credential, claim, or dispatch 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > jev.completion rejects invalid quote #1 before credential, claim, or dispatch 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > jev.completion rejects invalid quote #2 before credential, claim, or dispatch 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > jev.completion rejects invalid quote #3 before credential, claim, or dispatch 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > jev.completion rejects invalid quote #4 before credential, claim, or dispatch 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > jev.completion rejects invalid quote #5 before credential, claim, or dispatch 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > jev.completion rejects invalid quote #6 before credential, claim, or dispatch 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > jev.completion rejects invalid quote #7 before credential, claim, or dispatch 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > jev.completion rejects invalid quote #8 before credential, claim, or dispatch 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > jev.completion rejects invalid quote #9 before credential, claim, or dispatch 1ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > jev.completion rejects invalid quote #10 before credential, claim, or dispatch 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > jev.completion rejects invalid quote #11 before credential, claim, or dispatch 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > jev.completion rejects invalid quote #12 before credential, claim, or dispatch 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > jev.completion rejects invalid quote #13 before credential, claim, or dispatch 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > jev.completion rejects invalid quote #14 before credential, claim, or dispatch 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > jev.completion rejects invalid quote #15 before credential, claim, or dispatch 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > jev.completion rejects invalid quote #16 before credential, claim, or dispatch 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > jev.completion rejects invalid quote #17 before credential, claim, or dispatch 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > jev.completion rejects invalid quote #18 before credential, claim, or dispatch 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > accepts frozen quote and valid zero quotes, preserves credential/claim ordering 2ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > agent.prompt rejects increases without raising frozen caps 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > agent.completion rejects increases without raising frozen caps 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > jev.prompt rejects increases without raising frozen caps 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > jev.completion rejects increases without raising frozen caps 0ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > rejects invalid present optional request on either provider 1ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > rejects invalid present optional image on either provider 1ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > rejects invalid present optional input_cache_write on either provider 2ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > rejects invalid present optional input_cache_read on either provider 1ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > rejects invalid present optional discount on either provider 2ms
+ ✓ scripts/r1-online-pilot/preflight.test.ts > rejects unsupported components/tiers and changed model/provider/capability 3ms
+ ✓ scripts/r1-online-pilot/online.test.ts > strong program baseline handles the known quoted target and permits only residual ambiguity 3ms
+ ✓ scripts/r1-online-pilot/online.test.ts > actual wire identity is only available under its own atomic ledger dispatch 59ms
+ ✓ scripts/r1-online-pilot/online.test.ts > old static approval cannot authorize dynamic frames or a changed manifest 1ms
+ ✓ scripts/r1-online-pilot/online.test.ts > checks both pinned official quotes without inference and rejects an increased Jev rate 4ms
+ ✓ scripts/r1-online-pilot/online.test.ts > online host rejects a receipt from another full frame and never proposes its action 5ms
+ ✓ scripts/r1-online-pilot/continuation.test.ts > requires explicit bound risk acceptance before quotes, credential or claim; no legacy approval reuse 5ms
+ ✓ scripts/r1-online-pilot/continuation.test.ts > claims the old lineage once across manifests and refuses changed sources, wrong directory or live WAL 2ms
+ ✓ scripts/r1-online-pilot/continuation.test.ts > new unknown stops continuation after one injected request while the original 0.053 stays accounted 193ms
+ ✓ scripts/r1-online-pilot/continuation.test.ts > a changed original ledger is refused at atomic dispatch and releases the new unsent reservation 28ms
+ × scripts/r1-online-pilot/online.test.ts > an Agent reservation consumes the same dollars that Jev would need 62ms
+   → expected 1 to be +0 // Object.is equality
+ ✓ scripts/r1-online-pilot/online.test.ts > Jev unknown stops the actual Agent gateway; later reconciliation cannot revive its epoch 76ms
+ ✓ src/execution/tool-inputs-compat.test.ts > preserves the original positional span contract, including SDK validation before execution 15ms
+ ✓ src/execution/tool-inputs-compat.test.ts > real Mastra/OpenAI serialization emits one integer items schema and preserves source binding fields 41ms
+ ✓ scripts/r1-online-pilot/online.test.ts > Agent unknown stops Jev before fetch on the same account 65ms
+ ✓ scripts/r1-online-pilot/online.test.ts > shared request cap and held money bound both models; wrong run/frame source dispatches nothing 56ms
+ ✓ scripts/r1-online-pilot/online.test.ts > cancelled in-flight Jev keeps late cost evidence but never returns scores or revives the batch 64ms
+ ✓ scripts/r1-online-pilot/online.test.ts > an already-dispatched Agent reply settles late after Jev unknown; no new request is admitted 101ms
+ ✓ scripts/r1-online-pilot/online.test.ts > batch window cancels current run and both transports, fences queued dispatch and late reconciliation 143ms
+ ✓ scripts/r1-online-pilot/online.test.ts > normal batch disposal removes its timer and run cancellation listener 21ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  scripts/r1-online-pilot/online.test.ts > an Agent reservation consumes the same dollars that Jev would need
+AssertionError: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ scripts/r1-online-pilot/online.test.ts:160:18
+    158|       ).kind,
+    159|     ).toBe('handoff')
+    160|     expect(sent).toBe(0)
+       |                  ^
+    161|     expect((await t.session.ledger.spending()).heldReservedUsd).toBe(P…
+    162|   } finally {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 3 passed (4)
+      Tests  1 failed | 105 passed (106)
+   Start at  17:25:24
+   Duration  1.12s (tests 41%, import 32%, transform 26%, worker 1%)
+

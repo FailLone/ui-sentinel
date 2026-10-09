@@ -1,147 +1,97 @@
-# R1 在线三组接线：唯一交付入口
+# R1 当前统一交付与恢复请求
 
-## 当前诊断结论：有限诊断已完成，费用仍未知（2026-10-09）
+2026-10-09。**400 兼容候选、显式续验门和 main 整合已准备；新增真实调用0，R1 未验收完成。** 候选已完成必要免费验证并放入干净隔离运行区。下一步需要对下述具体恢复批次的授权；不用先等供应商回复才能推进，但不能自行接受未结费用风险。任务状态只在 [CURRENT-TASK.md](CURRENT-TASK.md) 维护，本文件为当前统一交付入口，[机器索引](evidence-index.json)保存本次与复用证据的身份。
 
-400 的具体根因尚未确证；同 DeepSeek/Wafer/required+low 的真实成功记录阻止直接归因。只增加响应关联头取证，26 项免费定向测试及类型检查通过。原请求保留 USD 0.053 unknown、stop epoch 1，旧 claim 已消费，未新增真实推理或恢复批次。唯一诊断入口为 [diagnosis-400/README.md](diagnosis-400/README.md) 及其机器索引；当前任务已停止。
+## 候选与 main 整合
 
-## 原授权执行结论：已停止（保留历史）
+| 身份 | 冻结值 |
+| --- | --- |
+| 源码/运行候选 | `1e78ea6dea5098944b5d53d6cbe4630c3b53c246` |
+| 修复与整合 | `8d187a6` schema/续验门；`e3cfafe` main合并；`1e78ea6`自包含测试夹具 |
+| 已整合 main | `da7adc873ee2143843b7dbfc828551285b1f43b0`；只合入 R1 分支，没有向 main 合并或 push |
+| 实验基底 | `aa35a9544d11dd57b85d7efcc4088dc8538977cc`；固定 R0 基线 `60c315a04e30b84356381763e33dd976a3ace836` |
+| 新 manifest | [manifest.proposed.json](manifest.proposed.json)；对象摘要 `6428f1ecc473922766f598cc390b052d2a5d4a3f7eae370a72027c77eaa72197`（JSON.stringify 摘要，不是文件字节摘要） |
+| 干净运行区 | `/Users/xietian/.codex/worktrees/r1-recovery/ui-sentinel`；detached HEAD，锁定依赖已离线安装 |
+| 当前交付分支 | `codex/r1-jev-closeout`，工作区 `/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007` |
 
-用户已明确授权manifestHash `9f73f0d6e3140b2d891d043441053bb75579550d58fdbf850a081c0bdc56ba75` 对应一次批次。已在干净隔离候选de54a7e执行：首条semantic-agent派发1次主模型请求，Wafer返回HTTP400/model_request_rejected，无usage，整批立即停止；Jev0次，其余8行未运行，不记成功或失败。已知费用0、总实际费用未知，unknown1笔/预留US$0.053、held0；claim已消费，不恢复或重试。没有三组差异或采用Jev收益的依据，R1仍未通过、默认关闭。
+本文件及索引提交是源码的文档后继，运行区继续固定上表源码。唯一合并冲突在 `executor.ts` 顶部 import，保留 R1 的 `createExperimentalHost`/扩样开关及 main 的 `createUiRuleObservation`。main 的 DNS、规则采集、D005/R005 与报告接线保留；108 项 main 变更文件逐字节一致，两个合并接点是 executor 和 package。`pnpm-lock.yaml` 与 main 相同。没有操作维护者其他工作区、Roadmap 或规则分支。
 
-本次唯一结果入口：[逐行结论与费用](paid/RESULT.md)、[机器结果](paid/result.json)、[脱敏原始证据索引](paid/evidence-index.json)。以下实现和待授权文字是执行前冻结记录；本段及paid结果优先，旧未用预留不构成追加许可。
+相对新 main 的运行实现依赖是：新增 `src/agent/{decisions,exploration}/`，共享 `src/agent/model/request.ts` 的程序工具 attempt/取消守卫、`src/execution/executor.ts` 的显式宿主/一次扩样桥、`experimental-decision-host.ts` 和 sourceSpan schema；package 只增加 R1 CLI 命令。服务路由、网络、规则、报告、前端及依赖锁均沿用新 main，逐文件差异见机器索引。不能只摘最后文档提交或覆盖 main 的执行器。
 
-## 冻结实现与执行前方案（保留历史）
+## 400 修复的实际结论
 
-2026-10-09。本轮交付是在线 runner、共享费用停止入口和免费接线证据；不是旧八状态任务，也不是 R1 阶段验收。运行候选 **de54a7ee7c141e719f212852e774b304162cd3dc**，基线 aa35a9544d11dd57b85d7efcc4088dc8538977cc，分支 codex/r1-jev-closeout。交付文档提交在候选之后，不改变运行源码身份。
+沿真实 Zod → Mastra → OpenAI-compatible → 网关链确认：旧 `exploration_update.sourceCandidates[].sourceSpan` 是位置式 `items:[...]`，改为同质整数数组并明确两元素约束。运行时仍拒绝少/多元素、非整数、start<0、end<1；新旧44种输入接受集相同，Mastra 在非法输入时不执行工具。itemId/sourceRef/sourceHash/sourceSpan、严格字段及原执行器的实际来源绑定全部保留；没有删除工具、权限、required 或 reasoning 参数。
 
-**三项有限缺口已修复并免费验证；新在线真实验证未执行、未授权。** 本轮只修复报价、窗口停止接线和指标命名；没有浏览器运行、真实 HTTP 或付费调用，不 push/main 合并。默认关闭。旧2182042候选及bc41f90交付原样保存在Git，旧草案/说明/索引副本见 `history/v1/`。当前任务锚点见 [CURRENT-TASK.md](CURRENT-TASK.md)，全部证据身份与摘要见 [evidence-index.json](evidence-index.json)。
+真实浏览器产生的完整16工具请求已无位置式 items。模型、`tool_choice:required`、`reasoning.effort:low`、stream/usage、4096输出上限、Wafer only/no-fallback/require_parameters 与原失败完全相同。**这只是兼容候选；未向真实供应商发送，不能证明 tuple 是400根因或问题已恢复。** 历史同供应商/同顶层参数成功的反证仍有效。首条 `semantic-agent` 将同时作为真实兼容检查和既定9行的第一行，不另加收费探针；若再次失败立即停批，不自动换参数或模型。
 
-## 执行链与实验范围
+## 本次验证与既有证据的边界
 
-三个模式共用原执行器、页面/候选/检查事项、动作许可、后置测量、报告与证据规则；每轮独立 API 进程、数据库、端口和证据目录。Agent 模式不安装程序决策 host；program 优先执行确定性排序，必要时交回 Agent；jev 先用相同程序过滤/排序，只有剩余多个合格候选的公开优先级仍有歧义，才由 Jev 给分。明确唯一目标和单候选不花 Jev 请求。Jev 不授予权限、不判断效果真伪或宣布完成。
+| 证据 | 本次结果及可以支持的结论 |
+| --- | --- |
+| 4文件108项定向测试 | schema等价/SDK出站、显式风险接受、跨manifest一次claim、旧来源变化、原子派发、报价与原停止链通过。测试源码8d187a6；main整合未改这些文件。最终复核将续验测试改为自包含夹具，真实SHA-256逻辑保留；5项受影响测试在1e78ea6重新通过，不能把它们另加成5项独立覆盖。正式runner继续固定原证据，运行区实际只读预检通过。 |
+| 首轮失败保留 | 首轮105通过1失败（测试沿用旧单价预算）；类型检查发现注入I/O类型问题。修正后108通过及类型检查通过，初始日志保留，不计为成功。 |
+| 新 main 整合 | e3cfafe上锁定依赖离线安装、`pnpm build`（含类型检查、服务端/工作台/两靶场）及2项规则默认/历史报告定向测试通过。没有重跑旧规则矩阵。 |
+| 三条受影响浏览器路径 | semantic-agent：2动作、required effect verified=1、0发现；ambiguity-jev：2动作、verified=1/failed=1、1有证据发现；expanded-program：2动作、failed=1、1有证据发现。三条源码e3cfafe（最后变更仅测试注入，产品/host/浏览器代码相同），均completed、原事项/测量附件校验通过，且含新ui-rules观察事件。模型均固定替身，真实调用0；completed不表示页面健康。 |
+| 干净运行区准备 | 最终1e78ea6类型检查、parent runner/child server bundle构建通过；manifest、旧来源及公开报价只读预检通过；真实CLI拒绝空署名/无有效期草案，在报价/凭据/claim/输出目录创建前退出。新风险claim不存在。 |
+| 旧失败保存 | 原41项失败证据、旧DB、claim及execution-lock摘要不变；无对账写入、无新的官方账单。 |
+| 复用历史 | [18+1受控闭环与单frame](../r1-controlled-loop-v1/README.md)、[旧在线接线/103项](history/pre-closeout/README.md)、[26项诊断](diagnosis-400/README.md)按各自代码/范围复用，不能叠成新版全量通过。 |
 
-Agent 使用原 `evaluation/support/model-gateway.ts`；Jev 使用既有提供方适配器。两者进入同一个 CampaignSession/SQLite 费用账本、reserve/dispatch 原子停止门与停止 epoch。父 runner 在实际 fetch 前记录 requestId、parentRun、manifestHash、完整 state/messages 摘要及 wireHash；Jev 另保存完整 frame、题目映射、原始回执，按原始响应重算，失效结果不能变成动作。子执行进程只收到本地网关令牌，没有真实提供方密钥。复用既有执行器扩展口，不另建执行器，不改 R0 分支或生产默认开关。
+本次原始浏览器DB/PNG/build/logs保留在 `artifacts/r1-online-pilot/closeout-current/`，机器索引列绝对本机路径、字节与摘要；不是已上传或随Git可迁移的原始包。Git保存关键日志、审计和摘要。历史索引按记录提交解释：[旧根索引](history/pre-closeout/evidence-index.json)路径含原位置，其历史根文件字节应从 `0d6652f` 读取；不把后来改动的 CURRENT-TASK/报价/manifest 当作历史摘要匹配。
 
-本批最多 3 场景 × 3 模式，各一次，顺序固定为 semantic 的 agent/program/jev，再 ambiguity 三组，再 expanded 三组。只新增一个小型 ambiguity fixture；另两项复用既有 fixture：
+## 完成条件核对：有限闭环与原完整 R1 尚有范围差异
 
-| 场景 | 实际要检查的事实 | 评价边界 |
-| --- | --- | --- |
-| semantic | 明确 Reveal 目标，点击后 Ready，健康反例 | 程序直接处理目标；不能为制造竞争调用 Jev |
-| ambiguity | Configure 与 Learn more 均在范围；前者公开预期 Ready、实际 Wrong，后者 Information | 两者都合理，无唯一正确首选；看实测发现、覆盖及首次结果，不能用按钮选择判通过 |
-| expanded | Reveal 后出现 Continue，继续操作才能测得公开预期失败 | 复用有界局部扩展；真实 Agent/Jev 是否完成仍待验证 |
+现行Roadmap要求继续修复、产品接入核对和既定有限真实验证；[受控契约](../r1-controlled-loop-v1/CONTRACT.md)及本9行冻结覆盖局部公开控件、一次扩样、测量/原事项回连及有界交回。较早的 [完整收尾计划](../r1-completion-plan.md)另承诺以下产品出口，未收到明确取消或后置决定。**不自动把9行改名完整R1，不因旧计划较大就无授权启动72轮。** 已提出范围澄清，在答复前保留全部未完成项。
 
-固定 fixture HTML 摘要、goal、源码、模型、费用和次数见 [manifest.proposed.json](manifest.proposed.json)。非 semantic 的 null goal 表示原执行器默认目标，其确切文本在 batch.ts 校验中冻结。未来动态帧只能来自此候选、这些页面和已注册 parentRun，不能把授权当任意状态通配符。参考缺陷留在评价侧；发送公共 DOM/文本/历史及原检查事实，不发送测试正确排序标签。
+| 承诺 | 实际状态 |
+| --- | --- |
+| 原执行器操作→测量→原事项/证据→继续或交回 | 18+1历史及本次3条免费路径有证据；真实9行待恢复。无第二账本/报告作者。 |
+| 程序优先、歧义评分、有界主Agent交回 | 受控host已接入；单frame真实Jev协议成立；真实整轮交回、成本与收益未证实。 |
+| 取消/预算/stale/来源不足/恢复失败不假成功 | 原反例按原版本复用，续验账本变化和新unknown反例通过；不宣称通用恢复成功。 |
+| S3 状态/路径、公平性、边界输入、返回刷新、重复状态与反例策略 | 纯领域模块有单元证据，但 `planNext`/`assessStrategies` 未进入实际 `createControlledHost`；当前host不是完整策略调度器。 |
+| C01–C12 产品矩阵 | C01局部健康、C11有限恢复失败、C12预算边界有部分相关历史证据；尚无整套冻结逐行验收。C02标签、C03输入、C04返回刷新、C05/C06至少3步缺陷/健康对照、C07公平性、C08滚动裁切、C09重复状态、C10导航歧义均不可用当前9行宣称通过。 |
+| S1六状态/S2独立评分与S5 12×3×2=72轮 | 本次未执行，也未被单frame/9行替代。独立评分/标签和完整产品策略仍有工程准备工作，是否属于本次最终出口待明确。 |
+| 产品默认与报告 | 通用API未安装实验host；只由runner专用server入口显式安装，默认关闭。R1事件、原coverage/check/effect/partial及未覆盖分支沿用现有报告；没有完整S3路径/策略产品呈现。 |
 
-## 费用、问题数与停止门
+当前采用建议：**不默认启用Jev，保留有限实验opt-in**。依据是真实闭环与收益未完成，并非已证明Jev无收益。即使9行全部运行，也只对这3场景的开发参考做描述性A/B/C比较，不宣传泛化、独立保留评分或完整产品验收。真实质量平局、partial、无收益均据实结束这批，不增加样本或调参。
 
-报价为本地保存的 2026-10-09 官方端点快照，见 [price-source.json](price-source.json)：[Agent 官方端点](https://openrouter.ai/api/v1/models/deepseek/deepseek-v4.1-flash/endpoints)、[Jev 官方端点](https://openrouter.ai/api/v1/models/typesafe/jev-1.13/endpoints)、[TypeSafe 计费说明](https://docs.typesafe.ai/models)。本次收尾未重新联网确认报价；真实 runner 在授权校验后、取得密钥/消费 claim 前重新查询两个公开端点。
+## 一次恢复授权的确定内容（尚未批准）
 
-| 路径 | 固定模型 / provider | 每请求预留 | 每 run / 全批请求上限 |
-| --- | --- | ---: | ---: |
-| Agent（含两程序组的交回） | deepseek/deepseek-v4.1-flash / Wafer | US$0.053 | 8 / 72 |
-| Jev（仅 jev 模式） | typesafe/jev-1.13，回执预期 typesafe/jev-1.13-20260917 / TypeSafe | US$0.003 | 2 / 6 |
-| 视觉 | 禁止 | US$0 | 0 / 0 |
+原失败：manifest `9f73f0d6e3140b2d891d043441053bb75579550d58fdbf850a081c0bdc56ba75`；request `0ddb03d5250db453759b72ee` / Wafer `a0d1d4a1a35a`。Agent实际派发1、HTTP400、usage缺失，Jev0、动作0，其余8行未运行。旧unknown预留USD0.053、已知实费0、总实费未知，stop epoch1和旧claim保持。完整失败见[原结果](paid/RESULT.md)，[支持材料](diagnosis-400/support-request.md)已备、未发送。
 
-Agent 输入 US$0.045/百万 token、输出 US$1.20/百万 token；使用完整 1,048,576 context 加 4,096 输出做保守预留：1,048,576×0.000000045 + 4,096×0.0000012 = 0.05210112，上取 0.053。实际 wire 最多 131,072 bytes，输出 max_tokens=4096。预留不是估计实际花费。
+[报价快照](price-source.json)在2026-10-09 09:21 UTC获取，干净运行区又经公开端点预检确认未超出。Agent Wafer输入USD0.055/百万、输出USD1.2/百万，按1,048,576上下文+4096输出计USD0.06258688，向上预留每次0.063；Jev输入USD0.042/百万、每次预留0.003。[Agent端点](https://openrouter.ai/api/v1/models/deepseek/deepseek-v4.1-flash/endpoints)、[Jev端点](https://openrouter.ai/api/v1/models/typesafe/jev-1.13/endpoints)。每次正式启动仍先重新检查报价/参数支持，变化超限即在凭据和claim之前拒绝。
 
-Jev 对 2–3 候选发 1 道 readiness 加每候选 relevance/informationGain 两题，即每请求 5 或 7 题，最多 6 请求 / 42 题。wire 最多 32,768 bytes，复用 64,000 总 context、输入 US$0.042/百万 token、输出免费依据：64,000×0.000000042=0.002688，上取 0.003；不能把题数当独立 HTTP 请求数或重复计费次数。服务另有 32,000 prompt 限制，编译器不做精确 tokenizer 证明，若服务拒绝立即保留失败，不拆分追加请求。readiness 0.5 是预先固定的探索性交回门槛，不是校准质量声明。
+| 项目 | 上限 |
+| --- | ---: |
+| semantic/ambiguity/expanded × agent/program/jev | 9行，每行6动作、8主模型、180秒 |
+| Agent每行/三场景合计 | 非Jev行0.504；Jev行含评分0.510 |
+| 新Agent调用 | 最多72次，共预留USD4.536 |
+| 新Jev调用 | 仅Jev组三行，各最多2次，共6次/预留USD0.018 |
+| 新视觉/重试/补跑 | 0 |
+| 新批次总上限 | 78次请求，USD4.554，整批30分钟 |
+| 加原unknown的在线关联账本上限 | **USD4.607**（4.554+0.053），总实费仍未知 |
+| 加已结算的独立单frame历史实费 | 另有USD0.000250824；包括它的累计记账上限USD4.607250824 |
 
-**上限 9 runs、72 主模型 + 6 Jev = 78 请求；72×0.053 + 6×0.003 = US$3.834。** 每 agent/program 行 0.424、每 jev 行 0.430。不能把 9 runs 写成 9 请求；也不是新增许可或绝对账单保证。真实费用以响应 usage 记账，缺失保留 unknown 及预留。按供应商账单出现超预留仍需如实结算并停止，不能改写为零。
+拟议授权有效期为批准后24小时。一次批准覆盖：上述源码/manifest、对旧unknown风险的明确接受、9行兼容检查和后续整轮、失败/partial留存、费用/原始回执核对及最终有限结果交付；第一行成功后不逐步重复询问。它不授权额外探针、扩大样本、改变阈值/模型/费用、供应商消息、push或main合并，也不自动豁免原完整产品承诺。USD0.053是未结预留，**不是已知账单上限或确认扣费**；USD4.607是程序记账上限，不能承诺原unknown最终账单恰好小于0.053。
 
-每 run 最多 6 actions、8 主调用、180,000ms；工具 5,000ms，模型 15,000ms，重试 0；全批窗口 1,800,000ms，从创建批次开始计时，不是授权文件失效时间的持续重验。semantic-agent 是顺序第一条烟测；无停止事件时同一授权内自动继续剩余行，质量无增益不能触发调参、扩样或重试。无 fallback、禁止视觉、禁止未批准模型。
+默认拒绝机制已经实现：授权必须精确绑定新manifest和 `riskAcceptance`，旧批准不再适用。原DB/claim/锁被固定路径和摘要引用；新批次只在显式接受后获得自己的持久账户，并在合计记账中永久带入原unknown。canonical目录的 `continued-0ddb03d5250db453759b72ee.claim` 以exclusive方式仅创建一次，换manifest/output/工作区不能重复接受同一旧失败。每次reserve/原子dispatch前复核旧来源；旧账本变化或任何新unknown触发停批/取消，未发请求释放占用，已发请求保留晚到费用。旧批次不复活、不清unknown、不改epoch、不删claim。该机制只为这一条固定失败，不是通用绕停平台。
 
-unknown、超额、请求上限、批次到时、传输/协议失败、执行错误、重复目标、安全/持久化失败或虚假成功停止新派发，通知原 run 取消。已在途请求可迟到结算；unknown 对账后不恢复停止 epoch。已有取消/unknown 双向门和在途结算反例见定向测试。正常语义交回是 partial，不自动当错误通过，也不因为没有优势而继续追加实验。
+若用户不接受该风险，则等有权账单/合法generation ID完成正式对账；无证据时不记0、不伪造generation ID。账单若到达，本候选会因源摘要变化拒绝，需要核对新事实后更新冻结，不暗中继续。
 
-## 已有证据及复用理由
+## 已准备的执行步骤与交接
 
-证据均为固定服务返回配合真实本地 API/Chromium；**本轮新增真实模型请求 0**。免费服务 usage=0 是替身事实，不能据此预测线上成本或模型能力。下表不是同构建的 8 行正式对照：
-
-| 证据目录 | 源码 | 运行与可证明内容 |
-| --- | --- | --- |
-| free-wiring | e59db0f | ambiguity 三组 + expanded-program 共 4 轮；实际操作和测量、三模式入口及初版共享账本 |
-| free-handoff | e59db0f | ambiguity-jev 1 轮；固定 Jev 交回后进入固定 Agent，同一 run/account |
-| final-smoke | ddc7357 | semantic-agent、ambiguity-jev 共 2 轮；最终报价/固定 provider 配置、缓冲主模型响应及证据评价接线 |
-| final-trace | 2182042 | ambiguity-jev 1 轮；实际 wire 与各自 reserve 的 requestId/parentRun 对应；Agent+Jev 两笔均结算 |
-
-共 8 次定向运行，只有 3 个场景，不能汇总成 8 场景覆盖或最终候选完整矩阵。每个 server.mjs 的 source map 内 133 份源码均核对到该轮提交；前 5 轮构建摘要一致，后 3 轮构建摘要一致（详见索引）。final-trace 的 identity.sourceDirty=true 原样保留：运行前已有未跟踪旧 manifest 草案；当时及本次核对跟踪源码无修改，子构建 source map 与2182042匹配。父 runner 未另存运行时完整源码快照，因此身份依赖当时提交/工作区记录，不把 dirty 标记改成 false。
-
-e59db0f→ddc7357 的 host/server-entry 主要是格式调整，优先级及 fixture 不变；父 runner 实质增加主响应 provider 检查、两份报价门、Jev provider.only、评价与显式环境开关，不能只凭旧 5 轮宣称这些通过；由 final-smoke 和对应定向测试补覆盖。ddc7357→2182042 仅 batch/runner 增加 AsyncLocalStorage 逐派发身份、auditWire 及全批窗口定时取消（另加测试）；fixture/策略/评价/子构建不变，所以复用 final-smoke 的动作及测量证据，同时 final-trace 核对最新身份接线。以上是v1的证据边界；本轮用受控时钟闭合到期边界，见下节，不把它写成新的浏览器运行。
-
-final-trace 的 blocked **是预期交回，不是通过场景**：固定 readiness=requires-agent-investigation，固定 Agent 随后 run_finish(unverified-scope)。0 动作、0 实测效果、2 项效果仍待检查、缺陷未发现；1 次 Jev + 1 次 Agent 同 parentRun，账本全 settled，已知费用0/held0/unknown0。证明交回和记账，不证明真实 Agent 能接住并完成任务。没有安全错误或虚假成功。
-
-`targeted-final-18.log`：11 项 online 定向测试 + 7 项受影响 host 测试通过；`typecheck-final-18.log` 类型检查通过。日志生成于2182042提交前的同一源码内容，归属候选按版本记录及新增测试内容确认，日志本身不内嵌源码SHA；不伪装成干净checkout重跑。早期17项日志只作历史，不替代18项记录。初次 typecheck 失败（重复stage展开）保留，已修复后通过。这是上轮收尾证据；本轮新增受影响的103项定向测试、类型检查和构建，未重跑浏览器或旧18+1。
-
-继续复用旧 [18+1 受控闭环证据](../r1-controlled-loop-v1/README.md) 的原范围（恢复、预算、晚到来源等），不把它们标为新三组真实效果。aa35a95 的单帧真实 Jev 1请求/5题，实际 US$0.000250824、pending0，只证明那个协议响应兼容；旧 claim 已消费，不是本批授权，未重跑。
-
-## 三项修复出口与剩余边界
-
-三项均在 `de54a7e` 闭合；原始命令、退出码、源码/构建及日志见 `evidence-index.json` 的 `gapClosure`，目录 `artifacts/r1-online-pilot/gaps-v2/`。
-
-| 出口 | 实现 | 实际免费验证 |
-| --- | --- | --- |
-| 报价fail-closed | preflight.ts严格验证Agent/Jev必需prompt/completion；拒绝缺失/null/空白/非法类型或字符串/NaN/Infinity/负数/超cap；校验model/provider/context及必需能力。可选计费项缺席保持缺席，出现时必须满足支持的零费用或缓存上限策略；未知计费项/非空阶梯拒绝 | preflight.test.ts共87项：四必需单价各19类无效值、合法原价/零值、四类超上限、可选项及provider/model反例；实际runner调用的preparePaidAccess证明失败先于密钥读取、claim消费与后续派发 |
-| 批次窗口 | batch.ts注入窄时钟；到期同一abort信号通知原网关和当前run取消，网关立即取消在途传输。lifecycle.ts复用原取消API，正常结束清理timer/listener | online.test.ts共13项（原11+新2）：在1,800,000ms边界到期，前1ms未停；拒绝新Agent/Jev、预留待派发及排队重试；两传输signal aborted，原run取消通知；迟到usage结算0.021测试美元、unknown清零后epoch仍1且批次仍停；正常清理不触发到时回调 |
-| 测量语义 | measurement.ts、evaluate.ts、runner.ts统一firstMeasurementEventMs/Seq/At；仅有有效时间及可用measurement/receipt引用的generic/effect事件入计时，不代表事项结算/有效发现 | measurement.test.ts共3项：无事件/无引用/无效或倒置时间为null；有测量事件但无已结算事项仍是partial、0有效发现；真实0ms与缺失null区别保留 |
-
-版本为 `r1-online-pilot-2`、`r1-online-result-2`、`r1-online-evaluation-2`，字段契约见 [measurement-fields-v2.schema.json](measurement-fields-v2.schema.json)。新结果不再输出误导性的firstSettledMeasurementMs或旧firstMeasuredSeq/At。旧报告/原字段不重写、不按v2含义回填；要查看旧测量时仍读旧事件与引用。首次finding仍需要原事项失败、measurement及finding证据，不以新的测量时间代替质量指标。
-
-最终候选103项测试（87报价+13在线+3测量）、类型检查及父runner/子入口构建全部退出0。仅免费mock与本地网关窄集成，注入时钟不实等30分钟、不启动浏览器。初轮同范围也通过；格式化后在已提交候选上作最终验证，全部原始日志保留。没有改高单价、预留或请求数量，没有新依赖。
-
-证据复用：2182042→de54a7e只改这三项及对应版本/启动顺序。fixture、权限、动作/后置检查、程序排序、完整帧与实际wire绑定、账本存储均未变，旧真实本地动作/测量/引用证据保留原身份；新报价门、到时取消与指标由上述新测试覆盖。旧4+1+2+1仍不是最终候选9run对照，不重算为新版模型能力成绩。
-
-剩余启动条件仅为**用户对准确新manifest的一次性付费授权**及实际运行环境准备；届时用合法私密凭据、干净候选和未消费claim目录，真实启动会再次校验公开报价。服务不可用、报价/模型改变或前检失败即停止，不自动扩scope/cap或花钱探测。本轮未读取真实密钥，未创建批准文件/claim，旧单frame授权已消耗。
-
-真实动态全帧兼容、真实Agent接手行为、三组效果仍未验证；这是授权批次要回答的问题，并非免费替身已证明。每模式每场景一次只能比较这3个开发场景的实测发现/覆盖、费用、调用与时间，不能推广完整R1收益。无增益则据实结束，不继续调参或扩样。默认保持关闭，R1阶段未通过。
-
-## 精确复现与待授权运行命令
-
-机器索引路径以仓库根为基准。artifacts/r1-online-pilot 是保留的本地免费证据，不随Git提交；转交时只复制索引列出的文件，不能仅给开发机绝对路径。报告内旧绝对路径到包内文件的映射在索引 rows/artifactMappings。不依赖整个data目录、运行数据库、浏览器profile或密钥。
-
-当前 manifest 内容hash（对JSON.stringify(parsed)计算SHA256）为 **9f73f0d6e3140b2d891d043441053bb75579550d58fdbf850a081c0bdc56ba75**；文件字节SHA256在索引。原2182042草案hash14175ec1…在history/v1/完整保留，ddc7357更早草案仍在本地superseded记录；它们都不是新授权。下面的候选准备命令不是付费许可：
+运行区的 `data/r1-recovery/manifest.json` 为冻结原字节；[approval.draft.json](evidence/current/approval.draft.json)故意缺署名/有效期，实际CLI已证明拒绝。**批准后**才依据用户原话与时间生成 `data/r1-recovery/approval.json`（approvedBy/approvalReference/expiresAt，风险字段原样），私密注入现有 `R1_ONLINE_API_KEY`，不复制.env、不输出凭据，再运行：
 
 ```sh
-# 在持有上述提交的仓库内；用独立目录，保留当前工作区
-R1_SOURCE=de54a7ee7c141e719f212852e774b304162cd3dc
-R1_DELIVERY=$(git rev-parse HEAD) # 必须是包含本README/manifest的交付提交
-R1_RUNTIME=../ui-sentinel-r1-online-runtime
-git worktree add --detach "$R1_RUNTIME" "$R1_SOURCE"
-mkdir -p "$R1_RUNTIME/local-input"
-git show "$R1_DELIVERY:plans/r1-online-pilot/manifest.proposed.json" > "$R1_RUNTIME/local-input/manifest.json"
-cd "$R1_RUNTIME"
-git rev-parse HEAD
-node --version # 使用Node24；已有证据24.21.0
-pnpm --version # 已有证据10.17.1
-pnpm install --frozen-lockfile
-pnpm exec playwright install chromium # 仅缺少对应浏览器时安装；本次未重装
+cd /Users/xietian/.codex/worktrees/r1-recovery/ui-sentinel
+export PATH="/Users/xietian/.local/share/fnm/node-versions/v24.21.0/installation/bin:$PATH"
+node_modules/.bin/tsx scripts/r1-online-pilot/runner.ts --run \
+  data/r1-recovery/authorized-batch \
+  data/r1-recovery/manifest.json data/r1-recovery/approval.json \
+  /Users/xietian/Documents/ChatGPT/ui-sentinel-r1-online-claims
 ```
 
-新manifest在候选de54a7e中尚未生成，因此必须从本次文档交付提交提取，不能在文档tip直接运行后声称sourceSha仍为de54a7e。源码及锁文件已包含所有运行依赖，没有本轮新依赖。
+本次只运行了draft-rejection-probe（授权检查即拒绝）、只读readiness和bundle构建，没有执行上述有授权批次。下一执行者先核对runtime HEAD/干净状态、manifest摘要、canonical旧证据及批准原文。runner会再次检查，不预先手动消费claim。若任何前置条件变化，保留失败，不删除claim或重建账户重试。
 
-复现免费接线的既有命令如下（本轮不重新运行；对早期源码复现需checkout相应SHA，不能混写身份）：
+执行后在本README和同一机器索引更新9行逐行结果、未运行原因、各组实际Agent/Jev调用和费用、测量/覆盖/有效发现/交回/partial。先从原始回执重算再给采用结论，保留旧失败及关联总账；无完整费用不报完整节省率。若未得到更窄范围的明确裁定，则仍把原完整R1产品出口标未完成，不以此恢复批次替代。
 
-```sh
-pnpm exec tsx scripts/r1-online-pilot/runner.ts --free artifacts/r1-online-pilot/free-wiring ambiguity-agent ambiguity-program ambiguity-jev expanded-program
-pnpm exec tsx scripts/r1-online-pilot/runner.ts --free-handoff artifacts/r1-online-pilot/free-handoff ambiguity-jev
-pnpm exec tsx scripts/r1-online-pilot/runner.ts --free artifacts/r1-online-pilot/final-smoke semantic-agent ambiguity-jev
-pnpm exec tsx scripts/r1-online-pilot/runner.ts --free-handoff artifacts/r1-online-pilot/final-trace ambiguity-jev
-pnpm exec vitest run scripts/r1-online-pilot/online.test.ts src/agent/exploration/integration/host.test.ts
-pnpm typecheck
-```
-
-未来 approval 结构：`approvedBy`、可追溯 `approvalReference`、准确 `manifestHash`、`maxCostUsd:3.834`、`maxRuns:9`、未来 `expiresAt`。当前未生成批准文件；旧freezeHash授权拒绝。只有取得准确新manifest的对应授权后才执行：
-
-```sh
-# 私下提供R1_ONLINE_API_KEY；不得打印、提交或把.env复制进证据
-# local-input/approval.json 来自对具体新manifest的明确授权
-pnpm exec tsx scripts/r1-online-pilot/runner.ts --run artifacts/r1-online-pilot/authorized-batch-1 local-input/manifest.json local-input/approval.json /ABS/CANONICAL/ONLINE-CLAIMS
-```
-
-最后一项是该批唯一、跨工作区共用的本地claim目录，须事先选定并保持不变；不能换目录绕过一次性claim。runner不跨机器统一此目录，因此本批只允许一台指定机器一个进程，不能复制授权并行执行。未知或停止后不自动恢复，不消费旧单帧未用余额。
-
-本轮新增免费复核命令（已运行；无需为授权重复）：
-
-```sh
-pnpm exec vitest run scripts/r1-online-pilot/online.test.ts scripts/r1-online-pilot/preflight.test.ts scripts/r1-online-pilot/measurement.test.ts --reporter=verbose
-pnpm typecheck
-pnpm exec esbuild scripts/r1-online-pilot/runner.ts scripts/r1-online-pilot/server-entry.ts --outdir=artifacts/r1-online-pilot/gaps-v2/build --bundle --platform=node --format=esm --packages=external --sourcemap
-```
+维护者可直接采用的状态稿：R1已形成与main规则/DNS共存的本地候选1e78ea6，完成schema兼容准备、显式旧unknown续验门及必要免费验证；真实供应商恢复、9行收益、原完整产品出口均待证据。Jev默认保持关闭。main尚未接收R1，没有push；批准只决定真实恢复，不代替维护者合并审阅。
