@@ -1,0 +1,14 @@
+{
+  "command": [
+    "pnpm",
+    "exec",
+    "tsx",
+    "scripts/r1-decision-pilot/v2-intake/cli.ts",
+    "--output",
+    "plans/r1-decision-pilot/r0-v2-intake/evidence/baseline"
+  ],
+  "exitCode": 0,
+  "sourceCommit": "a0a15375fdae0aa27e72dfaffd1fec6340541a2b",
+  "node": "v24.21.0",
+  "pnpm": "10.17.1"
+}

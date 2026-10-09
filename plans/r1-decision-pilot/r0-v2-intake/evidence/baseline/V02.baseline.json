@@ -1,0 +1,16 @@
+{
+  "version": "r1-offline-advice-v2-intake-1",
+  "stateId": "V02",
+  "packetSha256": "487bedc2745e55aabb714f71bd477dd1dcc3d757f00ae1b399faf57f389cfc2c",
+  "choice": {
+    "kind": "handoff",
+    "reason": "no-selected-open-investigation"
+  },
+  "tiedPriorityGroups": [],
+  "stableTieBreak": "candidate-id; not evidence of superiority",
+  "suggestions": [],
+  "priorityReasonableness": "evaluate-separately-with-frozen-reference",
+  "executionPath": "unknown",
+  "directlyExecutable": false,
+  "verifiedProgress": false
+}

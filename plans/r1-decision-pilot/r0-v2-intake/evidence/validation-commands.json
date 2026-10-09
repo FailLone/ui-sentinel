@@ -1,0 +1,55 @@
+{
+  "sourceCommit": "a0a15375fdae0aa27e72dfaffd1fec6340541a2b",
+  "capture": "stdout copied from tool results; tests/typecheck ran immediately before code commit with identical listed files; no rerun",
+  "node": "v24.21.0",
+  "pnpm": "10.17.1",
+  "vitest": "5.0.1",
+  "cwdMapping": {
+    "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007": "repository-root"
+  },
+  "lockSha256": "a83d99f740493e28ea5a0da4072cd87bf3b89f59e638970893cbc17ca6858701",
+  "commands": [
+    {
+      "argv": [
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "scripts/r1-decision-pilot/v2-intake/adapter.test.ts",
+        "scripts/r1-decision-pilot/v2-intake/facets.test.ts"
+      ],
+      "exitCode": 0,
+      "log": "targeted-tests.log"
+    },
+    {
+      "argv": [
+        "pnpm",
+        "typecheck"
+      ],
+      "exitCode": 0,
+      "log": "typecheck.log"
+    }
+  ],
+  "testedSourceFiles": [
+    {
+      "path": "scripts/r1-decision-pilot/v2-intake/adapter.test.ts",
+      "sha256": "f4467c81d97d87e2e1cadd06c9b39fe76e6a1772a3266832dcb250e0c79fbb0c"
+    },
+    {
+      "path": "scripts/r1-decision-pilot/v2-intake/adapter.ts",
+      "sha256": "28d7c81934b5ee8777b874c158354690f82752daadcb31ed2a4647ecd6c9f2b2"
+    },
+    {
+      "path": "scripts/r1-decision-pilot/v2-intake/cli.ts",
+      "sha256": "424167ecc1e12a047bb0c7a9474f881d482fa92c76df8e71b6ade2e321b25876"
+    },
+    {
+      "path": "scripts/r1-decision-pilot/v2-intake/facets.test.ts",
+      "sha256": "95a0c7c9a0114cab87369ecc3eb7b0feaa899a1d9072232dcf200659eab2f3a3"
+    },
+    {
+      "path": "scripts/r1-decision-pilot/v2-intake/facets.ts",
+      "sha256": "f031ac3405c71e06074f6b13cbbf4683172715f19a64501e21db5e726fe52d18"
+    }
+  ]
+}

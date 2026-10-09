@@ -1,0 +1,253 @@
+{
+  "version": "r1-v2-intake-report-1",
+  "sourceCommit": "a0a15375fdae0aa27e72dfaffd1fec6340541a2b",
+  "dependencyCommit": "556f2419c5f062cdfb2cfd0a4867a4a95b9864b7",
+  "indexSha256": "f1c2d06c63c22812edbd4f71b6efce2f0cc8d8fbde1096075f4adf2760810b3e",
+  "referenceSha256": "e236fe0c3cc64d74cf4ba9c1a43ac8787b3aa56c679fc91e8a688446307990ea",
+  "sourceDirectory": "plans/r1-decision-pilot/r0-v2-intake",
+  "comparisons": [
+    {
+      "stateId": "V01",
+      "observed": 1,
+      "eligible": 1,
+      "choice": {
+        "kind": "advice",
+        "candidateId": "item-7dcf4768-55aa-4d44-a1a5-4b6b7bb79e3d",
+        "intent": "investigate-candidate"
+      },
+      "ties": [
+        [
+          "item-7dcf4768-55aa-4d44-a1a5-4b6b7bb79e3d"
+        ]
+      ],
+      "executionPath": "unknown",
+      "verifiedProgress": false,
+      "dryRun": "single-without-model",
+      "questions": 0,
+      "obligationRelevance": "supported-development-reference",
+      "rankingSuperiority": "unknown",
+      "completeExecutionPath": "unknown",
+      "referenceStatus": "development-only; public facts reviewed before baseline; not independent blind review"
+    },
+    {
+      "stateId": "V02",
+      "observed": 5,
+      "eligible": 0,
+      "choice": {
+        "kind": "handoff",
+        "reason": "no-selected-open-investigation"
+      },
+      "ties": [],
+      "executionPath": "unknown",
+      "verifiedProgress": false,
+      "dryRun": "handoff-without-model",
+      "questions": 0,
+      "obligationRelevance": "supported-development-reference",
+      "rankingSuperiority": "unknown",
+      "completeExecutionPath": "unknown",
+      "referenceStatus": "development-only; public facts reviewed before baseline; not independent blind review"
+    },
+    {
+      "stateId": "V03",
+      "observed": 5,
+      "eligible": 3,
+      "choice": {
+        "kind": "advice",
+        "candidateId": "item-033a20ec-9c58-488f-ac3d-bf1612519380",
+        "intent": "investigate-candidate"
+      },
+      "ties": [
+        [
+          "item-033a20ec-9c58-488f-ac3d-bf1612519380",
+          "item-3384edb5-d7a8-45b8-8a97-ddd799a291a0",
+          "item-9e4cea0f-9acc-405b-91f2-66fc75f421de"
+        ]
+      ],
+      "executionPath": "unknown",
+      "verifiedProgress": false,
+      "dryRun": "dry-run-only",
+      "questions": 7,
+      "obligationRelevance": "supported-development-reference",
+      "rankingSuperiority": "unknown",
+      "completeExecutionPath": "unknown",
+      "referenceStatus": "development-only; public facts reviewed before baseline; not independent blind review"
+    },
+    {
+      "stateId": "V04",
+      "observed": 3,
+      "eligible": 1,
+      "choice": {
+        "kind": "advice",
+        "candidateId": "item-183bce7f-e123-40f5-9922-8d5d61a99fd7",
+        "intent": "investigate-candidate"
+      },
+      "ties": [
+        [
+          "item-183bce7f-e123-40f5-9922-8d5d61a99fd7"
+        ]
+      ],
+      "executionPath": "unknown",
+      "verifiedProgress": false,
+      "dryRun": "single-without-model",
+      "questions": 0,
+      "obligationRelevance": "supported-development-reference",
+      "rankingSuperiority": "unknown",
+      "completeExecutionPath": "unknown",
+      "referenceStatus": "development-only; public facts reviewed before baseline; not independent blind review"
+    },
+    {
+      "stateId": "V05",
+      "observed": 1,
+      "eligible": 1,
+      "choice": {
+        "kind": "advice",
+        "candidateId": "item-bea1f6fc-4a89-41ee-8f3c-db991a3007d5",
+        "intent": "investigate-candidate"
+      },
+      "ties": [
+        [
+          "item-bea1f6fc-4a89-41ee-8f3c-db991a3007d5"
+        ]
+      ],
+      "executionPath": "unknown",
+      "verifiedProgress": false,
+      "dryRun": "single-without-model",
+      "questions": 0,
+      "obligationRelevance": "supported-development-reference",
+      "rankingSuperiority": "unknown",
+      "completeExecutionPath": "unknown",
+      "referenceStatus": "development-only; public facts reviewed before baseline; not independent blind review"
+    },
+    {
+      "stateId": "V06",
+      "observed": 1,
+      "eligible": 1,
+      "choice": {
+        "kind": "advice",
+        "candidateId": "item-50d6f321-8754-4b11-830e-742b27f32004",
+        "intent": "investigate-candidate"
+      },
+      "ties": [
+        [
+          "item-50d6f321-8754-4b11-830e-742b27f32004"
+        ]
+      ],
+      "executionPath": "unknown",
+      "verifiedProgress": false,
+      "dryRun": "single-without-model",
+      "questions": 0,
+      "obligationRelevance": "supported-development-reference",
+      "rankingSuperiority": "unknown",
+      "completeExecutionPath": "unknown",
+      "referenceStatus": "development-only; public facts reviewed before baseline; not independent blind review"
+    }
+  ],
+  "denominators": {
+    "states": 6,
+    "adviceStates": 5,
+    "multiCandidateStates": 1,
+    "discriminatingPreferenceReferences": 0,
+    "executionPathsProven": 0
+  },
+  "httpRequests": 0,
+  "browserRuns": 0,
+  "newModelCostUsd": 0,
+  "futureRequestQuoteUsd": null,
+  "files": [
+    {
+      "path": "V01.facts.json",
+      "sha256": "6cd1079737bd00943a80a056c50f645439134d243d03c3bed66f7612e10381c7",
+      "bytes": 19190
+    },
+    {
+      "path": "V01.baseline.json",
+      "sha256": "37e083704eb4fa8b61433e7c37d07913e7530fe2aebdb150220e8259d08ec44d",
+      "bytes": 1597
+    },
+    {
+      "path": "V01.dry-run.json",
+      "sha256": "2c6108bf6d586e3b1924d083bcc20d5a7727be13bc6f46459d62e5aa69fce778",
+      "bytes": 63
+    },
+    {
+      "path": "V02.facts.json",
+      "sha256": "e048d91840443e1deb36172a6abba29b6a41049799badbea2b2cf9870f766acf",
+      "bytes": 16194
+    },
+    {
+      "path": "V02.baseline.json",
+      "sha256": "999eb39c25337b285bd9dbed892b97466ef68ad079035b438521936f0afc1d63",
+      "bytes": 521
+    },
+    {
+      "path": "V02.dry-run.json",
+      "sha256": "ab983fe3003035bc239a19df4d4eb55f7bd94c512f9dcb9556c81cf031a471f6",
+      "bytes": 64
+    },
+    {
+      "path": "V03.facts.json",
+      "sha256": "43eebfe87c77e7ca59ace514a272e6199ec2b263165b84eba7e4babb02a3e2a3",
+      "bytes": 32717
+    },
+    {
+      "path": "V03.baseline.json",
+      "sha256": "14abb93b772054461797304539969bfd158d677cc36814e86ad904606c1eeb1b",
+      "bytes": 3707
+    },
+    {
+      "path": "V03.request.json",
+      "sha256": "7c9a62a1fa5207edc90c3bf11a03f4dad8e781c575ed861f68a4db3f92fbb428",
+      "bytes": 28525
+    },
+    {
+      "path": "V03.dry-run.json",
+      "sha256": "221a938f93f8b5e89ec1fd3352e89b3bef80b22fd6fafe45559faf8e7a63cf0f",
+      "bytes": 1252
+    },
+    {
+      "path": "V04.facts.json",
+      "sha256": "d5618cfd9367e127e30c27e3e8da9fee0671e435b306f9daa9dab49791aa73ee",
+      "bytes": 33786
+    },
+    {
+      "path": "V04.baseline.json",
+      "sha256": "251a63105c93c071bebcd62135f4bea089250c6b849856db6965cd8a0885f98a",
+      "bytes": 1668
+    },
+    {
+      "path": "V04.dry-run.json",
+      "sha256": "2c6108bf6d586e3b1924d083bcc20d5a7727be13bc6f46459d62e5aa69fce778",
+      "bytes": 63
+    },
+    {
+      "path": "V05.facts.json",
+      "sha256": "6e20259917d63ba054ed55def2671a8c55a214468a36b89e04c3431efb7d2031",
+      "bytes": 34105
+    },
+    {
+      "path": "V05.baseline.json",
+      "sha256": "7d8240479ad178f9b3d833bd1a29c82016cd8f0a0654c5404811eca1c38fefc3",
+      "bytes": 2307
+    },
+    {
+      "path": "V05.dry-run.json",
+      "sha256": "2c6108bf6d586e3b1924d083bcc20d5a7727be13bc6f46459d62e5aa69fce778",
+      "bytes": 63
+    },
+    {
+      "path": "V06.facts.json",
+      "sha256": "36a850d60d32b8135bb7a990aa2b8bd11c549db7c16970576c6cf90246d3187f",
+      "bytes": 35961
+    },
+    {
+      "path": "V06.baseline.json",
+      "sha256": "2d9c48a4b2a799634ddf6e2395e37e24de14bdad1090bbcdac7a56ab83bd416a",
+      "bytes": 2337
+    },
+    {
+      "path": "V06.dry-run.json",
+      "sha256": "2c6108bf6d586e3b1924d083bcc20d5a7727be13bc6f46459d62e5aa69fce778",
+      "bytes": 63
+    }
+  ]
+}

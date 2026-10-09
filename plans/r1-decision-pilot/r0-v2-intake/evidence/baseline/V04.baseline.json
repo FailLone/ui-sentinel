@@ -1,0 +1,45 @@
+{
+  "version": "r1-offline-advice-v2-intake-1",
+  "stateId": "V04",
+  "packetSha256": "34e7033ced1288163c408964e7d403adfe71f50c69c4a6c5227dbac5b528884c",
+  "choice": {
+    "kind": "advice",
+    "candidateId": "item-183bce7f-e123-40f5-9922-8d5d61a99fd7",
+    "intent": "investigate-candidate"
+  },
+  "tiedPriorityGroups": [
+    [
+      "item-183bce7f-e123-40f5-9922-8d5d61a99fd7"
+    ]
+  ],
+  "stableTieBreak": "candidate-id; not evidence of superiority",
+  "suggestions": [
+    {
+      "candidateId": "item-183bce7f-e123-40f5-9922-8d5d61a99fd7",
+      "text": "AlphaBeta",
+      "publicSupport": [
+        "generic-evidence"
+      ],
+      "supportRef": "public/V04.json#registeredChecks",
+      "nativeAction": "fill",
+      "priorGeneric": {
+        "state": "pending",
+        "evidenceRefs": [],
+        "eventIds": []
+      },
+      "missingInformation": [
+        "live node connection/permission/safety and current budget require executor validation",
+        "remainingMs is recorded request estimate, not a proven wall-clock lower bound",
+        "future dollar quote/remaining authorization unknown; local stub zero cost grants none",
+        "visible/enabled and absent blockedPoints do not prove click authorization",
+        "checkInteractions.requirements is frozen action data; current states are in inspectionScope.checks",
+        "no comparative preference truth or outcome prediction is supplied",
+        "native-fill-execution-and-measurement-contract-not-mapped"
+      ]
+    }
+  ],
+  "priorityReasonableness": "evaluate-separately-with-frozen-reference",
+  "executionPath": "unknown",
+  "directlyExecutable": false,
+  "verifiedProgress": false
+}
