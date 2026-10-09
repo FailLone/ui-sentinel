@@ -126,8 +126,8 @@
     },
     {
       "path": "plans/r1-online-pilot/CURRENT-TASK.md",
-      "sha256": "e29eb090c41000efa22cd4471f3e3f84eb7d01ceef0555b037b59eca8fa8ed10",
-      "bytes": 2432,
+      "sha256": "b4289db28795b468bf6058859be25af1c7b5e46723d30d4c50caf2e1116bf9e7",
+      "bytes": 2648,
       "storage": "git-delivery"
     },
     {
@@ -138,8 +138,8 @@
     },
     {
       "path": "plans/r1-online-pilot/diagnosis-400/README.md",
-      "sha256": "8efc0b20d2c32fd52c3760571aadf85f6392afcef1c4d44eeb0754bb6961f943",
-      "bytes": 13431,
+      "sha256": "f3523ccbba924bf4b46ce141cb5e76d2698f78d010bc376b7549999340f1a04f",
+      "bytes": 13180,
       "storage": "git-delivery"
     },
     {
@@ -230,6 +230,12 @@
       "path": "plans/r1-online-pilot/history/20261009-pre-diagnosis-CURRENT-TASK.md",
       "sha256": "33071679ac3300209f14fe25fc2967354bc42aac674bf90081e75d507bca494b",
       "bytes": 8192,
+      "storage": "git-delivery"
+    },
+    {
+      "path": "plans/r1-online-pilot/diagnosis-400/support-request.md",
+      "sha256": "03e2919dedcdf4d724cfa3af6bbcfbf74838da49baef25ce760abf1bf8be3346",
+      "bytes": 10049,
       "storage": "git-delivery"
     }
   ],
@@ -338,5 +344,41 @@
     "currentPriceIllustrativeReserveUsd": 0.058,
     "existingReserveUnchangedUsd": 0.053,
     "nextEvidence": "Official per-request rejection detail and final billing receipt with identity mapping; support draft prepared but not sent."
+  },
+  "supportHandoff": {
+    "version": 1,
+    "status": "prepared-not-sent-stopped",
+    "baselineSha": "3a4e30162efa63e9be59229a5917fcedc1a66bd0",
+    "preparedAt": "2026-10-09T09:06:05.300466+00:00",
+    "entry": "plans/r1-online-pilot/diagnosis-400/support-request.md",
+    "officialSupportEntry": {
+      "url": "https://openrouter.ai/support/",
+      "checkedDate": "2026-10-09",
+      "observedAction": "Create Ticket",
+      "access": "read-only official public page; no form submission"
+    },
+    "attachments": [
+      {
+        "path": "evaluation/support/fixtures/r1-http400/error.json",
+        "sha256": "2e0f9c84e132185d7d1d9a14fa4059e3d5ddb10338d841e5a5730d8a40b1e9aa",
+        "bytes": 521,
+        "required": true
+      }
+    ],
+    "wireHash": "ff003c650b1f55787934e4d8043cdc6c821bb4d464debfaf2bcf649d9e9d9631",
+    "bodyAttached": false,
+    "unrelatedConsumptionAttached": false,
+    "newCodeNeeded": false,
+    "reason": "No established local defect explaining the completed HTTP 400; schema differences remain hypotheses. Existing header capture boundary cannot recover old response identity.",
+    "validation": "Document links, identity and single attachment hash checked; existing diagnosis and 26 tests reused without rerun.",
+    "codeChanges": 0,
+    "testRuns": 0,
+    "inferenceRequests": 0,
+    "authenticatedQueries": 0,
+    "providerMessagesSent": 0,
+    "ledgerWrites": 0,
+    "nextOwner": "User submits prepared text; OpenRouter maps request and final account charge, coordinating Wafer for rejection detail.",
+    "receiptWithoutGeneration": "Preserve official receipt and unknown history; do not fabricate generationId. Assess a narrow typed receipt reconciliation contract only if this case actually occurs.",
+    "oldBatchRemainsStopped": true
   }
 }

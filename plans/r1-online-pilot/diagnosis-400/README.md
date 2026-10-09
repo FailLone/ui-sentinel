@@ -73,9 +73,7 @@ node_modules/.bin/tsc --noEmit
 
 ## 下一步与明确停止点
 
-当前需要的是本笔服务记录与账单，不需要再花钱复现同一泛化错误。可人工向 OpenRouter/Wafer 提交下列支持摘要；**本轮仅准备文字，没有发送**：
-
-> 请定位 2026-10-09 07:54:35.109 UTC 经 OpenRouter 发往 Wafer 的 DeepSeek-V4.1-Flash 请求，Wafer request_id `a0d1d4a1a35a`。返回 HTTP 400 / model_request_rejected / param=null，未收到 usage 或 generation ID。请提供关联 OpenRouter generation/请求身份、具体被拒字段或服务原因，以及最终收费/明确未收费凭据。客户端完整请求 SHA256 见本包 request-audit.json，必要时可按合适渠道提供脱敏 body。
+当前需要的是本笔服务记录与账单，不需要再花钱复现同一泛化错误。后续有界支持交接已整理为唯一 [support-request.md](support-request.md)：可直接复制的英文请求、官方支持入口、1 个既有脱敏附件、回复核对/追加契约及恢复决策。仅准备材料，未发送。现阶段无必要新增代码工作，未重跑本页已有诊断或测试。
 
 本轮不生成可执行新 manifest/approval，也不建议盲目探针。若以后确需一次主模型验证，须先满足原 unknown 的可信对账及停止账户准入规则、明确修复依据与新授权；最多 1 次、零重试、同模型/Wafer、无 Jev/fallback/视觉，保留相同语义页面状态与工具契约，失败、超时、无 usage 或非预期身份立即停止。不能换库/新 campaign 绕过 unknown，也不能复用原 USD 3.834 未用预留。
 
