@@ -1,3 +1,5 @@
+import { fileURLToPath } from 'node:url'
+import { resolve } from 'node:path'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
 import { digest } from '../../src/agent/exploration/integration/host.ts'
@@ -101,7 +103,11 @@ export function authorize(m: Manifest, approval: any, sourceSha: string) {
   )
     throw Error('online-authorization-required')
 }
-if (process.argv[2] === '--freeze') {
+if (
+  process.argv[1] &&
+  resolve(process.argv[1]) === fileURLToPath(import.meta.url) &&
+  process.argv[2] === '--freeze'
+) {
   const sha = execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim()
   const manifest = makeManifest(sha)
   writeFileSync(process.argv[3], JSON.stringify(manifest, null, 2) + '\n', { flag: 'wx' })
