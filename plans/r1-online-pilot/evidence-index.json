@@ -2,7 +2,7 @@
   "version": "r1-product-delivery-1",
   "checkedAt": "2026-10-09T13:53:23.089767+00:00",
   "entry": "plans/r1-online-pilot/README.md",
-  "status": "paid-hard-failure-repaired-awaiting-specific-recovery-approval",
+  "status": "authorized-recovery-running",
   "sourceSha": "98f7854472c3df9e3baa913ab3e74f97d8cff3c7",
   "integratedMainSha": "48b02b3fbfe7e5d95189a0d813480761b123ff6b",
   "mergeSha": "3cabb048b1d98609ec25d16756364b2f1b58761b",
@@ -17,7 +17,7 @@
     "bytes": 722,
     "sha256": "0a39489ea4e104072870a63e829f8f2a1308aae285019db5b8ad774e7ed3fc1e"
   },
-  "realAcceptanceApproved": false,
+  "realAcceptanceApproved": true,
   "newRealCalls": 4,
   "newJevCalls": 0,
   "paidProposal": {
@@ -549,7 +549,7 @@
     "authorizationBeforeQuoteCredentialsClaimVerifiedInRunner": true,
     "accurateCommand": "scripts/r1-product/acceptance.ts --run OUTPUT MANIFEST APPROVAL CANONICAL_CLAIMS"
   },
-  "authorizationRecord": "product/authorization-record.json",
+  "authorizationRecord": "product/recovery/authorization-record.json",
   "paidOriginal": {
     "sourceSha": "ddf1dd943f238dc71c2d3e4e6ef327e1ba44c2db",
     "manifestHash": "41eb23e34527461bae8bc50e6d0b28ae53d94bb584d8d167b7eddecedbfcf510",
@@ -580,5 +580,7 @@
     "readonlyPinsPreflightPassed": true,
     "noRealRequestsAfterStop": true,
     "unintendedBroadFreeRunInterruptedAndNotCountedAsFullPass": true
-  }
+  },
+  "approval": "product/recovery/approval.authorized.json",
+  "expiresAt": "2026-10-10T13:58:00Z"
 }
