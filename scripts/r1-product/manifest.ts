@@ -10,7 +10,7 @@ export const CASES = [
   ['C03', 'boundary-input'],
   ['C04a', 'refresh'],
   ['C04b', 'return-start'],
-  ['C04c', 'view-context'],
+  ['C04c', 'view-context-healthy'],
   ['C05', 'three-step-defect'],
   ['C06', 'three-step-healthy'],
   ['C07', 'fairness'],
@@ -33,7 +33,7 @@ export const LIMITS = {
   modelMs: 15000,
 } as const
 export function goal(scenario: string) {
-  return scenario === 'view-context'
+  return scenario === 'view-context' || scenario === 'view-context-healthy'
     ? 'Inspect "Read panel".'
     : scenario === 'fairness'
       ? 'Inspect "Primary".'

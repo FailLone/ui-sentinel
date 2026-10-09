@@ -134,3 +134,22 @@ it('a proposed action is never visited or verified until the executor returns it
     reason: 'action-not-measured-or-refused',
   })
 })
+
+it('a numeric maxlength is not a supported native boundary; a text maxlength gives a concrete max+1 probe', async () => {
+  const raw: any = input()
+  raw.inspectionScope.candidates.pop()
+  raw.inspectionScope.checks.pop()
+  raw.observation.elements.pop()
+  raw.observation.elements[0].tag = 'input'
+  raw.observation.elements[0].attributes = { type: 'number', maxlength: '3' }
+  expect(await createProductHost({ ...policy, jev: false }).decide(raw, context())).toMatchObject({
+    kind: 'handoff',
+    reason: 'public-input-constraint-unavailable',
+  })
+  raw.observation.elements[0].attributes.type = 'text'
+  expect(await createProductHost({ ...policy, jev: false }).decide(raw, context())).toMatchObject({
+    kind: 'tool',
+    tool: 'page_act',
+    args: { type: 'fill', value: 'xxxx' },
+  })
+})

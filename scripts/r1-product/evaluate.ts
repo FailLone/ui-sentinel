@@ -10,6 +10,7 @@ export function evaluateProduct(report: any, scenario: string, readable: Readonl
     'boundary-input': 1,
     refresh: 3,
     'view-context': 3,
+    'view-context-healthy': 3,
     'return-start': 2,
     'three-step-defect': 3,
     'three-step-healthy': 3,
@@ -76,6 +77,8 @@ export function evaluateProduct(report: any, scenario: string, readable: Readonl
     new Set(exp?.visitedStates.map((s: string) => JSON.parse(s)[1])).size < 2
   )
     issues.push('new-document-rebinding')
+  if (scenario === 'view-context-healthy' && checks?.requiredEffectVerifiedCount !== 2)
+    issues.push('healthy-view-recheck')
   if (scenario === 'recovery' && checks?.requiredEffectPendingCount !== 1)
     issues.push('original-unresolved-effect-lost')
   if (partial && !exp?.handoffs.length) issues.push('missing-handoff')

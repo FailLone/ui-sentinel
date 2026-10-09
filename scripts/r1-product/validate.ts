@@ -169,7 +169,7 @@ try {
           entryUrl: origin + pathFor(name),
           exploration: { mode: 'program', jev: false },
           ...(name === 'budget' ? { budget: { maxActions: 1 } } : {}),
-          ...(name === 'view-context'
+          ...(name === 'view-context' || name === 'view-context-healthy'
             ? { goal: 'Inspect "Read panel".' }
             : name === 'fairness'
               ? { goal: 'Inspect "Primary".' }
@@ -250,6 +250,7 @@ try {
       'three-step-healthy': 3,
       'state-cycle': 2,
       'view-context': 3,
+      'view-context-healthy': 3,
       fairness: 3,
       'boundary-input': 1,
       ambiguous: 0,
@@ -292,6 +293,7 @@ try {
         exploration.attempts.map((a: any) => a.label),
         ['Primary', 'Secondary', 'Quiet control'],
       )
+    if (name === 'view-context-healthy') assert.equal(checks.requiredEffectVerifiedCount, 2)
     if (name === 'repeat-defect') assert.equal(checks.requiredEffectVerifiedCount, 1)
     if (name === 'three-step-healthy' || name === 'menu-healthy')
       assert.equal(checks.requiredEffectVerifiedCount, 1)

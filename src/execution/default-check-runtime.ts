@@ -460,7 +460,9 @@ export function createDefaultCheckRuntime(host: {
     const boundary =
       host.contract.exploration &&
       original.action.type === 'fill' &&
-      ['input', 'textarea'].includes(sourceInput?.tag ?? '') &&
+      (sourceInput?.tag === 'textarea' ||
+        (sourceInput?.tag === 'input' &&
+          ['text', 'search'].includes(sourceInput.attributes.type || 'text'))) &&
       sourceInput?.attributes.maxlength !== undefined &&
       Number.isInteger(maximum) &&
       maximum >= 0 &&

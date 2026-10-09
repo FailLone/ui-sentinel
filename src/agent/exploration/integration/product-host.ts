@@ -332,6 +332,8 @@ export function createProductHost(
         const e = raw.observation.elements.find((e: any) => e.ref === JSON.parse(c.context).ref),
           n = Number(e.attributes.maxlength)
         return c.role === 'textbox' &&
+          (e.tag === 'textarea' ||
+            (e.tag === 'input' && ['text', 'search'].includes(e.attributes.type || 'text'))) &&
           e.attributes.maxlength !== undefined &&
           Number.isInteger(n) &&
           n >= 0 &&
