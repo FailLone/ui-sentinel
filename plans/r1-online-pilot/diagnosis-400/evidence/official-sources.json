@@ -1,0 +1,84 @@
+{
+  "compiledAt": "2026-10-09T08:47:15.008341+00:00",
+  "summariesAreNotRawReceipts": true,
+  "sources": [
+    {
+      "id": "generation",
+      "url": "https://openrouter.ai/docs/api/api-reference/generations/get-request-&-usage-metadata-for-a-generation",
+      "result": "read via web",
+      "fact": "GET /api/v1/generation requires id matching ^gen-[0-9A-Za-z-]+$, maximum 128 characters; metadata can include total_cost, model, provider_name, request_id and upstream_id."
+    },
+    {
+      "id": "parameters",
+      "url": "https://openrouter.ai/docs/api_reference/parameters",
+      "result": "read via web",
+      "fact": "tool_choice required is defined; reasoning is a request map. Tool definitions may be transformed for non-OpenAI providers."
+    },
+    {
+      "id": "routing",
+      "url": "https://openrouter.ai/docs/guides/routing/provider-selection",
+      "result": "read via web",
+      "fact": "require_parameters true filters providers by parameter support; only constrains provider selection; this does not establish support for every parameter combination or nested schema."
+    },
+    {
+      "id": "errors",
+      "url": "https://openrouter.ai/docs/api_reference/errors-and-debugging",
+      "result": "read via web",
+      "fact": "Pre-stream errors can have non-200 status and JSON rather than SSE; no-content alone is not a billing guarantee. Specific error cause must come from actual provider evidence."
+    },
+    {
+      "id": "deepseek-direct",
+      "url": "https://api-docs.deepseek.com/api/create-chat-completion/",
+      "result": "read via web and predecessor saved HTML",
+      "fact": "Direct DeepSeek API says required/named tool choice is unsupported in thinking mode and yields 400. This is a hypothesis for Wafer, not Wafer protocol proof; the same routed combination previously succeeded."
+    },
+    {
+      "id": "analytics",
+      "url": "https://openrouter.ai/docs/client-sdks/typescript/sdks/analytics/README",
+      "result": "read via web",
+      "fact": "User activity is grouped by endpoint over completed UTC days; analytics queries require a management key. No documented lookup by the saved Wafer error request ID was established."
+    },
+    {
+      "id": "credits",
+      "url": "https://openrouter.ai/docs/client-sdks/typescript/sdks/credits/README",
+      "result": "read via web",
+      "fact": "Credits returns total purchased and used credits, not a per-request billing receipt."
+    },
+    {
+      "id": "wafer-index",
+      "url": "https://docs.wafer.ai/llms.txt",
+      "result": "read via web; shell fetch 403",
+      "fact": "Index lists chat completions, model capabilities, errors, and usage/billing documentation."
+    },
+    {
+      "id": "wafer-chat-completions",
+      "url": "https://docs.wafer.ai/serverless/chat-completions.md",
+      "result": "unavailable via web; predecessor documented HTTP 403 for chat-completions/errors/usage",
+      "fact": "Contents not verified; no conclusion inferred from unavailable documentation."
+    },
+    {
+      "id": "wafer-errors",
+      "url": "https://docs.wafer.ai/serverless/errors.md",
+      "result": "unavailable via web; predecessor documented HTTP 403 for chat-completions/errors/usage",
+      "fact": "Contents not verified; no conclusion inferred from unavailable documentation."
+    },
+    {
+      "id": "wafer-usage",
+      "url": "https://docs.wafer.ai/serverless/usage.md",
+      "result": "unavailable via web; predecessor documented HTTP 403 for chat-completions/errors/usage",
+      "fact": "Contents not verified; no conclusion inferred from unavailable documentation."
+    },
+    {
+      "id": "wafer-models",
+      "url": "https://docs.wafer.ai/serverless/models.md",
+      "result": "unavailable via web; predecessor documented HTTP 403 for chat-completions/errors/usage",
+      "fact": "Contents not verified; no conclusion inferred from unavailable documentation."
+    },
+    {
+      "id": "public-endpoints",
+      "url": "https://openrouter.ai/api/v1/models/deepseek/deepseek-v4.1-flash/endpoints",
+      "result": "HTTP 200 unauthenticated GET; raw snapshot retained",
+      "fact": "Current Wafer endpoint advertises reasoning/tool_choice/required; prompt price 0.00000005 vs failed-run snapshot 0.000000045; output 0.0000012, context 1048576."
+    }
+  ]
+}

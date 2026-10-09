@@ -302,6 +302,20 @@ export async function startGateway(
       const upstream = await upstreamPromise!
       record.firstByteMs = Date.now() - start
       record.httpStatus = upstream.status
+      // Correlation only: these are not generation IDs or billing evidence. Capture before
+      // reading the body so a broken stream still leaves a bounded support handle. Never
+      // persist arbitrary headers (cookies, authorization, account metadata, etc.).
+      record.responseHeaders = {}
+      for (const name of ['x-request-id', 'x-openrouter-request-id', 'cf-ray']) {
+        const value = upstream.headers.get(name)
+        if (
+          value &&
+          /^[A-Za-z0-9_-]{1,128}$/.test(value) &&
+          !value.includes(key) &&
+          !value.includes(token)
+        )
+          record.responseHeaders[name] = value
+      }
       const chunks: Uint8Array[] = []
       if (body.stream)
         res.writeHead(upstream.status, {

@@ -1,0 +1,342 @@
+{
+  "version": "r1-http400-diagnosis-1",
+  "date": "2026-10-09",
+  "timezone": "Asia/Shanghai",
+  "status": "bounded-diagnosis-complete-stopped-root-cause-and-cost-unresolved",
+  "baselineSha": "4bf887cb6150975145abc62cad3c61bc9f5fea56",
+  "failedRuntimeSourceSha": "de54a7ee7c141e719f212852e774b304162cd3dc",
+  "failedInputDeliverySha": "d63352c79aec5ff24e0f91bd75730052850075e7",
+  "manifestHash": "9f73f0d6e3140b2d891d043441053bb75579550d58fdbf850a081c0bdc56ba75",
+  "requestId": "0ddb03d5250db453759b72ee",
+  "parentRun": "run-70e34b02-2d84-4498-b133-15405529861b",
+  "providerRequestId": "a0d1d4a1a35a",
+  "rootCause": {
+    "status": "unconfirmed",
+    "compatibilityFix": false,
+    "observabilityOnly": true,
+    "sameTopLevelParametersPreviouslySucceeded": true
+  },
+  "cost": {
+    "checkedAt": "2026-10-09T08:47:15.008341+00:00",
+    "requestId": "0ddb03d5250db453759b72ee",
+    "providerRequestId": "a0d1d4a1a35a",
+    "generationId": null,
+    "authenticatedGenerationQueries": 0,
+    "authenticatedUsageOrTransactionQueries": 0,
+    "credentialRead": false,
+    "reasonNoAuthenticatedQuery": "Saved local ID and Wafer ID are not valid generation IDs under the documented API. No documented per-request usage/transaction lookup using these IDs was established. Do not fabricate gen- prefixes or enumerate unrelated activity/credits.",
+    "inferenceRequests": 0,
+    "retries": 0,
+    "providerMessagesSent": 0,
+    "billingReceiptFound": false,
+    "knownActualUsd": 0,
+    "actualTotalUsd": null,
+    "unknownCount": 1,
+    "unknownReservedUsd": 0.053,
+    "heldReservedUsd": 0,
+    "stopEpoch": 1,
+    "reconciliationAppends": 0,
+    "missing": [
+      "OpenRouter generation ID OR authoritative provider billing receipt with explicit mapping to Wafer request a0d1d4a1a35a at 2026-10-09T07:54:35.109Z",
+      "Confirmed final USD amount including an explicit zero if not charged",
+      "Model/provider/time/account-side request identity matching this dispatched request"
+    ],
+    "reconcileContract": "CampaignLedger.reconcile appends ledger_reconciliations; original unknown request and stop event remain. Its ID/evidence binding must be independently verified before calling. No SQL updates, claims, locks, sessions or live batches were changed."
+  },
+  "validation": {
+    "runtime": "Node v24.21.0",
+    "commands": [
+      "node_modules/.bin/vitest run evaluation/support/model-gateway.test.ts evaluation/support/model-gateway-provider.test.ts evaluation/support/model-gateway-diagnosis.test.ts scripts/r1-online-pilot/online.test.ts --reporter=verbose",
+      "node_modules/.bin/tsc --noEmit"
+    ],
+    "testFiles": 4,
+    "testsPassed": 26,
+    "testExit": 0,
+    "typecheckExit": 0,
+    "schemaValidator": "Ajv 8.20.0, Draft-07, strict=false; validateSchema",
+    "schemasChecked": 30,
+    "liveInferenceRequests": 0,
+    "browserRuns": 0,
+    "subagents": 0,
+    "commandEnvironment": "PATH begins /Users/xietian/.local/share/fnm/node-versions/v24.21.0/installation/bin; inherited environment not recorded"
+  },
+  "preservation": {
+    "paidIndexedFilesUnchanged": 35,
+    "totalSnapshotsVerifiedUnchanged": 41,
+    "claimConsumed": true,
+    "lockRetained": true,
+    "ledgerStopEpoch": 1,
+    "reconciliationAppends": 0
+  },
+  "successSources": [
+    {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/oss-compare/2026-09-24T10-14-38-366Z/requests.jsonl",
+      "sha256": "fee4072233ab5b34728fff3edc5e0b0765660784b5687788e8d2383d9dd893da",
+      "line": 1,
+      "binding": {
+        "run": "C1-current-atomic-1",
+        "seq": 1
+      }
+    },
+    {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/oss-compare/2026-09-24T10-14-38-366Z/ledger.jsonl",
+      "sha256": "b167d25b9c87f9c68389cfba591cd99230b4b4ae5a498248cc172f4f15d100ab",
+      "line": 1,
+      "binding": {
+        "run": "C1-current-atomic-1",
+        "seq": 1
+      }
+    },
+    {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/oss-compare/2026-09-24T10-14-38-366Z/responses.jsonl",
+      "sha256": "f315aea40184e60f9f342d84b4adb6dee1bd15836a8e1cdc65c8ba5d845c8fef",
+      "line": 1,
+      "binding": {
+        "run": "C1-current-atomic-1",
+        "seq": 1
+      }
+    }
+  ],
+  "originalFailureIndex": "plans/r1-online-pilot/paid/evidence-index.json",
+  "pathBase": "repository-root",
+  "files": [
+    {
+      "path": "evaluation/support/fixtures/r1-http400/error.json",
+      "sha256": "2e0f9c84e132185d7d1d9a14fa4059e3d5ddb10338d841e5a5730d8a40b1e9aa",
+      "bytes": 521,
+      "storage": "git-delivery"
+    },
+    {
+      "path": "evaluation/support/fixtures/r1-http400/request.json",
+      "sha256": "2c1698c51d411892083ee85ed31324ccd82458eaaf842f663fa1c2b4cdcf6274",
+      "bytes": 65313,
+      "storage": "git-delivery"
+    },
+    {
+      "path": "evaluation/support/model-gateway-diagnosis.test.ts",
+      "sha256": "9ab6fc6ef43d6e171cd0470c7c3232381e2426ad96fe1d6d7e2d42ead8bf60d2",
+      "bytes": 4341,
+      "storage": "git-delivery"
+    },
+    {
+      "path": "evaluation/support/model-gateway.ts",
+      "sha256": "947fa43a1a488c4590b3b52484bbe4239d4d84a26bfaa6aea909431bdcf904fe",
+      "bytes": 16982,
+      "storage": "git-delivery"
+    },
+    {
+      "path": "plans/r1-online-pilot/CURRENT-TASK.md",
+      "sha256": "e29eb090c41000efa22cd4471f3e3f84eb7d01ceef0555b037b59eca8fa8ed10",
+      "bytes": 2432,
+      "storage": "git-delivery"
+    },
+    {
+      "path": "plans/r1-online-pilot/README.md",
+      "sha256": "7e5c1392962dbd9edee2a6fb47bde6890d74f0025ed4c3db685771890eb0f63c",
+      "bytes": 18988,
+      "storage": "git-delivery"
+    },
+    {
+      "path": "plans/r1-online-pilot/diagnosis-400/README.md",
+      "sha256": "8efc0b20d2c32fd52c3760571aadf85f6392afcef1c4d44eeb0754bb6961f943",
+      "bytes": 13431,
+      "storage": "git-delivery"
+    },
+    {
+      "path": "plans/r1-online-pilot/diagnosis-400/evidence/audit.log",
+      "sha256": "6a76949b3739dc0a9a6169c72ccdf72d89dc2e22ddd3c359c01aa7d86a5b3080",
+      "bytes": 2152,
+      "storage": "git-delivery"
+    },
+    {
+      "path": "plans/r1-online-pilot/diagnosis-400/evidence/authoritative-ledger-readonly.json",
+      "sha256": "4964cdce8f81bb0312258f12d7d48c4bad24b12a4c29583a9d276059e7ad9a6b",
+      "bytes": 1047,
+      "storage": "git-delivery"
+    },
+    {
+      "path": "plans/r1-online-pilot/diagnosis-400/evidence/current-wafer-endpoint.json",
+      "sha256": "1041225524defee328ddcf050517e8302a9fdca89660c98e9ca979091e4005b7",
+      "bytes": 1625,
+      "storage": "git-delivery"
+    },
+    {
+      "path": "plans/r1-online-pilot/diagnosis-400/evidence/fee-check.json",
+      "sha256": "6d9d05ff6b218606cbac83a4ed3da33a4bf76ef1922c47756ced21729cb715b2",
+      "bytes": 1434,
+      "storage": "git-delivery"
+    },
+    {
+      "path": "plans/r1-online-pilot/diagnosis-400/evidence/official-sources.json",
+      "sha256": "22e0fcfa03467ef621a445869f515299ab5bc81fc8092e5311fa4f80de74cd5b",
+      "bytes": 4302,
+      "storage": "git-delivery"
+    },
+    {
+      "path": "plans/r1-online-pilot/diagnosis-400/evidence/preservation-verification.json",
+      "sha256": "c9de6be13e88edc603e77dde8ecb0b9f280a83a0739d9957d034ed641811c5a2",
+      "bytes": 12667,
+      "storage": "git-delivery"
+    },
+    {
+      "path": "plans/r1-online-pilot/diagnosis-400/evidence/request-audit.json",
+      "sha256": "76be906957f3dae32e2357ab50076e492429cb97fe76cdebae655f269125a478",
+      "bytes": 14950,
+      "storage": "git-delivery"
+    },
+    {
+      "path": "plans/r1-online-pilot/diagnosis-400/evidence/success-ledger.json",
+      "sha256": "51b6f733d880a800209873735fb396ef9636c0c5443deb7bc59f30a1bf5c7152",
+      "bytes": 1158,
+      "storage": "git-delivery"
+    },
+    {
+      "path": "plans/r1-online-pilot/diagnosis-400/evidence/success-requests.json",
+      "sha256": "29642983947d070ba185f3387ab19383665c87f0ee4ee57646528fb5957a5a3b",
+      "bytes": 35271,
+      "storage": "git-delivery"
+    },
+    {
+      "path": "plans/r1-online-pilot/diagnosis-400/evidence/success-responses.json",
+      "sha256": "b19da7a0c9f63dd2200333625c94f76dfbad254bf88f3904460388cba5f933d1",
+      "bytes": 10572,
+      "storage": "git-delivery"
+    },
+    {
+      "path": "plans/r1-online-pilot/diagnosis-400/evidence/targeted-tests.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes": 2,
+      "storage": "git-delivery"
+    },
+    {
+      "path": "plans/r1-online-pilot/diagnosis-400/evidence/targeted-tests.log",
+      "sha256": "fc2f6a05ba33b5c7b5d6670f0df23a02f93f1c955ec9608d725158eb4d0baeb9",
+      "bytes": 3882,
+      "storage": "git-delivery"
+    },
+    {
+      "path": "plans/r1-online-pilot/diagnosis-400/evidence/typecheck.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes": 2,
+      "storage": "git-delivery"
+    },
+    {
+      "path": "plans/r1-online-pilot/diagnosis-400/evidence/typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "storage": "git-delivery"
+    },
+    {
+      "path": "plans/r1-online-pilot/history/20261009-pre-diagnosis-CURRENT-TASK.md",
+      "sha256": "33071679ac3300209f14fe25fc2967354bc42aac674bf90081e75d507bca494b",
+      "bytes": 8192,
+      "storage": "git-delivery"
+    }
+  ],
+  "localSupplementalFiles": [
+    {
+      "path": "artifacts/r1-online-pilot/diagnosis-400/audit.log",
+      "sha256": "6a76949b3739dc0a9a6169c72ccdf72d89dc2e22ddd3c359c01aa7d86a5b3080",
+      "bytes": 2152,
+      "storage": "ignored-local-retained"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/diagnosis-400/audit.mjs",
+      "sha256": "0f30ac7f515d8f451bc13f5c07f29b2b4e61573be4ac050dea86631631d185e8",
+      "bytes": 3885,
+      "storage": "ignored-local-retained"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/diagnosis-400/authoritative-ledger-readonly.json",
+      "sha256": "4964cdce8f81bb0312258f12d7d48c4bad24b12a4c29583a9d276059e7ad9a6b",
+      "bytes": 1047,
+      "storage": "ignored-local-retained"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/diagnosis-400/official/deepseek-chat.txt",
+      "sha256": "e7133a7c2a7c2662567cca2e2392b503f97c2fb583009ff85f878744e0a36ba7",
+      "bytes": 142966,
+      "storage": "ignored-local-retained"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/diagnosis-400/official/index.json",
+      "sha256": "56b4a1783336704009509eec4b91e22afe932ac0ee7b0145bacb50cb3e2705d6",
+      "bytes": 1174,
+      "storage": "ignored-local-retained"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/diagnosis-400/official/openrouter-endpoints.txt",
+      "sha256": "d935c69f7a34474e8d540fa5dfc41f4b7da4191156673e5de74e11515f0a687b",
+      "bytes": 33468,
+      "storage": "ignored-local-retained"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/diagnosis-400/preservation-before.json",
+      "sha256": "12eb12a1352d650219ed3b48bcd8049819d25b4d91a4bfce805a8f618fe2d2d3",
+      "bytes": 11370,
+      "storage": "ignored-local-retained"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/diagnosis-400/request-audit.json",
+      "sha256": "76be906957f3dae32e2357ab50076e492429cb97fe76cdebae655f269125a478",
+      "bytes": 14950,
+      "storage": "ignored-local-retained"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/diagnosis-400/success-ledger.json",
+      "sha256": "51b6f733d880a800209873735fb396ef9636c0c5443deb7bc59f30a1bf5c7152",
+      "bytes": 1158,
+      "storage": "ignored-local-retained"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/diagnosis-400/success-requests.json",
+      "sha256": "29642983947d070ba185f3387ab19383665c87f0ee4ee57646528fb5957a5a3b",
+      "bytes": 35271,
+      "storage": "ignored-local-retained"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/diagnosis-400/success-responses.json",
+      "sha256": "b19da7a0c9f63dd2200333625c94f76dfbad254bf88f3904460388cba5f933d1",
+      "bytes": 10572,
+      "storage": "ignored-local-retained"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/diagnosis-400/targeted-tests.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes": 2,
+      "storage": "ignored-local-retained"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/diagnosis-400/targeted-tests.log",
+      "sha256": "fc2f6a05ba33b5c7b5d6670f0df23a02f93f1c955ec9608d725158eb4d0baeb9",
+      "bytes": 3882,
+      "storage": "ignored-local-retained"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/diagnosis-400/typecheck.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes": 2,
+      "storage": "ignored-local-retained"
+    },
+    {
+      "path": "artifacts/r1-online-pilot/diagnosis-400/typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "storage": "ignored-local-retained"
+    }
+  ],
+  "futureRequest": {
+    "authorized": false,
+    "executableManifestPrepared": false,
+    "neededNow": false,
+    "maximumIfLaterJustified": 1,
+    "retries": 0,
+    "model": "deepseek/deepseek-v4.1-flash",
+    "provider": "Wafer",
+    "unknownBlocksAdmission": true,
+    "oldApprovalReusable": false,
+    "currentPriceIllustrativeReserveUsd": 0.058,
+    "existingReserveUnchangedUsd": 0.053,
+    "nextEvidence": "Official per-request rejection detail and final billing receipt with identity mapping; support draft prepared but not sent."
+  }
+}

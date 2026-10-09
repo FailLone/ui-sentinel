@@ -1,0 +1,35 @@
+{
+  "ledger_requests": [
+    {
+      "request_id": "0ddb03d5250db453759b72ee",
+      "campaign_id": "2063928d-77c8-46ab-8b09-5811fc52e03e",
+      "run_id": "run-70e34b02-2d84-4498-b133-15405529861b",
+      "phase": "r1-online-pilot-2",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "unknown",
+      "reserved_usd": 0.053,
+      "actual_usd": null,
+      "price_source": "gateway-estimate",
+      "reason": "usage-unavailable",
+      "created_at": "2026-10-09T07:54:35.107Z",
+      "settled_at": "2026-10-09T07:54:35.817Z"
+    }
+  ],
+  "ledger_reconciliations": [],
+  "ledger_stop_events": [
+    {
+      "request_id": "0ddb03d5250db453759b72ee",
+      "campaign_id": "2063928d-77c8-46ab-8b09-5811fc52e03e",
+      "reason": "usage-unavailable",
+      "created_at": "2026-10-09T07:54:35.817Z"
+    }
+  ],
+  "ledger_dispatches": [
+    {
+      "request_id": "0ddb03d5250db453759b72ee",
+      "campaign_id": "2063928d-77c8-46ab-8b09-5811fc52e03e",
+      "dispatched_at": "2026-10-09T07:54:35.108Z"
+    }
+  ]
+}

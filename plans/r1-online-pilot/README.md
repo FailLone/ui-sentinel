@@ -1,6 +1,10 @@
 # R1 在线三组接线：唯一交付入口
 
-## 当前执行结论：已授权批次停止（2026-10-09）
+## 当前诊断结论：有限诊断已完成，费用仍未知（2026-10-09）
+
+400 的具体根因尚未确证；同 DeepSeek/Wafer/required+low 的真实成功记录阻止直接归因。只增加响应关联头取证，26 项免费定向测试及类型检查通过。原请求保留 USD 0.053 unknown、stop epoch 1，旧 claim 已消费，未新增真实推理或恢复批次。唯一诊断入口为 [diagnosis-400/README.md](diagnosis-400/README.md) 及其机器索引；当前任务已停止。
+
+## 原授权执行结论：已停止（保留历史）
 
 用户已明确授权manifestHash `9f73f0d6e3140b2d891d043441053bb75579550d58fdbf850a081c0bdc56ba75` 对应一次批次。已在干净隔离候选de54a7e执行：首条semantic-agent派发1次主模型请求，Wafer返回HTTP400/model_request_rejected，无usage，整批立即停止；Jev0次，其余8行未运行，不记成功或失败。已知费用0、总实际费用未知，unknown1笔/预留US$0.053、held0；claim已消费，不恢复或重试。没有三组差异或采用Jev收益的依据，R1仍未通过、默认关闭。
 
