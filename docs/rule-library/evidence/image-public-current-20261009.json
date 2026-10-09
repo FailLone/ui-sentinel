@@ -1,0 +1,491 @@
+{
+  "version": "public-image-entry-observation-20261009-current-1",
+  "implementationCommit": "ea38712ecb747759c0b57d863c4d889bb0045b46",
+  "branch": "codex/rule-image-proportion",
+  "protocol": {
+    "fixedAt": "2026-10-09T08:47:17.439692+00:00",
+    "sourceCommit": "ea38712ecb747759c0b57d863c4d889bb0045b46",
+    "pages": [
+      {
+        "id": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:PNG_transparency_demonstration_1.png",
+        "reason": "简单静态 PNG 文件说明页；访问后核实",
+        "resourceOrigins": [
+          "https://upload.wikimedia.org",
+          "https://meta.wikimedia.org"
+        ]
+      },
+      {
+        "id": "mdn",
+        "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Responsive_images",
+        "reason": "响应式图片教程；不得将主题冒充真实 srcset 或懒加载验证",
+        "resourceOrigins": [
+          "https://mdn.github.io",
+          "https://interactive-examples.mdn.mozilla.net"
+        ]
+      },
+      {
+        "id": "github",
+        "url": "https://github.com/python/cpython",
+        "reason": "普通公开仓库，预期异步内容；须记录实际 DOM 更新证据",
+        "resourceOrigins": [
+          "https://github.githubassets.com",
+          "https://avatars.githubusercontent.com",
+          "https://user-images.githubusercontent.com",
+          "https://raw.githubusercontent.com",
+          "https://camo.githubusercontent.com"
+        ]
+      }
+    ],
+    "dns": {
+      "mode": "system",
+      "timeoutMs": 5000,
+      "allowedHosts": []
+    },
+    "trustedOrigins": [],
+    "viewport": {
+      "width": 1280,
+      "height": 768
+    },
+    "maximumNavigationsPerPage": 1,
+    "maximumObservationsPerPage": 2,
+    "steps": [
+      "open existing host once",
+      "observe once",
+      "choose uniquely identified supported candidate, preferring facts-ready; if multiple remaining use explicit selector sorted lexically solely as documented sampling, never to resolve a nonunique selector",
+      "wait 5000ms",
+      "diagnose selected candidate once (counts as second observation)",
+      "close"
+    ],
+    "failurePolicy": "no retry, replacement page, DNS change or fallback",
+    "prohibited": [
+      "check without genuine semantic evidence",
+      "placeholder confirmer",
+      "click",
+      "fill",
+      "scroll",
+      "extra resource fetching",
+      "paid model",
+      "test rerun",
+      "product code change"
+    ],
+    "selectionScope": "At most one binding diagnostic per page; no whole-page valid-binding claim."
+  },
+  "results": [
+    {
+      "page": {
+        "id": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:PNG_transparency_demonstration_1.png",
+        "reason": "简单静态 PNG 文件说明页；访问后核实",
+        "resourceOrigins": [
+          "https://upload.wikimedia.org",
+          "https://meta.wikimedia.org"
+        ]
+      },
+      "startedAt": "2026-10-09T08:47:23.698Z",
+      "dns": {
+        "mode": "system",
+        "timeoutMs": 5000,
+        "allowedHosts": []
+      },
+      "observations": 0,
+      "modelCalls": 0,
+      "semanticCheck": "not-executed",
+      "timingMs": {
+        "untilFailure": 428.36320800000004,
+        "total": 429.458375
+      },
+      "failure": "Error: page.goto: net::ERR_BLOCKED_BY_CLIENT at https://commons.wikimedia.org/wiki/File:PNG_transparency_demonstration_1.png\nCall log:\n\u001b[2m  - navigating to \"https://commons.wikimedia.org/wiki/File:PNG_transparency_demonstration_1.png\", waiting until \"load\"\u001b[22m\n",
+      "runs": [
+        {
+          "id": "run-134e445c-7760-4a02-8c91-f1958a0ac48c",
+          "status": "cancelled",
+          "usage": "{\"actions\":0,\"modelCalls\":0,\"elapsedMs\":0,\"modelInputTokens\":0,\"modelOutputTokens\":0}",
+          "spec": "{\"goal\":\"Independent image binding experiment; no acceptance claim\",\"environmentId\":\"image-binding-experiment\",\"entryUrl\":\"https://commons.wikimedia.org/wiki/File:PNG_transparency_demonstration_1.png\",\"budget\":{\"totalTimeoutMs\":300000,\"maxActions\":40,\"maxModelCalls\":40},\"viewport\":{\"width\":1280,\"height\":768}}"
+        }
+      ],
+      "runId": "run-134e445c-7760-4a02-8c91-f1958a0ac48c",
+      "finishedAt": "2026-10-09T08:47:24.127Z",
+      "events": [
+        {
+          "id": "evt-d0e05610-439e-485e-8e9f-ebe34c627a14",
+          "runId": "run-134e445c-7760-4a02-8c91-f1958a0ac48c",
+          "seq": 0,
+          "type": "network:decision",
+          "timestamp": "2026-10-09T08:47:24.082Z",
+          "stepId": null,
+          "actionId": null,
+          "payload": {
+            "requestId": "interception-job-1.0",
+            "actionId": null,
+            "method": "GET",
+            "url": "https://commons.wikimedia.org/wiki/File:PNG_transparency_demonstration_1.png",
+            "destination": "document",
+            "redirectFrom": null,
+            "policyRevision": "url-scan-network-1",
+            "dnsMode": "system",
+            "networkStage": "address",
+            "resolvedAddresses": [
+              "198.18.228.47"
+            ],
+            "elapsedMs": 12,
+            "allow": false,
+            "reasonCode": "private-address",
+            "experiment": "image-bindings-1"
+          },
+          "evidenceRefs": []
+        },
+        {
+          "id": "evt-057d123c-5fc3-4e24-b621-c2dc8bf67c90",
+          "runId": "run-134e445c-7760-4a02-8c91-f1958a0ac48c",
+          "seq": 1,
+          "type": "run:completed",
+          "timestamp": "2026-10-09T08:47:24.126Z",
+          "stepId": null,
+          "actionId": null,
+          "payload": {
+            "status": "cancelled",
+            "stopReason": "cancelled",
+            "experiment": "image-bindings-1",
+            "acceptanceClaim": false
+          },
+          "evidenceRefs": []
+        }
+      ],
+      "artifacts": [],
+      "pageStatistics": {
+        "totalImages": null,
+        "enumeratedImages": null,
+        "omittedImages": null,
+        "supportedImages": null,
+        "machineFieldsComplete": null,
+        "factsReady": null,
+        "bindingInvalidations": null,
+        "reason": "navigation blocked before observation"
+      }
+    },
+    {
+      "page": {
+        "id": "mdn",
+        "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Responsive_images",
+        "reason": "响应式图片教程；不得将主题冒充真实 srcset 或懒加载验证",
+        "resourceOrigins": [
+          "https://mdn.github.io",
+          "https://interactive-examples.mdn.mozilla.net"
+        ]
+      },
+      "startedAt": "2026-10-09T08:47:28.743Z",
+      "dns": {
+        "mode": "system",
+        "timeoutMs": 5000,
+        "allowedHosts": []
+      },
+      "observations": 0,
+      "modelCalls": 0,
+      "semanticCheck": "not-executed",
+      "timingMs": {
+        "untilFailure": 203.440542,
+        "total": 204.289959
+      },
+      "failure": "Error: page.goto: net::ERR_BLOCKED_BY_CLIENT at https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Responsive_images\nCall log:\n\u001b[2m  - navigating to \"https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Responsive_images\", waiting until \"load\"\u001b[22m\n",
+      "runs": [
+        {
+          "id": "run-701eb317-90c6-4a35-8057-d4e4947ab803",
+          "status": "cancelled",
+          "usage": "{\"actions\":0,\"modelCalls\":0,\"elapsedMs\":0,\"modelInputTokens\":0,\"modelOutputTokens\":0}",
+          "spec": "{\"goal\":\"Independent image binding experiment; no acceptance claim\",\"environmentId\":\"image-binding-experiment\",\"entryUrl\":\"https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Responsive_images\",\"budget\":{\"totalTimeoutMs\":300000,\"maxActions\":40,\"maxModelCalls\":40},\"viewport\":{\"width\":1280,\"height\":768}}"
+        }
+      ],
+      "runId": "run-701eb317-90c6-4a35-8057-d4e4947ab803",
+      "finishedAt": "2026-10-09T08:47:28.948Z",
+      "events": [
+        {
+          "id": "evt-433ed43d-676a-42e2-869e-7bd85f118740",
+          "runId": "run-701eb317-90c6-4a35-8057-d4e4947ab803",
+          "seq": 0,
+          "type": "network:decision",
+          "timestamp": "2026-10-09T08:47:28.924Z",
+          "stepId": null,
+          "actionId": null,
+          "payload": {
+            "requestId": "interception-job-1.0",
+            "actionId": null,
+            "method": "GET",
+            "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Guides/Responsive_images",
+            "destination": "document",
+            "redirectFrom": null,
+            "policyRevision": "url-scan-network-1",
+            "dnsMode": "system",
+            "networkStage": "address",
+            "resolvedAddresses": [
+              "198.18.228.52"
+            ],
+            "elapsedMs": 14,
+            "allow": false,
+            "reasonCode": "private-address",
+            "experiment": "image-bindings-1"
+          },
+          "evidenceRefs": []
+        },
+        {
+          "id": "evt-dbd7d4be-52aa-456d-aad3-3180a1daad67",
+          "runId": "run-701eb317-90c6-4a35-8057-d4e4947ab803",
+          "seq": 1,
+          "type": "run:completed",
+          "timestamp": "2026-10-09T08:47:28.946Z",
+          "stepId": null,
+          "actionId": null,
+          "payload": {
+            "status": "cancelled",
+            "stopReason": "cancelled",
+            "experiment": "image-bindings-1",
+            "acceptanceClaim": false
+          },
+          "evidenceRefs": []
+        }
+      ],
+      "artifacts": [],
+      "pageStatistics": {
+        "totalImages": null,
+        "enumeratedImages": null,
+        "omittedImages": null,
+        "supportedImages": null,
+        "machineFieldsComplete": null,
+        "factsReady": null,
+        "bindingInvalidations": null,
+        "reason": "navigation blocked before observation"
+      }
+    },
+    {
+      "page": {
+        "id": "github",
+        "url": "https://github.com/python/cpython",
+        "reason": "普通公开仓库，预期异步内容；须记录实际 DOM 更新证据",
+        "resourceOrigins": [
+          "https://github.githubassets.com",
+          "https://avatars.githubusercontent.com",
+          "https://user-images.githubusercontent.com",
+          "https://raw.githubusercontent.com",
+          "https://camo.githubusercontent.com"
+        ]
+      },
+      "startedAt": "2026-10-09T08:47:37.850Z",
+      "dns": {
+        "mode": "system",
+        "timeoutMs": 5000,
+        "allowedHosts": []
+      },
+      "observations": 0,
+      "modelCalls": 0,
+      "semanticCheck": "not-executed",
+      "timingMs": {
+        "untilFailure": 231.19341700000007,
+        "total": 232.041334
+      },
+      "failure": "Error: page.goto: net::ERR_BLOCKED_BY_CLIENT at https://github.com/python/cpython\nCall log:\n\u001b[2m  - navigating to \"https://github.com/python/cpython\", waiting until \"load\"\u001b[22m\n",
+      "runs": [
+        {
+          "id": "run-fd6caca9-9718-4351-8987-fd3f846a016e",
+          "status": "cancelled",
+          "usage": "{\"actions\":0,\"modelCalls\":0,\"elapsedMs\":0,\"modelInputTokens\":0,\"modelOutputTokens\":0}",
+          "spec": "{\"goal\":\"Independent image binding experiment; no acceptance claim\",\"environmentId\":\"image-binding-experiment\",\"entryUrl\":\"https://github.com/python/cpython\",\"budget\":{\"totalTimeoutMs\":300000,\"maxActions\":40,\"maxModelCalls\":40},\"viewport\":{\"width\":1280,\"height\":768}}"
+        }
+      ],
+      "runId": "run-fd6caca9-9718-4351-8987-fd3f846a016e",
+      "finishedAt": "2026-10-09T08:47:38.082Z",
+      "events": [
+        {
+          "id": "evt-47357deb-9ed1-4748-ba2f-aa2cdaeb1133",
+          "runId": "run-fd6caca9-9718-4351-8987-fd3f846a016e",
+          "seq": 0,
+          "type": "network:decision",
+          "timestamp": "2026-10-09T08:47:38.047Z",
+          "stepId": null,
+          "actionId": null,
+          "payload": {
+            "requestId": "interception-job-1.0",
+            "actionId": null,
+            "method": "GET",
+            "url": "https://github.com/python/cpython",
+            "destination": "document",
+            "redirectFrom": null,
+            "policyRevision": "url-scan-network-1",
+            "dnsMode": "system",
+            "networkStage": "address",
+            "resolvedAddresses": [
+              "198.18.1.109"
+            ],
+            "elapsedMs": 12,
+            "allow": false,
+            "reasonCode": "private-address",
+            "experiment": "image-bindings-1"
+          },
+          "evidenceRefs": []
+        },
+        {
+          "id": "evt-82c6e8da-35c8-4260-8be1-bed47a1a9d81",
+          "runId": "run-fd6caca9-9718-4351-8987-fd3f846a016e",
+          "seq": 1,
+          "type": "run:completed",
+          "timestamp": "2026-10-09T08:47:38.080Z",
+          "stepId": null,
+          "actionId": null,
+          "payload": {
+            "status": "cancelled",
+            "stopReason": "cancelled",
+            "experiment": "image-bindings-1",
+            "acceptanceClaim": false
+          },
+          "evidenceRefs": []
+        }
+      ],
+      "artifacts": [],
+      "pageStatistics": {
+        "totalImages": null,
+        "enumeratedImages": null,
+        "omittedImages": null,
+        "supportedImages": null,
+        "machineFieldsComplete": null,
+        "factsReady": null,
+        "bindingInvalidations": null,
+        "reason": "navigation blocked before observation"
+      }
+    }
+  ],
+  "files": [
+    {
+      "path": "data/experiments/image-public-current-20261009/commons/artifacts.json",
+      "absolutePath": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-public-current-20261009/commons/artifacts.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "data/experiments/image-public-current-20261009/commons/events.json",
+      "absolutePath": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-public-current-20261009/commons/events.json",
+      "bytes": 1268,
+      "sha256": "b368dee03987511473162ccdf369da76a05ab1b328750a72383fe5a1c8231668"
+    },
+    {
+      "path": "data/experiments/image-public-current-20261009/commons/experiment.db",
+      "absolutePath": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-public-current-20261009/commons/experiment.db",
+      "bytes": 73728,
+      "sha256": "c086d659971a57af0220db2025729c73973aaccdbb7cbcf24389e1364d7b6ca5"
+    },
+    {
+      "path": "data/experiments/image-public-current-20261009/commons/result.json",
+      "absolutePath": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-public-current-20261009/commons/result.json",
+      "bytes": 1568,
+      "sha256": "64ab56933205e445a8deb9cd1dc4ef5e784eddd163f761d5310e97b8211d36ad"
+    },
+    {
+      "path": "data/experiments/image-public-current-20261009/commons.log",
+      "absolutePath": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-public-current-20261009/commons.log",
+      "bytes": 1427,
+      "sha256": "12930f6d0b07adb75622e607dccc3253bfe5986713589bfbe0704a7c1719da77"
+    },
+    {
+      "path": "data/experiments/image-public-current-20261009/github/artifacts.json",
+      "absolutePath": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-public-current-20261009/github/artifacts.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "data/experiments/image-public-current-20261009/github/events.json",
+      "absolutePath": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-public-current-20261009/github/events.json",
+      "bytes": 1224,
+      "sha256": "3490852192732009383803179baaf5f8165ef8d224d54b0ce92840abad910532"
+    },
+    {
+      "path": "data/experiments/image-public-current-20261009/github/experiment.db",
+      "absolutePath": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-public-current-20261009/github/experiment.db",
+      "bytes": 73728,
+      "sha256": "a950c7d2284ffa5e63042b9d1cc5d15a05e55e390b289839872b1a3fbb68aca4"
+    },
+    {
+      "path": "data/experiments/image-public-current-20261009/github/result.json",
+      "absolutePath": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-public-current-20261009/github/result.json",
+      "bytes": 1571,
+      "sha256": "f27b553c475295338ea5988659507e2873a6185fdd1de1534ac880f73db95335"
+    },
+    {
+      "path": "data/experiments/image-public-current-20261009/github.log",
+      "absolutePath": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-public-current-20261009/github.log",
+      "bytes": 1409,
+      "sha256": "ddcb798d921cbec0fc506b34425bd2237202538b4df7f7eb75699f5b5f1ae5e7"
+    },
+    {
+      "path": "data/experiments/image-public-current-20261009/mdn/artifacts.json",
+      "absolutePath": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-public-current-20261009/mdn/artifacts.json",
+      "bytes": 3,
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "data/experiments/image-public-current-20261009/mdn/events.json",
+      "absolutePath": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-public-current-20261009/mdn/events.json",
+      "bytes": 1266,
+      "sha256": "94d5d2726a0218809f8735343d9057c09888fde3994394b272914fc9179a3780"
+    },
+    {
+      "path": "data/experiments/image-public-current-20261009/mdn/experiment.db",
+      "absolutePath": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-public-current-20261009/mdn/experiment.db",
+      "bytes": 73728,
+      "sha256": "f498373634c2dc1c39fcae6b98ee492f4ffc835efb95b3943247ea677ab82be2"
+    },
+    {
+      "path": "data/experiments/image-public-current-20261009/mdn/result.json",
+      "absolutePath": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-public-current-20261009/mdn/result.json",
+      "bytes": 1586,
+      "sha256": "1658640ab1fd836d4327bfc1755478aba4069f25f2006898e77c76bb345ee6bf"
+    },
+    {
+      "path": "data/experiments/image-public-current-20261009/mdn.log",
+      "absolutePath": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-public-current-20261009/mdn.log",
+      "bytes": 1445,
+      "sha256": "43f269f1b395ee273d83bc54c443c7cf57dbc80461cfed3c430a7e9f97873a84"
+    },
+    {
+      "path": "data/experiments/image-public-current-20261009/protocol.json",
+      "absolutePath": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-public-current-20261009/protocol.json",
+      "bytes": 2252,
+      "sha256": "e298356af8e4ed109e6f1c954a09bb041c5b9a94eee942223420c879e9c58d9e"
+    },
+    {
+      "path": "data/experiments/image-public-current-20261009/run.ts",
+      "absolutePath": "/Users/xietian/.codex/worktrees/rule-image-proportion/ui-sentinel/data/experiments/image-public-current-20261009/run.ts",
+      "bytes": 3643,
+      "sha256": "ecf5e7459fbc2ebae46b31a3bda0b431de5412a531b0b4308b8241c06b43972e"
+    }
+  ],
+  "totalRetainedBytes": 239852,
+  "sourceHashes": [
+    {
+      "path": "scripts/experiments/image-bindings.ts",
+      "sha256": "87ae9c9b4511932d44ac4c01ad5c93ef4c3ba68c761e8e772c12002e51a9bb06"
+    },
+    {
+      "path": "src/experiments/image-binding-host.ts",
+      "sha256": "bdcaab0c945b9a0f31d6d41ebbd26483dd3f7bddaed33f9bae1f585b4bd1bf62"
+    },
+    {
+      "path": "src/experiments/image-bindings.ts",
+      "sha256": "5fd24acc9c273f1df036aa161a88a0f5dbab3407a8031e647940dcdb74fbbfae"
+    },
+    {
+      "path": "src/execution/image-paint.ts",
+      "sha256": "33e0f932435f088d4dcc1591c67a05a75c78cb79b0ef4c46997d485f5870bf6f"
+    },
+    {
+      "path": "src/execution/browser.ts",
+      "sha256": "3d67f02fd9e49214406e66eaa0162a94198385ccfb326dc2050e802a1dd4e5b8"
+    },
+    {
+      "path": "src/shared/dns-config.ts",
+      "sha256": "fc098bfdb2b7b5bb85269d1e5431e150096581e8c1a9c1c9915dbd5416d79f67"
+    }
+  ],
+  "ruleEvaluations": 0,
+  "modelCalls": 0,
+  "productCodeChanges": false,
+  "priorEvidenceReusedAsCurrent": false,
+  "existingUnrelatedWorktreeEditPreserved": "docs/rule-library/rules-scan-integration-current-task.md"
+}
