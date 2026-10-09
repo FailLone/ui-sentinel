@@ -128,6 +128,7 @@ const fake: typeof fetch = async (url, init) => {
 const service: typeof fetch = free ? fake : fetch
 const upstream: typeof fetch = async (url, init) => {
   try {
+    batch.auditWire(String(url), String(init?.body))
     const response = await service(url, { ...init, redirect: 'error' })
     if (String(url).endsWith('/chat/completions')) {
       // Inspect the bounded complete response before SDK tools can execute. Original gateway still audits/settles it.
@@ -405,6 +406,7 @@ try {
   child?.kill('SIGTERM')
   await gateway.close()
   await batch.drain()
+  batch.dispose()
   await new Promise<void>((r) => broker.close(() => r()))
   await new Promise<void>((r) => fixtureServer.close(() => r()))
   save('fixture-requests.json', fixtureRequests)

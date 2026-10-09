@@ -14,6 +14,7 @@ import { DEFAULT_PROFILE, sha256 } from '../../src/agent/decisions/jev-provider/
 import { normalizeResponse } from '../../src/agent/decisions/jev-provider/response.ts'
 import { rankCandidates } from '../../src/agent/decisions/exploration/ranking.ts'
 import { randomUUID } from 'node:crypto'
+import { AsyncLocalStorage } from 'node:async_hooks'
 
 const compileOnline: typeof compileFrame = (request, profile, maxBytes) => {
   const c = compileFrame(request, profile, maxBytes),
@@ -33,6 +34,7 @@ export function createBatch(ledger: CampaignLedger, manifest: Manifest, director
   const requests = new Map<string, ReserveInput>()
   const started = Date.now()
   const controller = new AbortController()
+  const dispatchContext = new AsyncLocalStorage<ReserveInput>()
   const late = new Set<Promise<any>>()
   const log = (value: unknown) =>
     appendFileSync(join(directory, 'bindings.jsonl'), JSON.stringify(value) + '\n', {
@@ -58,6 +60,8 @@ export function createBatch(ledger: CampaignLedger, manifest: Manifest, director
       throw Error('online-batch-stopped')
     }
   }
+  const windowTimer = setTimeout(() => stop('batch-window'), POLICY.batchWindowMs)
+  windowTimer.unref()
   const adapter: GatewayLedger = {
     stopState: () => ledger.stopState(),
     watchStop: (epoch, listener) =>
@@ -101,7 +105,9 @@ export function createBatch(ledger: CampaignLedger, manifest: Manifest, director
       guard()
       return ledger.dispatch(id, epoch, () => {
         guard()
-        return begin()
+        const binding = requests.get(id)
+        if (!binding) throw Error('dispatch-without-reservation-binding')
+        return dispatchContext.run(binding, begin)
       })
     },
     async settle(id, cost) {
@@ -121,6 +127,26 @@ export function createBatch(ledger: CampaignLedger, manifest: Manifest, director
     stop,
     signal: controller.signal,
     log,
+    auditWire(url: string, body: string) {
+      const request = dispatchContext.getStore()
+      if (!request) throw Error('wire-outside-ledger-dispatch')
+      const wire = JSON.parse(body)
+      const state = wire.state ?? wire.messages
+      log({
+        stage: 'actual-wire-binding',
+        requestId: request.requestId,
+        parentRun: request.runId,
+        model: request.model,
+        manifestHash: digest(manifest),
+        wireHash: sha256(body),
+        fullStateHash: digest(state),
+        url,
+        state,
+      })
+    },
+    dispose() {
+      clearTimeout(windowTimer)
+    },
     activate(row: Manifest['rows'][number], runId: string, origin: string) {
       guard()
       if (active) throw Error('run-already-active')

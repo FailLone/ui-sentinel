@@ -40,6 +40,7 @@ async function setup(limit: number = POLICY.batchMaxUsd) {
     f,
     async close() {
       await batch.drain()
+      batch.dispose()
       await session.close()
       rmSync(dir, { recursive: true, force: true })
     },
@@ -50,6 +51,39 @@ it('strong program baseline handles the known quoted target and permits only res
   expect(onlinePriority(f)).toMatchObject({ ambiguity: false })
   expect(f.input.candidates.find((c: any) => c.id === onlinePriority(f).ids[0]).text).toBe('Reveal')
   expect(onlinePriority(frame()).ambiguity).toBe(true)
+})
+it('actual wire identity is only available under its own atomic ledger dispatch', async () => {
+  const t = await setup()
+  try {
+    expect(() => t.batch.auditWire('unused', '{}')).toThrow('wire-outside')
+    for (const id of ['a', 'b']) {
+      await t.batch.ledger.reserve({
+        requestId: id,
+        runId: 'run-test',
+        model: AGENT,
+        provider: 'Wafer',
+        reservedUsd: 0.053,
+        phase: 'test',
+        priceSource: 'test',
+        stopEpoch: 0,
+      })
+      await t.batch.ledger.dispatch(id, 0, () => {
+        t.batch.auditWire('local-fixed', JSON.stringify({ messages: [id] }))
+        return true
+      })
+    }
+    const wires = readFileSync(join(t.dir, 'bindings.jsonl'), 'utf8')
+      .trim()
+      .split('\n')
+      .map((s) => JSON.parse(s))
+      .filter((e) => e.stage === 'actual-wire-binding')
+    expect(wires.map((w) => [w.requestId, w.state[0]])).toEqual([
+      ['a', 'a'],
+      ['b', 'b'],
+    ])
+  } finally {
+    await t.close()
+  }
 })
 it('old static approval cannot authorize dynamic frames or a changed manifest', () => {
   const m = makeManifest('test-source')
