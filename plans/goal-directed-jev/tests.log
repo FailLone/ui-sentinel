@@ -1,0 +1,9 @@
+
+ RUN  v5.0.1 /Users/xietian/.codex/worktrees/goal-directed-jev/ui-sentinel
+
+
+ Test Files  13 passed (13)
+      Tests  118 passed (118)
+   Start at  02:04:29
+   Duration  1.66s (tests 39%, transform 38%, import 21%, worker 1%)
+

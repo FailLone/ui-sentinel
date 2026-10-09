@@ -8,6 +8,7 @@
  */
 
 export interface UiScanFormInput {
+  readonly popupCheck?: boolean
   readonly exploration?: boolean
   readonly jev?: boolean
   readonly entryUrl: string
@@ -65,7 +66,10 @@ export function buildUiScanRequest(input: UiScanFormInput): Record<string, unkno
   }
   return {
     kind: 'ui-scan',
-    ...(input.exploration ? { exploration: { mode: 'program', jev: input.jev === true } } : {}),
+    ...(input.popupCheck ? { popupCheck: { mode: 'popup-viewport' } } : {}),
+    ...(!input.popupCheck && input.exploration
+      ? { exploration: { mode: 'program', jev: input.jev === true } }
+      : {}),
     entryUrl: input.entryUrl.trim(),
     ...(goal ? { goal } : {}),
     ...(Object.keys(scope).length ? { scope } : {}),
