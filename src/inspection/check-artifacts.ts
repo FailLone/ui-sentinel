@@ -1,3 +1,4 @@
+import { popupArtifactIssues } from './popup-artifacts.ts'
 import { readFile } from 'node:fs/promises'
 import { createHash } from 'node:crypto'
 import {
@@ -22,7 +23,7 @@ export async function defaultCheckArtifactIssues(
   if (!run.spec.uiContract?.checkPolicy) return []
   const contract = run.spec.uiContract,
     scope = projectInspectionScope(events),
-    issues: string[] = [],
+    issues: string[] = await popupArtifactIssues(run, events, artifacts),
     cache = new Map<string, any>()
   const load = async (ref: string, type?: string) => {
     const a = artifacts.find((a) => a.id === ref)

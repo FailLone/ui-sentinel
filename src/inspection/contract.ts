@@ -1,4 +1,10 @@
 import {
+  popupRequestSchema,
+  POPUP_POLICY,
+  validPopupPolicy,
+  type PopupPolicy,
+} from '../shared/popup-policy.ts'
+import {
   explorationRequestSchema,
   freezeExploration,
   validExploration,
@@ -141,6 +147,7 @@ export const uiScanRequestSchema = z
   .object({
     kind: z.literal('ui-scan'),
     exploration: explorationRequestSchema.optional(),
+    popupCheck: popupRequestSchema.optional(),
     entryUrl: z.string().min(1).max(4096),
     goal: z.string().max(UI_GOAL_MAX_LENGTH).optional(),
     requiredChecks: requiredChecksInput.optional(),
@@ -179,6 +186,7 @@ export const uiScanRequestSchema = z
 export type UiScanRequest = z.infer<typeof uiScanRequestSchema>
 
 export interface UiContractSnapshot {
+  readonly popupCheck?: PopupPolicy
   readonly exploration?: ExplorationPolicy
   readonly schemaVersion: typeof UI_CONTRACT_SCHEMA_VERSION
   readonly policyRevision:
@@ -275,6 +283,7 @@ export function buildUiContractSnapshot(input: {
   goalSource?: 'user' | 'default'
   requiredChecks?: readonly RequiredCheck[]
   samplingPolicy?: UiSamplingPolicy
+  popupCheck?: PopupPolicy
   exploration?: ExplorationPolicy
   scope: UiContractSnapshot['scope']
   access: UiContractSnapshot['access']
@@ -283,6 +292,7 @@ export function buildUiContractSnapshot(input: {
   const goal = input.goal?.trim() ? input.goal.trim() : UI_DEFAULT_GOAL
   const body = {
     schemaVersion: UI_CONTRACT_SCHEMA_VERSION,
+    ...(input.popupCheck ? { popupCheck: structuredClone(input.popupCheck) } : {}),
     ...(input.exploration ? { exploration: structuredClone(input.exploration) } : {}),
     policyRevision: input.samplingPolicy
       ? input.samplingPolicy.revision === 'bounded-ui-sampling-2'
@@ -355,6 +365,11 @@ export function verifyUiContractSnapshot(snapshot: UiContractSnapshot): boolean 
   )
     return false
   if (snapshot.exploration !== undefined && !validExploration(snapshot.exploration)) return false
+  if (
+    snapshot.popupCheck !== undefined &&
+    (!validPopupPolicy(snapshot.popupCheck) || snapshot.exploration || !snapshot.checkPolicy)
+  )
+    return false
   const { hash, ...body } = snapshot
   if (typeof hash !== 'string') return false
   const expected = createHash('sha256').update(canonical(body)).digest('hex')
@@ -435,6 +450,7 @@ export function resolveUiScanContract(
       goal: data.goal,
       requiredChecks: data.requiredChecks,
       samplingPolicy: UI_SAMPLING_POLICY_V2,
+      ...(data.popupCheck ? { popupCheck: POPUP_POLICY } : {}),
       ...(data.exploration ? { exploration: freezeExploration(data.exploration) } : {}),
       requestedGoal: typeof (request as any)?.goal === 'string' ? (request as any).goal : '',
       scope,

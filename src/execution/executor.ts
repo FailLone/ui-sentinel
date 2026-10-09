@@ -1,3 +1,7 @@
+import { createPopupRuntime } from './popup/runtime.ts'
+import { popupCollector } from './popup/geometry.ts'
+import { hash as popupHash, injectedPopupDecision } from '../agent/popup/contract.ts'
+import { createPopupProvider, popupConfiguration } from '../agent/popup/provider.ts'
 import {
   createProductJevScore,
   productJevConfiguration,
@@ -279,6 +283,13 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
   if (!prepared) return
   const { run, legacyUnversioned, runKind, uiScan, businessRuntime, active } = prepared
   let productHost: ReturnType<typeof createProductHost> | undefined
+  let popupRuntime: ReturnType<typeof createPopupRuntime> | undefined
+  let popupAuto = !!uiScan?.popupCheck
+  let popupExpected:
+    | { node: import('playwright').ElementHandle<Element>; version: string }
+    | undefined
+  let popupDispatch = false
+  let popupNodes: ReturnType<typeof popupCollector> | undefined
   let productHandedOff = false
   let productReadOnlyHandoff: string | undefined
   let productNavigationProposal: string | undefined
@@ -333,6 +344,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         samplingPolicy: uiScan.samplingPolicy,
         checkPolicy: uiScan.checkPolicy,
         exploration: uiScan.exploration,
+        popupCheck: !!uiScan.popupCheck,
         currentSnapshotId: () => latestSlim?.snapshotId,
         currentUrl: () => latest?.snapshot.url ?? uiScan.entryUrl,
         currentObservationVersion: () => observationVersion?.key,
@@ -2473,7 +2485,9 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         }
       }
       if (inspection && explicitScope) {
-        const selectionError = inspection.assertSamplingSelectionReady()
+        // A goal-selected original candidate may be explored before the remaining default
+        // sample is registered. Its registration obligation remains pending and cannot be waived.
+        const selectionError = popupDispatch ? undefined : inspection.assertSamplingSelectionReady()
         if (selectionError)
           return {
             error: true,
@@ -2691,6 +2705,18 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           ))
         )
           throw Error('v2-source-control-replaced-before-dispatch')
+      }
+      if (popupExpected) {
+        const current = await readObservationVersion(page)
+        const actual = await resolvedLocator?.elementHandle()
+        const same =
+          actual &&
+          (await popupExpected.node
+            .evaluate((n, other) => n.isConnected && n === other, actual)
+            .catch(() => false))
+        await actual?.dispose()
+        if (!same || !current.reusable || current.key !== popupExpected.version)
+          throw Error('popup-stale-at-original-dispatch')
       }
       const actionId = randomUUID()
       let dispatchTime = Date.now()
@@ -3298,7 +3324,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     }
     closeCoveredUiScope = async () => {
       // The product planner receives final measurements before handing completion to the same gate.
-      if (productHost && !productHandedOff) return false
+      if (popupAuto || (productHost && !productHandedOff)) return false
       // Optional experiment window only: let the normal selection tool admit newly observed controls.
       // The completion function, ledger and budget admission are unchanged.
       if (
@@ -3596,7 +3622,215 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         return { error: String(error), outcome: 'unverified' as const }
       }
     }
+    if (uiScan?.popupCheck && inspection) {
+      if (!config.features.popupCheck) throw Error('popup-feature-disabled')
+      popupNodes = popupCollector(page)
+      const item = inspection.scope.createItem({
+        category: 'investigation',
+        pageId: 'contract',
+        stateId: 'contract',
+        url: uiScan.entryUrl,
+        observationVersion: 'contract',
+        basis: 'popup-viewport-1: bounded popup viewport subtask',
+        targetSource: 'executor',
+      })
+      await inspection.flush()
+      const save = (kind: string, body: string) =>
+        saveEvidence(runId, kind, body, evidenceMetadata(), guard)
+      const emit = async (type: string, payload: Record<string, unknown>, refs: string[]) => {
+        await appendEvent(runId, type, payload, { evidenceRefs: refs })
+      }
+      const configuration = popupConfiguration()
+      const fixed = injectedPopupDecision(runId)
+      const decide =
+        (fixed
+          ? async (packet: Parameters<typeof fixed>[0], callSignal: AbortSignal) => {
+              guard()
+              countModel()
+              await persistUsage()
+              return fixed(packet, callSignal)
+            }
+          : undefined) ??
+        (configuration
+          ? createPopupProvider({
+              configuration,
+              runId,
+              timeRemaining: () => budget.totalTimeoutMs - (Date.now() - startedAt),
+              async countCall() {
+                guard()
+                countModel()
+                modelUsageAvailable = false
+                await persistUsage()
+              },
+              save,
+              emit: (payload, refs) => emit('popup:provider', payload, refs),
+            })
+          : undefined)
+      if (!decide) throw Error('popup-provider-unavailable')
+      const frame = async (refresh: boolean) => {
+        guard()
+        if (refresh) await observe(true)
+        const version = await readObservationVersion(page)
+        const panels = await popupNodes!.capture()
+        const entries = inspection
+          .candidateItems()
+          .filter((c) => c.category === 'local-interaction')
+          .map((c) => ({ c, element: latestSlim!.elements.find((e) => e.ref === c.ref) }))
+          .filter(
+            ({ element }) =>
+              element &&
+              ['button', 'summary', 'input'].includes(element.tag) &&
+              (element.tag !== 'input' ||
+                ['button', 'checkbox', 'radio'].includes(element.attributes.type ?? '')),
+          )
+          .map(({ c, element }) => ({
+            id: c.itemId,
+            ref: c.ref,
+            description: `${c.description}; public attributes ${JSON.stringify(element!.attributes).slice(0, 700)}`,
+          }))
+        return {
+          binding: popupHash({ version: version.key, entries, panels: panels.facts }),
+          version: version.key,
+          url: page.url(),
+          reusable: version.reusable && panels.complete,
+          entries,
+          panels: panels.facts,
+          evidenceRefs: [...latest!.evidenceRefs],
+        }
+      }
+      popupRuntime = createPopupRuntime({
+        taskId: item.itemId,
+        contractHash: uiScan.hash,
+        signal,
+        guard,
+        goal: `Check whether an actual popup exceeds the visible viewport. User focus: ${uiScan.goal}`,
+        remaining: () => ({
+          actions: budget.maxActions - usage.actions,
+          calls: budget.maxModelCalls - usage.modelCalls - 2,
+          timeMs:
+            budget.totalTimeoutMs -
+            (Date.now() - startedAt) -
+            Math.min(60000, budget.totalTimeoutMs * 0.2),
+        }),
+        frame,
+        decide,
+        save,
+        emit,
+        async seal(refs) {
+          const hashes: Record<string, string> = {}
+          for (const ref of refs) {
+            const r = await getDbClient().execute({
+              sql: 'SELECT file_path FROM artifacts WHERE id=? AND run_id=?',
+              args: [ref, runId],
+            })
+            if (r.rows.length !== 1) throw Error('popup-unowned-evidence')
+            hashes[ref] = createHash('sha256')
+              .update(await readFile(String(r.rows[0]!.file_path)))
+              .digest('hex')
+          }
+          return hashes
+        },
+        async act(entry, binding) {
+          guard()
+          const current = await frame(false)
+          if (!current.reusable || current.binding !== binding)
+            throw Error('popup-stale-before-dispatch')
+          const candidate = inspection
+            .candidateItems()
+            .find((c) => c.itemId === entry.id && c.ref === entry.ref)
+          if (!candidate) throw Error('popup-entry-no-longer-offered')
+          const oldNode = candidateBindings.get(candidate.ref)
+          if (!oldNode) throw Error('popup-entry-node-unbound')
+          // Use the original selection and check reducer. No default or required item is excluded.
+          await inspection.selectItems(
+            [{ itemId: candidate.itemId, basis: 'popup entry hypothesis; effect unproven' }],
+            !inspection.selectionAllowed(candidate.itemId),
+          )
+          await checkRuntime?.reviewSelected(
+            inspection
+              .selectedCandidates()
+              .filter((c) => c.category === 'local-interaction')
+              .flatMap((c) => {
+                const d = elementStore.getDetail(c.ref)
+                return d.found ? [{ itemId: c.itemId, selector: d.element.selector }] : []
+              }),
+          )
+          guard()
+          popupExpected = { node: oldNode, version: current.version! }
+          popupDispatch = true
+          try {
+            const result: any = await performAction({ type: 'click', ref: entry.ref })
+            return {
+              status: result.status ?? 'denied',
+              actionId: result.verification?.actionId,
+              evidenceRefs: result.evidenceRefs ?? [],
+            }
+          } finally {
+            popupDispatch = false
+            popupExpected = undefined
+          }
+        },
+        measure: (id, expected) => popupNodes!.measure(id, signal, expected),
+        screenshot: async () =>
+          saveEvidence(
+            runId,
+            'screenshot',
+            await page.screenshot({ scale: 'css', timeout: 3000 }),
+            evidenceMetadata(),
+            guard,
+          ),
+        async settle(result, ref, refs) {
+          guard()
+          if (integrity.epoch() !== 0) throw Error('popup-evidence-intervened')
+          inspection.scope.resolveItem(item.itemId, {
+            status: result.verdict === 'fail' ? 'failed' : 'verified',
+            evidenceRefs: refs,
+            eventIds: [],
+            detail: result.reason,
+          })
+          await inspection.flush()
+          if (result.verdict === 'fail') {
+            const f = await submitFinding({
+              runId,
+              source: 'rule',
+              ruleId: 'popup-viewport',
+              ruleRevision: 'popup-geometry-1',
+              hypothesisId: null,
+              validationStatus: 'supported',
+              severity: 'warning',
+              title: '弹窗外框被视口或祖先区域裁切',
+              expected:
+                'Stable fixed popup border fits the visible viewport and rectangular clipping ancestors',
+              actual: JSON.stringify(result.samples),
+              stepId,
+              evidenceRefs: refs,
+            })
+            findingFacts.add(JSON.stringify([f.ruleId, f.actual, f.validationStatus]))
+            await appendEvent(
+              runId,
+              'finding:submitted',
+              { findingId: f.id, popupReceiptRef: ref },
+              { stepId, evidenceRefs: refs },
+            )
+          }
+        },
+      })
+      await emit('popup:started', { taskId: item.itemId, policy: uiScan.popupCheck }, [])
+    }
     const tools = {
+      popup_check: createTool({
+        id: 'popup.check',
+        description:
+          'Continue the bounded popup viewport subtask using its existing actions, measurements and missing facts. continue reuses unchanged receipts; refresh requests one fresh public observation when there is a stated gap. Never grants action permission or clears other scope items.',
+        inputSchema: z
+          .object({ mode: z.enum(['continue', 'refresh']).default('continue') })
+          .strict(),
+        execute: (input) =>
+          serial('popup_check', async () => {
+            if (!popupRuntime) return { error: 'popup-check-not-enabled' }
+            return popupRuntime.step(input.mode)
+          }),
+      }),
       ...(uiScan
         ? {
             interaction_verify: createTool({
@@ -4718,6 +4952,18 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     })
     if (visualScanEligible && config.features?.visualDiscovery) await visualFocus.scan()
     while (!finished) {
+      if (popupRuntime && popupAuto) {
+        attemptTools = 0
+        attemptReads = 0
+        const result = await executeProgramTool(
+          signal,
+          Math.min(30000, budget.totalTimeoutMs - (Date.now() - startedAt)),
+          () => tools.popup_check.execute!({ mode: 'continue' }, {} as never),
+        )
+        popupAuto = (result as any)?.status === 'active'
+        await persistUsage()
+        continue
+      }
       if (uiScan && inspection) {
         guard()
         await networkBoundary?.flush?.()
@@ -4873,6 +5119,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         // A UI run never reads or publishes a cross-run Journey: the plan closes that capability for
         // this kind, because a segment evidenced under another site's contract could otherwise be
         // replayed against a URL it was never about (plan 1.3, 7).
+        if (name === 'popup_check') return !!popupRuntime && phaseTracker.phase !== 'finalizing'
         if (uiScan && name === 'journey_run') return false
         if (
           name === 'investigation_run' ||
@@ -4894,6 +5141,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         return true
       })
       const agentInput = {
+        ...(popupRuntime ? { popupTask: popupRuntime.snapshot() } : {}),
         ...(experimentalHandoff ? { explorationHandoff: experimentalHandoff } : {}),
         ...(uiScan
           ? {
@@ -5542,6 +5790,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     await checkRuntime?.dispose()
     uiRules?.close()
     await Promise.allSettled(investigationBlockers.map((cached) => cached.handle.dispose()))
+    await popupNodes?.dispose()
     if (worker) await worker.close().catch(() => {})
     await queue.commitRun(
       runId,

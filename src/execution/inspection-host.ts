@@ -56,6 +56,7 @@ export interface InspectionHostOptions {
   readonly entryUrl: string
   readonly goal: string
   readonly requiredChecks?: readonly RequiredCheck[]
+  readonly popupCheck?: boolean
   readonly checkPolicy?: unknown
   readonly exploration?: ExplorationPolicy
   readonly samplingPolicy?: UiSamplingPolicy
@@ -116,7 +117,11 @@ export function createInspectionHost(options: InspectionHostOptions) {
     boundItemId: undefined as string | undefined,
   }))
   const goalRelation = options.checkPolicy
-    ? options.exploration && explorationRevisitIntent(options.goal)
+    ? (options.popupCheck &&
+        ['检查弹窗是否超出视口', 'Check whether popups exceed the viewport'].includes(
+          options.goal.trim(),
+        )) ||
+      (options.exploration && explorationRevisitIntent(options.goal))
       ? { focus: true, sync: false, name: undefined }
       : parsePublicRelation(options.goal)
     : null

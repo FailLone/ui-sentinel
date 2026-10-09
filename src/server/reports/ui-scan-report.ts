@@ -1,3 +1,4 @@
+import { popupReport } from './popup-report.ts'
 import { r1Report } from './r1-report.ts'
 import { summary as checkSummary } from '../../execution/default-check-runtime.ts'
 import type { ItemChecks } from '../../inspection/check-contract.ts'
@@ -27,6 +28,7 @@ import type { Run, RunEvent } from '../../shared/types.ts'
 export type UiCoverage = 'covered' | 'partial' | 'not-started'
 
 export interface UiScanReport {
+  readonly popupCheck?: ReturnType<typeof popupReport>
   readonly exploration?: ReturnType<typeof r1Report>
   readonly reportRevision?: 'ui-check-report-2'
   readonly checkCounts?: {
@@ -149,6 +151,9 @@ export function uiScanSummary(
     }))
 
   return {
+    ...(contract.popupCheck
+      ? { popupCheck: popupReport(run, events, readable, additionalIssues) }
+      : {}),
     ...(contract.exploration
       ? { exploration: r1Report(run, events, snapshot.items, readable) }
       : {}),

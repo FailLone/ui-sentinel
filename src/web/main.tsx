@@ -249,6 +249,8 @@ function App() {
   // The mode the form is building. `business` is the default so an operator who never touches the
   // selector gets exactly the behaviour they had before; `ui-scan` is chosen explicitly.
   const [mode, setMode] = useState<'business' | 'ui-scan'>('business')
+  const [popupAvailable, setPopupAvailable] = useState(false)
+  const [popupCheck, setPopupCheck] = useState(false)
   const [exploration, setExploration] = useState(false)
   const [jev, setJev] = useState(false)
   const [entryUrl, setEntryUrl] = useState('')
@@ -271,9 +273,13 @@ function App() {
     let stopped = false
     const check = async () => {
       try {
-        const h = await api<{ model: { ready: boolean; missing: string[] } }>('/api/health')
+        const h = await api<{
+          model: { ready: boolean; missing: string[] }
+          features?: { popupCheck?: boolean }
+        }>('/api/health')
         if (!stopped) {
           setReady(h.model.ready)
+          setPopupAvailable(h.features?.popupCheck === true)
           setHealth(h.model.ready ? '服务就绪' : `模型待配置：${h.model.missing.join(', ')}`)
         }
       } catch {
@@ -356,6 +362,7 @@ function App() {
         const result = await api<{ runId: string }>(
           '/api/runs',
           buildUiScanRequest({
+            popupCheck,
             exploration,
             jev,
             entryUrl,
@@ -447,11 +454,27 @@ function App() {
               <textarea value={uiGoal} onChange={(e) => setUiGoal(e.target.value)} />
               <small>{UI_SAMPLING_DESCRIPTION}</small>
             </label>
+            {popupAvailable && (
+              <label>
+                <input
+                  type="checkbox"
+                  checked={popupCheck}
+                  onChange={(e) => {
+                    setPopupCheck(e.target.checked)
+                    if (e.target.checked) setExploration(false)
+                  }}
+                />
+                目标驱动：检查弹窗是否超出视口（会使用 Jev 决策）
+              </label>
+            )}
             <label>
               <input
                 type="checkbox"
                 checked={exploration}
-                onChange={(e) => setExploration(e.target.checked)}
+                onChange={(e) => {
+                  setExploration(e.target.checked)
+                  if (e.target.checked) setPopupCheck(false)
+                }}
               />
               R1 有界探索（程序优先，复杂情况交回 Agent）
             </label>
