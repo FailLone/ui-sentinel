@@ -24,7 +24,9 @@ const packets: any[] = [],
   fixtureRequests: any[] = []
 const fixture = createServer((req, res) => {
   fixtureRequests.push({ arm, scenario, url: req.url, method: req.method })
-  res.writeHead(200, { 'content-type': 'text/html' }).end(html(scenario))
+  res
+    .writeHead(200, { 'content-type': 'text/html' })
+    .end(html(scenario === 'cancel' ? 'semantic' : scenario))
 })
 const origin = await listen(fixture)
 const model = createServer(async (req, res) => {
@@ -128,7 +130,7 @@ try {
         if (n === 99) throw Error('service-start')
         await new Promise((r) => setTimeout(r, 100))
       }
-      for (const c of cases) {
+      for (const c of process.argv[4] === 'cancel' ? [{ ...cases[1], id: 'cancel' }] : cases) {
         if (process.argv[4] && c.id !== process.argv[4]) continue
         scenario = c.id
         turn = 0
@@ -148,7 +150,18 @@ try {
         if (!created.runId) throw Error(JSON.stringify(created))
         runId = created.runId
         let report: any
+        let cancelled = false
         for (let n = 0; n < 650; n++) {
+          if (scenario === 'cancel' && !cancelled) {
+            const events: any[] = await fetch(base + '/api/runs/' + runId + '/events').then((r) =>
+              r.json(),
+            )
+            if (events.some((e) => e.type === 'action:executing')) {
+              cancelled = true
+              await fetch(base + '/api/runs/' + runId + '/cancel', { method: 'POST' })
+            }
+          }
+
           const status: any = await fetch(base + '/api/runs/' + runId).then((r) => r.json())
           if (!['queued', 'running'].includes(status.status) && !status.active) {
             report = await fetch(base + '/api/runs/' + runId + '/report').then((r) => r.json())

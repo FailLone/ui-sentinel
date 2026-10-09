@@ -215,6 +215,7 @@ export function createControlledHost(
             (c: any) =>
               c.category === 'local-interaction' &&
               !known.has(c.itemId) &&
+              !selectionAttempted.has(c.itemId) &&
               !dispatched.has(c.itemId),
           )
           .slice(0, 3)

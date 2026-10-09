@@ -2347,15 +2347,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
             )
         if (
           !returningForRequired &&
-          !inspection.isRequiredTarget(actingRef, actionSnapshotPage, category) &&
-          !inspection
-            .candidateItems()
-            .some(
-              (c) =>
-                c.ref === actingRef &&
-                c.snapshotId === actionSnapshotPage &&
-                experimentalAdmissions.has(c.itemId),
-            )
+          !inspection.isRequiredTarget(actingRef, actionSnapshotPage, category)
         )
           return refuseOptionalScope(input.url ?? actingRef ?? input.type)
       }
@@ -4403,6 +4395,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
                     itemId: entry.itemId,
                     basis: entry.basis,
                   })),
+                  input.selectItems.every((entry) => experimentalAdmissions.has(entry.itemId)),
                 )
               if (input.selectItems?.some((e) => experimentalAdmissions.has(e.itemId)))
                 await observe()
