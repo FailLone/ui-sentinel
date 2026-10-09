@@ -38,4 +38,4 @@ D004 第二轮新增 [候选绑定事实自动化](image-binding-experiment.md)�
 
 D005/R005 第二批实现与边界统一见 [原生文字检查与缺图审查](rules-batch2.md)；合成验证不代表广义知识完成或启用。
 
-D005/R005 后续已 [接入普通网址扫描](rules-scan-integration.md)：仅独立候选中的已开启 ui-scan 默认参与，业务/全局开关不变，未合入 main。
+D005/R005 后续已 [接入普通网址扫描](rules-scan-integration.md)，并于2026-10-09随 `5e3255b` 合入main：已开启的ui-scan默认参与，业务/全局开关不变。D004仍默认关闭，D010复用既有能力；剩余19条（8条缺陷检查、11条体验建议）仍为待实现知识，不因本次合并升级状态。见[维护者合并记录](rules-main-integration-handoff.md)。
