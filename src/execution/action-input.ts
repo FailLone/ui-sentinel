@@ -12,6 +12,7 @@ const absent = <T extends z.ZodType>(schema: T) =>
 export const actionInput = z
   .object({
     type: z.enum(['click', 'probe', 'fill', 'navigate', 'scroll']),
+    requirementId: absent(z.string().max(80)),
     verify: absent(interactionVerificationInput).describe(
       'Only click/fill: bounded post-action measurement grounded in public evidence. Not an action receipt.',
     ),
@@ -52,12 +53,12 @@ export const actionInput = z
           issue('url', 'navigate requires an explicit absolute HTTP(S) url; no URL is inferred')
         }
       }
-      forbid([...targetFields, 'value', 'scrollY', 'verify'])
+      forbid([...targetFields, 'value', 'scrollY', 'verify', 'requirementId'])
       return
     }
     if (input.type === 'scroll') {
       if (input.scrollY === undefined) issue('scrollY', 'scroll requires an explicit scrollY')
-      forbid([...targetFields, 'value', 'url', 'verify'])
+      forbid([...targetFields, 'value', 'url', 'verify', 'requirementId'])
       return
     }
     for (const field of ['ref', 'role', 'name', 'selector', 'visualDescription'] as const)

@@ -1,4 +1,4 @@
-import { UI_SAMPLING_DESCRIPTION } from '../shared/ui-sampling-policy.ts'
+import { UI_CHECK_DESCRIPTION, UI_SAMPLING_DESCRIPTION } from '../shared/ui-sampling-policy.ts'
 import type { UiScanReport } from '../server/reports/ui-scan-report.ts'
 import { artifactUrl } from './state.ts'
 
@@ -31,13 +31,33 @@ function Coverage({ report }: { report: UiScanReport }) {
     <div className="ui-scan">
       <p>
         <strong>网址 UI 检查</strong> · 业务不适用（本次没有业务操作，也不代表业务结果）·{' '}
-        {covered ? COVERAGE_LABEL.covered : COVERAGE_LABEL[inspection.coverage]}
+        {report.checkCounts && (
+          <p>
+            功能要求：已验证 {report.checkCounts.requiredEffectVerifiedCount} · 已证违反{' '}
+            {report.checkCounts.requiredEffectFailedCount} · 有要求未完成{' '}
+            {report.checkCounts.requiredEffectPendingCount}；功能语义未验证（无独立规格）{' '}
+            {report.checkCounts.effectUnspecifiedCount} 项。通用检查未完成{' '}
+            {report.checkCounts.genericIncompleteCount} · 来源未闭合{' '}
+            {report.checkCounts.sourceUnresolvedCount}。没有效果要求不表示功能全部通过。
+          </p>
+        )}
+        {covered
+          ? report.reportRevision === 'ui-check-report-2'
+            ? '默认检查已完成（限定范围）'
+            : COVERAGE_LABEL.covered
+          : COVERAGE_LABEL[inspection.coverage]}
       </p>
       <p>
         边界：匿名会话 · 不提交业务操作 · 仅支持 GET 型数据 · 有界采样（最多{' '}
         {report.contract.scope.maxPages} 页，深度 {report.contract.scope.maxDepth}）
       </p>
-      {report.contract.samplingPolicy && <p>{UI_SAMPLING_DESCRIPTION}</p>}
+      {report.contract.samplingPolicy && (
+        <p>
+          {report.reportRevision === 'ui-check-report-2'
+            ? UI_CHECK_DESCRIPTION
+            : UI_SAMPLING_DESCRIPTION}
+        </p>
+      )}
       <p>
         入口：
         <code>{report.contract.entryUrl}</code>
@@ -117,7 +137,18 @@ function Items({ report }: { report: UiScanReport }) {
                 {item.reasonCode ? ` · ${item.reasonCode}` : ''}
               </td>
               <td>{item.basis}</td>
-              <td>{item.detail ?? '—'}</td>
+              <td>
+                {item.checks && (
+                  <span>
+                    通用：{item.checks.generic.state} · 效果：
+                    {item.checks.effects.length
+                      ? item.checks.effects.map((e) => e.state).join('、')
+                      : '功能语义未验证'}{' '}
+                    · 来源：{item.checks.sourceReview.state}。{' '}
+                  </span>
+                )}
+                {item.detail ?? '—'}
+              </td>
             </tr>
           ))}
         </tbody>
@@ -168,6 +199,13 @@ function Interventions({ report }: { report: UiScanReport }) {
 }
 
 export function UiScanReportSection({ report, runId }: { report: UiScanReport; runId: string }) {
+  if (report.reportRevision && report.reportRevision !== 'ui-check-report-2')
+    return (
+      <section>
+        <h2>报告版本不支持</h2>
+        <p>不能将未知版本显示为检查通过。</p>
+      </section>
+    )
   return (
     <section>
       <h2>网址 UI 检查</h2>

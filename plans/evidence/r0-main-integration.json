@@ -1,0 +1,636 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-09",
+  "timezone": "Asia/Shanghai",
+  "status": "R0 stage delivery complete, supports R1; real-model stability and formal acceptance pending",
+  "mainBefore": "0dced2a3e990ec7a22dd617232cc7d514599e557",
+  "remote": "https://github.com/FailLone/ui-sentinel.git",
+  "remoteBranchProtectionObserved": false,
+  "remoteBranchRulesObserved": [],
+  "integrationMethod": "fast-forward only, then documentation-only commits; normal push, never force",
+  "includedR0Head": "556f2419c5f062cdfb2cfd0a4867a4a95b9864b7",
+  "productCandidate": "27614b7a60293a80f3be7b321d164d3599dd0964",
+  "maintainerSnapshotCommit": "8e8c07a1ecfa397964478f0fb2cc7574b1191dfe",
+  "integrationDeliveryCommit": "commit containing this file; resolve main and origin/main after normal push",
+  "includedR0CommitCount": 68,
+  "includedCommits": [
+    {
+      "sha": "5c14b292ab5b8403fcdc54c44347f8d3f0d38833",
+      "subject": "feat: add the ui-scan contract, network policy and inspection ledger"
+    },
+    {
+      "sha": "48c793199dbf156279121d05986483bcb599d1fa",
+      "subject": "feat: enforce the ui-scan network boundary per hop with CDP Fetch"
+    },
+    {
+      "sha": "30af29755b97708016637434ccc4294a60549e46",
+      "subject": "feat: wire the ui-scan executor into an independent inspection ledger"
+    },
+    {
+      "sha": "73006cc903bacc4e3f2199779d8812f1f095de32",
+      "subject": "feat: expose the ui-scan mode through the API, workbench and report"
+    },
+    {
+      "sha": "11eda9840d0bc7a446ca0910cc7e3ebb3278b5b4",
+      "subject": "feat: verify the ui-scan wiring against a compiled service and a real browser"
+    },
+    {
+      "sha": "8d525d2fd5d7e9470d8e502ca291d81a9ac2d9ca",
+      "subject": "feat: freeze a url-scan batch identity and refuse paid runs without one"
+    },
+    {
+      "sha": "c52542f274bc3e33ba999e6f5b3567c450610040",
+      "subject": "feat: complete the five-sample url-scan matrix with paired healthy controls"
+    },
+    {
+      "sha": "e51e33eca27c8dd5daa7431db86c969ab713ac3e",
+      "subject": "fix: derive the frozen batch matrix from the sample set"
+    },
+    {
+      "sha": "c8f91e053819d124ea1ef7c552c2e8eeb3028667",
+      "subject": "fix: enforce the ui-scan round byte budget and measure chunked bodies"
+    },
+    {
+      "sha": "f0ae8a5d418b6d0ba06fdf19e09c63bf17a0f17c",
+      "subject": "fix: close R0 network, inspection proof and acceptance gaps"
+    },
+    {
+      "sha": "3cdd68fc5db205e39d8629db246f8d629dab6c75",
+      "subject": "test: complete R0 recovery evidence and freeze provider-specific costs"
+    },
+    {
+      "sha": "8adc93a422398c61a9a738562bfb23710f36bcc6",
+      "subject": "fix: preserve public token limits in frozen validation config"
+    },
+    {
+      "sha": "8b73e3ffa2bf94ce67760c17762ab9dab70c6488",
+      "subject": "fix: explain inconclusive investigations and preserve diagnostic evidence"
+    },
+    {
+      "sha": "585c6d34d794d40bc600078cab21ad40f6d32d2b",
+      "subject": "fix(r0): recover dynamic UI checks and reconcile cancelled costs"
+    },
+    {
+      "sha": "83e4be56daa0786b2da1b73cd314b6a3a7bc9acb",
+      "subject": "test(r0): freeze fresh private layout for final acceptance"
+    },
+    {
+      "sha": "4e03ce4526a6271969ac7a31a4c8fd69142bd125",
+      "subject": "fix(r0): preserve pending check identity and preflight result contracts"
+    },
+    {
+      "sha": "2cd1761f762fcd1806440afc548e6101c7cc6dea",
+      "subject": "fix(r0): finish covered loops and distinguish selected labels"
+    },
+    {
+      "sha": "3f968b5d2080c9c0714c5a7ee9de8c80055f475f",
+      "subject": "fix(r0): separate control sampling quota and require selected link dispatch"
+    },
+    {
+      "sha": "0cbd441f8ac31a8ef49ccb18ed0d249d60419d74",
+      "subject": "fix(r0): bound contract repair and ground navigation expectations"
+    },
+    {
+      "sha": "00dad7116803fdf6c3c10646826b394057f9f3f6",
+      "subject": "fix(r0): expose action checks and preserve pending local scope before navigation"
+    },
+    {
+      "sha": "5f8eee9aaff18061876bf8aba1faf9fd3fe4b0b2",
+      "subject": "fix(r0): preserve bounded selection progress and publish sealed UI measurements"
+    },
+    {
+      "sha": "e8ade866223be308c28e5c24fb22fd17fba39b9d",
+      "subject": "test(r0): verify actual sort measurements against independent healthy controls"
+    },
+    {
+      "sha": "26e5d91218688fc62c5287091d09d5c1cb637eb1",
+      "subject": "fix(r0): separate pending inspection plans from permanent scope gaps"
+    },
+    {
+      "sha": "9cd7f75e46cf3037188d846dd12f6d316d8b009a",
+      "subject": "docs(r0): consolidate state contracts and reject C10 boundary false pass"
+    },
+    {
+      "sha": "1228ff4ffb8438610584a68fcc8ac436cce4c11f",
+      "subject": "docs(r0): define K1-K3 contract and analyze network barrier regression"
+    },
+    {
+      "sha": "835b11a98b0cbcbedd73dbdeacef9c5771e6ec1e",
+      "subject": "fix(r0): bind UI blocker proofs and isolate read-session finalization"
+    },
+    {
+      "sha": "6b17e7a0c4be848e551ef94237b33fe5f3d27b0c",
+      "subject": "docs(r0): deliver K1-K3 candidate and free validation evidence"
+    },
+    {
+      "sha": "53baf3dd089b87b49bea4ddcabe77554e0bffce3",
+      "subject": "docs(r0): record independent rejection of terminal cancellation race"
+    },
+    {
+      "sha": "97d39eda8fcbae9a6e163c6dfc5219668d67043d",
+      "subject": "fix(r0): serialize cancellation acceptance with terminal commit"
+    },
+    {
+      "sha": "f25bc8a021043734bc485f04a8bcb88e0e748792",
+      "subject": "docs(r0): deliver cancellation fix and independent contract review"
+    },
+    {
+      "sha": "238dc52b93e2ea631b90aa223d6c21c7440ab230",
+      "subject": "docs(r0): freeze K4-K5 execution scope and resume authorization"
+    },
+    {
+      "sha": "3e26ffc62f7c9dc8df3aa43cf7b2fd02067f2ee2",
+      "subject": "docs: record R0 C11 pass and formal UI failure analysis"
+    },
+    {
+      "sha": "e30a9efcba144aa6811f0586a5f1b787878140c8",
+      "subject": "fix(r0): measure UI probes and bound remaining obligation guidance"
+    },
+    {
+      "sha": "e13c535009695ee70c3794868224ac3842090f79",
+      "subject": "fix: preserve original probe binding and seal screenshot evidence"
+    },
+    {
+      "sha": "562c7861ba6bf1d1a318d38dc98274d276d4fb9c",
+      "subject": "docs: deliver limited F1 F2 fixes and independent review evidence"
+    },
+    {
+      "sha": "290079d0870f5b13c0250b31ab05356f7bba0eee",
+      "subject": "docs: deliver R0 e13c535 diagnostic failure and final acceptance evidence"
+    },
+    {
+      "sha": "adc6b540b7c25c06cbcad7d3e8b657d480bec474",
+      "subject": "fix: reject invalid action operands before browser operations"
+    },
+    {
+      "sha": "a6fa5d8bba7e31a308f55844e02b573b01a1f388",
+      "subject": "docs: deliver bounded action input repair and free targeted evidence"
+    },
+    {
+      "sha": "5ea63b50517c5472f0547caf9a8e7cebec2a63ff",
+      "subject": "docs: review adc6b54 and freeze gated R0 acceptance stages"
+    },
+    {
+      "sha": "b1f388e858a0c55f664c09766127653b58036b7a",
+      "subject": "docs: deliver adc6b54 R0 diagnostic failure and raw acceptance evidence"
+    },
+    {
+      "sha": "89326cd45fcaf9518d21d2bd9325c459ad63bf63",
+      "subject": "docs: define R0 scope admission and finish timing contract"
+    },
+    {
+      "sha": "60e8f6f85b66d823ef4e6034f3d1aae1d38e4a1a",
+      "subject": "fix(ui-scan): register public required scope and close bounded work"
+    },
+    {
+      "sha": "b5dd38c4a8e9ad015a714fb38101f90e07913cfe",
+      "subject": "test(ui-scan): seal required source and healthy counterexample checks"
+    },
+    {
+      "sha": "6db2e4af328fbf7da1564f48003367b1d21be5ea",
+      "subject": "docs(r0): deliver public required scope and free closing evidence"
+    },
+    {
+      "sha": "37ec687a24d2e62d5a0e07bac185e8033de20899",
+      "subject": "docs(r0): propose public default sampling and entry alignment"
+    },
+    {
+      "sha": "5cd26400c17c83510b4dd7f5e258bf7b2d8de5ec",
+      "subject": "fix(ui-scan): align default entry with frozen public sampling"
+    },
+    {
+      "sha": "08acc95d7f67a1ac3cbcf3d9decc9add2f2907eb",
+      "subject": "test(r0): verify default denominator against public snapshots"
+    },
+    {
+      "sha": "2db1bf7aa1559460277b73031ba84202d923a0cd",
+      "subject": "docs(r0): deliver default workbench sampling and targeted evidence"
+    },
+    {
+      "sha": "bc67d7fb64534536b181afff165a4154d2627f48",
+      "subject": "docs(r0): freeze default-3 acceptance pending fresh authorization"
+    },
+    {
+      "sha": "7926b4d5ee6ef54974d98d1e29bbd0b9a35f8698",
+      "subject": "docs(r0): deliver failed real acceptance and unknown-stop evidence"
+    },
+    {
+      "sha": "b266089d8a46b0394e39220f66ac85260b4b19ef",
+      "subject": "fix: stop shared model dispatch on unknown campaign cost"
+    },
+    {
+      "sha": "b4e0973c282bd867166675fd63d3098e4d4ddbf5",
+      "subject": "docs: deliver free request-stop evidence and R1 public state handoff"
+    },
+    {
+      "sha": "c1d41e13554a54f53118934cc5a62b8840610b23",
+      "subject": "fix: retain bounded DOM query cursors in omitted receipts"
+    },
+    {
+      "sha": "b69c0cfeaca1f677a00b4df9151400541390c9ad",
+      "subject": "docs: deliver DOM locator fix and static-only AB evidence"
+    },
+    {
+      "sha": "2ac24efab18f7704f5c0b2b7bd74cf1f22ef94f8",
+      "subject": "docs: deliver six-request DOM cursor shadow experiment"
+    },
+    {
+      "sha": "4ee2cee4863f0e354c3c3302171bac5d122efe67",
+      "subject": "docs: analyze public Filters path and unresolved contract linkage"
+    },
+    {
+      "sha": "5f41285b69c83387af76e5b85d3657d19fb0761d",
+      "subject": "fix: preserve pending UI exploration and bind original effect evidence"
+    },
+    {
+      "sha": "3bfecce12beffa49f18b6669d02cdce8b91db0ac",
+      "subject": "docs: deliver bounded effect exploration evidence and limits"
+    },
+    {
+      "sha": "e40a463b097bbd79055ed3ebc61e459e0fb2c1a1",
+      "subject": "docs: bound persistence diagnosis and original Filters contract gap"
+    },
+    {
+      "sha": "64549669957b91bcd4e4e56d4483cbaefb19c811",
+      "subject": "test: capture bounded persistence identity and visibility mismatches"
+    },
+    {
+      "sha": "a3aa1bc61a76cf8d73064655b627f13141db4583",
+      "subject": "test: synchronize persistence capture at the first post-action artifact"
+    },
+    {
+      "sha": "d636d7e6ceea46ed22f43205a7164a149cb3600a",
+      "subject": "docs: deliver bounded persistence capture evidence without closing original fault"
+    },
+    {
+      "sha": "ea5f5acf0521fe896488e031dae8bb09ccbe9146",
+      "subject": "docs: freeze authorized default check v2 planning baseline"
+    },
+    {
+      "sha": "d978bc958fc2193ed15c916205d1361b53dffd19",
+      "subject": "feat: version default UI checks with generic evidence and public required effects"
+    },
+    {
+      "sha": "27614b7a60293a80f3be7b321d164d3599dd0964",
+      "subject": "fix: validate active effect publication before generic receipt settlement"
+    },
+    {
+      "sha": "fa10d9b8351c359459cdf1521d1f85353d3ee699",
+      "subject": "test: audit retained v2 evidence and report publication guards"
+    },
+    {
+      "sha": "5070fb227684cbad821c51a8310280b12505787f",
+      "subject": "docs: deliver R0 v2 internal trial with evidence and known risks"
+    },
+    {
+      "sha": "556f2419c5f062cdfb2cfd0a4867a4a95b9864b7",
+      "subject": "docs: hand off frozen v2 public states for R1 offline advice"
+    }
+  ],
+  "excludedBranchTips": {
+    "codex/r1-jev-closeout": "e5b39f764313aade8380ee8fde10b5e9b9d6d1b3",
+    "codex/rule-image-proportion": "ea23bfc2a1debccace4b03b1c055e02d0e4a6ede",
+    "codex/network-dns-compat": "b0174b148923cf801db6cc596fbd288f30511bf4"
+  },
+  "mainWorkspacePreserved": {
+    "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel",
+    "branch": "codex/r0-closeout",
+    "head": "d636d7e6ceea46ed22f43205a7164a149cb3600a",
+    "files": [
+      {
+        "path": "docs/product-roadmap.md",
+        "sha256": "a0b63af6d82e2f7431803a7d4e4a954274d709f6d68478306726d5b4cf979673",
+        "bytes": 75676,
+        "archiveCopy": "/Users/xietian/Documents/ChatGPT/ui-sentinel-local-archive/r0-integration-20261009T010610Z/main-uncommitted/docs/product-roadmap.md",
+        "r0Exists": true,
+        "identicalToR0": false
+      },
+      {
+        "path": "plans/independent-root-cause-diagnosis-2026-10-08.md",
+        "sha256": "aabda96b52b447b2c04029529444dcf0d9f50b00e73a98e6c3b63936530163b5",
+        "bytes": 18505,
+        "archiveCopy": "/Users/xietian/Documents/ChatGPT/ui-sentinel-local-archive/r0-integration-20261009T010610Z/main-uncommitted/plans/independent-root-cause-diagnosis-2026-10-08.md",
+        "r0Exists": false,
+        "identicalToR0": false
+      },
+      {
+        "path": "plans/r0-default-check-contract-v2-plan.md",
+        "sha256": "64a7476a907ee7c5dcb8ceae2ca4b8310a95a3442a66c96720f5ee4b56597f9d",
+        "bytes": 35811,
+        "archiveCopy": "/Users/xietian/Documents/ChatGPT/ui-sentinel-local-archive/r0-integration-20261009T010610Z/main-uncommitted/plans/r0-default-check-contract-v2-plan.md",
+        "r0Exists": true,
+        "identicalToR0": true
+      },
+      {
+        "path": "plans/evidence/r0-default-check-contract-v2-plan.json",
+        "sha256": "2ccb6a37ec48dd04727809a95d5a0428ef445ff80f76f7e8905c1d4b2c930f10",
+        "bytes": 18762,
+        "archiveCopy": "/Users/xietian/Documents/ChatGPT/ui-sentinel-local-archive/r0-integration-20261009T010610Z/main-uncommitted/plans/evidence/r0-default-check-contract-v2-plan.json",
+        "r0Exists": true,
+        "identicalToR0": true
+      },
+      {
+        "path": "plans/r0-v2-context-recovery.md",
+        "sha256": "3a60005ad6034e9536845e2a7d859cfc90ae6765b6f2d03463a85d875ca925e5",
+        "bytes": 3367,
+        "archiveCopy": "/Users/xietian/Documents/ChatGPT/ui-sentinel-local-archive/r0-integration-20261009T010610Z/main-uncommitted/plans/r0-v2-context-recovery.md",
+        "r0Exists": false,
+        "identicalToR0": false
+      }
+    ],
+    "ruleLibrary": "parallel untracked work; untouched and not integrated"
+  },
+  "documentPolicy": {
+    "canonicalEntry": "docs/r0-delivery.md",
+    "currentArchitecture": "docs/architecture.md",
+    "roadmap": "docs/product-roadmap.md",
+    "knownIssues": "docs/known-issues.md",
+    "historicalPlanAndEvidencePaths": "retained; no moves or deletions",
+    "roadmapHistory": "exact bytes at maintainerSnapshotCommit; current file replaces rolling history with current state and history link",
+    "uniqueUntrackedHistoricalFilesImported": [
+      "plans/independent-root-cause-diagnosis-2026-10-08.md",
+      "plans/r0-v2-context-recovery.md"
+    ],
+    "alreadySavedDuplicatesNotCopiedAgain": [
+      "plans/r0-default-check-contract-v2-plan.md",
+      "plans/evidence/r0-default-check-contract-v2-plan.json"
+    ],
+    "rawLinkRepair": "Three newly imported historical diagnosis links now use preserved main-workspace absolute data paths; exact original bytes remain at snapshot commit8e8c07a and archive."
+  },
+  "verification": {
+    "productAndExecutionTreesEqualTo556f241": true,
+    "srcTreeEqualTo27614b7": true,
+    "newBuild": false,
+    "newTypecheck": false,
+    "newBrowserRuns": 0,
+    "newRealModelCalls": 0,
+    "newPaidCostUsd": 0,
+    "reason": "Ancestor fast-forward; only documentation changes after frozen tested R0 tree. No dependency installation or runtime changes; reuse conditional on exact source/lock/build identity.",
+    "reusedBuild": {
+      "path": "/Users/xietian/.codex/worktrees/r0-default-check-v2/ui-sentinel/data/r0-default-check-v2/build-active-report-corrected.log",
+      "bytes": 1322,
+      "sha256": "bc3ef741f7335157fddf08b39e0b9feffc9e8c4c9773dfd6a9ed4c00556a1326"
+    },
+    "reusedTypecheck": {
+      "path": "/Users/xietian/.codex/worktrees/r0-default-check-v2/ui-sentinel/data/r0-default-check-v2/typecheck-recovery.log",
+      "bytes": 111,
+      "sha256": "9356a08b2e17ab8d6e52cebfd1bc095d4d9f6581585fb09a82a54ad669ad8caa"
+    },
+    "evidenceIndex": {
+      "path": "/Users/xietian/.codex/worktrees/r0-default-check-v2/ui-sentinel/plans/evidence/r0-default-check-v2-delivery.json",
+      "bytes": 60400,
+      "sha256": "576fd5d91a71e5f8c75b5fa0070eac0e986457783a29b6beaf1da3b3192b107c"
+    },
+    "newChecks": [
+      "current documentation local links",
+      "machine/public-package file hashes and exact copy",
+      "product/lock/build script tree equality",
+      "main dirty-file hashes unchanged",
+      "archive every-file readability and bytes",
+      "duplicate ZIP readability/hash and no open handle",
+      "stale worktree index equals preserved branch tree"
+    ],
+    "documentChecks": {
+      "localMarkdownLinksChecked": 54,
+      "brokenLinks": [],
+      "productWorkingTreeDelta": []
+    }
+  },
+  "r1DependencyPreserved": {
+    "absoluteRoot": "/Users/xietian/.codex/worktrees/r0-default-check-v2/ui-sentinel/plans/r0-r1-dependency-v2",
+    "files": [
+      {
+        "path": "/Users/xietian/.codex/worktrees/r0-default-check-v2/ui-sentinel/plans/r0-r1-dependency-v2/README.md",
+        "bytes": 5762,
+        "sha256": "e918c71433f4bb16a9b016c65937ca7d2e7230b7b15170151266bbb19d642a8a"
+      },
+      {
+        "path": "/Users/xietian/.codex/worktrees/r0-default-check-v2/ui-sentinel/plans/r0-r1-dependency-v2/validation.json",
+        "bytes": 1763,
+        "sha256": "3fed3de3dfd714235b75d2702508934d4f244324017d5109459cf84b50e8194d"
+      },
+      {
+        "path": "/Users/xietian/.codex/worktrees/r0-default-check-v2/ui-sentinel/plans/r0-r1-dependency-v2/index.json",
+        "bytes": 6465,
+        "sha256": "f1c2d06c63c22812edbd4f71b6efce2f0cc8d8fbde1096075f4adf2760810b3e"
+      },
+      {
+        "path": "/Users/xietian/.codex/worktrees/r0-default-check-v2/ui-sentinel/plans/r0-r1-dependency-v2/public/V06.json",
+        "bytes": 24910,
+        "sha256": "152d5b5d055abbffc49ceb0adc1f9a83013067f43b6b25075bff4a1e127d8fb7"
+      },
+      {
+        "path": "/Users/xietian/.codex/worktrees/r0-default-check-v2/ui-sentinel/plans/r0-r1-dependency-v2/public/V01.json",
+        "bytes": 12249,
+        "sha256": "7a71c8f9df31fa93ad86b2edd69b23527e7c2a7cb7b4233a8151bbfcc0914ecf"
+      },
+      {
+        "path": "/Users/xietian/.codex/worktrees/r0-default-check-v2/ui-sentinel/plans/r0-r1-dependency-v2/public/V03.json",
+        "bytes": 18851,
+        "sha256": "d1d84f4a620806963539d76fa85664d3e0658231db2bfc352c6c8fcea72f5ebe"
+      },
+      {
+        "path": "/Users/xietian/.codex/worktrees/r0-default-check-v2/ui-sentinel/plans/r0-r1-dependency-v2/public/V02.json",
+        "bytes": 13050,
+        "sha256": "6cb9e16a2264fa305a5a8019c2734de2f93554e19dde25eb16e2bd84406bf2d5"
+      },
+      {
+        "path": "/Users/xietian/.codex/worktrees/r0-default-check-v2/ui-sentinel/plans/r0-r1-dependency-v2/public/V05.json",
+        "bytes": 23407,
+        "sha256": "40b7e5f19b7f434327ed0608b1dd8dd64cbfcae2fdaf1592684e255267126cbd"
+      },
+      {
+        "path": "/Users/xietian/.codex/worktrees/r0-default-check-v2/ui-sentinel/plans/r0-r1-dependency-v2/public/V04.json",
+        "bytes": 25828,
+        "sha256": "6f4a121890bb30c3676b1f6fa561eb64a241b3de50322b577cf9655feb81d3de"
+      },
+      {
+        "path": "/Users/xietian/.codex/worktrees/r0-default-check-v2/ui-sentinel/plans/r0-r1-dependency-v2/states/V06.json",
+        "bytes": 5036,
+        "sha256": "5c5529cc6a64601051ee65444eb2837ae4094670fd49ac013e9ae95ae0e51525"
+      },
+      {
+        "path": "/Users/xietian/.codex/worktrees/r0-default-check-v2/ui-sentinel/plans/r0-r1-dependency-v2/states/V01.json",
+        "bytes": 4094,
+        "sha256": "a3355aec461c7f355ea945071990a6335b09ca53401146b6aa759ef0ea87aebb"
+      },
+      {
+        "path": "/Users/xietian/.codex/worktrees/r0-default-check-v2/ui-sentinel/plans/r0-r1-dependency-v2/states/V03.json",
+        "bytes": 13519,
+        "sha256": "01b29073dd5ae4cdd1b5c72e3a7e4e710f8f66df4deb247aa357a459d221fa48"
+      },
+      {
+        "path": "/Users/xietian/.codex/worktrees/r0-default-check-v2/ui-sentinel/plans/r0-r1-dependency-v2/states/V02.json",
+        "bytes": 12679,
+        "sha256": "f551ee802855e851c258fafa2b224c7193742d86138043d952cda67dbd9195da"
+      },
+      {
+        "path": "/Users/xietian/.codex/worktrees/r0-default-check-v2/ui-sentinel/plans/r0-r1-dependency-v2/states/V05.json",
+        "bytes": 4861,
+        "sha256": "9d5bc59f1dc5854166ec760c01c1ec3eee9c9181044f3a6cb7d952d600a20edd"
+      },
+      {
+        "path": "/Users/xietian/.codex/worktrees/r0-default-check-v2/ui-sentinel/plans/r0-r1-dependency-v2/states/V04.json",
+        "bytes": 9377,
+        "sha256": "1ea3ee532dcdd4b3647c94e1d0b9d87adde566e7400d95d2e919060c373f6d14"
+      },
+      {
+        "path": "/Users/xietian/.codex/worktrees/r0-default-check-v2/ui-sentinel/plans/r0-r1-dependency-v2/evaluation/historical-choices.json",
+        "bytes": 3211,
+        "sha256": "3476124ba55c56e20509747bc9d157950e33495d4cd166ae5a56f0258f833ba3"
+      },
+      {
+        "path": "/Users/xietian/.codex/worktrees/r0-default-check-v2/ui-sentinel/plans/r0-r1-dependency-v2/evaluation/selection.json",
+        "bytes": 877,
+        "sha256": "6cad2ed3b8f980477c1f38355352b97a94c8a1e0f72e6e89b82212b3504f5d42"
+      },
+      {
+        "path": "/Users/xietian/.codex/worktrees/r0-default-check-v2/ui-sentinel/plans/r0-r1-dependency-v2/evaluation/index.json",
+        "bytes": 475,
+        "sha256": "a62e938182fc885c91d5ced5277e67db09a30033c48f6ca8894d56b87b12bdca"
+      },
+      {
+        "path": "/Users/xietian/.codex/worktrees/r0-default-check-v2/ui-sentinel/plans/r0-r1-dependency-v2/inputs/V06.json",
+        "bytes": 4075,
+        "sha256": "a8f68b2e08ab50df45586d2c2622d2551b5b5d64d108c3374d65421a948bdaff"
+      },
+      {
+        "path": "/Users/xietian/.codex/worktrees/r0-default-check-v2/ui-sentinel/plans/r0-r1-dependency-v2/inputs/V01.json",
+        "bytes": 3133,
+        "sha256": "7a66fe92c567fd8a62ee699beac4ea6065b839c4ebff0ec13890e193f9500994"
+      },
+      {
+        "path": "/Users/xietian/.codex/worktrees/r0-default-check-v2/ui-sentinel/plans/r0-r1-dependency-v2/inputs/V03.json",
+        "bytes": 10500,
+        "sha256": "61352bbaa95b3b3dfdced8b4745430c5b9a8a8219dc0218d88421ee123b31362"
+      },
+      {
+        "path": "/Users/xietian/.codex/worktrees/r0-default-check-v2/ui-sentinel/plans/r0-r1-dependency-v2/inputs/V02.json",
+        "bytes": 9665,
+        "sha256": "ece511deb27dd0e175ed207e2f5abedd8b24c7765038715ffe3a63748ae01286"
+      },
+      {
+        "path": "/Users/xietian/.codex/worktrees/r0-default-check-v2/ui-sentinel/plans/r0-r1-dependency-v2/inputs/V05.json",
+        "bytes": 3900,
+        "sha256": "43b6cc360c920c547f66d7d978c9c35e2e33f097ca4e7fe61f970f95dc9e31dc"
+      },
+      {
+        "path": "/Users/xietian/.codex/worktrees/r0-default-check-v2/ui-sentinel/plans/r0-r1-dependency-v2/inputs/V04.json",
+        "bytes": 7384,
+        "sha256": "e0c0aeffe17815993cb578dd1fba28c58a6e8780e86467a1c0ecb77985b077e7"
+      }
+    ],
+    "originalFinalFreeRoot": "/Users/xietian/.codex/worktrees/r0-default-check-v2/ui-sentinel/data/r0-default-check-v2/final-free-2026-10-08T20-46-41-537Z",
+    "originalArtifactsRoot": "/Users/xietian/.codex/worktrees/r0-default-check-v2/ui-sentinel/data/artifacts",
+    "movedOrDeleted": false,
+    "consumerEvidence": "Separate codex/r1-jev-closeout@e5b39f7: plans/r1-decision-pilot/r0-v2-intake/README.md says 6/6 intake and offline baseline completed. Not merged or re-executed here."
+  },
+  "cleanup": {
+    "status": "complete",
+    "preserve": [
+      "all source worktrees and uncommitted files",
+      "all DBs/sidecars, failure logs/screenshots, ledgers/authorizations",
+      "R0 R1-dependency package and original final-free/data/artifacts absolute paths",
+      "R1/rule/DNS branches and worktrees"
+    ],
+    "archiveRoot": "/Users/xietian/Documents/ChatGPT/ui-sentinel-local-archive/r0-integration-20261009T010610Z",
+    "removeRegularFileAfterVerifiedArchive": [
+      "data/r0-acceptance-delivery/2026-10-07-3cdd68f/prior-build-evidence.zip"
+    ],
+    "replacement": "relative symlink at original path to verified external archive; historical references remain readable",
+    "pruneAfterMainIntegration": [
+      "missing /private/tmp/ui-sentinel-visual-p1-review registration",
+      "missing /private/tmp/ui-sentinel-visual-p2-review registration"
+    ],
+    "deleteBranches": [],
+    "finalEvidenceArchive": {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-local-archive/r0-integration-20261009T010610Z/r0-v2-final-free.tar.gz",
+      "sha256": "efadca618c80e5db534ac2bc2364b43f258168dae524a04711e9dd3784250f8e",
+      "bytes": 9170591,
+      "verifiedFiles": 641,
+      "originalDirectoryPreserved": "/Users/xietian/.codex/worktrees/r0-default-check-v2/ui-sentinel/data/r0-default-check-v2/final-free-2026-10-08T20-46-41-537Z"
+    },
+    "archivedDuplicate": {
+      "originalPath": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-acceptance-delivery/2026-10-07-3cdd68f/prior-build-evidence.zip",
+      "archivePath": "/Users/xietian/Documents/ChatGPT/ui-sentinel-local-archive/r0-integration-20261009T010610Z/recoverable-cleanup/data/r0-acceptance-delivery/2026-10-07-3cdd68f/prior-build-evidence.zip",
+      "canonicalCopy": "/Users/xietian/Documents/ChatGPT/ui-sentinel/data/r0-closeout-delivery/r0-closeout-f0ae8a5.zip",
+      "sha256": "7cfac74bbd3cc7677c8426ba79b626c9510802d92e5ce197251096fb2340038c",
+      "bytes": 12929819,
+      "replacementSymlink": "../../../../ui-sentinel-local-archive/r0-integration-20261009T010610Z/recoverable-cleanup/data/r0-acceptance-delivery/2026-10-07-3cdd68f/prior-build-evidence.zip",
+      "archiveVerifiedBeforeUnlink": true,
+      "currentReferencesRemainReadable": true,
+      "openHandleCount": 0
+    },
+    "removedRegularFiles": 1,
+    "deletedEvidenceBytes": 0,
+    "removedRegularBytesFromWorkingDirectory": 12929819,
+    "netDiskSavingsClaimed": false,
+    "prunedRegistrations": [
+      {
+        "path": "/private/tmp/ui-sentinel-visual-p1-review",
+        "branchPreserved": "review/visual-focus-p1",
+        "head": "1df75dde6c611aafc384f2cc7dd86ce2dbc7ffe8",
+        "alreadyInOriginalMain": true,
+        "gitfileMissing": true,
+        "remainingDirectoryPreserved": true,
+        "topLevelPreserved": [
+          "node_modules",
+          "arena"
+        ],
+        "indexEqualsHead": true,
+        "adminBackup": "/Users/xietian/Documents/ChatGPT/ui-sentinel-local-archive/r0-integration-20261009T010610Z/pruned-worktree-admin/ui-sentinel-visual-p1-review"
+      },
+      {
+        "path": "/private/tmp/ui-sentinel-visual-p2-review",
+        "branchPreserved": "review/visual-focus-p2",
+        "head": "6946df98b79eadae19473bb5348400373d280c08",
+        "alreadyInOriginalMain": true,
+        "gitfileMissing": true,
+        "remainingDirectoryPreserved": true,
+        "topLevelPreserved": [
+          "midscene_run",
+          "plans",
+          "dist",
+          "node_modules",
+          "docs",
+          "scripts",
+          "evaluation",
+          "arena",
+          "data",
+          "src"
+        ],
+        "indexEqualsHead": true,
+        "adminBackup": "/Users/xietian/Documents/ChatGPT/ui-sentinel-local-archive/r0-integration-20261009T010610Z/pruned-worktree-admin/ui-sentinel-visual-p2-review"
+      }
+    ],
+    "prunedRegistrationCount": 2,
+    "deletedBranches": 0,
+    "deletedWorktreeDirectories": 0,
+    "correction": "Git prunable means missing .git, not absent data directories; remaining paths preserved."
+  },
+  "archiveRoot": "/Users/xietian/Documents/ChatGPT/ui-sentinel-local-archive/r0-integration-20261009T010610Z",
+  "retainedHistoricalExports": {
+    "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-local-archive/r0-integration-20261009T010610Z/retained-archives.json",
+    "bytes": 8724,
+    "sha256": "d6bcf672f318e7184b6fb2b065e87807030509fec85cd46d4e6ba5e63a20f9c3"
+  },
+  "retainedWorkspaces": [
+    "main dirty directory (unchanged)",
+    "R0 original (R1 absolute paths and ignored evidence)",
+    "R1 / rule / DNS independent workspaces",
+    "P4 review workspace (no authorization or proof of no dependency to delete)",
+    "current managed integration workspace (do not archive active chat)"
+  ],
+  "knownOpenClasses": [
+    "historical persistence root cause",
+    "cancelled diagnostic tail snapshot difference",
+    "uncovered targeted F subcases",
+    "formal real-model UI/business acceptance"
+  ],
+  "cleanupRecovery": "docs/r0-delivery.md#归档与恢复",
+  "archiveManifest": {
+    "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-local-archive/r0-integration-20261009T010610Z/ARCHIVE-MANIFEST.json",
+    "bytes": 5866,
+    "sha256": "44485233b89b1d4c868f31cbd28939b8cdd14d8ecad35cb11262034d5a4caab7"
+  }
+}

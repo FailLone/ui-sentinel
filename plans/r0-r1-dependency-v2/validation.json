@@ -1,0 +1,57 @@
+{
+  "scope": "R0 producer data validation only; not R1 consumer acceptance",
+  "node": "v24.21.0",
+  "parserPath": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/src/agent/decisions/exploration/contracts.ts",
+  "parserSha256": "79e3dbb1bf971c4eed62b9733c6c20c41d6b0a2ee6f83e419325bb1dfe7ce189",
+  "indexSha256": "f1c2d06c63c22812edbd4f71b6efce2f0cc8d8fbde1096075f4adf2760810b3e",
+  "rows": [
+    {
+      "stateId": "V01",
+      "parserAccepted": true,
+      "fileHashesMatch": true,
+      "publicOperationsWithinCutoff": true
+    },
+    {
+      "stateId": "V02",
+      "parserAccepted": true,
+      "fileHashesMatch": true,
+      "publicOperationsWithinCutoff": true
+    },
+    {
+      "stateId": "V03",
+      "parserAccepted": true,
+      "fileHashesMatch": true,
+      "publicOperationsWithinCutoff": true
+    },
+    {
+      "stateId": "V04",
+      "parserAccepted": true,
+      "fileHashesMatch": true,
+      "publicOperationsWithinCutoff": true
+    },
+    {
+      "stateId": "V05",
+      "parserAccepted": true,
+      "fileHashesMatch": true,
+      "publicOperationsWithinCutoff": true
+    },
+    {
+      "stateId": "V06",
+      "parserAccepted": true,
+      "fileHashesMatch": true,
+      "publicOperationsWithinCutoff": true
+    }
+  ],
+  "r1AdapterOrRankerExecuted": false,
+  "newModelCalls": 0,
+  "newBrowserRuns": 0,
+  "exporterPath": "scripts/validation/export-r0-v2-r1-states.py",
+  "exporterSha256": "b0d95d33609c65b765e159b63ba3e7e9ba0f024afde14f22d4f6f243abaccc25",
+  "checksAlsoPerformed": [
+    "state/input envelope equality",
+    "selected/status agrees with public registeredChecks",
+    "public hash reference equality",
+    "advice scope contains exactly selected candidates",
+    "prior operation seq <= cutoff"
+  ]
+}

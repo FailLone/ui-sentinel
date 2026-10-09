@@ -1,3 +1,4 @@
+import { defaultCheckArtifactIssues } from '../inspection/check-artifacts.ts'
 import { interactionFindingIssues } from './interaction-finding-proof.ts'
 import { createClient } from '@libsql/client'
 import { config } from '../shared/config.ts'
@@ -101,6 +102,18 @@ export async function verifyCompletionCommit(expected: {
         )),
       )
     }
+    issues.push(
+      ...(await defaultCheckArtifactIssues(
+        snapshot.run,
+        snapshot.events,
+        snapshot.artifactRows.rows.map((r) => ({
+          id: String(r.id),
+          type: String(r.type),
+          path: String(r.file_path),
+          metadata: JSON.parse(String(r.metadata)),
+        })),
+      )),
+    )
     if (
       snapshot.events.length !== expected.eventIds.length ||
       snapshot.events.some((event, index) => event.id !== expected.eventIds[index])

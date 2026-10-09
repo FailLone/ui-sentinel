@@ -1,0 +1,16 @@
+{
+  "mode": "comparison-only-never-advice-input",
+  "files": [
+    {
+      "path": "evaluation/selection.json",
+      "bytes": 877,
+      "sha256": "6cad2ed3b8f980477c1f38355352b97a94c8a1e0f72e6e89b82212b3504f5d42"
+    },
+    {
+      "path": "evaluation/historical-choices.json",
+      "bytes": 3211,
+      "sha256": "3476124ba55c56e20509747bc9d157950e33495d4cd166ae5a56f0258f833ba3"
+    }
+  ],
+  "labels": "No preferred candidate, success, or optimality labels supplied."
+}

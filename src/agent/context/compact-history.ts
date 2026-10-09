@@ -130,6 +130,8 @@ const KEEP_KEYS = new Set([
   'nextStep',
   'reason',
   'completed',
+  'effectTested',
+  'exploratoryInteractions',
 ])
 
 /** One projection, also accepts its own output. Never discard action arguments. */

@@ -1,0 +1,695 @@
+{
+  "schemaVersion": "r0-v2-public-state-1",
+  "mode": "offline-advice-only",
+  "stateId": "V06",
+  "runId": "run-c4355ade-240e-45b1-b42d-1d1b3cb0c1dd",
+  "eventCutoffSeq": 80,
+  "at": "2026-10-08T20:47:07.486Z",
+  "source": {
+    "productCommit": "27614b7a60293a80f3be7b321d164d3599dd0964",
+    "requestEventSeq": 81,
+    "snapshotEventSeq": 67,
+    "snapshotArtifactId": "0fc2544f-4d95-4b16-ab26-7477a1439757.json",
+    "snapshotSha256": "9a4cb9741c255dc36e75434febc21f2b50ec8c08798f220ee218b610c325800f",
+    "packetIndex": 15,
+    "actualInputSha256": "8251ee0f1b476e4ea050bccaa940d3bdf9c98a062168fb1f5687046dcaeb8018",
+    "prefixSha256": "62aeeda893e95036704db96d607a60e3191c6125a91443ff2dbfea6d4b61b348",
+    "contractHash": "f75e37a43376864261ebfc399fa437bd95c219fe274f4a3abed27647847fa2d1",
+    "hashEncoding": "UTF-8 sorted-key compact JSON, except file hashes"
+  },
+  "protocol": {
+    "policyRevision": "url-scan-default-4",
+    "samplingPolicy": {
+      "revision": "bounded-ui-sampling-2",
+      "candidateLimit": 8,
+      "localSamplesPerVisitedPage": 3,
+      "navigationSamplesPerRun": 1,
+      "goalMode": "focus"
+    },
+    "checkPolicy": {
+      "revision": "default-check-contract-2",
+      "sourceProfile": "public-effect-sources-1",
+      "feedbackSampleOffsetsMs": [
+        0,
+        1000
+      ],
+      "maxExploratoryDispatches": 1,
+      "maxReadOnlyRecoveries": 2
+    }
+  },
+  "permissions": {
+    "session": "anonymous",
+    "businessWrites": "none",
+    "origin": "http://127.0.0.1:54599",
+    "scope": {
+      "maxPages": 3,
+      "maxDepth": 1
+    }
+  },
+  "operations": [
+    {
+      "eventSeq": 80,
+      "tool": "page_act",
+      "args": {
+        "type": "click",
+        "ref": "e2"
+      },
+      "status": "completed"
+    }
+  ],
+  "registeredChecks": [
+    {
+      "itemId": "item-a0bc9c43-aecd-48bc-b970-40404d83bb36",
+      "category": "investigation",
+      "selected": true,
+      "status": "verified",
+      "reasonCode": null
+    },
+    {
+      "itemId": "item-76520333-c5fe-42ef-9fe3-b70c3cbc2ddb",
+      "category": "entry-observation",
+      "selected": true,
+      "status": "verified",
+      "reasonCode": null
+    },
+    {
+      "itemId": "item-50d6f321-8754-4b11-830e-742b27f32004",
+      "category": "local-interaction",
+      "selected": true,
+      "status": "unverified",
+      "reasonCode": "v2-mandatory-checks-incomplete",
+      "checks": {
+        "revision": "item-checks-2",
+        "sourceReview": {
+          "state": "unresolved",
+          "revision": "public-effect-sources-1",
+          "refs": [
+            "a5859f03-8a14-4f47-81bd-6228625e8578.png",
+            "0c960f43-e5f5-4b29-9608-a171c714c099.json"
+          ],
+          "reasons": [
+            "late-source-unverified"
+          ],
+          "goalHash": "294e39f20dedccf45395f22017275a58f17bf0a44f754da4bb87b6ed93bab8fd",
+          "contractHash": "f75e37a43376864261ebfc399fa437bd95c219fe274f4a3abed27647847fa2d1",
+          "hash": "a6fc612632edfb9c5623e1f5f426ba3142482784488a6d017fddca9c94e9c2e4",
+          "ruleChecks": [
+            {
+              "ruleId": "overlay-blocking",
+              "revision": "2.1.0",
+              "contentHash": "c3acb6191549a481e1dbacd22655f6bde36459f78a0301e6f2ad2d88aa8ef424",
+              "approvalRef": "installed-registry:overlay-blocking:2.1.0",
+              "scopeItemIds": [
+                "item-cf645196-6def-4b25-9645-c22e879188eb",
+                "item-6710be79-c47b-4868-a2de-c2467c863c07"
+              ],
+              "evidenceRefs": [
+                "4ab6b282-2249-4a35-b538-96259e2522e9.png",
+                "f54f9af0-0ad7-42ea-86b8-b0baf6d8433d.json",
+                "d307defb-054e-4c08-88ab-95f91b2ad493.png",
+                "f919818c-cbcd-49ae-8d3d-da42dc571d2d.json"
+              ]
+            }
+          ]
+        },
+        "generic": {
+          "state": "collected",
+          "actionId": "c381d935-f46b-4f22-b4e0-8d0b29334408",
+          "checkRef": "32431d05-9cd4-4f67-a1d1-224c9aa795be",
+          "receiptRef": "f1d5a24d-e75a-47e7-bce6-a76a96400a90.json",
+          "feedback": "change-observed",
+          "evidenceRefs": [
+            "a5859f03-8a14-4f47-81bd-6228625e8578.png",
+            "0c960f43-e5f5-4b29-9608-a171c714c099.json",
+            "dcb0322a-c128-462c-8385-675ac954d61f.png",
+            "ce6a2630-035c-4118-bb6b-50acb8c5b949.json",
+            "9ce46216-ec7f-4b26-992b-73b1b8879937.png",
+            "c3dd4c3f-ed33-4270-9177-5b308d75fd35.json",
+            "f1d5a24d-e75a-47e7-bce6-a76a96400a90.json"
+          ],
+          "eventIds": [
+            "evt-3aa7e4ee-c702-4f90-ad22-40ede747fde4"
+          ]
+        },
+        "effects": [
+          {
+            "sourceKind": "page-declaration",
+            "sourceId": "page:html > body:nth-of-type(1) > p:nth-of-type(2)",
+            "sourceHash": "43bf4c0195665f293a0bec9fa8e2a2d26cf0b49bab716987b064394c7aa366f1",
+            "sourceRefs": [
+              "9ce46216-ec7f-4b26-992b-73b1b8879937.png",
+              "c3dd4c3f-ed33-4270-9177-5b308d75fd35.json"
+            ],
+            "sourceSpan": [
+              0,
+              56
+            ],
+            "documentVersion": "67cd206d59e4bd85ae0f2ea9afbe48d5864dbf1824da13410642ebb82bce9caa",
+            "controlBinding": {
+              "selector": "#control",
+              "name": "Reveal",
+              "tag": "button"
+            },
+            "actionContract": {
+              "type": "click"
+            },
+            "relationKind": "explicit-control-action-effect",
+            "predicate": {
+              "condition": "text-contains",
+              "expected": "Late"
+            },
+            "evaluationPoint": "action-complete",
+            "requirementHash": "58c4e76c1a87ef8efb28c2098fce09bf8001267239a9454bda9b122ed87fd347",
+            "requirementId": "requirement:58c4e76c1a87ef8efb28c209",
+            "late": true,
+            "state": "unverified",
+            "measurementRefs": [],
+            "eventIds": []
+          }
+        ]
+      }
+    },
+    {
+      "itemId": "item-810ec337-bc42-4ac4-b7e7-cbee1bf1a3d4",
+      "category": "investigation",
+      "selected": true,
+      "status": "verified",
+      "reasonCode": null
+    },
+    {
+      "itemId": "item-cf645196-6def-4b25-9645-c22e879188eb",
+      "category": "automatic-check",
+      "selected": true,
+      "status": "verified",
+      "reasonCode": null
+    },
+    {
+      "itemId": "item-c888ea6e-18da-4e1c-8ba3-19494e00dd3f",
+      "category": "investigation",
+      "selected": true,
+      "status": "verified",
+      "reasonCode": null
+    },
+    {
+      "itemId": "item-dba788b1-0361-4209-9462-5889c4e87ccc",
+      "category": "entry-observation",
+      "selected": true,
+      "status": "verified",
+      "reasonCode": null
+    },
+    {
+      "itemId": "item-6710be79-c47b-4868-a2de-c2467c863c07",
+      "category": "automatic-check",
+      "selected": true,
+      "status": "verified",
+      "reasonCode": null
+    },
+    {
+      "itemId": "item-5161bc63-45d8-4d5d-806b-21527d252f06",
+      "category": "entry-observation",
+      "selected": true,
+      "status": "verified",
+      "reasonCode": null
+    },
+    {
+      "itemId": "item-24890c3e-ad22-4ffe-8c26-f88b28533581",
+      "category": "automatic-check",
+      "selected": true,
+      "status": "verified",
+      "reasonCode": null
+    },
+    {
+      "itemId": "item-1b1772f1-39c1-4e25-95ee-7827c6129cf7",
+      "category": "automatic-check",
+      "selected": false,
+      "status": "unverified",
+      "reasonCode": "requirement-not-declared"
+    },
+    {
+      "itemId": "item-9d090972-ddf0-45c4-886b-1693148d2029",
+      "category": "entry-observation",
+      "selected": true,
+      "status": "verified",
+      "reasonCode": null
+    }
+  ],
+  "actualInput": {
+    "goal": "Check this page and the UI interactions within the permitted scope, and report grounded problems and unverified scope.",
+    "activeTools": [
+      "interaction_verify",
+      "page_inspect",
+      "investigation_run",
+      "investigation_check",
+      "rules_search",
+      "rule_details",
+      "history_read",
+      "tool_result_read",
+      "page_observe",
+      "checks_run",
+      "element_details",
+      "page_act",
+      "hypotheses_record",
+      "rule_check",
+      "exploration_update",
+      "run_finish"
+    ],
+    "observation": {
+      "url": "http://127.0.0.1:54599/",
+      "title": "",
+      "a11yTree": "- heading \"Public bounded inspection\" [level=1]\n- button \"Reveal\"\n- paragraph: Unrelated stable text\n- region: Ready\n- paragraph: Synchronously after clicking \"Reveal\", show text \"Late\".",
+      "elements": [
+        {
+          "ref": "e11",
+          "tag": "h1",
+          "text": "Public bounded inspection",
+          "enabled": true,
+          "visible": true,
+          "blockedPoints": 0
+        },
+        {
+          "ref": "e12",
+          "tag": "button",
+          "text": "Reveal",
+          "enabled": true,
+          "visible": true,
+          "blockedPoints": 0
+        },
+        {
+          "ref": "e13",
+          "tag": "p",
+          "text": "Unrelated stable text",
+          "enabled": true,
+          "visible": true,
+          "blockedPoints": 0
+        },
+        {
+          "ref": "e14",
+          "tag": "p",
+          "text": "Synchronously after clicking \"Reveal\", show text \"Late\".",
+          "enabled": true,
+          "visible": true,
+          "blockedPoints": 0
+        }
+      ],
+      "pageText": "Public bounded inspection Reveal Unrelated stable text Ready Synchronously after clicking \"Reveal\", show text \"Late\"."
+    },
+    "inspection": {
+      "snapshotId": "s4",
+      "observationReused": false,
+      "evidenceIntegrity": {
+        "version": 1,
+        "status": "clean",
+        "interventionIds": []
+      },
+      "automaticChecks": [
+        {
+          "ruleId": "overlay-blocking",
+          "verdict": "pass",
+          "actual": "0 intercepted actions; 0 partially covered; 0 unmeasured",
+          "evidenceRefs": [
+            "a923ee10-750c-4af0-9ed3-5a9fda838868.png"
+          ]
+        },
+        {
+          "ruleId": "response-time",
+          "verdict": "unknown",
+          "actual": "This run declares no feedback requirement to judge against",
+          "evidenceRefs": []
+        }
+      ],
+      "completedRuleChecks": [],
+      "applicableGaps": [],
+      "finishAdvice": {
+        "businessResult": "not-applicable",
+        "blocked": false,
+        "note": "Automatic checks are already saved. Once scope is covered, call run_finish; do not repeat observe/checks just to confirm these results. Novel issues still require investigation."
+      }
+    },
+    "inspectionScope": {
+      "candidates": [
+        {
+          "itemId": "item-50d6f321-8754-4b11-830e-742b27f32004",
+          "ref": "e12",
+          "description": "button[button] \"Reveal\"",
+          "category": "local-interaction",
+          "snapshotId": "s4"
+        }
+      ],
+      "requiredChecks": [],
+      "defaultSampling": {
+        "policy": {
+          "revision": "bounded-ui-sampling-2",
+          "candidateLimit": 8,
+          "localSamplesPerVisitedPage": 3,
+          "navigationSamplesPerRun": 1,
+          "goalMode": "focus"
+        },
+        "pages": [
+          {
+            "url": "http://127.0.0.1:54599/",
+            "itemId": "item-810ec337-bc42-4ac4-b7e7-cbee1bf1a3d4",
+            "pool": [
+              "item-50d6f321-8754-4b11-830e-742b27f32004"
+            ],
+            "count": 1,
+            "refs": [
+              "4ab6b282-2249-4a35-b538-96259e2522e9.png",
+              "f54f9af0-0ad7-42ea-86b8-b0baf6d8433d.json"
+            ],
+            "defaultSelected": {}
+          }
+        ]
+      },
+      "recentChecks": [
+        {
+          "actionId": "c381d935-f46b-4f22-b4e0-8d0b29334408",
+          "itemId": "item-50d6f321-8754-4b11-830e-742b27f32004",
+          "target": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+          "outcome": "unverified",
+          "reasonCode": "v2-mandatory-checks-incomplete",
+          "evidenceRefs": [
+            "ea3fe409-2818-44db-8569-a7950b8bfa29.png",
+            "ca63de3f-2a13-4369-ad73-051dc1b7335b.json",
+            "a5859f03-8a14-4f47-81bd-6228625e8578.png",
+            "0c960f43-e5f5-4b29-9608-a171c714c099.json",
+            "dcb0322a-c128-462c-8385-675ac954d61f.png",
+            "ce6a2630-035c-4118-bb6b-50acb8c5b949.json",
+            "9ce46216-ec7f-4b26-992b-73b1b8879937.png",
+            "c3dd4c3f-ed33-4270-9177-5b308d75fd35.json",
+            "f1d5a24d-e75a-47e7-bce6-a76a96400a90.json"
+          ]
+        }
+      ],
+      "counts": {
+        "total": 12,
+        "selected": 11,
+        "pending": 0,
+        "verified": 10,
+        "failed": 0,
+        "unverified": 2,
+        "excluded": 0
+      },
+      "checks": [
+        {
+          "itemId": "item-50d6f321-8754-4b11-830e-742b27f32004",
+          "checks": {
+            "revision": "item-checks-2",
+            "sourceReview": {
+              "state": "unresolved",
+              "revision": "public-effect-sources-1",
+              "refs": [
+                "a5859f03-8a14-4f47-81bd-6228625e8578.png",
+                "0c960f43-e5f5-4b29-9608-a171c714c099.json"
+              ],
+              "reasons": [
+                "late-source-unverified"
+              ],
+              "goalHash": "294e39f20dedccf45395f22017275a58f17bf0a44f754da4bb87b6ed93bab8fd",
+              "contractHash": "f75e37a43376864261ebfc399fa437bd95c219fe274f4a3abed27647847fa2d1",
+              "hash": "a6fc612632edfb9c5623e1f5f426ba3142482784488a6d017fddca9c94e9c2e4",
+              "ruleChecks": [
+                {
+                  "ruleId": "overlay-blocking",
+                  "revision": "2.1.0",
+                  "contentHash": "c3acb6191549a481e1dbacd22655f6bde36459f78a0301e6f2ad2d88aa8ef424",
+                  "approvalRef": "installed-registry:overlay-blocking:2.1.0",
+                  "scopeItemIds": [
+                    "item-cf645196-6def-4b25-9645-c22e879188eb",
+                    "item-6710be79-c47b-4868-a2de-c2467c863c07"
+                  ],
+                  "evidenceRefs": [
+                    "4ab6b282-2249-4a35-b538-96259e2522e9.png",
+                    "f54f9af0-0ad7-42ea-86b8-b0baf6d8433d.json",
+                    "d307defb-054e-4c08-88ab-95f91b2ad493.png",
+                    "f919818c-cbcd-49ae-8d3d-da42dc571d2d.json"
+                  ]
+                }
+              ]
+            },
+            "generic": {
+              "state": "collected",
+              "actionId": "c381d935-f46b-4f22-b4e0-8d0b29334408",
+              "checkRef": "32431d05-9cd4-4f67-a1d1-224c9aa795be",
+              "receiptRef": "f1d5a24d-e75a-47e7-bce6-a76a96400a90.json",
+              "feedback": "change-observed",
+              "evidenceRefs": [
+                "a5859f03-8a14-4f47-81bd-6228625e8578.png",
+                "0c960f43-e5f5-4b29-9608-a171c714c099.json",
+                "dcb0322a-c128-462c-8385-675ac954d61f.png",
+                "ce6a2630-035c-4118-bb6b-50acb8c5b949.json",
+                "9ce46216-ec7f-4b26-992b-73b1b8879937.png",
+                "c3dd4c3f-ed33-4270-9177-5b308d75fd35.json",
+                "f1d5a24d-e75a-47e7-bce6-a76a96400a90.json"
+              ],
+              "eventIds": [
+                "evt-3aa7e4ee-c702-4f90-ad22-40ede747fde4"
+              ]
+            },
+            "effects": [
+              {
+                "sourceKind": "page-declaration",
+                "sourceId": "page:html > body:nth-of-type(1) > p:nth-of-type(2)",
+                "sourceHash": "43bf4c0195665f293a0bec9fa8e2a2d26cf0b49bab716987b064394c7aa366f1",
+                "sourceRefs": [
+                  "9ce46216-ec7f-4b26-992b-73b1b8879937.png",
+                  "c3dd4c3f-ed33-4270-9177-5b308d75fd35.json"
+                ],
+                "sourceSpan": [
+                  0,
+                  56
+                ],
+                "documentVersion": "67cd206d59e4bd85ae0f2ea9afbe48d5864dbf1824da13410642ebb82bce9caa",
+                "controlBinding": {
+                  "selector": "#control",
+                  "name": "Reveal",
+                  "tag": "button"
+                },
+                "actionContract": {
+                  "type": "click"
+                },
+                "relationKind": "explicit-control-action-effect",
+                "predicate": {
+                  "condition": "text-contains",
+                  "expected": "Late"
+                },
+                "evaluationPoint": "action-complete",
+                "requirementHash": "58c4e76c1a87ef8efb28c2098fce09bf8001267239a9454bda9b122ed87fd347",
+                "requirementId": "requirement:58c4e76c1a87ef8efb28c209",
+                "late": true,
+                "state": "unverified",
+                "measurementRefs": [],
+                "eventIds": []
+              }
+            ]
+          }
+        }
+      ],
+      "checkInteractions": [
+        {
+          "checkRef": "32431d05-9cd4-4f67-a1d1-224c9aa795be",
+          "itemId": "item-50d6f321-8754-4b11-830e-742b27f32004",
+          "actionId": "c381d935-f46b-4f22-b4e0-8d0b29334408",
+          "attemptsRemaining": 2,
+          "requirements": [
+            {
+              "sourceKind": "page-declaration",
+              "sourceId": "page:html > body:nth-of-type(1) > p:nth-of-type(2)",
+              "sourceHash": "43bf4c0195665f293a0bec9fa8e2a2d26cf0b49bab716987b064394c7aa366f1",
+              "sourceRefs": [
+                "9ce46216-ec7f-4b26-992b-73b1b8879937.png",
+                "c3dd4c3f-ed33-4270-9177-5b308d75fd35.json"
+              ],
+              "sourceSpan": [
+                0,
+                56
+              ],
+              "documentVersion": "67cd206d59e4bd85ae0f2ea9afbe48d5864dbf1824da13410642ebb82bce9caa",
+              "controlBinding": {
+                "selector": "#control",
+                "name": "Reveal",
+                "tag": "button"
+              },
+              "actionContract": {
+                "type": "click"
+              },
+              "relationKind": "explicit-control-action-effect",
+              "predicate": {
+                "condition": "text-contains",
+                "expected": "Late"
+              },
+              "evaluationPoint": "action-complete",
+              "requirementHash": "58c4e76c1a87ef8efb28c2098fce09bf8001267239a9454bda9b122ed87fd347",
+              "requirementId": "requirement:58c4e76c1a87ef8efb28c209",
+              "late": true,
+              "state": "unverified",
+              "measurementRefs": [],
+              "eventIds": []
+            }
+          ]
+        }
+      ],
+      "outstanding": [
+        {
+          "itemId": "item-50d6f321-8754-4b11-830e-742b27f32004",
+          "category": "local-interaction",
+          "reason": "v2-mandatory-checks-incomplete"
+        }
+      ],
+      "unsupported": [
+        "authenticated-session",
+        "business-write",
+        "post-data-query",
+        "graphql-post",
+        "file-upload",
+        "file-download",
+        "new-window",
+        "websocket",
+        "service-worker",
+        "response-time"
+      ],
+      "note": "Public required checks are registered by the executor. Missing targets remain obligations. New optional checks require budget admission; measurements alone resolve items."
+    },
+    "ruleCatalog": {
+      "total": 3,
+      "matching": 2,
+      "offset": 0,
+      "nextOffset": null,
+      "applicability": {
+        "applicable": 2,
+        "unknown": 0,
+        "notApplicable": 1
+      }
+    },
+    "pendingKnownRuleChecks": 0,
+    "knownRules": [
+      {
+        "id": "overlay-blocking",
+        "revision": "2.1.0",
+        "name": "Action hit testing",
+        "description": "Reports sampled interception of visible actions; never infers blocking from rectangle overlap.",
+        "execution": "automatic",
+        "applicability": "applicable",
+        "reason": "required event or page facts available",
+        "detailsAvailable": true
+      },
+      {
+        "id": "response-time",
+        "revision": "3.0.0",
+        "name": "Response Time Budget",
+        "description": "Warn when measured UI response is unambiguously above the feedback requirement this run declares.",
+        "execution": "automatic",
+        "applicability": "applicable",
+        "reason": "required event or page facts available",
+        "detailsAvailable": true
+      }
+    ],
+    "observedRuleTriggers": [],
+    "completedRuleChecks": [],
+    "evidenceRefs": [
+      "786a185f-d9a8-4083-88c8-fe7dfdd8f0d1.png",
+      "0fc2544f-4d95-4b16-ab26-7477a1439757.json"
+    ],
+    "evidenceIntegrity": {
+      "version": 1,
+      "status": "clean",
+      "interventionIds": []
+    },
+    "finishReadiness": {
+      "businessResult": "not-applicable",
+      "applicableGaps": [],
+      "note": "A saved pass or fail resolves that check. A failed operation does not require further investigation merely because businessResult is unknown. If an evidenced blocker prevents safe recovery, call run_finish with observed-blocker; unknown is then an honest business result. If scope is covered, call run_finish with scope-covered. A processing operation or unresolved evidence still requires waiting, investigation or an explicit unverified-scope report."
+    },
+    "budgetRemaining": {
+      "actions": 19,
+      "modelCalls": 29,
+      "timeMs": 298417
+    },
+    "latestToolResults": {
+      "index": 0,
+      "text": "",
+      "totalTools": 1,
+      "nextToolIndex": null,
+      "tools": [
+        {
+          "tool": "page_act",
+          "args": {
+            "type": "click",
+            "ref": "e2"
+          },
+          "action": {
+            "type": "click",
+            "ref": "e2"
+          },
+          "status": "completed",
+          "verification": {
+            "actionId": "c381d935-f46b-4f22-b4e0-8d0b29334408",
+            "itemId": "item-50d6f321-8754-4b11-830e-742b27f32004",
+            "target": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+            "outcome": "unverified",
+            "reasonCode": "v2-mandatory-checks-incomplete",
+            "evidenceRefs": [
+              "ea3fe409-2818-44db-8569-a7950b8bfa29.png",
+              "ca63de3f-2a13-4369-ad73-051dc1b7335b.json",
+              "a5859f03-8a14-4f47-81bd-6228625e8578.png",
+              "0c960f43-e5f5-4b29-9608-a171c714c099.json",
+              "dcb0322a-c128-462c-8385-675ac954d61f.png",
+              "ce6a2630-035c-4118-bb6b-50acb8c5b949.json",
+              "9ce46216-ec7f-4b26-992b-73b1b8879937.png",
+              "c3dd4c3f-ed33-4270-9177-5b308d75fd35.json",
+              "f1d5a24d-e75a-47e7-bce6-a76a96400a90.json"
+            ]
+          },
+          "inspection": {
+            "snapshotId": "s4",
+            "observationReused": false,
+            "evidenceIntegrity": {
+              "version": 1,
+              "status": "clean",
+              "interventionIds": []
+            },
+            "automaticChecks": [
+              {
+                "ruleId": "overlay-blocking",
+                "verdict": "pass",
+                "actual": "0 intercepted actions; 0 partially covered; 0 unmeasured",
+                "evidenceRefs": [
+                  "a923ee10-750c-4af0-9ed3-5a9fda838868.png"
+                ]
+              },
+              {
+                "ruleId": "response-time",
+                "verdict": "unknown",
+                "actual": "This run declares no feedback requirement to judge against",
+                "evidenceRefs": []
+              }
+            ],
+            "completedRuleChecks": [],
+            "applicableGaps": [],
+            "finishAdvice": {
+              "businessResult": "not-applicable",
+              "blocked": false,
+              "note": "Automatic checks are already saved. Once scope is covered, call run_finish; do not repeat observe/checks just to confirm these results. Novel issues still require investigation."
+            }
+          },
+          "recoverableInteractions": [],
+          "url": "http://127.0.0.1:54599/",
+          "outcomeText": "Public bounded inspection Reveal Unrelated stable text Ready Synchronously after clicking \"Reveal\", show text \"Late\".",
+          "evidenceRefs": [
+            "786a185f-d9a8-4083-88c8-fe7dfdd8f0d1.png",
+            "0fc2544f-4d95-4b16-ab26-7477a1439757.json"
+          ],
+          "resultRef": "0.0",
+          "receiptRef": "0.0"
+        }
+      ]
+    }
+  },
+  "unknowns": [
+    "live node connection/permission/safety and current budget require executor validation",
+    "remainingMs is recorded request estimate, not a proven wall-clock lower bound",
+    "future dollar quote/remaining authorization unknown; local stub zero cost grants none",
+    "visible/enabled and absent blockedPoints do not prove click authorization",
+    "checkInteractions.requirements is frozen action data; current states are in inspectionScope.checks",
+    "no comparative preference truth or outcome prediction is supplied"
+  ]
+}

@@ -1,5 +1,9 @@
 import {
   UI_SAMPLING_POLICY,
+  UI_SAMPLING_POLICY_V2,
+  UI_CHECK_POLICY,
+  validCheckPolicy,
+  type UiCheckPolicy,
   validSamplingPolicy,
   type UiSamplingPolicy,
 } from '../shared/ui-sampling-policy.ts'
@@ -25,6 +29,7 @@ export const UI_CONTRACT_SCHEMA_VERSION = '1' as const
 export const UI_POLICY_REVISION = 'url-scan-1' as const
 export const UI_REQUIRED_SCOPE_REVISION = 'url-scan-scope-2' as const
 export const UI_DEFAULT_SCOPE_REVISION = 'url-scan-default-3' as const
+export const UI_CHECK_SCOPE_REVISION = 'url-scan-default-4' as const
 
 /** Plan 1.1: at most three unique routed pages, at most one level from the entry. */
 export const UI_MAX_PAGES = 3
@@ -130,7 +135,7 @@ export const uiScanRequestSchema = z
   .object({
     kind: z.literal('ui-scan'),
     entryUrl: z.string().min(1).max(4096),
-    goal: z.string().trim().max(UI_GOAL_MAX_LENGTH).optional(),
+    goal: z.string().max(UI_GOAL_MAX_LENGTH).optional(),
     requiredChecks: requiredChecksInput.optional(),
     scope: z
       .object({
@@ -172,12 +177,15 @@ export interface UiContractSnapshot {
     | typeof UI_POLICY_REVISION
     | typeof UI_REQUIRED_SCOPE_REVISION
     | typeof UI_DEFAULT_SCOPE_REVISION
+    | typeof UI_CHECK_SCOPE_REVISION
   readonly samplingPolicy?: UiSamplingPolicy
+  readonly checkPolicy?: UiCheckPolicy
   /** The address as submitted, including path, query order and fragment. */
   readonly entryUrl: string
   readonly origin: string
   /** The workbench or API input as typed; display only, never a page identity. */
   readonly requestedUrl: string
+  readonly requestedGoal?: string
   readonly goal: string
   readonly goalSource: 'user' | 'default'
   /** Advanced additive public checks; historical scope-2 snapshots retain their original meaning. */
@@ -255,6 +263,7 @@ export function buildUiContractSnapshot(input: {
   requestedUrl?: string
   origin: string
   goal?: string
+  requestedGoal?: string
   goalSource?: 'user' | 'default'
   requiredChecks?: readonly RequiredCheck[]
   samplingPolicy?: UiSamplingPolicy
@@ -266,15 +275,23 @@ export function buildUiContractSnapshot(input: {
   const body = {
     schemaVersion: UI_CONTRACT_SCHEMA_VERSION,
     policyRevision: input.samplingPolicy
-      ? UI_DEFAULT_SCOPE_REVISION
+      ? input.samplingPolicy.revision === 'bounded-ui-sampling-2'
+        ? UI_CHECK_SCOPE_REVISION
+        : UI_DEFAULT_SCOPE_REVISION
       : input.requiredChecks === undefined
         ? UI_POLICY_REVISION
         : UI_REQUIRED_SCOPE_REVISION,
     ...(input.samplingPolicy ? { samplingPolicy: { ...input.samplingPolicy } } : {}),
+    ...(input.samplingPolicy?.revision === 'bounded-ui-sampling-2'
+      ? { checkPolicy: structuredClone(UI_CHECK_POLICY) }
+      : {}),
     entryUrl: input.entryUrl,
     requestedUrl: input.requestedUrl ?? input.entryUrl,
     origin: input.origin,
     goal,
+    ...(input.samplingPolicy?.revision === 'bounded-ui-sampling-2'
+      ? { requestedGoal: input.requestedGoal ?? input.goal ?? '' }
+      : {}),
     goalSource: input.goal?.trim() ? (input.goalSource ?? 'user') : ('default' as const),
     ...(input.requiredChecks === undefined
       ? {}
@@ -297,14 +314,35 @@ export function buildUiContractSnapshot(input: {
 }
 
 export function verifyUiContractSnapshot(snapshot: UiContractSnapshot): boolean {
-  if (!snapshot || typeof snapshot !== 'object') return false
+  if (
+    !snapshot ||
+    typeof snapshot !== 'object' ||
+    snapshot.schemaVersion !== '1' ||
+    !['url-scan-1', 'url-scan-scope-2', 'url-scan-default-3', 'url-scan-default-4'].includes(
+      snapshot.policyRevision,
+    )
+  )
+    return false
   if (
     snapshot.samplingPolicy !== undefined &&
     (!validSamplingPolicy(snapshot.samplingPolicy) ||
-      snapshot.policyRevision !== UI_DEFAULT_SCOPE_REVISION)
+      ![UI_DEFAULT_SCOPE_REVISION, UI_CHECK_SCOPE_REVISION].includes(
+        snapshot.policyRevision as any,
+      ))
   )
     return false
   if (snapshot.policyRevision === UI_DEFAULT_SCOPE_REVISION && !snapshot.samplingPolicy)
+    return false
+  if (snapshot.policyRevision === UI_CHECK_SCOPE_REVISION) {
+    if (
+      snapshot.samplingPolicy?.revision !== 'bounded-ui-sampling-2' ||
+      !validCheckPolicy(snapshot.checkPolicy)
+    )
+      return false
+  } else if (
+    snapshot.checkPolicy !== undefined ||
+    snapshot.samplingPolicy?.revision === 'bounded-ui-sampling-2'
+  )
     return false
   const { hash, ...body } = snapshot
   if (typeof hash !== 'string') return false
@@ -385,7 +423,8 @@ export function resolveUiScanContract(
       origin: url.origin,
       goal: data.goal,
       requiredChecks: data.requiredChecks,
-      samplingPolicy: UI_SAMPLING_POLICY,
+      samplingPolicy: UI_SAMPLING_POLICY_V2,
+      requestedGoal: typeof (request as any)?.goal === 'string' ? (request as any).goal : '',
       scope,
       access,
       budget,

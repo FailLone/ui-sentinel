@@ -131,6 +131,7 @@ describe('program evidence persistence', () => {
       expect((await getEvents(run.id)).filter((e) => e.type === 'program:completed')).toHaveLength(
         1,
       )
+      if(!result.hypothesisId)throw Error('comparison must own a hypothesis')
       await expect(
         updateHypothesis(result.hypothesisId, 'refuted', result.evidenceRefs),
       ).rejects.toThrow('verdict')

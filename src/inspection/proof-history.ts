@@ -45,8 +45,10 @@ function inspectHistory(
       : proof.outcome !== 'blocked' || run.status !== 'blocked')
   )
     issues.push('inspection-proof-outcome-mismatch')
+  if (run.spec.uiContract?.checkPolicy && proof.version !== 'inspection-proof-4')
+    issues.push('v2-proof-required')
   const history = events.filter((e) => e.seq < accepted.seq)
-  if (proof.version === 'inspection-proof-3') {
+  if (proof.version === 'inspection-proof-3' || proof.version === 'inspection-proof-4') {
     if (events.some((e) => e.type === 'run:cancel-requested' || e.type === 'run:cancelled'))
       issues.push('inspection-cancelled')
     if (history.some((e) => e.type === 'execution:stopped' || e.type === 'action:failed'))
@@ -84,13 +86,14 @@ function inspectHistory(
   )
     issues.push('inspection-proof-scope-mismatch')
   const items = snapshot.items.map(
-    ({ itemId, category, status, reasonCode, evidenceRefs, basis }) => ({
+    ({ itemId, category, status, reasonCode, evidenceRefs, basis, checks }) => ({
       itemId,
       category,
       status,
       reasonCode,
       evidenceRefs,
       basis,
+      ...(checks ? { checks } : {}),
     }),
   )
   if (proofDigest(items) !== proofDigest(proof.items))
@@ -132,11 +135,19 @@ function inspectHistory(
     if (
       !bound ||
       !bound.selected ||
-      bound.status !== item.status ||
-      proofDigest(bound.evidenceRefs) !== proofDigest(item.evidenceRefs)
+      (bound.checks
+        ? bound.checks.effects.find(
+            (e) => e.sourceKind === 'required-check' && e.sourceId === requirement.id,
+          )?.state !== item.status
+        : bound.status !== item.status) ||
+      (!bound.checks && proofDigest(bound.evidenceRefs) !== proofDigest(item.evidenceRefs))
     )
       issues.push(`required-measurement-mismatch:${requirement.id}`)
   }
+  if (run.spec.uiContract?.checkPolicy)
+    for (const i of snapshot.items)
+      if (i.selected && i.category === 'local-interaction' && !i.checks)
+        issues.push('v2-missing-facets')
   if (proof.claim === 'scope-covered') {
     if (
       !snapshot.items.some(

@@ -63,6 +63,19 @@ export const findingInput = z.object({
 })
 
 export const explorationInput = z.object({
+  sourceCandidates: z
+    .array(
+      z
+        .object({
+          itemId: z.string(),
+          sourceRef: z.string().max(120),
+          sourceSpan: z.tuple([z.number().int().min(0), z.number().int().min(1)]),
+          sourceHash: z.string().regex(/^[a-f0-9]{64}$/),
+        })
+        .strict(),
+    )
+    .max(12)
+    .optional(),
   state: z.string(),
   unexploredBranches: z.array(
     z.object({ description: z.string(), trigger: z.enum(hypothesisTriggers) }),
