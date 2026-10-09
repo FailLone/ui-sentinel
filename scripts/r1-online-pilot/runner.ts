@@ -12,6 +12,7 @@ import { createControlledHost, digest } from '../../src/agent/exploration/integr
 import { replyFor, jsonResponse } from '../r1-jev-real/test-support.ts'
 import { sha256 } from '../../src/agent/decisions/jev-provider/profile.ts'
 import { preparePaidAccess } from './preflight.ts'
+import { createContinuation, combinedSpending } from './continuation.ts'
 import { bindRunCancellation } from './lifecycle.ts'
 import { evaluate } from './evaluate.ts'
 import { RESULT_VERSION, firstMeasurementEvent } from './measurement.ts'
@@ -34,13 +35,18 @@ const manifest: Manifest = free
   : JSON.parse(readFileSync(args[0], 'utf8'))
 const approval = free ? null : JSON.parse(readFileSync(args[1], 'utf8'))
 if (existsSync(output)) throw Error('new-output-required')
+const continuation = free
+  ? undefined
+  : createContinuation(digest(manifest), resolve(args[2] ?? ''), output)
 const { priceCheck, key } = free
   ? { priceCheck: { mode: 'fixed-only-no-price-http' }, key: 'fixed-not-a-real-key' }
   : await preparePaidAccess(manifest, approval, sourceSha, {
       credential: () => process.env.R1_ONLINE_API_KEY,
+      lineagePreflight: () => continuation!.preflight(),
       claim() {
         if (!args[2]) throw Error('explicit-canonical-claim-directory-required')
         const claims = resolve(args[2])
+        continuation!.claim()
         mkdirSync(claims, { recursive: true })
         writeFileSync(
           join(claims, digest(manifest) + '.claim'),
@@ -55,6 +61,7 @@ const save = (path: string, value: unknown) =>
 save('manifest.json', manifest)
 if (approval) save('approval.json', approval)
 save('price-check.json', priceCheck)
+if (continuation) save('continuation.json', continuation.identity)
 save('identity.json', {
   sourceSha,
   sourceDirty: execFileSync('git', ['status', '--porcelain'], { encoding: 'utf8' }).trim() !== '',
@@ -64,7 +71,7 @@ save('identity.json', {
   lockHash: digest(readFileSync('pnpm-lock.yaml', 'utf8')),
 })
 const session = await openCampaignSession(join(output, 'account'), String(POLICY.batchMaxUsd))
-const batch = createBatch(session.ledger, manifest, output)
+const batch = createBatch(session.ledger, manifest, output, undefined, continuation?.guard)
 const token = randomBytes(24).toString('hex')
 let current: Manifest['rows'][number] | undefined,
   actualRunId = '',
@@ -409,6 +416,7 @@ try {
   const entries = await session.ledger.entries()
   save('accounting.json', {
     spending: await session.ledger.spending(),
+    ...(continuation ? { combined: combinedSpending(await session.ledger.spending()) } : {}),
     requests: entries,
     stop: await session.ledger.stopState(),
     batch: batch.status(),

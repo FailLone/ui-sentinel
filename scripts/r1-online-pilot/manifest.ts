@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
 import { digest } from '../../src/agent/exploration/integration/host.ts'
+import { CONTINUATION, acceptanceFor } from './continuation.ts'
 import { html } from '../r1-controlled-loop/fixtures.ts'
 export const MODES = ['agent', 'program', 'jev'] as const
 export type Mode = (typeof MODES)[number]
@@ -8,7 +9,7 @@ export const CASES = ['semantic', 'ambiguity', 'expanded'] as const
 export type Case = (typeof CASES)[number]
 export const AGENT = 'deepseek/deepseek-v4.1-flash'
 export const POLICY = {
-  revision: 'r1-online-pilot-2',
+  revision: 'r1-online-pilot-3',
   candidateSource: 'original-executor-selected-local-public-frame',
   actions: 6,
   modelCalls: 8,
@@ -27,9 +28,9 @@ export const POLICY = {
     provider: 'Wafer',
     maxOutputTokens: 4096,
     contextTokens: 1048576,
-    inputPerTokenUsd: 0.000000045,
+    inputPerTokenUsd: 0.000000055,
     outputPerTokenUsd: 0.0000012,
-    reserveUsd: 0.053,
+    reserveUsd: 0.063,
     perRunRequests: 8,
     batchRequests: 72,
   },
@@ -43,7 +44,7 @@ export const POLICY = {
   },
   vision: { enabled: false, perRunRequests: 0, batchRequests: 0, reservationUsd: 0 },
   batchMaxRequests: 78,
-  batchMaxUsd: 3.834,
+  batchMaxUsd: 4.554,
   batchWindowMs: 1800000,
   noFallback: true,
   scopeExpansion: 'existing-one-local-extension-1',
@@ -61,6 +62,7 @@ export function makeManifest(sourceSha: string) {
     sourceSha,
     baseSha: 'aa35a9544d11dd57b85d7efcc4088dc8538977cc',
     policy: POLICY,
+    continuation: { ...CONTINUATION, acceptance: acceptanceFor(POLICY.batchMaxUsd) },
     priceSourceSha: digest(
       JSON.parse(readFileSync('plans/r1-online-pilot/price-source.json', 'utf8')),
     ),
@@ -72,7 +74,7 @@ export function makeManifest(sourceSha: string) {
         mode,
         maxAgentRequests: 8,
         maxJevRequests: mode === 'jev' ? 2 : 0,
-        reserveUsd: mode === 'jev' ? 0.43 : 0.424,
+        reserveUsd: mode === 'jev' ? 0.51 : 0.504,
       })),
     ),
     smoke: 'semantic-agent',
@@ -93,6 +95,7 @@ export function authorize(m: Manifest, approval: any, sourceSha: string) {
     approval.manifestHash !== digest(m) ||
     approval.maxCostUsd !== POLICY.batchMaxUsd ||
     approval.maxRuns !== 9 ||
+    digest(approval.riskAcceptance ?? null) !== digest(m.continuation.acceptance) ||
     !Number.isFinite(Date.parse(approval.expiresAt)) ||
     Date.parse(approval.expiresAt) <= Date.now()
   )

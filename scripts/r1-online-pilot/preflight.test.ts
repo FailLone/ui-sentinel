@@ -58,6 +58,7 @@ for (const field of fields)
           {
             approvedBy: 'test',
             approvalReference: 'test-only',
+            riskAcceptance: m.continuation.acceptance,
             manifestHash: digest(m),
             maxRuns: 9,
             maxCostUsd: POLICY.batchMaxUsd,
@@ -101,6 +102,7 @@ it('accepts frozen quote and valid zero quotes, preserves credential/claim order
     {
       approvedBy: 'test',
       approvalReference: 'test-only',
+      riskAcceptance: m.continuation.acceptance,
       manifestHash: digest(m),
       maxRuns: 9,
       maxCostUsd: POLICY.batchMaxUsd,
@@ -197,4 +199,19 @@ it('rejects unsupported components/tiers and changed model/provider/capability',
       }),
     ),
   ).rejects.toThrow()
+})
+
+it('refuses withdrawn required/reasoning support and output limits before paid access', async () => {
+  for (const change of [
+    (e: any) => {
+      e.supports_tool_choice.required = false
+    },
+    (e: any) => {
+      e.supported_parameters = e.supported_parameters.filter((p: string) => p !== 'reasoning')
+    },
+    (e: any) => {
+      e.max_completion_tokens = 4095
+    },
+  ])
+    await expect(checkPublishedPrice(reader(change))).rejects.toThrow('capability-changed')
 })

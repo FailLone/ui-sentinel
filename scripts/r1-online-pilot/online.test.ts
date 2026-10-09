@@ -63,7 +63,7 @@ it('actual wire identity is only available under its own atomic ledger dispatch'
         runId: 'run-test',
         model: AGENT,
         provider: 'Wafer',
-        reservedUsd: 0.053,
+        reservedUsd: POLICY.agent.reserveUsd,
         phase: 'test',
         priceSource: 'test',
         stopEpoch: 0,
@@ -93,6 +93,7 @@ it('old static approval cannot authorize dynamic frames or a changed manifest', 
     manifestHash: digest(m),
     approvedBy: 'x',
     approvalReference: 'test-only',
+    riskAcceptance: m.continuation.acceptance,
     maxRuns: 9,
     maxCostUsd: POLICY.batchMaxUsd,
     expiresAt: new Date(Date.now() + 1000).toISOString(),
@@ -135,7 +136,7 @@ it('online host rejects a receipt from another full frame and never proposes its
   ).toMatchObject({ kind: 'handoff', reason: 'stale-score' })
 })
 it('an Agent reservation consumes the same dollars that Jev would need', async () => {
-  const t = await setup(0.055)
+  const t = await setup(POLICY.agent.reserveUsd + 0.002)
   let sent = 0
   try {
     await t.batch.ledger.reserve({
@@ -143,7 +144,7 @@ it('an Agent reservation consumes the same dollars that Jev would need', async (
       runId: 'run-test',
       model: AGENT,
       provider: 'Wafer',
-      reservedUsd: 0.053,
+      reservedUsd: POLICY.agent.reserveUsd,
       phase: 'test',
       priceSource: 'test',
       stopEpoch: 0,
@@ -157,7 +158,7 @@ it('an Agent reservation consumes the same dollars that Jev would need', async (
       ).kind,
     ).toBe('handoff')
     expect(sent).toBe(0)
-    expect((await t.session.ledger.spending()).heldReservedUsd).toBe(0.053)
+    expect((await t.session.ledger.spending()).heldReservedUsd).toBe(POLICY.agent.reserveUsd)
   } finally {
     await t.close()
   }
@@ -273,14 +274,16 @@ it('shared request cap and held money bound both models; wrong run/frame source 
             runId: 'run-test',
             model: AGENT,
             provider: 'Wafer',
-            reservedUsd: 0.053,
+            reservedUsd: POLICY.agent.reserveUsd,
             phase: 'test',
             priceSource: 'test',
             stopEpoch: 0,
           })
         ).ok,
       ).toBe(true)
-    expect((await t.session.ledger.spending()).heldReservedUsd).toBeCloseTo(0.424)
+    expect((await t.session.ledger.spending()).heldReservedUsd).toBeCloseTo(
+      8 * POLICY.agent.reserveUsd,
+    )
     const bad = structuredClone(t.f)
     bad.input.state.url = 'https://outside.invalid/'
     await expect(
@@ -295,7 +298,7 @@ it('shared request cap and held money bound both models; wrong run/frame source 
           runId: 'run-test',
           model: AGENT,
           provider: 'Wafer',
-          reservedUsd: 0.053,
+          reservedUsd: POLICY.agent.reserveUsd,
           phase: 'test',
           priceSource: 'test',
           stopEpoch: 0,
@@ -487,7 +490,7 @@ it('batch window cancels current run and both transports, fences queued dispatch
       phase: 'test',
       model: AGENT,
       provider: 'Wafer',
-      reservedUsd: 0.053,
+      reservedUsd: POLICY.agent.reserveUsd,
       priceSource: 'test',
       stopEpoch: 0,
     }

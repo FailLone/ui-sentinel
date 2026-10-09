@@ -53,7 +53,12 @@ export async function checkPublishedPrice(read: typeof fetch = fetch) {
   if (
     e.context_length !== POLICY.agent.contextTokens ||
     !Array.isArray(e.supported_parameters) ||
-    !e.supported_parameters.includes('tools')
+    !['tools', 'tool_choice', 'reasoning', 'max_tokens'].every((p) =>
+      e.supported_parameters.includes(p),
+    ) ||
+    e.supports_tool_choice?.required !== true ||
+    typeof e.max_completion_tokens !== 'number' ||
+    e.max_completion_tokens < POLICY.agent.maxOutputTokens
   )
     throw Error('agent-price-capability-changed')
   const jevResponse = await read(source.jev.url, {
@@ -85,10 +90,16 @@ export async function preparePaidAccess(
   manifest: Manifest,
   approval: unknown,
   sourceSha: string,
-  access: { read?: typeof fetch; credential(): string | undefined; claim(): void },
+  access: {
+    read?: typeof fetch
+    credential(): string | undefined
+    claim(): void
+    lineagePreflight?(): void
+  },
 ) {
   authorize(manifest, approval, sourceSha)
   const priceCheck = await checkPublishedPrice(access.read)
+  access.lineagePreflight?.()
   const key = access.credential()
   if (!key || /[\r\n]/.test(key)) throw Error('online-credential-missing')
   access.claim()

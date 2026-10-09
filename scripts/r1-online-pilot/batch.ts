@@ -44,6 +44,7 @@ export function createBatch(
   manifest: Manifest,
   directory: string,
   clock: BatchClock = systemClock,
+  continuationGuard: () => void = () => {},
 ) {
   const stopPath = join(directory, 'stop.json')
   let stopped = existsSync(stopPath) ? 'previously-stopped' : '',
@@ -71,6 +72,12 @@ export function createBatch(
     controller.abort(new Error(stopped))
   }
   const guard = () => {
+    try {
+      continuationGuard()
+    } catch (error) {
+      stop('continuation-lineage-changed')
+      throw error
+    }
     if (stopped || existsSync(stopPath)) throw Error('online-batch-stopped')
     if (clock.now() - started >= POLICY.batchWindowMs) {
       stop('batch-window')
@@ -109,7 +116,7 @@ export function createBatch(
       }
       if (
         input.provider !== (jev ? 'TypeSafe' : 'Wafer') ||
-        input.reservedUsd !== (jev ? 0.003 : 0.053)
+        input.reservedUsd !== (jev ? POLICY.jev.reserveUsd : POLICY.agent.reserveUsd)
       )
         throw Error('quote-or-provider-mismatch')
       requests.set(input.requestId, input)

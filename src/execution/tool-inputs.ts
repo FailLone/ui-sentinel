@@ -69,7 +69,14 @@ export const explorationInput = z.object({
         .object({
           itemId: z.string(),
           sourceRef: z.string().max(120),
-          sourceSpan: z.tuple([z.number().int().min(0), z.number().int().min(1)]),
+          // A span is a homogeneous integer array. Avoid positional `items: [...]` in
+          // the model-facing schema while preserving the original two-index contract
+          // in runtime validation. This does not establish the cause of a provider 400.
+          sourceSpan: z
+            .array(z.number().int().min(0))
+            .length(2)
+            .refine((span) => span[1] >= 1, { message: 'sourceSpan[1] must be at least 1' })
+            .describe('Exactly [start, end]: start is an integer >= 0; end is an integer >= 1.'),
           sourceHash: z.string().regex(/^[a-f0-9]{64}$/),
         })
         .strict(),
