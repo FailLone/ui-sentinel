@@ -38,6 +38,18 @@ const context = () => ({
   version: { key: 'state1', reusable: true, reason: 'static' },
 })
 describe('controlled host', () => {
+  it('does not repeat a refused selection and never dispatches an unresolved source', async () => {
+    const a: any = input()
+    a.inspectionScope.checks = []
+    a.inspectionScope.candidates = a.inspectionScope.candidates.slice(0, 1)
+    const h = createControlledHost()
+    expect((await h.decide(a, context())).kind).toBe('tool')
+    expect((await h.decide(a, context())).kind).toBe('handoff')
+    const b: any = input()
+    b.inspectionScope.checks.forEach((c: any) => (c.checks.sourceReview.state = 'unresolved'))
+    expect((await createControlledHost().decide(b, context())).kind).toBe('handoff')
+  })
+
   it('uses same frame facts, validates score identity, never replays dispatched items', async () => {
     const a = input(),
       host = createControlledHost({
@@ -117,13 +129,23 @@ describe('controlled host', () => {
     await expect(h.decide(input(), { ...context(), signal: c.signal })).rejects.toThrow()
   })
   it('shares original attempt guard and expires detached tool callbacks', async () => {
-    let late: () => void = () => {}
+    let late!: Promise<string>
     let id = ''
     await executeProgramTool(new AbortController().signal, 1000, async () => {
       id = beginAttemptTool()!
-      late = () => guardModelAttempt()
+      late = new Promise((resolve) =>
+        setTimeout(() => {
+          try {
+            guardModelAttempt()
+            resolve('incorrectly-active')
+          } catch (error) {
+            resolve((error as Error).message)
+          }
+        }, 5),
+      )
     })
     expect(id).toMatch(/^program-/)
+    expect(await late).toBe('model-attempt-expired')
     const c = new AbortController()
     c.abort()
     await expect(executeProgramTool(c.signal, 1000, async () => 1)).rejects.toThrow()
