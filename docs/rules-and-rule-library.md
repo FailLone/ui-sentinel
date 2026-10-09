@@ -88,3 +88,5 @@ pnpm validate:learning -- --recheck <已关闭且已批准学习目录>
 2026-10-09，完整规则分支经 `5e3255b` 合入 main。已启用的网址扫描在原观察/检查流程自动运行 `control-text-disappearance`（D005），检查稳定原生按钮/链接的有限文字绘制；不需要用户逐个填写合同。一般颜色、复杂绘制或不完整证据可能为 unknown，不是通用可读性检查。
 
 `image-fallback-review`（R005）自动采集原生图片的加载状态及同区域材料，单独显示待审查建议和证据不足，不作为缺陷或健康 pass。两项共用原入口和历史报告；D004、业务默认规则及全局扫描开关保持原设置。23条规则知识不等于23个已实现检查器。详见[产品接入](rule-library/rules-scan-integration.md)与[合并记录](rule-library/rules-main-integration-handoff.md)。
+
+同日 `3350042` 新增普通扫描自动参与的 `control-text-clipping`（D001）与 `control-text-overlap`（D002）。仅支持限定原生单行名称、字体及平面绘制；使用同次截图与隔离参考字形验证局部墨迹裁切/覆盖，不将矩形相交、可滚动内容或意图不明的弹层直接判错。脚本/交互可能提供恢复且未确认时保留unknown；报告列明已测、未知、截断及关联检查。两条仍属部分实现，剩余17条知识待实现，见[统一交付](rule-library/rules-clipping-overlap-delivery.md)。
