@@ -1,0 +1,9 @@
+
+ RUN  v5.0.1 /Users/xietian/.codex/worktrees/parallel-check-tasks/ui-sentinel
+
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  02:05:15
+   Duration  508ms (import 54%, transform 43%, tests 2%, worker 1%)
+
