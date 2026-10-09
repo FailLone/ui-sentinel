@@ -1,23 +1,23 @@
 {
   "version": "r1-product-delivery-1",
-  "checkedAt": "2026-10-09T14:26:26.845548+00:00",
+  "checkedAt": "2026-10-09T14:04:55.972465+00:00",
   "entry": "plans/r1-online-pilot/README.md",
-  "status": "free-deadline-correction-complete-awaiting-specific-approval",
-  "sourceSha": "e3de7cb890803c69e89e2ef8b91986e392901fc4",
+  "status": "authorized-recovery-stopped-new-unknown-real-acceptance-incomplete",
+  "sourceSha": "98f7854472c3df9e3baa913ab3e74f97d8cff3c7",
   "integratedMainSha": "48b02b3fbfe7e5d95189a0d813480761b123ff6b",
   "mergeSha": "3cabb048b1d98609ec25d16756364b2f1b58761b",
-  "manifestHash": "e6b587f476d4a8ea92a0cf72b4aea1bbdb471979a1ba325d2099c4cefec7fc85",
+  "manifestHash": "f7fa8326db127c1821cc038e50f65e5c02bd68989cb36ba42fa95e05a3e6abc9",
   "manifest": {
-    "path": "plans/r1-online-pilot/product/deadline60/manifest.proposed.json",
-    "bytes": 17178,
-    "sha256": "9489084b24dcf80c51c1cbe1b7a2dc66f88d7fe5a36b81bb735795fe50e31957"
+    "path": "plans/r1-online-pilot/product/recovery/manifest.proposed.json",
+    "bytes": 15217,
+    "sha256": "7dc1a0a2c0a41aed632c655a01116b44d5287bda7cbb399bbfb9a757dcd84783"
   },
   "approvalDraft": {
-    "path": "plans/r1-online-pilot/product/deadline60/approval.draft.json",
-    "bytes": 721,
-    "sha256": "56e47cf7137cf52f14625481e5eeed982ac6483b794667f27474e94f75e88a61"
+    "path": "plans/r1-online-pilot/product/recovery/approval.draft.json",
+    "bytes": 722,
+    "sha256": "0a39489ea4e104072870a63e829f8f2a1308aae285019db5b8ad774e7ed3fc1e"
   },
-  "realAcceptanceApproved": false,
+  "realAcceptanceApproved": true,
   "newRealCalls": 5,
   "newJevCalls": 0,
   "paidProposal": {
@@ -25,19 +25,15 @@
     "maxMainCalls": 224,
     "maxJevCalls": 0,
     "maxNewCostUsd": 14.112,
-    "oldUnsettledReserveUsd": 0.116,
-    "maxCombinedAccountedUsd": 14.23302455,
+    "oldUnsettledReserveUsd": 0.053,
+    "maxCombinedAccountedUsd": 14.17002455,
     "historicalSeparateSettledUsd": 0.000250824,
-    "withHistoricalSettledAccountedUsd": 14.233275374,
+    "withHistoricalSettledAccountedUsd": 14.170275374,
     "oldUnknownIsNotInvoiceCap": true,
     "maxWindowMs": 5400000,
     "previousProductKnownUsageCostUsd": 0.00502455,
     "failedRowToRevalidate": 1,
-    "previouslyUnrunRows": 27,
-    "unknownCount": 2,
-    "modelMs": 60000,
-    "wholeRunMs": 180000,
-    "approved": false
+    "previouslyUnrunRows": 27
   },
   "freeResults": {
     "uniqueBrowserCases": 17,
@@ -64,8 +60,7 @@
     "historicalRelativePaths": "Resolve archived verbatim entry paths in their original plans/r1-online-pilot context; archive content is not rewritten.",
     "canonicalContinuationClaimConsumedByAuthorizedProductBatch": true,
     "nextProductContinuationClaimAbsent": false,
-    "nextProductContinuationClaimConsumedByAuthorizedRecovery": true,
-    "deadline60ContinuationClaimAbsent": true
+    "nextProductContinuationClaimConsumedByAuthorizedRecovery": true
   },
   "evidence": [
     {
@@ -583,108 +578,6 @@
       "bytes": 1159,
       "sha256": "f8f7349cc2b091889550d7ae6c81cb24b194f31343830c82ecd81543648e25db",
       "interpretation": "Human contextual approval of the exact recovery proposal; now consumed by the stopped batch, no further paid retry authorized."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/deadline60/evidence/audit.json",
-      "bytes": 4391,
-      "sha256": "c9a58c4e8c0edd61f71668b2532a326f4904a62eb2088a2ff2d78dd46d105cd8",
-      "interpretation": "Free targeted correction evidence; timing uses virtual clocks/local providers and any test costs are synthetic, not real spending. See audit for provenance and first typecheck failure."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/deadline60/evidence/browser.log",
-      "bytes": 2183,
-      "sha256": "eb292d059aed12aeced457310bb698a81c97138f62b619481f81dcef25339589",
-      "interpretation": "Free targeted correction evidence; timing uses virtual clocks/local providers and any test costs are synthetic, not real spending. See audit for provenance and first typecheck failure."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/deadline60/evidence/build.log",
-      "bytes": 1334,
-      "sha256": "0843e6616678fa16ff6438154c2d9d2129a999a9a8d3608fdaa12af070156b05",
-      "interpretation": "Free targeted correction evidence; timing uses virtual clocks/local providers and any test costs are synthetic, not real spending. See audit for provenance and first typecheck failure."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/deadline60/evidence/candidate-source-files.json",
-      "bytes": 27788,
-      "sha256": "c891893e7a696b38976c7b1d3388fa24ebe4a09bedc992926a774ca4ff607ea5",
-      "interpretation": "Free targeted correction evidence; timing uses virtual clocks/local providers and any test costs are synthetic, not real spending. See audit for provenance and first typecheck failure."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/deadline60/evidence/draft-rejection.log",
-      "bytes": 699,
-      "sha256": "8fea4a949f7207d2851b636df4e14c3b05ee5fcbf31dc9da65fe40b4e632abf5",
-      "interpretation": "Free targeted correction evidence; timing uses virtual clocks/local providers and any test costs are synthetic, not real spending. See audit for provenance and first typecheck failure."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/deadline60/evidence/existing-boundaries.log",
-      "bytes": 232,
-      "sha256": "f5e3aa817421fd4247e35c042e8f9df9f23e70f539b18629688f52a0ddbf87cd",
-      "interpretation": "Free targeted correction evidence; timing uses virtual clocks/local providers and any test costs are synthetic, not real spending. See audit for provenance and first typecheck failure."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/deadline60/evidence/freeze.log",
-      "bytes": 304,
-      "sha256": "b8f33fb519cefdab415bbf40c5bc2fb09e390e52b316d8746b7814331e1016df",
-      "interpretation": "Free targeted correction evidence; timing uses virtual clocks/local providers and any test costs are synthetic, not real spending. See audit for provenance and first typecheck failure."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/deadline60/evidence/old-approval-rejection.log",
-      "bytes": 699,
-      "sha256": "8fea4a949f7207d2851b636df4e14c3b05ee5fcbf31dc9da65fe40b4e632abf5",
-      "interpretation": "Free targeted correction evidence; timing uses virtual clocks/local providers and any test costs are synthetic, not real spending. See audit for provenance and first typecheck failure."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/deadline60/evidence/raw-local-files.json",
-      "bytes": 86698,
-      "sha256": "1604e0139f64c74e4bf4219ecbf31c3595f3c338968d110b8d321cd767dfcefd",
-      "interpretation": "Free targeted correction evidence; timing uses virtual clocks/local providers and any test costs are synthetic, not real spending. See audit for provenance and first typecheck failure."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/deadline60/evidence/readonly-lineage.log",
-      "bytes": 74,
-      "sha256": "e6c62ba652fc2208934d78f5b863cca5e464aba84fdd366a5d248be421c84382",
-      "interpretation": "Free targeted correction evidence; timing uses virtual clocks/local providers and any test costs are synthetic, not real spending. See audit for provenance and first typecheck failure."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/deadline60/evidence/runner-one-row.log",
-      "bytes": 332,
-      "sha256": "62a1275bb68ad4d3b8bbdcd50cd7add3d206720ae1cc7ba292f7532ca364acbc",
-      "interpretation": "Free targeted correction evidence; timing uses virtual clocks/local providers and any test costs are synthetic, not real spending. See audit for provenance and first typecheck failure."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/deadline60/evidence/runner-upstream-timing.jsonl",
-      "bytes": 409,
-      "sha256": "f61e014a451a0d76111539fd031876209c57d51f057710ea3c9d16c8a8e96161",
-      "interpretation": "Free targeted correction evidence; timing uses virtual clocks/local providers and any test costs are synthetic, not real spending. See audit for provenance and first typecheck failure."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/deadline60/evidence/targeted-tests.log",
-      "bytes": 232,
-      "sha256": "078ba87f5bcc0bc530709ce23caf6a1628996d7ef806f64a3e1ac01efbc39e9a",
-      "interpretation": "Free targeted correction evidence; timing uses virtual clocks/local providers and any test costs are synthetic, not real spending. See audit for provenance and first typecheck failure."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/deadline60/evidence/timing-traces.json",
-      "bytes": 3706,
-      "sha256": "d57efb5eb761af75b3432722b7cb63f9527d42b03fb8447e37e0b0572689d079",
-      "interpretation": "Free targeted correction evidence; timing uses virtual clocks/local providers and any test costs are synthetic, not real spending. See audit for provenance and first typecheck failure."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/deadline60/evidence/timing-traces.log",
-      "bytes": 5159,
-      "sha256": "03ac59c76d6300acee1cb2da9fae18a337f1dbfbdbdd01e37f5399d6d59560d9",
-      "interpretation": "Free targeted correction evidence; timing uses virtual clocks/local providers and any test costs are synthetic, not real spending. See audit for provenance and first typecheck failure."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/deadline60/evidence/typecheck-first-test-cast-error.log",
-      "bytes": 945,
-      "sha256": "2a1802533f834885c771ac777b2e3f5bd762db5c1aa5f8c1b13261f49ec23636",
-      "interpretation": "Free targeted correction evidence; timing uses virtual clocks/local providers and any test costs are synthetic, not real spending. See audit for provenance and first typecheck failure."
-    },
-    {
-      "path": "plans/r1-online-pilot/product/deadline60/evidence/upstream-final-tests.log",
-      "bytes": 232,
-      "sha256": "446a046656ea31ca1199501e1160db1bb69a0aa292f560590984da1aa79926c8",
-      "interpretation": "Free targeted correction evidence; timing uses virtual clocks/local providers and any test costs are synthetic, not real spending. See audit for provenance and first typecheck failure."
     }
   ],
   "archivedFiles": [
@@ -762,26 +655,6 @@
       "path": "plans/r1-online-pilot/history/pre-recovery-result-20261009/r1-completion-plan.md",
       "bytes": 10183,
       "sha256": "c83be9b84e65231f3df4b1b2e3dd0200d92ae33f1d563debba8eaadf5c5127f6"
-    },
-    {
-      "path": "plans/r1-online-pilot/history/pre-deadline60-20261009/CURRENT-TASK.md",
-      "bytes": 3223,
-      "sha256": "1d2cbe908a7e0bf3bd513687ca02e8c51648c6e37f95d7451da0eec8451c4736"
-    },
-    {
-      "path": "plans/r1-online-pilot/history/pre-deadline60-20261009/README.md",
-      "bytes": 25018,
-      "sha256": "b5d062e500187a17112b767cdbac70f065e18d6c1a6b0e288ff4ca4421102cd6"
-    },
-    {
-      "path": "plans/r1-online-pilot/history/pre-deadline60-20261009/evidence-index.json",
-      "bytes": 36206,
-      "sha256": "468539aebe9a6a2742cf273cd79e1600203a5c4d831e0499607d61ef282c3062"
-    },
-    {
-      "path": "plans/r1-online-pilot/history/pre-deadline60-20261009/r1-completion-plan.md",
-      "bytes": 11411,
-      "sha256": "9fc69d3dc056bd2957e998c19740862e0adc10072b16ef37811afe2b17723f15"
     }
   ],
   "localRawEvidence": "product/evidence/raw-local-files.json",
@@ -811,6 +684,7 @@
     "authorizationBeforeQuoteCredentialsClaimVerifiedInRunner": true,
     "accurateCommand": "scripts/r1-product/acceptance.ts --run OUTPUT MANIFEST APPROVAL CANONICAL_CLAIMS"
   },
+  "authorizationRecord": "product/recovery/authorization-record.json",
   "paidOriginal": {
     "sourceSha": "ddf1dd943f238dc71c2d3e4e6ef327e1ba44c2db",
     "manifestHash": "41eb23e34527461bae8bc50e6d0b28ae53d94bb584d8d167b7eddecedbfcf510",
@@ -842,6 +716,9 @@
     "noRealRequestsAfterStop": true,
     "unintendedBroadFreeRunInterruptedAndNotCountedAsFullPass": true
   },
+  "approval": "product/recovery/approval.authorized.json",
+  "expiresAt": "2026-10-10T13:58:00Z",
+  "authorizationConsumedAndStopped": true,
   "automaticFurtherPaidWorkAuthorized": false,
   "paidRecovery": {
     "sourceSha": "98f7854472c3df9e3baa913ab3e74f97d8cff3c7",
@@ -862,10 +739,7 @@
     "newUnknownCount": 1,
     "audit": "product/recovery/paid-20261009/audit.json",
     "runtime": "data/r1-product/runtime-98f7854",
-    "preserveRuntimeAndClosedAccount": true,
-    "approval": "product/recovery/approval.authorized.json",
-    "expiresAt": "2026-10-10T13:58:00Z",
-    "authorizationConsumedAndStopped": true
+    "preserveRuntimeAndClosedAccount": true
   },
   "currentCumulativeAccounting": {
     "knownProductUsageCostUsd": 0.00502455,
@@ -876,23 +750,5 @@
     "includingHistoricalFrameAccountedUsd": 0.121275374,
     "actualTotalUsd": null,
     "furtherPaidRunAuthorized": false
-  },
-  "deadline60Verification": {
-    "audit": "product/deadline60/evidence/audit.json",
-    "sourceSha": "e3de7cb890803c69e89e2ef8b91986e392901fc4",
-    "affectedTests": 61,
-    "focusedBrowserCases": 4,
-    "freeRunnerRows": [
-      "C10-1"
-    ],
-    "buildPassed": true,
-    "fullSuiteRerun": false,
-    "realCalls": 0,
-    "rowsFixturesEvaluatorUnchanged": true,
-    "policyChange": "modelMs:15000->60000",
-    "bufferBoundary": "Full validation before executor release; independent upstream timing added; historical cause undetermined",
-    "oldAndEmptyApprovalsRejected": true,
-    "priorPinsVerified": 17,
-    "newClaimAbsent": true
   }
 }

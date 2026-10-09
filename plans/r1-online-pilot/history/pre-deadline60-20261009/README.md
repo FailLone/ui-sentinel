@@ -1,62 +1,8 @@
 # R1 正常产品候选与统一验收入口
 
-2026-10-09。**主模型验收期限已由15秒前瞻性修正为产品默认60秒，免费受限整改完成；新候选e3de7cb，尚无新付费授权。** 单行180秒、整批90分钟、每行8次Agent/原动作额度及新请求USD14.112上限均不变。旧15秒批次及两项unknown全部保留，不能改写为通过；本期真实产品验收仍未完成。program/Jev关闭的本期选择和后置S1/S2、72轮研究范围不变。
+2026-10-09。**修复候选98f7854的获准续验在首行因主模型超时/transport-error停止，产生新增unknown USD0.063；未重试，其他27行未运行。本期R1尚未验收完成，不能建议合入。** 先前发现的歧义缺陷已免费修复并定向验证；本次没有足够真实执行证据判定修复后的产品出口。program/Jev关闭的选择及后置S1/S2、72轮研究范围不变，当前阻塞是未结费用和未完成的真实产品验收。
 
-## 本轮60秒协议修正及受限证据
-
-用户指出“如果是主模型，15s太严格了，很难不超时”，本次按维护者明确范围只做免费整改，不原样重跑付费请求。普通产品config和验收manifest共用 `DEFAULT_MODEL_REQUEST_TIMEOUT_MS=60000`；不是宣称15秒本应通过，也不将本次缓冲逻辑确定为旧超时根因。
-
-实际约束是模型阶段最多min(60秒，当前运行剩余时间)，整段decision仍受剩余运行期限约束；工具开始后使用原工具/运行期限。网关仍有min(60秒，行剩余时间)上限。每行180秒从原运行起点递减，网关行窗口从初始化前计时而可能更紧；整批90分钟同样不延长。36秒/2次调用的收尾阈值及准入预留保持，**不是承诺每个收尾调用都能再用60秒，更不是8×60秒另加时间**。
-
-排除了关联预算障碍：旧扩样准入将所有路径都按4次主模型加4个工具预留；60秒配置下需要260秒，另有36秒收尾，无法放进180秒。对于尚未交回且Jev关闭的纯程序扩样，现在按其4个有界工具步骤、1动作、0模型预留（正式tool=5秒时共20秒），另留原36秒/2调用收尾。2调用、动作、剩余时间不足任一维度仍拒绝；Jev/Agent扩样仍沿用原保守模型预留。这里只修正程序路径的错误成本归属，没有增大单页3项、总动作、模型次数或权限；交回之后仍受剩余时间及原完成门约束。
-
-`await r.clone().text()` 改为在上游reader逐段读取时记录独立时序，**仍完整验证后才向模型/执行器放行**。保留provider/model/error响应检查、费用核对、unknown停止和取消传播；未将未验证流直接送工具执行。`upstream-timing.jsonl`独立记录 headersMs、firstByteMs、firstEventMs、responseCompleteMs、validationEndMs、releaseMs（放行决定）、abortedMs、上游字节/事件数；以行ID、请求序号、请求body SHA-256关联原网关记录。它不记录密钥、原始prompt或任意响应头值，不能替代网关usage/账本。网关receivedBytes=0现在可与“上游已有字节、未完成验证”明确区分。
-
-| 受影响的免费验证 | 最新结果 |
-| --- | --- |
-| 虚拟时钟分段响应 | 0.1秒响应头、1秒字节、20秒首事件、45秒完整/验证后通过；超过旧15秒但在新上限内不误取消 |
-| 模型与剩余时间 | 65秒响应在60秒取消；仅余25秒时在25秒取消；进入36秒收尾后仍在36秒期限取消，不获得额外60秒 |
-| 校验/费用/停止门 | 非Wafer、错误model、错误事件、坏JSON及HTTP400不能放行成功；实际本地网关收到上游字节后取消仍记unknown并禁止再次派发；有效响应的usage费用原样核对 |
-| 原边界回归 | 请求取消/重试规则、finalizing、原预算/账本停止等定向测试通过 |
-| 4条普通入口浏览器路径 | 三步缺陷、匹配健康、公平性仍各3动作；预算不足1动作后blocked；无全套重跑 |
-| 精确候选正常runner | 仅显式筛选C10-1一行免费固定服务，blocked/0动作/原证据完整；新增时序的body摘要与网关实际请求匹配 |
-
-本轮共 **61个不同定向测试最新结果通过**（首批16含9个上游测试，后续上游10项替换原9项，另有44项原边界；不把复跑叠加）；完整build/typecheck通过。首次类型检查仅发现新增合成Agent测试类型转换需显式unknown，已修正，首轮日志保留。浏览器来源为2c7fe5e加记录中的diff，最终源码e3de7cb；候选构建/时序证据及单行runner单独记录。见[审计](product/deadline60/evidence/audit.json)、[虚拟时钟与本地网关时序](product/deadline60/evidence/timing-traces.json)、[原始本机文件清单](product/deadline60/evidence/raw-local-files.json)。所有测试费用都是合成账户数据，不混入真实账本。
-
-## 新冻结候选与具体续验提案（未批准）
-
-源码 **`e3de7cb890803c69e89e2ef8b91986e392901fc4`**；[新manifest](product/deadline60/manifest.proposed.json)对象摘要 **`e6b587f476d4a8ea92a0cf72b4aea1bbdb471979a1ba325d2099c4cefec7fc85`**。fixture、28行、evaluator、质量阈值、模型/provider、请求次数、费用和安全要求保持；policy仅modelMs由15000改为60000，同时版本与累计历史费用来源显式更新。
-
-执行范围仍是C01–C12、C04三个子项各两次，共28行：C10-1按修正期限复验，其余27行仍首次真实执行。没有增加场景、评分研究或额外收费探针。C10-1先运行并兼作兼容检查，原失败另存，不能拼成旧批全通过。
-
-| 项目 | 待批准范围 |
-| --- | ---: |
-| 单次主模型/单行/整批 | 至多60秒/180秒/90分钟，均取剩余时间更紧约束 |
-| 每行/全批Agent | 最多8次/224次 |
-| 动作/其他调用 | 每行最多6动作，C12为1；Jev/视觉0 |
-| 新请求预算 | **USD14.112**，与原提案相同 |
-| 已花产品usage费用/两项unknown | USD0.00502455 / **USD0.116** |
-| 关联记账上限 | **USD14.23302455**＝14.112＋0.00502455＋0.116 |
-| 另加已结历史frame USD0.000250824 | USD14.233275374 |
-| 自动重试/额外补跑 | 0 |
-| 新授权有效期建议 | 新批准后24小时 |
-
-累计上限增加部分仅是已发生、仍未结的USD0.063被纳入风险，不是新增请求额度；unknown不是已确认账单或最终上限。报价依据沿用上一批启动前[公开核对](product/recovery/paid-20261009/price-check.json)，正式启动前仍重新验证价格/能力。当前已知费用和两项unknown如实保留，实际总费用仍未知。
-
-[新批准草案](product/deadline60/approval.draft.json)缺署名/引用/有效期，当前CLI已拒绝它和上一份真实批准，均在凭据、输出、账户、新claim前退出。只读核验原41份材料、17个固定来源摘要及关闭账户通过。新 `continued-product-f7fa8326db127c1821cc038e50f65e5c02bd68989cb36ba42fa95e05a3e6abc9.claim` 不存在；准备提案没有创建或消费claim。只有对新源码/manifest、两项unknown USD0.116及累计金额的明确授权才可取得一次新的续验claim；不能复用旧许可或恢复旧停止账户。
-
-获准后才准备新e3de7cb隔离runtime，复制本次manifest及按真实批准原文生成的approval，使用现有私密凭据；正常产品runner命令为（当前未执行）：
-
-```sh
-node_modules/.bin/tsx scripts/r1-product/acceptance.ts --run \
-  data/r1-product/authorized-deadline60 \
-  data/r1-product/deadline60-manifest.json data/r1-product/deadline60-approval.json \
-  /Users/xietian/Documents/ChatGPT/ui-sentinel-r1-online-claims
-```
-
-发生新unknown、HTTP/安全/持久化/假covered、费用异常或来源变化仍立即停批。批准后在同一任务完成原28项及原回执/账本核对，不逐行询问；没有额外付费补跑许可。达到本期产品出口后交维护者审阅合入，当前不宣称真实验收完成。相对main48b02b3的当前差异及源码哈希见[候选清单](product/deadline60/evidence/candidate-source-files.json)；没有push/merge或Roadmap编辑。
-
-## 历史：上一批15秒续验超时与未结费用
+## 最新获准续验：超时停批与未结费用
 
 用户在维护者会话听取具体提案后回复“ok，继续”。[授权记录](product/recovery/authorization-record.json)忠实保留上下文和原先“批准本次验收及旧未知费用风险”的接受；金额来自明确提案，不伪称用户逐字复述。批准绑定98f7854 / manifest f7fa8326db127c1821cc038e50f65e5c02bd68989cb36ba42fa95e05a3e6abc9，期限至北京时间2026-10-10 21:58，不含再次付费补跑。
 
@@ -75,9 +21,9 @@ node_modules/.bin/tsx scripts/r1-product/acceptance.ts --run \
 
 [账户/停止记录](product/recovery/paid-20261009/accounting.json)与原请求、8份附件均已核对，held预留为0；旧41份证据和前一产品失败批固定摘要不变。本次新的product continuation claim已合法消耗，所有旧账本/claim/停止状态保留，不清unknown、不改成零、不重建账户绕停。原始本机文件及摘要见[清单](product/recovery/paid-20261009/raw-local-files.json)，未上传。
 
-本地诊断只能确定15秒原冻结期限到达，不能区分供应商延迟、传输故障或响应验证缓冲耗时。runner在释放响应前读取完整副本验证，因此网关receivedBytes=0不能证明上游没有传来任何字节。当时没有新产品实现缺陷的可核实依据，该次停批诊断未修改产品代码、延长超时、换模型/provider或额外调用；之后获准的免费60秒协议整改见本文开头。取消后的未最终验证报告是停止的后果，不拿它制造第二个产品缺陷结论。
+本地诊断只能确定15秒原冻结期限到达，不能区分供应商延迟、传输故障或响应验证缓冲耗时。runner在释放响应前读取完整副本验证，因此网关receivedBytes=0不能证明上游没有传来任何字节。无新产品实现缺陷的可核实依据，本次不猜测修改产品代码、不延长超时、不换模型/provider、不额外调用。取消后的未最终验证报告是停止的后果，不拿它制造第二个产品缺陷结论。
 
-该次交付明确停在**新增unknown与真实验收未完成**边界。没有可依法核对本次费用的generation ID或账单回执，不伪造对账；现有授权明确要求遇新unknown停止并禁止额外补跑，不能因有效期未到或预算剩余继续运行。后续需有权账单/回执厘清新增费用，或对新增风险和具体后续批次另行明确裁定；当时没有发起第三次付费批次或新增风险批准申请；当前已准备本文开头的新提案，仍未付费执行。后置评分实验不构成当前阻塞。
+当前明确停在**新增unknown与真实验收未完成**边界。没有可依法核对本次费用的generation ID或账单回执，不伪造对账；现有授权明确要求遇新unknown停止并禁止额外补跑，不能因有效期未到或预算剩余继续运行。后续需有权账单/回执厘清新增费用，或对新增风险和具体后续批次另行明确裁定；本交付没有发起第三次付费批次或新增风险批准申请。后置评分实验不构成当前阻塞。
 
 ## 前一产品批次硬失败及已完成的免费修复
 
@@ -98,8 +44,7 @@ node_modules/.bin/tsx scripts/r1-product/acceptance.ts --run \
 
 | 项目 | 当前值 |
 | --- | --- |
-| 当前60秒候选源码 | `e3de7cb890803c69e89e2ef8b91986e392901fc4` |
-| 已停止的15秒修复候选 | `98f7854472c3df9e3baa913ab3e74f97d8cff3c7` |
+| 修复候选源码 | `98f7854472c3df9e3baa913ab3e74f97d8cff3c7` |
 | 已停止的真实批次源码 | `ddf1dd943f238dc71c2d3e4e6ef327e1ba44c2db` |
 | 已整合 main | `48b02b3fbfe7e5d95189a0d813480761b123ff6b`，合并提交 `3cabb048b1d98609ec25d16756364b2f1b58761b` |
 | 本地分支/工作区 | `codex/r1-jev-closeout` / `/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007` |
@@ -107,7 +52,7 @@ node_modules/.bin/tsx scripts/r1-product/acceptance.ts --run \
 | 已停止批次 manifest 对象摘要 | `41eb23e34527461bae8bc50e6d0b28ae53d94bb584d8d167b7eddecedbfcf510`（JSON.stringify 对象摘要；文件字节摘要另见索引） |
 | 原付费授权状态 | 已执行并因硬失败停止，不能再用；[授权原文/来源](product/authorization-record.json)、[正式批准文件](product/approval.authorized.json)；有效至北京时间2026-10-10 21:35，空草案保留为历史拒绝证据 |
 
-原ddf1dd9和98f7854运行区及证据保持原样；当前候选为e3de7cb。后继文档提交不替代各批精确源码绑定。只将 main 接收到 R1 分支，没有 push 或将 R1 合并回 main。D001/D002 交付和其文档更新均来自维护者 main；此次 main 增量除 executor 的 R1 接点外，21 个文件与 main 逐字节一致，见 [整合核对](product/evidence/main-integration.json)。DNS、D005/R005、新规则观察/报告接线保留，D004 默认关闭；未重跑 R0 或全规则矩阵。
+原ddf1dd9运行区和证据保持原样；修复为新的98f7854候选。后继文档提交不替代各批精确源码绑定。只将 main 接收到 R1 分支，没有 push 或将 R1 合并回 main。D001/D002 交付和其文档更新均来自维护者 main；此次 main 增量除 executor 的 R1 接点外，21 个文件与 main 逐字节一致，见 [整合核对](product/evidence/main-integration.json)。DNS、D005/R005、新规则观察/报告接线保留，D004 默认关闭；未重跑 R0 或全规则矩阵。
 
 在原工作台选择“网址 UI 检查”，勾选“R1 有界探索”即可使用。普通 `POST /api/runs` 示例：
 
@@ -221,4 +166,4 @@ node_modules/.bin/tsx scripts/r1-product/acceptance.ts --run \
   /Users/xietian/Documents/ChatGPT/ui-sentinel-r1-online-claims
 ```
 
-该历史批次源码保持98f7854；当前e3de7cb是单独的前瞻性修正，不能回写其结果。相对main48b02b3的源码差异见[候选清单](product/recovery/evidence/candidate-source-files.json)；维护者22eb132仅更新Roadmap，已只读核实，未为其修改冻结候选。没有push或合入main。未来达到本期全部出口后再交维护者审阅；当前保留修复候选并明确真实验收阻塞，不能提前写本期完成。
+源码仍为98f7854，后继只记录授权、证据和结果。相对main48b02b3的源码差异见[候选清单](product/recovery/evidence/candidate-source-files.json)；维护者22eb132仅更新Roadmap，已只读核实，未为其修改冻结候选。没有push或合入main。未来达到本期全部出口后再交维护者审阅；当前保留修复候选并明确真实验收阻塞，不能提前写本期完成。

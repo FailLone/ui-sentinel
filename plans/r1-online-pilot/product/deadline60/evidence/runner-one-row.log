@@ -1,0 +1,1 @@
+{"row":"C10-1","runId":"run-afaf2f49-0c06-42fe-be6d-9d7f6903936e","status":"blocked","actions":0,"modelRequests":1,"jevRequests":0,"evaluation":{"version":"r1-product-evaluation-1","passed":true,"integrity":true,"falseCovered":false,"issues":[],"scope":"Synthetic public fixtures; no Jev quality or statistical benefit inference"}}
