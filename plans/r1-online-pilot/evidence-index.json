@@ -2,7 +2,7 @@
   "version": "r1-product-delivery-1",
   "checkedAt": "2026-10-09T11:00:10.009416+00:00",
   "entry": "plans/r1-online-pilot/README.md",
-  "status": "engineering-complete-awaiting-paid-acceptance-approval",
+  "status": "authorized-preparing-real-product-acceptance",
   "sourceSha": "ddf1dd943f238dc71c2d3e4e6ef327e1ba44c2db",
   "integratedMainSha": "48b02b3fbfe7e5d95189a0d813480761b123ff6b",
   "mergeSha": "3cabb048b1d98609ec25d16756364b2f1b58761b",
@@ -17,7 +17,7 @@
     "bytes": 656,
     "sha256": "1933127b6190a8d421c80f0332705ed0dde0420b2263bbea8a7748ee681cfebb"
   },
-  "realAcceptanceApproved": false,
+  "realAcceptanceApproved": true,
   "newRealCalls": 0,
   "newJevCalls": 0,
   "paidProposal": {
@@ -343,5 +343,8 @@
     "newTestsOrExperiments": false,
     "authorizationBeforeQuoteCredentialsClaimVerifiedInRunner": true,
     "accurateCommand": "scripts/r1-product/acceptance.ts --run OUTPUT MANIFEST APPROVAL CANONICAL_CLAIMS"
-  }
+  },
+  "authorizationRecord": "product/authorization-record.json",
+  "approval": "product/approval.authorized.json",
+  "expiresAt": "2026-10-10T13:35:00Z"
 }

@@ -1,6 +1,6 @@
 # R1 正常产品候选与统一验收入口
 
-2026-10-09。**普通工作台/API 的 R1 工程接入和必要免费验证已完成；真实供应商兼容性及本期付费产品验收尚未完成。** 本期选择显式启用 program 模式、Jev 默认关闭；旧 S1 更广状态验证、S2 独立评分/校准和 S5 72 轮收益对照已正式后置，不再作为本期结案前置。下一步仅待文末这一份具体付费验收授权，无需重新裁定开发范围。
+2026-10-09。**普通工作台/API 的 R1 工程接入和必要免费验证已完成；真实供应商兼容性及本期付费产品验收尚未完成。** 本期选择显式启用 program 模式、Jev 默认关闭；旧 S1 更广状态验证、S2 独立评分/校准和 S5 72 轮收益对照已正式后置，不再作为本期结案前置。已收到文末精确范围的费用及旧unknown风险批准，正按授权执行；无需再次确认范围或逐行许可。
 
 [机器索引](evidence-index.json)记录源码、逐项结果及证据摘要；[当前任务](CURRENT-TASK.md)维护交接状态。原入口已原样归档到 [pre-product-20261009](history/pre-product-20261009/README.md)，旧失败、旧候选及旧九行 manifest 没有覆盖。2026-10-09 维护者转达用户认可的本期范围裁定，已同步[当前完成计划](../r1-completion-plan.md)；裁定前文档原样保留在 [pre-scope-20261009](history/pre-scope-20261009/README.md)。范围认可不构成费用或未知风险批准。
 
@@ -13,7 +13,7 @@
 | 本地分支/工作区 | `codex/r1-jev-closeout` / `/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007` |
 | 新产品 manifest | [product/manifest.proposed.json](product/manifest.proposed.json) |
 | 新 manifest 对象摘要 | `41eb23e34527461bae8bc50e6d0b28ae53d94bb584d8d167b7eddecedbfcf510`（JSON.stringify 对象摘要；文件字节摘要另见索引） |
-| 付费授权状态 | 未批准；[approval.draft.json](product/approval.draft.json)故意缺署名、授权引用和有效期 |
+| 付费授权状态 | 已批准；[授权原文/来源](product/authorization-record.json)、[正式批准文件](product/approval.authorized.json)；有效至北京时间2026-10-10 21:35，空草案保留为历史拒绝证据 |
 
 后继提交只归档文档和证据；运行时必须仍精确绑定上述工程源码。只将 main 接收到 R1 分支，没有 push 或将 R1 合并回 main。D001/D002 交付和其文档更新均来自维护者 main；此次 main 增量除 executor 的 R1 接点外，21 个文件与 main 逐字节一致，见 [整合核对](product/evidence/main-integration.json)。DNS、D005/R005、新规则观察/报告接线保留，D004 默认关闭；未重跑 R0 或全规则矩阵。
 
@@ -76,7 +76,7 @@ Jev 另需请求 opt-in 和部署显式配置 `EXECUTION_R1_JEV=1`、`R1_JEV_ACC
 
 本期出口为：普通入口可用的有界程序优先探索、原动作/测量/报告/历史链成立，以及当前 28 轮真实产品验收满足既定健康、异常、合法交回和证据要求。28 轮逐项达标、费用/unknown 如实核对且没有产品硬阻塞时，可交付“本期 R1 产品出口完成，建议维护者审阅合入”；不再等待旧评分实验。仍不得宣称所有历史实验完成。维护者负责最终审阅及合入 main，本任务不 push/merge。
 
-## 一次真实验收授权请求（尚未批准）
+## 已批准的一次真实验收范围
 
 授权对象为上表精确源码、新产品 manifest 和 [固定 evaluator](../../scripts/r1-product/evaluate.ts)。C01–C12 各两次，C04 返回、刷新、健康公开视图各独立运行，共 **28 行**。逐行 scenario、目标、fixture HTML hash、次数和预算已冻结；不从不同模式中挑赢家。C10-1 排首位，其普通 Agent 交回请求同时作为真实供应商兼容性检查，不另收费探针。
 
@@ -93,7 +93,7 @@ Jev 另需请求 opt-in 和部署显式配置 `EXECUTION_R1_JEV=1`、`R1_JEV_ACC
 
 2026-10-09 18:37（北京时间）的[公开报价核对](product/evidence/current-price.json)：Wafer 当前输入 USD0.045/百万，输出 USD1.2/百万；本提案仍以输入 **USD0.055/百万**保守上限，1048576 上下文 + 4096 输出计 USD0.06258688，向上预留 USD0.063/次。启动前重新检查 [Agent 端点](https://openrouter.ai/api/v1/models/deepseek/deepseek-v4.1-flash/endpoints)；报价/版本/能力超限在凭据和 claim 前拒绝。模型仍是 deepseek/deepseek-v4.1-flash、Wafer only、无 fallback、required tools、low reasoning、stream usage、4096 输出；不自动改模型或参数。
 
-USD0.053 是未结预留，**并非已确认账单或其最终上限**。批准须同时明确接受这一既存未知风险，以及新批次 USD14.112 / 关联记账 USD14.165。有效期拟为批准后 24 小时。授权覆盖全部既定行、失败/partial 留存、原回执与费用核对和结果交付；首行成功后不逐行重复询问。质量不达标如实记录，不调参补跑；HTTP400、传输错误、安全/持久化/假 covered、新 unknown、费用超限或旧来源变化立即停批。未知费用时不报告完整节省率。
+USD0.053 是未结预留，**并非已确认账单或其最终上限**。批准须同时明确接受这一既存未知风险，以及新批次 USD14.112 / 关联记账 USD14.165。已按转发的人类批准保守设定有效期至2026-10-10T13:35:00Z（北京时间2026-10-10 21:35）。授权覆盖全部既定行、失败/partial 留存、原回执与费用核对和结果交付；首行成功后不逐行重复询问。质量不达标如实记录，不调参补跑；HTTP400、传输错误、安全/持久化/假 covered、新 unknown、费用超限或旧来源变化立即停批。未知费用时不报告完整节省率。
 
 正式 runner 只接受精确 manifest、署名/授权引用/未过期时间、maxRuns=28、maxCostUsd=14.112 和完全匹配的 riskAcceptance。空草案已在最终源码的真实 CLI 上被拒绝，拒绝发生在报价/凭据/claim/账户/输出创建前。一次性 `continued-0ddb03d5250db453759b72ee.claim` 位于 canonical 目录，exclusive 创建；换输出/manifest/工作区不能重复接受同一失败。每次 reserve/dispatch 前复核旧来源，原账户保持停止；新账户持久记录新批次并在合计记账永久带入旧 unknown。
 
@@ -106,7 +106,7 @@ node_modules/.bin/tsx scripts/r1-product/acceptance.ts --run \
   /Users/xietian/Documents/ChatGPT/ui-sentinel-r1-online-claims
 ```
 
-源码脏或 HEAD 不匹配会拒绝；不能在文档后继 HEAD 上绕过身份检查。该 runner 构建并启动正常 `src/server/index.ts`，通过普通 API 创建运行；预注册 campaign 行 ID 和 API 实际 runId 在 run-binding.json 显式关联，不伪造原 action ID。结束后在本入口更新 28 行结果、未运行原因、原测量和费用；任何扩大范围、重新冻结或新增收费须有对应授权。当前没有执行这一步。
+源码脏或 HEAD 不匹配会拒绝；不能在文档后继 HEAD 上绕过身份检查。该 runner 构建并启动正常 `src/server/index.ts`，通过普通 API 创建运行；预注册 campaign 行 ID 和 API 实际 runId 在 run-binding.json 显式关联，不伪造原 action ID。结束后在本入口更新 28 行结果、未运行原因、原测量和费用；任何扩大范围、重新冻结或新增收费须有对应授权。当前进入隔离运行准备；实际结果将在同一入口更新，尚未宣称通过。
 
 ## 批准后在同一任务连续完成
 
