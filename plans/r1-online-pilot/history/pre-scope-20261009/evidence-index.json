@@ -295,53 +295,8 @@
       "path": "plans/r1-online-pilot/history/pre-product-20261009/evidence-index.json",
       "bytes": 20274,
       "sha256": "2868749d87777a7b3f55e635c2e375cf3c966725a5bc411756ac1ef16565b0c5"
-    },
-    {
-      "path": "plans/r1-online-pilot/history/pre-scope-20261009/CURRENT-TASK.md",
-      "bytes": 2551,
-      "sha256": "c717052ae64fd0e498d4d661d8fd5513105c63fc03eea535688fcf95a97adb06"
-    },
-    {
-      "path": "plans/r1-online-pilot/history/pre-scope-20261009/README.md",
-      "bytes": 15070,
-      "sha256": "fdc42af8a7c6c19a2f107abdfb5250c665dadbeb38ed4aec8f699bed141fc9db"
-    },
-    {
-      "path": "plans/r1-online-pilot/history/pre-scope-20261009/evidence-index.json",
-      "bytes": 14042,
-      "sha256": "f64f9483bc7f7b29e0e0d748f064bdeac8c56337510ca6350d91826ce5e85033"
-    },
-    {
-      "path": "plans/r1-online-pilot/history/pre-scope-20261009/r1-completion-plan.md",
-      "bytes": 26473,
-      "sha256": "b80cb7c9a074829ec35e662205ee1705873b76215ad46dfded84845d860e76cf"
     }
   ],
   "localRawEvidence": "product/evidence/raw-local-files.json",
-  "localRawEvidencePortable": false,
-  "scopeDecision": {
-    "date": "2026-10-09",
-    "sourceThreadId": "01a1116d-7621-7962-b4fe-5f904b5fbf13",
-    "userDirection": "安排R1的工作，最好能一把结束",
-    "selectedMode": "program",
-    "jevDefault": false,
-    "currentExit": "28-run real product acceptance and bounded product capabilities; maintainer review/merge",
-    "deferredNotCompleted": [
-      "S1 broader six-state validation",
-      "S2 independent scoring/calibration",
-      "S5 72-run A/B/C benefit comparison"
-    ],
-    "deferredExperimentsBlockCurrentExit": false,
-    "scopeDecisionItselfIsNotFeeApproval": true
-  },
-  "consistencyReview": {
-    "reviewedAt": "2026-10-09T13:38:44.402798+00:00",
-    "sourceAndManifestUnchanged": true,
-    "existingEvidenceHashesVerified": true,
-    "old41HashesVerified": true,
-    "reusedBuildAndTests": true,
-    "newTestsOrExperiments": false,
-    "authorizationBeforeQuoteCredentialsClaimVerifiedInRunner": true,
-    "accurateCommand": "scripts/r1-product/acceptance.ts --run OUTPUT MANIFEST APPROVAL CANONICAL_CLAIMS"
-  }
+  "localRawEvidencePortable": false
 }
