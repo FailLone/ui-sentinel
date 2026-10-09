@@ -8,6 +8,11 @@ export function popupReport(
   issues: readonly string[] = [],
 ) {
   if (!run.spec.uiContract?.popupCheck) return undefined
+  if (
+    !events.some((e) => e.type === 'popup:started') &&
+    events.some((e) => e.type === 'check-task:submitted')
+  )
+    return undefined
   const event = events.filter((e) => e.type === 'popup:state').at(-1)
   const state = event?.payload as (PopupState & { taskId: string }) | undefined
   const receipt = events

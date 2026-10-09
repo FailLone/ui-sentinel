@@ -112,6 +112,14 @@ export function classifyResponse(result: {
     }
   }
 
+  if (toolsCalled.some((t) => t.startsWith('check_task_')))
+    return {
+      category: 'observe-only',
+      toolsCalled,
+      hasText,
+      basis: 'delegated lifecycle read; only changed executor facts count as progress',
+    }
+
   if (toolsCalled.includes('page.observe') || toolsCalled.includes('page_observe')) {
     return { category: 'observe-only', toolsCalled, hasText, basis: 'only called page_observe' }
   }

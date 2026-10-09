@@ -20,7 +20,7 @@ export function checkTaskTools(
     check_task_submit: createTool({
       id: 'check_task_submit',
       description:
-        'Delegate an independent anonymous exact-entry read-only element measurement. Up to TWO child tasks per run, concurrently, separate protected browsers. Return immediately; inspect status/wait later. No prerequisites/actions/models in v1 (set quota.actions/modelCalls=0). Public facts are context only. Child measurement NEVER clears parent selected/required obligations. deadlineAt must be <= the parent deadline in checkTasks input.',
+        'Delegate up to TWO independent anonymous exact-entry checks concurrently. element-measurement is read-only (zero actions/models, permissions.actions=none). popup-viewport uses Jev selection and ORIGINAL executor clicks/measurements in its own Context (permissions.actions=local-ui; reserve 1..3 actions and 1..6 modelCalls). Requires parent popupCheck enabled. Return immediately; use status/wait/cancel. No prerequisites or nested children. deadlineAt <= parent checkTasks.deadlineAt. Child results never clear parent selected/required obligations.',
       inputSchema: checkTaskInput,
       execute: (input) => invoke('check_task_submit', () => host.submit(input)),
     }),

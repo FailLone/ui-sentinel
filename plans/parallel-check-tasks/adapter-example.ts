@@ -4,7 +4,7 @@ import type { CheckHandler } from '../../src/execution/check-tasks/contract.ts'
 
 export const measurementAdapter: CheckHandler = async (task, resources) => {
   // Uses original executor measurement; resources serialize every page operation.
-  const receipt = await resources.measure(task.target.selector)
+  const receipt = await resources.measure(task.target!.selector)
   return {
     status: receipt.verified ? 'completed' : 'unverified',
     evidenceRefs: receipt.evidenceRefs,

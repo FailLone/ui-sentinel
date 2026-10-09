@@ -83,6 +83,14 @@ export function createCheckScheduler(deps: {
     const snapshot: CheckSnapshot = {
       task,
       status: 'queued',
+      ...(task.kind === 'popup-viewport'
+        ? {
+            execution: {
+              runId: `check-${task.childTaskId}`,
+              reportUrl: `/api/runs/check-${task.childTaskId}/report`,
+            },
+          }
+        : {}),
       acceptedAt: Date.now(),
       usage: { ...lease.usage(), elapsedMs: 0 },
     }

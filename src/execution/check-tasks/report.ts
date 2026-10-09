@@ -1,3 +1,4 @@
+import { verifyOriginalResult } from './original-executor.ts'
 import { readFile } from 'node:fs/promises'
 import type { RunEvent } from '../../shared/types.ts'
 import { completed, terminal, type CheckSnapshot } from './contract.ts'
@@ -42,7 +43,35 @@ export function checkTaskReport(
   }
   return {
     version: 1 as const,
-    tasks: [...tasks.values()],
+    tasks: [...tasks.values()].map((s) => {
+      const invalid = issues.filter(
+        (i) =>
+          !i.startsWith('check-task-unfinished:') &&
+          (i.includes(s.task.childTaskId) ||
+            s.result?.evidenceRefs.some((ref) => i.endsWith(':' + ref))),
+      )
+      if (!invalid.length) return s
+      return {
+        ...s,
+        status: 'unverified' as const,
+        recordedStatus: s.status,
+        error: invalid.join(';'),
+        result: s.result
+          ? {
+              ...s.result,
+              status: 'unverified' as const,
+              measurements: [],
+              unchecked: [...s.result.unchecked, ...invalid],
+              original: s.result.original
+                ? {
+                    ...s.result.original,
+                    popup: { ...s.result.original.popup, verdict: 'unknown' as const },
+                  }
+                : undefined,
+            }
+          : undefined,
+      }
+    }),
     issues,
     note: 'Independent child observations do not resolve parent selected/required items. Missing terminal events remain unfinished.',
   }
@@ -56,10 +85,17 @@ export async function checkTaskArtifactIssues(
   const issues = report.issues.filter((issue) => !issue.startsWith('check-task-unfinished:'))
   for (const s of report.tasks) {
     if (!s.result) continue
+    if (s.task.kind === 'popup-viewport') {
+      try {
+        await verifyOriginalResult(s.task, s.result)
+      } catch (error) {
+        issues.push(`check-task-original-invalid:${s.task.childTaskId}:` + String(error))
+      }
+    }
     const measured = events.filter(
       (e) => e.type === 'check-task:measurement' && e.payload.childTaskId === s.task.childTaskId,
     )
-    for (const receipt of s.result.measurements) {
+    for (const receipt of s.task.kind === 'popup-viewport' ? [] : s.result.measurements) {
       if (!measured.some((e) => JSON.stringify(e.payload.receipt) === JSON.stringify(receipt)))
         issues.push('check-task-measurement-receipt-mismatch')
       let matchesBytes = false

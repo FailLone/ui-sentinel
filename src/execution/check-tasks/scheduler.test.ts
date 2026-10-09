@@ -209,3 +209,32 @@ describe('bounded delegation ownership', () => {
     await expect(f.host.close()).rejects.toThrow('storage-failed')
   })
 })
+
+it('protects held parent action/model capacity and charges each child exactly once', () => {
+  const usage = { actions: 0, modelCalls: 0, reads: 0 }
+  const limits = { actions: 3, modelCalls: 4, reads: 4 }
+  const budget = createSharedCheckBudget({
+    remaining: () => ({
+      actions: limits.actions - usage.actions,
+      modelCalls: limits.modelCalls - usage.modelCalls,
+      reads: 4,
+    }),
+    charge: (kind, amount) => {
+      usage[kind] += amount
+    },
+  })
+  const first = budget.reserve({ actions: 2, modelCalls: 3, reads: 0 })
+  expect(limits.actions - usage.actions - budget.held().actions).toBe(1)
+  expect(limits.modelCalls - usage.modelCalls - budget.held().modelCalls).toBe(1)
+  usage.modelCalls++ // One admitted main-model request uses the unreserved remainder.
+  expect(() => budget.reserve({ actions: 1, modelCalls: 1, reads: 0 })).toThrow('unavailable')
+  first.consume('actions')
+  first.consume('modelCalls')
+  first.release()
+  const second = budget.reserve({ actions: 2, modelCalls: 2, reads: 0 })
+  second.consume('modelCalls', 2)
+  expect(() => second.consume('modelCalls')).toThrow('exhausted')
+  second.release()
+  expect(usage).toEqual({ actions: 1, modelCalls: 4, reads: 0 })
+  expect(budget.held()).toEqual({ actions: 0, modelCalls: 0, reads: 0 })
+})

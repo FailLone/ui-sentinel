@@ -1,8 +1,11 @@
+import type { DelegatedExecution } from './check-tasks/original-executor.ts'
+import { withIndependentProgramScope } from '../agent/model/request.ts'
 import { createProductCheckHost, parallelChecksEnabled } from './check-tasks/host.ts'
 import { checkTaskTools } from '../agent/check-tasks/tools.ts'
 import { createPopupRuntime } from './popup/runtime.ts'
 import { popupCollector } from './popup/geometry.ts'
 import { hash as popupHash, injectedPopupDecision } from '../agent/popup/contract.ts'
+import { createPopupAccountOwner } from '../agent/popup/account-owner.ts'
 import { createPopupProvider, popupConfiguration } from '../agent/popup/provider.ts'
 import {
   createProductJevScore,
@@ -207,12 +210,16 @@ export const {
   acknowledgeReconciliation,
 } = queue
 
-async function executeRun(runId: string): Promise<void> {
+async function executeRun(runId: string, delegation?: DelegatedExecution): Promise<void> {
   const profile = new ExecutionProfile()
-  return profile.run(() => executeProfiledRun(runId, profile))
+  return profile.run(() => executeProfiledRun(runId, profile, delegation))
 }
 
-async function executeProfiledRun(runId: string, profile: ExecutionProfile): Promise<void> {
+async function executeProfiledRun(
+  runId: string,
+  profile: ExecutionProfile,
+  delegation?: DelegatedExecution,
+): Promise<void> {
   const prepared = await queue.withRunLifecycle(runId, async () => {
     const run = await getRun(runId)
     if (!run || run.status !== 'queued' || queue.isCancellationRequested(runId)) return
@@ -280,6 +287,13 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         return
       }
     const active = registerActiveRun(runId)
+    if (delegation)
+      await appendEvent(runId, 'run:delegated-from', {
+        parentRunId: delegation.task.parentRunId,
+        childTaskId: delegation.task.childTaskId,
+        taskHash: delegation.task.taskHash,
+        parentContractHash: delegation.task.contractHash,
+      })
     return { run, legacyUnversioned, runKind, uiScan, businessRuntime, active }
   })
   if (!prepared) return
@@ -295,6 +309,10 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
   let productHandedOff = false
   let productReadOnlyHandoff: string | undefined
   let productNavigationProposal: string | undefined
+  const abortFromParent = () =>
+    active.abortController.abort(delegation?.signal.reason ?? Error('parent-cancelled'))
+  delegation?.signal.addEventListener('abort', abortFromParent, { once: true })
+  if (delegation?.signal.aborted) abortFromParent()
   const signal = active.abortController.signal
   const startedAt = Date.now(),
     budget = run.spec.budget
@@ -307,16 +325,29 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     modelInputTokens: 0,
     modelOutputTokens: 0,
   }
+  const accountOwner = delegation?.accountOwner ?? createPopupAccountOwner()
   const checkTasks =
-    uiScan && parallelChecksEnabled()
+    uiScan && !delegation && parallelChecksEnabled()
       ? createProductCheckHost({
           runId,
           contract: uiScan,
           signal,
           deadlineAt: startedAt + budget.totalTimeoutMs,
           usage,
+          executeOriginal: (id, child) =>
+            withIndependentProgramScope(child.signal, () =>
+              executeRun(id, { ...child, accountOwner }),
+            ),
         })
       : undefined
+  const remainingActions = () =>
+    budget.maxActions - usage.actions - (checkTasks?.held().actions ?? 0)
+  const remainingModels = () =>
+    budget.maxModelCalls - usage.modelCalls - (checkTasks?.held().modelCalls ?? 0)
+  const countAction = () => {
+    delegation?.lease.consume('actions')
+    usage.actions++
+  }
   let checkTaskStorageFailure = false
   let modelUsageAvailable = true,
     reportedModelCalls = 0
@@ -626,7 +657,8 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
   }
   const countModel = () => {
     guard()
-    if (usage.modelCalls >= budget.maxModelCalls) throw new Error('budget-exhausted')
+    if (remainingModels() <= 0) throw new Error('budget-exhausted')
+    delegation?.lease.consume('modelCalls')
     usage.modelCalls++
   }
   let closeCoveredUiScope: () => Promise<boolean> = async () => false
@@ -636,8 +668,8 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
   async function refuseOptionalScope(target: string) {
     guard()
     const remaining = {
-      actions: budget.maxActions - usage.actions,
-      modelCalls: budget.maxModelCalls - usage.modelCalls,
+      actions: remainingActions(),
+      modelCalls: remainingModels(),
       timeMs: Math.max(0, budget.totalTimeoutMs - (Date.now() - startedAt)),
     }
     // No trustworthy bound exists for an agent's new exploratory branch. Do not guess its cost.
@@ -1780,7 +1812,8 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     )
     networkBoundary = await installRunNetworkBoundary({
       uiScan,
-      sharedBudget: checkTasks?.networkBudget,
+      sharedBudget: delegation?.networkBudget ?? checkTasks?.networkBudget,
+      ...(delegation ? { narrowedScope: { maxPages: 1, maxDepth: 0 } } : {}),
       page,
       context: worker.context,
       entryUrl: run.spec.entryUrl,
@@ -1873,9 +1906,9 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         if (!detail.found || !detail.fresh) throw Error('stale-element-ref')
         return detail.element
       },
-      remainingActions: () => budget.maxActions - usage.actions,
+      remainingActions: () => remainingActions(),
       countAction: () => {
-        usage.actions++
+        countAction()
       },
       timeRemainingMs: () => budget.totalTimeoutMs - (Date.now() - startedAt),
       countModel,
@@ -2387,7 +2420,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           action: input,
         }
       if (sideEffectPending) throw new Error('reconciliation-required')
-      if (usage.actions >= budget.maxActions) throw new Error('budget-exhausted')
+      if (remainingActions() <= 0) throw new Error('budget-exhausted')
       // Lift business read-only protection only after the complete input contract is valid.
       sideEffectPolicy?.setReadOnly(false)
       stepId = `action-${usage.actions + 1}`
@@ -2545,8 +2578,8 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         ) {
           const admission = admitOptionalScope({
             remaining: {
-              actions: budget.maxActions - usage.actions,
-              modelCalls: budget.maxModelCalls - usage.modelCalls,
+              actions: remainingActions(),
+              modelCalls: remainingModels(),
               timeMs: budget.totalTimeoutMs - (Date.now() - startedAt),
             },
             requiredBound: { actions: 0, modelCalls: 0, timeMs: 0 },
@@ -2786,7 +2819,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           timing.observer.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true});
           window.__sentinelTiming=timing;
         `)
-      usage.actions++
+      countAction()
       await appendEvent(
         runId,
         'action:executing',
@@ -3656,7 +3689,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         return { error: String(error), outcome: 'unverified' as const }
       }
     }
-    if (uiScan?.popupCheck && inspection) {
+    if (uiScan?.popupCheck && inspection && !checkTasks) {
       if (!config.features.popupCheck) throw Error('popup-feature-disabled')
       popupNodes = popupCollector(page)
       const item = inspection.scope.createItem({
@@ -3688,6 +3721,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         (configuration
           ? createPopupProvider({
               configuration,
+              accountOwner,
               runId,
               timeRemaining: () => budget.totalTimeoutMs - (Date.now() - startedAt),
               async countCall() {
@@ -3703,7 +3737,10 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       if (!decide) throw Error('popup-provider-unavailable')
       const frame = async (refresh: boolean) => {
         guard()
-        if (refresh) await observe(true)
+        if (refresh) {
+          delegation?.lease.consume('reads')
+          await observe(true)
+        }
         const version = await readObservationVersion(page)
         const panels = await popupNodes!.capture()
         const entries = inspection
@@ -3738,10 +3775,10 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         contractHash: uiScan.hash,
         signal,
         guard,
-        goal: `Check whether an actual popup exceeds the visible viewport. User focus: ${uiScan.goal}`,
+        goal: `Check whether an actual popup exceeds the visible viewport. User focus: ${uiScan.goal}; delegated context: ${delegation?.task.purpose ?? 'none'}`,
         remaining: () => ({
-          actions: budget.maxActions - usage.actions,
-          calls: budget.maxModelCalls - usage.modelCalls - 2,
+          actions: remainingActions(),
+          calls: Math.max(0, remainingModels() - (delegation ? 0 : 2)),
           timeMs:
             budget.totalTimeoutMs -
             (Date.now() - startedAt) -
@@ -3978,7 +4015,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
                 runId,
                 guard,
                 signal,
-                remainingActions: () => budget.maxActions - usage.actions,
+                remainingActions: () => remainingActions(),
                 clean: () => integrity.snapshot().status === 'clean',
                 metadata: evidenceMetadata,
                 screenshot: async () =>
@@ -4825,8 +4862,8 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
                     (productHost ? productMayExtend(candidate) : experimentalAdmissions.size < 1)
                       ? admitOptionalScope({
                           remaining: {
-                            actions: budget.maxActions - usage.actions,
-                            modelCalls: budget.maxModelCalls - usage.modelCalls,
+                            actions: remainingActions(),
+                            modelCalls: remainingModels(),
                             timeMs: budget.totalTimeoutMs - (Date.now() - startedAt),
                           },
                           requiredBound: { actions: 0, modelCalls: 0, timeMs: 0 },
@@ -4987,7 +5024,27 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
       algorithmVersion: VISUAL_FOCUS_VERSION,
     })
     if (visualScanEligible && config.features?.visualDiscovery) await visualFocus.scan()
+    if (checkTasks && uiScan?.popupCheck) popupAuto = false
     while (!finished) {
+      if (
+        checkTasks?.status().some((s) => s.status === 'running' || s.status === 'queued') &&
+        (remainingModels() <= 2 || noToolStreak >= 2)
+      ) {
+        guard()
+        const before = JSON.stringify(checkTasks.status().map((s) => [s.status, s.progress]))
+        await checkTasks.wait(1000)
+        if (before !== JSON.stringify(checkTasks.status().map((s) => [s.status, s.progress])))
+          noToolStreak = 0
+        continue
+      }
+      if (delegation && !popupAuto) {
+        await finishUiScan({ reason: 'unverified-scope' })
+        if (!finished) {
+          stopReason = 'finish-incomplete'
+          break
+        }
+        continue
+      }
       if (popupRuntime && popupAuto) {
         attemptTools = 0
         attemptReads = 0
@@ -4995,6 +5052,9 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           signal,
           Math.min(30000, budget.totalTimeoutMs - (Date.now() - startedAt)),
           () => tools.popup_check.execute!({ mode: 'continue' }, {} as never),
+        )
+        await delegation?.progress?.(
+          `popup:${(result as any)?.reason ?? 'step'}; actions=${usage.actions}; calls=${usage.modelCalls}`,
         )
         popupAuto = (result as any)?.status === 'active'
         await persistUsage()
@@ -5123,15 +5183,15 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
             to: transition.current,
             reason: transition.reason,
             budgetRemaining: {
-              actions: budget.maxActions - usage.actions,
-              modelCalls: budget.maxModelCalls - usage.modelCalls,
+              actions: remainingActions(),
+              modelCalls: remainingModels(),
               timeMs: budget.totalTimeoutMs - (Date.now() - startedAt),
             },
           })
         }
       }
       guard()
-      if (usage.modelCalls >= budget.maxModelCalls) throw new Error('budget-exhausted')
+      if (remainingModels() <= 0) throw new Error('budget-exhausted')
       if (phaseTracker.finalizingBudgetExhausted()) {
         stopReason =
           phaseTracker.getState().reason === 'no-progress' ? 'no-progress' : 'finish-incomplete'
@@ -5359,13 +5419,14 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
                 deadlineAt: startedAt + budget.totalTimeoutMs,
                 entryUrl: uiScan!.entryUrl,
                 tasks: checkTasks.status(),
-                note: 'Optional independent read-only checks. At most two. Completed children do not clear parent obligations.',
+                held: checkTasks.held(),
+                note: 'At most two independent checks. popup-viewport uses original executor actions and Jev; reserve shared quotas. Completed children do not clear parent obligations.',
               },
             }
           : {}),
         budgetRemaining: {
-          actions: budget.maxActions - usage.actions,
-          modelCalls: budget.maxModelCalls - usage.modelCalls,
+          actions: remainingActions(),
+          modelCalls: remainingModels(),
           timeMs: budget.totalTimeoutMs - (Date.now() - startedAt),
         },
         ...(noToolStreak >= 3 && phaseState.phase !== 'finalizing'
@@ -5383,7 +5444,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         config.features?.shortFinish &&
         !deferCompletionReview &&
         reviewedStates.size < 3 &&
-        budget.maxModelCalls - usage.modelCalls >= 3 &&
+        remainingModels() >= 3 &&
         budget.totalTimeoutMs - (Date.now() - startedAt) > 20000 &&
         !sideEffectPending &&
         blockerEvidenceEligible({
@@ -5685,7 +5746,7 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
           runSignal: signal,
           timeRemainingMs: budget.totalTimeoutMs - (Date.now() - startedAt),
           attemptBudget: Math.min(
-            budget.maxModelCalls - usage.modelCalls,
+            remainingModels(),
             phaseState.phase === 'finalizing'
               ? phaseState.finalizingMaxCalls - phaseState.finalizingCallsUsed
               : Infinity,
@@ -5761,7 +5822,15 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
         findingFacts: [...findingFacts],
         measurementFacts: [...measurementFacts],
         // Bounded first access to original evidence can inform a decision; it is not a new verification.
-        retrievedFacts: [...inspectedResultRefs],
+        retrievedFacts: [
+          ...inspectedResultRefs,
+          ...(checkTasks
+            ?.status()
+            .map(
+              (s) =>
+                `child:${s.task.childTaskId}:${s.status}:${s.progress ?? ''}:${s.result?.original?.fingerprint ?? ''}`,
+            ) ?? []),
+        ],
       }
       const progressCheck = progressDetector.check(progressFacts)
       // A failed contract repair gets no second scheduling allowance from F1. Input errors
@@ -5828,11 +5897,21 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     clearTimeout(timer)
     // Invalidate all in-flight tools before persisting the terminal report.
     if (!signal.aborted) active.abortController.abort(new Error('run-ended'))
+    if (delegation) await toolTail.catch(() => {})
+    delegation?.signal.removeEventListener('abort', abortFromParent)
     try {
       await checkTasks?.close()
     } catch {
       checkTaskStorageFailure = true
       queue.requireReconciliation()
+    }
+    if (!delegation) {
+      try {
+        await accountOwner.close()
+      } catch {
+        checkTaskStorageFailure = true
+        queue.requireReconciliation()
+      }
     }
     await visualFocus?.dispose().catch(() => {})
     await closeResponses()
@@ -5844,6 +5923,17 @@ async function executeProfiledRun(runId: string, profile: ExecutionProfile): Pro
     await Promise.allSettled(investigationBlockers.map((cached) => cached.handle.dispose()))
     await popupNodes?.dispose()
     if (worker) await worker.close().catch(() => {})
+    if (delegation && worker) {
+      const closed = !worker.browser.isConnected() && worker.page.isClosed()
+      await appendEvent(runId, 'run:delegated-resource-closed', {
+        closed,
+        parentRunId: delegation.task.parentRunId,
+      })
+      if (!closed) {
+        checkTaskStorageFailure = true
+        queue.requireReconciliation()
+      }
+    }
     await queue.commitRun(
       runId,
       sideEffectPending || checkTaskStorageFailure ? 'reconciliation-required' : stopReason,

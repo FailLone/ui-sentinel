@@ -11,9 +11,12 @@ export const checkTaskInput = z
   .object({
     version: z.literal(1),
     key: z.string().regex(/^[a-zA-Z0-9_-]{1,64}$/),
-    kind: z.literal('element-measurement'),
+    kind: z.enum(['element-measurement', 'popup-viewport']),
     purpose: z.string().trim().min(1).max(1000),
-    target: z.object({ selector: z.string().min(1).max(500) }).strict(),
+    target: z
+      .object({ selector: z.string().min(1).max(500) })
+      .strict()
+      .optional(),
     start: z
       .object({
         url: z.string().url().max(4096),
@@ -36,7 +39,7 @@ export const checkTaskInput = z
       .object({
         session: z.literal('anonymous'),
         writes: z.literal('none'),
-        actions: z.literal('none'),
+        actions: z.enum(['none', 'local-ui']),
       })
       .strict(),
     quota: quotaSchema,
@@ -71,6 +74,7 @@ export interface MeasurementReceipt {
   value: unknown
 }
 export interface CheckResult {
+  original?: Awaited<ReturnType<typeof import('./original-executor.ts').readOriginalChild>>
   status: 'completed' | 'defect' | 'unverified'
   evidenceRefs: string[]
   measurements: MeasurementReceipt[]
@@ -82,6 +86,7 @@ export interface CheckSnapshot {
   acceptedAt: number
   startedAt?: number
   endedAt?: number
+  execution?: { runId: string; reportUrl: string }
   progress?: string
   result?: CheckResult
   evidenceRefs?: string[]

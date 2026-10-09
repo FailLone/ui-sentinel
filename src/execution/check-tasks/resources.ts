@@ -239,7 +239,7 @@ export async function openCheckResources(deps: {
 
 export const measurementHandler: import('./contract.ts').CheckHandler = async (task, resources) => {
   await resources.progress('measuring target with original executor')
-  const measurement = await resources.measure(task.target.selector)
+  const measurement = await resources.measure(task.target!.selector)
   return {
     status: measurement.verified ? 'completed' : 'unverified',
     measurements: [measurement],

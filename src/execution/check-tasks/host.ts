@@ -1,3 +1,11 @@
+import {
+  runOriginalPopup,
+  verifyOriginalResult,
+  type OriginalExecutor,
+} from './original-executor.ts'
+import { config } from '../../shared/config.ts'
+import { popupConfiguration } from '../../agent/popup/provider.ts'
+import { hasInjectedPopupDecision } from '../../agent/popup/contract.ts'
 import { createSharedNetworkBudget } from '../network/shared-budget.ts'
 import { DEFAULT_LIMITS } from '../network/session.ts'
 import type { UiContractSnapshot } from '../../inspection/contract.ts'
@@ -18,6 +26,7 @@ export function createProductCheckHost(deps: {
   signal: AbortSignal
   deadlineAt: number
   usage: { actions: number; modelCalls: number }
+  executeOriginal?: OriginalExecutor
 }) {
   const networkBudget = createSharedNetworkBudget(DEFAULT_LIMITS)
   let reads = 0
@@ -41,24 +50,70 @@ export function createProductCheckHost(deps: {
     async admit(task) {
       if (task.start.url !== deps.contract.entryUrl)
         throw Error('check-reentry-url-must-match-parent')
-      // Until original action/Jev adapters are integrated, no child can reserve or spend these permissions.
-      if (task.quota.actions || task.quota.modelCalls) throw Error('check-v1-read-only')
+      // Only the original popup executor may consume action/model reservations.
+      if (task.kind === 'popup-viewport') {
+        if (
+          !deps.contract.popupCheck ||
+          !config.features.popupCheck ||
+          !deps.executeOriginal ||
+          (!hasInjectedPopupDecision() && !popupConfiguration())
+        )
+          throw Error('check-popup-unavailable')
+        if (
+          task.permissions.actions !== 'local-ui' ||
+          task.quota.actions < 1 ||
+          task.quota.modelCalls < 1
+        )
+          throw Error('check-popup-quota-required')
+      } else if (
+        !task.target ||
+        task.permissions.actions !== 'none' ||
+        task.quota.actions ||
+        task.quota.modelCalls
+      )
+        throw Error('check-v1-read-only')
       if (task.evidenceRefs.length) await checkEvidence(task, task.evidenceRefs, false)
     },
-    open: (task, signal, budget, progress) =>
-      openCheckResources({
-        task,
-        contract: deps.contract,
-        networkBudget,
-        signal,
-        budget,
-        progress,
-        emit: async (type, payload, refs) => {
-          await appendEvent(deps.runId, type, payload, { evidenceRefs: refs })
-        },
-      }),
-    handler: measurementHandler,
-    validateResult: validateCheckResult,
+    open: async (task, signal, budget, progress) =>
+      task.kind === 'popup-viewport'
+        ? {
+            signal,
+            budget,
+            progress,
+            measure: async () => {
+              throw Error('original-executor-owns-measurement')
+            },
+            close: async () => {},
+          }
+        : openCheckResources({
+            task,
+            contract: deps.contract,
+            networkBudget,
+            signal,
+            budget,
+            progress,
+            emit: async (type, payload, refs) => {
+              await appendEvent(deps.runId, type, payload, { evidenceRefs: refs })
+            },
+          }),
+    handler: (task, resources) =>
+      task.kind === 'popup-viewport'
+        ? runOriginalPopup({
+            task,
+            signal: resources.signal,
+            lease: resources.budget,
+            progress: resources.progress,
+            networkBudget,
+            contract: deps.contract,
+            execute: deps.executeOriginal!,
+          })
+        : measurementHandler(task, resources),
+    validateResult: async (task, result) => {
+      if (task.kind === 'popup-viewport') {
+        await checkEvidence(task, result.evidenceRefs)
+        await verifyOriginalResult(task, result)
+      } else await validateCheckResult(task, result)
+    },
     emit: async (type, snapshot) => {
       await appendEvent(
         deps.runId,
@@ -68,5 +123,5 @@ export function createProductCheckHost(deps: {
       )
     },
   })
-  return Object.assign(scheduler, { networkBudget })
+  return Object.assign(scheduler, { networkBudget, held: budget.held })
 }

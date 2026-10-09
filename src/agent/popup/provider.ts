@@ -2,6 +2,7 @@ import { DatabaseSync } from 'node:sqlite'
 import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { randomUUID } from 'node:crypto'
+import { type PopupAccountOwner } from './account-owner.ts'
 import { openCampaignSession } from '../../../evaluation/support/campaign-session.ts'
 import { verifyProductJevQuote } from '../exploration/integration/product-jev.ts'
 import { parseStrictJson } from '../decisions/jev-provider/strict-json.ts'
@@ -80,6 +81,7 @@ export function normalizePopupResponse(raw: any, packet: PopupQuestion) {
 export function createPopupProvider(options: {
   configuration: NonNullable<ReturnType<typeof popupConfiguration>>
   runId: string
+  accountOwner?: PopupAccountOwner
   countCall(): Promise<void>
   timeRemaining(): number
   save(kind: string, body: string): Promise<string>
@@ -121,7 +123,9 @@ export function createPopupProvider(options: {
     }
     await (options.quote ?? verifyProductJevQuote)(signal)
     signal.throwIfAborted()
-    const session = await openCampaignSession(c.directory, String(c.limitUsd))
+    const borrowed = options.accountOwner ? await options.accountOwner.acquire(c) : undefined
+    const session =
+      borrowed?.session ?? (await openCampaignSession(c.directory, String(c.limitUsd)))
     const id = randomUUID(),
       refs: string[] = [],
       cancelled = new AbortController()
@@ -229,7 +233,8 @@ export function createPopupProvider(options: {
         }
       } finally {
         unwatch()
-        await session.close()
+        if (borrowed) borrowed.release()
+        else await session.close()
       }
     }
   }

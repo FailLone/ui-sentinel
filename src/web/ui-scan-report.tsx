@@ -58,11 +58,19 @@ function Coverage({ report, runId }: { report: UiScanReport; runId: string }) {
           <ul>
             {report.checkTasks.tasks.map((s) => (
               <li key={s.task.childTaskId}>
-                {s.task.purpose}：{s.status}；读取 {s.usage.reads} 次，耗时 {s.usage.elapsedMs} ms
+                {s.task.purpose}：{s.status}；动作 {s.usage.actions} 次，模型调用{' '}
+                {s.usage.modelCalls} 次，补充读取 {s.usage.reads} 次，耗时 {s.usage.elapsedMs} ms
                 {s.result?.unchecked.map((item) => (
                   <p key={item}>未检查：{item}</p>
                 ))}
                 {s.error && <p>{s.error}</p>}
+                {s.execution && <a href={s.execution.reportUrl}>子任务原始报告</a>}
+                {s.result?.original?.evidence.map((e) => (
+                  <a key={e.id} href={e.url}>
+                    {' '}
+                    原证据{' '}
+                  </a>
+                ))}
                 {(s.evidenceRefs ?? s.result?.evidenceRefs)?.map((ref) => (
                   <a key={ref} href={artifactUrl(runId, ref)}>
                     {' '}

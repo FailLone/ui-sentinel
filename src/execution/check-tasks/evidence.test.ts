@@ -185,6 +185,9 @@ describe('child evidence integrity', () => {
       [{ id: ref, path: String(row.file_path), metadata: JSON.parse(String(row.metadata)) }],
     )
     expect(issues.some((i) => i.includes('owner-mismatch'))).toBe(true)
+    expect(checkTaskReport([accepted, completed], undefined, issues).tasks[0].status).toBe(
+      'unverified',
+    )
     expect(
       checkTaskReport([accepted, completed], new Set()).issues.some((i) =>
         i.includes('unreadable'),

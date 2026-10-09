@@ -1,3 +1,4 @@
+import { createPopupAccountOwner } from './account-owner.ts'
 import { afterEach, it, expect, vi } from 'vitest'
 import { mkdtemp, rm, readFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
@@ -169,4 +170,110 @@ it('aborts a non-cooperative in-flight transport and books unknown rather than r
   } finally {
     await account.close()
   }
+})
+
+it('shares one parent lease across overlapping requests and drains before releasing it', async () => {
+  const x = await setup(),
+    owner = createPopupAccountOwner()
+  const pending: ((response: Response) => void)[] = []
+  x.http.mockImplementation(() => new Promise<Response>((resolve) => pending.push(resolve)))
+  const options = { ...x.options, accountOwner: owner }
+  const a = createPopupProvider({ ...options, runId: 'child-a' })(
+    packet,
+    new AbortController().signal,
+  )
+  const b = createPopupProvider({ ...options, runId: 'child-b' })(
+    packet,
+    new AbortController().signal,
+  )
+  const results = Promise.allSettled([a, b])
+  await vi.waitFor(() => expect(pending).toHaveLength(2))
+  await expect(openCampaignSession(x.directory, '1')).rejects.toThrow('lease-held')
+  const borrowed = await owner.acquire(x.options.configuration)
+  expect((await borrowed.session.ledger.spending()).heldReservedUsd).toBe(0.006)
+  borrowed.release()
+  let released = false
+  const closing = owner.close().then(() => {
+    released = true
+  })
+  await Promise.resolve()
+  expect(released).toBe(false)
+  pending[0]!(Response.json(response()))
+  await a
+  expect(released).toBe(false)
+  pending[1]!(Response.json(response()))
+  expect((await results).map((r) => r.status)).toEqual(['fulfilled', 'fulfilled'])
+  await closing
+  const reopened = await openCampaignSession(x.directory, '1')
+  try {
+    const rows = await reopened.ledger.entries()
+    expect(rows.map((r) => r.runId).sort()).toEqual(['child-a', 'child-b'])
+    expect(rows.every((r) => r.status === 'settled')).toBe(true)
+    expect((await reopened.ledger.spending()).knownCostUsd).toBe(0.00002)
+  } finally {
+    await reopened.close()
+  }
+})
+
+it('an unknown child cost stops its sibling and keeps both sent reservations unknown', async () => {
+  const x = await setup(),
+    owner = createPopupAccountOwner()
+  const pending: ((response: Response) => void)[] = []
+  x.http.mockImplementation(() => new Promise<Response>((resolve) => pending.push(resolve)))
+  const options = { ...x.options, accountOwner: owner }
+  const results = Promise.allSettled(
+    ['a', 'b'].map((runId) =>
+      createPopupProvider({ ...options, runId })(packet, new AbortController().signal),
+    ),
+  )
+  await vi.waitFor(() => expect(pending).toHaveLength(2))
+  pending[0]!(Response.json({ ...response(), usage: {} }))
+  expect((await results).every((r) => r.status === 'rejected')).toBe(true)
+  pending[1]!(Response.json(response())) // Late response cannot resurrect the aborted sibling.
+  await owner.close()
+  const reopened = await openCampaignSession(x.directory, '1')
+  try {
+    expect((await reopened.ledger.entries()).map((r) => r.status)).toEqual(['unknown', 'unknown'])
+    expect((await reopened.ledger.spending()).unknownReservedUsd).toBe(0.006)
+  } finally {
+    await reopened.close()
+  }
+  await expect(
+    createPopupProvider(x.options)(packet, new AbortController().signal),
+  ).rejects.toThrow('stopped')
+  expect(x.http).toHaveBeenCalledTimes(2)
+})
+
+it('serializes original fee reservations when siblings compete for the last balance', async () => {
+  const x = await setup(),
+    owner = createPopupAccountOwner()
+  const borrowed = await owner.acquire(x.options.configuration)
+  await borrowed.session.ledger.reserve({
+    requestId: 'prior-held',
+    runId: 'prior',
+    phase: 'test',
+    model: 'synthetic',
+    provider: 'synthetic',
+    reservedUsd: 0.995,
+    priceSource: 'test',
+    stopEpoch: 0,
+  })
+  borrowed.release()
+  const pending: ((response: Response) => void)[] = []
+  x.http.mockImplementation(() => new Promise<Response>((resolve) => pending.push(resolve)))
+  const results = Promise.allSettled(
+    ['a', 'b'].map((runId) =>
+      createPopupProvider({
+        ...x.options,
+        accountOwner: owner,
+        runId,
+      })(packet, new AbortController().signal),
+    ),
+  )
+  await vi.waitFor(() => expect(pending).toHaveLength(1))
+  await vi.waitFor(() => expect(x.countCall).toHaveBeenCalledTimes(1))
+  pending[0]!(Response.json(response()))
+  expect((await results).map((r) => r.status).sort()).toEqual(['fulfilled', 'rejected'])
+  expect(x.key).toHaveBeenCalledTimes(1)
+  await owner.close()
 })
