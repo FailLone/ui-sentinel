@@ -1,0 +1,15 @@
+{
+  "approvedBy": "Human user in maintainer conversation; explicit 授权 relayed by maintainer",
+  "approvalReference": "01a1116d-7621-7962-b4fe-5f904b5fbf13: explicit user 授权 for semantic-purpose P02; trusted delegation received in this chat",
+  "expiresAt": "2026-10-11T09:08:58.463059+00:00",
+  "manifestSha256": "bce6785d7cfb8b9fb877d4003d159110d3e3c603a33fd50a7605cfbc0dae08d6",
+  "maxCostUsd": 0.62,
+  "maxParents": 1,
+  "maxMainRequests": 10,
+  "maxJevRequests": 6,
+  "singleBatch": true,
+  "retries": 0,
+  "oldAccountsUntouched": true,
+  "authorizeNewIsolatedAccount": true,
+  "recordedAt": "2026-10-10T09:08:58.463059+00:00"
+}
