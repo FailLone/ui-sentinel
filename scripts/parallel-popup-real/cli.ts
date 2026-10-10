@@ -35,6 +35,7 @@ function sourceFiles() {
 }
 const [mode, a, b, c] = process.argv.slice(2)
 async function main() {
+  if (process.env.DOTENV_CONFIG_PATH !== '/dev/null') throw Error('explicit-empty-dotenv-required')
   if (mode === '--freeze') {
     const output = resolve(a ?? 'plans/parallel-check-tasks/real-preparation')
     if (existsSync(resolve(output, 'manifest.json'))) throw Error('freeze-already-exists')

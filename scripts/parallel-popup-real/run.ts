@@ -57,6 +57,7 @@ export async function runBatch(
     parent = '',
     owner: ReturnType<typeof createPopupAccountOwner> | undefined
   let gateway: Awaited<ReturnType<typeof startGateway>> | undefined
+  const batchDeadline = Date.now() + POLICY.batchMs
   const batch = createBatch(session.ledger, output, async (child, expectedParent) => {
     const { getRunSnapshot } = await import('../../src/execution/run-manager.ts')
     const s = await getRunSnapshot(child)
@@ -72,17 +73,36 @@ export async function runBatch(
       s.run.spec.viewport.height === 480
     )
   })
-  const request = async (path: string, body?: unknown) => {
+  const request = async (path: string, body?: unknown, timeoutMs = 10000) => {
+    const remaining = batchDeadline + POLICY.cleanupMs - Date.now()
+    if (remaining <= 0) throw Error('batch-cleanup-deadline')
     const r = await fetch(api + path, {
       method: body === undefined ? 'GET' : 'POST',
       headers: { 'content-type': 'application/json', authorization: `Bearer ${controlToken}` },
       ...(body === undefined ? {} : { body: JSON.stringify(body) }),
-      signal: AbortSignal.timeout(10000),
+      signal: AbortSignal.timeout(Math.max(1, Math.min(timeoutMs, remaining))),
     })
     const value = (await r.json()) as any
     if (!r.ok) throw Error('product-api-refused:' + r.status)
     return value
   }
+  const watchdog = setTimeout(
+    () => {
+      batch.stop('batch-cleanup-deadline')
+      const preserve = session.ledger
+        .entries()
+        .then((entries) =>
+          Promise.all(
+            entries
+              .filter((e) => e.status === 'held')
+              .map((e) => session.ledger.markUnknown(e.requestId, 'forced-cleanup-deadline')),
+          ),
+        )
+        .catch(() => {})
+      void Promise.race([preserve, sleep(5000)]).finally(() => process.exit(1))
+    },
+    POLICY.batchMs + POLICY.cleanupMs - 10000,
+  )
   let cancelWork: Promise<unknown> | undefined
   const cancel = () => {
     if (api && parent) cancelWork ??= request(`/api/runs/${parent}/cancel`, {}).catch(() => {})
@@ -273,6 +293,7 @@ export async function runBatch(
     }
     evaluationLease = (await request('/api/evaluation/lease', {})).lease
     for (const row of free ? rows.slice(0, 1) : rows) {
+      const rowDeadline = Date.now() + POLICY.row.timeoutMs
       batch.begin(row.id)
       gateway.begin(row.id, POLICY.row.mainRequests, POLICY.row.timeoutMs)
       const created = await request('/api/runs', {
@@ -290,7 +311,7 @@ export async function runBatch(
       batch.bind(parent)
       cancelWork = undefined
       let report: any
-      for (let i = 0; i < 800; i++) {
+      for (let i = 0; Date.now() < Math.min(rowDeadline + 30000, batchDeadline + 30000); i++) {
         const current = await request(`/api/runs/${parent}`)
         if (!['queued', 'running'].includes(current.status) && !current.active) {
           report = await request(`/api/runs/${parent}/report`)
@@ -315,7 +336,7 @@ export async function runBatch(
           )
             batch.stop('network-permission')
         }
-        if (i * 250 >= POLICY.row.timeoutMs) batch.stop('row-deadline')
+        if (Date.now() >= rowDeadline) batch.stop('row-deadline')
         await sleep(250)
       }
       if (!report) {
@@ -399,9 +420,10 @@ export async function runBatch(
   } finally {
     await cancelWork
     // Wait for ordinary cancellation to drain original child tools/fees before closing the lease.
+    const drainDeadline = Math.min(Date.now() + 30000, batchDeadline + 30000)
     if (parent)
-      for (let i = 0; i < 120; i++) {
-        const run = await request(`/api/runs/${parent}`).catch(() => null)
+      while (Date.now() < drainDeadline) {
+        const run = await request(`/api/runs/${parent}`, undefined, 1000).catch(() => null)
         if (run && !run.active && !['queued', 'running'].includes(run.status)) break
         await sleep(250)
       }
@@ -425,6 +447,7 @@ export async function runBatch(
       requests: await session.ledger.entries(),
     })
     await session.close()
+    clearTimeout(watchdog)
     fixture.closeAllConnections()
     await new Promise<void>((r) => fixture.close(() => r()))
   }

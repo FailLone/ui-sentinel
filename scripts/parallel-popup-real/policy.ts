@@ -6,6 +6,7 @@ export const POLICY = {
   maxCostUsd: 1.86,
   row: { mainRequests: 10, jevRequests: 6, maxActions: 6, maxModelCalls: 16, timeoutMs: 180000 },
   batchMs: 600000,
+  cleanupMs: 60000,
   mainTimeoutMs: 60000,
   jevTimeoutMs: 8000,
   main: {
