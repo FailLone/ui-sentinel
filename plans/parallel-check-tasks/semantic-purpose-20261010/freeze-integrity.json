@@ -1,0 +1,15 @@
+{
+  "sourceCommit": "182e65eca2c316755b736303264f7dcbeca163cf",
+  "manifestSha256": "bce6785d7cfb8b9fb877d4003d159110d3e3c603a33fd50a7605cfbc0dae08d6",
+  "bundleSha256": "ee946d5b158584f193dfe401ffb7860ed78b75795be3f41afdf3c7c1913d741c",
+  "originalP02RowExactMatch": true,
+  "publicGoalExactMatch": true,
+  "privateP02ScoringExactMatch": true,
+  "policyExactMatch": true,
+  "oldBundlesUnchanged": {
+    "data/parallel-popup-prepared/runtime.mjs": "e8792a14f7fa967cbb0bde1a75ba03915d896c19665d8f379911741d393aeca3",
+    "data/parallel-popup-prepared/batch-02/runtime.mjs": "0d9a8c710e0843a2df07c9f1576dec2f42dcf3051974834093d1b61e674e2b72",
+    "plans/parallel-check-tasks/nested-continuation-20261010/real-preparation/runtime.mjs": "95795ee7a3ec18512a0b106b9ca17cdc346f00a27baee888ef3879d7c9814025"
+  },
+  "newPaidClaimExists": false
+}

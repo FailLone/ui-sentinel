@@ -341,3 +341,33 @@ describe('U14: a legacy business record is never reported as a UI scan', () => {
     expect(report!.business.status).toBe('legacy-unversioned')
   })
 })
+
+it('verifies a committed cancellation without claiming coverage, and detects a missing terminal event', async () => {
+  await initDatabase()
+  const uiContract = contract()
+  for (const committed of [true, false]) {
+    const run = await createRun({
+      goal: uiContract.goal,
+      kind: 'ui-scan',
+      environmentId: 'default',
+      entryUrl: uiContract.entryUrl,
+      uiContract,
+    })
+    await updateRunStatus(run.id, 'cancelled', {
+      stopReason: 'cancelled',
+      businessResult: 'not-applicable',
+    })
+    if (committed)
+      await appendEvent(run.id, 'run:completed', {
+        status: 'cancelled',
+        stopReason: 'cancelled',
+        businessResult: 'not-applicable',
+      })
+    const { buildReport } = await import('./run-report.ts')
+    const report = (await buildReport(run.id))!
+    expect(report.persistence.status).toBe(committed ? 'verified' : 'inconsistent')
+    expect(report.status).toBe(committed ? 'cancelled' : 'execution-error')
+    expect(report.uiScan?.inspection?.coverage).not.toBe('covered')
+    if (!committed) expect(report.persistence.issues).toContain('terminal-event-missing')
+  }
+})

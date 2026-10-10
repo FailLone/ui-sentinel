@@ -1,0 +1,321 @@
+{
+  "row": "P02",
+  "parent": "run-f45ee327-bdff-435d-b9b2-7e36773c7adf",
+  "parentStarts": 9,
+  "parentUsage": 14,
+  "mainFees": [
+    {
+      "requestId": "0b8862fc5c9e3d7a66902666",
+      "runId": "run-f45ee327-bdff-435d-b9b2-7e36773c7adf",
+      "phase": "parallel-popup-p02-continuation-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.06,
+      "actualUsd": 0.002994,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-10T05:11:15.967Z"
+    },
+    {
+      "requestId": "18086c862f075e152be63f7b",
+      "runId": "run-f45ee327-bdff-435d-b9b2-7e36773c7adf",
+      "phase": "parallel-popup-p02-continuation-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.06,
+      "actualUsd": 0.00161745,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-10T05:11:34.558Z"
+    },
+    {
+      "requestId": "ccba60a36ce38972e794a019",
+      "runId": "run-f45ee327-bdff-435d-b9b2-7e36773c7adf",
+      "phase": "parallel-popup-p02-continuation-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.06,
+      "actualUsd": 0.00101485,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-10T05:11:40.835Z"
+    },
+    {
+      "requestId": "e87da19b096d2d7d898722ba",
+      "runId": "run-f45ee327-bdff-435d-b9b2-7e36773c7adf",
+      "phase": "parallel-popup-p02-continuation-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.06,
+      "actualUsd": 0.00144905,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-10T05:11:44.003Z"
+    },
+    {
+      "requestId": "c89d5dd8d9ad99264b97a4fb",
+      "runId": "run-f45ee327-bdff-435d-b9b2-7e36773c7adf",
+      "phase": "parallel-popup-p02-continuation-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.06,
+      "actualUsd": 0.00246275,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-10T05:11:48.933Z"
+    },
+    {
+      "requestId": "bceda017f9f64a32e9886b45",
+      "runId": "run-f45ee327-bdff-435d-b9b2-7e36773c7adf",
+      "phase": "parallel-popup-p02-continuation-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.06,
+      "actualUsd": 0.00145695,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-10T05:12:02.468Z"
+    },
+    {
+      "requestId": "e2d3b079a23676bfa6168af9",
+      "runId": "run-f45ee327-bdff-435d-b9b2-7e36773c7adf",
+      "phase": "parallel-popup-p02-continuation-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.06,
+      "actualUsd": 0.00210025,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-10T05:12:07.838Z"
+    },
+    {
+      "requestId": "aa130bb7f9698f4eba9cabab",
+      "runId": "run-f45ee327-bdff-435d-b9b2-7e36773c7adf",
+      "phase": "parallel-popup-p02-continuation-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.06,
+      "actualUsd": 0.00468525,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-10T05:12:19.941Z"
+    },
+    {
+      "requestId": "f34ca89d1c05e97f81a2d8c9",
+      "runId": "run-f45ee327-bdff-435d-b9b2-7e36773c7adf",
+      "phase": "parallel-popup-p02-continuation-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.06,
+      "actualUsd": 0.00224535,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-10T05:12:41.358Z"
+    }
+  ],
+  "childFees": [
+    {
+      "requestId": "803ba183-8468-4be6-a2e5-0886457d2b8d",
+      "runId": "check-6095bff6-2242-40d0-b056-3f57a6ac3e30",
+      "phase": "popup-product",
+      "model": "typesafe/jev-1.13",
+      "provider": "TypeSafe",
+      "status": "settled",
+      "reservedUsd": 0.003,
+      "actualUsd": 0.00004956,
+      "priceSource": "TypeSafe <=0.042 USD/M input; <=32000 prompt; reserve 0.003",
+      "createdAt": "2026-10-10T05:11:42.074Z"
+    },
+    {
+      "requestId": "bc86e8d8-b54f-4c86-9e2c-3e4945fc6c99",
+      "runId": "check-1e2f962b-1aad-4a78-9ec2-e204a035115a",
+      "phase": "popup-product",
+      "model": "typesafe/jev-1.13",
+      "provider": "TypeSafe",
+      "status": "settled",
+      "reservedUsd": 0.003,
+      "actualUsd": 0.00004977,
+      "priceSource": "TypeSafe <=0.042 USD/M input; <=32000 prompt; reserve 0.003",
+      "createdAt": "2026-10-10T05:11:42.095Z"
+    },
+    {
+      "requestId": "4759de70-ab33-4628-a324-7c4eae665f37",
+      "runId": "check-6095bff6-2242-40d0-b056-3f57a6ac3e30",
+      "phase": "popup-product",
+      "model": "typesafe/jev-1.13",
+      "provider": "TypeSafe",
+      "status": "settled",
+      "reservedUsd": 0.003,
+      "actualUsd": 0.000055188,
+      "priceSource": "TypeSafe <=0.042 USD/M input; <=32000 prompt; reserve 0.003",
+      "createdAt": "2026-10-10T05:11:44.427Z"
+    },
+    {
+      "requestId": "81a876d1-c912-4d80-9bd5-32e653f58d53",
+      "runId": "check-1e2f962b-1aad-4a78-9ec2-e204a035115a",
+      "phase": "popup-product",
+      "model": "typesafe/jev-1.13",
+      "provider": "TypeSafe",
+      "status": "settled",
+      "reservedUsd": 0.003,
+      "actualUsd": 0.00005502,
+      "priceSource": "TypeSafe <=0.042 USD/M input; <=32000 prompt; reserve 0.003",
+      "createdAt": "2026-10-10T05:11:44.449Z"
+    },
+    {
+      "requestId": "54e972f1-d530-4ede-8df8-35486b2cbbea",
+      "runId": "check-1e2f962b-1aad-4a78-9ec2-e204a035115a",
+      "phase": "popup-product",
+      "model": "typesafe/jev-1.13",
+      "provider": "TypeSafe",
+      "status": "settled",
+      "reservedUsd": 0.003,
+      "actualUsd": 0.000060144,
+      "priceSource": "TypeSafe <=0.042 USD/M input; <=32000 prompt; reserve 0.003",
+      "createdAt": "2026-10-10T05:11:46.647Z"
+    }
+  ],
+  "providers": [
+    {
+      "runId": "check-6095bff6-2242-40d0-b056-3f57a6ac3e30",
+      "requestId": "803ba183-8468-4be6-a2e5-0886457d2b8d",
+      "campaignId": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "packetHash": "f56325781b20e208676265721738f0577c3cefeb5f169c81215ec346c102168f",
+      "wireHash": "fa0ff66a6cd4f99a6908853a99706a59eeb280a0664d6bcc00fadfed94936b22",
+      "dispatched": true,
+      "transport": {
+        "requestId": "803ba183-8468-4be6-a2e5-0886457d2b8d",
+        "runId": "check-6095bff6-2242-40d0-b056-3f57a6ac3e30",
+        "channel": "popup-jev",
+        "model": "typesafe/jev-1.13",
+        "provider": "TypeSafe",
+        "wireSha256": "9544d06b0bc654d859e1f4f23d62954c0ddcdeac36aabf17dcadf189fe26d764",
+        "startedAt": "2026-10-10T05:11:42.078Z",
+        "observedAt": "2026-10-10T05:11:42.078Z",
+        "outcome": "success",
+        "headersAt": "2026-10-10T05:11:42.459Z",
+        "httpStatus": 200,
+        "responseHeaders": {
+          "x-generation-id": "gen-dec-1791609102-VaYiKi22UxkTLbk7w0SE"
+        },
+        "generationId": "gen-dec-1791609102-VaYiKi22UxkTLbk7w0SE",
+        "finishedAt": "2026-10-10T05:11:42.462Z"
+      },
+      "actualUsd": 0.00004956,
+      "error": null
+    },
+    {
+      "runId": "check-6095bff6-2242-40d0-b056-3f57a6ac3e30",
+      "requestId": "4759de70-ab33-4628-a324-7c4eae665f37",
+      "campaignId": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "packetHash": "2cab67df74045051ec4856681bbfaa91e83d6fea82a08a9b79200e4d4b98be07",
+      "wireHash": "d83cfa6b0d944954fbdb8f84046c039634f27f33eaab40282e3f6caaf650828c",
+      "dispatched": true,
+      "transport": {
+        "requestId": "4759de70-ab33-4628-a324-7c4eae665f37",
+        "runId": "check-6095bff6-2242-40d0-b056-3f57a6ac3e30",
+        "channel": "popup-jev",
+        "model": "typesafe/jev-1.13",
+        "provider": "TypeSafe",
+        "wireSha256": "eecf9c5709c5e5b4298c097a546199fb4c1b9da0ead15ae8727a55b4e258343d",
+        "startedAt": "2026-10-10T05:11:44.432Z",
+        "observedAt": "2026-10-10T05:11:44.432Z",
+        "outcome": "success",
+        "headersAt": "2026-10-10T05:11:44.796Z",
+        "httpStatus": 200,
+        "responseHeaders": {
+          "x-generation-id": "gen-dec-1791609104-T7CnzndfnGGXGCNbilAe"
+        },
+        "generationId": "gen-dec-1791609104-T7CnzndfnGGXGCNbilAe",
+        "finishedAt": "2026-10-10T05:11:44.798Z"
+      },
+      "actualUsd": 0.000055188,
+      "error": null
+    },
+    {
+      "runId": "check-1e2f962b-1aad-4a78-9ec2-e204a035115a",
+      "requestId": "bc86e8d8-b54f-4c86-9e2c-3e4945fc6c99",
+      "campaignId": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "packetHash": "5652fe7781694567f7c3e8fb4bfa0545d0816db5f9e1b9564c57c9b9cebc2d4f",
+      "wireHash": "ebe4a27dce451d7a6452995af655c1e9cafdfd534d1e1e429b6c126f6e44cb8c",
+      "dispatched": true,
+      "transport": {
+        "requestId": "bc86e8d8-b54f-4c86-9e2c-3e4945fc6c99",
+        "runId": "check-1e2f962b-1aad-4a78-9ec2-e204a035115a",
+        "channel": "popup-jev",
+        "model": "typesafe/jev-1.13",
+        "provider": "TypeSafe",
+        "wireSha256": "3a518a909cb11fc5213f46dc3c43e53468007e44c4769b2c3e29c83071172ed6",
+        "startedAt": "2026-10-10T05:11:42.102Z",
+        "observedAt": "2026-10-10T05:11:42.102Z",
+        "outcome": "success",
+        "headersAt": "2026-10-10T05:11:42.507Z",
+        "httpStatus": 200,
+        "responseHeaders": {
+          "x-generation-id": "gen-dec-1791609102-Wy1FZMlrqR8FxBr6fXUR"
+        },
+        "generationId": "gen-dec-1791609102-Wy1FZMlrqR8FxBr6fXUR",
+        "finishedAt": "2026-10-10T05:11:42.510Z"
+      },
+      "actualUsd": 0.00004977,
+      "error": null
+    },
+    {
+      "runId": "check-1e2f962b-1aad-4a78-9ec2-e204a035115a",
+      "requestId": "81a876d1-c912-4d80-9bd5-32e653f58d53",
+      "campaignId": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "packetHash": "4647d4ae26900d062ed556a73cbd75f1f06ae6fe2af53d6bfda57c971732bdac",
+      "wireHash": "42998f4401705355f2355b6ba396ea1df2203556333cd96d583e9dd815ee0dbe",
+      "dispatched": true,
+      "transport": {
+        "requestId": "81a876d1-c912-4d80-9bd5-32e653f58d53",
+        "runId": "check-1e2f962b-1aad-4a78-9ec2-e204a035115a",
+        "channel": "popup-jev",
+        "model": "typesafe/jev-1.13",
+        "provider": "TypeSafe",
+        "wireSha256": "df8d00dbcd3ec05c7add7d2790142669eceac55a4506317475d4f9f692939920",
+        "startedAt": "2026-10-10T05:11:44.453Z",
+        "observedAt": "2026-10-10T05:11:44.453Z",
+        "outcome": "success",
+        "headersAt": "2026-10-10T05:11:44.846Z",
+        "httpStatus": 200,
+        "responseHeaders": {
+          "x-generation-id": "gen-dec-1791609104-ReYZe2Veue55XBezsoZq"
+        },
+        "generationId": "gen-dec-1791609104-ReYZe2Veue55XBezsoZq",
+        "finishedAt": "2026-10-10T05:11:44.848Z"
+      },
+      "actualUsd": 0.00005502,
+      "error": null
+    },
+    {
+      "runId": "check-1e2f962b-1aad-4a78-9ec2-e204a035115a",
+      "requestId": "54e972f1-d530-4ede-8df8-35486b2cbbea",
+      "campaignId": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "packetHash": "0edd3c79d42dd19c566b3367041baf52257ea84fb3799d726778b98315ae9e23",
+      "wireHash": "6016c3dac8301420a4be7ddfe71de1eb2838a592d98c39d232e4f8b554bc4829",
+      "dispatched": true,
+      "transport": {
+        "requestId": "54e972f1-d530-4ede-8df8-35486b2cbbea",
+        "runId": "check-1e2f962b-1aad-4a78-9ec2-e204a035115a",
+        "channel": "popup-jev",
+        "model": "typesafe/jev-1.13",
+        "provider": "TypeSafe",
+        "wireSha256": "5d6a04b8265383265328a67e658f95a1db1add8e39b081d309c4dae0c4cd129f",
+        "startedAt": "2026-10-10T05:11:46.651Z",
+        "observedAt": "2026-10-10T05:11:46.651Z",
+        "outcome": "success",
+        "headersAt": "2026-10-10T05:11:47.089Z",
+        "httpStatus": 200,
+        "responseHeaders": {
+          "x-generation-id": "gen-dec-1791609106-SdnMmCn14mnBQ01WsbOa"
+        },
+        "generationId": "gen-dec-1791609106-SdnMmCn14mnBQ01WsbOa",
+        "finishedAt": "2026-10-10T05:11:47.090Z"
+      },
+      "actualUsd": 0.000060144,
+      "error": null
+    }
+  ],
+  "matched": true
+}

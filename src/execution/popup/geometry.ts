@@ -1,3 +1,4 @@
+import type { FloatingSurface } from './surface.ts'
 import type { ElementHandle, Page } from 'playwright'
 import { hash } from '../../agent/popup/contract.ts'
 export type Rect = { x: number; y: number; width: number; height: number }
@@ -12,6 +13,7 @@ export type PopupFacts = {
   visible: boolean
   url: string
   topLayer: boolean
+  surface?: FloatingSurface
 }
 export type PopupMeasurement = {
   revision: 'popup-geometry-1'
@@ -150,9 +152,22 @@ export function popupCollector(page: Page) {
             r.height > 0 &&
             s.display !== 'none' &&
             s.visibility === 'visible' &&
-            Number(s.opacity) > 0,
+            Number(s.opacity) > 0 &&
+            node.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true }),
           url: location.href,
           topLayer,
+          surface: {
+            position: s.position,
+            border: [
+              s.borderTopWidth,
+              s.borderRightWidth,
+              s.borderBottomWidth,
+              s.borderLeftWidth,
+            ].some((v) => parseFloat(v) > 0),
+            shadow: s.boxShadow !== 'none',
+            opaque:
+              /^rgb\(/.test(s.backgroundColor) || /rgba\([^)]*,\s*1\)$/.test(s.backgroundColor),
+          },
         }
       }, id)
       .catch(() => undefined) as Promise<PopupFacts | undefined>

@@ -1,0 +1,987 @@
+{
+  "free": true,
+  "realCalls": 0,
+  "records": [
+    {
+      "id": "P02",
+      "delegation": true,
+      "childGoals": [
+        {
+          "runId": "check-ae1c17fd-601c-43dd-82b4-0e80af10feec",
+          "viewport": {
+            "width": 320,
+            "height": 480
+          },
+          "status": "defect",
+          "actual": "fail",
+          "expected": "fail",
+          "matched": true,
+          "missing": []
+        },
+        {
+          "runId": "check-647ce989-a1e9-498c-9828-032cb434719a",
+          "viewport": {
+            "width": 640,
+            "height": 480
+          },
+          "status": "completed",
+          "actual": "pass",
+          "expected": "pass",
+          "matched": true,
+          "missing": []
+        }
+      ],
+      "originalActions": [
+        {
+          "runId": "check-ae1c17fd-601c-43dd-82b4-0e80af10feec",
+          "payload": {
+            "type": "click",
+            "target": "html > body:nth-of-type(1) > button:nth-of-type(3)",
+            "dispatchTime": 1791608306511
+          }
+        },
+        {
+          "runId": "check-ae1c17fd-601c-43dd-82b4-0e80af10feec",
+          "payload": {
+            "type": "click",
+            "target": "html > body:nth-of-type(1) > div:nth-of-type(1) > button:nth-of-type(1)",
+            "dispatchTime": 1791608308355
+          }
+        },
+        {
+          "runId": "check-647ce989-a1e9-498c-9828-032cb434719a",
+          "payload": {
+            "type": "click",
+            "target": "html > body:nth-of-type(1) > button:nth-of-type(3)",
+            "dispatchTime": 1791608306512
+          }
+        },
+        {
+          "runId": "check-647ce989-a1e9-498c-9828-032cb434719a",
+          "payload": {
+            "type": "click",
+            "target": "html > body:nth-of-type(1) > div:nth-of-type(1) > button:nth-of-type(1)",
+            "dispatchTime": 1791608308372
+          }
+        }
+      ],
+      "executedChoices": [
+        {
+          "runId": "check-ae1c17fd-601c-43dd-82b4-0e80af10feec",
+          "stage": "entry",
+          "description": "button \"More options\"; public attributes {}"
+        },
+        {
+          "runId": "check-ae1c17fd-601c-43dd-82b4-0e80af10feec",
+          "stage": "entry",
+          "description": "button \"Details\"; public attributes {}"
+        },
+        {
+          "runId": "check-647ce989-a1e9-498c-9828-032cb434719a",
+          "stage": "entry",
+          "description": "button \"More options\"; public attributes {}"
+        },
+        {
+          "runId": "check-647ce989-a1e9-498c-9828-032cb434719a",
+          "stage": "entry",
+          "description": "button \"Details\"; public attributes {}"
+        }
+      ],
+      "pathMatched": true,
+      "unrelatedPopupActions": 0,
+      "goalPassed": true,
+      "parentScope": {
+        "status": "blocked",
+        "coverage": "partial",
+        "inspection": {
+          "sampling": [
+            {
+              "url": "http://127.0.0.1:63348/p/two",
+              "registrationItemId": "item-40db43f7-31a5-49c7-ad1e-e9e0f16bc756",
+              "required": 3,
+              "pool": [
+                "item-599b8885-2063-4660-9cfe-e9a09d4aec9e",
+                "item-698fa846-95ae-4445-b25c-c459b27c03d7",
+                "item-bb504596-50de-4613-9fa6-f38c2e126fc0"
+              ],
+              "candidates": [
+                {
+                  "itemId": "item-599b8885-2063-4660-9cfe-e9a09d4aec9e",
+                  "ref": "e2",
+                  "description": "button \"Sort alphabetically\"",
+                  "category": "local-interaction",
+                  "snapshotId": "s1"
+                },
+                {
+                  "itemId": "item-698fa846-95ae-4445-b25c-c459b27c03d7",
+                  "ref": "e3",
+                  "description": "button \"Change density\"",
+                  "category": "local-interaction",
+                  "snapshotId": "s1"
+                },
+                {
+                  "itemId": "item-bb504596-50de-4613-9fa6-f38c2e126fc0",
+                  "ref": "e4",
+                  "description": "button \"More options\"",
+                  "category": "local-interaction",
+                  "snapshotId": "s1"
+                }
+              ],
+              "selected": [
+                "item-599b8885-2063-4660-9cfe-e9a09d4aec9e",
+                "item-698fa846-95ae-4445-b25c-c459b27c03d7",
+                "item-bb504596-50de-4613-9fa6-f38c2e126fc0"
+              ],
+              "truncated": 0,
+              "notChecked": []
+            }
+          ],
+          "coverage": "partial",
+          "counts": {
+            "total": 17,
+            "selected": 11,
+            "pending": 0,
+            "verified": 7,
+            "failed": 0,
+            "unverified": 10,
+            "excluded": 0
+          },
+          "items": [
+            {
+              "itemId": "item-58e58b34-bbf5-4ac7-bfdb-cf676548fc96",
+              "category": "investigation",
+              "url": "http://127.0.0.1:63348/p/two",
+              "status": "unverified",
+              "selected": true,
+              "basis": "default-checks:goal-source-registration",
+              "targetSource": "executor",
+              "reasonCode": "goal-unresolved",
+              "detail": "The nonempty goal is outside the finite public source/focus grammar; fulfillment is not claimed",
+              "evidenceRefs": [],
+              "ruleRevision": null,
+              "parentNavigation": null
+            },
+            {
+              "itemId": "item-602db221-115b-4173-821c-61385b956ff6",
+              "category": "investigation",
+              "url": "http://127.0.0.1:63348/p/two",
+              "status": "verified",
+              "selected": true,
+              "basis": "default-sampling:entry-registration",
+              "targetSource": "executor",
+              "reasonCode": null,
+              "detail": "Public default policy registered from the first clean observed candidate pool",
+              "evidenceRefs": [
+                "4a5d78c0-9fed-4c6c-89f0-01cd00ccdd86.png",
+                "7e37abe1-a240-48c6-b583-af12dc27d0c3.json"
+              ],
+              "ruleRevision": null,
+              "parentNavigation": null
+            },
+            {
+              "itemId": "item-091181c3-e34f-4de9-9c50-b8032efdab84",
+              "category": "entry-observation",
+              "url": "http://127.0.0.1:63348/p/two",
+              "status": "verified",
+              "selected": true,
+              "basis": "the entry document was navigated and observed",
+              "targetSource": "executor",
+              "reasonCode": null,
+              "detail": "observed http://127.0.0.1:63348/p/two",
+              "evidenceRefs": [
+                "4a5d78c0-9fed-4c6c-89f0-01cd00ccdd86.png",
+                "7e37abe1-a240-48c6-b583-af12dc27d0c3.json"
+              ],
+              "ruleRevision": null,
+              "parentNavigation": null
+            },
+            {
+              "checks": {
+                "revision": "item-checks-2",
+                "sourceReview": {
+                  "state": "unresolved",
+                  "revision": "public-effect-sources-1",
+                  "refs": [
+                    "ad3d94c4-b43e-4f39-936c-4894b2e0d2f8.png",
+                    "50717031-18ac-405f-beec-9b699b053079.json"
+                  ],
+                  "reasons": [
+                    "goal-unresolved"
+                  ],
+                  "goalHash": "9b7c9080a68303685fd83b12fa4cf263f56aed49ec9061565d1c75453625f7ec",
+                  "contractHash": "50a9706deb6051ee77f6f40dff961e37e50ccf7304962aae7070cb79cbfea57f",
+                  "hash": "ef20f8193ecdcb898f39b88c7014324f3626380dd5744524f8c165aeec7da854",
+                  "ruleChecks": [
+                    {
+                      "ruleId": "overlay-blocking",
+                      "revision": "2.1.0",
+                      "contentHash": "c3acb6191549a481e1dbacd22655f6bde36459f78a0301e6f2ad2d88aa8ef424",
+                      "approvalRef": "installed-registry:overlay-blocking:2.1.0",
+                      "scopeItemIds": [
+                        "item-aa7a69b5-2e4f-45e0-a6bd-1d792bfd3d3f"
+                      ],
+                      "evidenceRefs": [
+                        "4a5d78c0-9fed-4c6c-89f0-01cd00ccdd86.png",
+                        "7e37abe1-a240-48c6-b583-af12dc27d0c3.json"
+                      ]
+                    }
+                  ]
+                },
+                "generic": {
+                  "state": "pending",
+                  "evidenceRefs": [],
+                  "eventIds": []
+                },
+                "effects": []
+              },
+              "itemId": "item-599b8885-2063-4660-9cfe-e9a09d4aec9e",
+              "category": "local-interaction",
+              "url": "http://127.0.0.1:63348/p/two",
+              "status": "unverified",
+              "selected": true,
+              "basis": "observed candidate: button \"Sort alphabetically\"",
+              "targetSource": "executor",
+              "reasonCode": "v2-mandatory-checks-incomplete",
+              "detail": "Public sources reviewed before operation; missing semantics are not invented",
+              "evidenceRefs": [
+                "ad3d94c4-b43e-4f39-936c-4894b2e0d2f8.png",
+                "50717031-18ac-405f-beec-9b699b053079.json"
+              ],
+              "ruleRevision": null,
+              "parentNavigation": null
+            },
+            {
+              "checks": {
+                "revision": "item-checks-2",
+                "sourceReview": {
+                  "state": "unresolved",
+                  "revision": "public-effect-sources-1",
+                  "refs": [
+                    "ad3d94c4-b43e-4f39-936c-4894b2e0d2f8.png",
+                    "50717031-18ac-405f-beec-9b699b053079.json"
+                  ],
+                  "reasons": [
+                    "goal-unresolved"
+                  ],
+                  "goalHash": "9b7c9080a68303685fd83b12fa4cf263f56aed49ec9061565d1c75453625f7ec",
+                  "contractHash": "50a9706deb6051ee77f6f40dff961e37e50ccf7304962aae7070cb79cbfea57f",
+                  "hash": "ef20f8193ecdcb898f39b88c7014324f3626380dd5744524f8c165aeec7da854",
+                  "ruleChecks": [
+                    {
+                      "ruleId": "overlay-blocking",
+                      "revision": "2.1.0",
+                      "contentHash": "c3acb6191549a481e1dbacd22655f6bde36459f78a0301e6f2ad2d88aa8ef424",
+                      "approvalRef": "installed-registry:overlay-blocking:2.1.0",
+                      "scopeItemIds": [
+                        "item-aa7a69b5-2e4f-45e0-a6bd-1d792bfd3d3f"
+                      ],
+                      "evidenceRefs": [
+                        "4a5d78c0-9fed-4c6c-89f0-01cd00ccdd86.png",
+                        "7e37abe1-a240-48c6-b583-af12dc27d0c3.json"
+                      ]
+                    }
+                  ]
+                },
+                "generic": {
+                  "state": "pending",
+                  "evidenceRefs": [],
+                  "eventIds": []
+                },
+                "effects": []
+              },
+              "itemId": "item-698fa846-95ae-4445-b25c-c459b27c03d7",
+              "category": "local-interaction",
+              "url": "http://127.0.0.1:63348/p/two",
+              "status": "unverified",
+              "selected": true,
+              "basis": "observed candidate: button \"Change density\"",
+              "targetSource": "executor",
+              "reasonCode": "v2-mandatory-checks-incomplete",
+              "detail": "Public sources reviewed before operation; missing semantics are not invented",
+              "evidenceRefs": [
+                "ad3d94c4-b43e-4f39-936c-4894b2e0d2f8.png",
+                "50717031-18ac-405f-beec-9b699b053079.json"
+              ],
+              "ruleRevision": null,
+              "parentNavigation": null
+            },
+            {
+              "checks": {
+                "revision": "item-checks-2",
+                "sourceReview": {
+                  "state": "unresolved",
+                  "revision": "public-effect-sources-1",
+                  "refs": [
+                    "ad3d94c4-b43e-4f39-936c-4894b2e0d2f8.png",
+                    "50717031-18ac-405f-beec-9b699b053079.json"
+                  ],
+                  "reasons": [
+                    "goal-unresolved"
+                  ],
+                  "goalHash": "9b7c9080a68303685fd83b12fa4cf263f56aed49ec9061565d1c75453625f7ec",
+                  "contractHash": "50a9706deb6051ee77f6f40dff961e37e50ccf7304962aae7070cb79cbfea57f",
+                  "hash": "ef20f8193ecdcb898f39b88c7014324f3626380dd5744524f8c165aeec7da854",
+                  "ruleChecks": [
+                    {
+                      "ruleId": "overlay-blocking",
+                      "revision": "2.1.0",
+                      "contentHash": "c3acb6191549a481e1dbacd22655f6bde36459f78a0301e6f2ad2d88aa8ef424",
+                      "approvalRef": "installed-registry:overlay-blocking:2.1.0",
+                      "scopeItemIds": [
+                        "item-aa7a69b5-2e4f-45e0-a6bd-1d792bfd3d3f"
+                      ],
+                      "evidenceRefs": [
+                        "4a5d78c0-9fed-4c6c-89f0-01cd00ccdd86.png",
+                        "7e37abe1-a240-48c6-b583-af12dc27d0c3.json"
+                      ]
+                    }
+                  ]
+                },
+                "generic": {
+                  "state": "pending",
+                  "evidenceRefs": [],
+                  "eventIds": []
+                },
+                "effects": []
+              },
+              "itemId": "item-bb504596-50de-4613-9fa6-f38c2e126fc0",
+              "category": "local-interaction",
+              "url": "http://127.0.0.1:63348/p/two",
+              "status": "unverified",
+              "selected": true,
+              "basis": "observed candidate: button \"More options\"",
+              "targetSource": "executor",
+              "reasonCode": "v2-mandatory-checks-incomplete",
+              "detail": "Public sources reviewed before operation; missing semantics are not invented",
+              "evidenceRefs": [
+                "ad3d94c4-b43e-4f39-936c-4894b2e0d2f8.png",
+                "50717031-18ac-405f-beec-9b699b053079.json"
+              ],
+              "ruleRevision": null,
+              "parentNavigation": null
+            },
+            {
+              "itemId": "item-40db43f7-31a5-49c7-ad1e-e9e0f16bc756",
+              "category": "investigation",
+              "url": "http://127.0.0.1:63348/p/two",
+              "status": "verified",
+              "selected": true,
+              "basis": "default-sampling:local:http://127.0.0.1:63348/p/two",
+              "targetSource": "executor",
+              "reasonCode": null,
+              "detail": "Frozen public sample selected: item-599b8885-2063-4660-9cfe-e9a09d4aec9e,item-698fa846-95ae-4445-b25c-c459b27c03d7,item-bb504596-50de-4613-9fa6-f38c2e126fc0; target effects remain separate selected obligations",
+              "evidenceRefs": [
+                "4a5d78c0-9fed-4c6c-89f0-01cd00ccdd86.png",
+                "7e37abe1-a240-48c6-b583-af12dc27d0c3.json"
+              ],
+              "ruleRevision": null,
+              "parentNavigation": null
+            },
+            {
+              "itemId": "item-aa7a69b5-2e4f-45e0-a6bd-1d792bfd3d3f",
+              "category": "automatic-check",
+              "url": "http://127.0.0.1:63348/p/two",
+              "status": "verified",
+              "selected": true,
+              "basis": "automatic rule overlay-blocking applies to the observed state",
+              "targetSource": "executor",
+              "reasonCode": null,
+              "detail": "overlay-blocking verdict: pass",
+              "evidenceRefs": [
+                "4a5d78c0-9fed-4c6c-89f0-01cd00ccdd86.png",
+                "7e37abe1-a240-48c6-b583-af12dc27d0c3.json"
+              ],
+              "ruleRevision": "2.1.0",
+              "parentNavigation": null
+            },
+            {
+              "itemId": "item-0546c82d-dc64-407b-9840-8a89e4559fb9",
+              "category": "automatic-check",
+              "url": "http://127.0.0.1:63348/p/two",
+              "status": "unverified",
+              "selected": false,
+              "basis": "automatic rule control-text-disappearance applies to the observed state",
+              "targetSource": "executor",
+              "reasonCode": "control-text-supported-scope-limit",
+              "detail": "control-text-disappearance verdict: unknown",
+              "evidenceRefs": [
+                "4a5d78c0-9fed-4c6c-89f0-01cd00ccdd86.png",
+                "7e37abe1-a240-48c6-b583-af12dc27d0c3.json",
+                "41f4e575-adbc-4d7c-92cb-515704613f98.json"
+              ],
+              "ruleRevision": "0.1.0",
+              "parentNavigation": null
+            },
+            {
+              "itemId": "item-0db1c15f-c9ea-4a82-81d1-4946ce6b69b7",
+              "category": "automatic-check",
+              "url": "http://127.0.0.1:63348/p/two",
+              "status": "unverified",
+              "selected": false,
+              "basis": "automatic rule control-text-clipping applies to the observed state",
+              "targetSource": "executor",
+              "reasonCode": "control-layout-supported-scope-limit",
+              "detail": "control-text-clipping verdict: unknown",
+              "evidenceRefs": [
+                "4a5d78c0-9fed-4c6c-89f0-01cd00ccdd86.png",
+                "7e37abe1-a240-48c6-b583-af12dc27d0c3.json",
+                "02354781-abc5-4a71-9897-2830c6b82432.json"
+              ],
+              "ruleRevision": "0.1.0",
+              "parentNavigation": null
+            },
+            {
+              "itemId": "item-87993708-a428-403f-95a3-5cd205b5aaff",
+              "category": "automatic-check",
+              "url": "http://127.0.0.1:63348/p/two",
+              "status": "unverified",
+              "selected": false,
+              "basis": "automatic rule control-text-overlap applies to the observed state",
+              "targetSource": "executor",
+              "reasonCode": "control-layout-supported-scope-limit",
+              "detail": "control-text-overlap verdict: unknown",
+              "evidenceRefs": [
+                "4a5d78c0-9fed-4c6c-89f0-01cd00ccdd86.png",
+                "7e37abe1-a240-48c6-b583-af12dc27d0c3.json",
+                "02354781-abc5-4a71-9897-2830c6b82432.json"
+              ],
+              "ruleRevision": "0.1.0",
+              "parentNavigation": null
+            },
+            {
+              "itemId": "item-a3e01664-0a79-4596-9c44-b3513aaab1ca",
+              "category": "investigation",
+              "url": "http://127.0.0.1:63348/p/two",
+              "status": "verified",
+              "selected": true,
+              "basis": "default-checks:page-source-review:http://127.0.0.1:63348/p/two",
+              "targetSource": "executor",
+              "reasonCode": null,
+              "detail": "Bounded source observation completeness, not functional correctness",
+              "evidenceRefs": [
+                "ad3d94c4-b43e-4f39-936c-4894b2e0d2f8.png",
+                "50717031-18ac-405f-beec-9b699b053079.json"
+              ],
+              "ruleRevision": null,
+              "parentNavigation": null
+            },
+            {
+              "itemId": "item-aeefbf9c-9456-4468-8937-fae321b57da0",
+              "category": "entry-observation",
+              "url": "http://127.0.0.1:63348/p/two",
+              "status": "verified",
+              "selected": true,
+              "basis": "the entry document was navigated and observed",
+              "targetSource": "executor",
+              "reasonCode": null,
+              "detail": "observed http://127.0.0.1:63348/p/two",
+              "evidenceRefs": [
+                "542a5b70-f22e-471d-935e-b49dc830363f.png",
+                "3d521106-1e01-4da1-817e-3da940f02799.json"
+              ],
+              "ruleRevision": null,
+              "parentNavigation": null
+            },
+            {
+              "itemId": "item-a0bc9b42-ccdd-4cec-bedc-a4a863230902",
+              "category": "automatic-check",
+              "url": "http://127.0.0.1:63348/p/two",
+              "status": "verified",
+              "selected": true,
+              "basis": "automatic rule overlay-blocking applies to the observed state",
+              "targetSource": "executor",
+              "reasonCode": null,
+              "detail": "overlay-blocking verdict: pass",
+              "evidenceRefs": [
+                "542a5b70-f22e-471d-935e-b49dc830363f.png",
+                "3d521106-1e01-4da1-817e-3da940f02799.json"
+              ],
+              "ruleRevision": "2.1.0",
+              "parentNavigation": null
+            },
+            {
+              "itemId": "item-2b47452f-baad-4b69-aa3d-46d56bfd349e",
+              "category": "automatic-check",
+              "url": "http://127.0.0.1:63348/p/two",
+              "status": "unverified",
+              "selected": false,
+              "basis": "automatic rule control-text-disappearance applies to the observed state",
+              "targetSource": "executor",
+              "reasonCode": "control-text-supported-scope-limit",
+              "detail": "control-text-disappearance verdict: unknown",
+              "evidenceRefs": [
+                "542a5b70-f22e-471d-935e-b49dc830363f.png",
+                "3d521106-1e01-4da1-817e-3da940f02799.json",
+                "519c733e-ad5a-4d7d-b533-0b1095deb2b7.json"
+              ],
+              "ruleRevision": "0.1.0",
+              "parentNavigation": null
+            },
+            {
+              "itemId": "item-579a40d6-ba03-40ff-9e45-d2e23334cbf5",
+              "category": "automatic-check",
+              "url": "http://127.0.0.1:63348/p/two",
+              "status": "unverified",
+              "selected": false,
+              "basis": "automatic rule control-text-clipping applies to the observed state",
+              "targetSource": "executor",
+              "reasonCode": "control-layout-supported-scope-limit",
+              "detail": "control-text-clipping verdict: unknown",
+              "evidenceRefs": [
+                "542a5b70-f22e-471d-935e-b49dc830363f.png",
+                "3d521106-1e01-4da1-817e-3da940f02799.json",
+                "e4b20e82-b46f-4f10-9ed7-517599937b91.json"
+              ],
+              "ruleRevision": "0.1.0",
+              "parentNavigation": null
+            },
+            {
+              "itemId": "item-16ff2906-5ab8-4223-ae59-000c954d0b91",
+              "category": "automatic-check",
+              "url": "http://127.0.0.1:63348/p/two",
+              "status": "unverified",
+              "selected": false,
+              "basis": "automatic rule control-text-overlap applies to the observed state",
+              "targetSource": "executor",
+              "reasonCode": "control-layout-supported-scope-limit",
+              "detail": "control-text-overlap verdict: unknown",
+              "evidenceRefs": [
+                "542a5b70-f22e-471d-935e-b49dc830363f.png",
+                "3d521106-1e01-4da1-817e-3da940f02799.json",
+                "e4b20e82-b46f-4f10-9ed7-517599937b91.json"
+              ],
+              "ruleRevision": "0.1.0",
+              "parentNavigation": null
+            }
+          ],
+          "gaps": [
+            {
+              "itemId": "item-58e58b34-bbf5-4ac7-bfdb-cf676548fc96",
+              "category": "investigation",
+              "status": "unverified",
+              "reason": "goal-unresolved",
+              "reasonCode": "goal-unresolved"
+            },
+            {
+              "itemId": "item-599b8885-2063-4660-9cfe-e9a09d4aec9e",
+              "category": "local-interaction",
+              "status": "unverified",
+              "reason": "v2-mandatory-checks-incomplete",
+              "reasonCode": "v2-mandatory-checks-incomplete"
+            },
+            {
+              "itemId": "item-698fa846-95ae-4445-b25c-c459b27c03d7",
+              "category": "local-interaction",
+              "status": "unverified",
+              "reason": "v2-mandatory-checks-incomplete",
+              "reasonCode": "v2-mandatory-checks-incomplete"
+            },
+            {
+              "itemId": "item-bb504596-50de-4613-9fa6-f38c2e126fc0",
+              "category": "local-interaction",
+              "status": "unverified",
+              "reason": "v2-mandatory-checks-incomplete",
+              "reasonCode": "v2-mandatory-checks-incomplete"
+            }
+          ],
+          "candidates": {
+            "categories": [
+              "local-interaction"
+            ],
+            "detail": "3 operable control(s) offered by the observation",
+            "truncated": 0,
+            "observedAt": "2026-10-10T04:58:30.578Z"
+          },
+          "unsupported": [
+            {
+              "dimension": "authenticated-session",
+              "reasonCode": "unsupported-release-capability"
+            },
+            {
+              "dimension": "business-write",
+              "reasonCode": "unsupported-release-capability"
+            },
+            {
+              "dimension": "post-data-query",
+              "reasonCode": "unsupported-release-capability"
+            },
+            {
+              "dimension": "graphql-post",
+              "reasonCode": "unsupported-release-capability"
+            },
+            {
+              "dimension": "file-upload",
+              "reasonCode": "unsupported-release-capability"
+            },
+            {
+              "dimension": "file-download",
+              "reasonCode": "unsupported-release-capability"
+            },
+            {
+              "dimension": "new-window",
+              "reasonCode": "unsupported-release-capability"
+            },
+            {
+              "dimension": "websocket",
+              "reasonCode": "unsupported-release-capability"
+            },
+            {
+              "dimension": "service-worker",
+              "reasonCode": "unsupported-release-capability"
+            },
+            {
+              "dimension": "control-text-clipping:coverage",
+              "reasonCode": "bounded-layout-measurement-incomplete"
+            },
+            {
+              "dimension": "control-text-overlap:coverage",
+              "reasonCode": "bounded-layout-measurement-incomplete"
+            },
+            {
+              "dimension": "control-text-disappearance:coverage",
+              "reasonCode": "bounded-text-measurement-incomplete"
+            },
+            {
+              "dimension": "control-text-disappearance",
+              "reasonCode": "control-text-supported-scope-limit"
+            },
+            {
+              "dimension": "control-text-clipping",
+              "reasonCode": "control-layout-supported-scope-limit"
+            },
+            {
+              "dimension": "control-text-overlap",
+              "reasonCode": "control-layout-supported-scope-limit"
+            }
+          ]
+        },
+        "explanation": "A parent partial is retained as scope accounting, independently of popup subgoal success."
+      },
+      "persistence": {
+        "status": "verified",
+        "issues": [],
+        "recordedStatus": "blocked",
+        "recordedBusinessResult": "not-applicable",
+        "recordedStopReason": "blocked",
+        "readConsistency": "single-read-transaction"
+      },
+      "safetyStop": false,
+      "expected": "Two public local actions reveal a 400px custom panel; unrelated buttons are not useful popup actions."
+    }
+  ],
+  "batch": {
+    "stopped": "",
+    "requests": [
+      {
+        "requestId": "ea0114fe973b8c851705ae78",
+        "runId": "run-856183f4-33c4-4995-9139-c17d89ad4f53",
+        "phase": "parallel-popup-p02-continuation-1",
+        "model": "deepseek/deepseek-v4.1-flash",
+        "provider": "Wafer",
+        "reservedUsd": 0.06,
+        "priceSource": "gateway-estimate",
+        "stopEpoch": 0,
+        "row": "P02"
+      },
+      {
+        "requestId": "f396d72e183498b21cb5e1f1",
+        "runId": "run-856183f4-33c4-4995-9139-c17d89ad4f53",
+        "phase": "parallel-popup-p02-continuation-1",
+        "model": "deepseek/deepseek-v4.1-flash",
+        "provider": "Wafer",
+        "reservedUsd": 0.06,
+        "priceSource": "gateway-estimate",
+        "stopEpoch": 0,
+        "row": "P02"
+      },
+      {
+        "requestId": "3f417c55ac384243ab747b7d",
+        "runId": "run-856183f4-33c4-4995-9139-c17d89ad4f53",
+        "phase": "parallel-popup-p02-continuation-1",
+        "model": "deepseek/deepseek-v4.1-flash",
+        "provider": "Wafer",
+        "reservedUsd": 0.06,
+        "priceSource": "gateway-estimate",
+        "stopEpoch": 0,
+        "row": "P02"
+      },
+      {
+        "requestId": "d98b45ca-397e-4e7d-bc73-703c59eabd76",
+        "runId": "check-ae1c17fd-601c-43dd-82b4-0e80af10feec",
+        "phase": "popup-product",
+        "model": "typesafe/jev-1.13",
+        "provider": "TypeSafe",
+        "reservedUsd": 0.003,
+        "priceSource": "TypeSafe <=0.042 USD/M input; <=32000 prompt; reserve 0.003",
+        "stopEpoch": 0,
+        "row": "P02"
+      },
+      {
+        "requestId": "1414e33d-b849-4be0-8405-c190b3646619",
+        "runId": "check-647ce989-a1e9-498c-9828-032cb434719a",
+        "phase": "popup-product",
+        "model": "typesafe/jev-1.13",
+        "provider": "TypeSafe",
+        "reservedUsd": 0.003,
+        "priceSource": "TypeSafe <=0.042 USD/M input; <=32000 prompt; reserve 0.003",
+        "stopEpoch": 0,
+        "row": "P02"
+      },
+      {
+        "requestId": "1d89b2b88d8d6ee2b2b3484c",
+        "runId": "run-856183f4-33c4-4995-9139-c17d89ad4f53",
+        "phase": "parallel-popup-p02-continuation-1",
+        "model": "deepseek/deepseek-v4.1-flash",
+        "provider": "Wafer",
+        "reservedUsd": 0.06,
+        "priceSource": "gateway-estimate",
+        "stopEpoch": 0,
+        "row": "P02"
+      },
+      {
+        "requestId": "425ab26c-11ff-4d10-a083-2b3173abcd37",
+        "runId": "check-ae1c17fd-601c-43dd-82b4-0e80af10feec",
+        "phase": "popup-product",
+        "model": "typesafe/jev-1.13",
+        "provider": "TypeSafe",
+        "reservedUsd": 0.003,
+        "priceSource": "TypeSafe <=0.042 USD/M input; <=32000 prompt; reserve 0.003",
+        "stopEpoch": 0,
+        "row": "P02"
+      },
+      {
+        "requestId": "e9740ba0-ab7a-404d-bf2b-2383561b2ebe",
+        "runId": "check-647ce989-a1e9-498c-9828-032cb434719a",
+        "phase": "popup-product",
+        "model": "typesafe/jev-1.13",
+        "provider": "TypeSafe",
+        "reservedUsd": 0.003,
+        "priceSource": "TypeSafe <=0.042 USD/M input; <=32000 prompt; reserve 0.003",
+        "stopEpoch": 0,
+        "row": "P02"
+      },
+      {
+        "requestId": "c62c84ff0a97a20c71e4f128",
+        "runId": "run-856183f4-33c4-4995-9139-c17d89ad4f53",
+        "phase": "parallel-popup-p02-continuation-1",
+        "model": "deepseek/deepseek-v4.1-flash",
+        "provider": "Wafer",
+        "reservedUsd": 0.06,
+        "priceSource": "gateway-estimate",
+        "stopEpoch": 0,
+        "row": "P02"
+      },
+      {
+        "requestId": "0f9b89c5b4f9037ccaf7028b",
+        "runId": "run-856183f4-33c4-4995-9139-c17d89ad4f53",
+        "phase": "parallel-popup-p02-continuation-1",
+        "model": "deepseek/deepseek-v4.1-flash",
+        "provider": "Wafer",
+        "reservedUsd": 0.06,
+        "priceSource": "gateway-estimate",
+        "stopEpoch": 0,
+        "row": "P02"
+      },
+      {
+        "requestId": "e5a22481-7202-4eef-803c-4b724fbceeeb",
+        "runId": "check-ae1c17fd-601c-43dd-82b4-0e80af10feec",
+        "phase": "popup-product",
+        "model": "typesafe/jev-1.13",
+        "provider": "TypeSafe",
+        "reservedUsd": 0.003,
+        "priceSource": "TypeSafe <=0.042 USD/M input; <=32000 prompt; reserve 0.003",
+        "stopEpoch": 0,
+        "row": "P02"
+      },
+      {
+        "requestId": "050db6c2-1008-442e-8e86-4d8f94a69f4b",
+        "runId": "check-647ce989-a1e9-498c-9828-032cb434719a",
+        "phase": "popup-product",
+        "model": "typesafe/jev-1.13",
+        "provider": "TypeSafe",
+        "reservedUsd": 0.003,
+        "priceSource": "TypeSafe <=0.042 USD/M input; <=32000 prompt; reserve 0.003",
+        "stopEpoch": 0,
+        "row": "P02"
+      },
+      {
+        "requestId": "a0a8d90cf0d362c81a1a66dd",
+        "runId": "run-856183f4-33c4-4995-9139-c17d89ad4f53",
+        "phase": "parallel-popup-p02-continuation-1",
+        "model": "deepseek/deepseek-v4.1-flash",
+        "provider": "Wafer",
+        "reservedUsd": 0.06,
+        "priceSource": "gateway-estimate",
+        "stopEpoch": 0,
+        "row": "P02"
+      }
+    ]
+  },
+  "spending": {
+    "limitUsd": 0.62,
+    "knownCostUsd": 0.00007599999999999999,
+    "unknownReservedUsd": 0,
+    "heldReservedUsd": 0,
+    "accountedUsd": 0.00007599999999999999,
+    "unknownCount": 0,
+    "exceeded": false
+  },
+  "requests": [
+    {
+      "requestId": "ea0114fe973b8c851705ae78",
+      "runId": "run-856183f4-33c4-4995-9139-c17d89ad4f53",
+      "phase": "parallel-popup-p02-continuation-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.06,
+      "actualUsd": 0.00001,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-10T04:58:25.567Z"
+    },
+    {
+      "requestId": "f396d72e183498b21cb5e1f1",
+      "runId": "run-856183f4-33c4-4995-9139-c17d89ad4f53",
+      "phase": "parallel-popup-p02-continuation-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.06,
+      "actualUsd": 0.00001,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-10T04:58:25.618Z"
+    },
+    {
+      "requestId": "3f417c55ac384243ab747b7d",
+      "runId": "run-856183f4-33c4-4995-9139-c17d89ad4f53",
+      "phase": "parallel-popup-p02-continuation-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.06,
+      "actualUsd": 0.00001,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-10T04:58:25.655Z"
+    },
+    {
+      "requestId": "d98b45ca-397e-4e7d-bc73-703c59eabd76",
+      "runId": "check-ae1c17fd-601c-43dd-82b4-0e80af10feec",
+      "phase": "popup-product",
+      "model": "typesafe/jev-1.13",
+      "provider": "TypeSafe",
+      "status": "settled",
+      "reservedUsd": 0.003,
+      "actualUsd": 0.000001,
+      "priceSource": "TypeSafe <=0.042 USD/M input; <=32000 prompt; reserve 0.003",
+      "createdAt": "2026-10-10T04:58:26.021Z"
+    },
+    {
+      "requestId": "1414e33d-b849-4be0-8405-c190b3646619",
+      "runId": "check-647ce989-a1e9-498c-9828-032cb434719a",
+      "phase": "popup-product",
+      "model": "typesafe/jev-1.13",
+      "provider": "TypeSafe",
+      "status": "settled",
+      "reservedUsd": 0.003,
+      "actualUsd": 0.000001,
+      "priceSource": "TypeSafe <=0.042 USD/M input; <=32000 prompt; reserve 0.003",
+      "createdAt": "2026-10-10T04:58:26.054Z"
+    },
+    {
+      "requestId": "1d89b2b88d8d6ee2b2b3484c",
+      "runId": "run-856183f4-33c4-4995-9139-c17d89ad4f53",
+      "phase": "parallel-popup-p02-continuation-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.06,
+      "actualUsd": 0.00001,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-10T04:58:26.696Z"
+    },
+    {
+      "requestId": "425ab26c-11ff-4d10-a083-2b3173abcd37",
+      "runId": "check-ae1c17fd-601c-43dd-82b4-0e80af10feec",
+      "phase": "popup-product",
+      "model": "typesafe/jev-1.13",
+      "provider": "TypeSafe",
+      "status": "settled",
+      "reservedUsd": 0.003,
+      "actualUsd": 0.000001,
+      "priceSource": "TypeSafe <=0.042 USD/M input; <=32000 prompt; reserve 0.003",
+      "createdAt": "2026-10-10T04:58:27.992Z"
+    },
+    {
+      "requestId": "e9740ba0-ab7a-404d-bf2b-2383561b2ebe",
+      "runId": "check-647ce989-a1e9-498c-9828-032cb434719a",
+      "phase": "popup-product",
+      "model": "typesafe/jev-1.13",
+      "provider": "TypeSafe",
+      "status": "settled",
+      "reservedUsd": 0.003,
+      "actualUsd": 0.000001,
+      "priceSource": "TypeSafe <=0.042 USD/M input; <=32000 prompt; reserve 0.003",
+      "createdAt": "2026-10-10T04:58:28.025Z"
+    },
+    {
+      "requestId": "c62c84ff0a97a20c71e4f128",
+      "runId": "run-856183f4-33c4-4995-9139-c17d89ad4f53",
+      "phase": "parallel-popup-p02-continuation-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.06,
+      "actualUsd": 0.00001,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-10T04:58:28.738Z"
+    },
+    {
+      "requestId": "0f9b89c5b4f9037ccaf7028b",
+      "runId": "run-856183f4-33c4-4995-9139-c17d89ad4f53",
+      "phase": "parallel-popup-p02-continuation-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.06,
+      "actualUsd": 0.00001,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-10T04:58:29.772Z"
+    },
+    {
+      "requestId": "e5a22481-7202-4eef-803c-4b724fbceeeb",
+      "runId": "check-ae1c17fd-601c-43dd-82b4-0e80af10feec",
+      "phase": "popup-product",
+      "model": "typesafe/jev-1.13",
+      "provider": "TypeSafe",
+      "status": "settled",
+      "reservedUsd": 0.003,
+      "actualUsd": 0.000001,
+      "priceSource": "TypeSafe <=0.042 USD/M input; <=32000 prompt; reserve 0.003",
+      "createdAt": "2026-10-10T04:58:29.904Z"
+    },
+    {
+      "requestId": "050db6c2-1008-442e-8e86-4d8f94a69f4b",
+      "runId": "check-647ce989-a1e9-498c-9828-032cb434719a",
+      "phase": "popup-product",
+      "model": "typesafe/jev-1.13",
+      "provider": "TypeSafe",
+      "status": "settled",
+      "reservedUsd": 0.003,
+      "actualUsd": 0.000001,
+      "priceSource": "TypeSafe <=0.042 USD/M input; <=32000 prompt; reserve 0.003",
+      "createdAt": "2026-10-10T04:58:29.920Z"
+    },
+    {
+      "requestId": "a0a8d90cf0d362c81a1a66dd",
+      "runId": "run-856183f4-33c4-4995-9139-c17d89ad4f53",
+      "phase": "parallel-popup-p02-continuation-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.06,
+      "actualUsd": 0.00001,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-10T04:58:30.473Z"
+    }
+  ]
+}

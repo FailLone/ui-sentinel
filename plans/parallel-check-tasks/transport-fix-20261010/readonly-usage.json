@@ -1,0 +1,45 @@
+{
+  "generationRequests": 0,
+  "metadataGetRequests": 2,
+  "ledgerWrites": 0,
+  "results": [
+    {
+      "requestId": "6a4619612495039604678496",
+      "generationId": "gen-1791604147-kl7naRkFp7jDr87wlgfx",
+      "method": "GET",
+      "checkedAt": "2026-10-10T04:06:08.785Z",
+      "httpStatus": 200,
+      "metadata": {
+        "id": "gen-1791604147-kl7naRkFp7jDr87wlgfx",
+        "model": "deepseek/deepseek-v4.1-flash-20260910",
+        "provider_name": "Wafer",
+        "request_id": "req-1791604147-vEi1v5PxhlWgF87rRKXu",
+        "upstream_id": "caa4deec54074931b513f55d9c5a3539",
+        "total_cost": 0.00137178,
+        "finish_reason": "tool_calls",
+        "generation_time": 8572,
+        "tokens_completion": 804
+      },
+      "exactMatch": true
+    },
+    {
+      "requestId": "33f7cfc7a6e10d1b3c350e5c",
+      "generationId": "gen-1791604156-OgUTlkCrKUD86KFBgPXS",
+      "method": "GET",
+      "checkedAt": "2026-10-10T04:06:08.807Z",
+      "httpStatus": 200,
+      "metadata": {
+        "id": "gen-1791604156-OgUTlkCrKUD86KFBgPXS",
+        "model": "deepseek/deepseek-v4.1-flash-20260910",
+        "provider_name": "Wafer",
+        "request_id": "req-1791604156-vKkxrgsVz0IwN1LZ4eZF",
+        "upstream_id": "73ad065ee2fa4c5b87696512d534cd48",
+        "total_cost": 0.00144102,
+        "finish_reason": "tool_calls",
+        "generation_time": 7424,
+        "tokens_completion": 626
+      },
+      "exactMatch": true
+    }
+  ]
+}

@@ -6,7 +6,11 @@ import { createPopupRuntime } from './popup/runtime.ts'
 import { popupCollector } from './popup/geometry.ts'
 import { hash as popupHash, injectedPopupDecision } from '../agent/popup/contract.ts'
 import { createPopupAccountOwner } from '../agent/popup/account-owner.ts'
-import { createPopupProvider, popupConfiguration } from '../agent/popup/provider.ts'
+import {
+  createPopupProvider,
+  popupConfiguration,
+  popupProviderResources,
+} from '../agent/popup/provider.ts'
 import {
   createProductJevScore,
   productJevConfiguration,
@@ -325,7 +329,9 @@ async function executeProfiledRun(
     modelInputTokens: 0,
     modelOutputTokens: 0,
   }
-  const accountOwner = delegation?.accountOwner ?? createPopupAccountOwner()
+  const providerResources = popupProviderResources()
+  const accountOwner =
+    delegation?.accountOwner ?? providerResources?.accountOwner ?? createPopupAccountOwner()
   const checkTasks =
     uiScan && !delegation && parallelChecksEnabled()
       ? createProductCheckHost({
@@ -3698,7 +3704,7 @@ async function executeProfiledRun(
         stateId: 'contract',
         url: uiScan.entryUrl,
         observationVersion: 'contract',
-        basis: 'popup-viewport-1: bounded popup viewport subtask',
+        basis: `${uiScan.popupCheck.revision}: bounded visible floating surface inspection`,
         targetSource: 'executor',
       })
       await inspection.flush()
@@ -3722,6 +3728,9 @@ async function executeProfiledRun(
           ? createPopupProvider({
               configuration,
               accountOwner,
+              http: providerResources?.http,
+              observeTransport: providerResources?.observeTransport,
+              quote: providerResources?.quote,
               runId,
               timeRemaining: () => budget.totalTimeoutMs - (Date.now() - startedAt),
               async countCall() {
@@ -3758,6 +3767,8 @@ async function executeProfiledRun(
             id: c.itemId,
             ref: c.ref,
             description: `${c.description}; public attributes ${JSON.stringify(element!.attributes).slice(0, 700)}`,
+            visible: element!.visible,
+            enabled: element!.enabled,
           }))
         return {
           binding: popupHash({ version: version.key, entries, panels: panels.facts }),
@@ -3766,17 +3777,22 @@ async function executeProfiledRun(
           url: page.url(),
           reusable: version.reusable && panels.complete,
           entries,
+          text: latestSlim!.pageText.slice(0, 800),
           panels: panels.facts,
           evidenceRefs: [...latest!.evidenceRefs],
         }
       }
       popupRuntime = createPopupRuntime({
+        revision: uiScan.popupCheck.revision,
         taskId: item.itemId,
         contractHash: uiScan.hash,
         signal,
         guard,
         goal: `Check whether an actual popup exceeds the visible viewport. User focus: ${uiScan.goal}; delegated context: ${delegation?.task.purpose ?? 'none'}`,
         remaining: () => ({
+          reads: delegation
+            ? Math.max(0, delegation.task.quota.reads - delegation.lease.usage().reads)
+            : undefined,
           actions: remainingActions(),
           calls: Math.max(0, remainingModels() - (delegation ? 0 : 2)),
           timeMs:
@@ -3842,6 +3858,10 @@ async function executeProfiledRun(
             popupExpected = undefined
           }
         },
+        consumeRead() {
+          guard()
+          delegation?.lease.consume('reads')
+        },
         measure: (id, expected) => popupNodes!.measure(id, signal, expected),
         screenshot: async () =>
           saveEvidence(
@@ -3851,6 +3871,69 @@ async function executeProfiledRun(
             evidenceMetadata(),
             guard,
           ),
+        async recordUi(result, ref, refs) {
+          guard()
+          if (integrity.epoch() !== 0) throw Error('popup-evidence-intervened')
+          await inspection.recordAutomaticCheck({
+            ruleId: `popup-visible-viewport/${result.targetId}`,
+            revision: 'popup-visible-viewport-2',
+            verdict: result.verdict,
+            evidenceRefs: refs,
+            detail: result.reason,
+          })
+          guard()
+          await appendEvent(
+            runId,
+            'rule:evaluated',
+            {
+              ruleId: 'popup-viewport',
+              ruleRevision: 'popup-visible-viewport-2',
+              verdict: result.verdict,
+              targetId: result.targetId,
+              actual: JSON.stringify(result.samples),
+              evidenceRefs: refs,
+            },
+            { stepId, evidenceRefs: refs },
+          )
+          guard()
+          if (result.verdict === 'fail') {
+            const f = await submitFinding({
+              runId,
+              source: 'rule',
+              ruleId: 'popup-viewport',
+              ruleRevision: 'popup-visible-viewport-2',
+              hypothesisId: null,
+              validationStatus: 'supported',
+              severity: 'warning',
+              title: '可见浮层外框被视口或祖先区域裁切',
+              expected:
+                'Observed supported floating surface fits the viewport and effective rectangular clips; no button causality asserted',
+              actual: JSON.stringify(result.samples),
+              stepId,
+              evidenceRefs: refs,
+            })
+            findingFacts.add(JSON.stringify([f.ruleId, f.actual, f.validationStatus]))
+            await appendEvent(
+              runId,
+              'finding:submitted',
+              { findingId: f.id, popupUiReceiptRef: ref },
+              { stepId, evidenceRefs: refs },
+            )
+          }
+        },
+        async completeUi(verdict, ref, refs) {
+          guard()
+          if (integrity.epoch() !== 0) throw Error('popup-evidence-intervened')
+          inspection.scope.resolveItem(item.itemId, {
+            status: verdict === 'fail' ? 'failed' : 'verified',
+            evidenceRefs: refs,
+            eventIds: [],
+            detail:
+              'Observed floating surface geometry only; functional effects and other required items remain independent: ' +
+              ref,
+          })
+          await inspection.flush()
+        },
         async settle(result, ref, refs) {
           guard()
           if (integrity.epoch() !== 0) throw Error('popup-evidence-intervened')
@@ -5905,7 +5988,7 @@ async function executeProfiledRun(
       checkTaskStorageFailure = true
       queue.requireReconciliation()
     }
-    if (!delegation) {
+    if (!delegation && !providerResources) {
       try {
         await accountOwner.close()
       } catch {

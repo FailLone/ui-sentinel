@@ -1,0 +1,410 @@
+{
+  "free": true,
+  "realCalls": 0,
+  "realChargeUsd": 0,
+  "syntheticLedgerSpending": {
+    "limitUsd": 0.62,
+    "knownCostUsd": 7.599999999999999e-05,
+    "unknownReservedUsd": 0,
+    "heldReservedUsd": 0,
+    "accountedUsd": 7.599999999999999e-05,
+    "unknownCount": 0,
+    "exceeded": false
+  },
+  "requests": 13,
+  "mainRequests": 7,
+  "jevRequests": 6,
+  "stop": "",
+  "allSyntheticFeesSettled": true,
+  "accountRows": {
+    "campaign_lease": 0,
+    "ledger_stop_events": 0
+  },
+  "artifactCount": 170,
+  "payloadCount": 170,
+  "feeProofMatched": true,
+  "runs": [
+    {
+      "runId": "check-d9cf12b5-a004-40b8-beee-a51b3bc32d30",
+      "status": "blocked",
+      "coverage": "partial",
+      "scopeCounts": {
+        "total": 38,
+        "selected": 18,
+        "pending": 2,
+        "verified": 14,
+        "failed": 2,
+        "unverified": 20,
+        "excluded": 0
+      },
+      "persistence": {
+        "status": "verified",
+        "issues": [],
+        "recordedStatus": "blocked",
+        "recordedBusinessResult": "not-applicable",
+        "recordedStopReason": "blocked",
+        "readConsistency": "single-read-transaction"
+      },
+      "usage": {
+        "actions": 2,
+        "modelCalls": 3,
+        "elapsedMs": 4575,
+        "modelInputTokens": null,
+        "modelOutputTokens": null
+      },
+      "popup": {
+        "candidateGeometry": [
+          {
+            "targetId": "panel-1",
+            "geometryVerdict": "fail",
+            "association": "unconfirmed",
+            "reason": "fixed-panel-border-clipped",
+            "receiptRef": "4cf5f447-b4ff-4447-9b65-2bb47a247dc9.json",
+            "scope": "Candidate observation only; does not settle the requested item or count as an attributed defect."
+          }
+        ],
+        "revision": "popup-viewport-1",
+        "taskId": "item-3d05896b-ea45-4af0-a9bc-7b79123fc545",
+        "status": "measured",
+        "verdict": "fail",
+        "reason": "fixed-panel-border-clipped",
+        "attempts": [
+          {
+            "itemId": "item-c027795e-9c6a-485e-a8db-ceb8f4c90e18",
+            "actionId": "235a86f1-873d-4981-be6a-1bf0afb320e2",
+            "result": "completed"
+          },
+          {
+            "itemId": "item-2ea051fe-615c-4b91-9a2f-0a8a8ea24093",
+            "actionId": "b9487f3b-b8f3-4415-9ff6-8590885bd521",
+            "result": "completed"
+          }
+        ],
+        "missing": [],
+        "evidenceRefs": [
+          "9bfc1387-a391-4ee5-a558-06b85ecfed96.png",
+          "8784f1bd-6ca5-4d08-ac15-d5bd65b4051c.json",
+          "1b0033dd-9793-415b-b17b-beb15076d088.json",
+          "738ec9d9-72ae-4e91-ace4-91e3e470f0b1.json",
+          "343e6906-42aa-4db1-9d4c-cdd099d48af6.png",
+          "2ce6ed39-1d0c-4b4f-adec-ecd052f95b0c.json",
+          "a8bb16b5-d219-4784-934f-0a28ad62168d.json",
+          "9f7ce8a4-860b-4775-9fe6-fac32e35163f.json",
+          "328bd8fd-4900-4cff-adb2-ee63fa3d720b.png",
+          "dda3812c-0054-4197-9e49-f81f36c2e16c.json",
+          "b1a4c4df-c3fd-4c32-be69-81a9ca98e391.png",
+          "4cf5f447-b4ff-4447-9b65-2bb47a247dc9.json",
+          "03a14822-a5b6-4e6c-afd8-0e33e068d0c6.json",
+          "5c8a7e15-ef87-43fc-8750-8cfaf8893864.json",
+          "5733e4eb-a55e-4425-ac83-5c30d0ae0865.json"
+        ],
+        "receiptRef": "5733e4eb-a55e-4425-ac83-5c30d0ae0865.json",
+        "decisions": 3,
+        "reads": 1,
+        "scope": "Measured popup at the recorded state only; required/default checks remain independent."
+      },
+      "stages": [
+        "entry",
+        "entry",
+        "target"
+      ],
+      "candidateBeforeTarget": true,
+      "candidateCount": 1,
+      "attributedReceiptCount": 1,
+      "adoptions": [
+        {
+          "policy": "popup-purpose-policy-2",
+          "calibrated": false,
+          "purpose": "entry-exploration",
+          "raw": {
+            "binding": "a420bca8500a916c6c34f8b739c58ee27598f9b1dd6d1eae9d6727ff567b7c1c",
+            "choice": "item-c027795e-9c6a-485e-a8db-ceb8f4c90e18",
+            "confidence": 1,
+            "probabilities": {
+              "item-c1c4148c-b83b-4bc9-83d2-f32a2f930833": 0,
+              "item-8d138de4-bbb2-47e4-962b-120f6c79c099": 0,
+              "item-c027795e-9c6a-485e-a8db-ceb8f4c90e18": 1,
+              "none": 0
+            }
+          },
+          "n": 4,
+          "accepted": true,
+          "reason": "bounded-exploration-majority",
+          "proposal": {
+            "binding": "a420bca8500a916c6c34f8b739c58ee27598f9b1dd6d1eae9d6727ff567b7c1c",
+            "choice": "item-c027795e-9c6a-485e-a8db-ceb8f4c90e18",
+            "confidence": 1,
+            "probabilities": {
+              "item-c1c4148c-b83b-4bc9-83d2-f32a2f930833": 0,
+              "item-8d138de4-bbb2-47e4-962b-120f6c79c099": 0,
+              "item-c027795e-9c6a-485e-a8db-ceb8f4c90e18": 1,
+              "none": 0
+            }
+          }
+        },
+        {
+          "policy": "popup-purpose-policy-2",
+          "calibrated": false,
+          "purpose": "entry-exploration",
+          "raw": {
+            "binding": "07a8b1b072b45bc4936a8e793e394da02d3bbfcef75f4e4b00b57db6907fe69d",
+            "choice": "item-2ea051fe-615c-4b91-9a2f-0a8a8ea24093",
+            "confidence": 1,
+            "probabilities": {
+              "item-2ea051fe-615c-4b91-9a2f-0a8a8ea24093": 1,
+              "none": 0
+            }
+          },
+          "n": 2,
+          "accepted": true,
+          "reason": "bounded-exploration-majority",
+          "proposal": {
+            "binding": "07a8b1b072b45bc4936a8e793e394da02d3bbfcef75f4e4b00b57db6907fe69d",
+            "choice": "item-2ea051fe-615c-4b91-9a2f-0a8a8ea24093",
+            "confidence": 1,
+            "probabilities": {
+              "item-2ea051fe-615c-4b91-9a2f-0a8a8ea24093": 1,
+              "none": 0
+            }
+          }
+        },
+        {
+          "policy": "popup-purpose-policy-2",
+          "calibrated": false,
+          "purpose": "target-association",
+          "raw": {
+            "binding": "9bf5b1b7f3bcc6a9928dae2d05d8595b87960f083980382aba9ed98a1272f1f1",
+            "choice": "panel-1",
+            "confidence": 1,
+            "probabilities": {
+              "panel-1": 1,
+              "none": 0
+            }
+          },
+          "n": 2,
+          "accepted": true,
+          "reason": "provisional-association-admitted",
+          "proposal": {
+            "binding": "9bf5b1b7f3bcc6a9928dae2d05d8595b87960f083980382aba9ed98a1272f1f1",
+            "choice": "panel-1",
+            "confidence": 1,
+            "probabilities": {
+              "panel-1": 1,
+              "none": 0
+            }
+          }
+        }
+      ],
+      "closed": true
+    },
+    {
+      "runId": "run-204bd9e1-b302-4ce5-aeca-b0c6ef6b2126",
+      "status": "blocked",
+      "coverage": "partial",
+      "scopeCounts": {
+        "total": 17,
+        "selected": 11,
+        "pending": 0,
+        "verified": 7,
+        "failed": 0,
+        "unverified": 10,
+        "excluded": 0
+      },
+      "persistence": {
+        "status": "verified",
+        "issues": [],
+        "recordedStatus": "blocked",
+        "recordedBusinessResult": "not-applicable",
+        "recordedStopReason": "blocked",
+        "readConsistency": "single-read-transaction"
+      },
+      "usage": {
+        "actions": 4,
+        "modelCalls": 13,
+        "elapsedMs": 5419,
+        "modelInputTokens": null,
+        "modelOutputTokens": null
+      },
+      "popup": null,
+      "stages": [],
+      "candidateBeforeTarget": false,
+      "candidateCount": 0,
+      "attributedReceiptCount": 0,
+      "adoptions": [],
+      "closed": null
+    },
+    {
+      "runId": "check-69926501-a170-477d-9f1a-90726865d845",
+      "status": "blocked",
+      "coverage": "partial",
+      "scopeCounts": {
+        "total": 38,
+        "selected": 18,
+        "pending": 2,
+        "verified": 15,
+        "failed": 1,
+        "unverified": 20,
+        "excluded": 0
+      },
+      "persistence": {
+        "status": "verified",
+        "issues": [],
+        "recordedStatus": "blocked",
+        "recordedBusinessResult": "not-applicable",
+        "recordedStopReason": "blocked",
+        "readConsistency": "single-read-transaction"
+      },
+      "usage": {
+        "actions": 2,
+        "modelCalls": 3,
+        "elapsedMs": 4657,
+        "modelInputTokens": null,
+        "modelOutputTokens": null
+      },
+      "popup": {
+        "candidateGeometry": [
+          {
+            "targetId": "panel-1",
+            "geometryVerdict": "pass",
+            "association": "unconfirmed",
+            "reason": "panel-fits-visible-viewport",
+            "receiptRef": "71a2eb59-ac50-4613-8b1e-06d52f514899.json",
+            "scope": "Candidate observation only; does not settle the requested item or count as an attributed defect."
+          }
+        ],
+        "revision": "popup-viewport-1",
+        "taskId": "item-93a0fa6a-a378-4627-8445-6f0d9d58dd9e",
+        "status": "measured",
+        "verdict": "pass",
+        "reason": "panel-fits-visible-viewport",
+        "attempts": [
+          {
+            "itemId": "item-0b390201-a8c4-4e1d-9342-67916ab9fd64",
+            "actionId": "1caf3124-5456-4f96-b63c-925f32d3d91c",
+            "result": "completed"
+          },
+          {
+            "itemId": "item-59ced5a5-67b7-4290-814f-fa0b0d98fc27",
+            "actionId": "128456e0-2bcb-40dd-a913-0e3b07b96450",
+            "result": "completed"
+          }
+        ],
+        "missing": [],
+        "evidenceRefs": [
+          "859451ee-3e53-408d-a0df-a3a8a48d99eb.png",
+          "c4f3038f-e183-4b61-8c31-6a7da00b4a72.json",
+          "05a955b6-470b-4acc-b09a-37f9fe3688f8.json",
+          "03e1e7d7-148d-4687-9819-f7e2afab9496.json",
+          "c7db015a-1fa9-4d6f-bafe-72591b0d9d85.png",
+          "7d49e879-69e1-4c6c-ace2-7fc7328fc9ca.json",
+          "4cee922c-3d50-4ebe-8b73-7100a7db9281.json",
+          "ac66aa6b-9ec4-4757-9308-7ed1ecaa91a7.json",
+          "eaada97a-2245-403e-b3ba-dc2e7a84cc65.png",
+          "97816ae1-ac99-4fa2-b919-5c59bd86e77f.json",
+          "82135c65-6e0d-4565-8943-82819b91198f.png",
+          "71a2eb59-ac50-4613-8b1e-06d52f514899.json",
+          "233dcc8e-3221-41c5-94ff-bdf6df862ea2.json",
+          "ba49d774-15f8-4767-9afe-23ff92069483.json",
+          "b04ff635-dded-480e-9ec1-6cf14ed68b02.json"
+        ],
+        "receiptRef": "b04ff635-dded-480e-9ec1-6cf14ed68b02.json",
+        "decisions": 3,
+        "reads": 1,
+        "scope": "Measured popup at the recorded state only; required/default checks remain independent."
+      },
+      "stages": [
+        "entry",
+        "entry",
+        "target"
+      ],
+      "candidateBeforeTarget": true,
+      "candidateCount": 1,
+      "attributedReceiptCount": 1,
+      "adoptions": [
+        {
+          "policy": "popup-purpose-policy-2",
+          "calibrated": false,
+          "purpose": "entry-exploration",
+          "raw": {
+            "binding": "7bd1ba277cab8695f5da916fea5e1869c9e5f0015e5a2728edc71b482f2a8084",
+            "choice": "item-0b390201-a8c4-4e1d-9342-67916ab9fd64",
+            "confidence": 1,
+            "probabilities": {
+              "item-fb55584f-733f-4e3d-be23-f8f342861fee": 0,
+              "item-c0c89a5a-b677-4d53-b58e-6aaa9a086f3e": 0,
+              "item-0b390201-a8c4-4e1d-9342-67916ab9fd64": 1,
+              "none": 0
+            }
+          },
+          "n": 4,
+          "accepted": true,
+          "reason": "bounded-exploration-majority",
+          "proposal": {
+            "binding": "7bd1ba277cab8695f5da916fea5e1869c9e5f0015e5a2728edc71b482f2a8084",
+            "choice": "item-0b390201-a8c4-4e1d-9342-67916ab9fd64",
+            "confidence": 1,
+            "probabilities": {
+              "item-fb55584f-733f-4e3d-be23-f8f342861fee": 0,
+              "item-c0c89a5a-b677-4d53-b58e-6aaa9a086f3e": 0,
+              "item-0b390201-a8c4-4e1d-9342-67916ab9fd64": 1,
+              "none": 0
+            }
+          }
+        },
+        {
+          "policy": "popup-purpose-policy-2",
+          "calibrated": false,
+          "purpose": "entry-exploration",
+          "raw": {
+            "binding": "396c3c650834a78dfb43bcbc704da919833efde12cd5912d22686ca876ee47e2",
+            "choice": "item-59ced5a5-67b7-4290-814f-fa0b0d98fc27",
+            "confidence": 1,
+            "probabilities": {
+              "item-59ced5a5-67b7-4290-814f-fa0b0d98fc27": 1,
+              "none": 0
+            }
+          },
+          "n": 2,
+          "accepted": true,
+          "reason": "bounded-exploration-majority",
+          "proposal": {
+            "binding": "396c3c650834a78dfb43bcbc704da919833efde12cd5912d22686ca876ee47e2",
+            "choice": "item-59ced5a5-67b7-4290-814f-fa0b0d98fc27",
+            "confidence": 1,
+            "probabilities": {
+              "item-59ced5a5-67b7-4290-814f-fa0b0d98fc27": 1,
+              "none": 0
+            }
+          }
+        },
+        {
+          "policy": "popup-purpose-policy-2",
+          "calibrated": false,
+          "purpose": "target-association",
+          "raw": {
+            "binding": "ba2221554b50ec21bd217750f33412f6d43d930c9a18470c14436806062b6b30",
+            "choice": "panel-1",
+            "confidence": 1,
+            "probabilities": {
+              "panel-1": 1,
+              "none": 0
+            }
+          },
+          "n": 2,
+          "accepted": true,
+          "reason": "provisional-association-admitted",
+          "proposal": {
+            "binding": "ba2221554b50ec21bd217750f33412f6d43d930c9a18470c14436806062b6b30",
+            "choice": "panel-1",
+            "confidence": 1,
+            "probabilities": {
+              "panel-1": 1,
+              "none": 0
+            }
+          }
+        }
+      ],
+      "closed": true
+    }
+  ]
+}

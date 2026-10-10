@@ -1,0 +1,18 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.0.1 [39m[90m/Users/xietian/.codex/worktrees/parallel-check-tasks/ui-sentinel[39m
+
+ [32m✓[39m src/inspection/popup-artifacts.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m src/execution/popup/runtime.test.ts [2m([22m[2m22 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+ [32m✓[39m src/agent/popup/policy.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m src/execution/popup/geometry.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 1740[2mms[22m[39m
+   [32m✓[39m popup geometry in Chromium [2m(1)[22m
+     [33m[2m✓[22m[39m measures a native panel border, ignores internal scroll, detects actual clipping, refuses transformed and replaced nodes[33m 1134[2mms[22m[39m
+   [33m[2m✓[22m[39m observes two real custom panels before a no-match semantic reply, without attributing either geometry to the action[33m 604[2mms[22m[39m
+ [32m✓[39m src/agent/popup/provider.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 2532[2mms[22m[39m
+   [33m[2m✓[22m[39m the product deadline aborts transport and preserves timeout classification with unknown fees[33m 2021[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m5 passed[39m[22m[90m (5)[39m
+[2m      Tests [22m [1m[32m44 passed[39m[22m[90m (44)[39m
+[2m   Start at [22m 14:03:10
+[2m   Duration [22m 2.79s[2m (tests 84%, import 8%, transform 8%)[22m
+

@@ -30,6 +30,15 @@ export type UiCoverage = 'covered' | 'partial' | 'not-started'
 
 export interface UiScanReport {
   readonly checkTasks?: ReturnType<typeof checkTaskReport>
+  readonly functionalChecks?: {
+    itemId: string
+    actionId?: string
+    requirementId: string
+    source: string
+    expectation: string
+    state: string
+    evidenceRefs: string[]
+  }[]
   readonly popupCheck?: ReturnType<typeof popupReport>
   readonly exploration?: ReturnType<typeof r1Report>
   readonly reportRevision?: 'ui-check-report-2'
@@ -155,6 +164,27 @@ export function uiScanSummary(
     }))
 
   return {
+    ...(contract.popupCheck?.revision === 'popup-viewport-2'
+      ? {
+          functionalChecks: snapshot.items.flatMap((i) =>
+            (i.checks?.effects ?? [])
+              .filter((e) => e.predicate.condition === 'popup-visible')
+              .map((e) => ({
+                itemId: i.itemId,
+                actionId: i.checks?.generic.actionId,
+                requirementId: e.requirementId,
+                source: e.sourceText,
+                expectation: e.predicate.expected ?? '',
+                state: proofVerified
+                  ? e.state
+                  : ['verified', 'failed'].includes(e.state)
+                    ? 'unverified'
+                    : e.state,
+                evidenceRefs: e.measurementRefs,
+              })),
+          ),
+        }
+      : {}),
     ...(events.some((e) => e.type.startsWith('check-task:'))
       ? { checkTasks: checkTaskReport(events, readable, additionalIssues) }
       : {}),

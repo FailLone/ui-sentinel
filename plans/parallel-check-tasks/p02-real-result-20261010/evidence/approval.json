@@ -1,0 +1,15 @@
+{
+  "approvedBy": "Human user in maintainer chat 01a1116d-7621-7962-b4fe-5f904b5fbf13, relayed by maintainer",
+  "approvalReference": "Maintainer relay: user explicitly replied “是的，授权” for this exact P02-only manifest; new USD 0.62 account, at most 10 main + 6 Jev, one claim, no retries or additional batches.",
+  "expiresAt": "2026-10-11T05:07:26.796Z",
+  "manifestSha256": "21fb549f06b389d55912313645d2e8c50a724fcebca9caa488677bd9e8e166b2",
+  "maxCostUsd": 0.62,
+  "maxParents": 1,
+  "maxMainRequests": 10,
+  "maxJevRequests": 6,
+  "singleBatch": true,
+  "retries": 0,
+  "oldAccountsUntouched": true,
+  "authorizeNewIsolatedAccount": true,
+  "recordedAt": "2026-10-10T05:07:26.796Z"
+}

@@ -1,0 +1,368 @@
+{
+  "campaigns": [
+    {
+      "campaign_id": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "limit_usd": 0.62,
+      "created_at": "2026-10-10T05:11:15.050Z"
+    }
+  ],
+  "ledger_requests": [
+    {
+      "request_id": "0b8862fc5c9e3d7a66902666",
+      "campaign_id": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "run_id": "run-f45ee327-bdff-435d-b9b2-7e36773c7adf",
+      "phase": "parallel-popup-p02-continuation-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reserved_usd": 0.06,
+      "actual_usd": 0.002994,
+      "price_source": "gateway-estimate",
+      "reason": null,
+      "created_at": "2026-10-10T05:11:15.967Z",
+      "settled_at": "2026-10-10T05:11:34.479Z"
+    },
+    {
+      "request_id": "18086c862f075e152be63f7b",
+      "campaign_id": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "run_id": "run-f45ee327-bdff-435d-b9b2-7e36773c7adf",
+      "phase": "parallel-popup-p02-continuation-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reserved_usd": 0.06,
+      "actual_usd": 0.00161745,
+      "price_source": "gateway-estimate",
+      "reason": null,
+      "created_at": "2026-10-10T05:11:34.558Z",
+      "settled_at": "2026-10-10T05:11:40.767Z"
+    },
+    {
+      "request_id": "ccba60a36ce38972e794a019",
+      "campaign_id": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "run_id": "run-f45ee327-bdff-435d-b9b2-7e36773c7adf",
+      "phase": "parallel-popup-p02-continuation-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reserved_usd": 0.06,
+      "actual_usd": 0.00101485,
+      "price_source": "gateway-estimate",
+      "reason": null,
+      "created_at": "2026-10-10T05:11:40.835Z",
+      "settled_at": "2026-10-10T05:11:43.957Z"
+    },
+    {
+      "request_id": "803ba183-8468-4be6-a2e5-0886457d2b8d",
+      "campaign_id": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "run_id": "check-6095bff6-2242-40d0-b056-3f57a6ac3e30",
+      "phase": "popup-product",
+      "model": "typesafe/jev-1.13",
+      "provider": "TypeSafe",
+      "status": "settled",
+      "reserved_usd": 0.003,
+      "actual_usd": 4.956e-05,
+      "price_source": "TypeSafe <=0.042 USD/M input; <=32000 prompt; reserve 0.003",
+      "reason": null,
+      "created_at": "2026-10-10T05:11:42.074Z",
+      "settled_at": "2026-10-10T05:11:42.469Z"
+    },
+    {
+      "request_id": "bc86e8d8-b54f-4c86-9e2c-3e4945fc6c99",
+      "campaign_id": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "run_id": "check-1e2f962b-1aad-4a78-9ec2-e204a035115a",
+      "phase": "popup-product",
+      "model": "typesafe/jev-1.13",
+      "provider": "TypeSafe",
+      "status": "settled",
+      "reserved_usd": 0.003,
+      "actual_usd": 4.977e-05,
+      "price_source": "TypeSafe <=0.042 USD/M input; <=32000 prompt; reserve 0.003",
+      "reason": null,
+      "created_at": "2026-10-10T05:11:42.095Z",
+      "settled_at": "2026-10-10T05:11:42.514Z"
+    },
+    {
+      "request_id": "e87da19b096d2d7d898722ba",
+      "campaign_id": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "run_id": "run-f45ee327-bdff-435d-b9b2-7e36773c7adf",
+      "phase": "parallel-popup-p02-continuation-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reserved_usd": 0.06,
+      "actual_usd": 0.00144905,
+      "price_source": "gateway-estimate",
+      "reason": null,
+      "created_at": "2026-10-10T05:11:44.003Z",
+      "settled_at": "2026-10-10T05:11:48.885Z"
+    },
+    {
+      "request_id": "4759de70-ab33-4628-a324-7c4eae665f37",
+      "campaign_id": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "run_id": "check-6095bff6-2242-40d0-b056-3f57a6ac3e30",
+      "phase": "popup-product",
+      "model": "typesafe/jev-1.13",
+      "provider": "TypeSafe",
+      "status": "settled",
+      "reserved_usd": 0.003,
+      "actual_usd": 5.5188e-05,
+      "price_source": "TypeSafe <=0.042 USD/M input; <=32000 prompt; reserve 0.003",
+      "reason": null,
+      "created_at": "2026-10-10T05:11:44.427Z",
+      "settled_at": "2026-10-10T05:11:44.803Z"
+    },
+    {
+      "request_id": "81a876d1-c912-4d80-9bd5-32e653f58d53",
+      "campaign_id": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "run_id": "check-1e2f962b-1aad-4a78-9ec2-e204a035115a",
+      "phase": "popup-product",
+      "model": "typesafe/jev-1.13",
+      "provider": "TypeSafe",
+      "status": "settled",
+      "reserved_usd": 0.003,
+      "actual_usd": 5.502e-05,
+      "price_source": "TypeSafe <=0.042 USD/M input; <=32000 prompt; reserve 0.003",
+      "reason": null,
+      "created_at": "2026-10-10T05:11:44.449Z",
+      "settled_at": "2026-10-10T05:11:44.851Z"
+    },
+    {
+      "request_id": "54e972f1-d530-4ede-8df8-35486b2cbbea",
+      "campaign_id": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "run_id": "check-1e2f962b-1aad-4a78-9ec2-e204a035115a",
+      "phase": "popup-product",
+      "model": "typesafe/jev-1.13",
+      "provider": "TypeSafe",
+      "status": "settled",
+      "reserved_usd": 0.003,
+      "actual_usd": 6.0144e-05,
+      "price_source": "TypeSafe <=0.042 USD/M input; <=32000 prompt; reserve 0.003",
+      "reason": null,
+      "created_at": "2026-10-10T05:11:46.647Z",
+      "settled_at": "2026-10-10T05:11:47.094Z"
+    },
+    {
+      "request_id": "c89d5dd8d9ad99264b97a4fb",
+      "campaign_id": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "run_id": "run-f45ee327-bdff-435d-b9b2-7e36773c7adf",
+      "phase": "parallel-popup-p02-continuation-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reserved_usd": 0.06,
+      "actual_usd": 0.00246275,
+      "price_source": "gateway-estimate",
+      "reason": null,
+      "created_at": "2026-10-10T05:11:48.933Z",
+      "settled_at": "2026-10-10T05:12:02.405Z"
+    },
+    {
+      "request_id": "bceda017f9f64a32e9886b45",
+      "campaign_id": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "run_id": "run-f45ee327-bdff-435d-b9b2-7e36773c7adf",
+      "phase": "parallel-popup-p02-continuation-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reserved_usd": 0.06,
+      "actual_usd": 0.00145695,
+      "price_source": "gateway-estimate",
+      "reason": null,
+      "created_at": "2026-10-10T05:12:02.468Z",
+      "settled_at": "2026-10-10T05:12:07.677Z"
+    },
+    {
+      "request_id": "e2d3b079a23676bfa6168af9",
+      "campaign_id": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "run_id": "run-f45ee327-bdff-435d-b9b2-7e36773c7adf",
+      "phase": "parallel-popup-p02-continuation-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reserved_usd": 0.06,
+      "actual_usd": 0.00210025,
+      "price_source": "gateway-estimate",
+      "reason": null,
+      "created_at": "2026-10-10T05:12:07.838Z",
+      "settled_at": "2026-10-10T05:12:18.468Z"
+    },
+    {
+      "request_id": "aa130bb7f9698f4eba9cabab",
+      "campaign_id": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "run_id": "run-f45ee327-bdff-435d-b9b2-7e36773c7adf",
+      "phase": "parallel-popup-p02-continuation-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reserved_usd": 0.06,
+      "actual_usd": 0.00468525,
+      "price_source": "gateway-estimate",
+      "reason": null,
+      "created_at": "2026-10-10T05:12:19.941Z",
+      "settled_at": "2026-10-10T05:12:39.875Z"
+    },
+    {
+      "request_id": "f34ca89d1c05e97f81a2d8c9",
+      "campaign_id": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "run_id": "run-f45ee327-bdff-435d-b9b2-7e36773c7adf",
+      "phase": "parallel-popup-p02-continuation-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reserved_usd": 0.06,
+      "actual_usd": 0.00224535,
+      "price_source": "gateway-estimate",
+      "reason": null,
+      "created_at": "2026-10-10T05:12:41.358Z",
+      "settled_at": "2026-10-10T05:12:47.845Z"
+    }
+  ],
+  "ledger_reconciliations": [],
+  "ledger_stop_events": [],
+  "ledger_admissions": [
+    {
+      "request_id": "0b8862fc5c9e3d7a66902666",
+      "campaign_id": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "stop_epoch": 0
+    },
+    {
+      "request_id": "18086c862f075e152be63f7b",
+      "campaign_id": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "stop_epoch": 0
+    },
+    {
+      "request_id": "ccba60a36ce38972e794a019",
+      "campaign_id": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "stop_epoch": 0
+    },
+    {
+      "request_id": "803ba183-8468-4be6-a2e5-0886457d2b8d",
+      "campaign_id": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "stop_epoch": 0
+    },
+    {
+      "request_id": "bc86e8d8-b54f-4c86-9e2c-3e4945fc6c99",
+      "campaign_id": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "stop_epoch": 0
+    },
+    {
+      "request_id": "e87da19b096d2d7d898722ba",
+      "campaign_id": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "stop_epoch": 0
+    },
+    {
+      "request_id": "4759de70-ab33-4628-a324-7c4eae665f37",
+      "campaign_id": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "stop_epoch": 0
+    },
+    {
+      "request_id": "81a876d1-c912-4d80-9bd5-32e653f58d53",
+      "campaign_id": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "stop_epoch": 0
+    },
+    {
+      "request_id": "54e972f1-d530-4ede-8df8-35486b2cbbea",
+      "campaign_id": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "stop_epoch": 0
+    },
+    {
+      "request_id": "c89d5dd8d9ad99264b97a4fb",
+      "campaign_id": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "stop_epoch": 0
+    },
+    {
+      "request_id": "bceda017f9f64a32e9886b45",
+      "campaign_id": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "stop_epoch": 0
+    },
+    {
+      "request_id": "e2d3b079a23676bfa6168af9",
+      "campaign_id": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "stop_epoch": 0
+    },
+    {
+      "request_id": "aa130bb7f9698f4eba9cabab",
+      "campaign_id": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "stop_epoch": 0
+    },
+    {
+      "request_id": "f34ca89d1c05e97f81a2d8c9",
+      "campaign_id": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "stop_epoch": 0
+    }
+  ],
+  "ledger_dispatches": [
+    {
+      "request_id": "0b8862fc5c9e3d7a66902666",
+      "campaign_id": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "dispatched_at": "2026-10-10T05:11:15.970Z"
+    },
+    {
+      "request_id": "18086c862f075e152be63f7b",
+      "campaign_id": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "dispatched_at": "2026-10-10T05:11:34.560Z"
+    },
+    {
+      "request_id": "ccba60a36ce38972e794a019",
+      "campaign_id": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "dispatched_at": "2026-10-10T05:11:40.838Z"
+    },
+    {
+      "request_id": "803ba183-8468-4be6-a2e5-0886457d2b8d",
+      "campaign_id": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "dispatched_at": "2026-10-10T05:11:42.077Z"
+    },
+    {
+      "request_id": "bc86e8d8-b54f-4c86-9e2c-3e4945fc6c99",
+      "campaign_id": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "dispatched_at": "2026-10-10T05:11:42.102Z"
+    },
+    {
+      "request_id": "e87da19b096d2d7d898722ba",
+      "campaign_id": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "dispatched_at": "2026-10-10T05:11:44.007Z"
+    },
+    {
+      "request_id": "4759de70-ab33-4628-a324-7c4eae665f37",
+      "campaign_id": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "dispatched_at": "2026-10-10T05:11:44.432Z"
+    },
+    {
+      "request_id": "81a876d1-c912-4d80-9bd5-32e653f58d53",
+      "campaign_id": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "dispatched_at": "2026-10-10T05:11:44.453Z"
+    },
+    {
+      "request_id": "54e972f1-d530-4ede-8df8-35486b2cbbea",
+      "campaign_id": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "dispatched_at": "2026-10-10T05:11:46.650Z"
+    },
+    {
+      "request_id": "c89d5dd8d9ad99264b97a4fb",
+      "campaign_id": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "dispatched_at": "2026-10-10T05:11:48.935Z"
+    },
+    {
+      "request_id": "bceda017f9f64a32e9886b45",
+      "campaign_id": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "dispatched_at": "2026-10-10T05:12:02.470Z"
+    },
+    {
+      "request_id": "e2d3b079a23676bfa6168af9",
+      "campaign_id": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "dispatched_at": "2026-10-10T05:12:07.842Z"
+    },
+    {
+      "request_id": "aa130bb7f9698f4eba9cabab",
+      "campaign_id": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "dispatched_at": "2026-10-10T05:12:19.942Z"
+    },
+    {
+      "request_id": "f34ca89d1c05e97f81a2d8c9",
+      "campaign_id": "b693a8ba-503f-47d8-b9a8-fc0a5d27fab4",
+      "dispatched_at": "2026-10-10T05:12:41.360Z"
+    }
+  ],
+  "campaign_lease": []
+}

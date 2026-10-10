@@ -1,0 +1,21 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv5.0.1 [39m[90m/Users/xietian/.codex/worktrees/parallel-check-tasks/ui-sentinel[39m
+
+ [32m✓[39m src/server/reports/r1-report.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m scripts/parallel-popup-real/batch.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 120[2mms[22m[39m
+ [32m✓[39m scripts/parallel-popup-real/score.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 217[2mms[22m[39m
+ [32m✓[39m src/agent/popup/transport.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 273[2mms[22m[39m
+[90mstderr[2m | src/server/reports/run-report-ui.test.ts
+[22m[39m◇ injected env (0) from ../../../../../../dev/null
+
+ [32m✓[39m src/server/reports/run-report-ui.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 220[2mms[22m[39m
+ [32m✓[39m src/server/reports/run-report-focus.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 62[2mms[22m[39m
+ [32m✓[39m src/execution/completion-integrity.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 223[2mms[22m[39m
+ [32m✓[39m src/agent/popup/provider.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 2657[2mms[22m[39m
+   [33m[2m✓[22m[39m the product deadline aborts transport and preserves timeout classification with unknown fees[33m 2019[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m8 passed[39m[22m[90m (8)[39m
+[2m      Tests [22m [1m[32m61 passed[39m[22m[90m (61)[39m
+[2m   Start at [22m 12:08:45
+[2m   Duration [22m 3.15s[2m (tests 56%, transform 23%, import 20%, worker 1%)[22m
+

@@ -22,6 +22,8 @@ export function checkHash(v: unknown): string {
   return createHash('sha256').update(canonical(v)).digest('hex')
 }
 export interface PublicNode {
+  identity?: string
+  popupSurface?: import('../execution/popup/surface.ts').FloatingSurface & { kind: string }
   selector: string
   path?: string
   parentSelector?: string
@@ -37,6 +39,7 @@ export interface PublicNode {
   truncated: boolean
 }
 export interface PublicCheckPage {
+  documentIdentity?: string
   url: string
   documentVersion: string
   nodes: PublicNode[]
@@ -164,7 +167,12 @@ export function checksValid(c: ItemChecks): boolean {
 }
 type Parsed = {
   name?: string
-  condition?: 'text-contains' | 'text-equals' | 'numeric-ascending' | 'numeric-descending'
+  condition?:
+    | 'popup-visible'
+    | 'text-contains'
+    | 'text-equals'
+    | 'numeric-ascending'
+    | 'numeric-descending'
   expected?: string
   sync: boolean
   focus: boolean
@@ -183,6 +191,21 @@ export function parsePublicRelation(text: string, describedName?: string): Parse
     /^(?:Inspect|Check) "([^"\n]{1,120})"[.!]?$/.exec(t) ??
     /^检查[「“]([^」”\n]{1,120})[」”][。]?$/.exec(t)
   if (m) return { focus: true, name: m[1], sync: false }
+  m =
+    /^[Aa]fter clicking "([^"\n]{1,120})", show (?:popup "([^"\n]{1,500})"|(any popup))[.!]?$/.exec(
+      t,
+    ) ??
+    /^点击[「“]([^」”\n]{1,120})[」”]后[，,]应显示(?:浮窗[「“]([^」”\n]{1,500})[」”]|(任意浮窗))[。]?$/.exec(
+      t,
+    )
+  if (m)
+    return {
+      focus: false,
+      sync: false,
+      name: m[1],
+      condition: 'popup-visible',
+      expected: m[3] ? '*' : m[2],
+    }
   m =
     /^(Synchronously )?[Aa]fter clicking "([^"\n]{1,120})", show (text|text exactly) "([^"\n]{1,500})"[.!]?$/.exec(
       t,
@@ -293,7 +316,10 @@ export function reviewPublicSources(input: {
         (contract.exploration && explorationRevisitIntent(text)))
         ? ({ focus: true, sync: false } as Parsed)
         : parsePublicRelation(text, described ? control.name : undefined)
-    if (!parsed) {
+    if (
+      !parsed ||
+      (parsed.condition === 'popup-visible' && contract.popupCheck?.revision !== 'popup-viewport-2')
+    ) {
       reasons.push(kind === 'original-goal' ? 'goal-unresolved' : 'source-unresolved')
       return
     }

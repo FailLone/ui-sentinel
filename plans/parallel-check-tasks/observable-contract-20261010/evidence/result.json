@@ -1,0 +1,264 @@
+{
+  "realCalls": 0,
+  "rows": [
+    {
+      "name": "direct",
+      "runId": "run-fcd4173e-283c-47b7-9c0c-fe2e80608e26",
+      "status": "blocked",
+      "popup": {
+        "revision": "popup-viewport-2",
+        "taskId": "item-b922f86c-ff48-4af3-bbfc-b5e4d9c6804a",
+        "status": "measured",
+        "verdict": "pass",
+        "reason": "observed-floating-surfaces-fit",
+        "attempts": [
+          {
+            "itemId": "item-f8b122b7-a792-4198-99da-4939e51330bf",
+            "actionId": "fbaacdbf-643b-4d67-87e4-543498f67a97",
+            "result": "completed"
+          }
+        ],
+        "missing": [],
+        "evidenceRefs": [
+          "c4dc8930-05ef-44fe-804b-e9fb41b8f3ef.png",
+          "4938b594-742a-464c-8333-cdc918967274.json",
+          "3a5e3759-aedb-44c6-b109-7903f2bf959c.json",
+          "5c7650fc-7c4e-4460-8df3-b873607fd74e.json",
+          "15677528-42ad-4f91-847f-d89a3217f991.png",
+          "e36dfe23-fff8-4531-acdd-28d7d7e25f17.json",
+          "b6147388-91b4-40f9-b3be-f44da4218fc7.png",
+          "ed729fe2-2f8d-4832-a7e4-5ac1e770627c.json",
+          "e334a11a-7316-404d-a369-8291e107957b.json",
+          "e41815a8-3eae-4ea4-8ef9-2a2b279c2226.json"
+        ],
+        "receiptRef": "e41815a8-3eae-4ea4-8ef9-2a2b279c2226.json",
+        "decisions": 1,
+        "reads": 2,
+        "uiChecks": [
+          {
+            "targetId": "panel-1",
+            "verdict": "pass",
+            "reason": "panel-fits-visible-viewport",
+            "receiptRef": "ed729fe2-2f8d-4832-a7e4-5ac1e770627c.json"
+          },
+          {
+            "targetId": "panel-2",
+            "verdict": "pass",
+            "reason": "panel-fits-visible-viewport",
+            "receiptRef": "e334a11a-7316-404d-a369-8291e107957b.json"
+          }
+        ],
+        "scope": "Observed visible floating surface geometry only. Functional expectations are separate original item effects; other required checks remain independent."
+      },
+      "functionalChecks": [
+        {
+          "itemId": "item-f8b122b7-a792-4198-99da-4939e51330bf",
+          "actionId": "fbaacdbf-643b-4d67-87e4-543498f67a97",
+          "requirementId": "requirement:dc7298e6b354c10d4912a429",
+          "source": "After clicking \"Open details\", show popup \"Details overview\".",
+          "expectation": "Details overview",
+          "state": "verified",
+          "evidenceRefs": [
+            "d26e70db-a7fd-4572-ba85-7fc84f80855a.png",
+            "8a84014a-2129-4e3d-9326-181b9aab6489.json",
+            "f3d78e18-0ed0-4bbc-baa2-4a1c09fa6234.png",
+            "522b7f2a-f278-4f28-9a0c-0d39a633c420.json",
+            "e97f5056-506c-4fb7-b20e-e2f3c1aa7261.png",
+            "28c4325a-6521-4e50-8f54-d0c750f73a2f.json",
+            "80e25ec2-9ead-45a9-9e46-24071bd7457f.json",
+            "91c08fec-d146-4bd6-89aa-4bd99e67078f.json"
+          ]
+        }
+      ],
+      "coverage": "partial",
+      "historyMatches": true
+    },
+    {
+      "name": "nested",
+      "runId": "run-22fe01fd-c354-4685-a53d-972ea5c2594f",
+      "status": "blocked",
+      "popup": {
+        "revision": "popup-viewport-2",
+        "taskId": "item-14d4778f-974d-4cca-a34a-1f183c372b3b",
+        "status": "measured",
+        "verdict": "fail",
+        "reason": "observed-floating-surface-clipped",
+        "attempts": [
+          {
+            "itemId": "item-fbfbd8a1-9ce1-41c1-8049-0a06967954aa",
+            "actionId": "00e6bb24-5fca-4834-942c-84af7e649c7d",
+            "result": "completed"
+          },
+          {
+            "itemId": "item-ec960d2b-8cdc-4643-9c76-70f3a1d4918b",
+            "actionId": "304f411a-010a-4018-8c3f-46847f335a82",
+            "result": "completed"
+          }
+        ],
+        "missing": [],
+        "evidenceRefs": [
+          "0dc60587-2c60-4158-af3a-5ce0be7fcf89.png",
+          "d222d1b7-fcbb-4712-b0a0-70c5747fca0e.json",
+          "5d582b4b-3bc1-4c44-9549-c69eca325a91.json",
+          "baca798a-1f0e-4412-99f7-c1cad8b68395.json",
+          "ae3bb4c6-11ef-482f-af7b-cd7afb86d3b5.png",
+          "92ee44f4-afee-486d-b346-e8c81ba62eff.json",
+          "d6512169-d1f9-4be0-b44c-81839f41e009.json",
+          "55b6cb65-a247-4c3d-9cbb-cdab2facd5e3.json",
+          "deabf21b-a60a-4072-aec5-f79205fb6713.png",
+          "2760b990-0c9e-4dff-ad4e-eb6a398d5fe8.json",
+          "ed4b9591-6b1e-499b-a0a1-04ceb6eb06cb.png",
+          "adb9e773-8195-416d-92f4-a61380e85188.json",
+          "1805244b-4343-40e4-9c6d-a46e4f1da855.json"
+        ],
+        "receiptRef": "1805244b-4343-40e4-9c6d-a46e4f1da855.json",
+        "decisions": 2,
+        "reads": 1,
+        "uiChecks": [
+          {
+            "targetId": "panel-1",
+            "verdict": "fail",
+            "reason": "fixed-panel-border-clipped",
+            "receiptRef": "adb9e773-8195-416d-92f4-a61380e85188.json"
+          }
+        ],
+        "scope": "Observed visible floating surface geometry only. Functional expectations are separate original item effects; other required checks remain independent."
+      },
+      "functionalChecks": [
+        {
+          "itemId": "item-ec960d2b-8cdc-4643-9c76-70f3a1d4918b",
+          "actionId": "304f411a-010a-4018-8c3f-46847f335a82",
+          "requirementId": "requirement:44ea321b0169e4fc855634a7",
+          "source": "After clicking \"Open details\", show popup \"Details overview\".",
+          "expectation": "Details overview",
+          "state": "verified",
+          "evidenceRefs": [
+            "e34dce1a-1af7-4789-8b31-52b76399d0d1.png",
+            "885ec3e5-a541-4112-a0df-0750c59a5b9f.json",
+            "49037d19-0e17-4c71-a10b-aa6e30f5e7c0.png",
+            "18e139ea-e1d6-4dd8-b374-26bf6a8a4e16.json",
+            "13c30ca8-a338-4e0d-9fc6-113df2f90602.png",
+            "6ad5a00f-b97c-40c6-bc53-e0efb6c032dc.json",
+            "57dfad9f-4b60-4cee-9ef5-6531d80e9ed6.json",
+            "030b4cf2-1835-45c0-acca-ea8621ace404.json"
+          ]
+        }
+      ],
+      "coverage": "partial",
+      "historyMatches": true
+    },
+    {
+      "name": "wrong",
+      "runId": "run-2820cb2d-0a27-4c63-99d5-812d2e10c46f",
+      "status": "blocked",
+      "popup": {
+        "revision": "popup-viewport-2",
+        "taskId": "item-0ea143db-7f70-47d4-921a-e5554bfa0dfe",
+        "status": "measured",
+        "verdict": "pass",
+        "reason": "observed-floating-surfaces-fit",
+        "attempts": [
+          {
+            "itemId": "item-a90f894e-491c-4bb2-8fb7-2144422e7c61",
+            "actionId": "e2c7ccf8-d175-48e9-8987-a6f2100125d1",
+            "result": "completed"
+          }
+        ],
+        "missing": [],
+        "evidenceRefs": [
+          "fa823b59-c90a-485e-8dd2-832afe67a2c6.png",
+          "b18af83e-d32d-4339-98d3-4b42ae5c46d9.json",
+          "670c2a06-d59a-46fa-8f81-7803d8482edc.json",
+          "15b4bf43-5ae8-444f-ac2e-d265e545388d.json",
+          "52b84696-b09d-41d7-a840-60e1b801f68c.png",
+          "e7662709-b50d-41c4-bd28-d6e404bf5706.json",
+          "acab654c-6fd6-4153-be59-46df55b9b586.png",
+          "e1ec4b8b-088e-46bd-966b-2289a9acc513.json",
+          "7e6535ee-cf46-4904-a366-4c84c23c2140.json"
+        ],
+        "receiptRef": "7e6535ee-cf46-4904-a366-4c84c23c2140.json",
+        "decisions": 1,
+        "reads": 1,
+        "uiChecks": [
+          {
+            "targetId": "panel-1",
+            "verdict": "pass",
+            "reason": "panel-fits-visible-viewport",
+            "receiptRef": "e1ec4b8b-088e-46bd-966b-2289a9acc513.json"
+          }
+        ],
+        "scope": "Observed visible floating surface geometry only. Functional expectations are separate original item effects; other required checks remain independent."
+      },
+      "functionalChecks": [
+        {
+          "itemId": "item-a90f894e-491c-4bb2-8fb7-2144422e7c61",
+          "actionId": "e2c7ccf8-d175-48e9-8987-a6f2100125d1",
+          "requirementId": "requirement:e409b64df66bdfd16d400570",
+          "source": "After clicking \"Open details\", show popup \"Details overview\".",
+          "expectation": "Details overview",
+          "state": "unverified",
+          "evidenceRefs": [
+            "8b430200-dcb1-483e-9bf2-c0e8bebc47b1.png",
+            "4e6bf4bb-11e4-466d-869c-2d2b7456d54c.json",
+            "b99b68f9-01a4-465d-8dba-2bee7b51fc3e.png",
+            "dbcb4779-2c70-44f9-9a09-95aa0b2ee8b2.json",
+            "b2e59428-2516-423b-ad81-562784728fc4.png",
+            "5c2cf730-beeb-479b-bff4-5598e0cc0ec4.json",
+            "781eb8ae-c4cc-4eab-b5c5-fb47d596aaa3.json",
+            "d4931a11-8c6e-4544-b021-ec26f88b3d3d.json"
+          ]
+        }
+      ],
+      "coverage": "partial",
+      "historyMatches": true
+    },
+    {
+      "name": "existing",
+      "runId": "run-b3374f93-2927-42a9-b298-6501b0a31d40",
+      "status": "blocked",
+      "popup": {
+        "revision": "popup-viewport-2",
+        "taskId": "item-49e606ee-9503-4540-b997-866d955023cb",
+        "status": "measured",
+        "verdict": "pass",
+        "reason": "observed-floating-surfaces-fit",
+        "attempts": [],
+        "missing": [],
+        "evidenceRefs": [
+          "c99f59a6-53fd-4f84-8e05-816b679fb59d.png",
+          "07c7068c-9745-42bf-bd45-5b55928275ef.json",
+          "680551f9-48b2-40f1-911b-55955d2ff817.png",
+          "c0a53954-614d-4476-879d-b65c28277f59.json",
+          "836a3e57-6fb1-4172-ba4c-10b1937fe72e.json"
+        ],
+        "receiptRef": "836a3e57-6fb1-4172-ba4c-10b1937fe72e.json",
+        "decisions": 0,
+        "reads": 1,
+        "uiChecks": [
+          {
+            "targetId": "panel-1",
+            "verdict": "pass",
+            "reason": "panel-fits-visible-viewport",
+            "receiptRef": "c0a53954-614d-4476-879d-b65c28277f59.json"
+          }
+        ],
+        "scope": "Observed visible floating surface geometry only. Functional expectations are separate original item effects; other required checks remain independent."
+      },
+      "functionalChecks": [
+        {
+          "itemId": "item-2cf8b9a2-b830-4e0d-9a18-29d45b2c3651",
+          "requirementId": "requirement:62d41b497c41c8972fa9cb9f",
+          "source": "After clicking \"Open details\", show popup \"Details overview\".",
+          "expectation": "Details overview",
+          "state": "pending",
+          "evidenceRefs": []
+        }
+      ],
+      "coverage": "partial",
+      "historyMatches": true
+    }
+  ],
+  "modelRequests": 4,
+  "restartRestored": true,
+  "damagedReceiptRefusesPass": true
+}

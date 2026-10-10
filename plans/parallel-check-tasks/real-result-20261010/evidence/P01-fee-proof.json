@@ -1,0 +1,93 @@
+{
+  "row": "P01",
+  "parent": "run-60c6c8bc-eeca-4e67-bab8-845b368babee",
+  "parentStarts": 3,
+  "parentUsage": 5,
+  "mainFees": [
+    {
+      "requestId": "6a4619612495039604678496",
+      "runId": "run-60c6c8bc-eeca-4e67-bab8-845b368babee",
+      "phase": "parallel-popup-real-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.06,
+      "actualUsd": 0.00137178,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-10T03:49:06.753Z"
+    },
+    {
+      "requestId": "33f7cfc7a6e10d1b3c350e5c",
+      "runId": "run-60c6c8bc-eeca-4e67-bab8-845b368babee",
+      "phase": "parallel-popup-real-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.06,
+      "actualUsd": 0.00144102,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-10T03:49:16.079Z"
+    },
+    {
+      "requestId": "ace3716351457d9185dacc96",
+      "runId": "run-60c6c8bc-eeca-4e67-bab8-845b368babee",
+      "phase": "parallel-popup-real-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "unknown",
+      "reservedUsd": 0.06,
+      "actualUsd": null,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-10T03:49:23.920Z"
+    }
+  ],
+  "childFees": [
+    {
+      "requestId": "57fb44d8-42e4-4103-a342-ff37eb938b0f",
+      "runId": "check-a47dde7c-2a78-4b3c-803f-64d0563c64ee",
+      "phase": "popup-product",
+      "model": "typesafe/jev-1.13",
+      "provider": "TypeSafe",
+      "status": "unknown",
+      "reservedUsd": 0.003,
+      "actualUsd": null,
+      "priceSource": "TypeSafe <=0.042 USD/M input; <=32000 prompt; reserve 0.003",
+      "createdAt": "2026-10-10T03:49:25.226Z"
+    },
+    {
+      "requestId": "816a1f91-2217-4bd1-937c-e68da2089aa0",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "phase": "popup-product",
+      "model": "typesafe/jev-1.13",
+      "provider": "TypeSafe",
+      "status": "unknown",
+      "reservedUsd": 0.003,
+      "actualUsd": null,
+      "priceSource": "TypeSafe <=0.042 USD/M input; <=32000 prompt; reserve 0.003",
+      "createdAt": "2026-10-10T03:49:25.242Z"
+    }
+  ],
+  "providers": [
+    {
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "requestId": "816a1f91-2217-4bd1-937c-e68da2089aa0",
+      "campaignId": "19b67843-f204-4501-8d96-fd6cfefc4e70",
+      "packetHash": "ae323972da587e0f23ebaf928d7174ae656857af343216f92398cfa55d538db0",
+      "wireHash": "f47662c3ac99c2850eef02e39d05ec965ece6df28a366c4d852f4887d65e5ab5",
+      "dispatched": true,
+      "actualUsd": null,
+      "error": "popup-provider-unavailable"
+    },
+    {
+      "runId": "check-a47dde7c-2a78-4b3c-803f-64d0563c64ee",
+      "requestId": "57fb44d8-42e4-4103-a342-ff37eb938b0f",
+      "campaignId": "19b67843-f204-4501-8d96-fd6cfefc4e70",
+      "packetHash": "779a0cee13a9398d594116204b6342d7eabbce5605c15030ccea67dec3bc0803",
+      "wireHash": "48f36f3aebc7e52db097e4fe085166b7fb1013cf0a1c39593a49e28df2463069",
+      "dispatched": true,
+      "actualUsd": null,
+      "error": "popup-provider-unavailable"
+    }
+  ],
+  "matched": true
+}

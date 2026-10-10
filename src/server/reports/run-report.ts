@@ -286,7 +286,7 @@ export async function buildReport(runId: string) {
       ? visionFinished.reduce((sum, e) => sum + Number(e.payload[key]), 0)
       : null
   const active = isRunActive(runId)
-  const settled = !active && ['completed', 'blocked'].includes(run.status)
+  const settled = !active && terminals.has(run.status)
   const issues = settled ? completionIssues(run, events) : []
   if (events.some((e) => e.type === 'run:storage-inconsistent'))
     issues.push('completion-commit-unverified')
@@ -320,7 +320,7 @@ export async function buildReport(runId: string) {
       })),
     )),
   )
-  if (settled && run.spec.kind === 'ui-scan')
+  if (settled && ['completed', 'blocked'].includes(run.status) && run.spec.kind === 'ui-scan')
     issues.push(...inspectionHistoryIssues(run, events, readable))
   issues.push(
     ...(await defaultCheckArtifactIssues(

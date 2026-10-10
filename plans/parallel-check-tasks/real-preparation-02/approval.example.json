@@ -1,0 +1,14 @@
+{
+  "approvedBy": null,
+  "approvalReference": null,
+  "expiresAt": null,
+  "manifestSha256": "bf261f6cbe41d28c65ad9f3c8dc4272ec3db698d2d641985b04c2cb77a365fda",
+  "maxCostUsd": 1.86,
+  "maxParents": 3,
+  "maxMainRequests": 30,
+  "maxJevRequests": 18,
+  "singleBatch": true,
+  "retries": 0,
+  "oldAccountsUntouched": true,
+  "authorizeNewIsolatedAccount": true
+}

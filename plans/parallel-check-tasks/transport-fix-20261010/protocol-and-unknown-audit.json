@@ -1,0 +1,120 @@
+{
+  "frozenRequests": [
+    {
+      "path": "plans/parallel-check-tasks/real-result-20261010/evidence/artifacts/check-a47dde7c-2a78-4b3c-803f-64d0563c64ee/172dc2cb-530e-467e-a9f1-1e4abe6c32eb.json",
+      "sha256": "5491230c12af6eb70245d15c4b2bd45a402f0ff9c12a0d664993f3c4bc1c3625",
+      "bytes": 1833,
+      "model": "typesafe/jev-1.13",
+      "provider": {
+        "only": [
+          "TypeSafe"
+        ],
+        "allow_fallbacks": false
+      },
+      "stateType": "dict",
+      "questionCount": 1,
+      "choiceQuestions": [
+        {
+          "key": "popup",
+          "fields": [
+            "choices",
+            "criteria",
+            "type"
+          ],
+          "instructionsType": "NoneType",
+          "criteriaType": "str",
+          "choicesType": "dict",
+          "optionCount": 5
+        }
+      ]
+    },
+    {
+      "path": "plans/parallel-check-tasks/real-result-20261010/evidence/artifacts/check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030/b8be9772-bc9c-4997-924f-bbdb2728dbe9.json",
+      "sha256": "1045ad487e48f88515b64518eb7bc35bb69bb37d23a42fe7d9c95bba5ca55352",
+      "bytes": 1833,
+      "model": "typesafe/jev-1.13",
+      "provider": {
+        "only": [
+          "TypeSafe"
+        ],
+        "allow_fallbacks": false
+      },
+      "stateType": "dict",
+      "questionCount": 1,
+      "choiceQuestions": [
+        {
+          "key": "popup",
+          "fields": [
+            "choices",
+            "criteria",
+            "type"
+          ],
+          "instructionsType": "NoneType",
+          "criteriaType": "str",
+          "choicesType": "dict",
+          "optionCount": 5
+        }
+      ]
+    }
+  ],
+  "historicalSuccessfulRequest": {
+    "path": "plans/r1-controlled-loop-v1/paid/request.json",
+    "sha256": "924a0c684fd9a956d6a3c74c754b63931d4f148cb340aa6240325ed5f34dd698",
+    "bytes": 12171,
+    "model": "typesafe/jev-1.13",
+    "provider": {
+      "allow_fallbacks": false
+    },
+    "stateType": "dict",
+    "questionCount": 5,
+    "choiceQuestions": [
+      {
+        "key": "readiness",
+        "fields": [
+          "criteria",
+          "instructions",
+          "type"
+        ],
+        "instructionsType": "str",
+        "criteriaType": "dict",
+        "choicesType": "NoneType",
+        "optionCount": 3
+      }
+    ]
+  },
+  "historicalReceipt": "plans/r1-controlled-loop-v1/paid/real-result.json",
+  "officialSources": [
+    "https://openrouter.ai/docs/api/api-reference/alphadecisions/submit-a-decisions-request",
+    "https://openrouter.ai/docs/api/api-reference/generations/get-generation"
+  ],
+  "confirmedDefect": "popup choice used string criteria + choices, missing instructions; official and historical successful choice use instructions + object criteria",
+  "retrospectiveHttpRootCause": "not provable: status/body not retained",
+  "sourceHeaderNames": [
+    "Authorization",
+    "Content-Type"
+  ],
+  "sourceHeaderValuesArchived": false,
+  "supplierGenerationIdsFound": [
+    "gen-1791604147-kl7naRkFp7jDr87wlgfx",
+    "gen-1791604156-OgUTlkCrKUD86KFBgPXS"
+  ],
+  "unknownRequests": [
+    {
+      "requestId": "ace3716351457d9185dacc96",
+      "supplierGenerationId": null,
+      "action": "no metadata GET: missing authenticated supplier generation ID; local ID is not a lookup key"
+    },
+    {
+      "requestId": "57fb44d8-42e4-4103-a342-ff37eb938b0f",
+      "supplierGenerationId": null,
+      "action": "no metadata GET: missing authenticated supplier generation ID; local ID is not a lookup key"
+    },
+    {
+      "requestId": "816a1f91-2217-4bd1-937c-e68da2089aa0",
+      "supplierGenerationId": null,
+      "action": "no metadata GET: missing authenticated supplier generation ID; local ID is not a lookup key"
+    }
+  ],
+  "correctionToEarlierSummary": "Third main request did reach upstream HTTP 200 and 10 SSE events (4178 bytes); validation buffer was cancelled before release to gateway. No generation ID survived in archive. Gateway zero bytes is not zero upstream bytes.",
+  "reconciliationWrites": 0
+}

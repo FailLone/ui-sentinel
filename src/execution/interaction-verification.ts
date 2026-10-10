@@ -18,6 +18,7 @@ export const interactionVerificationInput = z.object({
       'expanded-equals',
       'count-equals',
       'visible',
+      'popup-visible',
       'numeric-ascending',
       'numeric-descending',
     ])
@@ -152,6 +153,7 @@ export function evaluateInteraction(
     measured.values.some((v) => v !== null && typeof v !== 'string')
   )
     return 'unverified'
+  if (input.condition === 'popup-visible') return 'unverified' // Requires the original before/after generic receipt.
   let passed: boolean | null = null
   if (input.condition === 'count-equals' && /^\d+$/.test(input.expected ?? ''))
     passed = measured.count === Number(input.expected)

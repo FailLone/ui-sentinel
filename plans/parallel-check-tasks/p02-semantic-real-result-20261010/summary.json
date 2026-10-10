@@ -1,0 +1,1706 @@
+{
+  "executedOnce": true,
+  "execution": {
+    "startedAt": "2026-10-10T09:09:14.493076+00:00",
+    "finishedAt": "2026-10-10T09:11:52.853058+00:00",
+    "exitCode": 3,
+    "output": "data/parallel-popup-real/approved-p02-semantic-purpose-01",
+    "realBatchAttempts": 1
+  },
+  "free": false,
+  "problem": null,
+  "stop": "",
+  "spending": {
+    "limitUsd": 0.62,
+    "knownCostUsd": 0.026595794000000002,
+    "unknownReservedUsd": 0,
+    "heldReservedUsd": 0,
+    "accountedUsd": 0.026595794000000002,
+    "unknownCount": 0,
+    "exceeded": false
+  },
+  "requests": [
+    {
+      "requestId": "be879634b46a8bd34d0620ed",
+      "runId": "run-7341abdd-bef8-49e7-b62f-64072ccbae1a",
+      "phase": "parallel-popup-p02-continuation-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.06,
+      "actualUsd": 0.00175965,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-10T09:09:17.221Z"
+    },
+    {
+      "requestId": "034c3c3148739049c915e1ec",
+      "runId": "run-7341abdd-bef8-49e7-b62f-64072ccbae1a",
+      "phase": "parallel-popup-p02-continuation-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.06,
+      "actualUsd": 0.001028,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-10T09:09:22.045Z"
+    },
+    {
+      "requestId": "822d174e-b537-4e57-a38c-ad9590b0ac16",
+      "runId": "check-fe22e236-4124-4760-8c86-002173a8243a",
+      "phase": "popup-product",
+      "model": "typesafe/jev-1.13",
+      "provider": "TypeSafe",
+      "status": "settled",
+      "reservedUsd": 0.003,
+      "actualUsd": 4.263e-05,
+      "priceSource": "TypeSafe <=0.042 USD/M input; <=32000 prompt; reserve 0.003",
+      "createdAt": "2026-10-10T09:09:23.297Z"
+    },
+    {
+      "requestId": "a526e4fc-5db9-4779-9080-c8dd4be57344",
+      "runId": "check-743133c9-7246-4001-a8cc-5ab5c61b5994",
+      "phase": "popup-product",
+      "model": "typesafe/jev-1.13",
+      "provider": "TypeSafe",
+      "status": "settled",
+      "reservedUsd": 0.003,
+      "actualUsd": 4.2714e-05,
+      "priceSource": "TypeSafe <=0.042 USD/M input; <=32000 prompt; reserve 0.003",
+      "createdAt": "2026-10-10T09:09:23.318Z"
+    },
+    {
+      "requestId": "c8cf1de1-e557-49fa-9fbe-5930787227f7",
+      "runId": "check-fe22e236-4124-4760-8c86-002173a8243a",
+      "phase": "popup-product",
+      "model": "typesafe/jev-1.13",
+      "provider": "TypeSafe",
+      "status": "settled",
+      "reservedUsd": 0.003,
+      "actualUsd": 4.1748e-05,
+      "priceSource": "TypeSafe <=0.042 USD/M input; <=32000 prompt; reserve 0.003",
+      "createdAt": "2026-10-10T09:09:25.544Z"
+    },
+    {
+      "requestId": "87f5944e-efa5-4d42-b6e6-fef1fae3d177",
+      "runId": "check-743133c9-7246-4001-a8cc-5ab5c61b5994",
+      "phase": "popup-product",
+      "model": "typesafe/jev-1.13",
+      "provider": "TypeSafe",
+      "status": "settled",
+      "reservedUsd": 0.003,
+      "actualUsd": 4.116e-05,
+      "priceSource": "TypeSafe <=0.042 USD/M input; <=32000 prompt; reserve 0.003",
+      "createdAt": "2026-10-10T09:09:25.569Z"
+    },
+    {
+      "requestId": "a6cf2cdc683e734b7717e709",
+      "runId": "run-7341abdd-bef8-49e7-b62f-64072ccbae1a",
+      "phase": "parallel-popup-p02-continuation-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.06,
+      "actualUsd": 0.00097515,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-10T09:09:26.975Z"
+    },
+    {
+      "requestId": "4f48d551-c174-4287-8baf-777f856d6223",
+      "runId": "check-fe22e236-4124-4760-8c86-002173a8243a",
+      "phase": "popup-product",
+      "model": "typesafe/jev-1.13",
+      "provider": "TypeSafe",
+      "status": "settled",
+      "reservedUsd": 0.003,
+      "actualUsd": 4.0572e-05,
+      "priceSource": "TypeSafe <=0.042 USD/M input; <=32000 prompt; reserve 0.003",
+      "createdAt": "2026-10-10T09:09:27.918Z"
+    },
+    {
+      "requestId": "35e20c96-e008-43ce-993b-bfde4f8a8928",
+      "runId": "check-743133c9-7246-4001-a8cc-5ab5c61b5994",
+      "phase": "popup-product",
+      "model": "typesafe/jev-1.13",
+      "provider": "TypeSafe",
+      "status": "settled",
+      "reservedUsd": 0.003,
+      "actualUsd": 4.032e-05,
+      "priceSource": "TypeSafe <=0.042 USD/M input; <=32000 prompt; reserve 0.003",
+      "createdAt": "2026-10-10T09:09:27.940Z"
+    },
+    {
+      "requestId": "a6f71670d26c5004b6a2578e",
+      "runId": "run-7341abdd-bef8-49e7-b62f-64072ccbae1a",
+      "phase": "parallel-popup-p02-continuation-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.06,
+      "actualUsd": 0.0042219,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-10T09:09:29.264Z"
+    },
+    {
+      "requestId": "a38c3c1cd8570bc87936dbe1",
+      "runId": "run-7341abdd-bef8-49e7-b62f-64072ccbae1a",
+      "phase": "parallel-popup-p02-continuation-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.06,
+      "actualUsd": 0.00280285,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-10T09:10:00.964Z"
+    },
+    {
+      "requestId": "dfeb6dd4fdaff0c7e2d322d0",
+      "runId": "run-7341abdd-bef8-49e7-b62f-64072ccbae1a",
+      "phase": "parallel-popup-p02-continuation-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.06,
+      "actualUsd": 0.0064412,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-10T09:10:16.572Z"
+    },
+    {
+      "requestId": "0afa5ecbcd0af75ca530b63a",
+      "runId": "run-7341abdd-bef8-49e7-b62f-64072ccbae1a",
+      "phase": "parallel-popup-p02-continuation-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.06,
+      "actualUsd": 0.0026148,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-10T09:11:11.023Z"
+    },
+    {
+      "requestId": "75793926cacafb47d6c5d29b",
+      "runId": "run-7341abdd-bef8-49e7-b62f-64072ccbae1a",
+      "phase": "parallel-popup-p02-continuation-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.06,
+      "actualUsd": 0.0065031,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-10T09:11:28.708Z"
+    }
+  ],
+  "mainRequests": 8,
+  "jevRequests": 6,
+  "accountRows": {
+    "campaign_lease": 0,
+    "ledger_stop_events": 0
+  },
+  "feeProofMatched": true,
+  "artifactCount": 205,
+  "payloadCount": 205,
+  "oldArchiveChanges": [],
+  "runs": [
+    {
+      "runId": "check-743133c9-7246-4001-a8cc-5ab5c61b5994",
+      "viewport": {
+        "width": 640,
+        "height": 480
+      },
+      "status": "blocked",
+      "coverage": "partial",
+      "scopeCounts": {
+        "total": 38,
+        "selected": 18,
+        "pending": 3,
+        "verified": 14,
+        "failed": 1,
+        "unverified": 20,
+        "excluded": 0
+      },
+      "gaps": [
+        {
+          "itemId": "item-136e193b-6178-49dc-b799-dd29db7b5709",
+          "category": "local-interaction",
+          "status": "pending",
+          "reason": "v2-mandatory-checks-incomplete",
+          "reasonCode": "v2-mandatory-checks-incomplete"
+        },
+        {
+          "itemId": "item-9deb0c11-4697-4ec5-85b8-f4d0c627af2e",
+          "category": "local-interaction",
+          "status": "pending",
+          "reason": "v2-mandatory-checks-incomplete",
+          "reasonCode": "v2-mandatory-checks-incomplete"
+        },
+        {
+          "itemId": "item-ada3c7f7-a930-45f5-be20-9d5fc549ce38",
+          "category": "investigation",
+          "status": "pending",
+          "reason": "selected-not-resolved",
+          "reasonCode": null
+        }
+      ],
+      "persistence": {
+        "status": "verified",
+        "issues": [],
+        "recordedStatus": "blocked",
+        "recordedBusinessResult": "not-applicable",
+        "recordedStopReason": "blocked",
+        "readConsistency": "single-read-transaction"
+      },
+      "usage": {
+        "actions": 2,
+        "modelCalls": 3,
+        "elapsedMs": 6377,
+        "modelInputTokens": null,
+        "modelOutputTokens": null
+      },
+      "popup": {
+        "candidateGeometry": [
+          {
+            "targetId": "panel-1",
+            "geometryVerdict": "pass",
+            "association": "unconfirmed",
+            "reason": "panel-fits-visible-viewport",
+            "receiptRef": "504bd04e-bbec-4484-a72b-2e1d7e96ec94.json",
+            "scope": "Candidate observation only; does not settle the requested item or count as an attributed defect."
+          }
+        ],
+        "revision": "popup-viewport-1",
+        "taskId": "item-ada3c7f7-a930-45f5-be20-9d5fc549ce38",
+        "status": "handoff",
+        "verdict": "unknown",
+        "reason": "popup-target-ambiguous",
+        "attempts": [
+          {
+            "itemId": "item-cc289110-aa7a-48ac-9898-211d75e817a4",
+            "actionId": "7473dd29-e7dd-4df9-8704-4ced4c77cbac",
+            "result": "completed"
+          },
+          {
+            "itemId": "item-a10a56eb-4a7c-47f1-b0b9-c67c487bc063",
+            "actionId": "9c4722ad-8e9b-4ff0-bd59-29aa7aa5888c",
+            "result": "completed"
+          }
+        ],
+        "missing": [
+          "which-actual-new-panel-is-the-action-result"
+        ],
+        "evidenceRefs": [
+          "6f8358bf-a129-4fa9-85ae-6a00bd18f029.png",
+          "c735b430-f6a3-4401-8e73-f411e48c3ed1.json",
+          "792ccd2b-1cad-4c7e-8e05-ca5c481686a7.json",
+          "fed88822-a780-4067-ba51-d5b5a6fd807a.json",
+          "c52a9113-912b-43de-be04-fafa1e68667f.png",
+          "3dfd2f2c-4b2c-4bb3-beeb-d878af29235a.json",
+          "264bfedd-538a-4918-a78a-f5d012447c36.json",
+          "942cfc3f-b84a-4668-8eba-e6d0dbe8d48d.json",
+          "313cc92a-247e-4df9-9f4c-bc7e7998937c.png",
+          "eb816bbf-2eb0-4dd9-a48f-5e1d8bac8fc4.json",
+          "0a2cb060-e619-4b2d-ae60-3c3b14714fe3.png",
+          "504bd04e-bbec-4484-a72b-2e1d7e96ec94.json",
+          "cfdd1dd7-29e6-4695-8629-83433942862f.json",
+          "ff5de6af-a5ed-451d-859d-3968b67c8991.json"
+        ],
+        "receiptRef": null,
+        "decisions": 3,
+        "reads": 1,
+        "scope": "Measured popup at the recorded state only; required/default checks remain independent."
+      },
+      "decisions": [
+        {
+          "seq": 67,
+          "stage": "entry",
+          "packet": {
+            "revision": "popup-semantic-2",
+            "stage": "entry",
+            "binding": "f8cf1ebae0d01bfa657f3cc020e1a9f84fe648d4c2021b447a8d068bea388052",
+            "goal": "Check whether an actual popup exceeds the visible viewport. User focus: 检查弹窗是否超出视口。; delegated context: 检查弹窗是否超出视口（640×480）：匿名会话下在同一入口触发弹窗并测量其边界是否超出视口。",
+            "candidates": [
+              {
+                "id": "item-136e193b-6178-49dc-b799-dd29db7b5709",
+                "description": "button \"Sort alphabetically\"; public attributes {}",
+                "visible": true,
+                "enabled": true,
+                "newlyObserved": false
+              },
+              {
+                "id": "item-9deb0c11-4697-4ec5-85b8-f4d0c627af2e",
+                "description": "button \"Change density\"; public attributes {}",
+                "visible": true,
+                "enabled": true,
+                "newlyObserved": false
+              },
+              {
+                "id": "item-cc289110-aa7a-48ac-9898-211d75e817a4",
+                "description": "button \"More options\"; public attributes {}",
+                "visible": true,
+                "enabled": true,
+                "newlyObserved": false
+              }
+            ],
+            "context": {
+              "observation": {
+                "text": "Workspace\nSort alphabeticallyChange densityMore options",
+                "visiblePanels": 0,
+                "newEntryIds": [],
+                "changedSinceAction": false
+              },
+              "remaining": {
+                "reads": 2,
+                "actions": 3,
+                "calls": 3,
+                "timeMs": 139096
+              },
+              "read": {
+                "allowed": false,
+                "reason": "popup-read-no-action-gap"
+              }
+            },
+            "evidenceRefs": [
+              "6f8358bf-a129-4fa9-85ae-6a00bd18f029.png",
+              "c735b430-f6a3-4401-8e73-f411e48c3ed1.json"
+            ],
+            "missing": [
+              "possible-popup-entry"
+            ],
+            "attempts": []
+          },
+          "adoption": {
+            "policy": "popup-purpose-policy-2",
+            "calibrated": false,
+            "purpose": "entry-exploration",
+            "raw": {
+              "binding": "f8cf1ebae0d01bfa657f3cc020e1a9f84fe648d4c2021b447a8d068bea388052",
+              "choice": "item-cc289110-aa7a-48ac-9898-211d75e817a4",
+              "confidence": 0.79,
+              "probabilities": {
+                "item-136e193b-6178-49dc-b799-dd29db7b5709": 0,
+                "item-9deb0c11-4697-4ec5-85b8-f4d0c627af2e": 0.01,
+                "item-cc289110-aa7a-48ac-9898-211d75e817a4": 0.84,
+                "none": 0.15
+              }
+            },
+            "n": 4,
+            "accepted": true,
+            "reason": "bounded-exploration-majority",
+            "proposal": {
+              "binding": "f8cf1ebae0d01bfa657f3cc020e1a9f84fe648d4c2021b447a8d068bea388052",
+              "choice": "item-cc289110-aa7a-48ac-9898-211d75e817a4",
+              "confidence": 0.79,
+              "probabilities": {
+                "item-136e193b-6178-49dc-b799-dd29db7b5709": 0,
+                "item-9deb0c11-4697-4ec5-85b8-f4d0c627af2e": 0.01,
+                "item-cc289110-aa7a-48ac-9898-211d75e817a4": 0.84,
+                "none": 0.15
+              }
+            }
+          },
+          "proposal": {
+            "binding": "f8cf1ebae0d01bfa657f3cc020e1a9f84fe648d4c2021b447a8d068bea388052",
+            "choice": "item-cc289110-aa7a-48ac-9898-211d75e817a4",
+            "confidence": 0.79,
+            "probabilities": {
+              "item-136e193b-6178-49dc-b799-dd29db7b5709": 0,
+              "item-9deb0c11-4697-4ec5-85b8-f4d0c627af2e": 0.01,
+              "item-cc289110-aa7a-48ac-9898-211d75e817a4": 0.84,
+              "none": 0.15
+            }
+          }
+        },
+        {
+          "seq": 170,
+          "stage": "entry",
+          "packet": {
+            "revision": "popup-semantic-2",
+            "stage": "entry",
+            "binding": "d4360cd01a56da0cbabb2de342446ac73edc32908b469324ac2243477ea0aa73",
+            "goal": "Check whether an actual popup exceeds the visible viewport. User focus: 检查弹窗是否超出视口。; delegated context: 检查弹窗是否超出视口（640×480）：匿名会话下在同一入口触发弹窗并测量其边界是否超出视口。",
+            "candidates": [
+              {
+                "id": "item-a10a56eb-4a7c-47f1-b0b9-c67c487bc063",
+                "description": "button \"Details\"; public attributes {}",
+                "visible": true,
+                "enabled": true,
+                "newlyObserved": true
+              }
+            ],
+            "context": {
+              "previousAction": {
+                "itemId": "item-cc289110-aa7a-48ac-9898-211d75e817a4",
+                "actionId": "7473dd29-e7dd-4df9-8704-4ced4c77cbac",
+                "result": "completed",
+                "description": "button \"More options\"; public attributes {}"
+              },
+              "observation": {
+                "text": "Workspace\nSort alphabeticallyChange densityMore options\nDetails",
+                "visiblePanels": 0,
+                "newEntryIds": [
+                  "item-a10a56eb-4a7c-47f1-b0b9-c67c487bc063"
+                ],
+                "changedSinceAction": true
+              },
+              "remaining": {
+                "reads": 2,
+                "actions": 2,
+                "calls": 2,
+                "timeMs": 136219
+              },
+              "read": {
+                "allowed": false,
+                "reason": "popup-reuse-new-entry-facts"
+              }
+            },
+            "evidenceRefs": [
+              "6f8358bf-a129-4fa9-85ae-6a00bd18f029.png",
+              "c735b430-f6a3-4401-8e73-f411e48c3ed1.json",
+              "792ccd2b-1cad-4c7e-8e05-ca5c481686a7.json",
+              "fed88822-a780-4067-ba51-d5b5a6fd807a.json",
+              "c52a9113-912b-43de-be04-fafa1e68667f.png",
+              "3dfd2f2c-4b2c-4bb3-beeb-d878af29235a.json"
+            ],
+            "missing": [
+              "new-public-entry-observed-popup-effect-unproven"
+            ],
+            "attempts": [
+              {
+                "itemId": "item-cc289110-aa7a-48ac-9898-211d75e817a4",
+                "actionId": "7473dd29-e7dd-4df9-8704-4ced4c77cbac",
+                "result": "completed"
+              }
+            ]
+          },
+          "adoption": {
+            "policy": "popup-purpose-policy-2",
+            "calibrated": false,
+            "purpose": "entry-exploration",
+            "raw": {
+              "binding": "d4360cd01a56da0cbabb2de342446ac73edc32908b469324ac2243477ea0aa73",
+              "choice": "item-a10a56eb-4a7c-47f1-b0b9-c67c487bc063",
+              "confidence": 0.8,
+              "probabilities": {
+                "item-a10a56eb-4a7c-47f1-b0b9-c67c487bc063": 0.9,
+                "none": 0.1
+              }
+            },
+            "n": 2,
+            "accepted": true,
+            "reason": "bounded-exploration-majority",
+            "proposal": {
+              "binding": "d4360cd01a56da0cbabb2de342446ac73edc32908b469324ac2243477ea0aa73",
+              "choice": "item-a10a56eb-4a7c-47f1-b0b9-c67c487bc063",
+              "confidence": 0.8,
+              "probabilities": {
+                "item-a10a56eb-4a7c-47f1-b0b9-c67c487bc063": 0.9,
+                "none": 0.1
+              }
+            }
+          },
+          "proposal": {
+            "binding": "d4360cd01a56da0cbabb2de342446ac73edc32908b469324ac2243477ea0aa73",
+            "choice": "item-a10a56eb-4a7c-47f1-b0b9-c67c487bc063",
+            "confidence": 0.8,
+            "probabilities": {
+              "item-a10a56eb-4a7c-47f1-b0b9-c67c487bc063": 0.9,
+              "none": 0.1
+            }
+          }
+        },
+        {
+          "seq": 251,
+          "stage": "target",
+          "packet": {
+            "revision": "popup-semantic-2",
+            "stage": "target",
+            "binding": "90c44f99e1cc926ed7f8cfa7fe2a9b78e7b834e3107d1c1bdc2395a19379e5b1",
+            "goal": "Check whether an actual popup exceeds the visible viewport. User focus: 检查弹窗是否超出视口。; delegated context: 检查弹窗是否超出视口（640×480）：匿名会话下在同一入口触发弹窗并测量其边界是否超出视口。",
+            "candidates": [
+              {
+                "id": "panel-1",
+                "description": "div  Details overview"
+              }
+            ],
+            "context": {
+              "previousAction": {
+                "itemId": "item-a10a56eb-4a7c-47f1-b0b9-c67c487bc063",
+                "actionId": "9c4722ad-8e9b-4ff0-bd59-29aa7aa5888c",
+                "result": "completed",
+                "description": "button \"Details\"; public attributes {}"
+              },
+              "observation": {
+                "text": "Workspace\nSort alphabeticallyChange densityMore options\nDetails\nDetails overview",
+                "visiblePanels": 1,
+                "newEntryIds": [],
+                "changedSinceAction": true
+              },
+              "remaining": {
+                "reads": 1,
+                "actions": 1,
+                "calls": 1,
+                "timeMs": 133853
+              },
+              "read": {
+                "allowed": true,
+                "reason": "unresolved-post-action-observation"
+              }
+            },
+            "evidenceRefs": [
+              "6f8358bf-a129-4fa9-85ae-6a00bd18f029.png",
+              "c735b430-f6a3-4401-8e73-f411e48c3ed1.json",
+              "792ccd2b-1cad-4c7e-8e05-ca5c481686a7.json",
+              "fed88822-a780-4067-ba51-d5b5a6fd807a.json",
+              "c52a9113-912b-43de-be04-fafa1e68667f.png",
+              "3dfd2f2c-4b2c-4bb3-beeb-d878af29235a.json",
+              "264bfedd-538a-4918-a78a-f5d012447c36.json",
+              "942cfc3f-b84a-4668-8eba-e6d0dbe8d48d.json",
+              "313cc92a-247e-4df9-9f4c-bc7e7998937c.png",
+              "eb816bbf-2eb0-4dd9-a48f-5e1d8bac8fc4.json",
+              "0a2cb060-e619-4b2d-ae60-3c3b14714fe3.png",
+              "504bd04e-bbec-4484-a72b-2e1d7e96ec94.json"
+            ],
+            "missing": [
+              "which-actual-new-panel-is-the-action-result"
+            ],
+            "attempts": [
+              {
+                "itemId": "item-cc289110-aa7a-48ac-9898-211d75e817a4",
+                "actionId": "7473dd29-e7dd-4df9-8704-4ced4c77cbac",
+                "result": "completed"
+              },
+              {
+                "itemId": "item-a10a56eb-4a7c-47f1-b0b9-c67c487bc063",
+                "actionId": "9c4722ad-8e9b-4ff0-bd59-29aa7aa5888c",
+                "result": "completed"
+              }
+            ]
+          },
+          "adoption": {
+            "policy": "popup-purpose-policy-2",
+            "calibrated": false,
+            "purpose": "target-association",
+            "raw": {
+              "binding": "90c44f99e1cc926ed7f8cfa7fe2a9b78e7b834e3107d1c1bdc2395a19379e5b1",
+              "choice": "panel-1",
+              "confidence": 0.26,
+              "probabilities": {
+                "panel-1": 0.63,
+                "none": 0.37
+              }
+            },
+            "n": 2,
+            "accepted": false,
+            "reason": "association-below-provisional-floor",
+            "proposal": {
+              "binding": "90c44f99e1cc926ed7f8cfa7fe2a9b78e7b834e3107d1c1bdc2395a19379e5b1",
+              "choice": "handoff",
+              "confidence": 0.26,
+              "probabilities": {
+                "panel-1": 0.63,
+                "none": 0.37
+              }
+            }
+          },
+          "proposal": {
+            "binding": "90c44f99e1cc926ed7f8cfa7fe2a9b78e7b834e3107d1c1bdc2395a19379e5b1",
+            "choice": "handoff",
+            "confidence": 0.26,
+            "probabilities": {
+              "panel-1": 0.63,
+              "none": 0.37
+            }
+          }
+        }
+      ],
+      "geometry": [
+        {
+          "type": "popup:candidate-geometry",
+          "seq": 249,
+          "event": {
+            "taskId": "item-ada3c7f7-a930-45f5-be20-9d5fc549ce38",
+            "receiptRef": "504bd04e-bbec-4484-a72b-2e1d7e96ec94.json",
+            "receiptHash": "ffcaa022ad85b944c941cd1b27c2bd12468e31204790d999ce0284d326f67688",
+            "targetId": "panel-1",
+            "geometryVerdict": "pass",
+            "association": "unconfirmed",
+            "reason": "panel-fits-visible-viewport"
+          },
+          "receipt": {
+            "revision": "popup-candidate-geometry-1",
+            "policy": "popup-purpose-policy-2",
+            "taskId": "item-ada3c7f7-a930-45f5-be20-9d5fc549ce38",
+            "contractHash": "05ff2d346885a11bdc4d94634fcaafe6d0e3f7e7c8a25f58df32dfff7f0a7728",
+            "association": "unconfirmed",
+            "actionId": null,
+            "itemId": null,
+            "frame": {
+              "binding": "90c44f99e1cc926ed7f8cfa7fe2a9b78e7b834e3107d1c1bdc2395a19379e5b1",
+              "version": "31b3b18a9479975c30f033f72a71a75c5f8d2a574eea25d6feb73daa5cfc9070",
+              "actionEpoch": 2,
+              "url": "http://127.0.0.1:65509/p/two",
+              "reusable": true,
+              "entries": [
+                {
+                  "id": "item-136e193b-6178-49dc-b799-dd29db7b5709",
+                  "ref": "e27",
+                  "description": "button \"Sort alphabetically\"; public attributes {}",
+                  "visible": true,
+                  "enabled": true
+                },
+                {
+                  "id": "item-9deb0c11-4697-4ec5-85b8-f4d0c627af2e",
+                  "ref": "e28",
+                  "description": "button \"Change density\"; public attributes {}",
+                  "visible": true,
+                  "enabled": true
+                },
+                {
+                  "id": "item-cc289110-aa7a-48ac-9898-211d75e817a4",
+                  "ref": "e29",
+                  "description": "button \"More options\"; public attributes {}",
+                  "visible": true,
+                  "enabled": true
+                },
+                {
+                  "id": "item-a10a56eb-4a7c-47f1-b0b9-c67c487bc063",
+                  "ref": "e30",
+                  "description": "button \"Details\"; public attributes {}",
+                  "visible": true,
+                  "enabled": true
+                }
+              ],
+              "text": "Workspace\nSort alphabeticallyChange densityMore options\nDetails\nDetails overview",
+              "panels": [
+                {
+                  "id": "panel-1",
+                  "description": "div  Details overview",
+                  "kind": "custom",
+                  "rect": {
+                    "x": 20,
+                    "y": 120,
+                    "width": 400,
+                    "height": 150
+                  },
+                  "viewport": {
+                    "x": 0,
+                    "y": 0,
+                    "width": 640,
+                    "height": 480
+                  },
+                  "clips": [],
+                  "unsupported": [],
+                  "visible": true,
+                  "url": "http://127.0.0.1:65509/p/two",
+                  "topLayer": false
+                }
+              ],
+              "evidenceRefs": [
+                "313cc92a-247e-4df9-9f4c-bc7e7998937c.png",
+                "eb816bbf-2eb0-4dd9-a48f-5e1d8bac8fc4.json"
+              ]
+            },
+            "targetId": "panel-1",
+            "measurement": {
+              "revision": "popup-geometry-1",
+              "targetId": "panel-1",
+              "samples": [
+                {
+                  "id": "panel-1",
+                  "description": "div  Details overview",
+                  "kind": "custom",
+                  "rect": {
+                    "x": 20,
+                    "y": 120,
+                    "width": 400,
+                    "height": 150
+                  },
+                  "viewport": {
+                    "x": 0,
+                    "y": 0,
+                    "width": 640,
+                    "height": 480
+                  },
+                  "clips": [],
+                  "unsupported": [],
+                  "visible": true,
+                  "url": "http://127.0.0.1:65509/p/two",
+                  "topLayer": false
+                },
+                {
+                  "id": "panel-1",
+                  "description": "div  Details overview",
+                  "kind": "custom",
+                  "rect": {
+                    "x": 20,
+                    "y": 120,
+                    "width": 400,
+                    "height": 150
+                  },
+                  "viewport": {
+                    "x": 0,
+                    "y": 0,
+                    "width": 640,
+                    "height": 480
+                  },
+                  "clips": [],
+                  "unsupported": [],
+                  "visible": true,
+                  "url": "http://127.0.0.1:65509/p/two",
+                  "topLayer": false
+                }
+              ],
+              "tolerancePx": 1,
+              "verdict": "pass",
+              "reason": "panel-fits-visible-viewport"
+            },
+            "screenshotRef": "0a2cb060-e619-4b2d-ae60-3c3b14714fe3.png",
+            "evidenceRefs": [
+              "6f8358bf-a129-4fa9-85ae-6a00bd18f029.png",
+              "c735b430-f6a3-4401-8e73-f411e48c3ed1.json",
+              "792ccd2b-1cad-4c7e-8e05-ca5c481686a7.json",
+              "fed88822-a780-4067-ba51-d5b5a6fd807a.json",
+              "c52a9113-912b-43de-be04-fafa1e68667f.png",
+              "3dfd2f2c-4b2c-4bb3-beeb-d878af29235a.json",
+              "264bfedd-538a-4918-a78a-f5d012447c36.json",
+              "942cfc3f-b84a-4668-8eba-e6d0dbe8d48d.json",
+              "313cc92a-247e-4df9-9f4c-bc7e7998937c.png",
+              "eb816bbf-2eb0-4dd9-a48f-5e1d8bac8fc4.json",
+              "0a2cb060-e619-4b2d-ae60-3c3b14714fe3.png"
+            ],
+            "evidenceHashes": {
+              "6f8358bf-a129-4fa9-85ae-6a00bd18f029.png": "2ff6ad332b36acbe644bc706bc7936985225c2d1ae5932359fee33ecc78502ec",
+              "c735b430-f6a3-4401-8e73-f411e48c3ed1.json": "759f01a39e9ee6b620150159fb955ad22eeccc8e489cbb89693672d445165bdc",
+              "792ccd2b-1cad-4c7e-8e05-ca5c481686a7.json": "b61859c9f628acfba1f79015fd30281f3ac0251926e10b89c5a9497dda22c2b3",
+              "fed88822-a780-4067-ba51-d5b5a6fd807a.json": "8f7d89b98ef59bb8e9353e4bde16051bcbdb4c24cb3aaf3f668f44f1a44d675a",
+              "c52a9113-912b-43de-be04-fafa1e68667f.png": "3f81b2442ee7a046b816cdd9efa03c297c11bc5eefd356d1fe1ea3d6ac6f5a38",
+              "3dfd2f2c-4b2c-4bb3-beeb-d878af29235a.json": "9f44efb6faea446f81fc5560cade6110c944cd7fb8e7674974408f9a4b3db9a6",
+              "264bfedd-538a-4918-a78a-f5d012447c36.json": "56a896ea57d18ffa9f61428ea70697727f17b87dcd1433d33563cedc4e7f2f8f",
+              "942cfc3f-b84a-4668-8eba-e6d0dbe8d48d.json": "583db43daf3e16174ddb411a8a9b8f20594c8191dc27d8bfa55bf7172b79f30a",
+              "313cc92a-247e-4df9-9f4c-bc7e7998937c.png": "c582a1179db476985c63554657ee8eaeb34f359743b4037b19250c158ab1cf6d",
+              "eb816bbf-2eb0-4dd9-a48f-5e1d8bac8fc4.json": "c4e7dcd1e68e25c2208f0d9f2b86bfb544799b123b387f07148c7d3b4e48ec34",
+              "0a2cb060-e619-4b2d-ae60-3c3b14714fe3.png": "c582a1179db476985c63554657ee8eaeb34f359743b4037b19250c158ab1cf6d"
+            }
+          }
+        }
+      ],
+      "actionEvents": [
+        {
+          "id": "evt-93fcb748-5774-4fd9-acd6-2afde1623a6c",
+          "runId": "check-743133c9-7246-4001-a8cc-5ab5c61b5994",
+          "seq": 100,
+          "type": "action:executing",
+          "timestamp": "2026-10-10T09:09:23.901Z",
+          "stepId": "action-1",
+          "actionId": "7473dd29-e7dd-4df9-8704-4ced4c77cbac",
+          "payload": {
+            "type": "click",
+            "target": "html > body:nth-of-type(1) > button:nth-of-type(3)",
+            "dispatchTime": 1791623363898
+          },
+          "evidenceRefs": [
+            "bd1706af-30b1-4592-ad38-759f84718ce3.png",
+            "1197be6f-93b8-44ef-8ed8-842f0207a27f.json"
+          ]
+        },
+        {
+          "id": "evt-48fc2844-1b34-4bad-b7c7-37d28e9eabbe",
+          "runId": "check-743133c9-7246-4001-a8cc-5ab5c61b5994",
+          "seq": 102,
+          "type": "action:completed",
+          "timestamp": "2026-10-10T09:09:24.024Z",
+          "stepId": "action-1",
+          "actionId": "7473dd29-e7dd-4df9-8704-4ced4c77cbac",
+          "payload": {
+            "type": "click",
+            "target": "html > body:nth-of-type(1) > button:nth-of-type(3)",
+            "networkWrites": 0
+          },
+          "evidenceRefs": []
+        },
+        {
+          "id": "evt-0708bc7d-fcc1-4ae0-a08e-c4645ebc8405",
+          "runId": "check-743133c9-7246-4001-a8cc-5ab5c61b5994",
+          "seq": 180,
+          "type": "action:executing",
+          "timestamp": "2026-10-10T09:09:26.040Z",
+          "stepId": "action-2",
+          "actionId": "9c4722ad-8e9b-4ff0-bd59-29aa7aa5888c",
+          "payload": {
+            "type": "click",
+            "target": "html > body:nth-of-type(1) > div:nth-of-type(1) > button:nth-of-type(1)",
+            "dispatchTime": 1791623366039
+          },
+          "evidenceRefs": [
+            "c52a9113-912b-43de-be04-fafa1e68667f.png",
+            "3dfd2f2c-4b2c-4bb3-beeb-d878af29235a.json"
+          ]
+        },
+        {
+          "id": "evt-810587f2-25aa-4565-9da0-04eb08e598a9",
+          "runId": "check-743133c9-7246-4001-a8cc-5ab5c61b5994",
+          "seq": 182,
+          "type": "action:completed",
+          "timestamp": "2026-10-10T09:09:26.114Z",
+          "stepId": "action-2",
+          "actionId": "9c4722ad-8e9b-4ff0-bd59-29aa7aa5888c",
+          "payload": {
+            "type": "click",
+            "target": "html > body:nth-of-type(1) > div:nth-of-type(1) > button:nth-of-type(1)",
+            "networkWrites": 0
+          },
+          "evidenceRefs": []
+        }
+      ],
+      "resourceEvents": [
+        {
+          "id": "evt-7df80cbe-ba4e-4bbb-b5fa-46fe7b4deee6",
+          "runId": "check-743133c9-7246-4001-a8cc-5ab5c61b5994",
+          "seq": 260,
+          "type": "run:delegated-resource-closed",
+          "timestamp": "2026-10-10T09:09:28.394Z",
+          "stepId": null,
+          "actionId": null,
+          "payload": {
+            "closed": true,
+            "parentRunId": "run-7341abdd-bef8-49e7-b62f-64072ccbae1a"
+          },
+          "evidenceRefs": []
+        }
+      ],
+      "findings": [
+        {
+          "id": "finding-b56ccc72-8811-4909-b196-7bf3aeeb001a",
+          "runId": "check-743133c9-7246-4001-a8cc-5ab5c61b5994",
+          "source": "rule",
+          "ruleId": "overlay-blocking",
+          "ruleRevision": "2.1.0",
+          "hypothesisId": null,
+          "validationStatus": "supported",
+          "severity": "error",
+          "title": "Visible action intercepted at all sampled points",
+          "expected": "Visible enabled actions receive pointer input",
+          "actual": "1 intercepted actions; 0 partially covered; 0 unmeasured",
+          "stepId": "action-2",
+          "evidenceRefs": [
+            "06653906-c40f-47e2-b937-7fa53260e018.png",
+            "0512bde0-ea9c-482f-8c0c-f83db008d476.json",
+            "43703f93-970b-4a6b-8974-1357ec12a4d8.png"
+          ],
+          "createdAt": "2026-10-10T09:09:26.340Z"
+        }
+      ]
+    },
+    {
+      "runId": "run-7341abdd-bef8-49e7-b62f-64072ccbae1a",
+      "viewport": {
+        "width": 1280,
+        "height": 768
+      },
+      "status": "blocked",
+      "coverage": "partial",
+      "scopeCounts": {
+        "total": 38,
+        "selected": 19,
+        "pending": 0,
+        "verified": 12,
+        "failed": 0,
+        "unverified": 26,
+        "excluded": 0
+      },
+      "gaps": [
+        {
+          "itemId": "item-d0395074-50a4-4db9-b0a0-1ac273b227b3",
+          "category": "investigation",
+          "status": "unverified",
+          "reason": "goal-unresolved",
+          "reasonCode": "goal-unresolved"
+        },
+        {
+          "itemId": "item-7ccaa9b3-2f35-4df9-a080-54cc0da7c8e6",
+          "category": "local-interaction",
+          "status": "unverified",
+          "reason": "v2-mandatory-checks-incomplete",
+          "reasonCode": "v2-mandatory-checks-incomplete"
+        },
+        {
+          "itemId": "item-498e96ad-b34a-46bb-884b-76f7bc44a8a4",
+          "category": "local-interaction",
+          "status": "unverified",
+          "reason": "v2-mandatory-checks-incomplete",
+          "reasonCode": "v2-mandatory-checks-incomplete"
+        },
+        {
+          "itemId": "item-d9a2dc23-2bd9-4b7b-9cf8-d4ddcfca0196",
+          "category": "local-interaction",
+          "status": "unverified",
+          "reason": "v2-mandatory-checks-incomplete",
+          "reasonCode": "v2-mandatory-checks-incomplete"
+        },
+        {
+          "itemId": "item-c7eaafe5-5c57-4462-8106-3ef8cf70a154",
+          "category": "investigation",
+          "status": "unverified",
+          "reason": "model-budget-reserve",
+          "reasonCode": "model-budget-reserve"
+        },
+        {
+          "itemId": "item-2d01e01c-9d85-48aa-80de-6391b038afd7",
+          "category": "investigation",
+          "status": "unverified",
+          "reason": "delegated-check-unverified",
+          "reasonCode": "delegated-check-unverified"
+        },
+        {
+          "itemId": "item-adfdc65c-9c64-4850-94c6-738ba5c20851",
+          "category": "investigation",
+          "status": "unverified",
+          "reason": "delegated-check-unverified",
+          "reasonCode": "delegated-check-unverified"
+        }
+      ],
+      "persistence": {
+        "status": "verified",
+        "issues": [],
+        "recordedStatus": "blocked",
+        "recordedBusinessResult": "not-applicable",
+        "recordedStopReason": "blocked",
+        "readConsistency": "single-read-transaction"
+      },
+      "usage": {
+        "actions": 5,
+        "modelCalls": 14,
+        "elapsedMs": 156183,
+        "modelInputTokens": null,
+        "modelOutputTokens": null
+      },
+      "popup": null,
+      "decisions": [],
+      "geometry": [],
+      "actionEvents": [
+        {
+          "id": "evt-e5cb96ce-8a73-4ff4-aa6c-2048ebc4276f",
+          "runId": "run-7341abdd-bef8-49e7-b62f-64072ccbae1a",
+          "seq": 207,
+          "type": "action:executing",
+          "timestamp": "2026-10-10T09:11:51.133Z",
+          "stepId": "action-5",
+          "actionId": "12c19a88-2a9b-4d8c-a959-d8d22a86173c",
+          "payload": {
+            "type": "click",
+            "target": "css=html > body:nth-of-type(1) > button:nth-of-type(1)",
+            "dispatchTime": 1791623511132
+          },
+          "evidenceRefs": [
+            "f358c362-6736-4aa8-9f4a-5dc98aeb1bdb.png",
+            "98fff9f6-72b3-4b96-a120-128880859644.json"
+          ]
+        },
+        {
+          "id": "evt-cee68328-00bc-45a4-8cfb-edaa73a47546",
+          "runId": "run-7341abdd-bef8-49e7-b62f-64072ccbae1a",
+          "seq": 209,
+          "type": "action:completed",
+          "timestamp": "2026-10-10T09:11:51.243Z",
+          "stepId": "action-5",
+          "actionId": "12c19a88-2a9b-4d8c-a959-d8d22a86173c",
+          "payload": {
+            "type": "click",
+            "target": "css=html > body:nth-of-type(1) > button:nth-of-type(1)",
+            "networkWrites": 0
+          },
+          "evidenceRefs": []
+        }
+      ],
+      "resourceEvents": [],
+      "findings": []
+    },
+    {
+      "runId": "check-fe22e236-4124-4760-8c86-002173a8243a",
+      "viewport": {
+        "width": 320,
+        "height": 480
+      },
+      "status": "blocked",
+      "coverage": "partial",
+      "scopeCounts": {
+        "total": 38,
+        "selected": 18,
+        "pending": 3,
+        "verified": 14,
+        "failed": 1,
+        "unverified": 20,
+        "excluded": 0
+      },
+      "gaps": [
+        {
+          "itemId": "item-09abd076-68b0-48a3-a946-c539ebefa6d3",
+          "category": "local-interaction",
+          "status": "pending",
+          "reason": "v2-mandatory-checks-incomplete",
+          "reasonCode": "v2-mandatory-checks-incomplete"
+        },
+        {
+          "itemId": "item-14648f04-9229-4069-b1ab-b772e133f26f",
+          "category": "local-interaction",
+          "status": "pending",
+          "reason": "v2-mandatory-checks-incomplete",
+          "reasonCode": "v2-mandatory-checks-incomplete"
+        },
+        {
+          "itemId": "item-2eb2786d-dddb-4747-b09a-dd020637dff1",
+          "category": "investigation",
+          "status": "pending",
+          "reason": "selected-not-resolved",
+          "reasonCode": null
+        }
+      ],
+      "persistence": {
+        "status": "verified",
+        "issues": [],
+        "recordedStatus": "blocked",
+        "recordedBusinessResult": "not-applicable",
+        "recordedStopReason": "blocked",
+        "readConsistency": "single-read-transaction"
+      },
+      "usage": {
+        "actions": 2,
+        "modelCalls": 3,
+        "elapsedMs": 6370,
+        "modelInputTokens": null,
+        "modelOutputTokens": null
+      },
+      "popup": {
+        "candidateGeometry": [
+          {
+            "targetId": "panel-1",
+            "geometryVerdict": "fail",
+            "association": "unconfirmed",
+            "reason": "fixed-panel-border-clipped",
+            "receiptRef": "3512f865-73a5-443c-ab1f-5645cedee349.json",
+            "scope": "Candidate observation only; does not settle the requested item or count as an attributed defect."
+          }
+        ],
+        "revision": "popup-viewport-1",
+        "taskId": "item-2eb2786d-dddb-4747-b09a-dd020637dff1",
+        "status": "handoff",
+        "verdict": "unknown",
+        "reason": "popup-target-ambiguous",
+        "attempts": [
+          {
+            "itemId": "item-390b4f0e-ee86-4ba4-9094-4e4b7699b528",
+            "actionId": "d83d2041-a9dd-4da9-a144-ec282b3c91ce",
+            "result": "completed"
+          },
+          {
+            "itemId": "item-a30596d1-5e92-419c-85fc-1d324830faaf",
+            "actionId": "33698ace-f0a0-482f-85e6-2e8c554b2737",
+            "result": "completed"
+          }
+        ],
+        "missing": [
+          "which-actual-new-panel-is-the-action-result"
+        ],
+        "evidenceRefs": [
+          "9aa9af6e-1740-45ce-9a84-d6a044ce869b.png",
+          "3a5a1ec7-6160-489b-a832-e50ecb54c56a.json",
+          "1b8cd1fe-53be-4e7a-9785-d5333e652da1.json",
+          "1be06074-9c27-4ff9-9da6-054708449b83.json",
+          "719a841b-dc16-4664-9dae-dd58dc184de9.png",
+          "9e10de8a-da0f-472a-9a42-76ef32b718cd.json",
+          "05734a0a-3b33-48fc-8993-a9f0bc8b0ae6.json",
+          "45627410-e03e-45b7-8274-9fc16a14c81f.json",
+          "b8efe4be-6629-4f77-8a5e-5d0481ac2159.png",
+          "19b7724b-835d-49a1-80fe-a8bc5410b731.json",
+          "b34e0a2f-3906-4cfe-b842-51b467db1997.png",
+          "3512f865-73a5-443c-ab1f-5645cedee349.json",
+          "334e35cc-8d6a-4e16-9f32-e44c64c6a7a0.json",
+          "41103dcb-8d67-49fe-92dc-7f9946f509a8.json"
+        ],
+        "receiptRef": null,
+        "decisions": 3,
+        "reads": 1,
+        "scope": "Measured popup at the recorded state only; required/default checks remain independent."
+      },
+      "decisions": [
+        {
+          "seq": 67,
+          "stage": "entry",
+          "packet": {
+            "revision": "popup-semantic-2",
+            "stage": "entry",
+            "binding": "dd8ee8fcffc8c20c2cf3ddf6e90b15a8fe57b47fe23385ac44a5b8d33bac66e6",
+            "goal": "Check whether an actual popup exceeds the visible viewport. User focus: 检查弹窗是否超出视口。; delegated context: 检查弹窗是否超出视口（320×480）：匿名会话下在同一入口触发弹窗并测量其边界是否超出视口。",
+            "candidates": [
+              {
+                "id": "item-09abd076-68b0-48a3-a946-c539ebefa6d3",
+                "description": "button \"Sort alphabetically\"; public attributes {}",
+                "visible": true,
+                "enabled": true,
+                "newlyObserved": false
+              },
+              {
+                "id": "item-14648f04-9229-4069-b1ab-b772e133f26f",
+                "description": "button \"Change density\"; public attributes {}",
+                "visible": true,
+                "enabled": true,
+                "newlyObserved": false
+              },
+              {
+                "id": "item-390b4f0e-ee86-4ba4-9094-4e4b7699b528",
+                "description": "button \"More options\"; public attributes {}",
+                "visible": true,
+                "enabled": true,
+                "newlyObserved": false
+              }
+            ],
+            "context": {
+              "observation": {
+                "text": "Workspace\nSort alphabeticallyChange densityMore options",
+                "visiblePanels": 0,
+                "newEntryIds": [],
+                "changedSinceAction": false
+              },
+              "remaining": {
+                "reads": 2,
+                "actions": 3,
+                "calls": 3,
+                "timeMs": 139102.6
+              },
+              "read": {
+                "allowed": false,
+                "reason": "popup-read-no-action-gap"
+              }
+            },
+            "evidenceRefs": [
+              "9aa9af6e-1740-45ce-9a84-d6a044ce869b.png",
+              "3a5a1ec7-6160-489b-a832-e50ecb54c56a.json"
+            ],
+            "missing": [
+              "possible-popup-entry"
+            ],
+            "attempts": []
+          },
+          "adoption": {
+            "policy": "popup-purpose-policy-2",
+            "calibrated": false,
+            "purpose": "entry-exploration",
+            "raw": {
+              "binding": "dd8ee8fcffc8c20c2cf3ddf6e90b15a8fe57b47fe23385ac44a5b8d33bac66e6",
+              "choice": "item-390b4f0e-ee86-4ba4-9094-4e4b7699b528",
+              "confidence": 0.75,
+              "probabilities": {
+                "item-09abd076-68b0-48a3-a946-c539ebefa6d3": 0,
+                "item-14648f04-9229-4069-b1ab-b772e133f26f": 0.02,
+                "item-390b4f0e-ee86-4ba4-9094-4e4b7699b528": 0.81,
+                "none": 0.17
+              }
+            },
+            "n": 4,
+            "accepted": true,
+            "reason": "bounded-exploration-majority",
+            "proposal": {
+              "binding": "dd8ee8fcffc8c20c2cf3ddf6e90b15a8fe57b47fe23385ac44a5b8d33bac66e6",
+              "choice": "item-390b4f0e-ee86-4ba4-9094-4e4b7699b528",
+              "confidence": 0.75,
+              "probabilities": {
+                "item-09abd076-68b0-48a3-a946-c539ebefa6d3": 0,
+                "item-14648f04-9229-4069-b1ab-b772e133f26f": 0.02,
+                "item-390b4f0e-ee86-4ba4-9094-4e4b7699b528": 0.81,
+                "none": 0.17
+              }
+            }
+          },
+          "proposal": {
+            "binding": "dd8ee8fcffc8c20c2cf3ddf6e90b15a8fe57b47fe23385ac44a5b8d33bac66e6",
+            "choice": "item-390b4f0e-ee86-4ba4-9094-4e4b7699b528",
+            "confidence": 0.75,
+            "probabilities": {
+              "item-09abd076-68b0-48a3-a946-c539ebefa6d3": 0,
+              "item-14648f04-9229-4069-b1ab-b772e133f26f": 0.02,
+              "item-390b4f0e-ee86-4ba4-9094-4e4b7699b528": 0.81,
+              "none": 0.17
+            }
+          }
+        },
+        {
+          "seq": 170,
+          "stage": "entry",
+          "packet": {
+            "revision": "popup-semantic-2",
+            "stage": "entry",
+            "binding": "432064ee347db0d38e4ca8b696924eaba65020228f510f64cbf9a7133b86361a",
+            "goal": "Check whether an actual popup exceeds the visible viewport. User focus: 检查弹窗是否超出视口。; delegated context: 检查弹窗是否超出视口（320×480）：匿名会话下在同一入口触发弹窗并测量其边界是否超出视口。",
+            "candidates": [
+              {
+                "id": "item-a30596d1-5e92-419c-85fc-1d324830faaf",
+                "description": "button \"Details\"; public attributes {}",
+                "visible": true,
+                "enabled": true,
+                "newlyObserved": true
+              }
+            ],
+            "context": {
+              "previousAction": {
+                "itemId": "item-390b4f0e-ee86-4ba4-9094-4e4b7699b528",
+                "actionId": "d83d2041-a9dd-4da9-a144-ec282b3c91ce",
+                "result": "completed",
+                "description": "button \"More options\"; public attributes {}"
+              },
+              "observation": {
+                "text": "Workspace\nSort alphabeticallyChange densityMore options\nDetails",
+                "visiblePanels": 0,
+                "newEntryIds": [
+                  "item-a30596d1-5e92-419c-85fc-1d324830faaf"
+                ],
+                "changedSinceAction": true
+              },
+              "remaining": {
+                "reads": 2,
+                "actions": 2,
+                "calls": 2,
+                "timeMs": 136241.6
+              },
+              "read": {
+                "allowed": false,
+                "reason": "popup-reuse-new-entry-facts"
+              }
+            },
+            "evidenceRefs": [
+              "9aa9af6e-1740-45ce-9a84-d6a044ce869b.png",
+              "3a5a1ec7-6160-489b-a832-e50ecb54c56a.json",
+              "1b8cd1fe-53be-4e7a-9785-d5333e652da1.json",
+              "1be06074-9c27-4ff9-9da6-054708449b83.json",
+              "719a841b-dc16-4664-9dae-dd58dc184de9.png",
+              "9e10de8a-da0f-472a-9a42-76ef32b718cd.json"
+            ],
+            "missing": [
+              "new-public-entry-observed-popup-effect-unproven"
+            ],
+            "attempts": [
+              {
+                "itemId": "item-390b4f0e-ee86-4ba4-9094-4e4b7699b528",
+                "actionId": "d83d2041-a9dd-4da9-a144-ec282b3c91ce",
+                "result": "completed"
+              }
+            ]
+          },
+          "adoption": {
+            "policy": "popup-purpose-policy-2",
+            "calibrated": false,
+            "purpose": "entry-exploration",
+            "raw": {
+              "binding": "432064ee347db0d38e4ca8b696924eaba65020228f510f64cbf9a7133b86361a",
+              "choice": "item-a30596d1-5e92-419c-85fc-1d324830faaf",
+              "confidence": 0.78,
+              "probabilities": {
+                "item-a30596d1-5e92-419c-85fc-1d324830faaf": 0.89,
+                "none": 0.11
+              }
+            },
+            "n": 2,
+            "accepted": true,
+            "reason": "bounded-exploration-majority",
+            "proposal": {
+              "binding": "432064ee347db0d38e4ca8b696924eaba65020228f510f64cbf9a7133b86361a",
+              "choice": "item-a30596d1-5e92-419c-85fc-1d324830faaf",
+              "confidence": 0.78,
+              "probabilities": {
+                "item-a30596d1-5e92-419c-85fc-1d324830faaf": 0.89,
+                "none": 0.11
+              }
+            }
+          },
+          "proposal": {
+            "binding": "432064ee347db0d38e4ca8b696924eaba65020228f510f64cbf9a7133b86361a",
+            "choice": "item-a30596d1-5e92-419c-85fc-1d324830faaf",
+            "confidence": 0.78,
+            "probabilities": {
+              "item-a30596d1-5e92-419c-85fc-1d324830faaf": 0.89,
+              "none": 0.11
+            }
+          }
+        },
+        {
+          "seq": 251,
+          "stage": "target",
+          "packet": {
+            "revision": "popup-semantic-2",
+            "stage": "target",
+            "binding": "2adce2c7cd3baed927e97f939190a2d0ac59e3d28f5047d0d48c7fd3db29438f",
+            "goal": "Check whether an actual popup exceeds the visible viewport. User focus: 检查弹窗是否超出视口。; delegated context: 检查弹窗是否超出视口（320×480）：匿名会话下在同一入口触发弹窗并测量其边界是否超出视口。",
+            "candidates": [
+              {
+                "id": "panel-1",
+                "description": "div  Details overview"
+              }
+            ],
+            "context": {
+              "previousAction": {
+                "itemId": "item-a30596d1-5e92-419c-85fc-1d324830faaf",
+                "actionId": "33698ace-f0a0-482f-85e6-2e8c554b2737",
+                "result": "completed",
+                "description": "button \"Details\"; public attributes {}"
+              },
+              "observation": {
+                "text": "Workspace\nSort alphabeticallyChange densityMore options\nDetails\nDetails overview",
+                "visiblePanels": 1,
+                "newEntryIds": [],
+                "changedSinceAction": true
+              },
+              "remaining": {
+                "reads": 1,
+                "actions": 1,
+                "calls": 1,
+                "timeMs": 133871.6
+              },
+              "read": {
+                "allowed": true,
+                "reason": "unresolved-post-action-observation"
+              }
+            },
+            "evidenceRefs": [
+              "9aa9af6e-1740-45ce-9a84-d6a044ce869b.png",
+              "3a5a1ec7-6160-489b-a832-e50ecb54c56a.json",
+              "1b8cd1fe-53be-4e7a-9785-d5333e652da1.json",
+              "1be06074-9c27-4ff9-9da6-054708449b83.json",
+              "719a841b-dc16-4664-9dae-dd58dc184de9.png",
+              "9e10de8a-da0f-472a-9a42-76ef32b718cd.json",
+              "05734a0a-3b33-48fc-8993-a9f0bc8b0ae6.json",
+              "45627410-e03e-45b7-8274-9fc16a14c81f.json",
+              "b8efe4be-6629-4f77-8a5e-5d0481ac2159.png",
+              "19b7724b-835d-49a1-80fe-a8bc5410b731.json",
+              "b34e0a2f-3906-4cfe-b842-51b467db1997.png",
+              "3512f865-73a5-443c-ab1f-5645cedee349.json"
+            ],
+            "missing": [
+              "which-actual-new-panel-is-the-action-result"
+            ],
+            "attempts": [
+              {
+                "itemId": "item-390b4f0e-ee86-4ba4-9094-4e4b7699b528",
+                "actionId": "d83d2041-a9dd-4da9-a144-ec282b3c91ce",
+                "result": "completed"
+              },
+              {
+                "itemId": "item-a30596d1-5e92-419c-85fc-1d324830faaf",
+                "actionId": "33698ace-f0a0-482f-85e6-2e8c554b2737",
+                "result": "completed"
+              }
+            ]
+          },
+          "adoption": {
+            "policy": "popup-purpose-policy-2",
+            "calibrated": false,
+            "purpose": "target-association",
+            "raw": {
+              "binding": "2adce2c7cd3baed927e97f939190a2d0ac59e3d28f5047d0d48c7fd3db29438f",
+              "choice": "panel-1",
+              "confidence": 0.22,
+              "probabilities": {
+                "panel-1": 0.61,
+                "none": 0.39
+              }
+            },
+            "n": 2,
+            "accepted": false,
+            "reason": "association-below-provisional-floor",
+            "proposal": {
+              "binding": "2adce2c7cd3baed927e97f939190a2d0ac59e3d28f5047d0d48c7fd3db29438f",
+              "choice": "handoff",
+              "confidence": 0.22,
+              "probabilities": {
+                "panel-1": 0.61,
+                "none": 0.39
+              }
+            }
+          },
+          "proposal": {
+            "binding": "2adce2c7cd3baed927e97f939190a2d0ac59e3d28f5047d0d48c7fd3db29438f",
+            "choice": "handoff",
+            "confidence": 0.22,
+            "probabilities": {
+              "panel-1": 0.61,
+              "none": 0.39
+            }
+          }
+        }
+      ],
+      "geometry": [
+        {
+          "type": "popup:candidate-geometry",
+          "seq": 249,
+          "event": {
+            "taskId": "item-2eb2786d-dddb-4747-b09a-dd020637dff1",
+            "receiptRef": "3512f865-73a5-443c-ab1f-5645cedee349.json",
+            "receiptHash": "f2119fe546cae67a56b05583a230449d0d7d68484a19af2327016688e78c4a46",
+            "targetId": "panel-1",
+            "geometryVerdict": "fail",
+            "association": "unconfirmed",
+            "reason": "fixed-panel-border-clipped"
+          },
+          "receipt": {
+            "revision": "popup-candidate-geometry-1",
+            "policy": "popup-purpose-policy-2",
+            "taskId": "item-2eb2786d-dddb-4747-b09a-dd020637dff1",
+            "contractHash": "e59e2fd5d8433a63f3cb9b7b036e1026a191528de8bfb56b983eaa3d073d1e33",
+            "association": "unconfirmed",
+            "actionId": null,
+            "itemId": null,
+            "frame": {
+              "binding": "2adce2c7cd3baed927e97f939190a2d0ac59e3d28f5047d0d48c7fd3db29438f",
+              "version": "6d5a64538e09119a17b142918903cb1fda50c410062041fa7687cc14540c5775",
+              "actionEpoch": 2,
+              "url": "http://127.0.0.1:65509/p/two",
+              "reusable": true,
+              "entries": [
+                {
+                  "id": "item-09abd076-68b0-48a3-a946-c539ebefa6d3",
+                  "ref": "e27",
+                  "description": "button \"Sort alphabetically\"; public attributes {}",
+                  "visible": true,
+                  "enabled": true
+                },
+                {
+                  "id": "item-14648f04-9229-4069-b1ab-b772e133f26f",
+                  "ref": "e28",
+                  "description": "button \"Change density\"; public attributes {}",
+                  "visible": true,
+                  "enabled": true
+                },
+                {
+                  "id": "item-390b4f0e-ee86-4ba4-9094-4e4b7699b528",
+                  "ref": "e29",
+                  "description": "button \"More options\"; public attributes {}",
+                  "visible": true,
+                  "enabled": true
+                },
+                {
+                  "id": "item-a30596d1-5e92-419c-85fc-1d324830faaf",
+                  "ref": "e30",
+                  "description": "button \"Details\"; public attributes {}",
+                  "visible": true,
+                  "enabled": true
+                }
+              ],
+              "text": "Workspace\nSort alphabeticallyChange densityMore options\nDetails\nDetails overview",
+              "panels": [
+                {
+                  "id": "panel-1",
+                  "description": "div  Details overview",
+                  "kind": "custom",
+                  "rect": {
+                    "x": 20,
+                    "y": 120,
+                    "width": 400,
+                    "height": 150
+                  },
+                  "viewport": {
+                    "x": 0,
+                    "y": 0,
+                    "width": 320,
+                    "height": 480
+                  },
+                  "clips": [],
+                  "unsupported": [],
+                  "visible": true,
+                  "url": "http://127.0.0.1:65509/p/two",
+                  "topLayer": false
+                }
+              ],
+              "evidenceRefs": [
+                "b8efe4be-6629-4f77-8a5e-5d0481ac2159.png",
+                "19b7724b-835d-49a1-80fe-a8bc5410b731.json"
+              ]
+            },
+            "targetId": "panel-1",
+            "measurement": {
+              "revision": "popup-geometry-1",
+              "targetId": "panel-1",
+              "samples": [
+                {
+                  "id": "panel-1",
+                  "description": "div  Details overview",
+                  "kind": "custom",
+                  "rect": {
+                    "x": 20,
+                    "y": 120,
+                    "width": 400,
+                    "height": 150
+                  },
+                  "viewport": {
+                    "x": 0,
+                    "y": 0,
+                    "width": 320,
+                    "height": 480
+                  },
+                  "clips": [],
+                  "unsupported": [],
+                  "visible": true,
+                  "url": "http://127.0.0.1:65509/p/two",
+                  "topLayer": false
+                },
+                {
+                  "id": "panel-1",
+                  "description": "div  Details overview",
+                  "kind": "custom",
+                  "rect": {
+                    "x": 20,
+                    "y": 120,
+                    "width": 400,
+                    "height": 150
+                  },
+                  "viewport": {
+                    "x": 0,
+                    "y": 0,
+                    "width": 320,
+                    "height": 480
+                  },
+                  "clips": [],
+                  "unsupported": [],
+                  "visible": true,
+                  "url": "http://127.0.0.1:65509/p/two",
+                  "topLayer": false
+                }
+              ],
+              "tolerancePx": 1,
+              "verdict": "fail",
+              "reason": "fixed-panel-border-clipped"
+            },
+            "screenshotRef": "b34e0a2f-3906-4cfe-b842-51b467db1997.png",
+            "evidenceRefs": [
+              "9aa9af6e-1740-45ce-9a84-d6a044ce869b.png",
+              "3a5a1ec7-6160-489b-a832-e50ecb54c56a.json",
+              "1b8cd1fe-53be-4e7a-9785-d5333e652da1.json",
+              "1be06074-9c27-4ff9-9da6-054708449b83.json",
+              "719a841b-dc16-4664-9dae-dd58dc184de9.png",
+              "9e10de8a-da0f-472a-9a42-76ef32b718cd.json",
+              "05734a0a-3b33-48fc-8993-a9f0bc8b0ae6.json",
+              "45627410-e03e-45b7-8274-9fc16a14c81f.json",
+              "b8efe4be-6629-4f77-8a5e-5d0481ac2159.png",
+              "19b7724b-835d-49a1-80fe-a8bc5410b731.json",
+              "b34e0a2f-3906-4cfe-b842-51b467db1997.png"
+            ],
+            "evidenceHashes": {
+              "9aa9af6e-1740-45ce-9a84-d6a044ce869b.png": "29b8fbb95405ca093966cb231ef45142050820cda9154a22dcb639c249fdee75",
+              "3a5a1ec7-6160-489b-a832-e50ecb54c56a.json": "3f8c46f05d8756e3c8af112e5d0f7a0d5b602ef7719220d82678d09eb14daa77",
+              "1b8cd1fe-53be-4e7a-9785-d5333e652da1.json": "91302a2a5753fa9ba663fff81f4b19e5b9475443796d0574301cdf794978c75c",
+              "1be06074-9c27-4ff9-9da6-054708449b83.json": "afa14e92b39fe4ab43ef763ac37fc21ac43b24f686a6f6b36671de0d7bc0e7ee",
+              "719a841b-dc16-4664-9dae-dd58dc184de9.png": "801061ffb1545a3ea7103068b902d473df0a2da0590af2c836b7e1696165ec86",
+              "9e10de8a-da0f-472a-9a42-76ef32b718cd.json": "96cc56b7279581601d5dc0d86a0513c396b70dfa0035f03a568b310a71b1b2a1",
+              "05734a0a-3b33-48fc-8993-a9f0bc8b0ae6.json": "dbbb5275b4b254490d8cf895512c09b0e2841c11216e06eaff049cd147563745",
+              "45627410-e03e-45b7-8274-9fc16a14c81f.json": "94d22528989f85b55e818a25c327623504d080b6ee38f0ba0fbcd8e3e05e880d",
+              "b8efe4be-6629-4f77-8a5e-5d0481ac2159.png": "821ae6f4f2c17d96b38bb3b5aba7c6a493dd87dce3bc5e8914355771bac3c458",
+              "19b7724b-835d-49a1-80fe-a8bc5410b731.json": "4f2da4d3335bb6678fdb035b0d358f122a173d60fd4372fd265bea2728a6ff7e",
+              "b34e0a2f-3906-4cfe-b842-51b467db1997.png": "821ae6f4f2c17d96b38bb3b5aba7c6a493dd87dce3bc5e8914355771bac3c458"
+            }
+          }
+        }
+      ],
+      "actionEvents": [
+        {
+          "id": "evt-d1515803-1b1b-40cc-a4f2-ea34edece8bc",
+          "runId": "check-fe22e236-4124-4760-8c86-002173a8243a",
+          "seq": 100,
+          "type": "action:executing",
+          "timestamp": "2026-10-10T09:09:23.900Z",
+          "stepId": "action-1",
+          "actionId": "d83d2041-a9dd-4da9-a144-ec282b3c91ce",
+          "payload": {
+            "type": "click",
+            "target": "html > body:nth-of-type(1) > button:nth-of-type(3)",
+            "dispatchTime": 1791623363897
+          },
+          "evidenceRefs": [
+            "458aa79a-025d-41fd-862c-0d797f31a09d.png",
+            "b68cca3f-d452-4b66-a615-b011c952f48b.json"
+          ]
+        },
+        {
+          "id": "evt-99af990a-c0da-463c-831a-8abd974b36f6",
+          "runId": "check-fe22e236-4124-4760-8c86-002173a8243a",
+          "seq": 102,
+          "type": "action:completed",
+          "timestamp": "2026-10-10T09:09:23.994Z",
+          "stepId": "action-1",
+          "actionId": "d83d2041-a9dd-4da9-a144-ec282b3c91ce",
+          "payload": {
+            "type": "click",
+            "target": "html > body:nth-of-type(1) > button:nth-of-type(3)",
+            "networkWrites": 0
+          },
+          "evidenceRefs": []
+        },
+        {
+          "id": "evt-4eb47247-f6b2-4d2d-99a2-124cc62a8e0f",
+          "runId": "check-fe22e236-4124-4760-8c86-002173a8243a",
+          "seq": 180,
+          "type": "action:executing",
+          "timestamp": "2026-10-10T09:09:26.030Z",
+          "stepId": "action-2",
+          "actionId": "33698ace-f0a0-482f-85e6-2e8c554b2737",
+          "payload": {
+            "type": "click",
+            "target": "html > body:nth-of-type(1) > div:nth-of-type(1) > button:nth-of-type(1)",
+            "dispatchTime": 1791623366029
+          },
+          "evidenceRefs": [
+            "719a841b-dc16-4664-9dae-dd58dc184de9.png",
+            "9e10de8a-da0f-472a-9a42-76ef32b718cd.json"
+          ]
+        },
+        {
+          "id": "evt-b0a6cf66-283d-427a-8a16-5c82500def18",
+          "runId": "check-fe22e236-4124-4760-8c86-002173a8243a",
+          "seq": 182,
+          "type": "action:completed",
+          "timestamp": "2026-10-10T09:09:26.100Z",
+          "stepId": "action-2",
+          "actionId": "33698ace-f0a0-482f-85e6-2e8c554b2737",
+          "payload": {
+            "type": "click",
+            "target": "html > body:nth-of-type(1) > div:nth-of-type(1) > button:nth-of-type(1)",
+            "networkWrites": 0
+          },
+          "evidenceRefs": []
+        }
+      ],
+      "resourceEvents": [
+        {
+          "id": "evt-18e6dde6-2c63-465c-8757-6ea257f4a0db",
+          "runId": "check-fe22e236-4124-4760-8c86-002173a8243a",
+          "seq": 260,
+          "type": "run:delegated-resource-closed",
+          "timestamp": "2026-10-10T09:09:28.381Z",
+          "stepId": null,
+          "actionId": null,
+          "payload": {
+            "closed": true,
+            "parentRunId": "run-7341abdd-bef8-49e7-b62f-64072ccbae1a"
+          },
+          "evidenceRefs": []
+        }
+      ],
+      "findings": [
+        {
+          "id": "finding-1a8987f2-a2d6-4ab1-a170-c4596dd8cecc",
+          "runId": "check-fe22e236-4124-4760-8c86-002173a8243a",
+          "source": "rule",
+          "ruleId": "overlay-blocking",
+          "ruleRevision": "2.1.0",
+          "hypothesisId": null,
+          "validationStatus": "supported",
+          "severity": "error",
+          "title": "Visible action intercepted at all sampled points",
+          "expected": "Visible enabled actions receive pointer input",
+          "actual": "2 intercepted actions; 0 partially covered; 0 unmeasured",
+          "stepId": "action-2",
+          "evidenceRefs": [
+            "4de17973-df0f-4f53-a148-b216f61b1ad0.png",
+            "4016fb0e-a278-4b77-bd7f-831a9b257b34.json",
+            "b9af56d3-0b5c-4d4b-ab03-1b21638a4ad7.png"
+          ],
+          "createdAt": "2026-10-10T09:09:26.302Z"
+        }
+      ]
+    }
+  ]
+}

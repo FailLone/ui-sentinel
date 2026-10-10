@@ -96,7 +96,39 @@ function Coverage({ report, runId }: { report: UiScanReport; runId: string }) {
                 ? '已测弹窗外框被裁切'
                 : '未验证'}
           </p>
-          <p>此结论仅适用于记录时测量的弹窗；整任务覆盖仍以上方结果为准。</p>
+          <p>此结论仅适用于记录时测量的浮层；整任务覆盖仍以上方结果为准。</p>
+          {report.popupCheck.revision === 'popup-viewport-2' && (
+            <>
+              <p>UI 规则检查可见浮层的外框，不声明按钮因果；功能预期由原操作条目单独验证。</p>
+              {report.popupCheck.uiChecks?.map((c) => (
+                <p key={c.receiptRef}>
+                  {c.targetId}：
+                  {c.verdict === 'fail'
+                    ? '外框被裁切'
+                    : c.verdict === 'pass'
+                      ? '外框未越界'
+                      : '未验证'}{' '}
+                  · <a href={artifactUrl(runId, c.receiptRef)}>查看 UI 测量</a>
+                </p>
+              ))}
+              {(report.functionalChecks ?? []).length ? (
+                report.functionalChecks!.map((c) => (
+                  <p key={c.requirementId}>
+                    功能预期：{c.source} · {c.state === 'verified' ? '已观察到预期结果' : '未验证'}
+                    {c.evidenceRefs[0] && (
+                      <>
+                        {' '}
+                        · <a href={artifactUrl(runId, c.evidenceRefs[0])}>查看功能证据</a>
+                      </>
+                    )}
+                  </p>
+                ))
+              ) : (
+                <p>未登记明确的浮窗功能预期；本次 UI 结论不代表按钮功能已验证。</p>
+              )}
+            </>
+          )}
+
           <p>
             语义决策 {report.popupCheck.decisions} 次，动作 {report.popupCheck.attempts.length}{' '}
             次，补充读取 {report.popupCheck.reads} 次。
@@ -110,8 +142,29 @@ function Coverage({ report, runId }: { report: UiScanReport; runId: string }) {
             </p>
           ))}
           {report.popupCheck.missing.length > 0 && (
-            <p>尚不能确认目标弹窗或取得支持范围内的稳定测量，详见证据详情。</p>
+            <p>
+              {report.popupCheck.revision === 'popup-viewport-2'
+                ? '仍有浮层未检查或不具备支持范围内的稳定测量，详见证据详情。'
+                : '尚不能确认目标弹窗或取得支持范围内的稳定测量，详见证据详情。'}
+            </p>
           )}
+          {report.popupCheck.verdict === 'unknown' &&
+            !!report.popupCheck.candidateGeometry?.length && (
+              <div>
+                <p>已观察到候选浮层，但尚未确认与本次操作的关联；以下记录不计入已确认缺陷。</p>
+                {report.popupCheck.candidateGeometry.map((candidate) => (
+                  <p key={String(candidate.receiptRef)}>
+                    {candidate.geometryVerdict === 'fail'
+                      ? '候选浮层外框被裁切'
+                      : candidate.geometryVerdict === 'pass'
+                        ? '候选浮层外框未越界'
+                        : '候选浮层几何未验证'}
+                    {' · 关联未确认 · '}
+                    <a href={artifactUrl(runId, String(candidate.receiptRef))}>查看候选观察记录</a>
+                  </p>
+                ))}
+              </div>
+            )}
           <details>
             <summary>证据详情</summary>
             <p>{report.popupCheck.reason}</p>

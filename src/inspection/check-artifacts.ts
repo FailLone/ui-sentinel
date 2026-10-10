@@ -1,3 +1,4 @@
+import { evaluatePopupEffect } from './popup-effect.ts'
 import { popupArtifactIssues } from './popup-artifacts.ts'
 import { readFile } from 'node:fs/promises'
 import { createHash } from 'node:crypto'
@@ -258,6 +259,25 @@ export async function defaultCheckArtifactIssues(
             measured.payload.sha256 !== checkHash(body)
           )
             throw Error('v2-effect-receipt-invalid')
+          if (req.predicate.condition === 'popup-visible') {
+            const generic = await load(body.genericRef, 'generic-interaction')
+            const replay = evaluatePopupEffect(
+              generic.before.page,
+              generic.after.map((s: any) => s.page),
+              req.predicate.expected ?? '',
+            )
+            if (
+              body.revision !== 'popup-effect-observation-1' ||
+              body.genericRef !== c.generic.receiptRef ||
+              generic.actionId !== body.actionId ||
+              body.point !== 'bounded-original-generic-samples' ||
+              body.outcome !== replay.outcome ||
+              body.reason !== replay.reason ||
+              checkHash(body.matched) !== checkHash(replay.matched)
+            )
+              throw Error('popup-effect-original-samples-invalid')
+            continue
+          }
           const expected = {
             ...req.predicate,
             selector: body.measurement.input.selector,

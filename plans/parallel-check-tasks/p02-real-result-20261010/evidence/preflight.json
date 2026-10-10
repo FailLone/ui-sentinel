@@ -1,0 +1,114 @@
+{
+  "checkedAt": "2026-10-10T05:07:26.796Z",
+  "sourceCommit": "de5fc94334665353ab9477969ad477b691570db4",
+  "deliveryCommit": "3e5e7b304feb17d6234417fc9783511eed01e014",
+  "manifestSha256": "21fb549f06b389d55912313645d2e8c50a724fcebca9caa488677bd9e8e166b2",
+  "bundleSha256": "95795ee7a3ec18512a0b106b9ca17cdc346f00a27baee888ef3879d7c9814025",
+  "sourceFilesVerified": 723,
+  "dependenciesVerified": true,
+  "node": "v24.21.0",
+  "claimAbsent": true,
+  "outputAbsent": true,
+  "quotes": {
+    "main": {
+      "url": "https://openrouter.ai/api/v1/models/deepseek/deepseek-v4.1-flash/endpoints",
+      "checkedAt": "2026-10-10T05:07:26.576Z",
+      "endpoint": {
+        "name": "Wafer | deepseek/deepseek-v4.1-flash-20260910",
+        "model_id": "deepseek/deepseek-v4.1-flash",
+        "model_name": "DeepSeek: DeepSeek V4.1 Flash",
+        "context_length": 1048576,
+        "pricing": {
+          "prompt": "0.00000005",
+          "completion": "0.0000016",
+          "input_cache_read": "0.000000049",
+          "discount": 0
+        },
+        "provider_name": "Wafer",
+        "tag": "wafer",
+        "quantization": "unknown",
+        "max_completion_tokens": 943718,
+        "max_prompt_tokens": null,
+        "supported_parameters": [
+          "reasoning",
+          "include_reasoning",
+          "temperature",
+          "top_p",
+          "top_k",
+          "min_p",
+          "frequency_penalty",
+          "presence_penalty",
+          "repetition_penalty",
+          "stop",
+          "seed",
+          "max_tokens",
+          "logit_bias",
+          "response_format",
+          "structured_outputs",
+          "tools",
+          "tool_choice",
+          "logprobs",
+          "top_logprobs",
+          "reasoning_effort"
+        ],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 100,
+        "uptime_last_5m": 100,
+        "uptime_last_1d": 100,
+        "supports_implicit_caching": false,
+        "native_tools": {},
+        "supports_voice_cloning": false,
+        "supports_multiple_audio_references": false,
+        "supports_image_reference": false,
+        "latency_last_30m": null,
+        "throughput_last_30m": null
+      }
+    },
+    "jev": {
+      "url": "https://openrouter.ai/api/v1/models/typesafe/jev-1.13/endpoints",
+      "checkedAt": "2026-10-10T05:07:26.794Z",
+      "endpoint": {
+        "name": "TypeSafe | typesafe/jev-1.13-20260917",
+        "model_id": "typesafe/jev-1.13",
+        "model_name": "TypeSafe: Jev 1.13",
+        "context_length": 64000,
+        "pricing": {
+          "prompt": "0.000000042",
+          "completion": "0",
+          "discount": 0
+        },
+        "provider_name": "TypeSafe",
+        "tag": "typesafe",
+        "quantization": "unknown",
+        "max_completion_tokens": 57600,
+        "max_prompt_tokens": 32000,
+        "supported_parameters": [],
+        "supports_tool_choice": {
+          "none": true,
+          "auto": true,
+          "required": true,
+          "function": true
+        },
+        "status": 0,
+        "uptime_last_30m": 100,
+        "uptime_last_5m": 100,
+        "uptime_last_1d": 100,
+        "supports_implicit_caching": false,
+        "native_tools": {},
+        "supports_voice_cloning": false,
+        "supports_multiple_audio_references": false,
+        "supports_image_reference": false,
+        "latency_last_30m": null,
+        "throughput_last_30m": null
+      }
+    }
+  },
+  "modelCalls": 0,
+  "credentialStatus": "not injected; old project .env forbidden"
+}

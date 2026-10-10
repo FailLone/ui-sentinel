@@ -1,0 +1,9 @@
+{
+  "oldArchivePayloadsVerified": 59,
+  "originalRunDbUnchanged": true,
+  "originalAccountDbUnchanged": true,
+  "originalRuntimeUnchanged": true,
+  "originalBatchNotResumed": true,
+  "newRealGenerationRequests": 0,
+  "metadataGetRequests": 2
+}

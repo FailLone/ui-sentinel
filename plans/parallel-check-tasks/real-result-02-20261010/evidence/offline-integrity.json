@@ -1,0 +1,59 @@
+{
+  "mode": "read original database copy; no server browser or model",
+  "runs": [
+    {
+      "runId": "run-6048a7f3-da39-4501-b517-ecb9132cd95d",
+      "status": "blocked",
+      "completionIssues": [],
+      "childArtifactIssues": []
+    },
+    {
+      "runId": "check-70f1f843-18aa-4fe5-b21b-6890c05bbccd",
+      "status": "blocked",
+      "completionIssues": [],
+      "childArtifactIssues": []
+    },
+    {
+      "runId": "check-3d4fbe14-1ec0-49e1-ad0d-b4c0d00b9ae0",
+      "status": "blocked",
+      "completionIssues": [],
+      "childArtifactIssues": []
+    },
+    {
+      "runId": "run-3304024b-846a-4dd4-ad62-0eb16a216028",
+      "status": "blocked",
+      "completionIssues": [],
+      "childArtifactIssues": []
+    },
+    {
+      "runId": "check-34bca007-a13f-4699-a64c-a075288672d4",
+      "status": "blocked",
+      "completionIssues": [],
+      "childArtifactIssues": []
+    },
+    {
+      "runId": "check-13c07684-619b-43ca-a7f1-8eec321b9f11",
+      "status": "blocked",
+      "completionIssues": [],
+      "childArtifactIssues": []
+    },
+    {
+      "runId": "run-973e05f7-5d41-47fe-b23f-213367e5dc6d",
+      "status": "blocked",
+      "completionIssues": [],
+      "childArtifactIssues": []
+    },
+    {
+      "runId": "check-67978a67-b021-4824-8e8f-0636f7f6e7d2",
+      "status": "blocked",
+      "completionIssues": [],
+      "childArtifactIssues": []
+    },
+    {
+      "runId": "check-6b654871-80b7-4361-9692-f294592a0782",
+      "status": "blocked",
+      "completionIssues": [],
+      "childArtifactIssues": []
+    }
+  ]
+}

@@ -100,7 +100,8 @@ export async function runOriginalPopup(
     {
       kind: 'ui-scan',
       entryUrl: task.start.url,
-      ...(deps.contract.requestedGoal ? { goal: deps.contract.requestedGoal } : {}),
+      // This delegated kind proves geometry only; the parent's full goal stays unresolved there.
+      goal: '检查弹窗是否超出视口。',
       popupCheck: { mode: 'popup-viewport' },
       access: deps.contract.access,
       scope: { maxPages: 1, maxDepth: 0 },

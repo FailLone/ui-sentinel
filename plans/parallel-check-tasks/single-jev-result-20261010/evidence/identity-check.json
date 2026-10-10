@@ -1,0 +1,13 @@
+{
+  "delivery": "f62e82718f7d85f06199960a8210ba6ae60d9dca",
+  "source": "87a2816deb8885e42c3785731846a0a6f9791372",
+  "manifestSha256": "986698d6b163ad207c37c32746461bf33b80159a26ccc26ea8ac3c606f169299",
+  "wireSha256": "1e40c1e698c6ef061f2ed457d4634966f6eb71c6348b85dcdf1ddb7f8c08b7bd",
+  "packetSha256": "37f0a36e4df8481a7b2ea445598fcf1e55980f24c4be729d9ba29d8c733c5ca1",
+  "wireBytes": 1838,
+  "sourceFilesVerified": 723,
+  "node": "v24.21.0",
+  "quotePassed": true,
+  "output": "/Users/xietian/.codex/worktrees/parallel-check-tasks/ui-sentinel/data/popup-single-diagnostic/approved-01",
+  "checkedAt": "2026-10-10T04:27:54.600Z"
+}

@@ -4,7 +4,7 @@ import { openCampaignSession } from '../../../evaluation/support/campaign-sessio
 type Session = Awaited<ReturnType<typeof openCampaignSession>>
 
 /** One parent owns the existing account lease; requests keep separate original ledger rows. */
-export function createPopupAccountOwner() {
+export function createPopupAccountOwner(open: typeof openCampaignSession = openCampaignSession) {
   let opening: Promise<Session> | undefined
   let identity: string | undefined
   let users = 0
@@ -17,7 +17,7 @@ export function createPopupAccountOwner() {
       const key = JSON.stringify([resolve(configuration.directory), configuration.limitUsd])
       if (identity && identity !== key) throw Error('popup-account-owner-mismatch')
       identity = key
-      opening ??= openCampaignSession(configuration.directory, String(configuration.limitUsd))
+      opening ??= open(configuration.directory, String(configuration.limitUsd))
       users++
       let released = false
       const release = () => {
