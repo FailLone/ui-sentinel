@@ -16,7 +16,7 @@ flowchart LR
   Agent --> Tools[执行器与有类型工具]
   Tools --> Browser[Playwright / 可选视觉定位]
   Tools -. 显式启用 .-> Children[最多两个独立子执行]
-  Children --> PopupJev[Jev入口/目标/补证决策]
+  Children --> PopupJev[Jev入口探索选择]
   PopupJev --> ChildBrowser[原执行器 / 独立Chromium Context]
   ChildBrowser --> Store
   Tools --> Rules[规则 / 调查程序 / 路径]
@@ -82,8 +82,10 @@ D001/D002后续通过 `3350042` 合入main，沿同一适配器自动测量原�
 
 ## 目标驱动弹窗与并行子执行
 
-`038a157` 合入单弹窗 `3225754` 与并行整合 `3411413`，免费集成通过。`EXECUTION_POPUP_JEV=1` 和请求 `popupCheck: { mode: "popup-viewport" }` 开启弹窗路径；追加 `EXECUTION_PARALLEL_CHECK_TASKS=1` 后，父Mastra Agent通过 `check_task_submit/status/wait/cancel` 委派。Jev处理实际候选的入口、目标与补证歧义，原执行器点击，几何程序判定稳定浮层外框；默认关闭，与R1通用探索互斥。
+初版经 `038a157` 合入；`878edc0` 进一步合入候选 `373abc8`，包括官方协议修复、嵌套入口探索和可观察浮窗契约。`EXECUTION_POPUP_JEV=1` 和请求 `popupCheck: { mode: "popup-viewport" }` 开启弹窗路径；追加 `EXECUTION_PARALLEL_CHECK_TASKS=1` 后，父Mastra Agent通过 `check_task_submit/status/wait/cancel` 委派。新请求冻结 `popup-viewport-2`：Jev只选择实际合法候选中的探索入口，原执行器点击；可见浮层由程序独立测量，不再请求TARGET或按钮因果证明。默认关闭，与R1通用探索互斥。
+
+功能效果复用原generic/effects的动作前来源及前后观察，`popup-effect.ts` 检查事先明确的浮窗预期是否出现；UI使用 `popup-visible-viewport-2` 检查实际可见浮层的几何，已有或异步出现的适用浮层也可测。两类结论分别保存，UI通过不核销功能义务。普通控件改文字不算浮窗出现，位置选择器变化按原节点身份核对；显式刷新受事实去重、动作读取记忆、预算和取消约束。旧 `popup-viewport-1` 及其报告按原语义保留。
 
 `src/execution/check-tasks` 持有有界调度、原执行器适配与报告；`src/execution/popup` 持有可复用runtime及节点测量；`src/agent/popup` 持有语义协议与原费用账户适配。子执行使用原runs/events/artifacts，独立节点、item、action及浏览器Context/进程，不进入顶层队列，不再嵌套委派。父模型与所有子执行竞争同一动作/调用额度，未用预留释放；网络请求/字节和较早期限共同约束。一个父执行持有费用账户会话，子请求仍有各自原费用记录。
 
-取消先等待子工具、费用结算与浏览器清理，再提交父终态；报告重读核对原回执与归属。子弹窗pass/fail不是全扫描covered，其他原义务不被核销。当前仅匿名同入口重入，不支持登录状态克隆或任意前置回放；几何和观察版本支持范围仍有限。固定主模型/Jev及真实浏览器证明接线，尚未证明真实模型委派/识别能力或线上提速。用法、证据与限制见[整合交付](../plans/parallel-check-tasks/INTEGRATION.md)。通用“规则缺少事实→自动取证”尚未实现，Rule/Skill/运行任务口径保持[设计记录](rules-and-rule-library.md)。
+取消先等待子工具、费用结算与浏览器清理，再提交父终态；报告重读核对原回执与归属。子弹窗pass/fail不是全扫描covered，其他原义务不被核销。当前仅匿名同入口重入，不支持登录状态克隆或任意前置回放；几何和观察版本支持范围仍有限。历史真实调用已验证有限协议和探索轨迹，新契约的免费浏览器验证证明确定性接线，不能推导真实网站泛化或线上提速。当前交付与后续范围见[合并收尾](../plans/parallel-check-tasks/OBSERVABLE-MAIN-CLOSEOUT.md)，用法见[产品说明](../plans/goal-directed-jev/USAGE.md)。通用“规则缺少事实→自动取证”尚未实现，Rule/Skill/运行任务口径保持[设计记录](rules-and-rule-library.md)。

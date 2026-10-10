@@ -16,4 +16,5 @@
 ## 并行弹窗整合的保留项（2026-10-10）
 
 - DNS测试组合运行出现请求计数波动：`resolver.test.ts` 的 question/empty 两例预期最多2次，记录3次；非法响应拒绝断言仍通过，32项隔离运行通过。resolver及该测试在本次合并中未改动；迟到请求跨用例计数是交付方解释，尚非独立定位结论。保留[原失败输出](../plans/parallel-check-tasks/product-evidence/combined-tests-dns-fluctuation.txt)，后续定向隔离请求归属，不通过放宽断言或覆盖日志消除失败。本次不宣称组合套件稳定通过。
-- 真实主Agent委派与Jev语义选择尚未验证，生产开关保持默认关闭。免费固定模型流程只能证明产品接线；实际网站中保守观察版本与有限几何支持仍可能导致unknown。详情见[整合交付](../plans/parallel-check-tasks/INTEGRATION.md)与[弹窗边界](../plans/goal-directed-jev/USAGE.md)。
+- 真实主Agent委派与Jev语义选择已有有限夹具轨迹，旧批次的嵌套失败及TARGET unknown保留；新 `popup-viewport-2` 契约通过免费固定模型/真实浏览器验证，尚未证明真实网站泛化或线上提速，生产开关继续默认关闭。保守观察版本、最多两个浮层及有限绘制支持仍可能导致unknown，父任务原义务仍可能partial。官方confidence不是正确率，当前ENTRY采纳政策也未完成领域校准。详见[最新合并收尾](../plans/parallel-check-tasks/OBSERVABLE-MAIN-CLOSEOUT.md)与[弹窗边界](../plans/goal-directed-jev/USAGE.md)。
+- 最早传输失败批次的三笔unknown及USD0.066保守预留仍按原记录保留，后续已结清批次不能覆盖它们；合并代码不解封账户、不复用已消费授权。参考[原批次结果](../plans/parallel-check-tasks/README.md)。
