@@ -1,0 +1,13 @@
+◇ injected env (0) from ../../../../../../dev/null
+[ui-sentinel] initializing database...
+[ui-sentinel] database ready
+[ui-sentinel] rules registered
+[ui-sentinel] server listening on http://localhost:64072
+[ui-sentinel] health: http://localhost:64072/api/health
+{
+  "output": "/Users/xietian/.codex/worktrees/parallel-check-tasks/ui-sentinel/data/parallel-popup-real/free-semantic-purpose-01",
+  "free": true,
+  "rows": 1,
+  "stopped": "",
+  "goalPassed": true
+}
