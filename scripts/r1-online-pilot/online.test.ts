@@ -15,7 +15,9 @@ import {
 import { replyFor, jsonResponse } from '../r1-jev-real/test-support.ts'
 import { checkPublishedPrice } from './preflight.ts'
 function frame() {
-  const f = JSON.parse(readFileSync('plans/r1-controlled-loop-v1/paid/frame.json', 'utf8'))
+  const f = JSON.parse(
+    readFileSync('evaluation/fixtures/legacy-runs/r1-controlled-loop-v1/paid/frame.json', 'utf8'),
+  )
   f.input.task.goal = f.facts.goal =
     'Check this page and the UI interactions within the permitted scope, and report grounded problems and unverified scope.'
   for (const c of f.facts.inspectionScope.checks)
@@ -48,7 +50,9 @@ async function setup(limit: number = POLICY.batchMaxUsd, clock?: BatchClock) {
   }
 }
 it('strong program baseline handles the known quoted target and permits only residual ambiguity', () => {
-  const f = JSON.parse(readFileSync('plans/r1-controlled-loop-v1/paid/frame.json', 'utf8'))
+  const f = JSON.parse(
+    readFileSync('evaluation/fixtures/legacy-runs/r1-controlled-loop-v1/paid/frame.json', 'utf8'),
+  )
   expect(onlinePriority(f)).toMatchObject({ ambiguity: false })
   expect(f.input.candidates.find((c: any) => c.id === onlinePriority(f).ids[0]).text).toBe('Reveal')
   expect(onlinePriority(frame()).ambiguity).toBe(true)
@@ -102,7 +106,9 @@ it('old static approval cannot authorize dynamic frames or a changed manifest', 
   expect(() => authorize({ ...m, sourceSha: 'changed' }, approval, 'test-source')).toThrow()
 })
 it('checks both pinned official quotes without inference and rejects an increased Jev rate', async () => {
-  const snapshot = JSON.parse(readFileSync('plans/r1-online-pilot/price-source.json', 'utf8'))
+  const snapshot = JSON.parse(
+    readFileSync('evaluation/fixtures/legacy-runs/r1-online-pilot/price-source.json', 'utf8'),
+  )
   const reader = (higher = false) =>
     (async (url: any) => {
       const e = structuredClone(

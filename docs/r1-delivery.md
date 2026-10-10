@@ -7,7 +7,7 @@
 - 验收源码：`e3de7cb890803c69e89e2ef8b91986e392901fc4`。
 - Agent 交付：`84246f9`；合并前 main：`16cf9fd`。
 - main 合并：`7b35d7bfd4bb714c4d986f447e012412cbb6486b`。
-- [唯一验收入口](../plans/r1-online-pilot/README.md)、[逐项审计](../plans/r1-online-pilot/product/deadline60/paid-20261009/audit.json)、[费用](../plans/r1-online-pilot/product/deadline60/paid-20261009/accounting.json)。
+- [唯一验收入口](https://github.com/FailLone/ui-sentinel/blob/25409ce/plans/r1-online-pilot/README.md)、[逐项审计](https://github.com/FailLone/ui-sentinel/blob/25409ce/plans/r1-online-pilot/product/deadline60/paid-20261009/audit.json)、[费用](https://github.com/FailLone/ui-sentinel/blob/25409ce/plans/r1-online-pilot/product/deadline60/paid-20261009/accounting.json)。
 
 28/28 项通过：22 completed、6 预期 blocked，52 个实际动作、30 次真实主模型请求、Jev/视觉调用为0。边界场景正确保留未完成事项与安全停止，未计作页面功能健康。全部28份保存报告由原验收器复核，1,693份附件核验一致。测试对象为固定公开合成靶场，不是任意公网覆盖保证。
 
@@ -29,10 +29,10 @@
 
 接收工作区执行锁定依赖离线安装及 `pnpm build`，类型检查、服务端、工作台和两个靶场构建通过。源代码差异检查通过；历史证据日志的末尾空行告警保留，未为格式清理改写原始材料。
 
-接收工作区为 `/Users/xietian/.codex/worktrees/rules-main-closeout/ui-sentinel`。维护者核对结果和构建日志在 `/Users/xietian/Documents/ChatGPT/ui-sentinel-local-archive/r1-main-closeout-20261009/`。源交付工作区及运行数据库、截图、账本继续保留，完整大文件并非随 Git 迁移；定位以[原始材料索引](../plans/r1-online-pilot/product/deadline60/paid-20261009/raw-local-files.json)为准。
+接收工作区为 `/Users/xietian/.codex/worktrees/rules-main-closeout/ui-sentinel`。维护者核对结果和构建日志在 `/Users/xietian/Documents/ChatGPT/ui-sentinel-local-archive/r1-main-closeout-20261009/`。源交付工作区及运行数据库、截图、账本继续保留，完整大文件并非随 Git 迁移；定位以[原始材料索引](https://github.com/FailLone/ui-sentinel/blob/25409ce/plans/r1-online-pilot/product/deadline60/paid-20261009/raw-local-files.json)为准。
 
 原主目录 `/Users/xietian/Documents/ChatGPT/ui-sentinel` 的旧分支、未提交 Roadmap 和未跟踪资料保持原样。它不自动代表最新 main；使用当前交付应从 main 的干净工作区启动。
 
 ## 后续
 
-由新的独立会话按[Jev 收益研究任务书](../plans/jev-benefit-study/README.md)推进。目标是判断是否值得在指定场景启用 Jev，不以研究尚未完成否定本期产品交付，不沿用已经消费的付费许可。
+由新的独立会话按[Jev 收益研究任务书](https://github.com/FailLone/ui-sentinel/blob/25409ce/plans/jev-benefit-study/README.md)推进。目标是判断是否值得在指定场景启用 Jev，不以研究尚未完成否定本期产品交付，不沿用已经消费的付费许可。

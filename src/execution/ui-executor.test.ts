@@ -54,7 +54,10 @@ vi.mock('../shared/config.ts', () => ({
     },
     // Read through so a fixture port bound in `beforeAll` is visible to the run's own policy.
     get urlScan() {
-      return { trustedOrigins: harness.trustedOrigins }
+      return {
+        trustedOrigins: harness.trustedOrigins,
+        dns: { mode: 'system', timeoutMs: 1000, allowedHosts: [] },
+      }
     },
   },
   checkModelConfig: () => ({ ready: true, missing: [] }),

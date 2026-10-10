@@ -94,7 +94,9 @@ beforeAll(async () => {
   git('init', '-q')
   git('add', '.')
   git('-c', 'user.name=Test', '-c', 'user.email=test@example.invalid', 'commit', '-qm', 'fixture')
-  const config = JSON.parse(readFileSync('plans/r1-jev-real/development-config.json', 'utf8'))
+  const config = JSON.parse(
+    readFileSync('evaluation/fixtures/legacy-runs/r1-jev-real/development-config.json', 'utf8'),
+  )
   config.dataset = 'evaluation/inputs.json'
   config.protocol = {
     questionsVerified: true,

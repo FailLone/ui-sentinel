@@ -58,7 +58,7 @@ docs 描述当前能力、约束和明确标注的方向；plans 只保留下一
 
 ## R0 接手验证
 
-采用支持的 Node 24。`pnpm test` 包含网络真实浏览器反例、完成证明篡改/丢失历史和交互后置测量回归。`pnpm validate:url-scan -- --preflight` 使用 loopback 固定模型；`URL_SCAN_FREE_CAMPAIGN_TEST=1 pnpm exec vitest run scripts/validation/url-scan-campaign.test.ts` 额外执行六行免费 campaign，验证 runner 和失败保留。修改验收预期必须说明对应产品语义，禁止为变绿删除反例。见 [接手记录](r0-closeout.md)。
+采用支持的 Node 24。`pnpm test` 包含网络真实浏览器反例、完成证明篡改/丢失历史和交互后置测量回归。`pnpm validate:url-scan -- --preflight` 使用 loopback 固定模型；`URL_SCAN_FREE_CAMPAIGN_TEST=1 pnpm exec vitest run scripts/validation/url-scan-campaign.test.ts` 额外执行六行免费 campaign，验证 runner 和失败保留。修改验收预期必须说明对应产品语义，禁止为变绿删除反例。见 [R0 交付](r0-delivery.md)。
 
 ### R0 动态结果整改自测
 
@@ -71,3 +71,9 @@ pnpm exec tsx scripts/validation/reconcile-cost.ts <campaign-directory> <batch-d
 ```
 
 该命令需要原 campaign-id、manifest、ledger.jsonl 和 OpenRouter key，只 GET 已保存 generation 的元数据，不生成模型请求。generation ID、模型与提供方必须匹配；只允许原模型别名到同家族八位日期版本的窄映射，账单记录实际版本，不改变运行配置。终止原因为空时，仅有正生成时长、有效 completion token 数和正账单费用的已发布记录可核对；零值或不完整元数据继续 unknown。核对表按请求/generation 唯一追加；原 unknown 行及预留数字不变，有效费用在支出投影中只计一次，重复相同结果幂等，冲突/缺失保留未知。成功及失败另写 reconciliation-audit.jsonl。新表可直接创建于原 SQLite，无需改写历史。核对不会更新批次阶段、重写旧 summary、创建批准或恢复任务；即使成本已知仍须按新构建和样本重新冻结、授权。
+
+## 冻结夹具与历史材料
+
+`evaluation/fixtures/legacy-runs/` 保存仍被回归或离线工具消费的历史冻结输入，保持原字节与内部来源记录；其中一次性生成脚本仅作来源材料，不参与当前 TypeScript 构建。当前 Vitest 专用配置位于 `evaluation/configs/`。Biome 排除冻结夹具及文档/评估 JSON 证据，源码和测试继续检查格式；禁止用格式化改写证据哈希。
+
+本次整理的范围、恢复命令及验证限制见[维护记录](maintenance/pre-r2-cleanup.md)。

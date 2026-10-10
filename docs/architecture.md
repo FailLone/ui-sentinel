@@ -52,7 +52,7 @@ UI先冻结入口、来源、scope/access和预算并计算hash，再安装网�
 - generic关联一次原动作、操作前观察、动作后立即及约1000ms反馈采样、规则结算和可读回执；反馈变化本身不是功能正确证据。
 - effects保存独立要求及冻结谓词、来源/结果/原action关联和测量状态。generic不能抵消必需效果；真实failed与未测unverified不同。
 
-新版本为url-scan-default-4 / bounded-ui-sampling-2 / default-check-contract-2 / public-effect-sources-1，工具29，item-checks-2，inspection-proof-4，ui-check-report-2。历史revision/hash与旧证明按原分支解释，新旧评分分开。详细合同、限制与证据见[阶段交接](../plans/r0-default-check-v2-handoff.md)。
+新版本为url-scan-default-4 / bounded-ui-sampling-2 / default-check-contract-2 / public-effect-sources-1，工具29，item-checks-2，inspection-proof-4，ui-check-report-2。历史revision/hash与旧证明按原分支解释，新旧评分分开。详细合同、限制与证据见[阶段交接](https://github.com/FailLone/ui-sentinel/blob/25409ce/plans/r0-default-check-v2-handoff.md)。
 
 ## 执行与结束
 
@@ -88,4 +88,4 @@ D001/D002后续通过 `3350042` 合入main，沿同一适配器自动测量原�
 
 `src/execution/check-tasks` 持有有界调度、原执行器适配与报告；`src/execution/popup` 持有可复用runtime及节点测量；`src/agent/popup` 持有语义协议与原费用账户适配。子执行使用原runs/events/artifacts，独立节点、item、action及浏览器Context/进程，不进入顶层队列，不再嵌套委派。父模型与所有子执行竞争同一动作/调用额度，未用预留释放；网络请求/字节和较早期限共同约束。一个父执行持有费用账户会话，子请求仍有各自原费用记录。
 
-取消先等待子工具、费用结算与浏览器清理，再提交父终态；报告重读核对原回执与归属。子弹窗pass/fail不是全扫描covered，其他原义务不被核销。当前仅匿名同入口重入，不支持登录状态克隆或任意前置回放；几何和观察版本支持范围仍有限。历史真实调用已验证有限协议和探索轨迹，新契约的免费浏览器验证证明确定性接线，不能推导真实网站泛化或线上提速。当前交付与后续范围见[合并收尾](../plans/parallel-check-tasks/OBSERVABLE-MAIN-CLOSEOUT.md)，用法见[产品说明](../plans/goal-directed-jev/USAGE.md)。通用“规则缺少事实→自动取证”尚未实现，Rule/Skill/运行任务口径保持[设计记录](rules-and-rule-library.md)。
+取消先等待子工具、费用结算与浏览器清理，再提交父终态；报告重读核对原回执与归属。子弹窗pass/fail不是全扫描covered，其他原义务不被核销。当前仅匿名同入口重入，不支持登录状态克隆或任意前置回放；几何和观察版本支持范围仍有限。历史真实调用已验证有限协议和探索轨迹，新契约的免费浏览器验证证明确定性接线，不能推导真实网站泛化或线上提速。当前交付与后续范围见[合并收尾](https://github.com/FailLone/ui-sentinel/blob/25409ce/plans/parallel-check-tasks/OBSERVABLE-MAIN-CLOSEOUT.md)，用法见[产品说明](popup-checks.md)。通用“规则缺少事实→自动取证”尚未实现，Rule/Skill/运行任务口径保持[设计记录](rules-and-rule-library.md)。

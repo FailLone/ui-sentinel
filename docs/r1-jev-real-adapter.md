@@ -1,6 +1,6 @@
 # R1 真实 Jev 适配与评分工具
 
-当前能力：已实现独立提供方适配器、免费测试、开发输入、请求 dry-run、显式真实批次入口、持久费用账本、证据校验、离线计分和开发阈值重放。尚未调用真实 Jev，尚未核实线上兼容性、评分质量或整轮收益。本项和 R1 均未完成。[计划](../plans/r1-jev-real-adapter-scoring-plan.md)仍有效。
+当前能力：已实现独立提供方适配器、免费测试、开发输入、请求 dry-run、显式真实批次入口、持久费用账本、证据校验、离线计分和开发阈值重放。尚未调用真实 Jev，尚未核实线上兼容性、评分质量或整轮收益。本项和 R1 均未完成。[计划](https://github.com/FailLone/ui-sentinel/blob/25409ce/plans/r1-jev-real-adapter-scoring-plan.md)仍有效。
 
 ## 边界
 
@@ -8,7 +8,7 @@
 
 `createJevSession` 强制真实 identity 和 billableTransport，按输入字节限制组装传输，复用原预算、缓存、状态与消费约束。profile/模板/量表/归一化规则进入 adapterRevision。原 promptVersion 仍标识公开投影契约；真实问题模板的身份由 adapterRevision 和 wireDigest 表达，不把旧 system 当成真实提供方指令。
 
-脚本 `scripts/r1-jev-real/` 是独立实验控制端。只有 `cli.ts --run` 在所有门槛通过后读取 `R1_JEV_API_KEY`。不加载 .env，不借用 R0 的授权/费用账本。默认配置明确保留问题数量及计费上界未核实的阻塞，不能开始付费运行。详见[协议记录](../plans/r1-jev-real/protocol.md)和[量表](../plans/r1-jev-real/rubric.md)。
+脚本 `scripts/r1-jev-real/` 是独立实验控制端。只有 `cli.ts --run` 在所有门槛通过后读取 `R1_JEV_API_KEY`。不加载 .env，不借用 R0 的授权/费用账本。默认配置明确保留问题数量及计费上界未核实的阻塞，不能开始付费运行。详见[协议记录](https://github.com/FailLone/ui-sentinel/blob/25409ce/plans/r1-jev-real/protocol.md)和[量表](https://github.com/FailLone/ui-sentinel/blob/25409ce/plans/r1-jev-real/rubric.md)。
 
 ## 免费使用
 

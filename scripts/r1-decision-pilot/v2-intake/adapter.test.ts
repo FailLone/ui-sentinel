@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { loadPackage, makePacket, baseline, dryRun, validateState, canonical } from './adapter.ts'
 import { sha256 } from '../../../src/agent/decisions/jev-provider/profile.ts'
-const root = 'plans/r1-decision-pilot/r0-v2-intake/source'
+const root = 'evaluation/fixtures/legacy-runs/r1-decision-pilot/r0-v2-intake/source'
 const loaded = loadPackage(root)
 const row = (id: string) => structuredClone(loaded.rows.find((v) => v.state.id === id)!)
 describe('frozen v2 public package consumer', () => {

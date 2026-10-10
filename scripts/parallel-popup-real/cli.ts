@@ -45,7 +45,7 @@ async function main() {
   const selectedRows = focused ? rows.filter((r) => r.id === 'P02') : rows
   const scoring = focused ? expectedRows.filter((r) => r.id === 'P02') : expectedRows
   if (mode === '--freeze' || mode === '--freeze-p02') {
-    const output = resolve(a ?? 'plans/parallel-check-tasks/real-preparation')
+    const output = resolve(a ?? 'data/parallel-check-tasks/real-preparation')
     if (existsSync(resolve(output, 'manifest.json'))) throw Error('freeze-already-exists')
     if (
       execFileSync(

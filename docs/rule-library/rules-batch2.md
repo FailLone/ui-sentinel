@@ -1,6 +1,6 @@
 # 第二批限定实现：D005 / R005
 
-2026-10-09，分支 `codex/rule-image-proportion`，冻结起点 `35dccaf3657af503a93cad1d6819f4d019651552`，实现提交 `5fa18aa9ed7bedb90ec1a9b5982e0c3605b712fc`。本文件为本批统一交付；[任务锚点](rules-batch2-current-task.md)记录最终身份。本轮没有扩大 D004、重访公网或连接 R0/R1。
+2026-10-09，分支 `codex/rule-image-proportion`，冻结起点 `35dccaf3657af503a93cad1d6819f4d019651552`，实现提交 `5fa18aa9ed7bedb90ec1a9b5982e0c3605b712fc`。本文件为本批统一交付；[任务锚点](https://github.com/FailLone/ui-sentinel/blob/25409ce/docs/rule-library/rules-batch2-current-task.md)记录最终身份。本轮没有扩大 D004、重访公网或连接 R0/R1。
 
 **两项均已部分实现，默认关闭。** D005 的受支持原生文字子集能自动完成四态检查，不需要逐个手填语义合同；R005 自动提供缺图审查材料，始终不把建议计为已确认缺陷或健康结果。广义知识、原 Jira、完整视觉可读性与实体语义均未因此获得验证。
 

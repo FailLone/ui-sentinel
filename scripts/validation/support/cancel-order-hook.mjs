@@ -6,11 +6,16 @@ const probe = createClient({ url: ':memory:' })
 const prototype = Object.getPrototypeOf(probe)
 const execute = prototype.execute
 probe.close()
-let mode = '', armed = false, terminalPaused = false, readSent = false
+let mode = '',
+  armed = false,
+  terminalPaused = false,
+  readSent = false
 const gates = new Map()
 process.on('message', (message) => {
   if (message.command === 'arm') {
-    mode = message.mode; armed = true; readSent = false
+    mode = message.mode
+    armed = true
+    readSent = false
     process.send?.({ event: 'armed', mode })
   } else if (message.command === 'release') gates.get(message.point)?.()
 })
@@ -30,11 +35,21 @@ prototype.execute = async function (stmt, ...rest) {
     process.send?.({ event: 'cancel-read', status: result.rows[0]?.status })
     return result
   }
-  if (mode === 'cancel-first' && stmt.sql?.startsWith('INSERT INTO run_events') && stmt.args[3] === 'run:cancel-requested') {
+  if (
+    mode === 'cancel-first' &&
+    stmt.sql?.startsWith('INSERT INTO run_events') &&
+    stmt.args[3] === 'run:cancel-requested'
+  ) {
     await pause('cancellation', stmt.args[1])
   }
-  if (mode === 'terminal-first' && armed && stmt.sql?.startsWith('UPDATE runs SET status') && ['blocked','completed','execution-error'].includes(stmt.args[0])) {
-    armed = false; terminalPaused = true
+  if (
+    mode === 'terminal-first' &&
+    armed &&
+    stmt.sql?.startsWith('UPDATE runs SET status') &&
+    ['blocked', 'completed', 'execution-error'].includes(stmt.args[0])
+  ) {
+    armed = false
+    terminalPaused = true
     await pause('terminal', stmt.args.at(-1))
     terminalPaused = false
   }

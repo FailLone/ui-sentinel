@@ -1,1 +1,0 @@
-{"id":"synthetic-jev-ba2221554b50ec21bd217750f33412f6d43d930c9a18470c14436806062b6b30","model":"typesafe/jev-1.13-20260917","provider":"TypeSafe","answers":{"popup":{"type":"choice","choice":"panel-1","confidence":1,"probabilities":{"panel-1":1,"none":0}}},"usage":{"input_tokens":10,"output_tokens":0,"cost":0.000001}}

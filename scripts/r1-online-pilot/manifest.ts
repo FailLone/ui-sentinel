@@ -66,7 +66,9 @@ export function makeManifest(sourceSha: string) {
     policy: POLICY,
     continuation: { ...CONTINUATION, acceptance: acceptanceFor(POLICY.batchMaxUsd) },
     priceSourceSha: digest(
-      JSON.parse(readFileSync('plans/r1-online-pilot/price-source.json', 'utf8')),
+      JSON.parse(
+        readFileSync('evaluation/fixtures/legacy-runs/r1-online-pilot/price-source.json', 'utf8'),
+      ),
     ),
     fixtures: CASES.map((id) => ({ id, htmlHash: digest(fixture(id)), goal: goal(id) ?? null })),
     rows: CASES.flatMap((scenario) =>

@@ -12,7 +12,12 @@
       "!**/dist",
       "!**/node_modules",
       "!**/*.md",
-      "!evaluation/fixtures/approved-retry/**"
+      "!plans/**",
+      "!evaluation/fixtures/legacy-runs/**",
+      "!evaluation/fixtures/approved-retry/**",
+      "!evaluation/**/*.json",
+      "!docs/**/*.json",
+      "!src/agent/context/fixtures/**"
     ]
   },
   "formatter": {

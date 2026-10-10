@@ -154,16 +154,14 @@ it('pending evidence preserves identity, denominator and durable projection; it 
     resolvedAt: null,
     evidenceRefs: ['before', 'after'],
   })
-  const events = scope
-    .events()
-    .map((e, n) => ({
-      ...e,
-      id: String(n),
-      runId: 'r',
-      seq: n,
-      timestamp: new Date().toISOString(),
-      evidenceRefs: [],
-    }))
+  const events = scope.events().map((e, n) => ({
+    ...e,
+    id: String(n),
+    runId: 'r',
+    seq: n,
+    timestamp: new Date().toISOString(),
+    evidenceRefs: [],
+  }))
   expect(projectInspectionScope(events as any).snapshot()).toEqual(scope.snapshot())
   scope.resolveItem(i.itemId, {
     status: 'verified',

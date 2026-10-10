@@ -73,7 +73,17 @@ describe('rule engine', () => {
 
   it('registers builtin rules', () => {
     registerBuiltinRules()
-    expect(getAllRules()).toHaveLength(4)
+    expect(
+      getAllRules()
+        .map((rule) => rule.id)
+        .sort(),
+    ).toEqual([
+      'business-outcome',
+      'control-text-disappearance',
+      'image-shape-distortion',
+      'overlay-blocking',
+      'response-time',
+    ])
     expect(getEnabledRules()).toHaveLength(3)
   })
 

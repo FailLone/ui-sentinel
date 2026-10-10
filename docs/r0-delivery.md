@@ -4,7 +4,7 @@
 
 ## 本次交付
 
-main从 `0dced2a` 快进整合 `codex/r0-default-check-v2@556f241` 的68个提交，再纳入文档收敛；没有重写历史。产品候选是 `27614b7`，阶段交付 `5070fb2`，R1依赖交付 `556f241`。全部提交SHA、排除分支、原始构建/证据摘要和清理记录见[集成机器索引](../plans/evidence/r0-main-integration.json)。最终集成提交由包含本页的main Git提交确定。
+main从 `0dced2a` 快进整合 `codex/r0-default-check-v2@556f241` 的68个提交，再纳入文档收敛；没有重写历史。产品候选是 `27614b7`，阶段交付 `5070fb2`，R1依赖交付 `556f241`。全部提交SHA、排除分支、原始构建/证据摘要和清理记录见[集成机器索引](https://github.com/FailLone/ui-sentinel/blob/25409ce/plans/evidence/r0-main-integration.json)。最终集成提交由包含本页的main Git提交确定。
 
 没有合入R1、规则或DNS分支，没有新的付费、真实模型、默认启用或权限扩展。原主目录仍停在脏的codex/r0-closeout，未切换、reset或stash，未提交Roadmap精确副本先保存于 `8e8c07a` 和本机归档。当前Roadmap整理为[阶段与后续](product-roadmap.md)，[架构](architecture.md)描述实际能力。
 
@@ -17,11 +17,11 @@ main从 `0dced2a` 快进整合 `codex/r0-default-check-v2@556f241` 的68个提�
 - 无独立效果规格且来源封闭：通用完整可以结束，功能语义仍未知。
 - blocked/partial、cancelled、execution-error/interrupted、干预或proof无效：保留原因，不自动重放或改成通过。
 
-完整支持范围、F覆盖/未覆盖及原始场景见[v2阶段交接](../plans/r0-default-check-v2-handoff.md)与[证据索引](../plans/evidence/r0-default-check-v2-delivery.json)。历史持久风险、取消尾差异、未覆盖子项和正式验收统一列在[已知问题](known-issues.md)。
+完整支持范围、F覆盖/未覆盖及原始场景见[v2阶段交接](https://github.com/FailLone/ui-sentinel/blob/25409ce/plans/r0-default-check-v2-handoff.md)与[证据索引](https://github.com/FailLone/ui-sentinel/blob/25409ce/plans/evidence/r0-default-check-v2-delivery.json)。历史持久风险、取消尾差异、未覆盖子项和正式验收统一列在[已知问题](known-issues.md)。
 
 ## R1 接入
 
-从[六状态公开包index](../plans/r0-r1-dependency-v2/index.json)及[依赖说明](../plans/r0-r1-dependency-handoff.md)读取。public/input/state与evaluation分开；未知实时权限和预算不自动排除离线调查候选，也不授予动作执行权。
+从[六状态公开包index](https://github.com/FailLone/ui-sentinel/blob/25409ce/plans/r0-r1-dependency-v2/index.json)及[依赖说明](https://github.com/FailLone/ui-sentinel/blob/25409ce/plans/r0-r1-dependency-handoff.md)读取。public/input/state与evaluation分开；未知实时权限和预算不自动排除离线调查候选，也不授予动作执行权。
 
 R1独立分支 `e5b39f7` 已记录6/6消费核验、程序基线及dry-run；1个多候选时点中三项合理并列，尚无可判别排序收益参照，不代表Jev或R1完成。本次仅只读核对其交接，不合入或重跑R1代码。
 
@@ -29,7 +29,7 @@ R1独立分支 `e5b39f7` 已记录6/6消费核验、程序基线及dry-run；1�
 
 ## 启动与一次免费试用
 
-现有原R0工作区保留已核对构建和依赖。可按[v2交接的启动说明](../plans/r0-default-check-v2-handoff.md)启动独立预览库；网址模式默认仍关闭，启动本身不调用模型。没有在本次集成中启动服务、停服务或扫描。
+现有原R0工作区保留已核对构建和依赖。可按[v2交接的启动说明](https://github.com/FailLone/ui-sentinel/blob/25409ce/plans/r0-default-check-v2-handoff.md)启动独立预览库；网址模式默认仍关闭，启动本身不调用模型。没有在本次集成中启动服务、停服务或扫描。
 
 需要单次免费、固定provider驱动的匿名有界试用时，在保留的原R0工作区使用现有Node24及依赖：
 

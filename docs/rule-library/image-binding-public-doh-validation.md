@@ -2,7 +2,7 @@
 
 2026-10-09（Asia/Shanghai）。**组合分支可以构建并完成真实图片候选采集，原主文档 fake-IP 障碍已解除；尚不具备自动语义绑定实验条件。** 第二次观察共枚举 58 张 img，26 个候选取得全部合同机器字段，但完整绘制支持和 `facts-ready` 均为 0。没有执行语义检查，也没有用网络成功率或候选数量推算规则准确率。
 
-本报告补充而不覆写 [2026-10-08 系统 DNS 0/3 记录](image-binding-public-validation.md)。DNS 使用说明见 [network-dns-compat](../network-dns-compat.md)，原成果见 [交接](../../plans/network-dns-compat-handoff.md)；本轮[证据索引](evidence/image-bindings-public-doh-20261009.json)独立保存身份、原始材料摘要、逐项缺口、网络拒绝及计数。
+本报告补充而不覆写 [2026-10-08 系统 DNS 0/3 记录](image-binding-public-validation.md)。DNS 使用说明见 [network-dns-compat](../network-dns-compat.md)，原成果见 [交接](https://github.com/FailLone/ui-sentinel/blob/25409ce/plans/network-dns-compat-handoff.md)；本轮[证据索引](evidence/image-bindings-public-doh-20261009.json)独立保存身份、原始材料摘要、逐项缺口、网络拒绝及计数。
 
 ## 集成与执行身份
 

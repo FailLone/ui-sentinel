@@ -3,7 +3,9 @@ import { readFileSync } from 'node:fs'
 import { checkPublishedPrice, preparePaidAccess } from './preflight.ts'
 import { makeManifest, POLICY } from './manifest.ts'
 import { digest } from '../../src/agent/exploration/integration/host.ts'
-const snapshot = JSON.parse(readFileSync('plans/r1-online-pilot/price-source.json', 'utf8'))
+const snapshot = JSON.parse(
+  readFileSync('evaluation/fixtures/legacy-runs/r1-online-pilot/price-source.json', 'utf8'),
+)
 function reader(change: (a: any, j: any) => void = () => {}) {
   const a = structuredClone(snapshot.endpoint),
     j = structuredClone(snapshot.jev.endpoint)

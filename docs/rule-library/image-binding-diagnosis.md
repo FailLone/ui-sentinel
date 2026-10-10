@@ -1,6 +1,6 @@
 # 无语义声明的只读绑定诊断：本轮交付
 
-2026-10-09，独立分支 `codex/rule-image-proportion`。基线 `ea23bfc2a1debccace4b03b1c055e02d0e4a6ede`；实现提交 `36e008f54d32d8f5ee1e185e4d7c6daabc57d478`。本文件是本轮唯一交付说明；[任务锚点](image-diagnosis-current-task.md)仅记录范围与完成状态。
+2026-10-09，独立分支 `codex/rule-image-proportion`。基线 `ea23bfc2a1debccace4b03b1c055e02d0e4a6ede`；实现提交 `36e008f54d32d8f5ee1e185e4d7c6daabc57d478`。本文件是本轮唯一交付说明；[任务锚点](https://github.com/FailLone/ui-sentinel/blob/25409ce/docs/rule-library/image-diagnosis-current-task.md)仅记录范围与完成状态。
 
 **已能在不提供保形声明的情况下诊断当前候选绑定。** `diagnose` 返回分维度机器事实、原始证据和拒绝原因，不产生合同、审批、RuleResult 或新的 facts-ready 状态。普通 `check` 仍要求真实语义声明并重新执行原有机器门。D004 运行时仍为 `image-shape-distortion` 0.1.0、默认关闭；无新绘制能力或 R0/R1 接线。
 

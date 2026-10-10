@@ -18,5 +18,5 @@
     "jsx": "react-jsx"
   },
   "include": ["src/**/*", "arena/**/*", "evaluation/**/*", "scripts/**/*"],
-  "exclude": ["node_modules", "dist", "data"]
+  "exclude": ["node_modules", "dist", "data", "evaluation/fixtures/legacy-runs"]
 }

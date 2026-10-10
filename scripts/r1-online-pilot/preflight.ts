@@ -39,7 +39,9 @@ function endpoint(payload: any, provider: string, model: string, name: string, l
 }
 /** Public metadata only. Called before credential access, claim creation or inference. */
 export async function checkPublishedPrice(read: typeof fetch = fetch) {
-  const source = JSON.parse(readFileSync('plans/r1-online-pilot/price-source.json', 'utf8'))
+  const source = JSON.parse(
+    readFileSync('evaluation/fixtures/legacy-runs/r1-online-pilot/price-source.json', 'utf8'),
+  )
   const response = await read(source.url, { signal: AbortSignal.timeout(15000), redirect: 'error' })
   if (!response.ok) throw Error('price-check-unavailable')
   const e = endpoint(

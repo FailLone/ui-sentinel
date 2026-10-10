@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { exportSchema } from './pilot.ts'
 import { ADVICE_VERSION, makeAdvicePacket, rankOfflineAdvice } from './offline-advice.ts'
 import { sha256 } from '../../src/agent/decisions/jev-provider/profile.ts'
-const root = 'plans/r1-decision-pilot/r0-eight-state-20261008'
+const root = 'evaluation/fixtures/legacy-runs/r1-decision-pilot/r0-eight-state-20261008'
 function sample(id = 'S07') {
   const data = exportSchema.parse(JSON.parse(readFileSync(`${root}/mapped-public.json`, 'utf8')))
   return {

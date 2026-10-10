@@ -7,7 +7,7 @@ import { dryRun } from './runner.ts'
 import { loadDataset } from './dataset.ts'
 
 const ROOT = process.cwd()
-const CONFIG_PATH = 'plans/r1-jev-real/smoke-config.json'
+const CONFIG_PATH = 'evaluation/fixtures/legacy-runs/r1-jev-real/smoke-config.json'
 const config = JSON.parse(readFileSync(join(ROOT, CONFIG_PATH), 'utf8'))
 
 const dirs: string[] = []

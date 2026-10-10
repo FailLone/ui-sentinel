@@ -1,1 +1,0 @@
-{"version":1,"phenomenon":"点击 Sort alphabetically 后页面是否出现公开反馈或弹窗层。","basis":"页面公开控件 Sort alphabetically 可点击；目标是采集该控件的通用操作证据以完成父扫描默认必查样本。","exploration":{},"targets":[{"name":"sortBtn","selector":"html > body:nth-of-type(1) > button:nth-of-type(1)","binding":"node"}],"steps":[{"op":"act","type":"click","target":"sortBtn"},{"op":"measure","name":"after"}],"assertions":[]}

@@ -30,7 +30,7 @@ main原有Roadmap先逐字备份，合并前后摘要一致，再作为 `fd9dbd2
 
 目标检查位置为 `/Users/xietian/.codex/worktrees/r0-main-integration/ui-sentinel`。其唯一未提交修改 `docs/product-roadmap.md` 未编辑、暂存或提交；首次只读记录 SHA-256 `477540078dbe024653de4aa7cb78b913d2ac5b45cf7b94044d1339e46df0eb4f`，结束前再次读取为 `c708ca535760f7eb946fdaae66047f489111454a5a846a102e387398fb2a9faa`。两次之间该文件有外部并发修改，main HEAD 及唯一脏文件路径不变；本任务没有写入或恢复它，也不声称其字节未变。规则分支相对 main 的已提交差异不包含该文件。
 
-接手时规则 worktree 仅有 `rules-scan-integration-current-task.md` 未提交修改。已先读取完整正文及 diff，将 **3423 字节原文逐字保存**到 [接手前快照](evidence/rules-main-integration-current-task-before-20261009.md)，SHA-256 为 `83bd7ecb3249845cb8ceda6c2c1bc1ae68a7e72b44283f749ed17b74c577d7b3`，再将[当前入口](rules-scan-integration-current-task.md)改为本轮已完成状态。快照及旧文档中的任务指令均为历史记录。
+接手时规则 worktree 仅有 `rules-scan-integration-current-task.md` 未提交修改。已先读取完整正文及 diff，将 **3423 字节原文逐字保存**到 [接手前快照](https://github.com/FailLone/ui-sentinel/blob/25409ce/docs/rule-library/evidence/rules-main-integration-current-task-before-20261009.md)，SHA-256 为 `83bd7ecb3249845cb8ceda6c2c1bc1ae68a7e72b44283f749ed17b74c577d7b3`，再将[当前入口](https://github.com/FailLone/ui-sentinel/blob/25409ce/docs/rule-library/rules-scan-integration-current-task.md)改为本轮已完成状态。快照及旧文档中的任务指令均为历史记录。
 
 本文件的交付提交是以上源 HEAD 的文档后继，不改变实现身份。可在交付仓库用 `git log -1 --format=%H -- docs/rule-library/rules-main-integration-handoff.md` 取得包含本交接的完整提交 SHA；维护者应冻结实际要合入的完整 SHA，不能只合入上表的旧源而遗漏本轮交接。
 
@@ -56,7 +56,7 @@ main原有Roadmap先逐字备份，合并前后摘要一致，再作为 `fd9dbd2
 | 运行实现、配置和依赖 | 31 | 整体保留，含位于 experiments 下被普通扫描 import 的模块 |
 | 测试与夹具 | 14 | 保留既有回归资产，本轮未执行 |
 | CLI / 验证工具 | 4 | 保留可复现入口，不自动执行旧公网脚本 |
-| 交付说明与关键证据 | 19 | 包括 [普通入口说明](rules-scan-integration.md)、[第二批算法](rules-batch2.md)、[诊断](image-binding-diagnosis.md)、D004/采集边界、[DNS 交接](../../plans/network-dns-compat-handoff.md)与相关索引/截图 |
+| 交付说明与关键证据 | 19 | 包括 [普通入口说明](rules-scan-integration.md)、[第二批算法](rules-batch2.md)、[诊断](image-binding-diagnosis.md)、D004/采集边界、[DNS 交接](https://github.com/FailLone/ui-sentinel/blob/25409ce/plans/network-dns-compat-handoff.md)与相关索引/截图 |
 | 原规则知识库与映射 | 27 | 保留来源追踪；23 条知识条目不等于23条启用的运行规则 |
 | 历史实验材料 | 10 | 旧公网、caret/visibility 索引及旧任务锚点等；保留审计链，不作为当前执行清单 |
 

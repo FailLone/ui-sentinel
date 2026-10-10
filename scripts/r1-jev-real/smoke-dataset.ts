@@ -38,7 +38,9 @@ export function selectSmokeDataset(raw: unknown): Dataset {
 
 export function writeSmokeDataset(root: string, outputPath: string): string {
   const dataset = selectSmokeDataset(
-    JSON.parse(readFileSync(join(root, 'evaluation/r1-jev-quality/development-inputs.json'), 'utf8')),
+    JSON.parse(
+      readFileSync(join(root, 'evaluation/r1-jev-quality/development-inputs.json'), 'utf8'),
+    ),
   )
   const full = join(root, outputPath)
   mkdirSync(dirname(full), { recursive: true })

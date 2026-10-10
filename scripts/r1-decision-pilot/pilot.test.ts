@@ -234,7 +234,9 @@ describe('minimal decision pilot, synthetic wiring only', () => {
       const body = JSON.stringify({ version: 'r1-jev-dataset-1', split: 'development', cases })
       writeFileSync(path, body)
       const config = configSchema.parse({
-        ...JSON.parse(readFileSync('plans/r1-jev-real/smoke-config.json', 'utf8')),
+        ...JSON.parse(
+          readFileSync('evaluation/fixtures/legacy-runs/r1-jev-real/smoke-config.json', 'utf8'),
+        ),
         phase: 'decision-pilot',
         dataset: 'dataset.json',
         datasetSha256: sha256(body),

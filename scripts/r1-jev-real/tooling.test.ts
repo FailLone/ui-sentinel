@@ -32,7 +32,10 @@ afterEach(() => {
   for (const d of dirs.splice(0)) rmSync(d, { recursive: true, force: true })
 })
 const limits = { maxAttempts: 3, maxCostUsd: 0.05, maxWallMs: 10000 }
-const config = () => JSON.parse(readFileSync('plans/r1-jev-real/development-config.json', 'utf8'))
+const config = () =>
+  JSON.parse(
+    readFileSync('evaluation/fixtures/legacy-runs/r1-jev-real/development-config.json', 'utf8'),
+  )
 function repo() {
   const root = temp()
   mkdirSync(join(root, 'evaluation'), { recursive: true })

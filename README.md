@@ -183,6 +183,7 @@ pnpm validate:learning -- --recheck <已关闭且已批准的学习目录>
 - [产品目标、现状差距与 Roadmap](docs/product-roadmap.md)
 - [架构与 Agent 职责](docs/architecture.md)
 - [执行层](docs/execution-engine.md)
+- [弹窗检查](docs/popup-checks.md)与[并发检查](docs/parallel-checks.md)
 - [可组合调查程序](docs/composable-investigations.md)
 - [视觉发现与聚焦验证](docs/visual-focus.md)
 - [规则与规则库](docs/rules-and-rule-library.md)
@@ -190,3 +191,5 @@ pnpm validate:learning -- --recheck <已关闭且已批准的学习目录>
 - [靶场与评估](docs/arena-and-evaluation.md)
 
 格式使用 Biome，类型检查使用 TypeScript 7。当前不启用严格 lint；运行 pnpm format 整理格式。密钥、数据库及原始证据留在本机。
+
+历史计划与批次原始材料已从当前开发树移出，保留在 Git 标签 `archive/pre-r2-cleanup-20261010`；测试仍使用的冻结输入保留在 `evaluation/fixtures/legacy-runs/`。参见[整理记录](docs/maintenance/pre-r2-cleanup.md)。当前任务见 [R2 资料驱动路径验证](plans/r2-product-sources/README.md)。

@@ -4,9 +4,9 @@
 
 | 类别 | 现有证据与影响 | 后续触发与处置 |
 | --- | --- | --- |
-| 历史持久异常 | 原run `run-effb12fc-bab6-4814-a1b4-a407ae4bda9e` 库停在seq49/action:executing，实际后续截图未登记。真实历史故障，根因未明；不能保证持久可靠或无人值守连续批次 | 首次写入/独立读回失配、终态或产物缺失即停新任务并保留现场；使用现有有界捕获工具另行定位，不碰运气重放。详见[持久交接](../plans/r0-persistence-repair-handoff.md) |
-| 取消诊断尾差异 | CANCEL-TAIL-1：保存报告73事件，最终库74；两边cancelled，唯一迟到seq73为取消的tool:finished，未见后续真实动作。该保存报告不含完整终态诊断尾；未证严重数据损坏，也未修复 | 迟到真实动作/义务/状态变化、取消误报完成，或需精确历史审计时定向核对。详见[v2证据索引](../plans/evidence/r0-default-check-v2-delivery.json) |
-| 未覆盖定向子项 | F01–F14均有范围映射，但跨run来源/多工具攻击、部分节点/跨文档、F12同响应排队及旧历史UI等未穷举；这是测试缺口，不能伪称已知缺陷或全部闭合 | 触及对应代码、扩大能力或遇到匹配问题时补对应窄检查。详见[v2交接](../plans/r0-default-check-v2-handoff.md)；不为本次整合重跑全量 |
+| 历史持久异常 | 原run `run-effb12fc-bab6-4814-a1b4-a407ae4bda9e` 库停在seq49/action:executing，实际后续截图未登记。真实历史故障，根因未明；不能保证持久可靠或无人值守连续批次 | 首次写入/独立读回失配、终态或产物缺失即停新任务并保留现场；使用现有有界捕获工具另行定位，不碰运气重放。详见[持久交接](https://github.com/FailLone/ui-sentinel/blob/25409ce/plans/r0-persistence-repair-handoff.md) |
+| 取消诊断尾差异 | CANCEL-TAIL-1：保存报告73事件，最终库74；两边cancelled，唯一迟到seq73为取消的tool:finished，未见后续真实动作。该保存报告不含完整终态诊断尾；未证严重数据损坏，也未修复 | 迟到真实动作/义务/状态变化、取消误报完成，或需精确历史审计时定向核对。详见[v2证据索引](https://github.com/FailLone/ui-sentinel/blob/25409ce/plans/evidence/r0-default-check-v2-delivery.json) |
+| 未覆盖定向子项 | F01–F14均有范围映射，但跨run来源/多工具攻击、部分节点/跨文档、F12同响应排队及旧历史UI等未穷举；这是测试缺口，不能伪称已知缺陷或全部闭合 | 触及对应代码、扩大能力或遇到匹配问题时补对应窄检查。详见[v2交接](https://github.com/FailLone/ui-sentinel/blob/25409ce/plans/r0-default-check-v2-handoff.md)；不为本次整合重跑全量 |
 | 正式真实模型/UI/业务验收 | 历史失败、未运行行与费用账本保留，v2阶段免费材料不代表新正式阶段通过。R1离线消费不证明Jev排序收益或执行推进 | 维护者另行决定稳定性准入、候选/配置/来源/fixture/价格冻结及明确付费授权。原UI15、业务诊断5/正式45计划是待办，不是本次新授权 |
 
 发生持久失配时：停新提交，保留取消/隔离且不自动重放；尽可能在重启前保存runId、日志、原库及实际存在的WAL/SHM/journal、截图/产物、事件与报告、版本和配置摘要。活文件复制标非原子；不checkpoint、清库、清状态或换库绕过隔离。原失败材料不能被新成功替换。本次集成不停止现有服务、不操作活动数据库。
@@ -15,6 +15,10 @@
 
 ## 并行弹窗整合的保留项（2026-10-10）
 
-- DNS测试组合运行出现请求计数波动：`resolver.test.ts` 的 question/empty 两例预期最多2次，记录3次；非法响应拒绝断言仍通过，32项隔离运行通过。resolver及该测试在本次合并中未改动；迟到请求跨用例计数是交付方解释，尚非独立定位结论。保留[原失败输出](../plans/parallel-check-tasks/product-evidence/combined-tests-dns-fluctuation.txt)，后续定向隔离请求归属，不通过放宽断言或覆盖日志消除失败。本次不宣称组合套件稳定通过。
-- 真实主Agent委派与Jev语义选择已有有限夹具轨迹，旧批次的嵌套失败及TARGET unknown保留；新 `popup-viewport-2` 契约通过免费固定模型/真实浏览器验证，尚未证明真实网站泛化或线上提速，生产开关继续默认关闭。保守观察版本、最多两个浮层及有限绘制支持仍可能导致unknown，父任务原义务仍可能partial。官方confidence不是正确率，当前ENTRY采纳政策也未完成领域校准。详见[最新合并收尾](../plans/parallel-check-tasks/OBSERVABLE-MAIN-CLOSEOUT.md)与[弹窗边界](../plans/goal-directed-jev/USAGE.md)。
-- 最早传输失败批次的三笔unknown及USD0.066保守预留仍按原记录保留，后续已结清批次不能覆盖它们；合并代码不解封账户、不复用已消费授权。参考[原批次结果](../plans/parallel-check-tasks/README.md)。
+- DNS测试组合运行出现请求计数波动：`resolver.test.ts` 的 question/empty 两例预期最多2次，记录3次；非法响应拒绝断言仍通过，32项隔离运行通过。resolver及该测试在本次合并中未改动；迟到请求跨用例计数是交付方解释，尚非独立定位结论。保留[原失败输出](https://github.com/FailLone/ui-sentinel/blob/25409ce/plans/parallel-check-tasks/product-evidence/combined-tests-dns-fluctuation.txt)，后续定向隔离请求归属，不通过放宽断言或覆盖日志消除失败。本次不宣称组合套件稳定通过。
+- 真实主Agent委派与Jev语义选择已有有限夹具轨迹，旧批次的嵌套失败及TARGET unknown保留；新 `popup-viewport-2` 契约通过免费固定模型/真实浏览器验证，尚未证明真实网站泛化或线上提速，生产开关继续默认关闭。保守观察版本、最多两个浮层及有限绘制支持仍可能导致unknown，父任务原义务仍可能partial。官方confidence不是正确率，当前ENTRY采纳政策也未完成领域校准。详见[最新合并收尾](https://github.com/FailLone/ui-sentinel/blob/25409ce/plans/parallel-check-tasks/OBSERVABLE-MAIN-CLOSEOUT.md)与[弹窗边界](popup-checks.md)。
+- 最早传输失败批次的三笔unknown及USD0.066保守预留仍按原记录保留，后续已结清批次不能覆盖它们；合并代码不解封账户、不复用已消费授权。参考[原批次结果](https://github.com/FailLone/ui-sentinel/blob/25409ce/plans/parallel-check-tasks/README.md)。
+
+## R2 开始前的回归基线（2026-10-10）
+
+整理 main 时运行完整免费套件发现旧 UI 执行器测试配置/断言、内置规则数量及 Journey 写入屏障场景失败；原快照定向复算确认这些旧失败。已修正 DNS 配置替身和规则注册断言，其余 UI 契约断言、Journey `nextStep` 与 DNS/5ms 费用计时组合波动仍需核对，未通过删除测试或改产品完成门消除。详见[整理与验证记录](maintenance/pre-r2-cleanup.md)。这项清理不宣称主干回归全部通过，也不重新开启 R0 全矩阵。

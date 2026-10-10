@@ -7,7 +7,7 @@ import { sha256 } from '../../../src/agent/decisions/jev-provider/profile.ts'
 const args = process.argv.slice(2)
 if (args.length !== 2 || args[0] !== '--output')
   throw new Error('usage: cli.ts --output <new-directory>')
-const root = resolve('plans/r1-decision-pilot/r0-v2-intake'),
+const root = resolve('evaluation/fixtures/legacy-runs/r1-decision-pilot/r0-v2-intake'),
   out = resolve(args[1])
 const loaded = loadPackage(join(root, 'source'))
 const receipt = JSON.parse(readFileSync(join(root, 'RECEIPT.json'), 'utf8'))

@@ -210,7 +210,9 @@ it('changed lineage is checked before any credential access or claim', async () 
     { io, files } = memoryIO()
   files.set(CONTINUATION.pins[0].path, Buffer.from('changed'))
   const c = createContinuation(digest(m), CONTINUATION.canonicalClaims, 'unused', io)
-  const quote = JSON.parse(readFileSync('plans/r1-online-pilot/price-source.json', 'utf8'))
+  const quote = JSON.parse(
+    readFileSync('evaluation/fixtures/legacy-runs/r1-online-pilot/price-source.json', 'utf8'),
+  )
   const credential = vi.fn(() => 'fixture'),
     claim = vi.fn()
   await expect(

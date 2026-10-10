@@ -103,13 +103,13 @@ pnpm build
 node --import tsx scripts/validation/network-dns-public.ts
 ```
 
-结果、提交、证据路径见 [交接](../plans/network-dns-compat-handoff.md) 和小型证据索引 `docs/evidence/network-dns-compat.json`。未重跑 R0 全套验收、R1 调度或图片规则实验。公网验证仅导航、一次页面 DOM/截图观察和正常资源加载，保留既定页面及既定资源 origin，不登录、不提交。
+结果、提交、证据路径见 [交接](https://github.com/FailLone/ui-sentinel/blob/25409ce/plans/network-dns-compat-handoff.md) 和小型证据索引 `docs/evidence/network-dns-compat.json`。未重跑 R0 全套验收、R1 调度或图片规则实验。公网验证仅导航、一次页面 DOM/截图观察和正常资源加载，保留既定页面及既定资源 origin，不登录、不提交。
 
 不支持：企业内网扫描授权、VPN 品牌识别、专有 fake-IP 通道、HTTP/SOCKS 通用代理、企业证书管理、多协议 DNS、域名分流、resolver 认证、自动供应商故障切换。拿到公网地址仍可能因本机路由/企业网络无法直连；该结果需要如实记录，不能自动改造成代理项目。本机成功也不代表所有 VPN 兼容、R0 验收或图片规则通过。
 
 ## 2026-10-09 授权公网验证补充
 
-使用部署者随后明确指定的阿里公共 DNS：`https://dns.alidns.com/dns-query`，bootstrap `223.5.5.5`，5000 ms 解析期限。仅通过本次进程环境变量启用，没有改为默认供应商。完整精确域名清单和可执行配置见 [交接中的 DoH 验证](../plans/network-dns-compat-handoff.md)。
+使用部署者随后明确指定的阿里公共 DNS：`https://dns.alidns.com/dns-query`，bootstrap `223.5.5.5`，5000 ms 解析期限。仅通过本次进程环境变量启用，没有改为默认供应商。完整精确域名清单和可执行配置见 [交接中的 DoH 验证](https://github.com/FailLone/ui-sentinel/blob/25409ce/plans/network-dns-compat-handoff.md)。
 
 复用代码 `6566d56` 的原观察构建及 62 项已通过测试，运行 HEAD `3725f77` 无代码差异；不重装、不重建、不重跑测试。三页各一次，均完成真实 DOM/截图观察：Commons 3093 ms、MDN 5215 ms、GitHub 5250 ms。旧 system 模式 0/3 结果保留，新 DoH 模式 **3/3** 独立报告。
 

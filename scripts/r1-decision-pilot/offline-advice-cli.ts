@@ -7,8 +7,9 @@ import { sha256 } from '../../src/agent/decisions/jev-provider/profile.ts'
 import { exportSchema } from './pilot.ts'
 import { ADVICE_VERSION, makeAdvicePacket, rankOfflineAdvice } from './offline-advice.ts'
 import { writeJson, sealEvidence } from '../r1-jev-real/evidence.ts'
-const source = 'plans/r1-decision-pilot/r0-eight-state-20261008'
-const referencePath = 'plans/r1-decision-pilot/offline-advice-v1/reference.frozen.json'
+const source = 'evaluation/fixtures/legacy-runs/r1-decision-pilot/r0-eight-state-20261008'
+const referencePath =
+  'evaluation/fixtures/legacy-runs/r1-decision-pilot/offline-advice-v1/reference.frozen.json'
 const referenceDigest = '309b9d051e681f2efc2477aa070503580fc2fccee7566f9b4b2a904ce1f079b5'
 const args = process.argv.slice(2)
 if (args.length !== 2 || args[0] !== '--output')

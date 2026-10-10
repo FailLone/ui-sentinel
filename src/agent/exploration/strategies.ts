@@ -208,12 +208,10 @@ export function assessStrategies(
     make(
       'repeat-operation',
       attemptEntries.length > 0,
-      repeats
-        .slice(0, maxActions)
-        .map((e) => ({
-          targetKey: e.targetKey!,
-          action: e.allowedActions[0] as Exclude<PublicAction, 'fill'>,
-        })),
+      repeats.slice(0, maxActions).map((e) => ({
+        targetKey: e.targetKey!,
+        action: e.allowedActions[0] as Exclude<PublicAction, 'fill'>,
+      })),
       'before-and-after',
       'requires explicit repeat reason; at most two attempts in this state',
     ),
@@ -285,12 +283,10 @@ export function planCounterexampleInvestigation(
             ineligibility(facts, c) === null,
         )
       : []
-  const steps = available
-    .slice(0, Math.min(STRATEGY_MAX_ACTIONS, b.remainingActions))
-    .map((c) => ({
-      targetKey: c.targetKey!,
-      action: c.allowedActions[0] as Exclude<PublicAction, 'fill'>,
-    }))
+  const steps = available.slice(0, Math.min(STRATEGY_MAX_ACTIONS, b.remainingActions)).map((c) => ({
+    targetKey: c.targetKey!,
+    action: c.allowedActions[0] as Exclude<PublicAction, 'fill'>,
+  }))
   if (steps.length)
     return {
       kind: 'compare-healthy',

@@ -332,7 +332,9 @@ try {
       restored.persistence.status === 'verified' &&
       JSON.stringify(restored.events) === JSON.stringify(reports['init-denied'].events),
   })
-  const oldReview = JSON.parse(await readFile('plans/evidence/r0-c10-state-review.json', 'utf8'))
+  const oldReview = JSON.parse(
+    await readFile('evaluation/fixtures/legacy-runs/r0-c10-state-review.json', 'utf8'),
+  )
   const oldRef = oldReview.evidence.find((e: any) => e.path.endsWith('row-6/report.json'))
   const oldBytes = await readFile(oldRef.path)
   if (createHash('sha256').update(oldBytes).digest('hex') !== oldRef.sha256)

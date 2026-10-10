@@ -60,7 +60,9 @@ export function makeProductManifest(sourceSha: string) {
     vision: false,
     jev: false,
     priceSourceSha: digest(
-      JSON.parse(readFileSync('plans/r1-online-pilot/price-source.json', 'utf8')),
+      JSON.parse(
+        readFileSync('evaluation/fixtures/legacy-runs/r1-online-pilot/price-source.json', 'utf8'),
+      ),
     ),
     continuation: { ...PRODUCT_RECOVERY, acceptance: productRiskAcceptance(LIMITS.maxCostUsd) },
     fixtures: Object.keys(fixtures).map((id) => ({
