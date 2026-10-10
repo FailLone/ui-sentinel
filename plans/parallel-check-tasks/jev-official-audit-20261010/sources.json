@@ -1,0 +1,194 @@
+{
+  "accessDate": "2026-10-10",
+  "readOnly": true,
+  "modelRequests": 0,
+  "sources": [
+    {
+      "name": "confidence",
+      "url": "https://docs.typesafe.ai/confidence.md",
+      "status": 200,
+      "accessedAt": "2026-10-10T05:20:08.715642+00:00",
+      "sha256": "5c325ec0c0b69e78129406ca7c5d3aef113bce365abd34985b8674cd278c81be",
+      "bytes": 24090
+    },
+    {
+      "name": "state",
+      "url": "https://docs.typesafe.ai/concepts/state.md",
+      "status": 200,
+      "accessedAt": "2026-10-10T05:20:08.524860+00:00",
+      "sha256": "8ed5a4e719cf2414759fed92463c203855f1fb4bf02b685746cd4858481375a5",
+      "bytes": 3669
+    },
+    {
+      "name": "choice",
+      "url": "https://docs.typesafe.ai/primitives/choice.md",
+      "status": 200,
+      "accessedAt": "2026-10-10T05:20:08.767197+00:00",
+      "sha256": "ae9c49b815ee30b28ed851e22b63041130fba50ae41368d41a5d80b571f383bb",
+      "bytes": 26907
+    },
+    {
+      "name": "api",
+      "url": "https://docs.typesafe.ai/api.md",
+      "status": 200,
+      "accessedAt": "2026-10-10T05:20:08.517277+00:00",
+      "sha256": "6b760275f89341fe15cff80c28aacae94d7d0c0c99afcd987ec0bca680b5713a",
+      "bytes": 11344
+    },
+    {
+      "name": "primer",
+      "url": "https://docs.typesafe.ai/introduction/machine-learning-primer.md",
+      "status": 200,
+      "accessedAt": "2026-10-10T05:20:09.432152+00:00",
+      "sha256": "62f4354cfcdc00c5ec3e4865bc6b6a79900042c26c3afea0e67d88537e980121",
+      "bytes": 6693
+    },
+    {
+      "name": "build",
+      "url": "https://docs.typesafe.ai/concepts/how-to-build-with-system-one.md",
+      "status": 200,
+      "accessedAt": "2026-10-10T05:20:09.067139+00:00",
+      "sha256": "9f5a20ac39383695d554bf812b365ed4b70622b8e5ac10484dce290469c68972",
+      "bytes": 41034
+    },
+    {
+      "name": "jaggedness",
+      "url": "https://docs.typesafe.ai/model-jaggedness/jev-1.13.md",
+      "status": 200,
+      "accessedAt": "2026-10-10T05:20:09.209873+00:00",
+      "sha256": "5d471be7c8d2a359a81979b7bcf2c2fab536a198d4e50155c4233380d5c03986",
+      "bytes": 9346
+    },
+    {
+      "name": "or-index",
+      "url": "https://openrouter.ai/docs/_llms/api-reference.md",
+      "error": "HTTP Error 403: Forbidden"
+    },
+    {
+      "name": "or-sdk",
+      "url": "https://openrouter.ai/docs/client-sdks/typescript/sdks/decisions/README.md",
+      "error": "HTTP Error 403: Forbidden"
+    },
+    {
+      "name": "ts-sdk",
+      "url": "https://docs.typesafe.ai/sdk/javascript/api/interfaces/ChoiceResponse.md",
+      "status": 200,
+      "accessedAt": "2026-10-10T05:20:09.908461+00:00",
+      "sha256": "d06a957fe92af44639a97319c0cf56082ef11e243a8dfd64f093480de400d87f",
+      "bytes": 1095
+    },
+    {
+      "name": "ts-client",
+      "url": "https://docs.typesafe.ai/sdk/javascript.md",
+      "status": 200,
+      "accessedAt": "2026-10-10T05:20:10.202176+00:00",
+      "sha256": "269059683486938fd93c9ef675ed93d7b38c5ce9151b0baa892837bb79e55cc2",
+      "bytes": 1415
+    },
+    {
+      "name": "decisionschoiceanswer",
+      "url": "https://raw.githubusercontent.com/OpenRouterTeam/typescript-sdk/bfe7530552e058a69f4f614a492a365819fd6b7e/src/models/decisionschoiceanswer.ts",
+      "status": 200,
+      "accessedAt": "2026-10-10T05:20:55.607285+00:00",
+      "sha256": "3f20e7568b4977acfac91131d7c954afebfbca7c441f40ab9564c9722351e9a8"
+    },
+    {
+      "name": "decisionschoicequestion",
+      "url": "https://raw.githubusercontent.com/OpenRouterTeam/typescript-sdk/bfe7530552e058a69f4f614a492a365819fd6b7e/src/models/decisionschoicequestion.ts",
+      "status": 200,
+      "accessedAt": "2026-10-10T05:20:55.587764+00:00",
+      "sha256": "e1bd0bbfea4c864a8eb2748d630a6985a0660882ee03f98e5c28d1b0c3f014ac"
+    },
+    {
+      "name": "decisionsrequest",
+      "url": "https://raw.githubusercontent.com/OpenRouterTeam/typescript-sdk/bfe7530552e058a69f4f614a492a365819fd6b7e/src/models/decisionsrequest.ts",
+      "status": 200,
+      "accessedAt": "2026-10-10T05:20:55.579141+00:00",
+      "sha256": "2a90c0e24aad836d91a4bf2320f248a1c37f6549fe539e8170b05eceefed5aea"
+    },
+    {
+      "name": "decisionsresponse",
+      "url": "https://raw.githubusercontent.com/OpenRouterTeam/typescript-sdk/bfe7530552e058a69f4f614a492a365819fd6b7e/src/models/decisionsresponse.ts",
+      "status": 200,
+      "accessedAt": "2026-10-10T05:20:55.603229+00:00",
+      "sha256": "1abf75fd54b3b693a7b153c9c344045f1c070ec54c6814cb1fe306289cbccd7b"
+    },
+    {
+      "name": "ts-types",
+      "url": "https://raw.githubusercontent.com/typesafe-ai/typesafe-sdk-js/v0.6.0/src/types.ts",
+      "status": 200,
+      "accessedAt": "2026-10-10T05:20:56.919360+00:00",
+      "sha256": "557731c541ce740191a16cf67f4947c7acc9b77e87e476c0d967da07ec4c2b53"
+    },
+    {
+      "url": "https://docs.typesafe.ai/llms.txt",
+      "accessDate": "2026-10-10",
+      "method": "web browser tool; public read only",
+      "result": "read"
+    },
+    {
+      "url": "https://typesafe.ai/",
+      "accessDate": "2026-10-10",
+      "method": "web browser tool; public read only",
+      "result": "read"
+    },
+    {
+      "url": "https://docs.typesafe.ai/confidence",
+      "accessDate": "2026-10-10",
+      "method": "web browser tool; public read only",
+      "result": "read"
+    },
+    {
+      "url": "https://docs.typesafe.ai/primitives/choice",
+      "accessDate": "2026-10-10",
+      "method": "web browser tool; public read only",
+      "result": "read"
+    },
+    {
+      "url": "https://docs.typesafe.ai/patterns/confidence-routing",
+      "accessDate": "2026-10-10",
+      "method": "web browser tool; public read only",
+      "result": "read"
+    },
+    {
+      "url": "https://openrouter.ai/docs/llms.txt",
+      "accessDate": "2026-10-10",
+      "method": "web browser tool; public read only",
+      "result": "read"
+    },
+    {
+      "url": "https://openrouter.ai/docs/client-sdks/typescript/sdks/decisions/README",
+      "accessDate": "2026-10-10",
+      "method": "web browser tool; public read only",
+      "result": "read"
+    },
+    {
+      "url": "https://openrouter.ai/docs/api/api-reference/alphadecisions/submit-a-decisions-request",
+      "accessDate": "2026-10-10",
+      "method": "web browser tool; public read only",
+      "result": "read"
+    },
+    {
+      "url": "https://openrouter.ai/blog/tutorials/how-to-use-jev/",
+      "accessDate": "2026-10-10",
+      "method": "web browser tool; public read only",
+      "result": "read"
+    }
+  ],
+  "excludedNonOfficialSearchHits": [
+    "jevtypesafe.org",
+    "typesafe-jev.com",
+    "typesafeai.org",
+    "jev-api.org",
+    "jev-typesafe.org",
+    "jevtypesafeai.com",
+    "jev.pro",
+    "jev-lab.com",
+    "github.com/lezgoverci/jev-docs"
+  ],
+  "unavailableDiscoveryURLs": [
+    "https://openrouter.ai/docs/api/api-reference/decisions/create-decision",
+    "https://openrouter.ai/docs/api/api-reference/decisions/create-decisions"
+  ],
+  "note": "Some .md URLs failed in web tool but TypeSafe public GET succeeded. OpenRouter .md GET returned 403; canonical web page and official GitHub SDK succeeded. No third-party mirror used as evidence. Only access metadata saved; full external articles not copied into deliverable."
+}
