@@ -9,6 +9,20 @@ import { expectedRows } from './score.ts'
 import { publishedQuotes } from './quote.ts'
 import { runBatch } from './run.ts'
 const hash = (x: string | Buffer) => createHash('sha256').update(x).digest('hex')
+function installedDependencies() {
+  const pkg = JSON.parse(readFileSync('package.json', 'utf8'))
+  return {
+    lockSha256: hash(readFileSync('node_modules/.pnpm/lock.yaml')),
+    versions: Object.fromEntries(
+      Object.keys(pkg.dependencies)
+        .sort()
+        .map((name) => [
+          name,
+          JSON.parse(readFileSync(`node_modules/${name}/package.json`, 'utf8')).version,
+        ]),
+    ),
+  }
+}
 function sourceFiles() {
   const files = execFileSync(
     'git',
@@ -59,6 +73,7 @@ async function main() {
       version: POLICY.version,
       sourceCommit: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
       node: process.version,
+      installedDependencies: installedDependencies(),
       policy: POLICY,
       sourceFiles: sourceFiles(),
       build: { path: relative(process.cwd(), bundle), sha256: hash(readFileSync(bundle)) },
@@ -125,7 +140,8 @@ async function main() {
     JSON.stringify(manifest.policy) !== JSON.stringify(POLICY) ||
     JSON.stringify(manifest.sourceFiles) !== JSON.stringify(sourceFiles()) ||
     manifest.build.sha256 !== hash(readFileSync(resolve(manifest.build.path))) ||
-    manifest.node !== process.version
+    manifest.node !== process.version ||
+    JSON.stringify(manifest.installedDependencies) !== JSON.stringify(installedDependencies())
   )
     throw Error('frozen-source-build-or-node-mismatch')
   // Verify all public and private fixture inputs, not just the supplied policy object.
