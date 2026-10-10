@@ -1,3 +1,8 @@
+import {
+  requestPopupDecision,
+  type PopupTransportRecord,
+  type PopupTransportObserver,
+} from './transport.ts'
 import { DatabaseSync } from 'node:sqlite'
 import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -16,23 +21,6 @@ import {
   type PopupQuestion,
 } from './contract.ts'
 
-function abortable<T>(promise: Promise<T>, signal: AbortSignal): Promise<T> {
-  signal.throwIfAborted()
-  return new Promise((resolve, reject) => {
-    const aborted = () => reject(signal.reason ?? Error('popup-cancelled'))
-    signal.addEventListener('abort', aborted, { once: true })
-    promise.then(
-      (value) => {
-        signal.removeEventListener('abort', aborted)
-        resolve(value)
-      },
-      (error) => {
-        signal.removeEventListener('abort', aborted)
-        reject(error)
-      },
-    )
-  })
-}
 export function popupConfiguration(env: NodeJS.ProcessEnv = process.env) {
   const directory = env.POPUP_JEV_ACCOUNT_DIRECTORY,
     limitUsd = Number(env.POPUP_JEV_LIMIT_USD)
@@ -86,6 +74,7 @@ export function createPopupProvider(options: {
   timeRemaining(): number
   save(kind: string, body: string): Promise<string>
   emit(payload: Record<string, unknown>, refs: string[]): Promise<void>
+  observeTransport?: PopupTransportObserver
   http?: typeof fetch
   quote?: (signal: AbortSignal) => Promise<void>
 }): PopupDecision {
@@ -139,6 +128,7 @@ export function createPopupProvider(options: {
       held = false,
       cost: number | null = null,
       problem = false
+    let transport: PopupTransportRecord | undefined
     try {
       const state = await session.ledger.stopState()
       if (session.campaignId !== account.campaignId || state.epoch || state.unknownCount)
@@ -162,39 +152,27 @@ export function createPopupProvider(options: {
       await options.countCall()
       combined.throwIfAborted()
       const key = c.key()
-      let request!: Promise<Response>
+      let request!: Promise<string>
       const dispatched = await session.ledger.dispatch(id, state.epoch, () => {
         if (combined.aborted) return false
         sent = true
-        request = (options.http ?? fetch)('https://openrouter.ai/api/alpha/decisions', {
-          method: 'POST',
-          redirect: 'error',
+        request = requestPopupDecision({
+          requestId: id,
+          runId: options.runId,
+          wire,
+          key,
           signal: combined,
-          headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
-          body: wire,
+          http: options.http,
+          observe: (record) => {
+            transport = { ...record }
+            options.observeTransport?.(record)
+          },
         })
         void request.catch(() => {})
         return true
       })
       if (!dispatched.ok) throw Error('popup-dispatch-refused')
-      const response = await abortable(request, combined)
-      if (!response.ok || !response.body) throw Error('popup-provider-http')
-      const reader = response.body.getReader(),
-        chunks: Uint8Array[] = []
-      let bytes = 0
-      try {
-        while (true) {
-          combined.throwIfAborted()
-          const { value, done } = await abortable(reader.read(), combined)
-          if (done) break
-          bytes += value.length
-          if (bytes > 65536) throw Error('popup-provider-response-bound')
-          chunks.push(value)
-        }
-      } finally {
-        await reader.cancel().catch(() => {})
-      }
-      const body = Buffer.concat(chunks).toString('utf8')
+      const body = await request
       refs.push(await options.save('popup-jev-response', body))
       const raw = parseStrictJson(body),
         usage = readUsage(raw)
@@ -211,6 +189,13 @@ export function createPopupProvider(options: {
       throw Error('popup-provider-unavailable')
     } finally {
       try {
+        if (transport) {
+          try {
+            refs.push(await options.save('popup-jev-transport', JSON.stringify(transport)))
+          } catch {
+            transport.loggingFailed = true
+          }
+        }
         if (sent) {
           if (cost === null) await session.ledger.markUnknown(id, 'popup-usage-unavailable')
           else await session.ledger.settle(id, cost)
@@ -222,6 +207,7 @@ export function createPopupProvider(options: {
             packetHash: hash(packet),
             wireHash: hash(wire),
             dispatched: sent,
+            transport,
             actualUsd: cost,
             error: problem ? 'popup-provider-unavailable' : null,
           },
@@ -245,6 +231,7 @@ export function createPopupProvider(options: {
  */
 export type PopupProviderResources = {
   accountOwner: PopupAccountOwner
+  observeTransport?: PopupTransportObserver
   http?: typeof fetch
   quote?: (signal: AbortSignal) => Promise<void>
 }

@@ -43,7 +43,24 @@ async function setup() {
   await account.close()
   const key = vi.fn(() => 'synthetic-only'),
     countCall = vi.fn(async () => {}),
-    http = vi.fn<typeof fetch>(async () => Response.json(response()))
+    http = vi.fn<typeof fetch>(async (_url, init) => {
+      const wire = JSON.parse(String(init?.body)),
+        q = wire.questions.popup
+      // Protocol oracle follows the documented Decisions shape, independently of wireQuestion.
+      if (
+        q.type !== 'choice' ||
+        typeof q.instructions !== 'string' ||
+        !q.criteria ||
+        typeof q.criteria !== 'object' ||
+        Array.isArray(q.criteria) ||
+        'choices' in q
+      )
+        return Response.json(
+          { error: { code: 400, message: 'invalid choice schema' } },
+          { status: 400 },
+        )
+      return Response.json(response())
+    })
   const saved: string[] = []
   const options = {
     configuration: { directory, limitUsd: 1, key },
@@ -63,7 +80,7 @@ async function setup() {
 it('uses a finite semantic choice rather than ranking, validates identity/distribution and confidence', () => {
   const body = JSON.parse(wireQuestion(packet))
   expect(body.questions.popup.type).toBe('choice')
-  expect(body.questions.popup.criteria).toContain('open a popup')
+  expect(body.questions.popup.instructions).toContain('open a popup')
   expect(normalizePopupResponse(response(), packet).choice).toBe('entry')
   const r = response()
   r.answers.popup.confidence = 0.4
@@ -80,7 +97,7 @@ it('settles exactly one accounted synthetic call and stores request/response bef
   expect(x.countCall).toHaveBeenCalledTimes(1)
   expect(x.key).toHaveBeenCalledTimes(1)
   expect(x.http).toHaveBeenCalledTimes(1)
-  expect(x.saved).toEqual(['popup-jev-request', 'popup-jev-response'])
+  expect(x.saved).toEqual(['popup-jev-request', 'popup-jev-response', 'popup-jev-transport'])
   const s = await openCampaignSession(x.directory, '1')
   try {
     expect((await s.ledger.entries())[0]).toMatchObject({ status: 'settled', actualUsd: 0.00001 })
@@ -276,4 +293,97 @@ it('serializes original fee reservations when siblings compete for the last bala
   expect((await results).map((r) => r.status).sort()).toEqual(['fulfilled', 'rejected'])
   expect(x.key).toHaveBeenCalledTimes(1)
   await owner.close()
+})
+
+it('records the first failing child at the actual product boundary and stops its sibling without freeing unknown fees', async () => {
+  const x = await setup(),
+    owner = createPopupAccountOwner()
+  const pending: ((response: Response) => void)[] = [],
+    records: any[] = [],
+    events: any[] = []
+  const controller = new AbortController()
+  x.http.mockImplementation(() => new Promise<Response>((resolve) => pending.push(resolve)))
+  const results = Promise.allSettled(
+    ['first', 'second'].map((runId) =>
+      createPopupProvider({
+        ...x.options,
+        runId,
+        accountOwner: owner,
+        observeTransport: (record) => {
+          records.push(record)
+          if (record.failureSequence) controller.abort(Error('first-provider-error'))
+        },
+        emit: async (payload) => {
+          events.push(payload)
+        },
+      })(packet, controller.signal),
+    ),
+  )
+  await vi.waitFor(() => expect(pending).toHaveLength(2))
+  pending[1]!(
+    Response.json(
+      { error: { message: 'bad choice schema' } },
+      { status: 400, headers: { 'x-request-id': 'req-b' } },
+    ),
+  )
+  expect((await results).every((r) => r.status === 'rejected')).toBe(true)
+  await owner.close()
+  const first = records
+    .filter((r) => r.failureSequence)
+    .sort((a, b) => a.failureSequence - b.failureSequence)[0]
+  expect(first).toMatchObject({ runId: 'second', outcome: 'http-error', httpStatus: 400 })
+  expect(events.find((e) => e.transport.runId === 'second').transport.errorBody).toContain(
+    'bad choice schema',
+  )
+  expect(events.find((e) => e.transport.runId === 'first').transport.outcome).toBe('cancelled')
+  const account = await openCampaignSession(x.directory, '1')
+  try {
+    expect((await account.ledger.entries()).map((r) => r.status)).toEqual(['unknown', 'unknown'])
+    expect((await account.ledger.spending()).heldReservedUsd).toBe(0)
+  } finally {
+    await account.close()
+  }
+  expect(x.http).toHaveBeenCalledTimes(2)
+})
+
+it('diagnostic artifact write failure retains the original HTTP error and original unknown stop', async () => {
+  const x = await setup(),
+    events: any[] = []
+  x.http.mockImplementation(async () => Response.json({ error: 'bad' }, { status: 500 }))
+  await expect(
+    createPopupProvider({
+      ...x.options,
+      save: async (kind) => {
+        if (kind === 'popup-jev-transport') throw Error('disk')
+        return kind
+      },
+      emit: async (p) => {
+        events.push(p)
+      },
+    })(packet, new AbortController().signal),
+  ).rejects.toThrow('stopped')
+  expect(events[0].transport).toMatchObject({
+    outcome: 'http-error',
+    httpStatus: 500,
+    loggingFailed: true,
+  })
+  expect(events[0].actualUsd).toBeNull()
+})
+
+it('the product deadline aborts transport and preserves timeout classification with unknown fees', async () => {
+  const x = await setup(),
+    events: any[] = []
+  x.http.mockImplementation(() => new Promise<Response>(() => {}))
+  await expect(
+    createPopupProvider({
+      ...x.options,
+      timeRemaining: () => 2000,
+      emit: async (p) => {
+        events.push(p)
+      },
+    })(packet, new AbortController().signal),
+  ).rejects.toThrow('stopped')
+  expect(events[0].transport.outcome).toBe('timeout')
+  expect(events[0].actualUsd).toBeNull()
+  expect(x.http).toHaveBeenCalledTimes(1)
 })

@@ -18,14 +18,18 @@ export function createBatch(
   let stopped = ''
   const log = (data: unknown) =>
     appendFileSync(join(output, 'bindings.jsonl'), JSON.stringify(data) + '\n', { flush: true })
-  const stop = (reason: string) => {
+  const stop = (reason: string, evidence?: unknown) => {
     if (stopped) return
     stopped = reason
-    writeFileSync(
-      join(output, 'stop.json'),
-      JSON.stringify({ reason, at: new Date().toISOString() }),
-      { flag: 'wx', flush: true },
-    )
+    try {
+      writeFileSync(
+        join(output, 'stop.json'),
+        JSON.stringify({ reason, at: new Date().toISOString(), evidence }),
+        { flag: 'wx', flush: true },
+      )
+    } catch {
+      /* Stop must still propagate if diagnostic storage fails. */
+    }
     controller.abort(Error(reason))
   }
   const timer = setTimeout(() => stop('batch-time-limit'), POLICY.batchMs)

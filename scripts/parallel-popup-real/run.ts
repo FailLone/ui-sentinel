@@ -122,7 +122,7 @@ export async function runBatch(
   })
   const controlToken = randomUUID()
   let evaluationLease: string | undefined
-  const records: unknown[] = [],
+  const records: ReturnType<typeof scoreRow>[] = [],
     timing: unknown[] = []
   let uninstall: (() => void) | undefined
   let problem: unknown
@@ -232,28 +232,21 @@ export async function runBatch(
               choice,
               confidence: 1,
               probabilities: Object.fromEntries(
-                Object.keys(body.questions.popup.choices).map((k) => [k, k === choice ? 1 : 0]),
+                Object.keys(body.questions.popup.criteria).map((k) => [k, k === choice ? 1 : 0]),
               ),
             },
           },
           usage: { input_tokens: 10, output_tokens: 0, cost: 0.000001 },
         })
       }
-      try {
-        const response = await fetch(url, { ...init, redirect: 'error' })
-        if (!response.ok) {
-          batch.stop('jev-http-error')
-          return response
-        }
-        return response
-      } catch (error) {
-        batch.stop('jev-transport-error')
-        throw error
-      }
+      return fetch(url, { ...init, redirect: 'error' })
     }
     uninstall = installPopupProviderResources({
       accountOwner: owner,
       http: jevHttp,
+      observeTransport: (record) => {
+        if (record.failureSequence) batch.stop('jev-' + record.outcome, record)
+      },
       ...(free ? { quote: async () => {} } : {}),
     })
     Object.assign(process.env, {
@@ -452,5 +445,11 @@ export async function runBatch(
     await new Promise<void>((r) => fixture.close(() => r()))
   }
   if (problem) throw Error(String(problem))
-  return { output, free, rows: records.length, stopped: batch.status().stopped }
+  return {
+    output,
+    free,
+    rows: records.length,
+    stopped: batch.status().stopped,
+    goalPassed: records.length === (free ? 1 : rows.length) && records.every((r) => r.goalPassed),
+  }
 }

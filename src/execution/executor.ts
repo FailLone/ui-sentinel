@@ -3729,6 +3729,7 @@ async function executeProfiledRun(
               configuration,
               accountOwner,
               http: providerResources?.http,
+              observeTransport: providerResources?.observeTransport,
               quote: providerResources?.quote,
               runId,
               timeRemaining: () => budget.totalTimeoutMs - (Date.now() - startedAt),

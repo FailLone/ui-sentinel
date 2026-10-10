@@ -1,3 +1,4 @@
+import { batchExitCode } from './exit-code.ts'
 import { createHash } from 'node:crypto'
 import { execFileSync } from 'node:child_process'
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs'
@@ -190,7 +191,7 @@ async function main() {
 main().then(
   (result) => {
     console.log(JSON.stringify(result, null, 2))
-    process.exit(0)
+    process.exit(batchExitCode(result))
   },
   (error) => {
     console.error(String(error))

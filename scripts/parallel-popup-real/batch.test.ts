@@ -80,3 +80,33 @@ it('a child unknown stops the main gateway and sibling while retaining the origi
     await rm(dir, { recursive: true, force: true })
   }
 })
+
+it('keeps first request identity on competing failures and propagates stop even if stop logging fails', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'parallel-popup-first-failure-'))
+  const session = await openCampaignSession(dir, String(POLICY.maxCostUsd))
+  const batch = createBatch(session.ledger, dir, async () => true)
+  try {
+    batch.stop('jev-http-error', { requestId: 'first', failureSequence: 7 })
+    batch.stop('jev-cancelled', { requestId: 'second', failureSequence: 8 })
+    const { readFile, mkdir } = await import('node:fs/promises')
+    expect(JSON.parse(await readFile(join(dir, 'stop.json'), 'utf8'))).toMatchObject({
+      reason: 'jev-http-error',
+      evidence: { requestId: 'first', failureSequence: 7 },
+    })
+    const bad = join(dir, 'bad')
+    await mkdir(bad)
+    await mkdir(join(bad, 'stop.json'))
+    const other = createBatch(session.ledger, bad, async () => true)
+    try {
+      expect(() => other.stop('original-http-error')).not.toThrow()
+      expect(other.signal.aborted).toBe(true)
+      expect(other.signal.reason.message).toBe('original-http-error')
+    } finally {
+      other.close()
+    }
+  } finally {
+    batch.close()
+    await session.close()
+    await rm(dir, { recursive: true, force: true })
+  }
+})

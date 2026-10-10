@@ -82,7 +82,12 @@ export function scoreRow(id: string, parent: any, children: any[]) {
     pathMatched,
     unrelatedPopupActions: unrelated.length,
     goalPassed:
-      delegation && childGoals.every((c) => c.matched) && pathMatched && unrelated.length === 0,
+      ['completed', 'blocked'].includes(parent.status) &&
+      children.every((c) => ['completed', 'blocked'].includes(c.status)) &&
+      delegation &&
+      childGoals.every((c) => c.matched) &&
+      pathMatched &&
+      unrelated.length === 0,
     parentScope: {
       status: parent.status,
       coverage: parent.uiScan?.inspection?.coverage,
