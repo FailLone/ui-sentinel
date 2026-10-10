@@ -1,8 +1,8 @@
 # 当前架构与职责
 
-2026-10-09。R0阶段交付完成；R1本期程序优先探索已通过28项真实验收并合入main。实现范围见 [R0阶段交付](r0-delivery.md)和[R1最终交付](r1-delivery.md)，演进方向见 [Roadmap](product-roadmap.md)。R0历史正式验收缺口继续保留。
+2026-10-10。R0阶段交付完成；R1本期程序优先探索已通过28项真实验收并合入main。实现范围见 [R0阶段交付](r0-delivery.md)和[R1最终交付](r1-delivery.md)，演进方向见 [Roadmap](product-roadmap.md)。R0历史正式验收缺口继续保留。
 
-UI Sentinel 是绑定loopback的受信单机服务，采用TypeScript、Mastra Core、Playwright、Midscene/Qwen、Hono、libSQL和React。工作台与API同端口；队列串行，关闭工作台不取消任务。没有多用户认证、远程Worker、分布式调度或第二套浏览器Agent循环。
+UI Sentinel 是绑定loopback的受信单机服务，采用TypeScript、Mastra Core、Playwright、Midscene/Qwen、Hono、libSQL和React。工作台与API同端口；顶层队列串行，显式开启时单个UI扫描内可委派最多两个隔离子执行，关闭工作台不取消任务。没有多用户认证、远程Worker、分布式调度或第二套浏览器Agent循环。
 
 ```mermaid
 flowchart LR
@@ -15,6 +15,10 @@ flowchart LR
   Planner -. 显式启用且优先级未定 .-> Jev[Jev评分]
   Agent --> Tools[执行器与有类型工具]
   Tools --> Browser[Playwright / 可选视觉定位]
+  Tools -. 显式启用 .-> Children[最多两个独立子执行]
+  Children --> PopupJev[Jev入口/目标/补证决策]
+  PopupJev --> ChildBrowser[原执行器 / 独立Chromium Context]
+  ChildBrowser --> Store
   Tools --> Rules[规则 / 调查程序 / 路径]
   Tools --> Store[libSQL事件与证据文件]
   Store --> Report[同源证据 / 义务 / 完成证明]
@@ -75,3 +79,11 @@ Jev默认关闭，需请求和服务端共同显式启用、已有批准费用�
 部署可显式配置有界 DoH；默认仍走 system DNS。DoH 只允许配置的精确域名，连接前复查全部地址并固定地址连接，保留 Host/SNI/TLS 和私网拒绝；不提供任意代理或 fake-IP 绕过。支持范围及已知性能/证据局限见[规则整合交接](rule-library/rules-main-integration-handoff.md)和[DNS 说明](network-dns-compat.md)。
 
 D001/D002后续通过 `3350042` 合入main，沿同一适配器自动测量原生单行文字的有限垂直裁切/兄弟控件遮盖。几何只筛候选，同次截图与隔离参考字形对照才支持像素结论；参考图不冒充目标页面截图。正常滚动、省略、弹层或未确认的脚本/交互恢复路径不会仅凭越界判缺陷。历史报告新增可选layout字段并校验布局证据摘要，旧记录兼容。详见[范围、验证与合并](rule-library/rules-clipping-overlap-delivery.md)。
+
+## 目标驱动弹窗与并行子执行
+
+`038a157` 合入单弹窗 `3225754` 与并行整合 `3411413`，免费集成通过。`EXECUTION_POPUP_JEV=1` 和请求 `popupCheck: { mode: "popup-viewport" }` 开启弹窗路径；追加 `EXECUTION_PARALLEL_CHECK_TASKS=1` 后，父Mastra Agent通过 `check_task_submit/status/wait/cancel` 委派。Jev处理实际候选的入口、目标与补证歧义，原执行器点击，几何程序判定稳定浮层外框；默认关闭，与R1通用探索互斥。
+
+`src/execution/check-tasks` 持有有界调度、原执行器适配与报告；`src/execution/popup` 持有可复用runtime及节点测量；`src/agent/popup` 持有语义协议与原费用账户适配。子执行使用原runs/events/artifacts，独立节点、item、action及浏览器Context/进程，不进入顶层队列，不再嵌套委派。父模型与所有子执行竞争同一动作/调用额度，未用预留释放；网络请求/字节和较早期限共同约束。一个父执行持有费用账户会话，子请求仍有各自原费用记录。
+
+取消先等待子工具、费用结算与浏览器清理，再提交父终态；报告重读核对原回执与归属。子弹窗pass/fail不是全扫描covered，其他原义务不被核销。当前仅匿名同入口重入，不支持登录状态克隆或任意前置回放；几何和观察版本支持范围仍有限。固定主模型/Jev及真实浏览器证明接线，尚未证明真实模型委派/识别能力或线上提速。用法、证据与限制见[整合交付](../plans/parallel-check-tasks/INTEGRATION.md)。通用“规则缺少事实→自动取证”尚未实现，Rule/Skill/运行任务口径保持[设计记录](rules-and-rule-library.md)。

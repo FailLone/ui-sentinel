@@ -12,3 +12,8 @@
 发生持久失配时：停新提交，保留取消/隔离且不自动重放；尽可能在重启前保存runId、日志、原库及实际存在的WAL/SHM/journal、截图/产物、事件与报告、版本和配置摘要。活文件复制标非原子；不checkpoint、清库、清状态或换库绕过隔离。原失败材料不能被新成功替换。本次集成不停止现有服务、不操作活动数据库。
 
 启动、单次免费限定试用和报告辨识见[R0最终入口](r0-delivery.md)。维护本清单应引用实际新证据，不逐轮重写历史判定。
+
+## 并行弹窗整合的保留项（2026-10-10）
+
+- DNS测试组合运行出现请求计数波动：`resolver.test.ts` 的 question/empty 两例预期最多2次，记录3次；非法响应拒绝断言仍通过，32项隔离运行通过。resolver及该测试在本次合并中未改动；迟到请求跨用例计数是交付方解释，尚非独立定位结论。保留[原失败输出](../plans/parallel-check-tasks/product-evidence/combined-tests-dns-fluctuation.txt)，后续定向隔离请求归属，不通过放宽断言或覆盖日志消除失败。本次不宣称组合套件稳定通过。
+- 真实主Agent委派与Jev语义选择尚未验证，生产开关保持默认关闭。免费固定模型流程只能证明产品接线；实际网站中保守观察版本与有限几何支持仍可能导致unknown。详情见[整合交付](../plans/parallel-check-tasks/INTEGRATION.md)与[弹窗边界](../plans/goal-directed-jev/USAGE.md)。
