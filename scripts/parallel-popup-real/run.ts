@@ -228,6 +228,7 @@ export async function runBatch(output: string, free: boolean, manifest: unknown)
       OPENAI_BASE_URL: gateway.url,
       OPENAI_API_KEY: gateway.token,
       VISION_MODEL: 'disabled',
+      VISION_MODEL_FAMILY: 'qwen3',
       VISION_API_KEY: 'disabled',
       VISION_BASE_URL: 'http://127.0.0.1:1',
       EXECUTION_URL_SCAN: '1',
