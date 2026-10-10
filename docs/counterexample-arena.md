@@ -86,3 +86,7 @@ DOTENV_CONFIG_PATH=/dev/null node node_modules/vitest/vitest.mjs run \
 ## main 组合验证（2026-10-10）
 
 首批实现 `3e0d68b` 与文档交接 `a3b7fff` 已由 `2963bd4` 正常合入 main；R2 源交付 `53d60ae` 先由 `cfe5bdd` 合入。组合候选下仅运行一次本靶场 14 变体入口与一次 R2 动态六场景入口，结果、命令、证据及持续回溯责任统一见[main 合并收尾记录](maintenance/arena-library-followup.md#main-合并与组合验证2026-10-10)。源分支与原证据保留；不重复计入首次 31 项/4 项成绩，不扩大为真实 Agent 验收。
+
+## R2 自然语言资料验收页族（待审阅，2026-10-10）
+
+新增 [轻阅目录页族与实验协议](experiments/r2-product-acceptance.md)：RA01 健康、RA02 第二步效果不符、RA03 前置不足，三种实现共用一份正常中文产品规格，复用本靶场 HTTP 服务。私有真值在 `evaluation/private/r2-product-acceptance/truth.ts`，启动/复位/验证由 `scripts/r2-product-acceptance/fixture.ts` 提供。新增三个对照不并入 CA01–14 原成绩；六个拟议真实任务尚未授权。原 R2 动态回归继续从 `scripts/validation/r2-product-sources.ts --dynamic-only` 运行，未复制执行器或替换原失败证据。
