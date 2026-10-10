@@ -1,7 +1,7 @@
 import { createServer } from 'node:http'
 import { randomUUID } from 'node:crypto'
 import { mkdir, writeFile, readFile } from 'node:fs/promises'
-import { existsSync } from 'node:fs'
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import { resolve, join } from 'node:path'
 import { POLICY } from './policy.ts'
 import { rows, publicGoal, documentFor } from './fixtures.ts'
@@ -19,7 +19,12 @@ const listen = async (server: ReturnType<typeof createServer>) => {
   await new Promise<void>((r) => server.listen(0, '127.0.0.1', r))
   return `http://127.0.0.1:${(server.address() as { port: number }).port}`
 }
-export async function runBatch(output: string, free: boolean, manifest: unknown) {
+export async function runBatch(
+  output: string,
+  free: boolean,
+  manifest: unknown,
+  approvalClaim?: { manifestSha256: string; approvalReference: string },
+) {
   if (hasInjectedPopupDecision()) throw Error('decision-replacement-forbidden')
   if (free && process.env.PARALLEL_POPUP_API_KEY) throw Error('dry-run-refuses-real-credential')
   const key = free ? 'synthetic-not-a-credential' : process.env.PARALLEL_POPUP_API_KEY
@@ -31,6 +36,17 @@ export async function runBatch(output: string, free: boolean, manifest: unknown)
   if (existsSync(output) || !output.startsWith(resolve('data/parallel-popup-real') + '/'))
     throw Error('fresh-isolated-output-required')
   const quote = free ? { mode: 'synthetic-only' } : await publishedQuotes()
+  if (!free) {
+    if (!approvalClaim || !/^[a-f0-9]{64}$/.test(approvalClaim.manifestSha256))
+      throw Error('approval-claim-required')
+    const claims = resolve('data/parallel-popup-real/.claims')
+    mkdirSync(claims, { recursive: true })
+    writeFileSync(
+      join(claims, approvalClaim.manifestSha256 + '.json'),
+      JSON.stringify({ ...approvalClaim, output, at: new Date().toISOString() }),
+      { flag: 'wx', flush: true },
+    )
+  }
   await mkdir(output, { recursive: true })
   const save = (name: string, data: unknown) =>
     writeFile(join(output, name), JSON.stringify(data, null, 2) + '\n')
@@ -335,6 +351,38 @@ export async function runBatch(output: string, free: boolean, manifest: unknown)
       )
         batch.stop('unexpected-write')
       await gateway.end()
+      const originalFees = await session.ledger.entries()
+      const parentFees = originalFees.filter((r) => r.runId === parent)
+      const childFees = originalFees.filter((r) => children.some((c) => c.runId === r.runId))
+      const providers = children.flatMap((c) =>
+        c.events
+          .filter((e: any) => e.type === 'popup:provider')
+          .map((e: any) => ({ runId: c.runId, ...e.payload })),
+      )
+      const parentStarts = report.events.filter(
+        (e: any) => e.type === 'model:request-started',
+      ).length
+      const feeProof = {
+        row: row.id,
+        parent,
+        parentStarts,
+        parentUsage: report.usage.modelCalls,
+        mainFees: parentFees,
+        childFees,
+        providers,
+        matched:
+          parentFees.length === parentStarts &&
+          report.usage.modelCalls === parentFees.length + childFees.length &&
+          children.every(
+            (c) => c.usage.modelCalls === childFees.filter((r) => r.runId === c.runId).length,
+          ) &&
+          providers.length === childFees.length &&
+          providers.every((p) =>
+            childFees.some((r) => r.requestId === p.requestId && r.runId === p.runId),
+          ),
+      }
+      await save(`${row.id}-fee-proof.json`, feeProof)
+      if (!feeProof.matched) batch.stop('request-fee-evidence-mismatch')
       const spending = await session.ledger.spending()
       if (spending.unknownCount || spending.exceeded || spending.heldReservedUsd > 0)
         batch.stop('unsettled-row')

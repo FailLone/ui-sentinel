@@ -159,6 +159,7 @@ async function main() {
   )
     throw Error('frozen-fixture-mismatch')
   const free = mode === '--dry-run'
+  let approvalClaim: { manifestSha256: string; approvalReference: string } | undefined
   if (!free) {
     const approval = JSON.parse(readFileSync(resolve(b), 'utf8'))
     if (
@@ -178,14 +179,12 @@ async function main() {
       !(Date.parse(approval.expiresAt) > Date.now())
     )
       throw Error('new-batch-explicit-human-approval-required')
-    // One approval file can authorize one launch only; failures are not automatically resumed.
-    writeFileSync(
-      resolve(b) + '.used',
-      JSON.stringify({ at: new Date().toISOString(), manifestSha256: hash(manifestBytes) }),
-      { flag: 'wx', flush: true },
-    )
+    approvalClaim = {
+      manifestSha256: hash(manifestBytes),
+      approvalReference: approval.approvalReference,
+    }
   }
-  return runBatch(resolve(free ? b : c), free, manifest)
+  return runBatch(resolve(free ? b : c), free, manifest, approvalClaim)
 }
 main().then(
   (result) => {
