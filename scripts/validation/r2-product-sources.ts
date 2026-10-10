@@ -8,6 +8,15 @@ import { createClient } from '@libsql/client'
 import { chromium } from 'playwright'
 import assert from 'node:assert/strict'
 import { hashTree } from './url-scan-freeze.ts'
+const dynamicOnly = process.argv.includes('--dynamic-only')
+const dynamicModes = [
+  'dynamic-healthy',
+  'dynamic-defect',
+  'dynamic-missing',
+  'dynamic-duplicate',
+  'dynamic-extra',
+  'dynamic-pending',
+]
 const root = resolve('data/r2-product-sources', new Date().toISOString().replace(/[:.]/g, '-'))
 await mkdir(root, { recursive: true })
 const save = (p: string, v: unknown) =>
@@ -35,8 +44,24 @@ let mode = '',
 const fixture = createServer((req, res) => {
   requests.push({ method: req.method, url: req.url })
   res.writeHead(200, { 'content-type': 'text/html' })
+  const dynamic = mode.startsWith('dynamic-')
+  const reveal = dynamic
+    ? `
+    ${
+      mode === 'dynamic-missing'
+        ? ''
+        : `
+    const details = document.createElement('button'); details.id='details'; details.type='button'; details.textContent='Details';
+    details.onclick=()=>{document.querySelector('#detail-result').textContent='${mode === 'dynamic-defect' ? 'Wrong details' : 'Details ready'}'};
+    document.body.append(details);
+    ${mode === 'dynamic-duplicate' ? "const duplicate=details.cloneNode(true); duplicate.id='duplicate'; document.body.append(duplicate);" : ''}`
+    }
+    const extra=document.createElement('button'); extra.type='button'; extra.textContent='Extra'; extra.id='extra';
+    extra.onclick=()=>{document.body.dataset.extra='clicked'}; document.body.append(extra);
+  `
+    : ''
   res.end(
-    `<!doctype html><html><head><title>Catalog preview</title></head><body><h1>Catalog preview</h1><p id=availability>${mode === 'missing' ? 'Unavailable' : 'Available'}</p><button type=button id=preview>Preview</button><div role=status id=result>Idle</div>${mode === 'two-step' || mode === 'pending' ? '<button type=button id=details>Details</button><div id=detail-result role=region>Closed</div>' : ''}<script>preview.onclick=()=>{result.textContent='${['defect', 'async-wrong'].includes(mode) ? 'Wrong' : 'Ready'}';document.body.dataset.clicks=String(Number(document.body.dataset.clicks||0)+1)};if(document.querySelector('#details'))details.onclick=()=>{document.querySelector('#detail-result').textContent='Details ready'}</script></body></html>`,
+    `<!doctype html><html><head><title>Catalog preview</title></head><body><h1>Catalog preview</h1><p id=availability>${mode === 'missing' ? 'Unavailable' : 'Available'}</p><button type=button id=preview>Preview</button><div role=status id=result>Idle</div>${dynamic ? '<div id=detail-result role=region>Closed</div>' : ''}${mode === 'dynamic-pending' ? '<button type=button id=pending>Other default</button>' : ''}${mode === 'two-step' || mode === 'pending' ? '<button type=button id=details>Details</button><div id=detail-result role=region>Closed</div>' : ''}<script>preview.onclick=()=>{result.textContent='${['defect', 'async-wrong'].includes(mode) ? 'Wrong' : 'Ready'}';document.body.dataset.clicks=String(Number(document.body.dataset.clicks||0)+1);${reveal}};if(document.querySelector('#details'))details.onclick=()=>{document.querySelector('#detail-result').textContent='Details ready'}</script></body></html>`,
   )
 })
 const origin = await listen(fixture)
@@ -95,7 +120,7 @@ function setup(m: string) {
       },
     ],
   }
-  if (m === 'two-step')
+  if (m === 'two-step' || m.startsWith('dynamic-'))
     plan.steps.push({
       title: 'Details',
       citation: cite(second),
@@ -113,7 +138,16 @@ const model = createServer(async (req, res) => {
     packet = JSON.parse(body.messages.find((m: any) => m.role === 'user').content)
   let name = 'run_finish',
     args: any = {
-      reason: ['ambiguous', 'missing', 'pending', 'async-wrong'].includes(mode)
+      reason: [
+        'ambiguous',
+        'missing',
+        'pending',
+        'async-wrong',
+        'dynamic-missing',
+        'dynamic-duplicate',
+        'dynamic-extra',
+        'dynamic-pending',
+      ].includes(mode)
         ? 'unverified-scope'
         : 'scope-covered',
     }
@@ -151,19 +185,41 @@ const model = createServer(async (req, res) => {
   } else if (turn === 5 && !['ambiguous', 'missing'].includes(mode)) {
     name = 'page_act'
     args = { type: 'click', role: 'button', name: 'Preview' }
-  } else if (mode === 'two-step' && turn === 6) {
+  } else if ((mode === 'two-step' || mode.startsWith('dynamic-')) && turn === 6) {
     name = 'product_path_bind'
     args = {
       step: 1,
-      ref: packet.inspectionScope.candidates.find((c: any) => c.description.includes('Details'))
-        .ref,
+      ref:
+        packet.inspectionScope.candidates.find((c: any) =>
+          c.description.includes(mode === 'dynamic-extra' ? 'Extra' : 'Details'),
+        )?.ref ?? 'missing-target',
       resultSelector: '#detail-result',
       preconditionSelectors: [],
     }
-  } else if (mode === 'two-step' && turn === 7) {
+  } else if (
+    ['two-step', 'dynamic-healthy', 'dynamic-defect', 'dynamic-pending'].includes(mode) &&
+    turn === 7
+  ) {
     name = 'page_act'
     args = { type: 'click', role: 'button', name: 'Details' }
-  } else if (turn === 6 && mode === 'pending') {
+  } else if (mode === 'dynamic-extra' && turn === 7) {
+    name = 'exploration_update'
+    args = {
+      state: 'Inspecting extra control boundary',
+      unexploredBranches: [],
+      selectItems: [
+        {
+          itemId: packet.inspectionScope.candidates.find((c: any) =>
+            c.description.includes('Extra'),
+          ).itemId,
+          basis: 'Extra is not in the frozen path',
+        },
+      ],
+    }
+  } else if (mode === 'dynamic-extra' && turn === 8) {
+    name = 'page_act'
+    args = { type: 'click', role: 'button', name: 'Extra' }
+  } else if ((turn === 6 && mode === 'pending') || (turn === 8 && mode === 'dynamic-pending')) {
     name = 'run_finish'
     args = { reason: 'scope-covered' }
   }
@@ -180,6 +236,22 @@ const model = createServer(async (req, res) => {
     model: body.model,
   }
   res.writeHead(200, { 'content-type': 'text/event-stream' })
+  const dynamic = mode.startsWith('dynamic-')
+  const reveal = dynamic
+    ? `
+    ${
+      mode === 'dynamic-missing'
+        ? ''
+        : `
+    const details = document.createElement('button'); details.id='details'; details.type='button'; details.textContent='Details';
+    details.onclick=()=>{document.querySelector('#detail-result').textContent='${mode === 'dynamic-defect' ? 'Wrong details' : 'Details ready'}'};
+    document.body.append(details);
+    ${mode === 'dynamic-duplicate' ? "const duplicate=details.cloneNode(true); duplicate.id='duplicate'; document.body.append(duplicate);" : ''}`
+    }
+    const extra=document.createElement('button'); extra.type='button'; extra.textContent='Extra'; extra.id='extra';
+    extra.onclick=()=>{document.body.dataset.extra='clicked'}; document.body.append(extra);
+  `
+    : ''
   res.end(
     `data: ${JSON.stringify({ ...common, choices: [{ index: 0, delta: { role: 'assistant', tool_calls: [{ index: 0, id: randomUUID(), type: 'function', function: { name, arguments: JSON.stringify(args) } }] }, finish_reason: null }] })}\n\ndata: ${JSON.stringify({ ...common, choices: [{ index: 0, delta: {}, finish_reason: 'tool_calls' }], usage: { prompt_tokens: 10, completion_tokens: 10, total_tokens: 20 } })}\n\ndata: [DONE]\n\n`,
   )
@@ -258,14 +330,19 @@ try {
   browser = await chromium.launch({ headless: true })
   const page = await browser.newPage({ viewport: { width: 1280, height: 1000 } })
   for (const m of [
-    'healthy',
-    'defect',
-    'ambiguous',
-    'missing',
-    'two-step',
-    'pending',
-    'async-wrong',
-    'legacy',
+    ...(dynamicOnly
+      ? []
+      : [
+          'healthy',
+          'defect',
+          'ambiguous',
+          'missing',
+          'two-step',
+          'pending',
+          'async-wrong',
+          'legacy',
+        ]),
+    ...dynamicModes,
   ]) {
     setup(m)
     if (m === 'healthy') {
@@ -321,18 +398,52 @@ try {
     if (m === 'legacy') {
       assert.equal(r.uiScan.productSource, undefined)
       assert.equal(r.uiScan.inspection.coverage, 'covered')
-    } else if (['healthy', 'two-step', 'defect'].includes(m)) {
-      assert.equal(state, m === 'defect' ? 'failed' : 'verified')
+    } else if (['healthy', 'two-step', 'defect', 'dynamic-healthy', 'dynamic-defect'].includes(m)) {
+      assert.equal(state, ['defect', 'dynamic-defect'].includes(m) ? 'failed' : 'verified')
       assert.equal(r.uiScan.inspection.coverage, 'covered')
       assert.equal(
         events.filter((e) => e.type === 'action:executing').length,
-        m === 'two-step' ? 2 : 1,
+        m === 'two-step' || m.startsWith('dynamic-') ? 2 : 1,
       )
     } else {
       assert.equal(r.uiScan.inspection.coverage, 'partial')
-      assert.equal(state, m === 'pending' ? 'verified' : 'unverified')
+      assert.equal(state, ['pending', 'dynamic-pending'].includes(m) ? 'verified' : 'unverified')
       if (['ambiguous', 'missing'].includes(m))
         assert.equal(events.filter((e) => e.type === 'action:executing').length, 0)
+    }
+    if (m.startsWith('dynamic-')) {
+      const bindings = events.filter((e) => e.type === 'product:bound')
+      const second = bindings.find((e) => e.payload.step === 1)
+      const admitted = ['dynamic-healthy', 'dynamic-defect', 'dynamic-pending'].includes(m)
+      assert.equal(!!second, admitted)
+      assert.equal(events.filter((e) => e.type === 'action:executing').length, admitted ? 2 : 1)
+      if (second) {
+        assert.equal(second.payload.targetWasSelected, false)
+        assert.equal(second.payload.admission.remaining.actions, 7)
+        assert.ok(
+          events
+            .filter((e) => e.type === 'scope:sampling-frozen')
+            .every((e) => !JSON.stringify(e.payload).includes(second.payload.itemId)),
+        )
+        assert.ok(
+          events
+            .filter((e) => e.type === 'scope:sampling-default-selected')
+            .every((e) => !e.payload.itemIds.includes(second.payload.itemId)),
+        )
+      }
+      if (m === 'dynamic-pending') assert.ok(events.some((e) => e.type === 'finish:rejected'))
+      if (m === 'dynamic-extra') {
+        assert.equal(events.filter((e) => e.type === 'scope:admission-refused').length, 2)
+        const extra = calls.find((c) => c.name === 'exploration_update').args.selectItems[0].itemId
+        assert.ok(
+          !events.some(
+            (e) =>
+              e.type === 'scope:item-updated' && e.payload.itemId === extra && e.payload.selected,
+          ),
+        )
+        assert.ok(calls.some((c) => c.name === 'product_path_bind' && c.args.step === 1))
+        assert.ok(calls.some((c) => c.name === 'page_act' && c.args.name === 'Extra'))
+      }
     }
     if (m === 'healthy') {
       await page.locator('[aria-label="产品资料路径报告"]').waitFor()
@@ -344,81 +455,115 @@ try {
   await new Promise((r) => child.once('exit', r))
   child = start()
   await ready()
-  await page.reload()
-  await page.getByLabel('恢复历史运行').fill(ids.healthy!)
-  await page.getByRole('button', { name: '打开运行', exact: true }).click()
-  await page.locator('[aria-label="产品资料路径报告"]').waitFor()
-  assert.equal((await report(ids.healthy)).uiScan.productSource.state, 'verified')
-  await page.screenshot({ path: resolve(root, 'history.png'), fullPage: true })
-  const db = createClient({ url: 'file:' + dbfile })
-  // Evidence corruption is applied only to this isolated test database/artifact set, then restored.
-  const artifact = (
-    await db.execute({
-      sql: "SELECT file_path FROM artifacts WHERE run_id=? AND type='product-preconditions'",
-      args: [ids.healthy!],
+  for (const m of dynamicModes) {
+    const recovered = await report(ids[m])
+    assert.equal(recovered.uiScan.productSource.state, results.find((r) => r.mode === m).state)
+    await save(m + '-restarted-report.json', recovered)
+  }
+  // Admission identity/budget records are required original evidence, also on historical replay.
+  const admissionDb = createClient({ url: 'file:' + dbfile })
+  const admissionRows = (
+    await admissionDb.execute({
+      sql: "SELECT file_path FROM artifacts WHERE run_id=? AND type='product-binding'",
+      args: [ids['dynamic-healthy']!],
     })
-  ).rows[0]!
-  const path = String(artifact.file_path),
-    original = await readFile(path)
-  await writeFile(path, '[]\ncorrupted')
-  const corrupted = await report(ids.healthy)
-  await save('evidence-corrupt-report.json', corrupted)
-  assert.equal(corrupted.uiScan.productSource.state, 'unverified')
-  assert.equal(corrupted.uiScan.inspection.coverage, 'partial')
-  await writeFile(path, original)
-  const originalEvents = (await fetch(base + '/api/runs/' + ids.healthy + '/events').then((r) =>
-    r.json(),
-  )) as any[]
-  const effectEvent = originalEvents.find((e) => e.type === 'interaction:effect-measured-v2')
-  const screenshotRef = effectEvent.evidenceRefs.find((ref: string) => ref.endsWith('.png'))
-  const shotRow = (
-    await db.execute({ sql: 'SELECT file_path FROM artifacts WHERE id=?', args: [screenshotRef] })
-  ).rows[0]!
-  const shotPath = String(shotRow.file_path),
-    shotBytes = await readFile(shotPath)
-  await writeFile(shotPath, 'changed screenshot')
-  const shotChanged = await report(ids.healthy)
-  await save('screenshot-corrupt-report.json', shotChanged)
-  assert.equal(shotChanged.uiScan.productSource.state, 'unverified')
-  await writeFile(shotPath, shotBytes)
-  const sourceEvent = originalEvents.find((e) => e.type === 'interaction:sources-reviewed-v2')
-  const missingRef = Object.keys(sourceEvent.payload.evidenceHashes)[0]!
-  const missingRow = (
-    await db.execute({ sql: 'SELECT file_path FROM artifacts WHERE id=?', args: [missingRef] })
-  ).rows[0]!
-  const missingPath = String(missingRow.file_path)
-  await rename(missingPath, missingPath + '.held')
-  const missingReport = await report(ids.healthy)
-  await save('evidence-missing-report.json', missingReport)
-  assert.equal(missingReport.uiScan.productSource.state, 'unverified')
-  await rename(missingPath + '.held', missingPath)
-  // A new version is a new run, never a silent update of the old frozen contract.
-  const stored = (
-    await db.execute({ sql: 'SELECT spec FROM runs WHERE id=?', args: [ids.healthy!] })
-  ).rows[0]!
-  const spec = JSON.parse(String(stored.spec))
-  spec.uiContract.productSource.markdown += '\nChanged source'
-  await db.execute({
-    sql: 'UPDATE runs SET spec=? WHERE id=?',
-    args: [JSON.stringify(spec), ids.healthy!],
-  })
-  const changed = await report(ids.healthy)
-  await save('source-corrupt-report.json', changed)
-  assert.notEqual(changed.uiScan?.productSource?.state, 'verified')
-  assert.notEqual(changed.uiScan?.inspection.coverage, 'covered')
-  await db.execute({
-    sql: 'UPDATE runs SET spec=? WHERE id=?',
-    args: [String(stored.spec), ids.healthy!],
-  })
-  db.close()
+  ).rows
+  const admissionPath = (
+    await Promise.all(
+      admissionRows.map(async (row) => {
+        const path = String(row.file_path)
+        return { path, bytes: await readFile(path) }
+      }),
+    )
+  ).find((row) => JSON.parse(row.bytes.toString()).admission)!
+  assert.ok(admissionPath)
+  const invalidBinding = JSON.parse(admissionPath.bytes.toString())
+  invalidBinding.admission.identity = 'substituted-node'
+  await writeFile(admissionPath.path, JSON.stringify(invalidBinding))
+  const invalidAdmission = await report(ids['dynamic-healthy'])
+  await save('admission-corrupt-report.json', invalidAdmission)
+  assert.equal(invalidAdmission.uiScan.productSource.state, 'unverified')
+  assert.equal(invalidAdmission.uiScan.inspection.coverage, 'partial')
+  await writeFile(admissionPath.path, admissionPath.bytes)
+  admissionDb.close()
+  if (!dynamicOnly) {
+    await page.reload()
+    await page.getByLabel('恢复历史运行').fill(ids.healthy!)
+    await page.getByRole('button', { name: '打开运行', exact: true }).click()
+    await page.locator('[aria-label="产品资料路径报告"]').waitFor()
+    assert.equal((await report(ids.healthy)).uiScan.productSource.state, 'verified')
+    await page.screenshot({ path: resolve(root, 'history.png'), fullPage: true })
+    const db = createClient({ url: 'file:' + dbfile })
+    // Evidence corruption is applied only to this isolated test database/artifact set, then restored.
+    const artifact = (
+      await db.execute({
+        sql: "SELECT file_path FROM artifacts WHERE run_id=? AND type='product-preconditions'",
+        args: [ids.healthy!],
+      })
+    ).rows[0]!
+    const path = String(artifact.file_path),
+      original = await readFile(path)
+    await writeFile(path, '[]\ncorrupted')
+    const corrupted = await report(ids.healthy)
+    await save('evidence-corrupt-report.json', corrupted)
+    assert.equal(corrupted.uiScan.productSource.state, 'unverified')
+    assert.equal(corrupted.uiScan.inspection.coverage, 'partial')
+    await writeFile(path, original)
+    const originalEvents = (await fetch(base + '/api/runs/' + ids.healthy + '/events').then((r) =>
+      r.json(),
+    )) as any[]
+    const effectEvent = originalEvents.find((e) => e.type === 'interaction:effect-measured-v2')
+    const screenshotRef = effectEvent.evidenceRefs.find((ref: string) => ref.endsWith('.png'))
+    const shotRow = (
+      await db.execute({ sql: 'SELECT file_path FROM artifacts WHERE id=?', args: [screenshotRef] })
+    ).rows[0]!
+    const shotPath = String(shotRow.file_path),
+      shotBytes = await readFile(shotPath)
+    await writeFile(shotPath, 'changed screenshot')
+    const shotChanged = await report(ids.healthy)
+    await save('screenshot-corrupt-report.json', shotChanged)
+    assert.equal(shotChanged.uiScan.productSource.state, 'unverified')
+    await writeFile(shotPath, shotBytes)
+    const sourceEvent = originalEvents.find((e) => e.type === 'interaction:sources-reviewed-v2')
+    const missingRef = Object.keys(sourceEvent.payload.evidenceHashes)[0]!
+    const missingRow = (
+      await db.execute({ sql: 'SELECT file_path FROM artifacts WHERE id=?', args: [missingRef] })
+    ).rows[0]!
+    const missingPath = String(missingRow.file_path)
+    await rename(missingPath, missingPath + '.held')
+    const missingReport = await report(ids.healthy)
+    await save('evidence-missing-report.json', missingReport)
+    assert.equal(missingReport.uiScan.productSource.state, 'unverified')
+    await rename(missingPath + '.held', missingPath)
+    // A new version is a new run, never a silent update of the old frozen contract.
+    const stored = (
+      await db.execute({ sql: 'SELECT spec FROM runs WHERE id=?', args: [ids.healthy!] })
+    ).rows[0]!
+    const spec = JSON.parse(String(stored.spec))
+    spec.uiContract.productSource.markdown += '\nChanged source'
+    await db.execute({
+      sql: 'UPDATE runs SET spec=? WHERE id=?',
+      args: [JSON.stringify(spec), ids.healthy!],
+    })
+    const changed = await report(ids.healthy)
+    await save('source-corrupt-report.json', changed)
+    assert.notEqual(changed.uiScan?.productSource?.state, 'verified')
+    assert.notEqual(changed.uiScan?.inspection.coverage, 'covered')
+    await db.execute({
+      sql: 'UPDATE runs SET spec=? WHERE id=?',
+      args: [String(stored.spec), ids.healthy!],
+    })
+    db.close()
+  }
   await save('acceptance.json', {
     passed: true,
     results,
     historyRestart: true,
-    sourceCorruptionRejected: true,
-    evidenceCorruptionRejected: true,
-    missingEvidenceRejected: true,
-    screenshotCorruptionRejected: true,
+    admissionCorruptionRejected: true,
+    sourceCorruptionRejected: !dynamicOnly,
+    evidenceCorruptionRejected: !dynamicOnly,
+    missingEvidenceRejected: !dynamicOnly,
+    screenshotCorruptionRejected: !dynamicOnly,
     model: 'fixed-local',
     paidCalls: 0,
   })

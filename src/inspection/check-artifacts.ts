@@ -1,4 +1,4 @@
-import { productEffects } from './product-path.ts'
+import { productEffects, PRODUCT_SKILL_REVISION } from './product-path.ts'
 import { evaluatePopupEffect } from './popup-effect.ts'
 import { popupArtifactIssues } from './popup-artifacts.ts'
 import { readFile } from 'node:fs/promises'
@@ -56,13 +56,25 @@ export async function defaultCheckArtifactIssues(
       }
       if (event.type === 'product:planned') {
         const plan = await load(event.evidenceRefs[0]!, 'product-plan')
-        if (checkHash(plan.plan) !== checkHash(event.payload.plan))
+        if (
+          checkHash(plan.plan) !== checkHash(event.payload.plan) ||
+          plan.revision !== event.payload.revision
+        )
           throw Error('product-plan-artifact-mismatch')
       }
       if (event.type === 'product:bound') {
         const checks = await load(event.evidenceRefs[0]!, 'product-preconditions')
         if (checkHash(checks) !== checkHash(event.payload.checks))
           throw Error('product-precondition-artifact-mismatch')
+        if (
+          events.find((e) => e.type === 'product:planned')?.payload.revision ===
+          PRODUCT_SKILL_REVISION
+        ) {
+          const binding = await load(event.evidenceRefs[2]!, 'product-binding')
+          const { artifactHashes: _, ...payload } = event.payload
+          if (checkHash(binding) !== checkHash(payload))
+            throw Error('product-binding-artifact-mismatch')
+        }
       }
     } catch (error) {
       issues.push(String(error instanceof Error ? error.message : error))

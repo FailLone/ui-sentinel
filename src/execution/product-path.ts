@@ -19,7 +19,11 @@ import {
   productPlan,
   productPathReport,
   PRODUCT_SKILL_REVISION,
+  productTarget,
+  validateProductAdmission,
+  type ProductAdmission,
 } from '../inspection/product-path.ts'
+import { readPublicCheckPage } from './default-check-runtime.ts'
 import { measureInteraction } from './interaction-verification.ts'
 
 export function createProductPath(host: {
@@ -31,7 +35,8 @@ export function createProductPath(host: {
   events(): Promise<readonly RunEvent[]>
   emit(type: string, payload: Record<string, unknown>, refs?: string[]): Promise<RunEvent>
   save(type: string, body: string | Buffer): Promise<string>
-  selector(ref: string): string
+  selector(ref: string): Promise<string>
+  remaining(): { actions: number; modelCalls: number; timeMs: number }
   clean(): boolean
 }) {
   const scope = host.inspection.scope
@@ -74,6 +79,13 @@ export function createProductPath(host: {
       if (report.steps.slice(0, index).some((s) => s.state !== 'verified'))
         throw Error('product-prior-step-not-passed')
       const step = plan.steps[index]!
+      if (binding.payload.admission) {
+        const admission = binding.payload.admission as ProductAdmission
+        const page = await readPublicCheckPage(host.page(), admission.page.documentVersion)
+        const selector = await host.selector(String(binding.payload.ref))
+        if (productTarget(step, page, selector).identity !== admission.identity)
+          throw Error('product-admitted-target-changed-before-action')
+      }
       for (const [j, p] of step.preconditions.entries()) {
         if (!p.expectation) throw Error('product-precondition-unmeasurable')
         const original = (binding.payload.checks as any[])[j]
@@ -152,7 +164,7 @@ export function createProductPath(host: {
       product_path_bind: createTool({
         id: 'product_path_bind',
         description:
-          'Read-only binding of the next step to an observed local control and inspected result selector. Checks all source prerequisites before registering an effect. Never clicks.',
+          'Bind the next frozen step to an observed local control and inspected result selector. A unique source-named future control may enter required scope after budget and prerequisite checks. Never clicks.',
         inputSchema: productBindInput,
         execute: (i) =>
           serial('product_path_bind', async () => {
@@ -173,19 +185,37 @@ export function createProductPath(host: {
               throw Error('product-prior-step-not-passed')
             if (events.some((e) => e.type === 'product:bound' && e.payload.step === i.step))
               throw Error('product-step-already-bound-no-replay')
-            const selector = host.selector(i.ref)
+            const selector = await host.selector(i.ref)
             const candidate = host.inspection
               .candidateItems()
               .find((c) => c.ref === i.ref && c.category === 'local-interaction')
             const target = scope.snapshot().items.find((s) => s.itemId === candidate?.itemId)
-            if (!candidate || !target?.selected || target.checks?.generic.actionId || !host.clean())
-              throw Error('product-original-selected-clean-target-required')
+            if (
+              !candidate ||
+              !target ||
+              target.status !== 'pending' ||
+              target.checks?.generic.actionId ||
+              !host.clean()
+            )
+              throw Error('product-original-clean-target-required')
             if (
               events.some((e) => e.type === 'product:bound' && e.payload.itemId === target.itemId)
             )
               throw Error('product-distinct-controls-required')
             if (i.preconditionSelectors.length !== step.preconditions.length)
               throw Error('product-precondition-bindings-required')
+            let admission: ProductAdmission | undefined
+            if (!target.selected) {
+              const page = await readPublicCheckPage(host.page(), target.observationVersion)
+              admission = {
+                page,
+                identity: productTarget(step, page, selector).identity!,
+                remaining: host.remaining(),
+              }
+              validateProductAdmission(plan, i.step, selector, admission)
+              if (!(await host.page().locator(selector).isEnabled()))
+                throw Error('product-target-disabled')
+            }
             const checks = []
             for (const [index, p] of step.preconditions.entries()) {
               if (!p.expectation) throw Error('product-precondition-unmeasurable')
@@ -212,18 +242,33 @@ export function createProductPath(host: {
             // Result must exist before dispatch, uniquely; identity substitution is checked by the shared runtime.
             if ((await host.page().locator(i.resultSelector).count()) !== 1)
               throw Error('product-result-binding-ambiguous-or-missing')
-            await host.emit(
-              'product:bound',
-              {
-                step: i.step,
-                itemId: target.itemId,
-                selector,
-                resultSelector: i.resultSelector,
-                sourceHash: host.source.contentHash,
-                checks,
-              },
-              [ref, screenshot],
-            )
+            // Recheck live identity after evidence collection; no browser action or budget expansion here.
+            await host.selector(i.ref)
+            host.guard()
+            const binding = {
+              step: i.step,
+              itemId: target.itemId,
+              ref: i.ref,
+              selector,
+              resultSelector: i.resultSelector,
+              sourceHash: host.source.contentHash,
+              checks,
+              planEventId: events.find((e) => e.type === 'product:planned')!.id,
+              targetWasSelected: target.selected,
+              ...(admission ? { admission } : {}),
+            }
+            const bindingRef = await host.save('product-binding', JSON.stringify(binding))
+            await host.emit('product:bound', binding, [ref, screenshot, bindingRef])
+            if (!target.selected)
+              await host.inspection.selectItems(
+                [
+                  {
+                    itemId: target.itemId,
+                    basis: `product-path:${host.source.sourceId}:step:${i.step}`,
+                  },
+                ],
+                true,
+              )
             host.progress('bound:' + i.step)
             return {
               bound: true,

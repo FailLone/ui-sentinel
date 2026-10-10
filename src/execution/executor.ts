@@ -2267,9 +2267,27 @@ async function executeProfiledRun(
             { stepId, evidenceRefs: refs },
           ),
         save: (type, body) => saveEvidence(runId, type, body, evidenceMetadata(), guard),
-        selector: (ref) => {
+        remaining: () => ({
+          actions: remainingActions(),
+          modelCalls: remainingModels(),
+          timeMs: Math.max(0, budget.totalTimeoutMs - (Date.now() - startedAt)),
+        }),
+        selector: async (ref) => {
           const d = elementStore.getDetail(ref)
           if (!d.found || !d.fresh) throw Error('product-stale-control-ref')
+          const bound = candidateBindings.get(ref)
+          const locator = page.locator(d.element.selector)
+          if (
+            !bound ||
+            (await locator.count()) !== 1 ||
+            !(await bound
+              .evaluate(
+                (node, selector) => node.isConnected && document.querySelector(selector) === node,
+                d.element.selector,
+              )
+              .catch(() => false))
+          )
+            throw Error('product-control-identity-lost')
           return d.element.selector
         },
       })

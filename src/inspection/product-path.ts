@@ -10,7 +10,7 @@ import { validProductSource, type ProductSource } from './product-source.ts'
 import { projectInspectionScope } from './scope.ts'
 import type { RunEvent } from '../shared/types.ts'
 
-export const PRODUCT_SKILL_REVISION = 'product-path-1'
+export const PRODUCT_SKILL_REVISION = 'product-path-2'
 const citation = z
   .object({
     start: z.number().int().min(0),
@@ -43,6 +43,7 @@ export const productPlanInput = z
         z
           .object({
             title: z.string().min(1).max(300),
+            targetName: z.string().min(1).max(300).optional(),
             citation,
             certainty: z.enum(['explicit', 'ambiguous', 'assumption']),
             action: z.enum(['click', 'fill']),
@@ -97,10 +98,59 @@ export function validateProductPlan(source: ProductSource, raw: unknown): Produc
       !/immediate|synchronous|同步|立即|即时/i.test(step.citation.quote)
     )
       throw Error('product-explicit-timing-required')
+    if (step.targetName && !step.citation.quote.includes(step.targetName))
+      throw Error('product-target-name-not-in-frozen-quote')
     if (step.action === 'fill' && step.value === undefined)
       throw Error('product-fill-value-required')
   }
   return plan
+}
+/** A future target must match a name frozen before any action, not a new model assertion. */
+export function productTarget(
+  step: ProductPlan['steps'][number],
+  page: PublicCheckPage,
+  selector: string,
+) {
+  const name = step.targetName ?? step.title
+  const matches = page.nodes.filter(
+    (n) =>
+      n.visible &&
+      n.name === name &&
+      (step.action === 'fill'
+        ? ['input', 'textarea'].includes(n.tag)
+        : ['button', 'input', 'select', 'summary'].includes(n.tag) ||
+          ['button', 'tab', 'checkbox', 'radio', 'switch'].includes(n.attributes.role ?? '')),
+  )
+  if (
+    !step.citation.quote.includes(name) ||
+    !page.complete ||
+    matches.length !== 1 ||
+    (matches[0]!.selector !== selector && matches[0]!.path !== selector)
+  )
+    throw Error('product-target-not-unique-source-match')
+  return matches[0]!
+}
+export type ProductAdmission = {
+  page: PublicCheckPage
+  identity: string
+  remaining: { actions: number; modelCalls: number; timeMs: number }
+}
+export function validateProductAdmission(
+  plan: ProductPlan,
+  index: number,
+  selector: string,
+  admission: ProductAdmission,
+) {
+  const target = productTarget(plan.steps[index]!, admission.page, selector)
+  if (
+    !target.identity ||
+    target.identity !== admission.identity ||
+    !(admission.remaining.actions >= plan.steps.length - index) ||
+    !(admission.remaining.modelCalls >= 1) ||
+    !(admission.remaining.timeMs > 0)
+  )
+    throw Error('product-admission-identity-or-budget-invalid')
+  return target
 }
 export function productPlan(events: readonly RunEvent[]): ProductPlan | undefined {
   return events.find((e) => e.type === 'product:planned')?.payload.plan as ProductPlan | undefined
@@ -125,6 +175,8 @@ export function productEffects(
         !step ||
         (binding.payload.selector !== control.selector &&
           binding.payload.selector !== control.path) ||
+        (binding.payload.admission &&
+          (binding.payload.admission as ProductAdmission).identity !== control.identity) ||
         !step.expectation ||
         step.certainty !== 'explicit' ||
         plan.assumptions.length
@@ -185,6 +237,31 @@ export function productPathReport(
     issues.push('product-plan-replaced')
   if (events.some((e) => e.type === 'execution:intervention'))
     issues.push('product-evidence-intervened')
+  if (planned?.payload.revision === PRODUCT_SKILL_REVISION && plan) {
+    for (const binding of events.filter((e) => e.type === 'product:bound')) {
+      try {
+        const before = projectInspectionScope(events.filter((e) => e.seq < binding.seq)).snapshot()
+          .items
+        const target = before.find((i) => i.itemId === binding.payload.itemId)
+        if (
+          !target ||
+          binding.payload.planEventId !== planned.id ||
+          binding.payload.targetWasSelected !== target.selected
+        )
+          throw Error('invalid-original-target')
+        if (!target.selected) {
+          validateProductAdmission(
+            plan,
+            Number(binding.payload.step),
+            String(binding.payload.selector),
+            binding.payload.admission as ProductAdmission,
+          )
+        }
+      } catch {
+        issues.push('product-admission-invalid')
+      }
+    }
+  }
   const items = projectInspectionScope(events).snapshot().items
   const steps = (plan?.steps ?? []).map((step, index) => {
     const bindings = events.filter((e) => e.type === 'product:bound' && e.payload.step === index)
@@ -292,7 +369,7 @@ export function productPathReport(
     !issues.length
   return {
     source,
-    skillRevision: PRODUCT_SKILL_REVISION,
+    skillRevision: String(planned?.payload.revision ?? 'product-path-1'),
     plan,
     steps,
     issues,
