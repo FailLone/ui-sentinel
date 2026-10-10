@@ -1,0 +1,33 @@
+{
+  "realCalls": 0,
+  "checks": [
+    {
+      "name": "direct",
+      "runId": "run-fcd4173e-283c-47b7-9c0c-fe2e80608e26",
+      "issues": [],
+      "popupReportMatches": true,
+      "artifacts": 46
+    },
+    {
+      "name": "nested",
+      "runId": "run-22fe01fd-c354-4685-a53d-972ea5c2594f",
+      "issues": [],
+      "popupReportMatches": true,
+      "artifacts": 73
+    },
+    {
+      "name": "wrong",
+      "runId": "run-2820cb2d-0a27-4c63-99d5-812d2e10c46f",
+      "issues": [],
+      "popupReportMatches": true,
+      "artifacts": 47
+    },
+    {
+      "name": "existing",
+      "runId": "run-b3374f93-2927-42a9-b298-6501b0a31d40",
+      "issues": [],
+      "popupReportMatches": true,
+      "artifacts": 17
+    }
+  ]
+}

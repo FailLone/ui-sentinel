@@ -1,0 +1,32 @@
+{
+  "mode": "No model/browser/server; DB scratch copy configured for every nested reader; archive and original owned artifact bytes both matched",
+  "checks": [
+    {
+      "runId": "check-743133c9-7246-4001-a8cc-5ab5c61b5994",
+      "status": "blocked",
+      "completionIssues": [],
+      "childArtifactIssues": [],
+      "popupArtifactIssues": [],
+      "archivedArtifacts": 76,
+      "popupReportMatches": true
+    },
+    {
+      "runId": "run-7341abdd-bef8-49e7-b62f-64072ccbae1a",
+      "status": "blocked",
+      "completionIssues": [],
+      "childArtifactIssues": [],
+      "popupArtifactIssues": [],
+      "archivedArtifacts": 53,
+      "popupReportMatches": true
+    },
+    {
+      "runId": "check-fe22e236-4124-4760-8c86-002173a8243a",
+      "status": "blocked",
+      "completionIssues": [],
+      "childArtifactIssues": [],
+      "popupArtifactIssues": [],
+      "archivedArtifacts": 76,
+      "popupReportMatches": true
+    }
+  ]
+}
