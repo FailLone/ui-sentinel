@@ -35,3 +35,9 @@ Merge order: independently review this branch's new check-task/network-budget mo
 维护者转达用户对交付 `9cd8480` 对应冻结批次的直接“授权”。按原 manifest/bundle 在一个新原账户执行，P01 的两次真实 `check_task_submit` 均接受，两子 Jev ENTRY 请求并行在途，随后 `jev-http-error` 触发全批停止；无有效 Jev 选择、点击或几何测量，P02/P03 未启动。完整目标未验证。共派发 3 主模型 + 2 Jev：2 笔已结算 USD 0.0028128，3 笔 unknown 保守计提 USD 0.066，held 与活动 lease 均为 0；实际总费用仍未知。
 
 冻结代码、参数及失败原件未改，不重试、不追加批次、不处理旧账户。两子浏览器关闭，原父子完成事件及子证据离线检查通过；保留父 cancelled 报告的 `not-final` 原标记。冻结包装层未留存 Jev HTTP 状态码/正文，不能确定具体根因；进程退出码 0 不表示批次成功。详见 [结果报告](real-result-20261010/RESULT.md)、[费用及原始证据](real-result-20261010/evidence/)、[哈希清单](real-result-20261010/archive-manifest.json)。仅封存和离线核对，无修复后续跑、推送或合并 main。
+
+## Jev 协议与诊断修复（2026-10-10，免费）
+
+实现 `87a2816deb8885e42c3785731846a0a6f9791372`。查明原 popup choice 错把说明字符串当 criteria、选项映射当 choices，改为官方及历史成功样本的 instructions + criteria。实际 provider 增加有界脱敏 HTTP/超时/取消记录和首错身份；批次停止返回非零，已提交取消的 persistence 与目标未完成分开。61 项相关测试、最终 9 项复核、类型检查和构建通过，无浏览器/全矩阵重跑。
+
+两笔已知费用只读 GET 确认一致；三笔 unknown 缺供应商 ID，原样保留，原账户无写入。完整交付及已冻结、未授权的 USD 0.003 单 Jev 请求提案见 [transport-fix-20261010/RESULT.md](transport-fix-20261010/RESULT.md)。本轮新生成 0 次，没有恢复原批或修改历史报告。

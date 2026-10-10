@@ -1,0 +1,29 @@
+{
+  "free": true,
+  "realRequests": 0,
+  "calls": 1,
+  "result": {
+    "binding": "d5b0fe07adf9a2d5f1e95aa152c075fee0208936e3c3d349fe7f862b423bbeb1",
+    "choice": "handoff",
+    "confidence": 1
+  },
+  "requests": [
+    {
+      "request_id": "9875d319-a0d6-45f4-9325-51c355227ffa",
+      "campaign_id": "7352791a-c715-4adc-b92b-4c384aaad224",
+      "run_id": "single-popup-diagnostic",
+      "phase": "popup-product",
+      "model": "typesafe/jev-1.13",
+      "provider": "TypeSafe",
+      "status": "settled",
+      "reserved_usd": 0.003,
+      "actual_usd": 0.000001,
+      "price_source": "TypeSafe <=0.042 USD/M input; <=32000 prompt; reserve 0.003",
+      "reason": null,
+      "created_at": "2026-10-10T04:10:46.943Z",
+      "settled_at": "2026-10-10T04:10:46.958Z"
+    }
+  ],
+  "stopEvents": [],
+  "automaticResume": false
+}
