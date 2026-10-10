@@ -6,7 +6,11 @@ import { createPopupRuntime } from './popup/runtime.ts'
 import { popupCollector } from './popup/geometry.ts'
 import { hash as popupHash, injectedPopupDecision } from '../agent/popup/contract.ts'
 import { createPopupAccountOwner } from '../agent/popup/account-owner.ts'
-import { createPopupProvider, popupConfiguration } from '../agent/popup/provider.ts'
+import {
+  createPopupProvider,
+  popupConfiguration,
+  popupProviderResources,
+} from '../agent/popup/provider.ts'
 import {
   createProductJevScore,
   productJevConfiguration,
@@ -325,7 +329,9 @@ async function executeProfiledRun(
     modelInputTokens: 0,
     modelOutputTokens: 0,
   }
-  const accountOwner = delegation?.accountOwner ?? createPopupAccountOwner()
+  const providerResources = popupProviderResources()
+  const accountOwner =
+    delegation?.accountOwner ?? providerResources?.accountOwner ?? createPopupAccountOwner()
   const checkTasks =
     uiScan && !delegation && parallelChecksEnabled()
       ? createProductCheckHost({
@@ -3722,6 +3728,8 @@ async function executeProfiledRun(
           ? createPopupProvider({
               configuration,
               accountOwner,
+              http: providerResources?.http,
+              quote: providerResources?.quote,
               runId,
               timeRemaining: () => budget.totalTimeoutMs - (Date.now() - startedAt),
               async countCall() {
@@ -5905,7 +5913,7 @@ async function executeProfiledRun(
       checkTaskStorageFailure = true
       queue.requireReconciliation()
     }
-    if (!delegation) {
+    if (!delegation && !providerResources) {
       try {
         await accountOwner.close()
       } catch {

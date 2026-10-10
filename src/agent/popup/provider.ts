@@ -239,3 +239,23 @@ export function createPopupProvider(options: {
     }
   }
 }
+
+/** Trusted bootstrap only: share an existing batch account without replacing popup decisions.
+ * HTTP input and environment cannot install this. The installer owns close/drain.
+ */
+export type PopupProviderResources = {
+  accountOwner: PopupAccountOwner
+  http?: typeof fetch
+  quote?: (signal: AbortSignal) => Promise<void>
+}
+let resources: PopupProviderResources | undefined
+export function installPopupProviderResources(value: PopupProviderResources) {
+  if (resources) throw Error('popup-provider-resources-already-installed')
+  resources = value
+  return () => {
+    resources = undefined
+  }
+}
+export function popupProviderResources() {
+  return resources
+}
