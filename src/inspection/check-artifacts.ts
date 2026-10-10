@@ -36,7 +36,8 @@ export async function defaultCheckArtifactIssues(
   }
   for (const event of events.filter(
     (e) =>
-      e.type.startsWith('product:') ||
+      // Rejected registration is diagnostic history, never a verification receipt.
+      (e.type.startsWith('product:') && e.type !== 'product:registration-rejected') ||
       (contract.productSource &&
         ['interaction:generic-collected-v2', 'interaction:effect-measured-v2'].includes(e.type)),
   )) {
@@ -67,8 +68,9 @@ export async function defaultCheckArtifactIssues(
         if (checkHash(checks) !== checkHash(event.payload.checks))
           throw Error('product-precondition-artifact-mismatch')
         if (
-          events.find((e) => e.type === 'product:planned')?.payload.revision ===
-          PRODUCT_SKILL_REVISION
+          ['product-path-2', PRODUCT_SKILL_REVISION].includes(
+            String(events.find((e) => e.type === 'product:planned')?.payload.revision),
+          )
         ) {
           const binding = await load(event.evidenceRefs[2]!, 'product-binding')
           const { artifactHashes: _, ...payload } = event.payload

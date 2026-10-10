@@ -92,3 +92,11 @@ node --import tsx scripts/validation/counterexample-arena/validate.ts
 ## R2 小批真实模型材料准备（2026-10-10，待审阅）
 
 基线 `1db9824` 上独立分支 `codex/r2-product-acceptance` 新增轻阅目录三对照页族 RA01–03，同一合成产品说明覆盖预览及动态出现的详情入口。范围、公开/私有隔离、六行真实任务提案、费用停止闸门与证据统一见[主实验协议](../experiments/r2-product-acceptance.md)。夹具真值和免费 API/历史恢复已准备；旧固定模型动态六场景原入口复用；准确结果与本地材料摘要见协议链接的准备收据。没有真实模型或付费调用、没有模型质量结论；不能将本批与 CA01–14 或原 R2 六场景相加为同一验收分母。未改产品/完成门/默认采样，未重跑全套、R0/R1，原失败与 unknown 保留。Git 中交付规格、页面、私有判定和脚本；原数据库/截图仍留工作区，按收据定位。
+
+## R2 引用偏移及登记纠错回溯（2026-10-11，候选待审阅）
+
+真实批次 R4 的“原文正确、UTF-16 位置错误”作为协议反例保存到 `evaluation/private/r2-product-acceptance/r4-registration-draft.json`，原批次结果不改写。`codex/r2-source-citations` 复用轻阅目录 RA01–03、同一 MD 及原 `r2-product-sources.ts --citations-only` 验证入口，没有新建另一套页面或执行器。登记使用程序发出的引用 ID，还原后仍受旧严格引用、前置、动作、默认样本与完成门约束。
+
+本轮单独免费结果：53 项定向单测；中文三对照 verified/failed/unverified、动作2/2/0；原动态六场景保持原预期（包括默认 pending）；九份完整历史报告重启相等、两组准入篡改拒绝。原 v2 与新 v3 均继续验证绑定附件和动态准入。保留两个开发失败目录，无进展阈值不改。证据索引与候选提交见[修复收据](../../evaluation/r2-product-sources/source-citations.json)，范围、限制和未授权复测提案见[实验追加节](../experiments/r2-product-acceptance.md#引用与登记修复免费结果2026-10-11)。
+
+这批只是程序接口与固定模型集成通过，不计入原真实6行，也不证明重复阅读或真实模型可靠性已解决。R6 输出耗尽与历史费用 unknown 保留。尚未合并或推送；应先审阅再决定是否运行新真实小批。

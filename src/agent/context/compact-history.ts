@@ -172,6 +172,10 @@ export function extractToolSummary(item: Record<string, unknown>): ToolSummary {
         'text',
         'sections',
         'hits',
+        'matches',
+        'citation',
+        'citationUsage',
+        'selectionRequired',
         'offsetUnit',
         'endOffset',
         'startLine',
@@ -183,6 +187,8 @@ export function extractToolSummary(item: Record<string, unknown>): ToolSummary {
     }
     if (toolName.startsWith('product_path_') && result && typeof result === 'object') {
       for (const key of [
+        'registration',
+        'diagnostics',
         'bound',
         'step',
         'itemId',

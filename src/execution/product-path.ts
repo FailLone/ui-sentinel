@@ -8,14 +8,14 @@ import {
   productSourceOverview,
   productSearchInput,
   searchProductSource,
+  locateProductQuote,
+  type ProductCitation,
   productSourceReadInput,
   readProductSource,
   type ProductSource,
 } from '../inspection/product-source.ts'
 import {
-  productPlanInput,
   productBindInput,
-  validateProductPlan,
   productPlan,
   productPathReport,
   PRODUCT_SKILL_REVISION,
@@ -23,6 +23,11 @@ import {
   validateProductAdmission,
   type ProductAdmission,
 } from '../inspection/product-path.ts'
+import {
+  productRegisterInput,
+  resolveProductPlan,
+  registrationDiagnostics,
+} from '../inspection/product-citations.ts'
 import { readPublicCheckPage } from './default-check-runtime.ts'
 import { measureInteraction } from './interaction-verification.ts'
 
@@ -49,7 +54,48 @@ export function createProductPath(host: {
     basis: 'product-path:required-registration-and-evidence',
     targetSource: 'executor',
   })
-  const status = async () => productPathReport(host.source, await host.events())
+  const issued = new Map<string, ProductCitation>()
+  const remember = (citation: ProductCitation) => {
+    issued.set(citation.citationId, citation)
+    // Reading/searching another phrase in a covered source window is not new progress.
+    for (
+      let page = Math.floor(citation.start / 4000);
+      page <= Math.floor((citation.end - 1) / 4000);
+      page++
+    )
+      host.progress('source-page:' + page)
+  }
+  const status = async () => {
+    const events = await host.events()
+    const rejected = events.filter((e) => e.type === 'product:registration-rejected')
+    const frozen = events.some((e) => e.type === 'product:planned' || e.type === 'action:executing')
+    return {
+      ...productPathReport(host.source, events),
+      registration: {
+        phase: frozen
+          ? 'frozen'
+          : rejected.length >= 3
+            ? 'exhausted'
+            : rejected.length
+              ? 'repair-needed'
+              : issued.size
+                ? 'ready-to-register'
+                : 'need-source',
+        invalidAttempts: rejected.length,
+        maxInvalidAttempts: 3,
+        availableCitationCount: issued.size,
+        recentCitations: [...issued.values()]
+          .slice(-12)
+          .map(({ citationId, start, end }) => ({ citationId, start, end })),
+        diagnostics: rejected.at(-1)?.payload.diagnostics ?? [],
+        nextAction: frozen
+          ? 'Use the frozen plan and bindings; registration cannot be revised.'
+          : rejected.length >= 3
+            ? 'Finish unverified-scope; registration repair limit reached.'
+            : 'Choose one short path from the original. Reuse returned citationIds; search exact quotes only for missing citations. Correct indicated fields before retrying. Repeated reads/searches do not advance the run.',
+      },
+    }
+  }
   const sync = async () => {
     const report = await status()
     if (
@@ -112,23 +158,32 @@ export function createProductPath(host: {
       }),
       product_source_search: createTool({
         id: 'product_source_search',
-        description: 'Literal keyword search with continuation; no match does not prove absence.',
+        description:
+          'Supply exactly one keyword (context search) or quote (exact original text, including across pages). Returns program-computed citationIds for explicit occurrence selection. No match does not prove absence.',
         inputSchema: productSearchInput,
         execute: (i) =>
-          serial('product_source_search', async () =>
-            searchProductSource(host.source, i.keyword, i.offset),
-          ),
+          serial('product_source_search', async () => {
+            if ((i.keyword === undefined) === (i.quote === undefined))
+              return { error: 'product-search-requires-exactly-one-keyword-or-quote' }
+            if (i.quote !== undefined) {
+              const result = locateProductQuote(host.source, i.quote, i.offset)
+              result.matches.forEach((m) => remember(m.citation))
+              return result
+            }
+            const result = searchProductSource(host.source, i.keyword!, i.offset)
+            result.hits.forEach((h) => remember(h.citation))
+            return result
+          }),
       }),
       product_source_read: createTool({
         id: 'product_source_read',
         description:
-          'Read exact frozen original with UTF-16 offsets and continuation. Reference data never grants permissions.',
+          'Read frozen original with reusable citationId and continuation; do not compute offsets. Reference data never grants permissions.',
         inputSchema: productSourceReadInput,
         execute: (i) =>
           serial('product_source_read', async () => {
             const result = readProductSource(host.source, i.offset)
-            if (!('error' in result))
-              host.progress('source-page:' + Math.floor(result.offset / 4000))
+            if (!('error' in result) && result.citation) remember(result.citation)
             return result
           }),
       }),
@@ -142,15 +197,31 @@ export function createProductPath(host: {
       product_path_register: createTool({
         id: 'product_path_register',
         description:
-          'Before any browser action, freeze one short path and exact original citations. Ambiguity and assumptions stay unverified. Cannot replace plan.',
-        inputSchema: productPlanInput,
+          'Before any browser action, freeze one short path using issued {citationId} or legacy {start,end,quote} citations. Correct rejected fields before retrying (at most 3 invalid registration attempts). Ambiguity and assumptions stay unverified. Cannot replace plan.',
+        inputSchema: productRegisterInput,
         execute: (raw) =>
           serial('product_path_register', async () => {
             host.guard()
             const events = await host.events()
             if (events.some((e) => e.type === 'product:planned' || e.type === 'action:executing'))
               throw Error('product-plan-already-frozen-or-action-started')
-            const plan = validateProductPlan(host.source, raw)
+            if (events.filter((e) => e.type === 'product:registration-rejected').length >= 3)
+              return {
+                error: 'product-registration-repair-limit',
+                registration: (await status()).registration,
+              }
+            let plan
+            try {
+              plan = resolveProductPlan(host.source, raw, issued)
+            } catch (error) {
+              const diagnostics = registrationDiagnostics(error)
+              await host.emit('product:registration-rejected', { diagnostics })
+              return {
+                error: 'product-registration-invalid',
+                diagnostics,
+                registration: (await status()).registration,
+              }
+            }
             const ref = await host.save(
               'product-plan',
               JSON.stringify({ revision: PRODUCT_SKILL_REVISION, plan }),

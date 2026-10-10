@@ -8,6 +8,11 @@ import { createClient } from '@libsql/client'
 import { chromium } from 'playwright'
 import assert from 'node:assert/strict'
 import { hashTree } from './url-scan-freeze.ts'
+import { documentFor, type Variant } from '../../evaluation/fixtures/r2-product-acceptance/page.ts'
+import { citationSource, r4Draft, r4Quotes, r4WithReferences } from './r2-citation-replay.ts'
+const citationsOnly = process.argv.includes('--citations-only')
+const citationModes = ['citation-healthy', 'citation-defect', 'citation-unavailable']
+const citationRefs = new Map<string, string>()
 const dynamicOnly = process.argv.includes('--dynamic-only')
 const dynamicModes = [
   'dynamic-healthy',
@@ -25,6 +30,9 @@ await save('identity.json', {
   commit: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
   source: await hashTree('src'),
   dist: await hashTree('dist'),
+  validationScripts: await hashTree('scripts/validation'),
+  fixtures: await hashTree('evaluation/fixtures/r2-product-acceptance'),
+  mode: citationsOnly ? 'citations-only' : dynamicOnly ? 'dynamic-only' : 'all',
 })
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 async function listen(s: ReturnType<typeof createServer>) {
@@ -44,6 +52,10 @@ let mode = '',
 const fixture = createServer((req, res) => {
   requests.push({ method: req.method, url: req.url })
   res.writeHead(200, { 'content-type': 'text/html' })
+  if (mode.startsWith('citation-')) {
+    res.end(documentFor(mode.slice(9) as Variant))
+    return
+  }
   const dynamic = mode.startsWith('dynamic-')
   const reveal = dynamic
     ? `
@@ -70,6 +82,11 @@ function setup(m: string) {
   turn = 0
   calls = []
   requests = []
+  citationRefs.clear()
+  if (m.startsWith('citation-')) {
+    source = citationSource
+    return
+  }
   const quote =
     m === 'ambiguous'
       ? 'Click Preview to see a suitable result.'
@@ -136,6 +153,7 @@ const model = createServer(async (req, res) => {
   for await (const b of req) raw += b
   const body = JSON.parse(raw),
     packet = JSON.parse(body.messages.find((m: any) => m.role === 'user').content)
+  const additionalCalls: { name: string; args: any }[] = []
   let name = 'run_finish',
     args: any = {
       reason: [
@@ -151,7 +169,55 @@ const model = createServer(async (req, res) => {
         ? 'unverified-scope'
         : 'scope-covered',
     }
-  if (mode === 'legacy') {
+  if (mode.startsWith('citation-')) {
+    args = { reason: mode === 'citation-unavailable' ? 'unverified-scope' : 'scope-covered' }
+    if (turn === 3) {
+      for (const result of packet.latestToolResults.tools) {
+        assert.equal(result.matches.length, 1)
+        const citation = result.matches[0].citation
+        citationRefs.set(citation.quote, citation.citationId)
+      }
+      assert.equal(citationRefs.size, r4Quotes.length)
+    }
+    const citationTurn = mode === 'citation-healthy' && turn >= 4 ? turn - 1 : turn
+    if (citationTurn === 0) {
+      name = 'product_source_overview'
+      args = {}
+    } else if (citationTurn === 1) {
+      name = 'product_source_read'
+      args = { offset: 0 }
+    } else if (citationTurn === 2) {
+      name = 'product_source_search'
+      args = { quote: r4Quotes[0], offset: 0 }
+      for (const quote of r4Quotes.slice(1))
+        additionalCalls.push({ name, args: { quote, offset: 0 } })
+    } else if (citationTurn === 3) {
+      name = 'product_path_register'
+      args = r4WithReferences(citationRefs)
+      // Exact R4 prose is tested separately; neutralize page-specific commentary here.
+      args.rationale = '固定本地模型免费集成：同一原文的两步匿名路径。'
+      args.steps.forEach((s: any) => {
+        delete s.limitation
+      })
+      plan = args
+      if (mode === 'citation-healthy' && turn === 3) args = r4Draft()
+    } else if (citationTurn === 4 || (citationTurn === 6 && mode !== 'citation-unavailable')) {
+      const step = citationTurn === 4 ? 0 : 1,
+        target = step === 0 ? '预览目录' : '查看详情'
+      name = 'product_path_bind'
+      args = {
+        step,
+        ref:
+          packet.inspectionScope.candidates.find((c: any) => c.description.includes(target))?.ref ??
+          'unavailable-control',
+        resultSelector: step === 0 ? '#preview-state' : '#details-state',
+        preconditionSelectors: [step === 0 ? '#availability' : '#preview-state'],
+      }
+    } else if ((citationTurn === 5 || citationTurn === 7) && mode !== 'citation-unavailable') {
+      name = 'page_act'
+      args = { type: 'click', role: 'button', name: citationTurn === 5 ? '预览目录' : '查看详情' }
+    }
+  } else if (mode === 'legacy') {
     if (turn === 0) {
       name = 'page_act'
       args = { type: 'click', role: 'button', name: 'Preview' }
@@ -223,7 +289,7 @@ const model = createServer(async (req, res) => {
     name = 'run_finish'
     args = { reason: 'scope-covered' }
   }
-  calls.push({ turn: turn++, name, args, packet })
+  calls.push({ turn: turn++, name, args, additionalCalls, packet })
   if (turn > 13) {
     res.writeHead(500)
     res.end('fixed-model-unexpected-loop')
@@ -253,7 +319,7 @@ const model = createServer(async (req, res) => {
   `
     : ''
   res.end(
-    `data: ${JSON.stringify({ ...common, choices: [{ index: 0, delta: { role: 'assistant', tool_calls: [{ index: 0, id: randomUUID(), type: 'function', function: { name, arguments: JSON.stringify(args) } }] }, finish_reason: null }] })}\n\ndata: ${JSON.stringify({ ...common, choices: [{ index: 0, delta: {}, finish_reason: 'tool_calls' }], usage: { prompt_tokens: 10, completion_tokens: 10, total_tokens: 20 } })}\n\ndata: [DONE]\n\n`,
+    `data: ${JSON.stringify({ ...common, choices: [{ index: 0, delta: { role: 'assistant', tool_calls: [{ name, args }, ...additionalCalls].map((call, index) => ({ index, id: randomUUID(), type: 'function', function: { name: call.name, arguments: JSON.stringify(call.args) } })) }, finish_reason: null }] })}\n\ndata: ${JSON.stringify({ ...common, choices: [{ index: 0, delta: {}, finish_reason: 'tool_calls' }], usage: { prompt_tokens: 10, completion_tokens: 10, total_tokens: 20 } })}\n\ndata: [DONE]\n\n`,
   )
 })
 const modelOrigin = await listen(model),
@@ -330,7 +396,8 @@ try {
   browser = await chromium.launch({ headless: true })
   const page = await browser.newPage({ viewport: { width: 1280, height: 1000 } })
   for (const m of [
-    ...(dynamicOnly
+    ...(citationsOnly ? citationModes : []),
+    ...(dynamicOnly || citationsOnly
       ? []
       : [
           'healthy',
@@ -342,7 +409,7 @@ try {
           'async-wrong',
           'legacy',
         ]),
-    ...dynamicModes,
+    ...(citationsOnly ? [] : dynamicModes),
   ]) {
     setup(m)
     if (m === 'healthy') {
@@ -395,7 +462,31 @@ try {
     })
     await save('results.json', results)
     console.log(JSON.stringify(results.at(-1)))
-    if (m === 'legacy') {
+    if (m.startsWith('citation-')) {
+      const unavailable = m === 'citation-unavailable'
+      assert.equal(
+        state,
+        unavailable ? 'unverified' : m === 'citation-defect' ? 'failed' : 'verified',
+      )
+      assert.equal(r.uiScan.inspection.coverage, unavailable ? 'partial' : 'covered')
+      assert.equal(events.filter((e) => e.type === 'action:executing').length, unavailable ? 0 : 2)
+      assert.equal(events.filter((e) => e.type === 'product:planned').length, 1)
+      const storedPlan = events.find((e) => e.type === 'product:planned').payload.plan
+      assert.ok(storedPlan.steps.every((s: any) => s.citation.quote && !s.citation.citationId))
+      if (!unavailable) {
+        const binding = events.find((e) => e.type === 'product:bound' && e.payload.step === 1)
+        assert.equal(binding.payload.targetWasSelected, false)
+        assert.equal(binding.payload.admission.remaining.actions, 7)
+        assert.ok(
+          events
+            .filter((e) => e.type === 'scope:sampling-default-selected')
+            .every((e) => !e.payload.itemIds.includes(binding.payload.itemId)),
+        )
+      }
+      if (m === 'citation-healthy') {
+        assert.equal(events.filter((e) => e.type === 'product:registration-rejected').length, 1)
+      }
+    } else if (m === 'legacy') {
       assert.equal(r.uiScan.productSource, undefined)
       assert.equal(r.uiScan.inspection.coverage, 'covered')
     } else if (['healthy', 'two-step', 'defect', 'dynamic-healthy', 'dynamic-defect'].includes(m)) {
@@ -455,9 +546,11 @@ try {
   await new Promise((r) => child.once('exit', r))
   child = start()
   await ready()
-  for (const m of dynamicModes) {
+  for (const m of citationsOnly ? citationModes : dynamicModes) {
     const recovered = await report(ids[m])
     assert.equal(recovered.uiScan.productSource.state, results.find((r) => r.mode === m).state)
+    const original = JSON.parse(await readFile(resolve(root, m + '-report.json'), 'utf8'))
+    assert.deepEqual(recovered, original)
     await save(m + '-restarted-report.json', recovered)
   }
   // Admission identity/budget records are required original evidence, also on historical replay.
@@ -465,7 +558,7 @@ try {
   const admissionRows = (
     await admissionDb.execute({
       sql: "SELECT file_path FROM artifacts WHERE run_id=? AND type='product-binding'",
-      args: [ids['dynamic-healthy']!],
+      args: [ids[citationsOnly ? 'citation-healthy' : 'dynamic-healthy']!],
     })
   ).rows
   const admissionPath = (
@@ -480,13 +573,13 @@ try {
   const invalidBinding = JSON.parse(admissionPath.bytes.toString())
   invalidBinding.admission.identity = 'substituted-node'
   await writeFile(admissionPath.path, JSON.stringify(invalidBinding))
-  const invalidAdmission = await report(ids['dynamic-healthy'])
+  const invalidAdmission = await report(ids[citationsOnly ? 'citation-healthy' : 'dynamic-healthy'])
   await save('admission-corrupt-report.json', invalidAdmission)
   assert.equal(invalidAdmission.uiScan.productSource.state, 'unverified')
   assert.equal(invalidAdmission.uiScan.inspection.coverage, 'partial')
   await writeFile(admissionPath.path, admissionPath.bytes)
   admissionDb.close()
-  if (!dynamicOnly) {
+  if (!dynamicOnly && !citationsOnly) {
     await page.reload()
     await page.getByLabel('恢复历史运行').fill(ids.healthy!)
     await page.getByRole('button', { name: '打开运行', exact: true }).click()
@@ -560,11 +653,17 @@ try {
     results,
     historyRestart: true,
     admissionCorruptionRejected: true,
-    sourceCorruptionRejected: !dynamicOnly,
-    evidenceCorruptionRejected: !dynamicOnly,
-    missingEvidenceRejected: !dynamicOnly,
-    screenshotCorruptionRejected: !dynamicOnly,
+    sourceCorruptionRejected: !dynamicOnly && !citationsOnly,
+    evidenceCorruptionRejected: !dynamicOnly && !citationsOnly,
+    missingEvidenceRejected: !dynamicOnly && !citationsOnly,
+    screenshotCorruptionRejected: !dynamicOnly && !citationsOnly,
     model: 'fixed-local',
+    citationReplay: citationsOnly,
+    artifacts: Object.fromEntries(
+      await Promise.all(
+        Object.entries(ids).map(async ([m, id]) => [m, await hashTree('data/artifacts/' + id)]),
+      ),
+    ),
     paidCalls: 0,
   })
   console.log('R2 FREE ACCEPTANCE PASSED ' + root)

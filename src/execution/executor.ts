@@ -5456,6 +5456,7 @@ async function executeProfiledRun(
                   version: report.source.version,
                 },
                 skillRevision: report.skillRevision,
+                registration: report.registration,
                 state: report.state,
                 complete: report.complete,
                 title: report.plan?.title,
@@ -5474,7 +5475,7 @@ async function executeProfiledRun(
                   actionId: s.actionId,
                   requirementId: s.requirementId,
                 })),
-                note: 'Use product_path_status for exact durable requirements and evidence; product_source_read for original context.',
+                note: 'Follow registration.nextAction and diagnostics. Once the relevant source is read, register a short path using issued citationIds; rereading the same location does not advance progress. Use product_path_status for durable requirements/evidence.',
               }))(await productPath.status()),
             }
           : {}),

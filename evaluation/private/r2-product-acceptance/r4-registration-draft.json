@@ -1,0 +1,88 @@
+{
+  "provenance": {
+    "batch": "real-authorized-20261010",
+    "row": "R4",
+    "runId": "run-2979cd80-30c4-49dd-83d1-5a5b2e25791d",
+    "sourceCommit": "afd399483904f86bd30f20e764fc991ba6c58c5f",
+    "normalization": "Raw draft retained, including wrong offsets and value:null. Replay omits only optional null values, matching prior SDK normalization."
+  },
+  "draft": {
+    "sourceId": "product-source:ec57d78d9c67448ca6796c79a45e76c8ce6f83bf1bece06ebad92f5ee2b15d6d",
+    "contentHash": "ea562970feaaf24b272bec372e4f18ef55a1246c79bbeb44be0889f86740ab38",
+    "title": "访客预览到详情就绪路径",
+    "rationale": "源文档定义唯一的匿名关键路径：目录可用时点击“预览目录”使预览状态立即变为“预览就绪”并出现“查看详情”，随后点击“查看详情”使详情状态立即变为“详情已就绪”。这是本次关心范围（从开始预览走到详情就绪）。当前页面“目录可用状态”为“暂不可用”，源文档明确说明此时访客不能开始预览且不代表功能错误，因此前置条件可测量并预期会阻止路径。",
+    "unchecked": [
+      "推荐内容/排序/刷新时机（本版本不承诺）",
+      "保存收藏、跨设备同步、管理员维护（需登录，非匿名）",
+      "移动端适配、读屏器完整体验、长时间稳定性、网络恢复（不在验收范围）",
+      "页面刷新后恢复初始状态的行为未在本次冻结路径内验证"
+    ],
+    "assumptions": [],
+    "steps": [
+      {
+        "title": "点击“预览目录”使预览状态变为“预览就绪”",
+        "targetName": "预览目录",
+        "citation": {
+          "start": 293,
+          "end": 344,
+          "quote": "访客点击“预览目录”后，预览状态应立即变为“预览就绪”，并出现“查看详情”按钮。"
+        },
+        "certainty": "explicit",
+        "action": "click",
+        "value": null,
+        "expectation": {
+          "condition": "text-contains",
+          "expected": "预览就绪"
+        },
+        "timing": "action-complete",
+        "preconditions": [
+          {
+            "description": "目录可用状态须为“可用”方可开始预览",
+            "citation": {
+              "start": 243,
+              "end": 293,
+              "quote": "预览的前置条件是目录可用状态为“可用”。状态为“暂不可用”时，目录内容尚未准备好，访客不能开始预览；这不代表预览功能发生了错误。"
+            },
+            "expectation": {
+              "condition": "text-equals",
+              "expected": "可用"
+            }
+          }
+        ],
+        "limitation": "当前目录可用状态为“暂不可用”，预期前置条件不满足而无法开始预览。"
+      },
+      {
+        "title": "点击“查看详情”使详情状态变为“详情已就绪”",
+        "targetName": "查看详情",
+        "citation": {
+          "start": 344,
+          "end": 384,
+          "quote": "只有预览状态为“预览就绪”时才能查看详情。访客点击“查看详情”后，详情状态应立即变为“详情已就绪”。"
+        },
+        "certainty": "explicit",
+        "action": "click",
+        "value": null,
+        "expectation": {
+          "condition": "text-contains",
+          "expected": "详情已就绪"
+        },
+        "timing": "action-complete",
+        "preconditions": [
+          {
+            "description": "预览状态须为“预览就绪”方可查看详情",
+            "citation": {
+              "start": 344,
+              "end": 384,
+              "quote": "只有预览状态为“预览就绪”时才能查看详情。访客点击“查看详情”后，详情状态应立即变为“详情已就绪”。"
+            },
+            "expectation": {
+              "condition": "text-equals",
+              "expected": "预览就绪"
+            }
+          }
+        ],
+        "limitation": "“查看详情”按钮依赖预览就绪才出现，当前不可达。"
+      }
+    ]
+  }
+}
