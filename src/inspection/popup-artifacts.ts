@@ -1,3 +1,4 @@
+import { popupUiArtifactIssues } from './popup-ui-artifacts.ts'
 import { createHash } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
 import { hash } from '../agent/popup/contract.ts'
@@ -11,6 +12,8 @@ export async function popupArtifactIssues(
   artifacts: readonly { id: string; type: string; path: string; metadata: any }[],
 ) {
   if (!run.spec.uiContract?.popupCheck) return []
+  if (run.spec.uiContract.popupCheck.revision === 'popup-viewport-2')
+    return popupUiArtifactIssues(run, events, artifacts)
   const issues: string[] = []
   for (const event of events.filter(
     (e) => e.type === 'popup:measurement' || e.type === 'popup:candidate-geometry',

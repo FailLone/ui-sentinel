@@ -51,7 +51,7 @@ describe('popup geometry in Chromium', () => {
 })
 
 it('observes two real custom panels before a no-match semantic reply, without attributing either geometry to the action', async () => {
-  const { createPopupRuntime } = await import('./runtime.ts')
+  const { createPopupRuntime } = await import('./legacy-runtime.ts')
   const { hash, choices } = await import('../../agent/popup/contract.ts')
   const { normalizePopupResponse } = await import('../../agent/popup/provider.ts')
   const browser = await chromium.launch({ headless: true })

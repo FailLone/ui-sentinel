@@ -3704,7 +3704,7 @@ async function executeProfiledRun(
         stateId: 'contract',
         url: uiScan.entryUrl,
         observationVersion: 'contract',
-        basis: 'popup-viewport-1: bounded popup viewport subtask',
+        basis: `${uiScan.popupCheck.revision}: bounded visible floating surface inspection`,
         targetSource: 'executor',
       })
       await inspection.flush()
@@ -3783,6 +3783,7 @@ async function executeProfiledRun(
         }
       }
       popupRuntime = createPopupRuntime({
+        revision: uiScan.popupCheck.revision,
         taskId: item.itemId,
         contractHash: uiScan.hash,
         signal,
@@ -3870,6 +3871,69 @@ async function executeProfiledRun(
             evidenceMetadata(),
             guard,
           ),
+        async recordUi(result, ref, refs) {
+          guard()
+          if (integrity.epoch() !== 0) throw Error('popup-evidence-intervened')
+          await inspection.recordAutomaticCheck({
+            ruleId: `popup-visible-viewport/${result.targetId}`,
+            revision: 'popup-visible-viewport-2',
+            verdict: result.verdict,
+            evidenceRefs: refs,
+            detail: result.reason,
+          })
+          guard()
+          await appendEvent(
+            runId,
+            'rule:evaluated',
+            {
+              ruleId: 'popup-viewport',
+              ruleRevision: 'popup-visible-viewport-2',
+              verdict: result.verdict,
+              targetId: result.targetId,
+              actual: JSON.stringify(result.samples),
+              evidenceRefs: refs,
+            },
+            { stepId, evidenceRefs: refs },
+          )
+          guard()
+          if (result.verdict === 'fail') {
+            const f = await submitFinding({
+              runId,
+              source: 'rule',
+              ruleId: 'popup-viewport',
+              ruleRevision: 'popup-visible-viewport-2',
+              hypothesisId: null,
+              validationStatus: 'supported',
+              severity: 'warning',
+              title: '可见浮层外框被视口或祖先区域裁切',
+              expected:
+                'Observed supported floating surface fits the viewport and effective rectangular clips; no button causality asserted',
+              actual: JSON.stringify(result.samples),
+              stepId,
+              evidenceRefs: refs,
+            })
+            findingFacts.add(JSON.stringify([f.ruleId, f.actual, f.validationStatus]))
+            await appendEvent(
+              runId,
+              'finding:submitted',
+              { findingId: f.id, popupUiReceiptRef: ref },
+              { stepId, evidenceRefs: refs },
+            )
+          }
+        },
+        async completeUi(verdict, ref, refs) {
+          guard()
+          if (integrity.epoch() !== 0) throw Error('popup-evidence-intervened')
+          inspection.scope.resolveItem(item.itemId, {
+            status: verdict === 'fail' ? 'failed' : 'verified',
+            evidenceRefs: refs,
+            eventIds: [],
+            detail:
+              'Observed floating surface geometry only; functional effects and other required items remain independent: ' +
+              ref,
+          })
+          await inspection.flush()
+        },
         async settle(result, ref, refs) {
           guard()
           if (integrity.epoch() !== 0) throw Error('popup-evidence-intervened')

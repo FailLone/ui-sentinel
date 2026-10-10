@@ -1,324 +1,198 @@
-import { adoptPopupSuggestion, POPUP_SEMANTIC_POLICY } from '../../agent/popup/policy.ts'
-import { POPUP_POLICY } from '../../shared/popup-policy.ts'
 import {
-  choices,
-  hash,
-  type PopupDecision,
-  type PopupQuestion,
-} from '../../agent/popup/contract.ts'
-import type { PopupFacts, PopupMeasurement } from './geometry.ts'
-export type PopupFrame = {
-  binding: string
-  version?: string
-  actionEpoch?: number
-  url: string
-  reusable: boolean
-  evidenceRefs: string[]
-  text?: string
-  entries: { id: string; ref: string; description: string; visible?: boolean; enabled?: boolean }[]
-  panels: PopupFacts[]
-}
-export type PopupState = {
-  revision: 'popup-viewport-1'
-  goal: string
-  status: 'active' | 'handoff' | 'measured'
+  createPopupRuntime as legacyRuntime,
+  type PopupState as LegacyState,
+  type PopupFrame,
+} from './legacy-runtime.ts'
+import { hash, choices, type PopupQuestion } from '../../agent/popup/contract.ts'
+import { adoptPopupSuggestion } from '../../agent/popup/policy.ts'
+import { POPUP_POLICY } from '../../shared/popup-policy.ts'
+import { floatingSurface } from './surface.ts'
+import type { PopupMeasurement } from './geometry.ts'
+export type { PopupFrame } from './legacy-runtime.ts'
+export type UiCheck = {
+  targetId: string
+  verdict: 'pass' | 'fail' | 'unknown'
   reason: string
-  attempts: { itemId: string; actionId?: string; result: string }[]
-  evidenceRefs: string[]
-  missing: string[]
-  decisions: number
-  reads: number
-  candidateGeometry?: {
-    targetId: string
-    geometryVerdict: PopupMeasurement['verdict']
-    reason: string
-    receiptRef: string
-    association: 'unconfirmed'
-  }[]
-  measurement?: PopupMeasurement
-  receiptRef?: string
-  observation?: { binding: string; url: string; entryIds: string[]; panelIds: string[] }
-  budgetRemaining?: { actions: number; calls: number; timeMs: number }
+  receiptRef: string
 }
-export function createPopupRuntime(deps: {
-  signal: AbortSignal
-  goal: string
-  taskId: string
-  contractHash: string
-  guard(): void
-  remaining(): { actions: number; calls: number; timeMs: number; reads?: number }
-  frame(refresh: boolean): Promise<PopupFrame>
-  decide: PopupDecision
-  act(
-    entry: PopupFrame['entries'][number],
-    binding: string,
-  ): Promise<{ status: string; actionId?: string; evidenceRefs: string[] }>
-  consumeRead(): void
-  measure(id: string, expected: PopupFacts): Promise<PopupMeasurement>
-  screenshot(): Promise<string>
-  save(kind: string, body: string): Promise<string>
-  emit(kind: string, payload: Record<string, unknown>, refs: string[]): Promise<void>
-  seal(refs: string[]): Promise<Record<string, string>>
-  settle(measurement: PopupMeasurement, receiptRef: string, refs: string[]): Promise<void>
-}) {
-  const state: PopupState = {
-    revision: 'popup-viewport-1',
+type UiState = Omit<LegacyState, 'revision' | 'measurement'> & {
+  revision: 'popup-viewport-2'
+  uiChecks: UiCheck[]
+  measurement?: { verdict: 'pass' | 'fail' | 'unknown'; reason: string }
+  functionalScope: 'separate-original-item-effects'
+}
+export type PopupState = LegacyState | UiState
+export type PopupDeps = Parameters<typeof legacyRuntime>[0] & {
+  revision?: 'popup-viewport-1' | 'popup-viewport-2'
+  recordUi?(measurement: PopupMeasurement, ref: string, refs: string[]): Promise<void>
+  completeUi?(verdict: 'pass' | 'fail', ref: string, refs: string[]): Promise<void>
+}
+/** Current visible surface inspection. Clicks are exploration, never a causal proof. */
+export function createPopupRuntime(deps: PopupDeps) {
+  if (deps.revision === 'popup-viewport-1') return legacyRuntime(deps)
+  const state: UiState = {
+    revision: 'popup-viewport-2',
     goal: deps.goal,
     status: 'active',
-    reason: 'entry-needed',
+    reason: 'visible-surface-needed',
     attempts: [],
     evidenceRefs: [],
-    missing: ['possible-popup-entry'],
+    missing: ['visible-floating-surface'],
     decisions: 0,
     reads: 0,
+    uiChecks: [],
+    functionalScope: 'separate-original-item-effects',
   }
-  let lastFrame: PopupFrame | undefined, lastBefore: PopupFrame | undefined
-  const attempted = new Set<string>()
-  const readActions = new Set<string>()
-  const refreshed = new Set<string>()
-  const candidateMeasurements = new Map<
-    string,
-    { result: PopupMeasurement; screenshotRef: string; ref: string }
-  >()
-  let candidateCount = 0
+  const attempted = new Set<string>(),
+    readActions = new Set<string>()
+  let before: PopupFrame | undefined,
+    lastFacts = '',
+    busy = false
+  const facts = (f: PopupFrame) =>
+    hash({ url: f.url, text: f.text, entries: f.entries, panels: f.panels })
+  const snapshot = () =>
+    structuredClone({ ...state, taskId: deps.taskId, budgetRemaining: deps.remaining() })
+  const publish = async () => {
+    await deps.emit('popup:state', snapshot(), state.evidenceRefs)
+    return snapshot()
+  }
+  const handoff = async (reason: string) => {
+    state.status = 'handoff'
+    state.reason = reason
+    state.missing = [reason]
+    return publish()
+  }
   async function current(frame: PopupFrame) {
     deps.guard()
     if (deps.remaining().timeMs <= 0) throw Error('popup-time-budget')
-    const now = await deps.frame(false)
+    const fresh = await deps.frame(false)
     deps.guard()
     if (deps.remaining().timeMs <= 0) throw Error('popup-time-budget')
-    if (!now.reusable || now.binding !== frame.binding) throw Error('popup-stale-observation')
+    if (!fresh.reusable || fresh.binding !== frame.binding) throw Error('popup-stale-observation')
   }
-  const eligible = (frame: PopupFrame) =>
-    frame.entries.filter((e) => e.visible !== false && e.enabled !== false)
-  const facts = (frame: PopupFrame) =>
-    hash({ url: frame.url, text: frame.text ?? '', entries: eligible(frame), panels: frame.panels })
-  const newEntries = (frame: PopupFrame) => {
-    const before = new Set(lastBefore ? eligible(lastBefore).map((e) => e.id) : [])
-    return lastBefore
-      ? eligible(frame).filter((e) => !before.has(e.id) && !attempted.has(e.id))
-      : []
-  }
-  const readsRemaining = () =>
-    Math.max(0, Math.min(POPUP_POLICY.maxReads - state.reads, deps.remaining().reads ?? Infinity))
-  function readAdmission(frame: PopupFrame, stage: PopupQuestion['stage']) {
-    const remaining = deps.remaining(),
-      action = state.attempts.at(-1)
-    if (!frame.reusable || !lastBefore || !action?.actionId || action.result !== 'completed')
-      return { allowed: false, reason: 'popup-read-no-action-gap' }
-    if (!state.missing.length || facts(frame) === facts(lastBefore))
-      return { allowed: false, reason: 'popup-read-no-new-facts' }
-    if (stage !== 'target' && newEntries(frame).length)
-      return { allowed: false, reason: 'popup-reuse-new-entry-facts' }
-    if (readActions.has(action.actionId))
-      return { allowed: false, reason: 'popup-read-already-used-for-action' }
-    if (readsRemaining() < 1 || remaining.calls < 1 || remaining.timeMs < 6000)
-      return { allowed: false, reason: 'popup-read-budget' }
-    return { allowed: true, reason: 'unresolved-post-action-observation' }
-  }
-  let busy = false
-  const snapshot = () =>
-    structuredClone({ ...state, taskId: deps.taskId, budgetRemaining: deps.remaining() })
-  async function publish() {
-    await deps.emit('popup:state', snapshot(), [...state.evidenceRefs])
-    return snapshot()
-  }
-  async function handoff(reason: string) {
-    state.status = 'handoff'
-    state.reason = reason
-    return publish()
-  }
-  async function question(
-    stage: PopupQuestion['stage'],
-    frame: PopupFrame,
-    candidates: PopupQuestion['candidates'],
-  ) {
-    if (
-      state.decisions >= POPUP_POLICY.maxDecisions ||
-      deps.remaining().calls < 1 ||
-      deps.remaining().timeMs < 2000
-    )
-      throw Error('popup-decision-budget')
-    const packet: PopupQuestion = {
-      revision: 'popup-semantic-2',
-      stage,
-      binding: frame.binding,
-      goal: deps.goal,
-      candidates: candidates.map((c) => {
-        const entry = frame.entries.find((e) => e.id === c.id)
-        return {
-          ...c,
-          ...(entry
-            ? {
-                visible: entry.visible,
-                enabled: entry.enabled,
-                newlyObserved: newEntries(frame).some((e) => e.id === c.id),
-              }
-            : {}),
-        }
-      }),
-      context: {
-        previousAction: state.attempts.length
-          ? {
-              ...state.attempts.at(-1)!,
-              description: lastBefore?.entries.find((e) => e.id === state.attempts.at(-1)?.itemId)
-                ?.description,
-            }
-          : undefined,
-        observation: {
-          text: (frame.text ?? '').slice(0, 800),
-          visiblePanels: frame.panels.filter((p) => p.visible).length,
-          newEntryIds: newEntries(frame).map((e) => e.id),
-          changedSinceAction: !!lastBefore && facts(frame) !== facts(lastBefore),
-        },
-        remaining: { ...deps.remaining(), reads: readsRemaining() },
-        read: readAdmission(frame, stage),
-      },
-      evidenceRefs: [...state.evidenceRefs],
-      missing: [...state.missing],
-      attempts: structuredClone(state.attempts),
-    }
-    state.decisions++
-    const packetRef = await deps.save('popup-question', JSON.stringify(packet))
-    const decision = adoptPopupSuggestion(packet, await deps.decide(packet, deps.signal))
-    const proposal = decision.proposal
-    deps.guard()
-    const current = await deps.frame(false)
-    if (!current.reusable || current.binding !== frame.binding)
-      throw Error('popup-stale-suggestion')
-    const ref = await deps.save(
-      'popup-suggestion',
-      JSON.stringify({ packetHash: hash(packet), ...decision, alternatives: choices(packet) }),
-    )
-    await deps.emit(
-      'popup:decision',
-      {
-        stage,
-        packetRef,
-        suggestionRef: ref,
-        packetHash: hash(packet),
-        suggestionHash: hash(proposal),
-        proposal,
-        adoption: decision,
-      },
-      [packetRef, ref],
-    )
-    state.evidenceRefs = [...new Set([...state.evidenceRefs, packetRef, ref])]
-    return proposal.choice
-  }
-  async function collectCandidates(panels: PopupFacts[], frame: PopupFrame) {
-    for (const target of panels.slice(0, POPUP_POLICY.maxCandidates)) {
-      const key = frame.binding + ':' + target.id
-      if (target.unsupported.length || candidateMeasurements.has(key)) continue
+  async function inspect(frame: PopupFrame) {
+    const panels = frame.panels.filter((p) => p.visible),
+      checks: UiCheck[] = []
+    let screenshotRef: string | undefined
+    for (const panel of panels) {
       if (
-        candidateCount >= POPUP_SEMANTIC_POLICY.maxCandidateMeasurements ||
-        readsRemaining() < 1 ||
+        state.uiChecks.length >= 2 ||
+        state.reads >= POPUP_POLICY.maxReads ||
+        (deps.remaining().reads ?? Infinity) < 1 ||
         deps.remaining().timeMs < 6000
       )
         break
       await current(frame)
       deps.consumeRead()
       state.reads++
-      candidateCount++
-      const screenshotRef = await deps.screenshot()
-      const result = await deps.measure(target.id, target)
+      screenshotRef ??= await deps.screenshot()
+      const applicable = floatingSurface(panel.kind, panel.surface)
+      const measurement: PopupMeasurement = applicable
+        ? await deps.measure(panel.id, panel)
+        : {
+            revision: 'popup-geometry-1',
+            targetId: panel.id,
+            verdict: 'unknown',
+            reason: 'floating-surface-type-unconfirmed',
+            samples: [],
+            tolerancePx: 1,
+          }
       await current(frame)
-      const evidenceRefs = [
-        ...new Set([...state.evidenceRefs, ...frame.evidenceRefs, screenshotRef]),
-      ]
-      const receipt = {
-        revision: 'popup-candidate-geometry-1',
-        policy: POPUP_SEMANTIC_POLICY.version,
+      const refs = [...new Set([...state.evidenceRefs, ...frame.evidenceRefs, screenshotRef])]
+      const body = {
+        revision: 'popup-ui-measurement-2',
+        ruleRevision: 'popup-visible-viewport-2',
         taskId: deps.taskId,
         contractHash: deps.contractHash,
-        association: 'unconfirmed',
+        relation: 'observed-visible-surface',
         actionId: null,
         itemId: null,
+        reproduction: state.attempts.at(-1) ?? null,
         frame,
-        targetId: target.id,
-        measurement: result,
+        targetId: panel.id,
+        applicable,
+        measurement,
         screenshotRef,
-        evidenceRefs,
-        evidenceHashes: await deps.seal(evidenceRefs),
+        evidenceRefs: refs,
+        evidenceHashes: await deps.seal(refs),
       }
       await current(frame)
-      const ref = await deps.save('popup-candidate-geometry', JSON.stringify(receipt))
+      const ref = await deps.save('popup-ui-measurement', JSON.stringify(body))
       await current(frame)
       await deps.emit(
-        'popup:candidate-geometry',
+        'popup:ui-measurement',
         {
           taskId: deps.taskId,
           receiptRef: ref,
-          receiptHash: hash(receipt),
-          targetId: target.id,
-          geometryVerdict: result.verdict,
-          association: 'unconfirmed',
-          reason: result.reason,
+          receiptHash: hash(body),
+          targetId: panel.id,
+          verdict: measurement.verdict,
+          reason: measurement.reason,
         },
-        [...evidenceRefs, ref],
+        [...refs, ref],
       )
-      candidateMeasurements.set(key, { result, screenshotRef, ref })
-      state.candidateGeometry ??= []
-      state.candidateGeometry.push({
-        targetId: target.id,
-        geometryVerdict: result.verdict,
-        reason: result.reason,
+      await current(frame)
+      if (!deps.recordUi) throw Error('popup-ui-recorder-missing')
+      await deps.recordUi(measurement, ref, [...refs, ref])
+      deps.guard()
+      checks.push({
+        targetId: panel.id,
+        verdict: measurement.verdict,
+        reason: measurement.reason,
         receiptRef: ref,
-        association: 'unconfirmed',
       })
-      state.evidenceRefs = [...new Set([...state.evidenceRefs, ...evidenceRefs, ref])]
+      state.uiChecks.push(checks.at(-1)!)
+      state.evidenceRefs = [...new Set([...state.evidenceRefs, ...refs, ref])]
     }
-  }
-  async function measure(target: PopupFacts, frame: PopupFrame) {
+    const unchecked = panels
+      .filter((p) => !checks.some((c) => c.targetId === p.id))
+      .map((p) => p.id)
+    const verdict =
+      unchecked.length || checks.some((c) => c.verdict === 'unknown') || !checks.length
+        ? 'unknown'
+        : checks.some((c) => c.verdict === 'fail')
+          ? 'fail'
+          : 'pass'
+    const reason = unchecked.length
+      ? 'visible-surfaces-not-all-checked'
+      : verdict === 'unknown'
+        ? 'unsupported-or-ambiguous-floating-surface'
+        : verdict === 'fail'
+          ? 'observed-floating-surface-clipped'
+          : 'observed-floating-surfaces-fit'
     await current(frame)
-    const cached = candidateMeasurements.get(frame.binding + ':' + target.id)
-    const screenshotRef = cached?.screenshotRef ?? (await deps.screenshot())
-    const result = cached?.result ?? (await deps.measure(target.id, target))
-    await current(frame)
-    const last = lastBefore ? state.attempts.at(-1) : undefined
-    const receipt = {
-      revision: 'popup-receipt-1',
+    const body = {
+      revision: 'popup-ui-summary-2',
       taskId: deps.taskId,
       contractHash: deps.contractHash,
-      bindingKind: last?.actionId ? 'original-action-result' : 'observed-current-native-panel',
-      actionId: last?.actionId ?? null,
-      itemId: last?.itemId ?? null,
-      before: lastBefore ?? frame,
-      after: frame,
-      targetId: target.id,
-      measurement: result,
-      screenshotRef,
-      evidenceRefs: [...new Set([...state.evidenceRefs, ...frame.evidenceRefs, screenshotRef])],
+      actionId: null,
+      itemId: null,
+      frame,
+      checks,
+      unchecked,
+      verdict,
+      reason,
+      evidenceRefs: state.evidenceRefs,
+      evidenceHashes: await deps.seal(state.evidenceRefs),
     }
-    Object.assign(receipt, { evidenceHashes: await deps.seal(receipt.evidenceRefs) })
     await current(frame)
-    const ref = await deps.save('popup-measurement', JSON.stringify(receipt))
+    const ref = await deps.save('popup-ui-summary', JSON.stringify(body))
     await current(frame)
     await deps.emit(
-      'popup:measurement',
-      {
-        taskId: deps.taskId,
-        receiptRef: ref,
-        receiptHash: hash(receipt),
-        actionId: receipt.actionId,
-        itemId: receipt.itemId,
-        verdict: result.verdict,
-        reason: result.reason,
-      },
-      [...receipt.evidenceRefs, ref],
+      'popup:ui-summary',
+      { taskId: deps.taskId, receiptRef: ref, receiptHash: hash(body), verdict, reason },
+      [...state.evidenceRefs, ref],
     )
-    state.evidenceRefs = [...receipt.evidenceRefs, ref]
-    state.measurement = result
     state.receiptRef = ref
-    if (result.verdict === 'unknown') {
-      state.missing = [result.reason]
-      return handoff(result.reason)
-    }
+    state.evidenceRefs = [...state.evidenceRefs, ref]
+    state.measurement = { verdict, reason }
+    if (verdict === 'unknown') return handoff(reason)
     await current(frame)
-    await deps.settle(result, ref, state.evidenceRefs)
+    if (!deps.completeUi) throw Error('popup-ui-completion-missing')
+    await deps.completeUi(verdict, ref, state.evidenceRefs)
     deps.guard()
     state.status = 'measured'
-    state.reason = result.reason
+    state.reason = reason
     state.missing = []
     return publish()
   }
@@ -327,134 +201,133 @@ export function createPopupRuntime(deps: {
     busy = true
     try {
       deps.guard()
-      if (state.status === 'measured') return snapshot() // Historical result; never relabelled as a current-state assertion.
+      if (state.status === 'measured') return snapshot()
       let frame = await deps.frame(false)
-      if (mode === 'refresh' && !newEntries(frame).length) {
-        if (refreshed.has(facts(frame))) return handoff('popup-read-already-used-for-facts')
-        if (readsRemaining() < 1 || deps.remaining().timeMs < 6000)
-          return handoff('popup-read-budget')
-        refreshed.add(facts(frame))
-        state.reads++
-        frame = await deps.frame(true)
-        deps.guard()
-      }
-      state.evidenceRefs = [...new Set([...state.evidenceRefs, ...frame.evidenceRefs])]
+      deps.guard()
       if (!frame.reusable) return handoff('popup-unverifiable-state')
-      if (
-        lastFrame &&
-        facts(lastFrame) === facts(frame) &&
-        state.status === 'handoff' &&
-        state.reason !== 'popup-action-lineage-changed'
-      )
-        return snapshot()
-      lastFrame = frame
+      state.evidenceRefs = [...new Set([...state.evidenceRefs, ...frame.evidenceRefs])]
+      if (state.status === 'handoff' && lastFacts === facts(frame)) return snapshot()
+      lastFacts = facts(frame)
       state.observation = {
         binding: frame.binding,
         url: frame.url,
         entryIds: frame.entries.map((e) => e.id),
         panelIds: frame.panels.map((p) => p.id),
       }
-      state.status = 'active'
-      // Main Agent actions after handoff cannot be attributed to an older child action.
-      // Preserve those attempts, invalidate only their target association, and require a fresh read.
-      if (
-        lastBefore?.actionEpoch !== undefined &&
-        frame.actionEpoch !== undefined &&
-        frame.actionEpoch !== lastBefore.actionEpoch + (state.attempts.at(-1)?.actionId ? 1 : 0)
-      ) {
-        lastBefore = undefined
-        state.missing = ['original-action-association-invalidated-by-intervening-action']
-        return await handoff('popup-action-lineage-changed')
-      }
-      // Deterministic target binding when exactly one actual new native/public dialog exists.
-      const previous = new Set(lastBefore?.panels.filter((p) => p.visible).map((p) => p.id) ?? [])
-      const panels = frame.panels.filter((p) => p.visible && !previous.has(p.id))
-      const explicit = panels.filter((p) => p.kind !== 'custom')
-      if (explicit.length === 1 && panels.filter((p) => p.kind !== 'custom').length === 1)
-        return await measure(explicit[0]!, frame)
-      if (panels.length && lastBefore && state.attempts.at(-1)?.actionId) {
-        await collectCandidates(panels, frame)
-        state.missing = ['which-actual-new-panel-is-the-action-result']
-        const choice = await question(
-          'target',
-          frame,
-          panels.map((p) => ({ id: p.id, description: p.description })),
+      if (frame.panels.some((p) => p.visible)) return await inspect(frame)
+      const eligible = frame.entries.filter(
+        (e) => e.visible !== false && e.enabled !== false && !attempted.has(e.id),
+      )
+      const fresh = before
+        ? eligible.filter(
+            (e) =>
+              !before!.entries.some(
+                (old) => old.id === e.id && old.visible !== false && old.enabled !== false,
+              ),
+          )
+        : []
+      if (before && !fresh.length) {
+        const action = state.attempts.at(-1)?.actionId
+        if (!action || readActions.has(action) || facts(before) === facts(frame))
+          return handoff('no-visible-floating-surface')
+        if (
+          state.reads >= POPUP_POLICY.maxReads ||
+          (deps.remaining().reads ?? Infinity) < 1 ||
+          deps.remaining().timeMs < 6000
         )
-        const target = panels.find((p) => p.id === choice)
-        if (target) return await measure(target, frame)
-        return await handoff('popup-target-ambiguous')
+          return handoff('popup-read-budget')
+        readActions.add(action)
+        state.reads++
+        frame = await deps.frame(true)
+        deps.guard()
+        if (!frame.reusable) return handoff('popup-unverifiable-state')
+        state.evidenceRefs = [...new Set([...state.evidenceRefs, ...frame.evidenceRefs])]
+        if (frame.panels.some((p) => p.visible)) return await inspect(frame)
+        return handoff('no-visible-floating-surface-after-bounded-read')
       }
-      const freshEntries = newEntries(frame)
-      if (lastBefore && state.attempts.at(-1)?.actionId && !panels.length && !freshEntries.length) {
-        state.missing = ['no-new-target-after-action']
-        return await requestRead(frame, 'recovery')
-      }
-      const entries = (freshEntries.length ? freshEntries : eligible(frame))
-        .filter((e) => !attempted.has(e.id))
-        .slice(0, POPUP_POLICY.maxCandidates)
-      state.missing = [
-        freshEntries.length
-          ? 'new-public-entry-observed-popup-effect-unproven'
-          : state.attempts.length
-            ? 'no-new-popup-observed-need-nested-entry-or-public-read'
-            : 'possible-popup-entry',
-      ]
-      if (!entries.length) {
-        await collectCandidates(panels, frame)
-        return await handoff('popup-no-entry-or-target')
-      }
+      const entries = (fresh.length ? fresh : eligible).slice(0, POPUP_POLICY.maxCandidates)
+      if (!entries.length) return handoff('no-visible-floating-surface-or-entry')
+      const remaining = deps.remaining()
       if (
         state.attempts.length >= POPUP_POLICY.maxActions ||
-        deps.remaining().actions < 1 ||
-        deps.remaining().timeMs < 6000
+        remaining.actions < 1 ||
+        remaining.timeMs < 6000
       )
-        return await handoff('popup-action-budget')
-      const choice = await question(
-        'entry',
-        frame,
-        entries.map((e) => ({ id: e.id, description: e.description })),
+        return handoff('popup-action-budget')
+      if (state.decisions >= POPUP_POLICY.maxDecisions || remaining.calls < 1)
+        return handoff('popup-decision-budget')
+      const packet: PopupQuestion = {
+        revision: 'popup-semantic-2',
+        stage: 'entry',
+        binding: frame.binding,
+        goal: deps.goal,
+        candidates: entries.map((e) => ({ ...e, newlyObserved: fresh.some((n) => n.id === e.id) })),
+        evidenceRefs: state.evidenceRefs,
+        missing: ['exploration-entry'],
+        attempts: state.attempts,
+        context: {
+          previousAction: state.attempts.length
+            ? {
+                ...state.attempts.at(-1)!,
+                description: before?.entries.find((e) => e.id === state.attempts.at(-1)?.itemId)
+                  ?.description,
+              }
+            : undefined,
+          observation: {
+            text: (frame.text ?? '').slice(0, 800),
+            visiblePanels: 0,
+            newEntryIds: fresh.map((e) => e.id),
+            changedSinceAction: !!before && facts(before) !== facts(frame),
+          },
+          remaining: {
+            ...remaining,
+            reads: deps.remaining().reads ?? POPUP_POLICY.maxReads - state.reads,
+          },
+          read: { allowed: false, reason: 'program-owned' },
+        },
+      }
+      state.decisions++
+      const packetRef = await deps.save('popup-question', JSON.stringify(packet))
+      const adoption = adoptPopupSuggestion(packet, await deps.decide(packet, deps.signal))
+      await current(frame)
+      const suggestionRef = await deps.save(
+        'popup-suggestion',
+        JSON.stringify({ packetHash: hash(packet), ...adoption, alternatives: choices(packet) }),
       )
-      const entry = entries.find((e) => e.id === choice)
-      if (!entry) return await handoff('popup-entry-abstained')
+      await deps.emit(
+        'popup:decision',
+        {
+          stage: 'entry',
+          packetRef,
+          suggestionRef,
+          packetHash: hash(packet),
+          proposal: adoption.proposal,
+          adoption,
+        },
+        [packetRef, suggestionRef],
+      )
+      state.evidenceRefs = [...new Set([...state.evidenceRefs, packetRef, suggestionRef])]
+      const entry = entries.find((e) => e.id === adoption.proposal.choice)
+      if (!entry) return handoff('popup-entry-abstained')
+      await current(frame)
       if (deps.remaining().actions < 1 || deps.remaining().timeMs < 6000)
-        return await handoff('popup-action-budget')
+        return handoff('popup-action-budget')
       attempted.add(entry.id)
-      lastBefore = frame
+      before = frame
       const result = await deps.act(entry, frame.binding)
       deps.guard()
       state.attempts.push({ itemId: entry.id, actionId: result.actionId, result: result.status })
       state.evidenceRefs = [...new Set([...state.evidenceRefs, ...result.evidenceRefs])]
-      state.reason =
-        result.status === 'completed' && result.actionId
-          ? 'post-action-target-needed'
-          : 'popup-action-refused'
-      state.missing = ['actual-post-action-target']
-      if (!result.actionId || result.status !== 'completed')
-        return await handoff('popup-action-refused')
-      return await publish()
+      if (result.status !== 'completed' || !result.actionId) return handoff('popup-action-refused')
+      state.status = 'active'
+      state.reason = 'post-action-observation-needed'
+      return publish()
     } catch (error) {
       deps.signal.throwIfAborted()
-      state.missing = [error instanceof Error ? error.message : 'popup-unavailable']
-      return await handoff(state.missing[0]!)
+      return handoff(error instanceof Error ? error.message : 'popup-unavailable')
     } finally {
       busy = false
     }
-  }
-  async function requestRead(frame: PopupFrame, stage: PopupQuestion['stage']) {
-    deps.guard()
-    const admission = readAdmission(frame, stage)
-    if (!admission.allowed) return handoff(admission.reason)
-    readActions.add(state.attempts.at(-1)!.actionId!)
-    refreshed.add(facts(frame))
-    state.reads++
-    const fresh = await deps.frame(true)
-    state.evidenceRefs = [...new Set([...state.evidenceRefs, ...fresh.evidenceRefs])]
-    deps.guard()
-    if (!fresh.reusable) return handoff('popup-unverifiable-state')
-    if (facts(fresh) === facts(frame)) return handoff('popup-public-read-no-change')
-    state.status = 'active'
-    state.reason = 'public-facts-refreshed'
-    return publish()
   }
   return { step, snapshot }
 }

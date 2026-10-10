@@ -13,6 +13,45 @@ export function popupReport(
     events.some((e) => e.type === 'check-task:submitted')
   )
     return undefined
+  if (run.spec.uiContract.popupCheck.revision === 'popup-viewport-2') {
+    const state = events.filter((e) => e.type === 'popup:state').at(-1)?.payload as any
+    const summary = events
+      .filter((e) => e.type === 'popup:ui-summary' && e.payload.receiptRef === state?.receiptRef)
+      .at(-1)
+    const clean = (e: RunEvent) =>
+      !issues.some((i) => i.startsWith('popup-')) &&
+      !!readable &&
+      e.evidenceRefs.length > 0 &&
+      e.evidenceRefs.every((r) => readable.has(r))
+    const checks = events
+      .filter((e) => e.type === 'popup:ui-measurement' && clean(e))
+      .map((e) => ({
+        targetId: String(e.payload.targetId),
+        verdict: String(e.payload.verdict),
+        reason: String(e.payload.reason),
+        receiptRef: String(e.payload.receiptRef),
+      }))
+    return {
+      revision: 'popup-viewport-2',
+      taskId: state?.taskId ?? null,
+      status: state?.status ?? 'not-started',
+      verdict:
+        summary && clean(summary) && state?.status === 'measured'
+          ? String(summary.payload.verdict)
+          : 'unknown',
+      reason: state?.reason ?? 'subtask-not-started',
+      attempts: (state?.attempts ?? []) as PopupState['attempts'],
+      missing: (state?.missing ?? ['visible-floating-surface']) as string[],
+      evidenceRefs: (state?.evidenceRefs ?? []) as string[],
+      receiptRef: state?.receiptRef ?? null,
+      decisions: state?.decisions ?? 0,
+      reads: state?.reads ?? 0,
+      uiChecks: checks,
+      candidateGeometry: undefined,
+      scope:
+        'Observed visible floating surface geometry only. Functional expectations are separate original item effects; other required checks remain independent.',
+    }
+  }
   const event = events.filter((e) => e.type === 'popup:state').at(-1)
   const state = event?.payload as (PopupState & { taskId: string }) | undefined
   const receipt = events
@@ -47,6 +86,7 @@ export function popupReport(
             })),
         }
       : {}),
+    uiChecks: undefined,
     revision: 'popup-viewport-1',
     taskId: state?.taskId ?? null,
     status: state?.status ?? 'not-started',

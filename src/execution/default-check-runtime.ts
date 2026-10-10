@@ -1,3 +1,4 @@
+import { evaluatePopupEffect } from '../inspection/popup-effect.ts'
 import { randomUUID } from 'node:crypto'
 import type { Page, ElementHandle } from 'playwright'
 import {
@@ -23,6 +24,17 @@ export async function readPublicCheckPage(
   documentVersion: string,
 ): Promise<PublicCheckPage> {
   const result = await page.evaluate(() => {
+    const key = Symbol.for('ui-sentinel.public-node-identities')
+    const root = document.documentElement as any
+    const identities =
+      root[key] ??
+      (root[key] = {
+        map: new WeakMap<Element, string>(),
+        next: 0,
+        documentIdentity:
+          String(performance.timeOrigin) + ':' + Math.random().toString(36).slice(2),
+      })
+
     const all = [...document.querySelectorAll('body *')].filter(
       (n) => !['SCRIPT', 'STYLE', 'TEMPLATE', 'NOSCRIPT'].includes(n.tagName),
     )
@@ -88,7 +100,26 @@ export async function readPublicCheckPage(
         n instanceof HTMLSelectElement && n.selectedOptions.length === 1
           ? n.selectedOptions[0]!.label
           : undefined
+      if (!identities.map.has(n))
+        identities.map.set(n, identities.documentIdentity + ':node-' + ++identities.next)
       return {
+        identity: identities.map.get(n) as string,
+        popupSurface: {
+          kind: n.matches('dialog,[popover]')
+            ? 'native'
+            : n.getAttribute('role') === 'dialog'
+              ? 'dialog-role'
+              : 'custom',
+          position: s.position,
+          border: [
+            s.borderTopWidth,
+            s.borderRightWidth,
+            s.borderBottomWidth,
+            s.borderLeftWidth,
+          ].some((v) => parseFloat(v) > 0),
+          shadow: s.boxShadow !== 'none',
+          opaque: /^rgb\(/.test(s.backgroundColor) || /rgba\([^)]*,\s*1\)$/.test(s.backgroundColor),
+        },
         selector: css(n),
         path: fullPath(n),
         leaf: n.childElementCount === 0,
@@ -97,7 +128,10 @@ export async function readPublicCheckPage(
         tag,
         name: name.slice(0, 500),
         text: raw.slice(0, 1000),
-        visible: r.width > 0 && r.height > 0 && s.display !== 'none' && s.visibility !== 'hidden',
+        visible:
+          r.width > 0 &&
+          r.height > 0 &&
+          n.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true }),
         attributes,
         value,
         selectedLabel,
@@ -106,6 +140,7 @@ export async function readPublicCheckPage(
     })
     return {
       url: location.href,
+      documentIdentity: identities.documentIdentity,
       nodes,
       total: all.length,
       complete:
@@ -123,15 +158,33 @@ export const stablePublicPage = (p: PublicCheckPage) =>
   checkHash(
     p.nodes
       .filter((n) => !n.incidental)
-      .map(({ selector, text, visible, value, selectedLabel, attributes, name, leaf, tag }) => ({
-        selector,
-        text: leaf ? text : undefined,
-        visible,
-        value,
-        selectedLabel,
-        attributes,
-        name: ['button', 'input', 'select', 'textarea', 'summary'].includes(tag) ? name : undefined,
-      })),
+      .map(
+        ({
+          selector,
+          text,
+          visible,
+          value,
+          selectedLabel,
+          attributes,
+          name,
+          leaf,
+          tag,
+          identity,
+          popupSurface,
+        }) => ({
+          identity,
+          popupSurface,
+          selector,
+          text: leaf ? text : undefined,
+          visible,
+          value,
+          selectedLabel,
+          attributes,
+          name: ['button', 'input', 'select', 'textarea', 'summary'].includes(tag)
+            ? name
+            : undefined,
+        }),
+      ),
   )
 export const effectKey = (e: EffectRequirement) =>
   checkHash({
@@ -300,6 +353,8 @@ export function createDefaultCheckRuntime(host: {
   ) {
     await assertOriginal(original)
     if (requirement.late) throw Error('v2-late-source-cannot-verify-original-action')
+    if (requirement.predicate.condition === 'popup-visible')
+      throw Error('popup-effect-uses-original-generic-samples')
     const expected = requirement.predicate
     const candidateSelector = expected.selector ?? selector
     if (!candidateSelector) return null
@@ -676,6 +731,7 @@ export function createDefaultCheckRuntime(host: {
       itemRefs.set(original.itemId, original.checkRef)
       original.after.push(await publicSample(0))
       for (const e of original.checks.effects) {
+        if (e.predicate.condition === 'popup-visible') continue
         let selector = e.predicate.selector
         if (!selector && e.predicate.expected) {
           const matches = original.after[0]!.page.nodes.filter(
@@ -758,6 +814,50 @@ export function createDefaultCheckRuntime(host: {
         )
       }
       await generic(original)
+      for (const requirement of original.checks.effects.filter(
+        (e) => e.predicate.condition === 'popup-visible',
+      )) {
+        await assertOriginal(original)
+        const replay = evaluatePopupEffect(
+          original.before.page,
+          original.after.map((s) => s.page),
+          requirement.predicate.expected ?? '',
+        )
+        const genericRef = current(original.itemId)!.checks!.generic.receiptRef!
+        const body = {
+          revision: 'popup-effect-observation-1',
+          itemId: original.itemId,
+          actionId: original.actionId,
+          requirementId: requirement.requirementId,
+          requirementHash: requirement.requirementHash,
+          point: 'bounded-original-generic-samples',
+          genericRef,
+          ...replay,
+        }
+        const ref = await host.save('measurement', JSON.stringify(body))
+        await assertOriginal(original)
+        const refs = [
+          ...original.before.refs,
+          ...original.after.flatMap((s) => s.refs),
+          genericRef,
+          ref,
+        ]
+        const event = await host.emit(
+          'interaction:effect-measured-v2',
+          { ...body, measurementRef: ref, sha256: checkHash(body) },
+          refs,
+          original.actionId,
+        )
+        await assertOriginal(original)
+        const checks = structuredClone(current(original.itemId)!.checks!)
+        const effect = checks.effects.find((e) => e.requirementId === requirement.requirementId)!
+        effect.state = replay.outcome
+        effect.measurementRefs = refs
+        effect.eventIds = [event.id]
+        host.inspection.scope.updateChecks(original.itemId, checks, replay.reason)
+        await host.inspection.settleRequired(original.itemId)
+        await host.inspection.flush()
+      }
       return {
         itemId: original.itemId,
         actionId,

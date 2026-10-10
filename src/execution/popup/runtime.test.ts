@@ -1,6 +1,6 @@
 import { choices, type PopupQuestion } from '../../agent/popup/contract.ts'
 import { it, expect, vi } from 'vitest'
-import { createPopupRuntime, type PopupFrame } from './runtime.ts'
+import { createPopupRuntime, type PopupFrame } from './legacy-runtime.ts'
 import { judgePopup, type PopupFacts } from './geometry.ts'
 const entry = { id: 'entry', ref: 'ref', description: 'Open details' }
 function suggestion(p: PopupQuestion, choice = p.candidates[0]?.id ?? 'none', confidence = 1) {
