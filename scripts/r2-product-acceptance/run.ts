@@ -13,6 +13,7 @@ import { documentFor } from '../../evaluation/fixtures/r2-product-acceptance/pag
 import { rows } from '../../evaluation/private/r2-product-acceptance/truth.ts'
 import { policy, publicInput } from './policy.ts'
 import { triage } from './evaluate.ts'
+import { detailVerdict } from './detail-verdict.ts'
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 async function listen(s: ReturnType<typeof createServer>) {
   await new Promise<void>((r) => s.listen(0, '127.0.0.1', r))
@@ -195,7 +196,9 @@ export async function run(
         const report = await request(`/api/runs/${runId}/report`)
         await save(row.id + '/report.json', report)
         await save(row.id + '/snapshot.json', await request(`/api/runs/${runId}`))
-        await save(row.id + '/events.json', await request(`/api/runs/${runId}/events`))
+        const events = await request(`/api/runs/${runId}/events`)
+        await save(row.id + '/events.json', events)
+        const artifactBytes = new Map<string, Buffer>()
         const evidence: any[] = []
         await mkdir(join(dir, 'evidence'))
         for (const a of report.artifacts ?? []) {
@@ -207,6 +210,7 @@ export async function run(
           const bytes = Buffer.from(await res.arrayBuffer()),
             file = join(dir, 'evidence', encodeURIComponent(a.id))
           await writeFile(file, bytes)
+          artifactBytes.set(a.id, bytes)
           evidence.push({
             id: a.id,
             originalPath: a.path ?? null,
@@ -223,7 +227,12 @@ export async function run(
         await start()
         const restored = await request(`/api/runs/${runId}/report`)
         await save(row.id + '/restored-report.json', restored)
-        const evaluation = triage(report, restored, row.expected)
+        const evaluation = {
+          ...triage(report, restored, row.expected),
+          ...(row.variant === 'defect'
+            ? { detailVerdict: detailVerdict(report, events, artifactBytes) }
+            : {}),
+        }
         if (report.uiScan?.productSource?.source?.markdown !== input.productSource.markdown)
           throw Error('source-not-persisted')
         results.push({
@@ -255,13 +264,7 @@ export async function run(
         if (row.variant === 'unavailable' && report.uiScan?.inspection?.coverage === 'covered')
           batch.stop('false-covered-prerequisite')
         if (report.inspectionIntegrity?.status === 'intervened') batch.stop('safety-intervention')
-        if (
-          row.variant === 'defect' &&
-          report.uiScan?.productSource?.steps?.some(
-            (step: any) => step.citation?.quote?.includes('查看详情') && step.state === 'verified',
-          )
-        )
-          batch.stop('false-verified-detail')
+        if (evaluation.detailVerdict?.hardStop) batch.stop('false-verified-detail')
       } finally {
         await gateway.end()
         batch.end()

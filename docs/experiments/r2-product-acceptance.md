@@ -2,6 +2,16 @@
 
 2026-10-10。状态：**材料与免费准备已交付；真实调用未授权、未执行**。本轮只准备六个真实任务的候选协议，不能把固定模型、浏览器真值检查或旧 R0/R1 成绩当作本轮能力成绩。基线 main/origin/main 均为 `1db982428ffe4735450f2fca6a601d72f4b965dc`，建工作区时无新增提交差异。
 
+## 受限判定修复（2026-10-10）
+
+原交付 `df644309664a4d3e1ab757dc33020b84a23f59d1` **不适合真实执行**：缺陷行把“引用含查看详情且步骤 verified”当作假通过证据，第一步的合法完整引用也满足该条件，会错误停止。原六次免费 API 接线只返回 unverified，未覆盖这条判断；原637份证据及准备收据原样保留，不能用它们证明此分支判定正确。
+
+实验修订 `r2-product-acceptance-2` 仅修 runner 的私有判定，代码候选与证据见[修复交付索引](../../evaluation/private/r2-product-acceptance/detail-fix.json)。`detail-verdict.ts` 通过同一 run 的原 actionId/itemId、动作前 product binding、对应 effect requirement 与哈希、generic 原始前后节点、measurement 回执及附件字节摘要识别详情检查。私有事实限定实际按钮属于 `#next`、结果是原 `details-state` 节点；可用已观察的 selector/path 别名定位，不把模型标题、引用关键词或固定步骤序号当依据。序号仅用于关联冻结记录。引用范围可以变化，预期须是足以区分成功/失败的完整“详情已就绪”，且原动作完成时测量明确为“详情未能展示”，同一效果仍被核销为 verified，才触发 `false-verified-detail`。
+
+正确的详情 failed 不硬停；仅预览 verified 记 `partial-detail-unchecked`；无法唯一关联、缺失/篡改附件、过宽 contains、不同取证点或不支持的节点定位记 `unverified-or-missed-detail` 并交人工语义审阅，不冒充健康或充分假通过。这是有意保守的硬停止门，不能代替人工审阅全部语义。结果写入 `results.json[].evaluation.detailVerdict`；识别依据始终留在操作者侧，不进入模型输入。费用、安全、持久化及其他停止门保持原样。
+
+新增验证仅为12个合成持久记录反例与必要类型/格式检查，未重跑旧34项、动态六场景、夹具矩阵或任何真实模型。构建复用原产物，并核对产品源码与构建 hash 未变；不称新构建全量验收。原开发类型检查错误记录也另存保留，最终检查已通过。矩阵仍为6任务/最多120请求，新增预留仍为 USD7.56。原 manifest 留作历史，**新授权必须绑定修复提交生成的 `manifest-detail-fix.json` 的新 hash**，不能使用旧 hash `d83a3fb09fc93ea7420db0627fee0271387b3313a1914f21d7b9c829ff9df365`。
+
 ## 问题、假设和资产
 
 要回答的问题是：普通用户只给网址和自然语言产品资料，主 Agent 能否读原文、提取可追溯的短路径、登记来源与预期、执行真实操作/测量，并交付能恢复且不夸大的报告？主假设是在以下限定合成页面上六行都满足下文对应条件；任一失败保留，不把它改为“多数成功即通过”。分别报告能力子项，便于定位材料理解、路径准入、实际执行和报告的问题。
@@ -98,8 +108,8 @@ pnpm exec tsx scripts/validation/r2-product-sources.ts --dynamic-only
 
 # 默认只有离线清单，无供应商请求，也不读取真实 key。
 pnpm exec tsx scripts/r2-product-acceptance/cli.ts
-# 在干净提交及构建上冻结；已经存在的 manifest 不覆盖。
-pnpm exec tsx scripts/r2-product-acceptance/cli.ts --freeze data/r2-product-acceptance/manifest.json
+# 在干净提交及已核对构建上冻结；旧 manifest 保留，新文件已存在时也不覆盖。
+pnpm exec tsx scripts/r2-product-acceptance/cli.ts --freeze data/r2-product-acceptance/manifest-detail-fix.json
 ```
 
 `--freeze` 固定完整提交、src/build/runner/共享费用代码/依赖锁及运行时 hash、协议 hash、公开输入、三种 HTML、私有判定与报价快照。运行前重新构造并逐项核对；任何版本、构建、资料、判定或配置变更须重新审阅冻结。报告中的 `manifestHash` 是项目 `digest` 的规范 JSON hash，不能用原始 JSON 文件的 `shasum` 冒充；文件 hash 另行记入证据索引。
@@ -109,7 +119,7 @@ pnpm exec tsx scripts/r2-product-acceptance/cli.ts --freeze data/r2-product-acce
 ```sh
 pnpm exec tsx scripts/r2-product-acceptance/cli.ts --run \
   data/r2-product-acceptance/real-once \
-  data/r2-product-acceptance/manifest.json \
+  data/r2-product-acceptance/manifest-detail-fix.json \
   data/r2-product-acceptance/approval.json
 ```
 

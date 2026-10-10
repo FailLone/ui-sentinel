@@ -7,7 +7,7 @@ import { rows, rubric } from '../../evaluation/private/r2-product-acceptance/tru
 export const root = 'evaluation/fixtures/r2-product-acceptance'
 export const quoteUrl = 'https://openrouter.ai/api/v1/models/deepseek/deepseek-v4.1-flash/endpoints'
 export const policy = {
-  version: 'r2-product-acceptance-1',
+  version: 'r2-product-acceptance-2',
   model: 'deepseek/deepseek-v4.1-flash',
   provider: 'Wafer',
   runs: 6,
