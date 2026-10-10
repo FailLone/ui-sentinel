@@ -3,11 +3,12 @@ import { appendFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { createHash } from 'node:crypto'
 import type { CampaignLedger, ReserveInput } from '../../evaluation/support/campaign-ledger.ts'
-import { POLICY } from './policy.ts'
+import { POLICY, type BatchPolicy } from './policy.ts'
 export function createBatch(
   ledger: CampaignLedger,
   output: string,
   verifyChild: (child: string, parent: string) => Promise<boolean>,
+  policy: BatchPolicy = POLICY,
 ) {
   const controller = new AbortController(),
     context = new AsyncLocalStorage<ReserveInput>()
@@ -32,7 +33,7 @@ export function createBatch(
     }
     controller.abort(Error(reason))
   }
-  const timer = setTimeout(() => stop('batch-time-limit'), POLICY.batchMs)
+  const timer = setTimeout(() => stop('batch-time-limit'), policy.batchMs)
   const guard = () => {
     if (stopped || !active || Date.now() >= active.deadline) {
       if (!stopped) stop('row-time-or-admission-limit')
@@ -63,14 +64,14 @@ export function createBatch(
           }),
         ])
       guard()
-      const jev = input.model === POLICY.jev.model,
-        policy = jev ? POLICY.jev : POLICY.main
+      const jev = input.model === policy.jev.model,
+        channel = jev ? policy.jev : policy.main
       const owner = jev ? input.runId : row.parent!
       if (
         active !== row ||
-        input.model !== policy.model ||
-        input.provider !== policy.provider ||
-        input.reservedUsd !== policy.reserveUsd ||
+        input.model !== channel.model ||
+        input.provider !== channel.provider ||
+        input.reservedUsd !== channel.reserveUsd ||
         (!jev && input.runId !== row.id) ||
         (jev && !(await verifyChild(owner, row.parent!)))
       ) {
@@ -80,9 +81,9 @@ export function createBatch(
       guard()
       const all = [...requests.values()].filter((r) => r.model === input.model)
       if (
-        all.length >= (jev ? POLICY.jevRequests : POLICY.mainRequests) ||
+        all.length >= (jev ? policy.jevRequests : policy.mainRequests) ||
         all.filter((r) => r.row === row.id).length >=
-          (jev ? POLICY.row.jevRequests : POLICY.row.mainRequests) ||
+          (jev ? policy.row.jevRequests : policy.row.mainRequests) ||
         requests.has(input.requestId)
       ) {
         stop('request-cap')
@@ -129,7 +130,7 @@ export function createBatch(
       const bound = new Promise<void>((resolve) => {
         bind = resolve
       })
-      active = { id, deadline: Date.now() + POLICY.row.timeoutMs, bound, bind }
+      active = { id, deadline: Date.now() + policy.row.timeoutMs, bound, bind }
     },
     bind(parent: string) {
       guard()
@@ -147,23 +148,23 @@ export function createBatch(
     estimate(body: any) {
       guard()
       if (
-        body.model !== POLICY.main.model ||
-        body.provider?.only?.join() !== POLICY.main.provider ||
+        body.model !== policy.main.model ||
+        body.provider?.only?.join() !== policy.main.provider ||
         body.provider.allow_fallbacks !== false ||
-        body.max_tokens !== POLICY.main.outputTokens ||
+        body.max_tokens !== policy.main.outputTokens ||
         Buffer.byteLength(JSON.stringify(body)) > 524288 ||
         /data:image\/|image_url/.test(JSON.stringify(body.messages))
       ) {
         stop('main-wire-outside-policy')
         throw Error('main-wire-outside-policy')
       }
-      return POLICY.main.reserveUsd
+      return policy.main.reserveUsd
     },
     auditWire(url: string, body: string) {
       guard()
       const request = context.getStore(),
         wire = JSON.parse(body)
-      const jev = request?.model === POLICY.jev.model
+      const jev = request?.model === policy.jev.model
       if (
         !request ||
         wire.model !== request.model ||

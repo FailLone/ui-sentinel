@@ -14,7 +14,8 @@ export type PopupFrame = {
   url: string
   reusable: boolean
   evidenceRefs: string[]
-  entries: { id: string; ref: string; description: string }[]
+  text?: string
+  entries: { id: string; ref: string; description: string; visible?: boolean; enabled?: boolean }[]
   panels: PopupFacts[]
 }
 export type PopupState = {
@@ -38,7 +39,7 @@ export function createPopupRuntime(deps: {
   taskId: string
   contractHash: string
   guard(): void
-  remaining(): { actions: number; calls: number; timeMs: number }
+  remaining(): { actions: number; calls: number; timeMs: number; reads?: number }
   frame(refresh: boolean): Promise<PopupFrame>
   decide: PopupDecision
   act(
@@ -65,6 +66,34 @@ export function createPopupRuntime(deps: {
   }
   let lastFrame: PopupFrame | undefined, lastBefore: PopupFrame | undefined
   const attempted = new Set<string>()
+  const readActions = new Set<string>()
+  const eligible = (frame: PopupFrame) =>
+    frame.entries.filter((e) => e.visible !== false && e.enabled !== false)
+  const facts = (frame: PopupFrame) =>
+    hash({ url: frame.url, text: frame.text ?? '', entries: eligible(frame), panels: frame.panels })
+  const newEntries = (frame: PopupFrame) => {
+    const before = new Set(lastBefore ? eligible(lastBefore).map((e) => e.id) : [])
+    return lastBefore
+      ? eligible(frame).filter((e) => !before.has(e.id) && !attempted.has(e.id))
+      : []
+  }
+  const readsRemaining = () =>
+    Math.max(0, Math.min(POPUP_POLICY.maxReads - state.reads, deps.remaining().reads ?? Infinity))
+  function readAdmission(frame: PopupFrame, stage: PopupQuestion['stage']) {
+    const remaining = deps.remaining(),
+      action = state.attempts.at(-1)
+    if (!frame.reusable || !lastBefore || !action?.actionId || action.result !== 'completed')
+      return { allowed: false, reason: 'popup-read-no-action-gap' }
+    if (!state.missing.length || facts(frame) === facts(lastBefore))
+      return { allowed: false, reason: 'popup-read-no-new-facts' }
+    if (stage !== 'target' && newEntries(frame).length)
+      return { allowed: false, reason: 'popup-reuse-new-entry-facts' }
+    if (readActions.has(action.actionId))
+      return { allowed: false, reason: 'popup-read-already-used-for-action' }
+    if (readsRemaining() < 1 || remaining.calls < 1 || remaining.timeMs < 6000)
+      return { allowed: false, reason: 'popup-read-budget' }
+    return { allowed: true, reason: 'unresolved-post-action-observation' }
+  }
   let busy = false
   const snapshot = () =>
     structuredClone({ ...state, taskId: deps.taskId, budgetRemaining: deps.remaining() })
@@ -93,7 +122,36 @@ export function createPopupRuntime(deps: {
       stage,
       binding: frame.binding,
       goal: deps.goal,
-      candidates,
+      candidates: candidates.map((c) => {
+        const entry = frame.entries.find((e) => e.id === c.id)
+        return {
+          ...c,
+          ...(entry
+            ? {
+                visible: entry.visible,
+                enabled: entry.enabled,
+                newlyObserved: newEntries(frame).some((e) => e.id === c.id),
+              }
+            : {}),
+        }
+      }),
+      context: {
+        previousAction: state.attempts.length
+          ? {
+              ...state.attempts.at(-1)!,
+              description: lastBefore?.entries.find((e) => e.id === state.attempts.at(-1)?.itemId)
+                ?.description,
+            }
+          : undefined,
+        observation: {
+          text: (frame.text ?? '').slice(0, 800),
+          visiblePanels: frame.panels.filter((p) => p.visible).length,
+          newEntryIds: newEntries(frame).map((e) => e.id),
+          changedSinceAction: !!lastBefore && facts(frame) !== facts(lastBefore),
+        },
+        remaining: { ...deps.remaining(), reads: readsRemaining() },
+        read: readAdmission(frame, stage),
+      },
       evidenceRefs: [...state.evidenceRefs],
       missing: [...state.missing],
       attempts: structuredClone(state.attempts),
@@ -177,13 +235,18 @@ export function createPopupRuntime(deps: {
     try {
       deps.guard()
       if (state.status === 'measured') return snapshot() // Historical result; never relabelled as a current-state assertion.
-      if (mode === 'refresh' && state.reads >= POPUP_POLICY.maxReads)
+      if (mode === 'refresh' && (readsRemaining() < 1 || deps.remaining().timeMs < 2000))
         return handoff('popup-read-budget')
       if (mode === 'refresh') state.reads++
       const frame = await deps.frame(mode === 'refresh')
       state.evidenceRefs = [...new Set([...state.evidenceRefs, ...frame.evidenceRefs])]
       if (!frame.reusable) return handoff('popup-unverifiable-state')
-      if (lastFrame?.binding === frame.binding && state.status === 'handoff' && mode !== 'refresh')
+      if (
+        lastFrame &&
+        facts(lastFrame) === facts(frame) &&
+        state.status === 'handoff' &&
+        mode !== 'refresh'
+      )
         return snapshot()
       lastFrame = frame
       state.observation = {
@@ -219,16 +282,19 @@ export function createPopupRuntime(deps: {
         )
         const target = panels.find((p) => p.id === choice)
         if (target) return await measure(target, frame)
-        if (choice === 'read') return await requestRead()
+        if (choice === 'read') return await requestRead(frame, 'target')
         return await handoff('popup-target-ambiguous')
       }
-      const entries = frame.entries
+      const freshEntries = newEntries(frame)
+      const entries = (freshEntries.length ? freshEntries : eligible(frame))
         .filter((e) => !attempted.has(e.id))
         .slice(0, POPUP_POLICY.maxCandidates)
       state.missing = [
-        state.attempts.length
-          ? 'no-new-popup-observed-need-nested-entry-or-public-read'
-          : 'possible-popup-entry',
+        freshEntries.length
+          ? 'new-public-entry-observed-popup-effect-unproven'
+          : state.attempts.length
+            ? 'no-new-popup-observed-need-nested-entry-or-public-read'
+            : 'possible-popup-entry',
       ]
       if (!entries.length) return await handoff('popup-no-entry-or-target')
       if (
@@ -238,11 +304,11 @@ export function createPopupRuntime(deps: {
       )
         return await handoff('popup-action-budget')
       const choice = await question(
-        state.attempts.length ? 'recovery' : 'entry',
+        state.attempts.length && !freshEntries.length ? 'recovery' : 'entry',
         frame,
         entries.map((e) => ({ id: e.id, description: e.description })),
       )
-      if (choice === 'read') return await requestRead()
+      if (choice === 'read') return await requestRead(frame, 'recovery')
       const entry = entries.find((e) => e.id === choice)
       if (!entry) return await handoff('popup-entry-abstained')
       attempted.add(entry.id)
@@ -267,12 +333,17 @@ export function createPopupRuntime(deps: {
       busy = false
     }
   }
-  async function requestRead() {
-    if (state.reads >= POPUP_POLICY.maxReads) return handoff('popup-read-budget')
+  async function requestRead(frame: PopupFrame, stage: PopupQuestion['stage']) {
+    deps.guard()
+    const admission = readAdmission(frame, stage)
+    if (!admission.allowed) return handoff(admission.reason)
+    readActions.add(state.attempts.at(-1)!.actionId!)
     state.reads++
     const fresh = await deps.frame(true)
     state.evidenceRefs = [...new Set([...state.evidenceRefs, ...fresh.evidenceRefs])]
-    if (fresh.binding === lastFrame?.binding) return handoff('popup-public-read-no-change')
+    deps.guard()
+    if (!fresh.reusable) return handoff('popup-unverifiable-state')
+    if (facts(fresh) === facts(frame)) return handoff('popup-public-read-no-change')
     state.status = 'active'
     state.reason = 'public-facts-refreshed'
     return publish()

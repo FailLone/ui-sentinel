@@ -80,7 +80,7 @@ async function setup() {
 it('uses a finite semantic choice rather than ranking, validates identity/distribution and confidence', () => {
   const body = JSON.parse(wireQuestion(packet))
   expect(body.questions.popup.type).toBe('choice')
-  expect(body.questions.popup.instructions).toContain('open a popup')
+  expect(body.questions.popup.instructions).toContain('floating panel or another entry')
   expect(normalizePopupResponse(response(), packet).choice).toBe('entry')
   const r = response()
   r.answers.popup.confidence = 0.4
@@ -386,4 +386,27 @@ it('the product deadline aborts transport and preserves timeout classification w
   expect(events[0].transport.outcome).toBe('timeout')
   expect(events[0].actualUsd).toBeNull()
   expect(x.http).toHaveBeenCalledTimes(1)
+})
+
+it('keeps low-confidence read as a semantic suggestion, while retaining the 0.65 action gate and contextual read prohibition', () => {
+  const raw = response()
+  raw.answers.popup.choice = 'read'
+  raw.answers.popup.confidence = 0.2
+  raw.answers.popup.probabilities = { entry: 0.1, read: 0.6, handoff: 0.3 }
+  expect(normalizePopupResponse(raw, packet).choice).toBe('read')
+  const blocked = {
+    ...packet,
+    context: {
+      observation: {
+        text: 'New actual entry',
+        visiblePanels: 0,
+        newEntryIds: ['entry'],
+        changedSinceAction: true,
+      },
+      remaining: { actions: 2, calls: 2, reads: 2, timeMs: 10000 },
+      read: { allowed: false, reason: 'reuse-new-entry' },
+    },
+  }
+  expect(choices(blocked)).not.toHaveProperty('read')
+  expect(() => normalizePopupResponse(raw, blocked)).toThrow()
 })

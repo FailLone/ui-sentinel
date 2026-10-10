@@ -3,7 +3,7 @@ import { randomUUID } from 'node:crypto'
 import { mkdir, writeFile, readFile } from 'node:fs/promises'
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import { resolve, join } from 'node:path'
-import { POLICY } from './policy.ts'
+import { POLICY, type BatchPolicy } from './policy.ts'
 import { rows, publicGoal, documentFor } from './fixtures.ts'
 import { scoreRow } from './score.ts'
 import { publishedQuotes } from './quote.ts'
@@ -24,6 +24,7 @@ export async function runBatch(
   free: boolean,
   manifest: unknown,
   approvalClaim?: { manifestSha256: string; approvalReference: string },
+  policy: BatchPolicy = POLICY,
 ) {
   if (hasInjectedPopupDecision()) throw Error('decision-replacement-forbidden')
   if (free && process.env.PARALLEL_POPUP_API_KEY) throw Error('dry-run-refuses-real-credential')
@@ -35,7 +36,7 @@ export async function runBatch(
   process.env.DOTENV_CONFIG_PATH = '/dev/null'
   if (existsSync(output) || !output.startsWith(resolve('data/parallel-popup-real') + '/'))
     throw Error('fresh-isolated-output-required')
-  const quote = free ? { mode: 'synthetic-only' } : await publishedQuotes()
+  const quote = free ? { mode: 'synthetic-only' } : await publishedQuotes(policy)
   if (!free) {
     if (!approvalClaim || !/^[a-f0-9]{64}$/.test(approvalClaim.manifestSha256))
       throw Error('approval-claim-required')
@@ -52,29 +53,34 @@ export async function runBatch(
     writeFile(join(output, name), JSON.stringify(data, null, 2) + '\n')
   await save('manifest.json', manifest)
   await save('quotes-at-launch.json', quote)
-  const session = await openCampaignSession(join(output, 'account'), String(POLICY.maxCostUsd))
+  const session = await openCampaignSession(join(output, 'account'), String(policy.maxCostUsd))
   let api = '',
     parent = '',
     owner: ReturnType<typeof createPopupAccountOwner> | undefined
   let gateway: Awaited<ReturnType<typeof startGateway>> | undefined
-  const batchDeadline = Date.now() + POLICY.batchMs
-  const batch = createBatch(session.ledger, output, async (child, expectedParent) => {
-    const { getRunSnapshot } = await import('../../src/execution/run-manager.ts')
-    const s = await getRunSnapshot(child)
-    const e = s?.events.find((e) => e.type === 'run:delegated-from')
-    return (
-      !!e &&
-      e.payload.parentRunId === expectedParent &&
-      child === 'check-' + e.payload.childTaskId &&
-      !!s &&
-      s.run.spec.budget.maxModelCalls <= 3 &&
-      s.run.spec.budget.maxActions <= 3 &&
-      [320, 640].includes(s.run.spec.viewport.width) &&
-      s.run.spec.viewport.height === 480
-    )
-  })
+  const batchDeadline = Date.now() + policy.batchMs
+  const batch = createBatch(
+    session.ledger,
+    output,
+    async (child, expectedParent) => {
+      const { getRunSnapshot } = await import('../../src/execution/run-manager.ts')
+      const s = await getRunSnapshot(child)
+      const e = s?.events.find((e) => e.type === 'run:delegated-from')
+      return (
+        !!e &&
+        e.payload.parentRunId === expectedParent &&
+        child === 'check-' + e.payload.childTaskId &&
+        !!s &&
+        s.run.spec.budget.maxModelCalls <= 3 &&
+        s.run.spec.budget.maxActions <= 3 &&
+        [320, 640].includes(s.run.spec.viewport.width) &&
+        s.run.spec.viewport.height === 480
+      )
+    },
+    policy,
+  )
   const request = async (path: string, body?: unknown, timeoutMs = 10000) => {
-    const remaining = batchDeadline + POLICY.cleanupMs - Date.now()
+    const remaining = batchDeadline + policy.cleanupMs - Date.now()
     if (remaining <= 0) throw Error('batch-cleanup-deadline')
     const r = await fetch(api + path, {
       method: body === undefined ? 'GET' : 'POST',
@@ -101,7 +107,7 @@ export async function runBatch(
         .catch(() => {})
       void Promise.race([preserve, sleep(5000)]).finally(() => process.exit(1))
     },
-    POLICY.batchMs + POLICY.cleanupMs - 10000,
+    policy.batchMs + policy.cleanupMs - 10000,
   )
   let cancelWork: Promise<unknown> | undefined
   const cancel = () => {
@@ -164,7 +170,7 @@ export async function runBatch(
             : { name: 'run_finish', args: { reason: 'unverified-scope' } }
       const base = {
         id: `synthetic-main-${++fakeCalls}`,
-        model: POLICY.main.model,
+        model: policy.main.model,
         provider: 'Wafer',
         object: 'chat.completion.chunk',
         created: 1,
@@ -192,7 +198,7 @@ export async function runBatch(
       if (
         !events.some((e) => e.provider === 'Wafer') ||
         !events.some((e) =>
-          [POLICY.main.model, 'deepseek/deepseek-v4.1-flash-20260910'].includes(e.model),
+          [policy.main.model, 'deepseek/deepseek-v4.1-flash-20260910'].includes(e.model),
         )
       ) {
         batch.stop('missing-main-provider-identity')
@@ -201,15 +207,15 @@ export async function runBatch(
       return response
     }
     gateway = await startGateway(key, output, upstream, {
-      limitUsd: POLICY.maxCostUsd,
+      limitUsd: policy.maxCostUsd,
       estimateCost: batch.estimate,
       ledger: batch.ledger,
       providers: { agent: 'Wafer', vision: 'disabled' },
-      phase: POLICY.version,
+      phase: policy.version,
     })
     // The batch owns one original lease. Parent executors borrow it; only this owner closes it.
     owner = createPopupAccountOwner(async (directory, limit) => {
-      if (resolve(directory) !== session.directory || Number(limit) !== POLICY.maxCostUsd)
+      if (resolve(directory) !== session.directory || Number(limit) !== policy.maxCostUsd)
         throw Error('batch-account-identity')
       return { ...session, ledger: batch.ledger, close: async () => {} }
     })
@@ -221,7 +227,10 @@ export async function runBatch(
         await sleep(250)
         init?.signal?.throwIfAborted()
         const choice =
-          packet.candidates.find((c: any) => /Details/.test(c.description))?.id ?? 'handoff'
+          (packet.stage === 'target'
+            ? packet.candidates[0]?.id
+            : packet.candidates.find((c: any) => /Details|More options/.test(c.description))?.id) ??
+          'handoff'
         return Response.json({
           id: 'synthetic-jev-' + packet.binding,
           model: 'typesafe/jev-1.13-20260917',
@@ -253,7 +262,7 @@ export async function runBatch(
       ARENA_CONTROL_TOKEN: controlToken,
       PORT: new URL(api).port,
       DATABASE_URL: 'file:' + join(output, 'runs.db'),
-      AGENT_MODEL: 'openai/' + POLICY.main.model,
+      AGENT_MODEL: 'openai/' + policy.main.model,
       OPENAI_BASE_URL: gateway.url,
       OPENAI_API_KEY: gateway.token,
       VISION_MODEL: 'disabled',
@@ -264,17 +273,17 @@ export async function runBatch(
       EXECUTION_PARALLEL_CHECK_TASKS: '1',
       EXECUTION_POPUP_JEV: '1',
       POPUP_JEV_ACCOUNT_DIRECTORY: session.directory,
-      POPUP_JEV_LIMIT_USD: String(POLICY.maxCostUsd),
+      POPUP_JEV_LIMIT_USD: String(policy.maxCostUsd),
       POPUP_JEV_API_KEY: key,
       EXECUTION_BLOCKER_REVIEW: '0',
       EXECUTION_VISUAL_DISCOVERY: '0',
       EXECUTION_JOURNEYS: '0',
       AGENT_LENGTH_RECOVERY_WITHOUT_REASONING: '0',
       MODEL_REQUEST_MAX_RETRIES: '0',
-      MODEL_REQUEST_TIMEOUT_MS: String(POLICY.mainTimeoutMs),
-      RUN_TOTAL_TIMEOUT_MS: String(POLICY.row.timeoutMs),
-      RUN_MAX_ACTIONS: String(POLICY.row.maxActions),
-      RUN_MAX_MODEL_CALLS: String(POLICY.row.maxModelCalls),
+      MODEL_REQUEST_TIMEOUT_MS: String(policy.mainTimeoutMs),
+      RUN_TOTAL_TIMEOUT_MS: String(policy.row.timeoutMs),
+      RUN_MAX_ACTIONS: String(policy.row.maxActions),
+      RUN_MAX_MODEL_CALLS: String(policy.row.maxModelCalls),
       URL_SCAN_TRUSTED_ORIGINS: origin,
       URL_SCAN_DNS_MODE: 'system',
       OTEL_SDK_DISABLED: 'true',
@@ -285,19 +294,21 @@ export async function runBatch(
       await sleep(100)
     }
     evaluationLease = (await request('/api/evaluation/lease', {})).lease
-    for (const row of free ? rows.slice(0, 1) : rows) {
-      const rowDeadline = Date.now() + POLICY.row.timeoutMs
+    const selected =
+      policy.rows === 1 ? rows.filter((r) => r.id === 'P02') : free ? rows.slice(0, 1) : rows
+    for (const row of selected) {
+      const rowDeadline = Date.now() + policy.row.timeoutMs
       batch.begin(row.id)
-      gateway.begin(row.id, POLICY.row.mainRequests, POLICY.row.timeoutMs)
+      gateway.begin(row.id, policy.row.mainRequests, policy.row.timeoutMs)
       const created = await request('/api/runs', {
         kind: 'ui-scan',
         entryUrl: origin + row.path,
         goal: publicGoal,
         popupCheck: { mode: 'popup-viewport' },
         budget: {
-          totalTimeoutMs: POLICY.row.timeoutMs,
-          maxActions: POLICY.row.maxActions,
-          maxModelCalls: POLICY.row.maxModelCalls,
+          totalTimeoutMs: policy.row.timeoutMs,
+          maxActions: policy.row.maxActions,
+          maxModelCalls: policy.row.maxModelCalls,
         },
       })
       parent = created.runId
@@ -450,6 +461,6 @@ export async function runBatch(
     free,
     rows: records.length,
     stopped: batch.status().stopped,
-    goalPassed: records.length === (free ? 1 : rows.length) && records.every((r) => r.goalPassed),
+    goalPassed: records.length === (free ? 1 : policy.rows) && records.every((r) => r.goalPassed),
   }
 }

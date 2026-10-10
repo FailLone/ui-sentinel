@@ -1,7 +1,7 @@
-import { POLICY } from './policy.ts'
-export async function publishedQuotes() {
+import { POLICY, type BatchPolicy } from './policy.ts'
+export async function publishedQuotes(policy: BatchPolicy = POLICY) {
   const result: Record<string, unknown> = {}
-  for (const [kind, model] of Object.entries({ main: POLICY.main, jev: POLICY.jev })) {
+  for (const [kind, model] of Object.entries({ main: policy.main, jev: policy.jev })) {
     const url = `https://openrouter.ai/api/v1/models/${model.model}/endpoints`
     const response = await fetch(url, { redirect: 'error', signal: AbortSignal.timeout(10000) })
     if (!response.ok) throw Error('public-quote-unavailable')
@@ -32,7 +32,7 @@ export async function publishedQuotes() {
       throw Error('public-quote-outside-ceiling')
     if (
       kind === 'main' &&
-      (e.context_length !== POLICY.main.contextTokens ||
+      (e.context_length !== policy.main.contextTokens ||
         !e.supported_parameters?.includes('tools') ||
         !e.supported_parameters?.includes('reasoning_effort'))
     )

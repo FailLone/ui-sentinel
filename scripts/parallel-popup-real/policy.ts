@@ -31,3 +31,15 @@ export const POLICY = {
   fallback: false,
   vision: false,
 } as const
+
+/** A separate proposal/claim for exactly one P02 parent and its original two children. */
+export const P02_POLICY = {
+  ...POLICY,
+  version: 'parallel-popup-p02-continuation-1',
+  rows: 1,
+  mainRequests: 10,
+  jevRequests: 6,
+  maxCostUsd: 0.62,
+  batchMs: 180000,
+} as const
+export type BatchPolicy = typeof POLICY | typeof P02_POLICY

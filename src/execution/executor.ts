@@ -3767,6 +3767,8 @@ async function executeProfiledRun(
             id: c.itemId,
             ref: c.ref,
             description: `${c.description}; public attributes ${JSON.stringify(element!.attributes).slice(0, 700)}`,
+            visible: element!.visible,
+            enabled: element!.enabled,
           }))
         return {
           binding: popupHash({ version: version.key, entries, panels: panels.facts }),
@@ -3775,6 +3777,7 @@ async function executeProfiledRun(
           url: page.url(),
           reusable: version.reusable && panels.complete,
           entries,
+          text: latestSlim!.pageText.slice(0, 800),
           panels: panels.facts,
           evidenceRefs: [...latest!.evidenceRefs],
         }
@@ -3786,6 +3789,9 @@ async function executeProfiledRun(
         guard,
         goal: `Check whether an actual popup exceeds the visible viewport. User focus: ${uiScan.goal}; delegated context: ${delegation?.task.purpose ?? 'none'}`,
         remaining: () => ({
+          reads: delegation
+            ? Math.max(0, delegation.task.quota.reads - delegation.lease.usage().reads)
+            : undefined,
           actions: remainingActions(),
           calls: Math.max(0, remainingModels() - (delegation ? 0 : 2)),
           timeMs:

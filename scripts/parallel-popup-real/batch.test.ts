@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { openCampaignSession } from '../../evaluation/support/campaign-session.ts'
 import { createBatch } from './batch.ts'
-import { POLICY } from './policy.ts'
+import { POLICY, P02_POLICY } from './policy.ts'
 it('uses one authoritative fee balance for concurrent parent/children and fences unknown dispatch', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'parallel-popup-batch-'))
   const session = await openCampaignSession(dir, String(POLICY.maxCostUsd))
@@ -110,3 +110,40 @@ it('keeps first request identity on competing failures and propagates stop even 
     await rm(dir, { recursive: true, force: true })
   }
 })
+
+it.each([
+  ['main', 10],
+  ['jev', 6],
+] as const)(
+  'enforces the focused P02 %s cap in the original shared ledger',
+  async (channel, cap) => {
+    const dir = await mkdtemp(join(tmpdir(), 'parallel-popup-p02-cap-'))
+    const session = await openCampaignSession(dir, String(P02_POLICY.maxCostUsd))
+    const batch = createBatch(session.ledger, dir, async () => true, P02_POLICY)
+    const config = P02_POLICY[channel]
+    try {
+      batch.begin('P02')
+      batch.bind('parent')
+      const reserve = (i: number) =>
+        batch.ledger.reserve({
+          requestId: channel + i,
+          runId: channel === 'main' ? 'P02' : 'child',
+          phase: 'synthetic-cap-test',
+          model: config.model,
+          provider: config.provider,
+          reservedUsd: config.reserveUsd,
+          priceSource: 'synthetic',
+          stopEpoch: 0,
+        })
+      for (let i = 0; i < cap; i++) expect((await reserve(i)).ok).toBe(true)
+      expect((await reserve(cap)).ok).toBe(false)
+      expect(batch.status().stopped).toBe('request-cap')
+      expect(batch.status().requests).toHaveLength(cap)
+      expect((await session.ledger.spending()).accountedUsd).toBeLessThanOrEqual(0.62)
+    } finally {
+      batch.close()
+      await session.close()
+      await rm(dir, { recursive: true, force: true })
+    }
+  },
+)
