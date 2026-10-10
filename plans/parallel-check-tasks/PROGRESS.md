@@ -41,3 +41,7 @@ Merge order: independently review this branch's new check-task/network-budget mo
 实现 `87a2816deb8885e42c3785731846a0a6f9791372`。查明原 popup choice 错把说明字符串当 criteria、选项映射当 choices，改为官方及历史成功样本的 instructions + criteria。实际 provider 增加有界脱敏 HTTP/超时/取消记录和首错身份；批次停止返回非零，已提交取消的 persistence 与目标未完成分开。61 项相关测试、最终 9 项复核、类型检查和构建通过，无浏览器/全矩阵重跑。
 
 两笔已知费用只读 GET 确认一致；三笔 unknown 缺供应商 ID，原样保留，原账户无写入。完整交付及已冻结、未授权的 USD 0.003 单 Jev 请求提案见 [transport-fix-20261010/RESULT.md](transport-fix-20261010/RESULT.md)。本轮新生成 0 次，没有恢复原批或修改历史报告。
+
+## 授权单次真实 Jev 诊断（2026-10-10）
+
+用户经维护者明确授权冻结 manifest `986698d6...169299`。原产品 createPopupProvider 执行 1 次 Jev，无主模型/浏览器；HTTP 200、原协议校验通过，选择 Details（0.99），generation `gen-dec-1791606475-bUM8EvyGwtNN5RqyXrWv`。新原账户已结算 USD 0.000040614，unknown/held/活动 lease 均为 0。723 源文件及 wire/packet/安装锁一致，无重建或重跑测试。只证明此冻结请求被接受并产生可解析选择，不证明页面操作/几何/并发完整目标。单次 claim 已消费，结果已封存，不重试、不恢复 P02/P03、不动旧账户。详见 [single-jev-result-20261010/RESULT.md](single-jev-result-20261010/RESULT.md)。

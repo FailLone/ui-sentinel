@@ -56,3 +56,5 @@
 真实并行弹窗小批次的免费准备见 [real-preparation/PLAN.md](real-preparation/PLAN.md)；3 父任务 / 最多 30 主模型 + 18 Jev / 新增 USD 1.86。用户于 2026-10-10 授权该冻结批次，执行结果见 [real-result-20261010/RESULT.md](real-result-20261010/RESULT.md)：P01 真实委派两个子任务后因 Jev HTTP 错误停止，完整弹窗目标未验证，P02/P03 未运行。共 3 主请求、2 Jev 请求；已知费用 USD 0.0028128，另 3 笔未知保守计提 USD 0.066，实际总费用尚未确定。原件已封存，无重试或后续批次。
 
 后续免费修复已交付：修正 Jev choice 协议、增加传输失败诊断、停止退出码及取消持久化判定，详情与尚未执行的单请求诊断提案见 [transport-fix-20261010/RESULT.md](transport-fix-20261010/RESULT.md)。三笔原 unknown 仍保留。
+
+上述单请求提案后获用户授权，已于 2026-10-10 执行并封存：[single-jev-result-20261010/RESULT.md](single-jev-result-20261010/RESULT.md)。1 次真实 Jev 返回 HTTP 200，选择 Details（0.99），费用 USD 0.000040614，unknown/held 均为 0；仅协议诊断通过，完整弹窗目标仍未验证。

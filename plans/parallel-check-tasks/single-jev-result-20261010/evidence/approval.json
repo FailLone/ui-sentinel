@@ -1,0 +1,13 @@
+{
+  "scope": "single-popup-jev-diagnostic-1",
+  "manifestSha256": "986698d6b163ad207c37c32746461bf33b80159a26ccc26ea8ac3c606f169299",
+  "maxRequests": 1,
+  "maxCostUsd": 0.003,
+  "retries": 0,
+  "authorizeNewIsolatedAccount": true,
+  "approvedBy": "用户（维护者会话直接回复“授权”，由维护者转达）",
+  "approvalReference": "维护者会话 01a1116d-7621-7962-b4fe-5f904b5fbf13：用户于 2026-10-10 直接回复“授权”；仅实现 87a2816deb8885e42c3785731846a0a6f9791372、交付 f62e82718f7d85f06199960a8210ba6ae60d9dca 的冻结单次 Jev 诊断。",
+  "recordedAt": "2026-10-10T04:27:54.600Z",
+  "expiresAt": "2026-10-11T04:27:54.600Z",
+  "singleClaim": true
+}
