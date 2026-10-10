@@ -1,0 +1,8 @@
+{
+  "recordedAt": "2026-10-10T05:14:40.134861+00:00",
+  "sourceThread": "01a1116d-7621-7962-b4fe-5f904b5fbf13",
+  "purpose": "Credential-source clarification only; original approval/manifest/budget unchanged, no second permission or claim.",
+  "clarification": "Maintainer explicitly allowed reusing the exact previously used private .env API-key field, without sourcing or inheriting other settings.",
+  "method": "Confirmed exact previous source and OPENROUTER_API_KEY field in prior execution script; parsed only in memory and injected as PARALLEL_POPUP_API_KEY into an environment with only HOME/PATH/DOTENV_CONFIG_PATH. No value logged or archived.",
+  "initialPreflight": "preflight.json records initial missing injection before clarification. The same approval remained valid and its single claim was absent before this one execution."
+}

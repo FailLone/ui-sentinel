@@ -1,0 +1,1 @@
+{"model":"typesafe/jev-1.13-20260917","answers":{"popup":{"type":"choice","choice":"item-70ba318f-335a-480b-b5b7-d60c0843bec7","probabilities":{"item-70ba318f-335a-480b-b5b7-d60c0843bec7":0.82,"handoff":0.18},"confidence":0.64}},"usage":{"input_tokens":1314,"output_tokens":96,"cost":0.000055188},"id":"gen-dec-1791609104-T7CnzndfnGGXGCNbilAe","provider":"TypeSafe"}
