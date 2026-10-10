@@ -5,11 +5,15 @@ export type FloatingSurface = {
   shadow: boolean
   opaque: boolean
 }
-export function floatingSurface(kind: string, surface?: FloatingSurface) {
+export function floatingSurface(kind: string, surface?: FloatingSurface, tag?: string) {
   return (
     kind === 'native' ||
     kind === 'dialog-role' ||
     (kind === 'custom' &&
+      // Match the geometry collector's exclusion of ordinary controls and media.
+      !['button', 'a', 'input', 'select', 'textarea', 'img', 'svg'].includes(
+        tag?.toLowerCase() ?? '',
+      ) &&
       !!surface &&
       surface.position === 'fixed' &&
       surface.opaque &&

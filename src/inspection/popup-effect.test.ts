@@ -90,3 +90,50 @@ it('allows multiple surfaces only for an explicit any-popup expectation and reje
       .outcome,
   ).toBe('unverified')
 })
+
+it.each(['button', 'a', 'input', 'select', 'textarea', 'img', 'svg'])(
+  'does not treat a styled %s with changed text as an appearing custom popup',
+  (tag) => {
+    const before = page([{ ...node, tag, text: 'Open details' }])
+    const after = page([{ ...node, tag }])
+    expect(evaluatePopupEffect(before, [after, after], 'Details overview').outcome).toBe(
+      'unverified',
+    )
+    expect(evaluatePopupEffect(page([]), [after, after], '*').outcome).toBe('unverified')
+  },
+)
+
+it('accepts insertion before an existing sibling whose identity remains in both later observations', () => {
+  const prior = {
+    ...node,
+    selector: 'div:nth-of-type(1)',
+    identity: 'existing',
+    text: 'Existing content',
+    popupSurface: undefined,
+  }
+  const before = page([prior])
+  const after = page([
+    { ...node, selector: prior.selector },
+    { ...prior, selector: 'div:nth-of-type(2)' },
+  ])
+  expect(evaluatePopupEffect(before, [after, after], 'Details overview').outcome).toBe('verified')
+})
+
+it('still rejects replacement of a pre-action hidden target, including loss in a later sample', () => {
+  const prior = { ...node, visible: false, identity: 'original' }
+  const after = page([node])
+  expect(evaluatePopupEffect(page([prior]), [after, after], 'Details overview').outcome).toBe(
+    'unverified',
+  )
+  const moved = page([node, { ...prior, selector: '#moved' }])
+  expect(evaluatePopupEffect(page([prior]), [moved, after], 'Details overview').outcome).toBe(
+    'unverified',
+  )
+})
+
+it.each(['native', 'dialog-role'] as const)('retains explicit %s popup semantics', (kind) => {
+  const popup = { ...node, tag: 'div', popupSurface: { ...node.popupSurface!, kind } }
+  const before = page([{ ...popup, visible: false }])
+  const after = page([popup])
+  expect(evaluatePopupEffect(before, [after, after], 'Details overview').outcome).toBe('verified')
+})

@@ -32,7 +32,7 @@ function setup() {
     goal: 'UI floating geometry',
     guard: () => controller.signal.throwIfAborted(),
     remaining: () => ({ actions: 3, calls: 3, reads: 2, timeMs: 20000 }),
-    frame: vi.fn(async () => structuredClone(frame)),
+    frame: vi.fn(async (_refresh: boolean) => structuredClone(frame)),
     decide: vi.fn(async (p: any) => ({
       binding: p.binding,
       choice: p.candidates[0].id,
@@ -64,6 +64,132 @@ function setup() {
     },
   }
 }
+it('refreshes a handed-off observation once and measures a newly visible surface without another action', async () => {
+  const x = setup()
+  x.set({ entries: [] })
+  const read = x.deps.frame.getMockImplementation()!
+  x.deps.frame.mockImplementation(async (refresh) => {
+    if (refresh) x.set({ binding: 'refreshed', panels: [x.panel] })
+    return read(refresh)
+  })
+  const r = createPopupRuntime(x.deps)
+  expect((await r.step()).status).toBe('handoff')
+  expect(await r.step('refresh')).toMatchObject({ status: 'measured', reads: 2 })
+  expect(x.deps.frame.mock.calls.filter(([refresh]) => refresh)).toHaveLength(1)
+  expect(x.deps.consumeRead).toHaveBeenCalledTimes(1)
+  expect(x.deps.act).not.toHaveBeenCalled()
+  expect(x.deps.decide).not.toHaveBeenCalled()
+})
+
+it('does not refresh unchanged facts repeatedly or refresh implicitly on continue', async () => {
+  const x = setup()
+  x.set({ entries: [] })
+  const r = createPopupRuntime(x.deps)
+  await r.step()
+  await r.step()
+  expect(x.deps.frame.mock.calls.some(([refresh]) => refresh)).toBe(false)
+  expect((await r.step('refresh')).reads).toBe(1)
+  expect(await r.step('refresh')).toMatchObject({
+    status: 'handoff',
+    reads: 1,
+    reason: 'popup-read-already-used-for-facts',
+  })
+  expect(x.deps.frame.mock.calls.filter(([refresh]) => refresh)).toHaveLength(1)
+  expect(x.deps.consumeRead).not.toHaveBeenCalled()
+})
+
+it.each(['quota', 'time', 'cancel'] as const)(
+  'blocks explicit refresh after %s exhaustion',
+  async (mode) => {
+    const x = setup()
+    x.set({ entries: [] })
+    const r = createPopupRuntime(x.deps)
+    await r.step()
+    if (mode === 'cancel') x.controller.abort(Error('cancelled'))
+    else
+      x.deps.remaining = () => ({
+        actions: 3,
+        calls: 3,
+        reads: mode === 'quota' ? 0 : 2,
+        timeMs: mode === 'time' ? 5999 : 20000,
+      })
+    if (mode === 'cancel') await expect(r.step('refresh')).rejects.toThrow('cancelled')
+    else
+      expect(await r.step('refresh')).toMatchObject({
+        status: 'handoff',
+        reason: 'popup-read-budget',
+        reads: 0,
+      })
+    expect(x.deps.frame.mock.calls.some(([refresh]) => refresh)).toBe(false)
+  },
+)
+
+it('can use an entry discovered by refresh, then refuses a second read of the same post-action facts', async () => {
+  const x = setup()
+  x.set({ entries: [] })
+  const read = x.deps.frame.getMockImplementation()!
+  x.deps.frame.mockImplementation(async (refresh) => {
+    if (refresh)
+      x.set({
+        binding: 'new-entry',
+        entries: [{ id: 'entry', ref: 'entry', description: 'Open details' }],
+      })
+    return read(refresh)
+  })
+  x.deps.act.mockImplementation(async () => ({
+    status: 'completed',
+    actionId: 'action',
+    evidenceRefs: ['action'],
+  }))
+  const r = createPopupRuntime(x.deps)
+  await r.step()
+  expect(await r.step('refresh')).toMatchObject({ status: 'active', reads: 1 })
+  expect(x.deps.act).toHaveBeenCalledTimes(1)
+  expect(await r.step('refresh')).toMatchObject({ status: 'handoff', reads: 1 })
+  expect(x.deps.frame.mock.calls.filter(([refresh]) => refresh)).toHaveLength(1)
+})
+
+it('shares the per-action read bound between explicit and automatic refresh', async () => {
+  const x = setup()
+  x.deps.act.mockImplementation(async () => {
+    x.set({ binding: 'after', text: 'Changed content' })
+    return { status: 'completed', actionId: 'action', evidenceRefs: ['action'] }
+  })
+  const r = createPopupRuntime(x.deps)
+  await r.step()
+  expect(await r.step('refresh')).toMatchObject({ status: 'handoff', reads: 1 })
+  await r.step()
+  await r.step('refresh')
+  expect(x.deps.frame.mock.calls.filter(([refresh]) => refresh)).toHaveLength(1)
+  expect(x.deps.act).toHaveBeenCalledTimes(1)
+})
+
+it.each(['cancel', 'invalid'] as const)(
+  'does not act on a %s refreshed observation',
+  async (mode) => {
+    const x = setup()
+    x.set({ entries: [] })
+    const read = x.deps.frame.getMockImplementation()!
+    x.deps.frame.mockImplementation(async (refresh) => {
+      if (refresh) {
+        if (mode === 'cancel') x.controller.abort(Error('cancelled'))
+        x.set({ panels: [x.panel], reusable: false })
+      }
+      return read(refresh)
+    })
+    const r = createPopupRuntime(x.deps)
+    await r.step()
+    if (mode === 'cancel') await expect(r.step('refresh')).rejects.toThrow('cancelled')
+    else
+      expect(await r.step('refresh')).toMatchObject({
+        status: 'handoff',
+        reason: 'popup-unverifiable-state',
+      })
+    expect(x.deps.measure).not.toHaveBeenCalled()
+    expect(x.deps.act).not.toHaveBeenCalled()
+    expect(x.deps.completeUi).not.toHaveBeenCalled()
+  },
+)
 it('uses one real action and one measurement for UI, without asking TARGET or claiming a functional effect', async () => {
   const x = setup(),
     r = createPopupRuntime(x.deps)

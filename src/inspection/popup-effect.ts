@@ -12,7 +12,7 @@ export function evaluatePopupEffect(
       (n) =>
         n.visible &&
         n.popupSurface &&
-        floatingSurface(n.popupSurface.kind, n.popupSurface) &&
+        floatingSurface(n.popupSurface.kind, n.popupSurface, n.tag) &&
         (expected === '*' || name(n) === expected),
     )
   if (
@@ -62,10 +62,18 @@ export function evaluatePopupEffect(
       matched: [] as string[],
     }
   if (
-    found.some((node) => {
-      const prior = before.nodes.find((n) => n.selector === node.selector)
-      return prior && prior.identity !== node.identity
-    })
+    samples.some((nodes, index) =>
+      nodes.some((node) => {
+        const prior = before.nodes.find((n) => n.selector === node.selector)
+        // Positional selectors can move on insertion. A surviving original identity
+        // distinguishes that movement from replacement of the original target.
+        return (
+          prior &&
+          prior.identity !== node.identity &&
+          (!prior.identity || !after[index].nodes.some((n) => n.identity === prior.identity))
+        )
+      }),
+    )
   )
     return {
       outcome: 'unverified' as const,

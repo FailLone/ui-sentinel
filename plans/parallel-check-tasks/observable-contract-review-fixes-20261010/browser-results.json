@@ -1,0 +1,659 @@
+{
+  "realModelCalls": 0,
+  "passed": 4,
+  "results": [
+    {
+      "name": "fixed-button-text-change",
+      "effect": {
+        "outcome": "unverified",
+        "reason": "expected-popup-not-observed-in-bounded-samples",
+        "matched": []
+      },
+      "before": {
+        "url": "about:blank",
+        "documentIdentity": "1791632750213.1:gg9l68lgz65",
+        "nodes": [
+          {
+            "identity": "1791632750213.1:gg9l68lgz65:node-1",
+            "popupSurface": {
+              "kind": "custom",
+              "position": "fixed",
+              "border": true,
+              "shadow": false,
+              "opaque": true
+            },
+            "selector": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+            "path": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+            "leaf": true,
+            "incidental": false,
+            "parentSelector": "html > body:nth-of-type(1)",
+            "tag": "button",
+            "name": "Open details",
+            "text": "Open details",
+            "visible": true,
+            "attributes": {},
+            "value": "",
+            "truncated": false
+          }
+        ],
+        "total": 1,
+        "complete": true,
+        "documentVersion": "before"
+      },
+      "after": [
+        {
+          "url": "about:blank",
+          "documentIdentity": "1791632750213.1:gg9l68lgz65",
+          "nodes": [
+            {
+              "identity": "1791632750213.1:gg9l68lgz65:node-1",
+              "popupSurface": {
+                "kind": "custom",
+                "position": "fixed",
+                "border": true,
+                "shadow": false,
+                "opaque": true
+              },
+              "selector": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+              "path": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+              "leaf": true,
+              "incidental": false,
+              "parentSelector": "html > body:nth-of-type(1)",
+              "tag": "button",
+              "name": "Details overview",
+              "text": "Details overview",
+              "visible": true,
+              "attributes": {},
+              "value": "",
+              "truncated": false
+            }
+          ],
+          "total": 1,
+          "complete": true,
+          "documentVersion": "after-1"
+        },
+        {
+          "url": "about:blank",
+          "documentIdentity": "1791632750213.1:gg9l68lgz65",
+          "nodes": [
+            {
+              "identity": "1791632750213.1:gg9l68lgz65:node-1",
+              "popupSurface": {
+                "kind": "custom",
+                "position": "fixed",
+                "border": true,
+                "shadow": false,
+                "opaque": true
+              },
+              "selector": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+              "path": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+              "leaf": true,
+              "incidental": false,
+              "parentSelector": "html > body:nth-of-type(1)",
+              "tag": "button",
+              "name": "Details overview",
+              "text": "Details overview",
+              "visible": true,
+              "attributes": {},
+              "value": "",
+              "truncated": false
+            }
+          ],
+          "total": 1,
+          "complete": true,
+          "documentVersion": "after-2"
+        }
+      ]
+    },
+    {
+      "name": "insert-before-surviving-sibling",
+      "effect": {
+        "outcome": "verified",
+        "reason": "declared-popup-observed-after-completed-action",
+        "matched": [
+          "html > body:nth-of-type(1) > div:nth-of-type(1)"
+        ]
+      },
+      "before": {
+        "url": "about:blank",
+        "documentIdentity": "1791632750313.9:xes61ob2aut",
+        "nodes": [
+          {
+            "identity": "1791632750313.9:xes61ob2aut:node-1",
+            "popupSurface": {
+              "kind": "custom",
+              "position": "static",
+              "border": true,
+              "shadow": false,
+              "opaque": true
+            },
+            "selector": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+            "path": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+            "leaf": true,
+            "incidental": false,
+            "parentSelector": "html > body:nth-of-type(1)",
+            "tag": "button",
+            "name": "Open details",
+            "text": "Open details",
+            "visible": true,
+            "attributes": {},
+            "value": "",
+            "truncated": false
+          },
+          {
+            "identity": "1791632750313.9:xes61ob2aut:node-2",
+            "popupSurface": {
+              "kind": "custom",
+              "position": "static",
+              "border": false,
+              "shadow": false,
+              "opaque": false
+            },
+            "selector": "html > body:nth-of-type(1) > div:nth-of-type(1)",
+            "path": "html > body:nth-of-type(1) > div:nth-of-type(1)",
+            "leaf": true,
+            "incidental": false,
+            "parentSelector": "html > body:nth-of-type(1)",
+            "tag": "div",
+            "name": "Existing content",
+            "text": "Existing content",
+            "visible": true,
+            "attributes": {},
+            "truncated": false
+          }
+        ],
+        "total": 2,
+        "complete": true,
+        "documentVersion": "before"
+      },
+      "after": [
+        {
+          "url": "about:blank",
+          "documentIdentity": "1791632750313.9:xes61ob2aut",
+          "nodes": [
+            {
+              "identity": "1791632750313.9:xes61ob2aut:node-1",
+              "popupSurface": {
+                "kind": "custom",
+                "position": "static",
+                "border": true,
+                "shadow": false,
+                "opaque": true
+              },
+              "selector": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+              "path": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+              "leaf": true,
+              "incidental": false,
+              "parentSelector": "html > body:nth-of-type(1)",
+              "tag": "button",
+              "name": "Open details",
+              "text": "Open details",
+              "visible": true,
+              "attributes": {},
+              "value": "",
+              "truncated": false
+            },
+            {
+              "identity": "1791632750313.9:xes61ob2aut:node-3",
+              "popupSurface": {
+                "kind": "custom",
+                "position": "fixed",
+                "border": true,
+                "shadow": false,
+                "opaque": true
+              },
+              "selector": "html > body:nth-of-type(1) > div:nth-of-type(1)",
+              "path": "html > body:nth-of-type(1) > div:nth-of-type(1)",
+              "leaf": true,
+              "incidental": false,
+              "parentSelector": "html > body:nth-of-type(1)",
+              "tag": "div",
+              "name": "Details overview",
+              "text": "Details overview",
+              "visible": true,
+              "attributes": {},
+              "truncated": false
+            },
+            {
+              "identity": "1791632750313.9:xes61ob2aut:node-2",
+              "popupSurface": {
+                "kind": "custom",
+                "position": "static",
+                "border": false,
+                "shadow": false,
+                "opaque": false
+              },
+              "selector": "html > body:nth-of-type(1) > div:nth-of-type(2)",
+              "path": "html > body:nth-of-type(1) > div:nth-of-type(2)",
+              "leaf": true,
+              "incidental": false,
+              "parentSelector": "html > body:nth-of-type(1)",
+              "tag": "div",
+              "name": "Existing content",
+              "text": "Existing content",
+              "visible": true,
+              "attributes": {},
+              "truncated": false
+            }
+          ],
+          "total": 3,
+          "complete": true,
+          "documentVersion": "after-1"
+        },
+        {
+          "url": "about:blank",
+          "documentIdentity": "1791632750313.9:xes61ob2aut",
+          "nodes": [
+            {
+              "identity": "1791632750313.9:xes61ob2aut:node-1",
+              "popupSurface": {
+                "kind": "custom",
+                "position": "static",
+                "border": true,
+                "shadow": false,
+                "opaque": true
+              },
+              "selector": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+              "path": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+              "leaf": true,
+              "incidental": false,
+              "parentSelector": "html > body:nth-of-type(1)",
+              "tag": "button",
+              "name": "Open details",
+              "text": "Open details",
+              "visible": true,
+              "attributes": {},
+              "value": "",
+              "truncated": false
+            },
+            {
+              "identity": "1791632750313.9:xes61ob2aut:node-3",
+              "popupSurface": {
+                "kind": "custom",
+                "position": "fixed",
+                "border": true,
+                "shadow": false,
+                "opaque": true
+              },
+              "selector": "html > body:nth-of-type(1) > div:nth-of-type(1)",
+              "path": "html > body:nth-of-type(1) > div:nth-of-type(1)",
+              "leaf": true,
+              "incidental": false,
+              "parentSelector": "html > body:nth-of-type(1)",
+              "tag": "div",
+              "name": "Details overview",
+              "text": "Details overview",
+              "visible": true,
+              "attributes": {},
+              "truncated": false
+            },
+            {
+              "identity": "1791632750313.9:xes61ob2aut:node-2",
+              "popupSurface": {
+                "kind": "custom",
+                "position": "static",
+                "border": false,
+                "shadow": false,
+                "opaque": false
+              },
+              "selector": "html > body:nth-of-type(1) > div:nth-of-type(2)",
+              "path": "html > body:nth-of-type(1) > div:nth-of-type(2)",
+              "leaf": true,
+              "incidental": false,
+              "parentSelector": "html > body:nth-of-type(1)",
+              "tag": "div",
+              "name": "Existing content",
+              "text": "Existing content",
+              "visible": true,
+              "attributes": {},
+              "truncated": false
+            }
+          ],
+          "total": 3,
+          "complete": true,
+          "documentVersion": "after-2"
+        }
+      ]
+    },
+    {
+      "name": "replace-hidden-original-target",
+      "effect": {
+        "outcome": "unverified",
+        "reason": "popup-functional-node-replaced-or-unbound",
+        "matched": []
+      },
+      "before": {
+        "url": "about:blank",
+        "documentIdentity": "1791632750409.2:u5zwv67i6ii",
+        "nodes": [
+          {
+            "identity": "1791632750409.2:u5zwv67i6ii:node-1",
+            "popupSurface": {
+              "kind": "custom",
+              "position": "static",
+              "border": true,
+              "shadow": false,
+              "opaque": true
+            },
+            "selector": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+            "path": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+            "leaf": true,
+            "incidental": false,
+            "parentSelector": "html > body:nth-of-type(1)",
+            "tag": "button",
+            "name": "Open details",
+            "text": "Open details",
+            "visible": true,
+            "attributes": {},
+            "value": "",
+            "truncated": false
+          },
+          {
+            "identity": "1791632750409.2:u5zwv67i6ii:node-2",
+            "popupSurface": {
+              "kind": "custom",
+              "position": "fixed",
+              "border": true,
+              "shadow": false,
+              "opaque": true
+            },
+            "selector": "#panel",
+            "path": "html > body:nth-of-type(1) > div:nth-of-type(1)",
+            "leaf": true,
+            "incidental": false,
+            "parentSelector": "html > body:nth-of-type(1)",
+            "tag": "div",
+            "name": "Details overview",
+            "text": "Details overview",
+            "visible": false,
+            "attributes": {
+              "id": "panel"
+            },
+            "truncated": false
+          }
+        ],
+        "total": 2,
+        "complete": true,
+        "documentVersion": "before"
+      },
+      "after": [
+        {
+          "url": "about:blank",
+          "documentIdentity": "1791632750409.2:u5zwv67i6ii",
+          "nodes": [
+            {
+              "identity": "1791632750409.2:u5zwv67i6ii:node-1",
+              "popupSurface": {
+                "kind": "custom",
+                "position": "static",
+                "border": true,
+                "shadow": false,
+                "opaque": true
+              },
+              "selector": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+              "path": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+              "leaf": true,
+              "incidental": false,
+              "parentSelector": "html > body:nth-of-type(1)",
+              "tag": "button",
+              "name": "Open details",
+              "text": "Open details",
+              "visible": true,
+              "attributes": {},
+              "value": "",
+              "truncated": false
+            },
+            {
+              "identity": "1791632750409.2:u5zwv67i6ii:node-3",
+              "popupSurface": {
+                "kind": "custom",
+                "position": "fixed",
+                "border": true,
+                "shadow": false,
+                "opaque": true
+              },
+              "selector": "#panel",
+              "path": "html > body:nth-of-type(1) > div:nth-of-type(1)",
+              "leaf": true,
+              "incidental": false,
+              "parentSelector": "html > body:nth-of-type(1)",
+              "tag": "div",
+              "name": "Details overview",
+              "text": "Details overview",
+              "visible": true,
+              "attributes": {
+                "id": "panel"
+              },
+              "truncated": false
+            }
+          ],
+          "total": 2,
+          "complete": true,
+          "documentVersion": "after-1"
+        },
+        {
+          "url": "about:blank",
+          "documentIdentity": "1791632750409.2:u5zwv67i6ii",
+          "nodes": [
+            {
+              "identity": "1791632750409.2:u5zwv67i6ii:node-1",
+              "popupSurface": {
+                "kind": "custom",
+                "position": "static",
+                "border": true,
+                "shadow": false,
+                "opaque": true
+              },
+              "selector": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+              "path": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+              "leaf": true,
+              "incidental": false,
+              "parentSelector": "html > body:nth-of-type(1)",
+              "tag": "button",
+              "name": "Open details",
+              "text": "Open details",
+              "visible": true,
+              "attributes": {},
+              "value": "",
+              "truncated": false
+            },
+            {
+              "identity": "1791632750409.2:u5zwv67i6ii:node-3",
+              "popupSurface": {
+                "kind": "custom",
+                "position": "fixed",
+                "border": true,
+                "shadow": false,
+                "opaque": true
+              },
+              "selector": "#panel",
+              "path": "html > body:nth-of-type(1) > div:nth-of-type(1)",
+              "leaf": true,
+              "incidental": false,
+              "parentSelector": "html > body:nth-of-type(1)",
+              "tag": "div",
+              "name": "Details overview",
+              "text": "Details overview",
+              "visible": true,
+              "attributes": {
+                "id": "panel"
+              },
+              "truncated": false
+            }
+          ],
+          "total": 2,
+          "complete": true,
+          "documentVersion": "after-2"
+        }
+      ]
+    },
+    {
+      "name": "native-dialog-appears",
+      "effect": {
+        "outcome": "verified",
+        "reason": "declared-popup-observed-after-completed-action",
+        "matched": [
+          "html > body:nth-of-type(1) > dialog:nth-of-type(1)"
+        ]
+      },
+      "before": {
+        "url": "about:blank",
+        "documentIdentity": "1791632750505.1:h7nimnb8jsh",
+        "nodes": [
+          {
+            "identity": "1791632750505.1:h7nimnb8jsh:node-1",
+            "popupSurface": {
+              "kind": "custom",
+              "position": "static",
+              "border": true,
+              "shadow": false,
+              "opaque": true
+            },
+            "selector": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+            "path": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+            "leaf": true,
+            "incidental": false,
+            "parentSelector": "html > body:nth-of-type(1)",
+            "tag": "button",
+            "name": "Open details",
+            "text": "Open details",
+            "visible": true,
+            "attributes": {},
+            "value": "",
+            "truncated": false
+          },
+          {
+            "identity": "1791632750505.1:h7nimnb8jsh:node-2",
+            "popupSurface": {
+              "kind": "native",
+              "position": "absolute",
+              "border": true,
+              "shadow": false,
+              "opaque": true
+            },
+            "selector": "html > body:nth-of-type(1) > dialog:nth-of-type(1)",
+            "path": "html > body:nth-of-type(1) > dialog:nth-of-type(1)",
+            "leaf": true,
+            "incidental": false,
+            "parentSelector": "html > body:nth-of-type(1)",
+            "tag": "dialog",
+            "name": "Details overview",
+            "text": "Details overview",
+            "visible": false,
+            "attributes": {},
+            "truncated": false
+          }
+        ],
+        "total": 2,
+        "complete": true,
+        "documentVersion": "before"
+      },
+      "after": [
+        {
+          "url": "about:blank",
+          "documentIdentity": "1791632750505.1:h7nimnb8jsh",
+          "nodes": [
+            {
+              "identity": "1791632750505.1:h7nimnb8jsh:node-1",
+              "popupSurface": {
+                "kind": "custom",
+                "position": "static",
+                "border": true,
+                "shadow": false,
+                "opaque": true
+              },
+              "selector": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+              "path": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+              "leaf": true,
+              "incidental": false,
+              "parentSelector": "html > body:nth-of-type(1)",
+              "tag": "button",
+              "name": "Open details",
+              "text": "Open details",
+              "visible": true,
+              "attributes": {},
+              "value": "",
+              "truncated": false
+            },
+            {
+              "identity": "1791632750505.1:h7nimnb8jsh:node-2",
+              "popupSurface": {
+                "kind": "native",
+                "position": "fixed",
+                "border": true,
+                "shadow": false,
+                "opaque": true
+              },
+              "selector": "html > body:nth-of-type(1) > dialog:nth-of-type(1)",
+              "path": "html > body:nth-of-type(1) > dialog:nth-of-type(1)",
+              "leaf": true,
+              "incidental": false,
+              "parentSelector": "html > body:nth-of-type(1)",
+              "tag": "dialog",
+              "name": "Details overview",
+              "text": "Details overview",
+              "visible": true,
+              "attributes": {},
+              "truncated": false
+            }
+          ],
+          "total": 2,
+          "complete": true,
+          "documentVersion": "after-1"
+        },
+        {
+          "url": "about:blank",
+          "documentIdentity": "1791632750505.1:h7nimnb8jsh",
+          "nodes": [
+            {
+              "identity": "1791632750505.1:h7nimnb8jsh:node-1",
+              "popupSurface": {
+                "kind": "custom",
+                "position": "static",
+                "border": true,
+                "shadow": false,
+                "opaque": true
+              },
+              "selector": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+              "path": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+              "leaf": true,
+              "incidental": false,
+              "parentSelector": "html > body:nth-of-type(1)",
+              "tag": "button",
+              "name": "Open details",
+              "text": "Open details",
+              "visible": true,
+              "attributes": {},
+              "value": "",
+              "truncated": false
+            },
+            {
+              "identity": "1791632750505.1:h7nimnb8jsh:node-2",
+              "popupSurface": {
+                "kind": "native",
+                "position": "fixed",
+                "border": true,
+                "shadow": false,
+                "opaque": true
+              },
+              "selector": "html > body:nth-of-type(1) > dialog:nth-of-type(1)",
+              "path": "html > body:nth-of-type(1) > dialog:nth-of-type(1)",
+              "leaf": true,
+              "incidental": false,
+              "parentSelector": "html > body:nth-of-type(1)",
+              "tag": "dialog",
+              "name": "Details overview",
+              "text": "Details overview",
+              "visible": true,
+              "attributes": {},
+              "truncated": false
+            }
+          ],
+          "total": 2,
+          "complete": true,
+          "documentVersion": "after-2"
+        }
+      ]
+    }
+  ]
+}

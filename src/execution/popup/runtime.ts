@@ -44,7 +44,8 @@ export function createPopupRuntime(deps: PopupDeps) {
     functionalScope: 'separate-original-item-effects',
   }
   const attempted = new Set<string>(),
-    readActions = new Set<string>()
+    readActions = new Set<string>(),
+    refreshedFacts = new Set<string>()
   let before: PopupFrame | undefined,
     lastFacts = '',
     busy = false
@@ -204,6 +205,25 @@ export function createPopupRuntime(deps: PopupDeps) {
       if (state.status === 'measured') return snapshot()
       let frame = await deps.frame(false)
       deps.guard()
+      if (mode === 'refresh') {
+        const key = facts(frame)
+        if (refreshedFacts.has(key)) return handoff('popup-read-already-used-for-facts')
+        if (
+          state.reads >= POPUP_POLICY.maxReads ||
+          (deps.remaining().reads ?? Infinity) < 1 ||
+          deps.remaining().timeMs < 6000
+        )
+          return handoff('popup-read-budget')
+        refreshedFacts.add(key)
+        // frame(true) owns the external read lease; only count it locally here.
+        // The same action must not also trigger an automatic read below.
+        const action = state.attempts.at(-1)?.actionId
+        if (action) readActions.add(action)
+        state.reads++
+        frame = await deps.frame(true)
+        deps.guard()
+        refreshedFacts.add(facts(frame))
+      }
       if (!frame.reusable) return handoff('popup-unverifiable-state')
       state.evidenceRefs = [...new Set([...state.evidenceRefs, ...frame.evidenceRefs])]
       if (state.status === 'handoff' && lastFacts === facts(frame)) return snapshot()
@@ -237,9 +257,11 @@ export function createPopupRuntime(deps: PopupDeps) {
         )
           return handoff('popup-read-budget')
         readActions.add(action)
+        refreshedFacts.add(facts(frame))
         state.reads++
         frame = await deps.frame(true)
         deps.guard()
+        refreshedFacts.add(facts(frame))
         if (!frame.reusable) return handoff('popup-unverifiable-state')
         state.evidenceRefs = [...new Set([...state.evidenceRefs, ...frame.evidenceRefs])]
         if (frame.panels.some((p) => p.visible)) return await inspect(frame)
