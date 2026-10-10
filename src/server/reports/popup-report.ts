@@ -25,6 +25,28 @@ export function popupReport(
     receipt.evidenceRefs.length > 0 &&
     receipt.evidenceRefs.every((r) => readable.has(r))
   return {
+    ...(events.some((e) => e.type === 'popup:candidate-geometry')
+      ? {
+          candidateGeometry: events
+            .filter(
+              (e) =>
+                e.type === 'popup:candidate-geometry' &&
+                !issues.some((i) => i.startsWith('popup-')) &&
+                readable?.has(String(e.payload.receiptRef)) &&
+                e.evidenceRefs.length > 0 &&
+                e.evidenceRefs.every((ref) => readable.has(ref)),
+            )
+            .map((e) => ({
+              targetId: e.payload.targetId,
+              geometryVerdict: e.payload.geometryVerdict,
+              association: 'unconfirmed' as const,
+              reason: e.payload.reason,
+              receiptRef: e.payload.receiptRef,
+              scope:
+                'Candidate observation only; does not settle the requested item or count as an attributed defect.',
+            })),
+        }
+      : {}),
     revision: 'popup-viewport-1',
     taskId: state?.taskId ?? null,
     status: state?.status ?? 'not-started',

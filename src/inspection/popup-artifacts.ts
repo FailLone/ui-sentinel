@@ -12,12 +12,15 @@ export async function popupArtifactIssues(
 ) {
   if (!run.spec.uiContract?.popupCheck) return []
   const issues: string[] = []
-  for (const event of events.filter((e) => e.type === 'popup:measurement')) {
+  for (const event of events.filter(
+    (e) => e.type === 'popup:measurement' || e.type === 'popup:candidate-geometry',
+  )) {
     try {
+      const candidate = event.type === 'popup:candidate-geometry'
       const a = artifacts.find((a) => a.id === event.payload.receiptRef)
       if (
         !a ||
-        a.type !== 'popup-measurement' ||
+        a.type !== (candidate ? 'popup-candidate-geometry' : 'popup-measurement') ||
         !cleanEvidenceIntegrity(a.metadata?.evidenceIntegrity)
       )
         throw Error('popup-receipt-missing-or-intervened')
@@ -25,11 +28,12 @@ export async function popupArtifactIssues(
       if (
         hash(body) !== event.payload.receiptHash ||
         body.contractHash !== run.spec.uiContract.hash ||
-        body.revision !== 'popup-receipt-1' ||
+        body.revision !== (candidate ? 'popup-candidate-geometry-1' : 'popup-receipt-1') ||
         body.taskId !== event.payload.taskId ||
         body.targetId !== body.measurement.targetId ||
         hash(judgePopup(body.measurement.samples)) !== hash(body.measurement) ||
-        body.measurement.verdict !== event.payload.verdict
+        body.measurement.verdict !==
+          (candidate ? event.payload.geometryVerdict : event.payload.verdict)
       )
         throw Error('popup-receipt-invalid')
       if (
@@ -37,9 +41,10 @@ export async function popupArtifactIssues(
         !body.evidenceRefs.includes(body.screenshotRef)
       )
         throw Error('popup-screenshot-missing')
+      const frame = candidate ? body.frame : body.after
       if (
-        !body.after?.reusable ||
-        !body.after.panels.some((p: any) => p.id === body.targetId && p.visible) ||
+        !frame?.reusable ||
+        !frame.panels.some((p: any) => p.id === body.targetId && p.visible) ||
         body.evidenceRefs.length === 0 ||
         body.evidenceRefs.some((ref: string) => !artifacts.some((a) => a.id === ref))
       )
@@ -59,7 +64,24 @@ export async function popupArtifactIssues(
         )
           throw Error('popup-evidence-bytes-changed')
       }
-      if (body.actionId) {
+      if (candidate) {
+        const target = frame.panels.find((p: any) => p.id === body.targetId && p.visible)
+        if (
+          body.association !== 'unconfirmed' ||
+          event.payload.association !== 'unconfirmed' ||
+          body.actionId !== null ||
+          body.itemId !== null ||
+          event.payload.targetId !== body.targetId ||
+          body.policy !== 'popup-purpose-policy-2' ||
+          !target ||
+          target.unsupported.length ||
+          !event.evidenceRefs.includes(a.id) ||
+          body.evidenceRefs.some((ref: string) => !event.evidenceRefs.includes(ref)) ||
+          (body.measurement.verdict !== 'unknown' &&
+            hash(target) !== hash(body.measurement.samples[0]))
+        )
+          throw Error('popup-candidate-attribution-or-binding-invalid')
+      } else if (body.actionId) {
         const original = events.find(
           (e) =>
             e.type === 'interaction:generic-collected-v2' &&
@@ -84,7 +106,7 @@ export async function popupArtifactIssues(
           body.before.panels.some((p: any) => p.id === body.targetId && p.visible)
         )
           throw Error('popup-action-binding-invalid')
-      } else if (!body.after.panels.some((p: any) => p.id === body.targetId && p.kind !== 'custom'))
+      } else if (!frame.panels.some((p: any) => p.id === body.targetId && p.kind !== 'custom'))
         throw Error('popup-initial-target-ambiguous')
     } catch (error) {
       issues.push(

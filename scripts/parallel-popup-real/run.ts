@@ -230,7 +230,7 @@ export async function runBatch(
           (packet.stage === 'target'
             ? packet.candidates[0]?.id
             : packet.candidates.find((c: any) => /Details|More options/.test(c.description))?.id) ??
-          'handoff'
+          (packet.revision === 'popup-semantic-2' ? 'none' : 'handoff')
         return Response.json({
           id: 'synthetic-jev-' + packet.binding,
           model: 'typesafe/jev-1.13-20260917',

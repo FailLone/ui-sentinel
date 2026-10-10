@@ -40,16 +40,16 @@ curl http://localhost:4111/api/runs/RUN_ID/report
 # 支持范围
 
 - 最多 8 个当前合法入口、3 个动作、6 次 Jev 决策、4 次补充读取；这些限额进一步受原 run 预算、权限、取消和收尾预留限制。首次探索可在未知结果关系时进行；实际动作回执形成后才绑定弹窗，不重复点击获取关系。
-- 原生 dialog/popover、明确 dialog 角色、自定义 fixed 面板；包括两步嵌套入口。显式唯一实际 dialog 优先直接绑定，自定义浮层从实际观察到的有限候选中作语义选择，再测原节点。
+- 原生 dialog/popover、明确 dialog 角色、自定义 fixed 面板；包括两步嵌套入口。显式唯一实际 dialog 优先直接绑定，自定义浮层先在原读取/时间预算内最多预采样 2 个受支持候选，再询问目标关联；只有关联与原动作证据成立才形成归因测量。
 - 测量稳定固定面板的外框是否落在布局视口及真正生效的矩形 paint containment 内，容差 1 CSS px。普通祖先 overflow 不裁切脱离该祖先的 fixed 面板；正常内部滚动不会被当作越界。
 - 非 fixed 且可能经页面滚动到达、变换/缩放/旋转、动画、复杂绘制、跨 frame、shadow DOM、非矩形裁切、滤镜、新窗口、身份不稳定，以及原观察版本机制不能复用的动态/大页面为 unknown/交接。继承的保守版本检查目前还会拒绝包含图片、SVG、列表或部分原生输入等未跟踪表面的页面，不能宣传为任意网站支持。
 - 不判断所有内容可读性、遮挡顺序、键盘可达性、全站所有弹窗或业务效果；“未发现弹窗”不是通过。固定替身验证不证明真实 Jev 的语义准确率。
 
 # 决策、执行和证据契约
 
-`src/agent/popup/contract.ts` 的三个阶段分别是 entry、target、recovery。请求包含目标、当前绑定、有限候选 ID 与公开描述、已操作记录、证据引用和缺失事实。回答只能选实际候选、read 或 handoff；置信度低于 0.65、身份/分布不合法或状态过期时不派发。
+当前 `popup-semantic-2` 只问 entry（值得进行有界探索的控件）和 target（与刚完成动作关联的实际新浮层），每题仅实际候选及语义无匹配 `none`。读取与交接由程序按新事实、重复记录、权限和原预算决定。`popup-purpose-policy-2` 对入口采用唯一胜出且概率超过其余选项之和；目标另保留暂定 confidence ≥ 0.65。两者均未校准，confidence 不是正确率，功能仍默认关闭；旧 `popup-viewport-1` 协议保留兼容。详见[本轮政策依据与免费验证](../parallel-check-tasks/semantic-purpose-20261010/REPORT.md)。
 
-决策保存为 `popup-question` / `popup-suggestion`；实际动作仍产生原 `action:*`、item 和通用检查。`popup-measurement` 包含原 task/action/item、前后事实、真实节点 ID、两次稳定样本、目标时点截图、契约摘要及所有引用文件的 SHA256。历史读取重新计算几何结论、核对原动作顺序、文件所有权/完整性和字节摘要，损坏即取消子任务通过。
+决策保存为 `popup-question` / `popup-suggestion`，保留原 choice、完整 probabilities、n、confidence、政策版本和采纳原因。候选几何单独保存为 `popup-candidate-geometry`，action/item 均为空且 association=unconfirmed；关联不足时仅展示候选观察，不完成原事项、不提交已归因 finding。实际动作仍产生原 `action:*`、item 和通用检查。`popup-measurement` 包含原 task/action/item、前后事实、真实节点 ID、两次稳定样本、目标时点截图、契约摘要及所有引用文件的 SHA256。历史读取重新计算几何结论、核对原动作顺序、文件所有权/完整性和字节摘要，损坏即取消子任务通过。
 
 主 Agent 获得 `popupTask`，含目标、观察绑定、入口/浮层 ID、既有动作、证据、缺口、失败尝试和消耗；可调用同一 `popup_check` 工具的 continue 或 refresh。相同有效交接事实复用；确需新读取或节点状态变化时允许再次观察/决策。测完后保留历史结论，不把它重新宣称为当前页面状态。
 

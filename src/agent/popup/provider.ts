@@ -64,6 +64,7 @@ export function normalizePopupResponse(raw: any, packet: PopupQuestion) {
     binding: packet.binding,
     choice: a.choice,
     confidence: a.confidence,
+    ...(packet.revision === 'popup-semantic-2' ? { probabilities: a.probabilities } : {}),
   })
 }
 export function createPopupProvider(options: {

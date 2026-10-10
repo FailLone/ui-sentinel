@@ -112,6 +112,23 @@ function Coverage({ report, runId }: { report: UiScanReport; runId: string }) {
           {report.popupCheck.missing.length > 0 && (
             <p>尚不能确认目标弹窗或取得支持范围内的稳定测量，详见证据详情。</p>
           )}
+          {report.popupCheck.verdict === 'unknown' &&
+            !!report.popupCheck.candidateGeometry?.length && (
+              <div>
+                <p>已观察到候选浮层，但尚未确认与本次操作的关联；以下记录不计入已确认缺陷。</p>
+                {report.popupCheck.candidateGeometry.map((candidate) => (
+                  <p key={String(candidate.receiptRef)}>
+                    {candidate.geometryVerdict === 'fail'
+                      ? '候选浮层外框被裁切'
+                      : candidate.geometryVerdict === 'pass'
+                        ? '候选浮层外框未越界'
+                        : '候选浮层几何未验证'}
+                    {' · 关联未确认 · '}
+                    <a href={artifactUrl(runId, String(candidate.receiptRef))}>查看候选观察记录</a>
+                  </p>
+                ))}
+              </div>
+            )}
           <details>
             <summary>证据详情</summary>
             <p>{report.popupCheck.reason}</p>

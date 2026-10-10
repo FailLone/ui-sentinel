@@ -3857,6 +3857,10 @@ async function executeProfiledRun(
             popupExpected = undefined
           }
         },
+        consumeRead() {
+          guard()
+          delegation?.lease.consume('reads')
+        },
         measure: (id, expected) => popupNodes!.measure(id, signal, expected),
         screenshot: async () =>
           saveEvidence(
