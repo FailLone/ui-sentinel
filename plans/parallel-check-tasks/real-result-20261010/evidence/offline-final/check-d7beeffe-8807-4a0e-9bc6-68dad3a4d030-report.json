@@ -1,0 +1,5132 @@
+{
+  "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+  "status": "blocked",
+  "businessResult": "not-applicable",
+  "stopReason": "blocked",
+  "persistence": {
+    "status": "verified",
+    "issues": [],
+    "recordedStatus": "blocked",
+    "recordedBusinessResult": "not-applicable",
+    "recordedStopReason": "blocked",
+    "readConsistency": "single-read-transaction"
+  },
+  "conclusion": {
+    "reasonCode": "unverified-scope",
+    "reason": null,
+    "source": "persisted-evidence",
+    "supportedFindingIds": [],
+    "unresolvedFindingIds": []
+  },
+  "inspectionIntegrity": {
+    "status": "no-recorded-intervention",
+    "interventions": [],
+    "affectedArtifactIds": []
+  },
+  "findings": [],
+  "visualDiscovery": {
+    "enabled": false,
+    "algorithmVersion": "visual-focus-3"
+  },
+  "focusMeasurements": [],
+  "usage": {
+    "actions": 0,
+    "modelCalls": 1,
+    "elapsedMs": 1659,
+    "modelInputTokens": null,
+    "modelOutputTokens": null
+  },
+  "budget": {
+    "totalTimeoutMs": 162107,
+    "maxActions": 3,
+    "maxModelCalls": 3
+  },
+  "visual": {
+    "visionRequests": 0,
+    "inputTokens": null,
+    "outputTokens": null,
+    "costUsd": null,
+    "costStatus": "not-recorded"
+  },
+  "business": {
+    "status": "ui-scan-not-applicable",
+    "profileId": null,
+    "revision": null,
+    "hash": null,
+    "adapter": null,
+    "requirements": [],
+    "effects": null,
+    "environment": null,
+    "integrity": "not-applicable"
+  },
+  "uiScan": {
+    "popupCheck": {
+      "revision": "popup-viewport-1",
+      "taskId": "item-474e74e7-c608-48b7-a938-f020e01c20b8",
+      "status": "handoff",
+      "verdict": "unknown",
+      "reason": "popup-account-stopped",
+      "attempts": [],
+      "missing": [
+        "popup-account-stopped"
+      ],
+      "evidenceRefs": [
+        "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+        "c082ee8b-6af3-449f-9d58-79baa722cf32.json"
+      ],
+      "receiptRef": null,
+      "decisions": 1,
+      "reads": 0,
+      "scope": "Measured popup at the recorded state only; required/default checks remain independent."
+    },
+    "reportRevision": "ui-check-report-2",
+    "checkCounts": {
+      "effectUnspecifiedCount": 3,
+      "requiredEffectPendingCount": 0,
+      "genericIncompleteCount": 3,
+      "requiredEffectVerifiedCount": 0,
+      "requiredEffectFailedCount": 0,
+      "sourceUnresolvedCount": 0
+    },
+    "kind": "ui-scan",
+    "businessResult": "not-applicable",
+    "contract": {
+      "hash": "a7eaf037cd6e9ca07b4e7c390d1eae506c13f98c6f88dffbb0d7aaf9aa02c99f",
+      "integrity": "verified",
+      "requestedUrl": "http://127.0.0.1:62521/p/one",
+      "entryUrl": "http://127.0.0.1:62521/p/one",
+      "origin": "http://127.0.0.1:62521",
+      "goal": "检查弹窗是否超出视口。",
+      "goalSource": "user",
+      "checkPolicy": {
+        "revision": "default-check-contract-2",
+        "sourceProfile": "public-effect-sources-1",
+        "feedbackSampleOffsetsMs": [
+          0,
+          1000
+        ],
+        "maxExploratoryDispatches": 1,
+        "maxReadOnlyRecoveries": 2
+      },
+      "requestedGoal": "检查弹窗是否超出视口。",
+      "samplingPolicy": {
+        "revision": "bounded-ui-sampling-2",
+        "candidateLimit": 8,
+        "localSamplesPerVisitedPage": 3,
+        "navigationSamplesPerRun": 1,
+        "goalMode": "focus"
+      },
+      "session": "anonymous",
+      "scope": {
+        "maxPages": 1,
+        "maxDepth": 0
+      },
+      "access": {
+        "resourceOrigins": [],
+        "dataOrigins": []
+      },
+      "businessWrites": "none",
+      "availableCapabilities": [
+        "entry-observation",
+        "automatic-rules",
+        "local-interaction",
+        "bounded-navigation",
+        "dom-investigation",
+        "temporal-investigation",
+        "get-data-request"
+      ],
+      "unsupportedCapabilities": [
+        "authenticated-session",
+        "business-write",
+        "post-data-query",
+        "graphql-post",
+        "file-upload",
+        "file-download",
+        "new-window",
+        "websocket",
+        "service-worker"
+      ],
+      "schemaVersion": "1",
+      "policyRevision": "url-scan-default-4"
+    },
+    "inspection": {
+      "sampling": [
+        {
+          "url": "http://127.0.0.1:62521/p/one",
+          "registrationItemId": "item-ac4160e1-38fe-4386-a1be-ead30ab5c9b1",
+          "required": 3,
+          "pool": [
+            "item-0eb4aa09-ee11-41e3-afb9-3d77acfac75e",
+            "item-6c87fb69-0b22-4266-a18c-e416f63f1176",
+            "item-eda214c7-bcb6-4a5b-a420-ee0fc1310cd0"
+          ],
+          "candidates": [
+            {
+              "itemId": "item-0eb4aa09-ee11-41e3-afb9-3d77acfac75e",
+              "ref": "e2",
+              "description": "button \"Sort alphabetically\"",
+              "category": "local-interaction",
+              "snapshotId": "s1"
+            },
+            {
+              "itemId": "item-6c87fb69-0b22-4266-a18c-e416f63f1176",
+              "ref": "e3",
+              "description": "button \"Change density\"",
+              "category": "local-interaction",
+              "snapshotId": "s1"
+            },
+            {
+              "itemId": "item-eda214c7-bcb6-4a5b-a420-ee0fc1310cd0",
+              "ref": "e4",
+              "description": "button \"Details\"",
+              "category": "local-interaction",
+              "snapshotId": "s1"
+            }
+          ],
+          "selected": [
+            "item-0eb4aa09-ee11-41e3-afb9-3d77acfac75e",
+            "item-6c87fb69-0b22-4266-a18c-e416f63f1176",
+            "item-eda214c7-bcb6-4a5b-a420-ee0fc1310cd0"
+          ],
+          "truncated": 0,
+          "notChecked": []
+        }
+      ],
+      "coverage": "partial",
+      "counts": {
+        "total": 12,
+        "selected": 9,
+        "pending": 4,
+        "verified": 5,
+        "failed": 0,
+        "unverified": 3,
+        "excluded": 0
+      },
+      "items": [
+        {
+          "itemId": "item-aa499d51-e4f2-40b7-b869-6218f77dc951",
+          "category": "investigation",
+          "url": "http://127.0.0.1:62521/p/one",
+          "status": "verified",
+          "selected": true,
+          "basis": "default-sampling:entry-registration",
+          "targetSource": "executor",
+          "reasonCode": null,
+          "detail": "Public default policy registered from the first clean observed candidate pool",
+          "evidenceRefs": [
+            "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+            "c082ee8b-6af3-449f-9d58-79baa722cf32.json"
+          ],
+          "ruleRevision": null,
+          "parentNavigation": null
+        },
+        {
+          "itemId": "item-aa75f0f8-1d80-4dd3-bf45-a9b3a5ea4bae",
+          "category": "entry-observation",
+          "url": "http://127.0.0.1:62521/p/one",
+          "status": "verified",
+          "selected": true,
+          "basis": "the entry document was navigated and observed",
+          "targetSource": "executor",
+          "reasonCode": null,
+          "detail": "observed http://127.0.0.1:62521/p/one",
+          "evidenceRefs": [
+            "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+            "c082ee8b-6af3-449f-9d58-79baa722cf32.json"
+          ],
+          "ruleRevision": null,
+          "parentNavigation": null
+        },
+        {
+          "checks": {
+            "revision": "item-checks-2",
+            "sourceReview": {
+              "state": "sealed",
+              "revision": "public-effect-sources-1",
+              "refs": [
+                "847f7552-6d91-4a2c-b96e-2c96e7e9ec82.png",
+                "bd9d9b33-6b54-4a6b-9757-58c75b33d44d.json"
+              ],
+              "reasons": [],
+              "goalHash": "5ee09e025e6bd0d777a9f356b3f908cc946942f6d786553d5bdceb0643b1b0dc",
+              "contractHash": "a7eaf037cd6e9ca07b4e7c390d1eae506c13f98c6f88dffbb0d7aaf9aa02c99f",
+              "hash": "5f494f93d6186099c841c03100a9550c1f7dd3459486faccad638e269edecfea",
+              "ruleChecks": [
+                {
+                  "ruleId": "overlay-blocking",
+                  "revision": "2.1.0",
+                  "contentHash": "c3acb6191549a481e1dbacd22655f6bde36459f78a0301e6f2ad2d88aa8ef424",
+                  "approvalRef": "installed-registry:overlay-blocking:2.1.0",
+                  "scopeItemIds": [
+                    "item-6d1f5d7c-45a5-420a-a13c-aa4249dcb529"
+                  ],
+                  "evidenceRefs": [
+                    "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+                    "c082ee8b-6af3-449f-9d58-79baa722cf32.json"
+                  ]
+                }
+              ]
+            },
+            "generic": {
+              "state": "pending",
+              "evidenceRefs": [],
+              "eventIds": []
+            },
+            "effects": []
+          },
+          "itemId": "item-0eb4aa09-ee11-41e3-afb9-3d77acfac75e",
+          "category": "local-interaction",
+          "url": "http://127.0.0.1:62521/p/one",
+          "status": "pending",
+          "selected": true,
+          "basis": "observed candidate: button \"Sort alphabetically\"",
+          "targetSource": "executor",
+          "reasonCode": "v2-mandatory-checks-incomplete",
+          "detail": "Public sources reviewed before operation; missing semantics are not invented",
+          "evidenceRefs": [
+            "847f7552-6d91-4a2c-b96e-2c96e7e9ec82.png",
+            "bd9d9b33-6b54-4a6b-9757-58c75b33d44d.json"
+          ],
+          "ruleRevision": null,
+          "parentNavigation": null
+        },
+        {
+          "checks": {
+            "revision": "item-checks-2",
+            "sourceReview": {
+              "state": "sealed",
+              "revision": "public-effect-sources-1",
+              "refs": [
+                "847f7552-6d91-4a2c-b96e-2c96e7e9ec82.png",
+                "bd9d9b33-6b54-4a6b-9757-58c75b33d44d.json"
+              ],
+              "reasons": [],
+              "goalHash": "5ee09e025e6bd0d777a9f356b3f908cc946942f6d786553d5bdceb0643b1b0dc",
+              "contractHash": "a7eaf037cd6e9ca07b4e7c390d1eae506c13f98c6f88dffbb0d7aaf9aa02c99f",
+              "hash": "5f494f93d6186099c841c03100a9550c1f7dd3459486faccad638e269edecfea",
+              "ruleChecks": [
+                {
+                  "ruleId": "overlay-blocking",
+                  "revision": "2.1.0",
+                  "contentHash": "c3acb6191549a481e1dbacd22655f6bde36459f78a0301e6f2ad2d88aa8ef424",
+                  "approvalRef": "installed-registry:overlay-blocking:2.1.0",
+                  "scopeItemIds": [
+                    "item-6d1f5d7c-45a5-420a-a13c-aa4249dcb529"
+                  ],
+                  "evidenceRefs": [
+                    "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+                    "c082ee8b-6af3-449f-9d58-79baa722cf32.json"
+                  ]
+                }
+              ]
+            },
+            "generic": {
+              "state": "pending",
+              "evidenceRefs": [],
+              "eventIds": []
+            },
+            "effects": []
+          },
+          "itemId": "item-6c87fb69-0b22-4266-a18c-e416f63f1176",
+          "category": "local-interaction",
+          "url": "http://127.0.0.1:62521/p/one",
+          "status": "pending",
+          "selected": true,
+          "basis": "observed candidate: button \"Change density\"",
+          "targetSource": "executor",
+          "reasonCode": "v2-mandatory-checks-incomplete",
+          "detail": "Public sources reviewed before operation; missing semantics are not invented",
+          "evidenceRefs": [
+            "847f7552-6d91-4a2c-b96e-2c96e7e9ec82.png",
+            "bd9d9b33-6b54-4a6b-9757-58c75b33d44d.json"
+          ],
+          "ruleRevision": null,
+          "parentNavigation": null
+        },
+        {
+          "checks": {
+            "revision": "item-checks-2",
+            "sourceReview": {
+              "state": "sealed",
+              "revision": "public-effect-sources-1",
+              "refs": [
+                "847f7552-6d91-4a2c-b96e-2c96e7e9ec82.png",
+                "bd9d9b33-6b54-4a6b-9757-58c75b33d44d.json"
+              ],
+              "reasons": [],
+              "goalHash": "5ee09e025e6bd0d777a9f356b3f908cc946942f6d786553d5bdceb0643b1b0dc",
+              "contractHash": "a7eaf037cd6e9ca07b4e7c390d1eae506c13f98c6f88dffbb0d7aaf9aa02c99f",
+              "hash": "5f494f93d6186099c841c03100a9550c1f7dd3459486faccad638e269edecfea",
+              "ruleChecks": [
+                {
+                  "ruleId": "overlay-blocking",
+                  "revision": "2.1.0",
+                  "contentHash": "c3acb6191549a481e1dbacd22655f6bde36459f78a0301e6f2ad2d88aa8ef424",
+                  "approvalRef": "installed-registry:overlay-blocking:2.1.0",
+                  "scopeItemIds": [
+                    "item-6d1f5d7c-45a5-420a-a13c-aa4249dcb529"
+                  ],
+                  "evidenceRefs": [
+                    "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+                    "c082ee8b-6af3-449f-9d58-79baa722cf32.json"
+                  ]
+                }
+              ]
+            },
+            "generic": {
+              "state": "pending",
+              "evidenceRefs": [],
+              "eventIds": []
+            },
+            "effects": []
+          },
+          "itemId": "item-eda214c7-bcb6-4a5b-a420-ee0fc1310cd0",
+          "category": "local-interaction",
+          "url": "http://127.0.0.1:62521/p/one",
+          "status": "pending",
+          "selected": true,
+          "basis": "observed candidate: button \"Details\"",
+          "targetSource": "executor",
+          "reasonCode": "v2-mandatory-checks-incomplete",
+          "detail": "Public sources reviewed before operation; missing semantics are not invented",
+          "evidenceRefs": [
+            "847f7552-6d91-4a2c-b96e-2c96e7e9ec82.png",
+            "bd9d9b33-6b54-4a6b-9757-58c75b33d44d.json"
+          ],
+          "ruleRevision": null,
+          "parentNavigation": null
+        },
+        {
+          "itemId": "item-ac4160e1-38fe-4386-a1be-ead30ab5c9b1",
+          "category": "investigation",
+          "url": "http://127.0.0.1:62521/p/one",
+          "status": "verified",
+          "selected": true,
+          "basis": "default-sampling:local:http://127.0.0.1:62521/p/one",
+          "targetSource": "executor",
+          "reasonCode": null,
+          "detail": "Frozen public sample selected: item-0eb4aa09-ee11-41e3-afb9-3d77acfac75e,item-6c87fb69-0b22-4266-a18c-e416f63f1176,item-eda214c7-bcb6-4a5b-a420-ee0fc1310cd0; target effects remain separate selected obligations",
+          "evidenceRefs": [
+            "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+            "c082ee8b-6af3-449f-9d58-79baa722cf32.json"
+          ],
+          "ruleRevision": null,
+          "parentNavigation": null
+        },
+        {
+          "itemId": "item-6d1f5d7c-45a5-420a-a13c-aa4249dcb529",
+          "category": "automatic-check",
+          "url": "http://127.0.0.1:62521/p/one",
+          "status": "verified",
+          "selected": true,
+          "basis": "automatic rule overlay-blocking applies to the observed state",
+          "targetSource": "executor",
+          "reasonCode": null,
+          "detail": "overlay-blocking verdict: pass",
+          "evidenceRefs": [
+            "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+            "c082ee8b-6af3-449f-9d58-79baa722cf32.json"
+          ],
+          "ruleRevision": "2.1.0",
+          "parentNavigation": null
+        },
+        {
+          "itemId": "item-14881771-1e96-4318-9f3c-b24f85de1904",
+          "category": "automatic-check",
+          "url": "http://127.0.0.1:62521/p/one",
+          "status": "unverified",
+          "selected": false,
+          "basis": "automatic rule control-text-disappearance applies to the observed state",
+          "targetSource": "executor",
+          "reasonCode": "control-text-supported-scope-limit",
+          "detail": "control-text-disappearance verdict: unknown",
+          "evidenceRefs": [
+            "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+            "c082ee8b-6af3-449f-9d58-79baa722cf32.json",
+            "c355ac01-1471-4d7b-ae2c-eef1e06c2d3e.json"
+          ],
+          "ruleRevision": "0.1.0",
+          "parentNavigation": null
+        },
+        {
+          "itemId": "item-1e031f80-a68e-4114-8c1d-eab2dc3cb2ad",
+          "category": "automatic-check",
+          "url": "http://127.0.0.1:62521/p/one",
+          "status": "unverified",
+          "selected": false,
+          "basis": "automatic rule control-text-clipping applies to the observed state",
+          "targetSource": "executor",
+          "reasonCode": "control-layout-supported-scope-limit",
+          "detail": "control-text-clipping verdict: unknown",
+          "evidenceRefs": [
+            "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+            "c082ee8b-6af3-449f-9d58-79baa722cf32.json",
+            "8262fe61-939a-431d-a932-5864215f9cdf.json"
+          ],
+          "ruleRevision": "0.1.0",
+          "parentNavigation": null
+        },
+        {
+          "itemId": "item-316a906b-8371-42eb-8b92-5dcad5f3ec81",
+          "category": "automatic-check",
+          "url": "http://127.0.0.1:62521/p/one",
+          "status": "unverified",
+          "selected": false,
+          "basis": "automatic rule control-text-overlap applies to the observed state",
+          "targetSource": "executor",
+          "reasonCode": "control-layout-supported-scope-limit",
+          "detail": "control-text-overlap verdict: unknown",
+          "evidenceRefs": [
+            "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+            "c082ee8b-6af3-449f-9d58-79baa722cf32.json",
+            "8262fe61-939a-431d-a932-5864215f9cdf.json"
+          ],
+          "ruleRevision": "0.1.0",
+          "parentNavigation": null
+        },
+        {
+          "itemId": "item-9fd8b95a-98a0-431f-97e3-51e0b156dd3e",
+          "category": "investigation",
+          "url": "http://127.0.0.1:62521/p/one",
+          "status": "verified",
+          "selected": true,
+          "basis": "default-checks:page-source-review:http://127.0.0.1:62521/p/one",
+          "targetSource": "executor",
+          "reasonCode": null,
+          "detail": "Bounded source observation completeness, not functional correctness",
+          "evidenceRefs": [
+            "847f7552-6d91-4a2c-b96e-2c96e7e9ec82.png",
+            "bd9d9b33-6b54-4a6b-9757-58c75b33d44d.json"
+          ],
+          "ruleRevision": null,
+          "parentNavigation": null
+        },
+        {
+          "itemId": "item-474e74e7-c608-48b7-a938-f020e01c20b8",
+          "category": "investigation",
+          "url": "http://127.0.0.1:62521/p/one",
+          "status": "pending",
+          "selected": true,
+          "basis": "popup-viewport-1: bounded popup viewport subtask",
+          "targetSource": "executor",
+          "reasonCode": null,
+          "detail": null,
+          "evidenceRefs": [],
+          "ruleRevision": null,
+          "parentNavigation": null
+        }
+      ],
+      "gaps": [
+        {
+          "itemId": "item-0eb4aa09-ee11-41e3-afb9-3d77acfac75e",
+          "category": "local-interaction",
+          "status": "pending",
+          "reason": "v2-mandatory-checks-incomplete",
+          "reasonCode": "v2-mandatory-checks-incomplete"
+        },
+        {
+          "itemId": "item-6c87fb69-0b22-4266-a18c-e416f63f1176",
+          "category": "local-interaction",
+          "status": "pending",
+          "reason": "v2-mandatory-checks-incomplete",
+          "reasonCode": "v2-mandatory-checks-incomplete"
+        },
+        {
+          "itemId": "item-eda214c7-bcb6-4a5b-a420-ee0fc1310cd0",
+          "category": "local-interaction",
+          "status": "pending",
+          "reason": "v2-mandatory-checks-incomplete",
+          "reasonCode": "v2-mandatory-checks-incomplete"
+        },
+        {
+          "itemId": "item-474e74e7-c608-48b7-a938-f020e01c20b8",
+          "category": "investigation",
+          "status": "pending",
+          "reason": "selected-not-resolved",
+          "reasonCode": null
+        }
+      ],
+      "candidates": {
+        "categories": [
+          "local-interaction"
+        ],
+        "detail": "3 operable control(s) offered by the observation",
+        "truncated": 0,
+        "observedAt": "2026-10-10T03:49:24.254Z"
+      },
+      "unsupported": [
+        {
+          "dimension": "authenticated-session",
+          "reasonCode": "unsupported-release-capability"
+        },
+        {
+          "dimension": "business-write",
+          "reasonCode": "unsupported-release-capability"
+        },
+        {
+          "dimension": "post-data-query",
+          "reasonCode": "unsupported-release-capability"
+        },
+        {
+          "dimension": "graphql-post",
+          "reasonCode": "unsupported-release-capability"
+        },
+        {
+          "dimension": "file-upload",
+          "reasonCode": "unsupported-release-capability"
+        },
+        {
+          "dimension": "file-download",
+          "reasonCode": "unsupported-release-capability"
+        },
+        {
+          "dimension": "new-window",
+          "reasonCode": "unsupported-release-capability"
+        },
+        {
+          "dimension": "websocket",
+          "reasonCode": "unsupported-release-capability"
+        },
+        {
+          "dimension": "service-worker",
+          "reasonCode": "unsupported-release-capability"
+        },
+        {
+          "dimension": "control-text-clipping:coverage",
+          "reasonCode": "bounded-layout-measurement-incomplete"
+        },
+        {
+          "dimension": "control-text-overlap:coverage",
+          "reasonCode": "bounded-layout-measurement-incomplete"
+        },
+        {
+          "dimension": "control-text-disappearance:coverage",
+          "reasonCode": "bounded-text-measurement-incomplete"
+        },
+        {
+          "dimension": "control-text-disappearance",
+          "reasonCode": "control-text-supported-scope-limit"
+        },
+        {
+          "dimension": "control-text-clipping",
+          "reasonCode": "control-layout-supported-scope-limit"
+        },
+        {
+          "dimension": "control-text-overlap",
+          "reasonCode": "control-layout-supported-scope-limit"
+        }
+      ]
+    },
+    "proof": {
+      "version": "inspection-proof-4",
+      "kind": "ui-scan",
+      "claim": "unverified-scope",
+      "outcome": "blocked",
+      "contractHash": "a7eaf037cd6e9ca07b4e7c390d1eae506c13f98c6f88dffbb0d7aaf9aa02c99f",
+      "scopeDigest": "b56e005fa69cd7af583527ce5873fb5827695320466545937087f97a513213fa",
+      "specDigest": "d70d8a486eb3a103d502ed270481c4c70d6ce5c3b8e8790035848b8d197f59c8",
+      "items": [
+        {
+          "itemId": "item-aa499d51-e4f2-40b7-b869-6218f77dc951",
+          "category": "investigation",
+          "status": "verified",
+          "reasonCode": null,
+          "evidenceRefs": [
+            "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+            "c082ee8b-6af3-449f-9d58-79baa722cf32.json"
+          ],
+          "basis": "default-sampling:entry-registration"
+        },
+        {
+          "itemId": "item-aa75f0f8-1d80-4dd3-bf45-a9b3a5ea4bae",
+          "category": "entry-observation",
+          "status": "verified",
+          "reasonCode": null,
+          "evidenceRefs": [
+            "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+            "c082ee8b-6af3-449f-9d58-79baa722cf32.json"
+          ],
+          "basis": "the entry document was navigated and observed"
+        },
+        {
+          "itemId": "item-0eb4aa09-ee11-41e3-afb9-3d77acfac75e",
+          "category": "local-interaction",
+          "status": "pending",
+          "reasonCode": "v2-mandatory-checks-incomplete",
+          "evidenceRefs": [
+            "847f7552-6d91-4a2c-b96e-2c96e7e9ec82.png",
+            "bd9d9b33-6b54-4a6b-9757-58c75b33d44d.json"
+          ],
+          "basis": "observed candidate: button \"Sort alphabetically\"",
+          "checks": {
+            "revision": "item-checks-2",
+            "sourceReview": {
+              "state": "sealed",
+              "revision": "public-effect-sources-1",
+              "refs": [
+                "847f7552-6d91-4a2c-b96e-2c96e7e9ec82.png",
+                "bd9d9b33-6b54-4a6b-9757-58c75b33d44d.json"
+              ],
+              "reasons": [],
+              "page": {
+                "url": "http://127.0.0.1:62521/p/one",
+                "nodes": [
+                  {
+                    "selector": "html > body:nth-of-type(1) > h1:nth-of-type(1)",
+                    "path": "html > body:nth-of-type(1) > h1:nth-of-type(1)",
+                    "leaf": true,
+                    "incidental": false,
+                    "parentSelector": "html > body:nth-of-type(1)",
+                    "tag": "h1",
+                    "name": "Workspace",
+                    "text": "Workspace",
+                    "visible": true,
+                    "attributes": {},
+                    "truncated": false
+                  },
+                  {
+                    "selector": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+                    "path": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+                    "leaf": true,
+                    "incidental": false,
+                    "parentSelector": "html > body:nth-of-type(1)",
+                    "tag": "button",
+                    "name": "Sort alphabetically",
+                    "text": "Sort alphabetically",
+                    "visible": true,
+                    "attributes": {},
+                    "value": "",
+                    "truncated": false
+                  },
+                  {
+                    "selector": "html > body:nth-of-type(1) > button:nth-of-type(2)",
+                    "path": "html > body:nth-of-type(1) > button:nth-of-type(2)",
+                    "leaf": true,
+                    "incidental": false,
+                    "parentSelector": "html > body:nth-of-type(1)",
+                    "tag": "button",
+                    "name": "Change density",
+                    "text": "Change density",
+                    "visible": true,
+                    "attributes": {},
+                    "value": "",
+                    "truncated": false
+                  },
+                  {
+                    "selector": "html > body:nth-of-type(1) > button:nth-of-type(3)",
+                    "path": "html > body:nth-of-type(1) > button:nth-of-type(3)",
+                    "leaf": true,
+                    "incidental": false,
+                    "parentSelector": "html > body:nth-of-type(1)",
+                    "tag": "button",
+                    "name": "Details",
+                    "text": "Details",
+                    "visible": true,
+                    "attributes": {},
+                    "value": "",
+                    "truncated": false
+                  },
+                  {
+                    "selector": "html > body:nth-of-type(1) > dialog:nth-of-type(1)",
+                    "path": "html > body:nth-of-type(1) > dialog:nth-of-type(1)",
+                    "leaf": true,
+                    "incidental": false,
+                    "parentSelector": "html > body:nth-of-type(1)",
+                    "tag": "dialog",
+                    "name": "Details overview",
+                    "text": "Details overview",
+                    "visible": false,
+                    "attributes": {},
+                    "truncated": false
+                  }
+                ],
+                "total": 5,
+                "complete": true,
+                "documentVersion": "88ef43b0bc5b10104204428092be1bfa7c137930a6e1df7c4c38c1a4a6121660"
+              },
+              "goalHash": "5ee09e025e6bd0d777a9f356b3f908cc946942f6d786553d5bdceb0643b1b0dc",
+              "contractHash": "a7eaf037cd6e9ca07b4e7c390d1eae506c13f98c6f88dffbb0d7aaf9aa02c99f",
+              "hash": "5f494f93d6186099c841c03100a9550c1f7dd3459486faccad638e269edecfea",
+              "ruleChecks": [
+                {
+                  "ruleId": "overlay-blocking",
+                  "revision": "2.1.0",
+                  "contentHash": "c3acb6191549a481e1dbacd22655f6bde36459f78a0301e6f2ad2d88aa8ef424",
+                  "approvalRef": "installed-registry:overlay-blocking:2.1.0",
+                  "scopeItemIds": [
+                    "item-6d1f5d7c-45a5-420a-a13c-aa4249dcb529"
+                  ],
+                  "evidenceRefs": [
+                    "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+                    "c082ee8b-6af3-449f-9d58-79baa722cf32.json"
+                  ]
+                }
+              ]
+            },
+            "generic": {
+              "state": "pending",
+              "evidenceRefs": [],
+              "eventIds": []
+            },
+            "effects": []
+          }
+        },
+        {
+          "itemId": "item-6c87fb69-0b22-4266-a18c-e416f63f1176",
+          "category": "local-interaction",
+          "status": "pending",
+          "reasonCode": "v2-mandatory-checks-incomplete",
+          "evidenceRefs": [
+            "847f7552-6d91-4a2c-b96e-2c96e7e9ec82.png",
+            "bd9d9b33-6b54-4a6b-9757-58c75b33d44d.json"
+          ],
+          "basis": "observed candidate: button \"Change density\"",
+          "checks": {
+            "revision": "item-checks-2",
+            "sourceReview": {
+              "state": "sealed",
+              "revision": "public-effect-sources-1",
+              "refs": [
+                "847f7552-6d91-4a2c-b96e-2c96e7e9ec82.png",
+                "bd9d9b33-6b54-4a6b-9757-58c75b33d44d.json"
+              ],
+              "reasons": [],
+              "page": {
+                "url": "http://127.0.0.1:62521/p/one",
+                "nodes": [
+                  {
+                    "selector": "html > body:nth-of-type(1) > h1:nth-of-type(1)",
+                    "path": "html > body:nth-of-type(1) > h1:nth-of-type(1)",
+                    "leaf": true,
+                    "incidental": false,
+                    "parentSelector": "html > body:nth-of-type(1)",
+                    "tag": "h1",
+                    "name": "Workspace",
+                    "text": "Workspace",
+                    "visible": true,
+                    "attributes": {},
+                    "truncated": false
+                  },
+                  {
+                    "selector": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+                    "path": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+                    "leaf": true,
+                    "incidental": false,
+                    "parentSelector": "html > body:nth-of-type(1)",
+                    "tag": "button",
+                    "name": "Sort alphabetically",
+                    "text": "Sort alphabetically",
+                    "visible": true,
+                    "attributes": {},
+                    "value": "",
+                    "truncated": false
+                  },
+                  {
+                    "selector": "html > body:nth-of-type(1) > button:nth-of-type(2)",
+                    "path": "html > body:nth-of-type(1) > button:nth-of-type(2)",
+                    "leaf": true,
+                    "incidental": false,
+                    "parentSelector": "html > body:nth-of-type(1)",
+                    "tag": "button",
+                    "name": "Change density",
+                    "text": "Change density",
+                    "visible": true,
+                    "attributes": {},
+                    "value": "",
+                    "truncated": false
+                  },
+                  {
+                    "selector": "html > body:nth-of-type(1) > button:nth-of-type(3)",
+                    "path": "html > body:nth-of-type(1) > button:nth-of-type(3)",
+                    "leaf": true,
+                    "incidental": false,
+                    "parentSelector": "html > body:nth-of-type(1)",
+                    "tag": "button",
+                    "name": "Details",
+                    "text": "Details",
+                    "visible": true,
+                    "attributes": {},
+                    "value": "",
+                    "truncated": false
+                  },
+                  {
+                    "selector": "html > body:nth-of-type(1) > dialog:nth-of-type(1)",
+                    "path": "html > body:nth-of-type(1) > dialog:nth-of-type(1)",
+                    "leaf": true,
+                    "incidental": false,
+                    "parentSelector": "html > body:nth-of-type(1)",
+                    "tag": "dialog",
+                    "name": "Details overview",
+                    "text": "Details overview",
+                    "visible": false,
+                    "attributes": {},
+                    "truncated": false
+                  }
+                ],
+                "total": 5,
+                "complete": true,
+                "documentVersion": "88ef43b0bc5b10104204428092be1bfa7c137930a6e1df7c4c38c1a4a6121660"
+              },
+              "goalHash": "5ee09e025e6bd0d777a9f356b3f908cc946942f6d786553d5bdceb0643b1b0dc",
+              "contractHash": "a7eaf037cd6e9ca07b4e7c390d1eae506c13f98c6f88dffbb0d7aaf9aa02c99f",
+              "hash": "5f494f93d6186099c841c03100a9550c1f7dd3459486faccad638e269edecfea",
+              "ruleChecks": [
+                {
+                  "ruleId": "overlay-blocking",
+                  "revision": "2.1.0",
+                  "contentHash": "c3acb6191549a481e1dbacd22655f6bde36459f78a0301e6f2ad2d88aa8ef424",
+                  "approvalRef": "installed-registry:overlay-blocking:2.1.0",
+                  "scopeItemIds": [
+                    "item-6d1f5d7c-45a5-420a-a13c-aa4249dcb529"
+                  ],
+                  "evidenceRefs": [
+                    "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+                    "c082ee8b-6af3-449f-9d58-79baa722cf32.json"
+                  ]
+                }
+              ]
+            },
+            "generic": {
+              "state": "pending",
+              "evidenceRefs": [],
+              "eventIds": []
+            },
+            "effects": []
+          }
+        },
+        {
+          "itemId": "item-eda214c7-bcb6-4a5b-a420-ee0fc1310cd0",
+          "category": "local-interaction",
+          "status": "pending",
+          "reasonCode": "v2-mandatory-checks-incomplete",
+          "evidenceRefs": [
+            "847f7552-6d91-4a2c-b96e-2c96e7e9ec82.png",
+            "bd9d9b33-6b54-4a6b-9757-58c75b33d44d.json"
+          ],
+          "basis": "observed candidate: button \"Details\"",
+          "checks": {
+            "revision": "item-checks-2",
+            "sourceReview": {
+              "state": "sealed",
+              "revision": "public-effect-sources-1",
+              "refs": [
+                "847f7552-6d91-4a2c-b96e-2c96e7e9ec82.png",
+                "bd9d9b33-6b54-4a6b-9757-58c75b33d44d.json"
+              ],
+              "reasons": [],
+              "page": {
+                "url": "http://127.0.0.1:62521/p/one",
+                "nodes": [
+                  {
+                    "selector": "html > body:nth-of-type(1) > h1:nth-of-type(1)",
+                    "path": "html > body:nth-of-type(1) > h1:nth-of-type(1)",
+                    "leaf": true,
+                    "incidental": false,
+                    "parentSelector": "html > body:nth-of-type(1)",
+                    "tag": "h1",
+                    "name": "Workspace",
+                    "text": "Workspace",
+                    "visible": true,
+                    "attributes": {},
+                    "truncated": false
+                  },
+                  {
+                    "selector": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+                    "path": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+                    "leaf": true,
+                    "incidental": false,
+                    "parentSelector": "html > body:nth-of-type(1)",
+                    "tag": "button",
+                    "name": "Sort alphabetically",
+                    "text": "Sort alphabetically",
+                    "visible": true,
+                    "attributes": {},
+                    "value": "",
+                    "truncated": false
+                  },
+                  {
+                    "selector": "html > body:nth-of-type(1) > button:nth-of-type(2)",
+                    "path": "html > body:nth-of-type(1) > button:nth-of-type(2)",
+                    "leaf": true,
+                    "incidental": false,
+                    "parentSelector": "html > body:nth-of-type(1)",
+                    "tag": "button",
+                    "name": "Change density",
+                    "text": "Change density",
+                    "visible": true,
+                    "attributes": {},
+                    "value": "",
+                    "truncated": false
+                  },
+                  {
+                    "selector": "html > body:nth-of-type(1) > button:nth-of-type(3)",
+                    "path": "html > body:nth-of-type(1) > button:nth-of-type(3)",
+                    "leaf": true,
+                    "incidental": false,
+                    "parentSelector": "html > body:nth-of-type(1)",
+                    "tag": "button",
+                    "name": "Details",
+                    "text": "Details",
+                    "visible": true,
+                    "attributes": {},
+                    "value": "",
+                    "truncated": false
+                  },
+                  {
+                    "selector": "html > body:nth-of-type(1) > dialog:nth-of-type(1)",
+                    "path": "html > body:nth-of-type(1) > dialog:nth-of-type(1)",
+                    "leaf": true,
+                    "incidental": false,
+                    "parentSelector": "html > body:nth-of-type(1)",
+                    "tag": "dialog",
+                    "name": "Details overview",
+                    "text": "Details overview",
+                    "visible": false,
+                    "attributes": {},
+                    "truncated": false
+                  }
+                ],
+                "total": 5,
+                "complete": true,
+                "documentVersion": "88ef43b0bc5b10104204428092be1bfa7c137930a6e1df7c4c38c1a4a6121660"
+              },
+              "goalHash": "5ee09e025e6bd0d777a9f356b3f908cc946942f6d786553d5bdceb0643b1b0dc",
+              "contractHash": "a7eaf037cd6e9ca07b4e7c390d1eae506c13f98c6f88dffbb0d7aaf9aa02c99f",
+              "hash": "5f494f93d6186099c841c03100a9550c1f7dd3459486faccad638e269edecfea",
+              "ruleChecks": [
+                {
+                  "ruleId": "overlay-blocking",
+                  "revision": "2.1.0",
+                  "contentHash": "c3acb6191549a481e1dbacd22655f6bde36459f78a0301e6f2ad2d88aa8ef424",
+                  "approvalRef": "installed-registry:overlay-blocking:2.1.0",
+                  "scopeItemIds": [
+                    "item-6d1f5d7c-45a5-420a-a13c-aa4249dcb529"
+                  ],
+                  "evidenceRefs": [
+                    "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+                    "c082ee8b-6af3-449f-9d58-79baa722cf32.json"
+                  ]
+                }
+              ]
+            },
+            "generic": {
+              "state": "pending",
+              "evidenceRefs": [],
+              "eventIds": []
+            },
+            "effects": []
+          }
+        },
+        {
+          "itemId": "item-ac4160e1-38fe-4386-a1be-ead30ab5c9b1",
+          "category": "investigation",
+          "status": "verified",
+          "reasonCode": null,
+          "evidenceRefs": [
+            "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+            "c082ee8b-6af3-449f-9d58-79baa722cf32.json"
+          ],
+          "basis": "default-sampling:local:http://127.0.0.1:62521/p/one"
+        },
+        {
+          "itemId": "item-6d1f5d7c-45a5-420a-a13c-aa4249dcb529",
+          "category": "automatic-check",
+          "status": "verified",
+          "reasonCode": null,
+          "evidenceRefs": [
+            "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+            "c082ee8b-6af3-449f-9d58-79baa722cf32.json"
+          ],
+          "basis": "automatic rule overlay-blocking applies to the observed state"
+        },
+        {
+          "itemId": "item-14881771-1e96-4318-9f3c-b24f85de1904",
+          "category": "automatic-check",
+          "status": "unverified",
+          "reasonCode": "control-text-supported-scope-limit",
+          "evidenceRefs": [
+            "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+            "c082ee8b-6af3-449f-9d58-79baa722cf32.json",
+            "c355ac01-1471-4d7b-ae2c-eef1e06c2d3e.json"
+          ],
+          "basis": "automatic rule control-text-disappearance applies to the observed state"
+        },
+        {
+          "itemId": "item-1e031f80-a68e-4114-8c1d-eab2dc3cb2ad",
+          "category": "automatic-check",
+          "status": "unverified",
+          "reasonCode": "control-layout-supported-scope-limit",
+          "evidenceRefs": [
+            "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+            "c082ee8b-6af3-449f-9d58-79baa722cf32.json",
+            "8262fe61-939a-431d-a932-5864215f9cdf.json"
+          ],
+          "basis": "automatic rule control-text-clipping applies to the observed state"
+        },
+        {
+          "itemId": "item-316a906b-8371-42eb-8b92-5dcad5f3ec81",
+          "category": "automatic-check",
+          "status": "unverified",
+          "reasonCode": "control-layout-supported-scope-limit",
+          "evidenceRefs": [
+            "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+            "c082ee8b-6af3-449f-9d58-79baa722cf32.json",
+            "8262fe61-939a-431d-a932-5864215f9cdf.json"
+          ],
+          "basis": "automatic rule control-text-overlap applies to the observed state"
+        },
+        {
+          "itemId": "item-9fd8b95a-98a0-431f-97e3-51e0b156dd3e",
+          "category": "investigation",
+          "status": "verified",
+          "reasonCode": null,
+          "evidenceRefs": [
+            "847f7552-6d91-4a2c-b96e-2c96e7e9ec82.png",
+            "bd9d9b33-6b54-4a6b-9757-58c75b33d44d.json"
+          ],
+          "basis": "default-checks:page-source-review:http://127.0.0.1:62521/p/one"
+        },
+        {
+          "itemId": "item-474e74e7-c608-48b7-a938-f020e01c20b8",
+          "category": "investigation",
+          "status": "pending",
+          "reasonCode": null,
+          "evidenceRefs": [],
+          "basis": "popup-viewport-1: bounded popup viewport subtask"
+        }
+      ],
+      "counts": {
+        "total": 12,
+        "verified": 5,
+        "failed": 0,
+        "unverified": 3,
+        "excluded": 0
+      },
+      "unsupported": [
+        "authenticated-session",
+        "business-write",
+        "post-data-query",
+        "graphql-post",
+        "file-upload",
+        "file-download",
+        "new-window",
+        "websocket",
+        "service-worker",
+        "control-text-clipping:coverage",
+        "control-text-overlap:coverage",
+        "control-text-disappearance:coverage",
+        "control-text-disappearance",
+        "control-text-clipping",
+        "control-text-overlap"
+      ],
+      "decidedAt": "2026-10-10T03:49:25.502Z",
+      "blockerEvidence": [],
+      "hash": "a1589a3174cf4af82d8b1c1820a423f7baa6405852f4ae603dc8e81896b1603d"
+    },
+    "proofVerified": true,
+    "finishReasonCode": "unverified-scope",
+    "interventions": []
+  },
+  "uiRules": [
+    {
+      "eventId": "evt-8505c353-66a5-4449-80ad-6d21e5db6ee8",
+      "artifactRef": "51624c09-c4d3-43ad-b529-9f8035abf1f3.json",
+      "available": true,
+      "body": {
+        "version": "ui-rule-observation-1",
+        "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+        "url": "http://127.0.0.1:62521/p/one",
+        "observedAt": "2026-10-10T03:49:24.149Z",
+        "screenshotSha256": "2687a2875f9357f144e4b9c03f8dd6ac9526aa62385d5c39699f47cb57c311fd",
+        "screenshotRef": "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+        "evidenceRefs": [
+          "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+          "c082ee8b-6af3-449f-9d58-79baa722cf32.json",
+          "c355ac01-1471-4d7b-ae2c-eef1e06c2d3e.json",
+          "ca1fe854-1209-4a62-957e-20397cb001ce.json",
+          "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+          "8262fe61-939a-431d-a932-5864215f9cdf.json"
+        ],
+        "layout": {
+          "results": [
+            {
+              "ruleId": "control-text-clipping",
+              "verdict": "unknown",
+              "rows": [
+                {
+                  "selector": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+                  "text": "Sort alphabetically",
+                  "verdict": "unknown",
+                  "reason": "unsupported-flat-colors; unsupported-control-paint; control-border",
+                  "basis": "sole-visible-native-action-text; local presentation only",
+                  "relatedSelectors": [],
+                  "relatedRuleIds": []
+                },
+                {
+                  "selector": "html > body:nth-of-type(1) > button:nth-of-type(2)",
+                  "text": "Change density",
+                  "verdict": "unknown",
+                  "reason": "unsupported-flat-colors; unsupported-control-paint; control-border",
+                  "basis": "sole-visible-native-action-text; local presentation only",
+                  "relatedSelectors": [],
+                  "relatedRuleIds": []
+                },
+                {
+                  "selector": "html > body:nth-of-type(1) > button:nth-of-type(3)",
+                  "text": "Details",
+                  "verdict": "unknown",
+                  "reason": "unsupported-flat-colors; unsupported-control-paint; control-border",
+                  "basis": "sole-visible-native-action-text; local presentation only",
+                  "relatedSelectors": [],
+                  "relatedRuleIds": []
+                }
+              ]
+            },
+            {
+              "ruleId": "control-text-overlap",
+              "verdict": "unknown",
+              "rows": [
+                {
+                  "selector": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+                  "text": "Sort alphabetically",
+                  "verdict": "unknown",
+                  "reason": "unsupported-flat-colors; unsupported-control-paint; control-border",
+                  "basis": "coexistence-not-established",
+                  "relatedSelectors": [],
+                  "relatedRuleIds": []
+                },
+                {
+                  "selector": "html > body:nth-of-type(1) > button:nth-of-type(2)",
+                  "text": "Change density",
+                  "verdict": "unknown",
+                  "reason": "unsupported-flat-colors; unsupported-control-paint; control-border",
+                  "basis": "coexistence-not-established",
+                  "relatedSelectors": [],
+                  "relatedRuleIds": []
+                },
+                {
+                  "selector": "html > body:nth-of-type(1) > button:nth-of-type(3)",
+                  "text": "Details",
+                  "verdict": "unknown",
+                  "reason": "unsupported-flat-colors; unsupported-control-paint; control-border",
+                  "basis": "coexistence-not-established",
+                  "relatedSelectors": [],
+                  "relatedRuleIds": []
+                }
+              ]
+            }
+          ],
+          "totalObserved": 3,
+          "omitted": 0,
+          "enumerationComplete": true,
+          "evidenceDigests": {
+            "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png": "2687a2875f9357f144e4b9c03f8dd6ac9526aa62385d5c39699f47cb57c311fd",
+            "8262fe61-939a-431d-a932-5864215f9cdf.json": "7a37aecc209c9523152650c81be641684ab5572f2333a354febec60e476b15db"
+          }
+        },
+        "timing": {
+          "sharedObservationMs": 14.672374999998283,
+          "prepareMs": 8.247457999998005,
+          "completeMs": 56.8961249999993,
+          "evaluateMs": 17.288375000000087,
+          "addedMs": 82.43320799999856
+        },
+        "controls": {
+          "total": 3,
+          "enumerated": 3,
+          "omitted": 0,
+          "unknown": 3,
+          "rows": [
+            {
+              "selector": "html > body:nth-child(2) > button:nth-child(3)",
+              "text": "Sort alphabetically",
+              "verdict": "unknown",
+              "reason": "native-appearance-unmeasured; canvas-background-unresolved"
+            },
+            {
+              "selector": "html > body:nth-child(2) > button:nth-child(4)",
+              "text": "Change density",
+              "verdict": "unknown",
+              "reason": "native-appearance-unmeasured; canvas-background-unresolved"
+            },
+            {
+              "selector": "html > body:nth-child(2) > button:nth-child(5)",
+              "text": "Details",
+              "verdict": "unknown",
+              "reason": "native-appearance-unmeasured; canvas-background-unresolved"
+            }
+          ]
+        },
+        "images": {
+          "total": 0,
+          "enumerated": 0,
+          "omitted": 0,
+          "unknown": 0,
+          "rows": []
+        }
+      }
+    }
+  ],
+  "events": [
+    {
+      "id": "evt-caacd0b7-a828-4842-8ea2-92297065dde8",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 0,
+      "type": "run:delegated-from",
+      "timestamp": "2026-10-10T03:49:23.889Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "parentRunId": "run-60c6c8bc-eeca-4e67-bab8-845b368babee",
+        "childTaskId": "d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+        "taskHash": "7efaec4c4463006b52d284ab18c2b6a1962aafcf6f03076e3a5779aed97c2b8f",
+        "parentContractHash": "02ace5e5aaa35efcd67308aa5556f28b4503baa736507d5ba067192d50a6b71b"
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-987b11ea-434f-467e-a05b-58264cdbd489",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 1,
+      "type": "scope:item-created",
+      "timestamp": "2026-10-10T03:49:23.891Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "itemId": "item-aa499d51-e4f2-40b7-b869-6218f77dc951",
+        "category": "investigation",
+        "pageId": "contract",
+        "stateId": "contract",
+        "url": "http://127.0.0.1:62521/p/one",
+        "observationVersion": "contract",
+        "documentVersion": "contract",
+        "basis": "default-sampling:entry-registration",
+        "targetSource": "executor",
+        "selected": true,
+        "selectionBasis": "default-sampling:entry-registration",
+        "status": "pending",
+        "reasonCode": null,
+        "detail": null,
+        "evidenceRefs": [],
+        "eventIds": [],
+        "ruleRevision": null,
+        "parentNavigation": null,
+        "createdAt": "2026-10-10T03:49:23.890Z",
+        "resolvedAt": null
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-773c1939-75d7-4d08-8a6d-c9b4f004ce77",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 2,
+      "type": "run:started",
+      "timestamp": "2026-10-10T03:49:23.892Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "goal": "检查弹窗是否超出视口。",
+        "versions": {
+          "node": "v24.21.0",
+          "mastra": "1.67.0",
+          "playwright": "1.63.0",
+          "midscene": "unavailable",
+          "lockHash": "917980b6c33a6475a027ddc66920d33293d6499d2b8134fca31a69f5f6e284da",
+          "toolContract": "29",
+          "telemetryContract": "2",
+          "arenaContract": "minimum-1"
+        },
+        "models": {
+          "agent": "openai/deepseek/deepseek-v4.1-flash",
+          "vision": "disabled"
+        },
+        "budget": {
+          "totalTimeoutMs": 162107,
+          "maxActions": 3,
+          "maxModelCalls": 3
+        },
+        "requestPolicy": {
+          "timeoutMs": 60000,
+          "maxRetries": 0,
+          "finalizingMaxCalls": 2
+        },
+        "tokenUsage": "unavailable-until-reported"
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-2d97cfc8-ead8-49ca-b206-db5903e54918",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 3,
+      "type": "network:policy",
+      "timestamp": "2026-10-10T03:49:24.096Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "policyRevision": "url-scan-network-1",
+        "contractHash": "a7eaf037cd6e9ca07b4e7c390d1eae506c13f98c6f88dffbb0d7aaf9aa02c99f",
+        "dnsMode": "system",
+        "effectiveScope": {
+          "maxPages": 1,
+          "maxDepth": 0
+        },
+        "sharedParentBudget": true,
+        "entryOrigin": "http://127.0.0.1:62521",
+        "resourceOrigins": [],
+        "dataOrigins": []
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-24081536-b217-49db-9202-a78d6a15f18d",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 4,
+      "type": "scope:item-updated",
+      "timestamp": "2026-10-10T03:49:24.097Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "unsupported": {
+          "dimension": "authenticated-session",
+          "reasonCode": "unsupported-release-capability",
+          "observedAt": "2026-10-10T03:49:24.096Z"
+        }
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-8daf9c68-1756-4ab0-8378-a373b5182f36",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 5,
+      "type": "scope:item-updated",
+      "timestamp": "2026-10-10T03:49:24.097Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "unsupported": {
+          "dimension": "business-write",
+          "reasonCode": "unsupported-release-capability",
+          "observedAt": "2026-10-10T03:49:24.097Z"
+        }
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-2116f8d9-ee9e-4c32-b8ce-cfd088e2e291",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 6,
+      "type": "scope:item-updated",
+      "timestamp": "2026-10-10T03:49:24.098Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "unsupported": {
+          "dimension": "post-data-query",
+          "reasonCode": "unsupported-release-capability",
+          "observedAt": "2026-10-10T03:49:24.098Z"
+        }
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-7c5460b3-68bb-42b4-8eda-67e9d7713964",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 7,
+      "type": "scope:item-updated",
+      "timestamp": "2026-10-10T03:49:24.099Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "unsupported": {
+          "dimension": "graphql-post",
+          "reasonCode": "unsupported-release-capability",
+          "observedAt": "2026-10-10T03:49:24.098Z"
+        }
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-c35ca361-9c48-46a4-9d7f-42f74ed10ce2",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 8,
+      "type": "scope:item-updated",
+      "timestamp": "2026-10-10T03:49:24.099Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "unsupported": {
+          "dimension": "file-upload",
+          "reasonCode": "unsupported-release-capability",
+          "observedAt": "2026-10-10T03:49:24.099Z"
+        }
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-76302ed2-df61-4795-abc7-cdaf130b41bb",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 9,
+      "type": "scope:item-updated",
+      "timestamp": "2026-10-10T03:49:24.100Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "unsupported": {
+          "dimension": "file-download",
+          "reasonCode": "unsupported-release-capability",
+          "observedAt": "2026-10-10T03:49:24.100Z"
+        }
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-087eda50-0c2f-489b-bd5b-089cdfc87f64",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 10,
+      "type": "scope:item-updated",
+      "timestamp": "2026-10-10T03:49:24.100Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "unsupported": {
+          "dimension": "new-window",
+          "reasonCode": "unsupported-release-capability",
+          "observedAt": "2026-10-10T03:49:24.100Z"
+        }
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-fbf37e20-7b55-4352-8980-abab2e8b8210",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 11,
+      "type": "scope:item-updated",
+      "timestamp": "2026-10-10T03:49:24.101Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "unsupported": {
+          "dimension": "websocket",
+          "reasonCode": "unsupported-release-capability",
+          "observedAt": "2026-10-10T03:49:24.101Z"
+        }
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-01c0931c-8e6b-4cd1-b4bd-2023ff57cdaf",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 12,
+      "type": "scope:item-updated",
+      "timestamp": "2026-10-10T03:49:24.101Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "unsupported": {
+          "dimension": "service-worker",
+          "reasonCode": "unsupported-release-capability",
+          "observedAt": "2026-10-10T03:49:24.101Z"
+        }
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-8f3acc1e-5df7-4ea8-960b-b80892d0b5b1",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 13,
+      "type": "network:decision",
+      "timestamp": "2026-10-10T03:49:24.106Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "requestId": "interception-job-1.0",
+        "actionId": null,
+        "method": "GET",
+        "url": "http://127.0.0.1:62521/p/one",
+        "destination": "document",
+        "redirectFrom": null,
+        "policyRevision": "url-scan-network-1",
+        "allow": true,
+        "reasonCode": "allowed",
+        "dnsMode": "system",
+        "networkStage": "complete",
+        "resolvedAddresses": [
+          "127.0.0.1"
+        ],
+        "selectedAddress": "127.0.0.1",
+        "connectedAddress": "127.0.0.1",
+        "elapsedMs": 1
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-9f6d193d-44c3-47c1-97c8-ea01f1270e08",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 14,
+      "type": "page:observed",
+      "timestamp": "2026-10-10T03:49:24.230Z",
+      "stepId": "initial",
+      "actionId": null,
+      "payload": {
+        "snapshotRef": "c082ee8b-6af3-449f-9d58-79baa722cf32.json",
+        "url": "http://127.0.0.1:62521/p/one",
+        "observedAt": "2026-10-10T03:49:24.149Z",
+        "observeSeq": 1,
+        "a11yBytes": 107
+      },
+      "evidenceRefs": [
+        "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+        "c082ee8b-6af3-449f-9d58-79baa722cf32.json"
+      ]
+    },
+    {
+      "id": "evt-aa0a3a9c-bea9-40fb-848b-c04d17a7332f",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 15,
+      "type": "scope:item-created",
+      "timestamp": "2026-10-10T03:49:24.246Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "itemId": "item-aa75f0f8-1d80-4dd3-bf45-a9b3a5ea4bae",
+        "category": "entry-observation",
+        "pageId": "s1",
+        "stateId": "s1",
+        "url": "http://127.0.0.1:62521/p/one",
+        "observationVersion": "88ef43b0bc5b10104204428092be1bfa7c137930a6e1df7c4c38c1a4a6121660",
+        "documentVersion": "88ef43b0bc5b10104204428092be1bfa7c137930a6e1df7c4c38c1a4a6121660",
+        "basis": "the entry document was navigated and observed",
+        "targetSource": "executor",
+        "selected": true,
+        "selectionBasis": "the entry document was navigated and observed",
+        "status": "pending",
+        "reasonCode": null,
+        "detail": null,
+        "evidenceRefs": [],
+        "eventIds": [],
+        "ruleRevision": null,
+        "parentNavigation": null,
+        "createdAt": "2026-10-10T03:49:24.246Z",
+        "resolvedAt": null
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-21912ce7-a47c-4c7d-9e2b-9f251d792acb",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 16,
+      "type": "scope:item-updated",
+      "timestamp": "2026-10-10T03:49:24.247Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "itemId": "item-aa75f0f8-1d80-4dd3-bf45-a9b3a5ea4bae",
+        "status": "verified",
+        "reasonCode": null,
+        "detail": "observed http://127.0.0.1:62521/p/one",
+        "evidenceRefs": [
+          "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+          "c082ee8b-6af3-449f-9d58-79baa722cf32.json"
+        ],
+        "eventIds": [],
+        "resolvedAt": "2026-10-10T03:49:24.246Z"
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-63f40e3d-8ec9-4208-b9f0-d3db87afcdce",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 17,
+      "type": "scope:item-created",
+      "timestamp": "2026-10-10T03:49:24.248Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "itemId": "item-0eb4aa09-ee11-41e3-afb9-3d77acfac75e",
+        "category": "local-interaction",
+        "pageId": "s1",
+        "stateId": "s1",
+        "url": "http://127.0.0.1:62521/p/one",
+        "observationVersion": "88ef43b0bc5b10104204428092be1bfa7c137930a6e1df7c4c38c1a4a6121660",
+        "documentVersion": "88ef43b0bc5b10104204428092be1bfa7c137930a6e1df7c4c38c1a4a6121660",
+        "basis": "observed candidate: button \"Sort alphabetically\"",
+        "targetSource": "executor",
+        "selected": false,
+        "selectionBasis": null,
+        "checks": {
+          "revision": "item-checks-2",
+          "sourceReview": {
+            "state": "pending",
+            "revision": "public-effect-sources-1",
+            "refs": [],
+            "hash": "",
+            "reasons": []
+          },
+          "generic": {
+            "state": "pending",
+            "evidenceRefs": [],
+            "eventIds": []
+          },
+          "effects": []
+        },
+        "status": "pending",
+        "reasonCode": null,
+        "detail": null,
+        "evidenceRefs": [],
+        "eventIds": [],
+        "ruleRevision": null,
+        "parentNavigation": null,
+        "createdAt": "2026-10-10T03:49:24.246Z",
+        "resolvedAt": null
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-c0eacf76-e853-4808-98a4-73005cefb07e",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 18,
+      "type": "scope:item-created",
+      "timestamp": "2026-10-10T03:49:24.248Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "itemId": "item-6c87fb69-0b22-4266-a18c-e416f63f1176",
+        "category": "local-interaction",
+        "pageId": "s1",
+        "stateId": "s1",
+        "url": "http://127.0.0.1:62521/p/one",
+        "observationVersion": "88ef43b0bc5b10104204428092be1bfa7c137930a6e1df7c4c38c1a4a6121660",
+        "documentVersion": "88ef43b0bc5b10104204428092be1bfa7c137930a6e1df7c4c38c1a4a6121660",
+        "basis": "observed candidate: button \"Change density\"",
+        "targetSource": "executor",
+        "selected": false,
+        "selectionBasis": null,
+        "checks": {
+          "revision": "item-checks-2",
+          "sourceReview": {
+            "state": "pending",
+            "revision": "public-effect-sources-1",
+            "refs": [],
+            "hash": "",
+            "reasons": []
+          },
+          "generic": {
+            "state": "pending",
+            "evidenceRefs": [],
+            "eventIds": []
+          },
+          "effects": []
+        },
+        "status": "pending",
+        "reasonCode": null,
+        "detail": null,
+        "evidenceRefs": [],
+        "eventIds": [],
+        "ruleRevision": null,
+        "parentNavigation": null,
+        "createdAt": "2026-10-10T03:49:24.246Z",
+        "resolvedAt": null
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-252e3e06-a5b8-46d9-80ac-e06bcf64c48b",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 19,
+      "type": "scope:item-created",
+      "timestamp": "2026-10-10T03:49:24.249Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "itemId": "item-eda214c7-bcb6-4a5b-a420-ee0fc1310cd0",
+        "category": "local-interaction",
+        "pageId": "s1",
+        "stateId": "s1",
+        "url": "http://127.0.0.1:62521/p/one",
+        "observationVersion": "88ef43b0bc5b10104204428092be1bfa7c137930a6e1df7c4c38c1a4a6121660",
+        "documentVersion": "88ef43b0bc5b10104204428092be1bfa7c137930a6e1df7c4c38c1a4a6121660",
+        "basis": "observed candidate: button \"Details\"",
+        "targetSource": "executor",
+        "selected": false,
+        "selectionBasis": null,
+        "checks": {
+          "revision": "item-checks-2",
+          "sourceReview": {
+            "state": "pending",
+            "revision": "public-effect-sources-1",
+            "refs": [],
+            "hash": "",
+            "reasons": []
+          },
+          "generic": {
+            "state": "pending",
+            "evidenceRefs": [],
+            "eventIds": []
+          },
+          "effects": []
+        },
+        "status": "pending",
+        "reasonCode": null,
+        "detail": null,
+        "evidenceRefs": [],
+        "eventIds": [],
+        "ruleRevision": null,
+        "parentNavigation": null,
+        "createdAt": "2026-10-10T03:49:24.246Z",
+        "resolvedAt": null
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-94c97a4e-3814-477d-b2a0-38647de38ec9",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 20,
+      "type": "scope:item-created",
+      "timestamp": "2026-10-10T03:49:24.249Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "itemId": "item-ac4160e1-38fe-4386-a1be-ead30ab5c9b1",
+        "category": "investigation",
+        "pageId": "s1",
+        "stateId": "s1",
+        "url": "http://127.0.0.1:62521/p/one",
+        "observationVersion": "88ef43b0bc5b10104204428092be1bfa7c137930a6e1df7c4c38c1a4a6121660",
+        "documentVersion": "88ef43b0bc5b10104204428092be1bfa7c137930a6e1df7c4c38c1a4a6121660",
+        "basis": "default-sampling:local:http://127.0.0.1:62521/p/one",
+        "targetSource": "executor",
+        "selected": true,
+        "selectionBasis": "default-sampling:local:http://127.0.0.1:62521/p/one",
+        "status": "pending",
+        "reasonCode": null,
+        "detail": null,
+        "evidenceRefs": [],
+        "eventIds": [],
+        "ruleRevision": null,
+        "parentNavigation": null,
+        "createdAt": "2026-10-10T03:49:24.249Z",
+        "resolvedAt": null
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-3f81f997-2b81-4e9d-b490-3ce4ba807f0d",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 21,
+      "type": "scope:sampling-frozen",
+      "timestamp": "2026-10-10T03:49:24.250Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "url": "http://127.0.0.1:62521/p/one",
+        "itemId": "item-ac4160e1-38fe-4386-a1be-ead30ab5c9b1",
+        "pool": [
+          "item-0eb4aa09-ee11-41e3-afb9-3d77acfac75e",
+          "item-6c87fb69-0b22-4266-a18c-e416f63f1176",
+          "item-eda214c7-bcb6-4a5b-a420-ee0fc1310cd0"
+        ],
+        "count": 3,
+        "refs": [
+          "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+          "c082ee8b-6af3-449f-9d58-79baa722cf32.json"
+        ],
+        "defaultSelected": {},
+        "policy": {
+          "revision": "bounded-ui-sampling-2",
+          "candidateLimit": 8,
+          "localSamplesPerVisitedPage": 3,
+          "navigationSamplesPerRun": 1,
+          "goalMode": "focus"
+        },
+        "snapshotId": "s1",
+        "candidates": [
+          {
+            "itemId": "item-0eb4aa09-ee11-41e3-afb9-3d77acfac75e",
+            "ref": "e2",
+            "description": "button \"Sort alphabetically\"",
+            "category": "local-interaction",
+            "snapshotId": "s1"
+          },
+          {
+            "itemId": "item-6c87fb69-0b22-4266-a18c-e416f63f1176",
+            "ref": "e3",
+            "description": "button \"Change density\"",
+            "category": "local-interaction",
+            "snapshotId": "s1"
+          },
+          {
+            "itemId": "item-eda214c7-bcb6-4a5b-a420-ee0fc1310cd0",
+            "ref": "e4",
+            "description": "button \"Details\"",
+            "category": "local-interaction",
+            "snapshotId": "s1"
+          }
+        ],
+        "truncated": 0
+      },
+      "evidenceRefs": [
+        "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+        "c082ee8b-6af3-449f-9d58-79baa722cf32.json"
+      ]
+    },
+    {
+      "id": "evt-158dcbc7-527f-4b03-b13d-bb14a65b5d98",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 22,
+      "type": "scope:sampling-default-selected",
+      "timestamp": "2026-10-10T03:49:24.250Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "registrationItemId": "item-ac4160e1-38fe-4386-a1be-ead30ab5c9b1",
+        "itemIds": [
+          "item-0eb4aa09-ee11-41e3-afb9-3d77acfac75e",
+          "item-6c87fb69-0b22-4266-a18c-e416f63f1176",
+          "item-eda214c7-bcb6-4a5b-a420-ee0fc1310cd0"
+        ],
+        "source": "fixed-public-default-sample"
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-e5b20dba-421f-4876-a60c-cafdc34e9e97",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 23,
+      "type": "scope:item-updated",
+      "timestamp": "2026-10-10T03:49:24.251Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "itemId": "item-aa499d51-e4f2-40b7-b869-6218f77dc951",
+        "status": "verified",
+        "reasonCode": null,
+        "detail": "Public default policy registered from the first clean observed candidate pool",
+        "evidenceRefs": [
+          "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+          "c082ee8b-6af3-449f-9d58-79baa722cf32.json"
+        ],
+        "eventIds": [],
+        "resolvedAt": "2026-10-10T03:49:24.250Z"
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-9cb17f68-0636-4710-a84d-f09620e50575",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 24,
+      "type": "scope:item-updated",
+      "timestamp": "2026-10-10T03:49:24.251Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "itemId": "item-0eb4aa09-ee11-41e3-afb9-3d77acfac75e",
+        "selected": true,
+        "selectionBasis": "public default policy: all local candidates within limit"
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-7bfd2342-2411-46af-944b-d16a8a8e8b57",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 25,
+      "type": "scope:item-updated",
+      "timestamp": "2026-10-10T03:49:24.252Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "itemId": "item-6c87fb69-0b22-4266-a18c-e416f63f1176",
+        "selected": true,
+        "selectionBasis": "public default policy: all local candidates within limit"
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-54b2b986-4552-4172-a3e7-f7d318647efa",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 26,
+      "type": "scope:item-updated",
+      "timestamp": "2026-10-10T03:49:24.252Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "itemId": "item-eda214c7-bcb6-4a5b-a420-ee0fc1310cd0",
+        "selected": true,
+        "selectionBasis": "public default policy: all local candidates within limit"
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-205ba00d-d895-4d76-b010-2f7683fb4d11",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 27,
+      "type": "scope:item-updated",
+      "timestamp": "2026-10-10T03:49:24.252Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "itemId": "item-ac4160e1-38fe-4386-a1be-ead30ab5c9b1",
+        "status": "verified",
+        "reasonCode": null,
+        "detail": "Frozen public sample selected: item-0eb4aa09-ee11-41e3-afb9-3d77acfac75e,item-6c87fb69-0b22-4266-a18c-e416f63f1176,item-eda214c7-bcb6-4a5b-a420-ee0fc1310cd0; target effects remain separate selected obligations",
+        "evidenceRefs": [
+          "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+          "c082ee8b-6af3-449f-9d58-79baa722cf32.json"
+        ],
+        "eventIds": [],
+        "resolvedAt": "2026-10-10T03:49:24.251Z"
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-05cce6ee-d214-420a-b348-8fe3be789e7e",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 28,
+      "type": "scope:candidate-bound",
+      "timestamp": "2026-10-10T03:49:24.253Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "itemId": "item-0eb4aa09-ee11-41e3-afb9-3d77acfac75e",
+        "snapshotId": "s1",
+        "ref": "e2",
+        "samplingKey": "[\"http://127.0.0.1:62521/p/one\",\"html > body:nth-of-type(1) > button:nth-of-type(1)\",\"button\",\"Sort alphabetically\",null,null,null,null,null]",
+        "quotaOnly": true
+      },
+      "evidenceRefs": [
+        "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+        "c082ee8b-6af3-449f-9d58-79baa722cf32.json"
+      ]
+    },
+    {
+      "id": "evt-4f5055ad-2ed9-46e6-945a-0993ebcf0ea0",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 29,
+      "type": "scope:candidate-bound",
+      "timestamp": "2026-10-10T03:49:24.253Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "itemId": "item-6c87fb69-0b22-4266-a18c-e416f63f1176",
+        "snapshotId": "s1",
+        "ref": "e3",
+        "samplingKey": "[\"http://127.0.0.1:62521/p/one\",\"html > body:nth-of-type(1) > button:nth-of-type(2)\",\"button\",\"Change density\",null,null,null,null,null]",
+        "quotaOnly": true
+      },
+      "evidenceRefs": [
+        "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+        "c082ee8b-6af3-449f-9d58-79baa722cf32.json"
+      ]
+    },
+    {
+      "id": "evt-d71cd108-43e5-410a-95b2-a7dbd5c28511",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 30,
+      "type": "scope:candidate-bound",
+      "timestamp": "2026-10-10T03:49:24.254Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "itemId": "item-eda214c7-bcb6-4a5b-a420-ee0fc1310cd0",
+        "snapshotId": "s1",
+        "ref": "e4",
+        "samplingKey": "[\"http://127.0.0.1:62521/p/one\",\"html > body:nth-of-type(1) > button:nth-of-type(3)\",\"button\",\"Details\",null,null,null,null,null]",
+        "quotaOnly": true
+      },
+      "evidenceRefs": [
+        "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+        "c082ee8b-6af3-449f-9d58-79baa722cf32.json"
+      ]
+    },
+    {
+      "id": "evt-f8aceeb5-b74d-4878-89c2-3685474f3236",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 31,
+      "type": "scope:item-updated",
+      "timestamp": "2026-10-10T03:49:24.254Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "candidates": {
+          "categories": [
+            "local-interaction"
+          ],
+          "detail": "3 operable control(s) offered by the observation",
+          "truncated": 0,
+          "observedAt": "2026-10-10T03:49:24.254Z"
+        }
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-8505c353-66a5-4449-80ad-6d21e5db6ee8",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 32,
+      "type": "ui-rules:observed",
+      "timestamp": "2026-10-10T03:49:24.274Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "artifactRef": "51624c09-c4d3-43ad-b529-9f8035abf1f3.json",
+        "sha256": "633428fff471aa3edb74c389f8c53fde2b6ee4117381172f92edd2633b75eea1",
+        "screenshotSha256": "2687a2875f9357f144e4b9c03f8dd6ac9526aa62385d5c39699f47cb57c311fd",
+        "screenshotRef": "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+        "url": "http://127.0.0.1:62521/p/one"
+      },
+      "evidenceRefs": [
+        "51624c09-c4d3-43ad-b529-9f8035abf1f3.json",
+        "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+        "c082ee8b-6af3-449f-9d58-79baa722cf32.json",
+        "c355ac01-1471-4d7b-ae2c-eef1e06c2d3e.json",
+        "ca1fe854-1209-4a62-957e-20397cb001ce.json",
+        "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+        "8262fe61-939a-431d-a932-5864215f9cdf.json"
+      ]
+    },
+    {
+      "id": "evt-3089f2e2-8030-466e-992f-f743bc81e5f7",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 33,
+      "type": "scope:item-updated",
+      "timestamp": "2026-10-10T03:49:24.274Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "unsupported": {
+          "dimension": "control-text-clipping:coverage",
+          "reasonCode": "bounded-layout-measurement-incomplete",
+          "observedAt": "2026-10-10T03:49:24.274Z"
+        }
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-43c8f574-ef47-4ce4-a4a4-3af0dae1c59e",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 34,
+      "type": "scope:item-updated",
+      "timestamp": "2026-10-10T03:49:24.274Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "unsupported": {
+          "dimension": "control-text-overlap:coverage",
+          "reasonCode": "bounded-layout-measurement-incomplete",
+          "observedAt": "2026-10-10T03:49:24.274Z"
+        }
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-2cf7ea3f-56e4-474b-97d6-10e7cf6b5b50",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 35,
+      "type": "scope:item-updated",
+      "timestamp": "2026-10-10T03:49:24.275Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "unsupported": {
+          "dimension": "control-text-disappearance:coverage",
+          "reasonCode": "bounded-text-measurement-incomplete",
+          "observedAt": "2026-10-10T03:49:24.275Z"
+        }
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-d281dccf-c9b7-4eea-9433-bb677c6fcf26",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 36,
+      "type": "rule:skipped",
+      "timestamp": "2026-10-10T03:49:24.275Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "ruleId": "business-outcome",
+        "reason": "no triggering event in observed history"
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-e3609e71-4014-4ced-87fb-a627037deda4",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 37,
+      "type": "rule:skipped",
+      "timestamp": "2026-10-10T03:49:24.276Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "ruleId": "response-time",
+        "reason": "no triggering event in observed history"
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-e8d1ff19-5d4d-49c1-aaa2-5c4cfee96325",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 38,
+      "type": "rule:evaluated",
+      "timestamp": "2026-10-10T03:49:24.276Z",
+      "stepId": "initial",
+      "actionId": null,
+      "payload": {
+        "ruleId": "overlay-blocking",
+        "ruleRevision": "2.1.0",
+        "verdict": "pass",
+        "severity": "info",
+        "title": "Action hit testing",
+        "expected": "Visible enabled actions receive pointer input",
+        "actual": "0 intercepted actions; 0 partially covered; 0 unmeasured",
+        "evidenceRefs": [
+          "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+          "c082ee8b-6af3-449f-9d58-79baa722cf32.json"
+        ],
+        "confidence": 0.8,
+        "details": {
+          "blocked": false,
+          "blockedTargets": [],
+          "partialTargets": [],
+          "method": "five-point-hit-test",
+          "originalViewport": {
+            "width": 320,
+            "height": 480
+          }
+        }
+      },
+      "evidenceRefs": [
+        "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+        "c082ee8b-6af3-449f-9d58-79baa722cf32.json"
+      ]
+    },
+    {
+      "id": "evt-b54c3e31-1d13-4d78-9d11-a52d338af5e7",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 39,
+      "type": "rule:evaluated",
+      "timestamp": "2026-10-10T03:49:24.276Z",
+      "stepId": "initial",
+      "actionId": null,
+      "payload": {
+        "ruleId": "control-text-disappearance",
+        "ruleRevision": "0.1.0",
+        "verdict": "unknown",
+        "severity": "info",
+        "title": "Native action text paint",
+        "expected": "The sole native action text name has distinguishable paint in the supported presentation",
+        "actual": "html > body:nth-child(2) > button:nth-child(3): unknown (native-appearance-unmeasured; canvas-background-unresolved); html > body:nth-child(2) > button:nth-child(4): unknown (native-appearance-unmeasured; canvas-background-unresolved); html > body:nth-child(2) > button:nth-child(5): unknown (native-appearance-unmeasured; canvas-background-unresolved)",
+        "evidenceRefs": [
+          "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+          "c082ee8b-6af3-449f-9d58-79baa722cf32.json",
+          "c355ac01-1471-4d7b-ae2c-eef1e06c2d3e.json"
+        ],
+        "confidence": 0,
+        "details": {
+          "knowledgeId": "UIK-D005",
+          "rows": [
+            {
+              "selector": "html > body:nth-child(2) > button:nth-child(3)",
+              "verdict": "unknown",
+              "reason": "native-appearance-unmeasured; canvas-background-unresolved",
+              "fact": {
+                "selector": "html > body:nth-child(2) > button:nth-child(3)",
+                "matchCount": 1,
+                "nodeId": 1,
+                "text": "Sort alphabetically",
+                "roleBasis": "enabled-native-button-text-name",
+                "excluded": null,
+                "issues": [
+                  "native-appearance-unmeasured",
+                  "canvas-background-unresolved"
+                ],
+                "textBounds": {
+                  "x": 24,
+                  "y": 90.875,
+                  "width": 108.9375,
+                  "height": 15
+                },
+                "foreground": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "background": null,
+                "composed": null,
+                "layers": [
+                  {
+                    "selector": "html > body:nth-child(2) > button:nth-child(3)",
+                    "color": "rgb(239, 239, 239)",
+                    "rgba": [
+                      239,
+                      239,
+                      239,
+                      1
+                    ]
+                  },
+                  {
+                    "selector": "html > body:nth-child(2)",
+                    "color": "rgba(0, 0, 0, 0)",
+                    "rgba": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ]
+                  },
+                  {
+                    "selector": "html",
+                    "color": "rgba(0, 0, 0, 0)",
+                    "rgba": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ]
+                  }
+                ]
+              },
+              "pixel": {
+                "selector": "html > body:nth-child(2) > button:nth-child(3)",
+                "samples": 0,
+                "backgroundPixels": 0,
+                "foregroundPixels": 0,
+                "otherPixels": 0
+              }
+            },
+            {
+              "selector": "html > body:nth-child(2) > button:nth-child(4)",
+              "verdict": "unknown",
+              "reason": "native-appearance-unmeasured; canvas-background-unresolved",
+              "fact": {
+                "selector": "html > body:nth-child(2) > button:nth-child(4)",
+                "matchCount": 1,
+                "nodeId": 2,
+                "text": "Change density",
+                "roleBasis": "enabled-native-button-text-name",
+                "excluded": null,
+                "issues": [
+                  "native-appearance-unmeasured",
+                  "canvas-background-unresolved"
+                ],
+                "textBounds": {
+                  "x": 164.9375,
+                  "y": 90.875,
+                  "width": 92.640625,
+                  "height": 15
+                },
+                "foreground": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "background": null,
+                "composed": null,
+                "layers": [
+                  {
+                    "selector": "html > body:nth-child(2) > button:nth-child(4)",
+                    "color": "rgb(239, 239, 239)",
+                    "rgba": [
+                      239,
+                      239,
+                      239,
+                      1
+                    ]
+                  },
+                  {
+                    "selector": "html > body:nth-child(2)",
+                    "color": "rgba(0, 0, 0, 0)",
+                    "rgba": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ]
+                  },
+                  {
+                    "selector": "html",
+                    "color": "rgba(0, 0, 0, 0)",
+                    "rgba": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ]
+                  }
+                ]
+              },
+              "pixel": {
+                "selector": "html > body:nth-child(2) > button:nth-child(4)",
+                "samples": 0,
+                "backgroundPixels": 0,
+                "foregroundPixels": 0,
+                "otherPixels": 0
+              }
+            },
+            {
+              "selector": "html > body:nth-child(2) > button:nth-child(5)",
+              "verdict": "unknown",
+              "reason": "native-appearance-unmeasured; canvas-background-unresolved",
+              "fact": {
+                "selector": "html > body:nth-child(2) > button:nth-child(5)",
+                "matchCount": 1,
+                "nodeId": 3,
+                "text": "Details",
+                "roleBasis": "enabled-native-button-text-name",
+                "excluded": null,
+                "issues": [
+                  "native-appearance-unmeasured",
+                  "canvas-background-unresolved"
+                ],
+                "textBounds": {
+                  "x": 24,
+                  "y": 127.875,
+                  "width": 40.75,
+                  "height": 15
+                },
+                "foreground": [
+                  0,
+                  0,
+                  0,
+                  1
+                ],
+                "background": null,
+                "composed": null,
+                "layers": [
+                  {
+                    "selector": "html > body:nth-child(2) > button:nth-child(5)",
+                    "color": "rgb(239, 239, 239)",
+                    "rgba": [
+                      239,
+                      239,
+                      239,
+                      1
+                    ]
+                  },
+                  {
+                    "selector": "html > body:nth-child(2)",
+                    "color": "rgba(0, 0, 0, 0)",
+                    "rgba": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ]
+                  },
+                  {
+                    "selector": "html",
+                    "color": "rgba(0, 0, 0, 0)",
+                    "rgba": [
+                      0,
+                      0,
+                      0,
+                      0
+                    ]
+                  }
+                ]
+              },
+              "pixel": {
+                "selector": "html > body:nth-child(2) > button:nth-child(5)",
+                "samples": 0,
+                "backgroundPixels": 0,
+                "foregroundPixels": 0,
+                "otherPixels": 0
+              }
+            }
+          ],
+          "problems": [],
+          "scope": "Sole native button/link text name, not task importance, accessibility compliance, charts or overall readability; no manual semantic confirmation required.",
+          "total": 3,
+          "omitted": 0
+        },
+        "unchecked": {
+          "reasonCode": "control-text-supported-scope-limit"
+        }
+      },
+      "evidenceRefs": [
+        "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+        "c082ee8b-6af3-449f-9d58-79baa722cf32.json",
+        "c355ac01-1471-4d7b-ae2c-eef1e06c2d3e.json"
+      ]
+    },
+    {
+      "id": "evt-005d2402-72ef-43ef-8ed8-96b9dd15ca9b",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 40,
+      "type": "rule:evaluated",
+      "timestamp": "2026-10-10T03:49:24.277Z",
+      "stepId": "initial",
+      "actionId": null,
+      "payload": {
+        "ruleId": "control-text-clipping",
+        "ruleRevision": "0.1.0",
+        "verdict": "unknown",
+        "severity": "info",
+        "title": "原生操作文字被垂直裁切",
+        "expected": "The sole local native action label retains its glyph ink; alternative or abbreviation intent must be established separately",
+        "actual": "html > body:nth-of-type(1) > button:nth-of-type(1): unknown (unsupported-flat-colors; unsupported-control-paint; control-border); html > body:nth-of-type(1) > button:nth-of-type(2): unknown (unsupported-flat-colors; unsupported-control-paint; control-border); html > body:nth-of-type(1) > button:nth-of-type(3): unknown (unsupported-flat-colors; unsupported-control-paint; control-border)",
+        "evidenceRefs": [
+          "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+          "c082ee8b-6af3-449f-9d58-79baa722cf32.json",
+          "8262fe61-939a-431d-a932-5864215f9cdf.json"
+        ],
+        "confidence": 0,
+        "details": {
+          "knowledgeId": "UIK-D001",
+          "rows": [
+            {
+              "selector": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+              "text": "Sort alphabetically",
+              "verdict": "unknown",
+              "reason": "unsupported-flat-colors; unsupported-control-paint; control-border",
+              "basis": "sole-visible-native-action-text; local presentation only",
+              "relatedSelectors": [],
+              "relatedRuleIds": []
+            },
+            {
+              "selector": "html > body:nth-of-type(1) > button:nth-of-type(2)",
+              "text": "Change density",
+              "verdict": "unknown",
+              "reason": "unsupported-flat-colors; unsupported-control-paint; control-border",
+              "basis": "sole-visible-native-action-text; local presentation only",
+              "relatedSelectors": [],
+              "relatedRuleIds": []
+            },
+            {
+              "selector": "html > body:nth-of-type(1) > button:nth-of-type(3)",
+              "text": "Details",
+              "verdict": "unknown",
+              "reason": "unsupported-flat-colors; unsupported-control-paint; control-border",
+              "basis": "sole-visible-native-action-text; local presentation only",
+              "relatedSelectors": [],
+              "relatedRuleIds": []
+            }
+          ],
+          "problems": [],
+          "totalObserved": 3,
+          "omitted": 0,
+          "enumerationComplete": true,
+          "scope": "Vertical glyph clipping of a sole native text name; no claim that all text must be complete or that no recovery exists elsewhere"
+        },
+        "unchecked": {
+          "reasonCode": "control-layout-supported-scope-limit"
+        }
+      },
+      "evidenceRefs": [
+        "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+        "c082ee8b-6af3-449f-9d58-79baa722cf32.json",
+        "8262fe61-939a-431d-a932-5864215f9cdf.json"
+      ]
+    },
+    {
+      "id": "evt-b99fe387-c14c-4162-ab7b-45173e213ff6",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 41,
+      "type": "rule:evaluated",
+      "timestamp": "2026-10-10T03:49:24.277Z",
+      "stepId": "initial",
+      "actionId": null,
+      "payload": {
+        "ruleId": "control-text-overlap",
+        "ruleRevision": "0.1.0",
+        "verdict": "unknown",
+        "severity": "info",
+        "title": "共同操作组中文字被兄弟控件遮盖",
+        "expected": "Independently enabled members of the public action group retain distinguishable label ink",
+        "actual": "html > body:nth-of-type(1) > button:nth-of-type(1): unknown (unsupported-flat-colors; unsupported-control-paint; control-border); html > body:nth-of-type(1) > button:nth-of-type(2): unknown (unsupported-flat-colors; unsupported-control-paint; control-border); html > body:nth-of-type(1) > button:nth-of-type(3): unknown (unsupported-flat-colors; unsupported-control-paint; control-border)",
+        "evidenceRefs": [
+          "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+          "c082ee8b-6af3-449f-9d58-79baa722cf32.json",
+          "8262fe61-939a-431d-a932-5864215f9cdf.json"
+        ],
+        "confidence": 0,
+        "details": {
+          "knowledgeId": "UIK-D002",
+          "rows": [
+            {
+              "selector": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+              "text": "Sort alphabetically",
+              "verdict": "unknown",
+              "reason": "unsupported-flat-colors; unsupported-control-paint; control-border",
+              "basis": "coexistence-not-established",
+              "relatedSelectors": [],
+              "relatedRuleIds": []
+            },
+            {
+              "selector": "html > body:nth-of-type(1) > button:nth-of-type(2)",
+              "text": "Change density",
+              "verdict": "unknown",
+              "reason": "unsupported-flat-colors; unsupported-control-paint; control-border",
+              "basis": "coexistence-not-established",
+              "relatedSelectors": [],
+              "relatedRuleIds": []
+            },
+            {
+              "selector": "html > body:nth-of-type(1) > button:nth-of-type(3)",
+              "text": "Details",
+              "verdict": "unknown",
+              "reason": "unsupported-flat-colors; unsupported-control-paint; control-border",
+              "basis": "coexistence-not-established",
+              "relatedSelectors": [],
+              "relatedRuleIds": []
+            }
+          ],
+          "problems": [],
+          "totalObserved": 3,
+          "omitted": 0,
+          "enumerationComplete": true,
+          "scope": "Public nav/fieldset/toolbar sibling label paint; not pointer interception, all-rectangles-must-not-overlap, or general coexistence inference"
+        },
+        "unchecked": {
+          "reasonCode": "control-layout-supported-scope-limit"
+        }
+      },
+      "evidenceRefs": [
+        "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+        "c082ee8b-6af3-449f-9d58-79baa722cf32.json",
+        "8262fe61-939a-431d-a932-5864215f9cdf.json"
+      ]
+    },
+    {
+      "id": "evt-c16cc409-8a10-49c6-a9bc-9243bddab7a4",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 42,
+      "type": "scope:item-created",
+      "timestamp": "2026-10-10T03:49:24.278Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "itemId": "item-6d1f5d7c-45a5-420a-a13c-aa4249dcb529",
+        "category": "automatic-check",
+        "pageId": "s1",
+        "stateId": "s1",
+        "url": "http://127.0.0.1:62521/p/one",
+        "observationVersion": "88ef43b0bc5b10104204428092be1bfa7c137930a6e1df7c4c38c1a4a6121660",
+        "documentVersion": "88ef43b0bc5b10104204428092be1bfa7c137930a6e1df7c4c38c1a4a6121660",
+        "basis": "automatic rule overlay-blocking applies to the observed state",
+        "targetSource": "executor",
+        "selected": true,
+        "selectionBasis": "automatic rule overlay-blocking applies to the observed state",
+        "status": "pending",
+        "reasonCode": null,
+        "detail": null,
+        "evidenceRefs": [],
+        "eventIds": [],
+        "ruleRevision": "2.1.0",
+        "parentNavigation": null,
+        "createdAt": "2026-10-10T03:49:24.278Z",
+        "resolvedAt": null
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-973c6289-3774-4179-b6f7-e123140f44ac",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 43,
+      "type": "scope:item-updated",
+      "timestamp": "2026-10-10T03:49:24.278Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "itemId": "item-6d1f5d7c-45a5-420a-a13c-aa4249dcb529",
+        "status": "verified",
+        "reasonCode": null,
+        "detail": "overlay-blocking verdict: pass",
+        "evidenceRefs": [
+          "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+          "c082ee8b-6af3-449f-9d58-79baa722cf32.json"
+        ],
+        "eventIds": [],
+        "resolvedAt": "2026-10-10T03:49:24.278Z"
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-adcd5fa0-072e-48f6-83c6-b02cc0471df9",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 44,
+      "type": "scope:item-created",
+      "timestamp": "2026-10-10T03:49:24.278Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "itemId": "item-14881771-1e96-4318-9f3c-b24f85de1904",
+        "category": "automatic-check",
+        "pageId": "s1",
+        "stateId": "s1",
+        "url": "http://127.0.0.1:62521/p/one",
+        "observationVersion": "88ef43b0bc5b10104204428092be1bfa7c137930a6e1df7c4c38c1a4a6121660",
+        "documentVersion": "88ef43b0bc5b10104204428092be1bfa7c137930a6e1df7c4c38c1a4a6121660",
+        "basis": "automatic rule control-text-disappearance applies to the observed state",
+        "targetSource": "executor",
+        "selected": false,
+        "selectionBasis": null,
+        "status": "pending",
+        "reasonCode": null,
+        "detail": null,
+        "evidenceRefs": [],
+        "eventIds": [],
+        "ruleRevision": "0.1.0",
+        "parentNavigation": null,
+        "createdAt": "2026-10-10T03:49:24.278Z",
+        "resolvedAt": null
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-9d257fba-9c68-47ed-89a1-04ff8c55d6a9",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 45,
+      "type": "scope:item-updated",
+      "timestamp": "2026-10-10T03:49:24.279Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "itemId": "item-14881771-1e96-4318-9f3c-b24f85de1904",
+        "status": "unverified",
+        "reasonCode": "control-text-supported-scope-limit",
+        "detail": "control-text-disappearance verdict: unknown",
+        "evidenceRefs": [
+          "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+          "c082ee8b-6af3-449f-9d58-79baa722cf32.json",
+          "c355ac01-1471-4d7b-ae2c-eef1e06c2d3e.json"
+        ],
+        "eventIds": [],
+        "resolvedAt": "2026-10-10T03:49:24.278Z"
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-abe09743-0b03-461c-b453-3b4fb41da01e",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 46,
+      "type": "scope:item-updated",
+      "timestamp": "2026-10-10T03:49:24.279Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "unsupported": {
+          "dimension": "control-text-disappearance",
+          "reasonCode": "control-text-supported-scope-limit",
+          "observedAt": "2026-10-10T03:49:24.278Z"
+        }
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-d6d378f7-ae3b-4993-8d2b-d946ef16fbf7",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 47,
+      "type": "scope:item-created",
+      "timestamp": "2026-10-10T03:49:24.280Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "itemId": "item-1e031f80-a68e-4114-8c1d-eab2dc3cb2ad",
+        "category": "automatic-check",
+        "pageId": "s1",
+        "stateId": "s1",
+        "url": "http://127.0.0.1:62521/p/one",
+        "observationVersion": "88ef43b0bc5b10104204428092be1bfa7c137930a6e1df7c4c38c1a4a6121660",
+        "documentVersion": "88ef43b0bc5b10104204428092be1bfa7c137930a6e1df7c4c38c1a4a6121660",
+        "basis": "automatic rule control-text-clipping applies to the observed state",
+        "targetSource": "executor",
+        "selected": false,
+        "selectionBasis": null,
+        "status": "pending",
+        "reasonCode": null,
+        "detail": null,
+        "evidenceRefs": [],
+        "eventIds": [],
+        "ruleRevision": "0.1.0",
+        "parentNavigation": null,
+        "createdAt": "2026-10-10T03:49:24.280Z",
+        "resolvedAt": null
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-c1a644ed-35d6-4d5e-97ae-d1c5a7ac3310",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 48,
+      "type": "scope:item-updated",
+      "timestamp": "2026-10-10T03:49:24.280Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "itemId": "item-1e031f80-a68e-4114-8c1d-eab2dc3cb2ad",
+        "status": "unverified",
+        "reasonCode": "control-layout-supported-scope-limit",
+        "detail": "control-text-clipping verdict: unknown",
+        "evidenceRefs": [
+          "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+          "c082ee8b-6af3-449f-9d58-79baa722cf32.json",
+          "8262fe61-939a-431d-a932-5864215f9cdf.json"
+        ],
+        "eventIds": [],
+        "resolvedAt": "2026-10-10T03:49:24.280Z"
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-0355f5dc-bac4-4996-9ff0-6813dc576b3f",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 49,
+      "type": "scope:item-updated",
+      "timestamp": "2026-10-10T03:49:24.280Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "unsupported": {
+          "dimension": "control-text-clipping",
+          "reasonCode": "control-layout-supported-scope-limit",
+          "observedAt": "2026-10-10T03:49:24.280Z"
+        }
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-e8ce7ca5-0a36-4472-81bc-7702a41340b9",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 50,
+      "type": "scope:item-created",
+      "timestamp": "2026-10-10T03:49:24.281Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "itemId": "item-316a906b-8371-42eb-8b92-5dcad5f3ec81",
+        "category": "automatic-check",
+        "pageId": "s1",
+        "stateId": "s1",
+        "url": "http://127.0.0.1:62521/p/one",
+        "observationVersion": "88ef43b0bc5b10104204428092be1bfa7c137930a6e1df7c4c38c1a4a6121660",
+        "documentVersion": "88ef43b0bc5b10104204428092be1bfa7c137930a6e1df7c4c38c1a4a6121660",
+        "basis": "automatic rule control-text-overlap applies to the observed state",
+        "targetSource": "executor",
+        "selected": false,
+        "selectionBasis": null,
+        "status": "pending",
+        "reasonCode": null,
+        "detail": null,
+        "evidenceRefs": [],
+        "eventIds": [],
+        "ruleRevision": "0.1.0",
+        "parentNavigation": null,
+        "createdAt": "2026-10-10T03:49:24.281Z",
+        "resolvedAt": null
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-876aa40b-1ebb-4369-b859-254464e43a80",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 51,
+      "type": "scope:item-updated",
+      "timestamp": "2026-10-10T03:49:24.281Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "itemId": "item-316a906b-8371-42eb-8b92-5dcad5f3ec81",
+        "status": "unverified",
+        "reasonCode": "control-layout-supported-scope-limit",
+        "detail": "control-text-overlap verdict: unknown",
+        "evidenceRefs": [
+          "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+          "c082ee8b-6af3-449f-9d58-79baa722cf32.json",
+          "8262fe61-939a-431d-a932-5864215f9cdf.json"
+        ],
+        "eventIds": [],
+        "resolvedAt": "2026-10-10T03:49:24.281Z"
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-1b68157c-032b-4dff-a6f7-97a7d9570d93",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 52,
+      "type": "scope:item-updated",
+      "timestamp": "2026-10-10T03:49:24.282Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "unsupported": {
+          "dimension": "control-text-overlap",
+          "reasonCode": "control-layout-supported-scope-limit",
+          "observedAt": "2026-10-10T03:49:24.281Z"
+        }
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-01a09848-d1ce-409c-96c5-78f4170dc939",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 53,
+      "type": "interaction:page-sources-reviewed-v2",
+      "timestamp": "2026-10-10T03:49:24.318Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "itemId": "item-9fd8b95a-98a0-431f-97e3-51e0b156dd3e",
+        "url": "http://127.0.0.1:62521/p/one",
+        "pageRef": "bd9d9b33-6b54-4a6b-9757-58c75b33d44d.json",
+        "pageHash": "6f24000750d7be5d9823989666e4d28a1854c99cc1342b79bbc48c225b4a0211",
+        "complete": true
+      },
+      "evidenceRefs": [
+        "847f7552-6d91-4a2c-b96e-2c96e7e9ec82.png",
+        "bd9d9b33-6b54-4a6b-9757-58c75b33d44d.json"
+      ]
+    },
+    {
+      "id": "evt-2fdd5dcd-e467-4a04-a938-8ff883170ef5",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 54,
+      "type": "scope:item-created",
+      "timestamp": "2026-10-10T03:49:24.318Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "itemId": "item-9fd8b95a-98a0-431f-97e3-51e0b156dd3e",
+        "category": "investigation",
+        "pageId": "source-review",
+        "stateId": "88ef43b0bc5b10104204428092be1bfa7c137930a6e1df7c4c38c1a4a6121660",
+        "url": "http://127.0.0.1:62521/p/one",
+        "observationVersion": "88ef43b0bc5b10104204428092be1bfa7c137930a6e1df7c4c38c1a4a6121660",
+        "documentVersion": "88ef43b0bc5b10104204428092be1bfa7c137930a6e1df7c4c38c1a4a6121660",
+        "basis": "default-checks:page-source-review:http://127.0.0.1:62521/p/one",
+        "targetSource": "executor",
+        "selected": true,
+        "selectionBasis": "default-checks:page-source-review:http://127.0.0.1:62521/p/one",
+        "status": "pending",
+        "reasonCode": null,
+        "detail": null,
+        "evidenceRefs": [],
+        "eventIds": [],
+        "ruleRevision": null,
+        "parentNavigation": null,
+        "createdAt": "2026-10-10T03:49:24.318Z",
+        "resolvedAt": null
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-d335a740-78aa-4176-b2d1-be604d6b54a9",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 55,
+      "type": "scope:item-updated",
+      "timestamp": "2026-10-10T03:49:24.319Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "itemId": "item-9fd8b95a-98a0-431f-97e3-51e0b156dd3e",
+        "status": "verified",
+        "reasonCode": null,
+        "detail": "Bounded source observation completeness, not functional correctness",
+        "evidenceRefs": [
+          "847f7552-6d91-4a2c-b96e-2c96e7e9ec82.png",
+          "bd9d9b33-6b54-4a6b-9757-58c75b33d44d.json"
+        ],
+        "eventIds": [],
+        "resolvedAt": "2026-10-10T03:49:24.318Z"
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-5cb283a3-25ad-4938-b616-c2297c2fce5b",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 56,
+      "type": "interaction:sources-reviewed-v2",
+      "timestamp": "2026-10-10T03:49:24.322Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "itemId": "item-0eb4aa09-ee11-41e3-afb9-3d77acfac75e",
+        "sourceReviewHash": "5f494f93d6186099c841c03100a9550c1f7dd3459486faccad638e269edecfea",
+        "selector": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+        "sourceState": "sealed",
+        "evidenceHashes": {
+          "847f7552-6d91-4a2c-b96e-2c96e7e9ec82.png": "2687a2875f9357f144e4b9c03f8dd6ac9526aa62385d5c39699f47cb57c311fd",
+          "bd9d9b33-6b54-4a6b-9757-58c75b33d44d.json": "9c738115b24f57bf2877fc1f86bd9ecbb577f9232321b044733985ab73fc2884"
+        }
+      },
+      "evidenceRefs": [
+        "847f7552-6d91-4a2c-b96e-2c96e7e9ec82.png",
+        "bd9d9b33-6b54-4a6b-9757-58c75b33d44d.json"
+      ]
+    },
+    {
+      "id": "evt-cba01362-8917-4c60-a7d8-bb4524145772",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 57,
+      "type": "scope:item-updated",
+      "timestamp": "2026-10-10T03:49:24.322Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "itemId": "item-0eb4aa09-ee11-41e3-afb9-3d77acfac75e",
+        "checks": {
+          "revision": "item-checks-2",
+          "sourceReview": {
+            "state": "sealed",
+            "revision": "public-effect-sources-1",
+            "refs": [
+              "847f7552-6d91-4a2c-b96e-2c96e7e9ec82.png",
+              "bd9d9b33-6b54-4a6b-9757-58c75b33d44d.json"
+            ],
+            "reasons": [],
+            "page": {
+              "url": "http://127.0.0.1:62521/p/one",
+              "nodes": [
+                {
+                  "selector": "html > body:nth-of-type(1) > h1:nth-of-type(1)",
+                  "path": "html > body:nth-of-type(1) > h1:nth-of-type(1)",
+                  "leaf": true,
+                  "incidental": false,
+                  "parentSelector": "html > body:nth-of-type(1)",
+                  "tag": "h1",
+                  "name": "Workspace",
+                  "text": "Workspace",
+                  "visible": true,
+                  "attributes": {},
+                  "truncated": false
+                },
+                {
+                  "selector": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+                  "path": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+                  "leaf": true,
+                  "incidental": false,
+                  "parentSelector": "html > body:nth-of-type(1)",
+                  "tag": "button",
+                  "name": "Sort alphabetically",
+                  "text": "Sort alphabetically",
+                  "visible": true,
+                  "attributes": {},
+                  "value": "",
+                  "truncated": false
+                },
+                {
+                  "selector": "html > body:nth-of-type(1) > button:nth-of-type(2)",
+                  "path": "html > body:nth-of-type(1) > button:nth-of-type(2)",
+                  "leaf": true,
+                  "incidental": false,
+                  "parentSelector": "html > body:nth-of-type(1)",
+                  "tag": "button",
+                  "name": "Change density",
+                  "text": "Change density",
+                  "visible": true,
+                  "attributes": {},
+                  "value": "",
+                  "truncated": false
+                },
+                {
+                  "selector": "html > body:nth-of-type(1) > button:nth-of-type(3)",
+                  "path": "html > body:nth-of-type(1) > button:nth-of-type(3)",
+                  "leaf": true,
+                  "incidental": false,
+                  "parentSelector": "html > body:nth-of-type(1)",
+                  "tag": "button",
+                  "name": "Details",
+                  "text": "Details",
+                  "visible": true,
+                  "attributes": {},
+                  "value": "",
+                  "truncated": false
+                },
+                {
+                  "selector": "html > body:nth-of-type(1) > dialog:nth-of-type(1)",
+                  "path": "html > body:nth-of-type(1) > dialog:nth-of-type(1)",
+                  "leaf": true,
+                  "incidental": false,
+                  "parentSelector": "html > body:nth-of-type(1)",
+                  "tag": "dialog",
+                  "name": "Details overview",
+                  "text": "Details overview",
+                  "visible": false,
+                  "attributes": {},
+                  "truncated": false
+                }
+              ],
+              "total": 5,
+              "complete": true,
+              "documentVersion": "88ef43b0bc5b10104204428092be1bfa7c137930a6e1df7c4c38c1a4a6121660"
+            },
+            "goalHash": "5ee09e025e6bd0d777a9f356b3f908cc946942f6d786553d5bdceb0643b1b0dc",
+            "contractHash": "a7eaf037cd6e9ca07b4e7c390d1eae506c13f98c6f88dffbb0d7aaf9aa02c99f",
+            "hash": "5f494f93d6186099c841c03100a9550c1f7dd3459486faccad638e269edecfea",
+            "ruleChecks": [
+              {
+                "ruleId": "overlay-blocking",
+                "revision": "2.1.0",
+                "contentHash": "c3acb6191549a481e1dbacd22655f6bde36459f78a0301e6f2ad2d88aa8ef424",
+                "approvalRef": "installed-registry:overlay-blocking:2.1.0",
+                "scopeItemIds": [
+                  "item-6d1f5d7c-45a5-420a-a13c-aa4249dcb529"
+                ],
+                "evidenceRefs": [
+                  "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+                  "c082ee8b-6af3-449f-9d58-79baa722cf32.json"
+                ]
+              }
+            ]
+          },
+          "generic": {
+            "state": "pending",
+            "evidenceRefs": [],
+            "eventIds": []
+          },
+          "effects": []
+        },
+        "status": "pending",
+        "evidenceRefs": [
+          "847f7552-6d91-4a2c-b96e-2c96e7e9ec82.png",
+          "bd9d9b33-6b54-4a6b-9757-58c75b33d44d.json"
+        ],
+        "eventIds": [],
+        "detail": "Public sources reviewed before operation; missing semantics are not invented",
+        "reasonCode": "v2-mandatory-checks-incomplete",
+        "resolvedAt": null
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-f3fd0f52-cf01-4507-860c-4527cdad521a",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 58,
+      "type": "interaction:sources-reviewed-v2",
+      "timestamp": "2026-10-10T03:49:24.324Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "itemId": "item-6c87fb69-0b22-4266-a18c-e416f63f1176",
+        "sourceReviewHash": "5f494f93d6186099c841c03100a9550c1f7dd3459486faccad638e269edecfea",
+        "selector": "html > body:nth-of-type(1) > button:nth-of-type(2)",
+        "sourceState": "sealed",
+        "evidenceHashes": {
+          "847f7552-6d91-4a2c-b96e-2c96e7e9ec82.png": "2687a2875f9357f144e4b9c03f8dd6ac9526aa62385d5c39699f47cb57c311fd",
+          "bd9d9b33-6b54-4a6b-9757-58c75b33d44d.json": "9c738115b24f57bf2877fc1f86bd9ecbb577f9232321b044733985ab73fc2884"
+        }
+      },
+      "evidenceRefs": [
+        "847f7552-6d91-4a2c-b96e-2c96e7e9ec82.png",
+        "bd9d9b33-6b54-4a6b-9757-58c75b33d44d.json"
+      ]
+    },
+    {
+      "id": "evt-e294db48-4980-41c7-a798-a9afdc3640fc",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 59,
+      "type": "scope:item-updated",
+      "timestamp": "2026-10-10T03:49:24.325Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "itemId": "item-6c87fb69-0b22-4266-a18c-e416f63f1176",
+        "checks": {
+          "revision": "item-checks-2",
+          "sourceReview": {
+            "state": "sealed",
+            "revision": "public-effect-sources-1",
+            "refs": [
+              "847f7552-6d91-4a2c-b96e-2c96e7e9ec82.png",
+              "bd9d9b33-6b54-4a6b-9757-58c75b33d44d.json"
+            ],
+            "reasons": [],
+            "page": {
+              "url": "http://127.0.0.1:62521/p/one",
+              "nodes": [
+                {
+                  "selector": "html > body:nth-of-type(1) > h1:nth-of-type(1)",
+                  "path": "html > body:nth-of-type(1) > h1:nth-of-type(1)",
+                  "leaf": true,
+                  "incidental": false,
+                  "parentSelector": "html > body:nth-of-type(1)",
+                  "tag": "h1",
+                  "name": "Workspace",
+                  "text": "Workspace",
+                  "visible": true,
+                  "attributes": {},
+                  "truncated": false
+                },
+                {
+                  "selector": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+                  "path": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+                  "leaf": true,
+                  "incidental": false,
+                  "parentSelector": "html > body:nth-of-type(1)",
+                  "tag": "button",
+                  "name": "Sort alphabetically",
+                  "text": "Sort alphabetically",
+                  "visible": true,
+                  "attributes": {},
+                  "value": "",
+                  "truncated": false
+                },
+                {
+                  "selector": "html > body:nth-of-type(1) > button:nth-of-type(2)",
+                  "path": "html > body:nth-of-type(1) > button:nth-of-type(2)",
+                  "leaf": true,
+                  "incidental": false,
+                  "parentSelector": "html > body:nth-of-type(1)",
+                  "tag": "button",
+                  "name": "Change density",
+                  "text": "Change density",
+                  "visible": true,
+                  "attributes": {},
+                  "value": "",
+                  "truncated": false
+                },
+                {
+                  "selector": "html > body:nth-of-type(1) > button:nth-of-type(3)",
+                  "path": "html > body:nth-of-type(1) > button:nth-of-type(3)",
+                  "leaf": true,
+                  "incidental": false,
+                  "parentSelector": "html > body:nth-of-type(1)",
+                  "tag": "button",
+                  "name": "Details",
+                  "text": "Details",
+                  "visible": true,
+                  "attributes": {},
+                  "value": "",
+                  "truncated": false
+                },
+                {
+                  "selector": "html > body:nth-of-type(1) > dialog:nth-of-type(1)",
+                  "path": "html > body:nth-of-type(1) > dialog:nth-of-type(1)",
+                  "leaf": true,
+                  "incidental": false,
+                  "parentSelector": "html > body:nth-of-type(1)",
+                  "tag": "dialog",
+                  "name": "Details overview",
+                  "text": "Details overview",
+                  "visible": false,
+                  "attributes": {},
+                  "truncated": false
+                }
+              ],
+              "total": 5,
+              "complete": true,
+              "documentVersion": "88ef43b0bc5b10104204428092be1bfa7c137930a6e1df7c4c38c1a4a6121660"
+            },
+            "goalHash": "5ee09e025e6bd0d777a9f356b3f908cc946942f6d786553d5bdceb0643b1b0dc",
+            "contractHash": "a7eaf037cd6e9ca07b4e7c390d1eae506c13f98c6f88dffbb0d7aaf9aa02c99f",
+            "hash": "5f494f93d6186099c841c03100a9550c1f7dd3459486faccad638e269edecfea",
+            "ruleChecks": [
+              {
+                "ruleId": "overlay-blocking",
+                "revision": "2.1.0",
+                "contentHash": "c3acb6191549a481e1dbacd22655f6bde36459f78a0301e6f2ad2d88aa8ef424",
+                "approvalRef": "installed-registry:overlay-blocking:2.1.0",
+                "scopeItemIds": [
+                  "item-6d1f5d7c-45a5-420a-a13c-aa4249dcb529"
+                ],
+                "evidenceRefs": [
+                  "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+                  "c082ee8b-6af3-449f-9d58-79baa722cf32.json"
+                ]
+              }
+            ]
+          },
+          "generic": {
+            "state": "pending",
+            "evidenceRefs": [],
+            "eventIds": []
+          },
+          "effects": []
+        },
+        "status": "pending",
+        "evidenceRefs": [
+          "847f7552-6d91-4a2c-b96e-2c96e7e9ec82.png",
+          "bd9d9b33-6b54-4a6b-9757-58c75b33d44d.json"
+        ],
+        "eventIds": [],
+        "detail": "Public sources reviewed before operation; missing semantics are not invented",
+        "reasonCode": "v2-mandatory-checks-incomplete",
+        "resolvedAt": null
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-71feb430-eebd-42e1-9153-3eacb0b11155",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 60,
+      "type": "interaction:sources-reviewed-v2",
+      "timestamp": "2026-10-10T03:49:24.326Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "itemId": "item-eda214c7-bcb6-4a5b-a420-ee0fc1310cd0",
+        "sourceReviewHash": "5f494f93d6186099c841c03100a9550c1f7dd3459486faccad638e269edecfea",
+        "selector": "html > body:nth-of-type(1) > button:nth-of-type(3)",
+        "sourceState": "sealed",
+        "evidenceHashes": {
+          "847f7552-6d91-4a2c-b96e-2c96e7e9ec82.png": "2687a2875f9357f144e4b9c03f8dd6ac9526aa62385d5c39699f47cb57c311fd",
+          "bd9d9b33-6b54-4a6b-9757-58c75b33d44d.json": "9c738115b24f57bf2877fc1f86bd9ecbb577f9232321b044733985ab73fc2884"
+        }
+      },
+      "evidenceRefs": [
+        "847f7552-6d91-4a2c-b96e-2c96e7e9ec82.png",
+        "bd9d9b33-6b54-4a6b-9757-58c75b33d44d.json"
+      ]
+    },
+    {
+      "id": "evt-f0e5879b-6b12-40c6-8088-14405b7483de",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 61,
+      "type": "scope:item-updated",
+      "timestamp": "2026-10-10T03:49:24.327Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "itemId": "item-eda214c7-bcb6-4a5b-a420-ee0fc1310cd0",
+        "checks": {
+          "revision": "item-checks-2",
+          "sourceReview": {
+            "state": "sealed",
+            "revision": "public-effect-sources-1",
+            "refs": [
+              "847f7552-6d91-4a2c-b96e-2c96e7e9ec82.png",
+              "bd9d9b33-6b54-4a6b-9757-58c75b33d44d.json"
+            ],
+            "reasons": [],
+            "page": {
+              "url": "http://127.0.0.1:62521/p/one",
+              "nodes": [
+                {
+                  "selector": "html > body:nth-of-type(1) > h1:nth-of-type(1)",
+                  "path": "html > body:nth-of-type(1) > h1:nth-of-type(1)",
+                  "leaf": true,
+                  "incidental": false,
+                  "parentSelector": "html > body:nth-of-type(1)",
+                  "tag": "h1",
+                  "name": "Workspace",
+                  "text": "Workspace",
+                  "visible": true,
+                  "attributes": {},
+                  "truncated": false
+                },
+                {
+                  "selector": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+                  "path": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+                  "leaf": true,
+                  "incidental": false,
+                  "parentSelector": "html > body:nth-of-type(1)",
+                  "tag": "button",
+                  "name": "Sort alphabetically",
+                  "text": "Sort alphabetically",
+                  "visible": true,
+                  "attributes": {},
+                  "value": "",
+                  "truncated": false
+                },
+                {
+                  "selector": "html > body:nth-of-type(1) > button:nth-of-type(2)",
+                  "path": "html > body:nth-of-type(1) > button:nth-of-type(2)",
+                  "leaf": true,
+                  "incidental": false,
+                  "parentSelector": "html > body:nth-of-type(1)",
+                  "tag": "button",
+                  "name": "Change density",
+                  "text": "Change density",
+                  "visible": true,
+                  "attributes": {},
+                  "value": "",
+                  "truncated": false
+                },
+                {
+                  "selector": "html > body:nth-of-type(1) > button:nth-of-type(3)",
+                  "path": "html > body:nth-of-type(1) > button:nth-of-type(3)",
+                  "leaf": true,
+                  "incidental": false,
+                  "parentSelector": "html > body:nth-of-type(1)",
+                  "tag": "button",
+                  "name": "Details",
+                  "text": "Details",
+                  "visible": true,
+                  "attributes": {},
+                  "value": "",
+                  "truncated": false
+                },
+                {
+                  "selector": "html > body:nth-of-type(1) > dialog:nth-of-type(1)",
+                  "path": "html > body:nth-of-type(1) > dialog:nth-of-type(1)",
+                  "leaf": true,
+                  "incidental": false,
+                  "parentSelector": "html > body:nth-of-type(1)",
+                  "tag": "dialog",
+                  "name": "Details overview",
+                  "text": "Details overview",
+                  "visible": false,
+                  "attributes": {},
+                  "truncated": false
+                }
+              ],
+              "total": 5,
+              "complete": true,
+              "documentVersion": "88ef43b0bc5b10104204428092be1bfa7c137930a6e1df7c4c38c1a4a6121660"
+            },
+            "goalHash": "5ee09e025e6bd0d777a9f356b3f908cc946942f6d786553d5bdceb0643b1b0dc",
+            "contractHash": "a7eaf037cd6e9ca07b4e7c390d1eae506c13f98c6f88dffbb0d7aaf9aa02c99f",
+            "hash": "5f494f93d6186099c841c03100a9550c1f7dd3459486faccad638e269edecfea",
+            "ruleChecks": [
+              {
+                "ruleId": "overlay-blocking",
+                "revision": "2.1.0",
+                "contentHash": "c3acb6191549a481e1dbacd22655f6bde36459f78a0301e6f2ad2d88aa8ef424",
+                "approvalRef": "installed-registry:overlay-blocking:2.1.0",
+                "scopeItemIds": [
+                  "item-6d1f5d7c-45a5-420a-a13c-aa4249dcb529"
+                ],
+                "evidenceRefs": [
+                  "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+                  "c082ee8b-6af3-449f-9d58-79baa722cf32.json"
+                ]
+              }
+            ]
+          },
+          "generic": {
+            "state": "pending",
+            "evidenceRefs": [],
+            "eventIds": []
+          },
+          "effects": []
+        },
+        "status": "pending",
+        "evidenceRefs": [
+          "847f7552-6d91-4a2c-b96e-2c96e7e9ec82.png",
+          "bd9d9b33-6b54-4a6b-9757-58c75b33d44d.json"
+        ],
+        "eventIds": [],
+        "detail": "Public sources reviewed before operation; missing semantics are not invented",
+        "reasonCode": "v2-mandatory-checks-incomplete",
+        "resolvedAt": null
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-5adae5a6-dc65-4438-a5c6-120d14d07525",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 62,
+      "type": "scope:item-created",
+      "timestamp": "2026-10-10T03:49:24.327Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "itemId": "item-474e74e7-c608-48b7-a938-f020e01c20b8",
+        "category": "investigation",
+        "pageId": "contract",
+        "stateId": "contract",
+        "url": "http://127.0.0.1:62521/p/one",
+        "observationVersion": "contract",
+        "documentVersion": "contract",
+        "basis": "popup-viewport-1: bounded popup viewport subtask",
+        "targetSource": "executor",
+        "selected": true,
+        "selectionBasis": "popup-viewport-1: bounded popup viewport subtask",
+        "status": "pending",
+        "reasonCode": null,
+        "detail": null,
+        "evidenceRefs": [],
+        "eventIds": [],
+        "ruleRevision": null,
+        "parentNavigation": null,
+        "createdAt": "2026-10-10T03:49:24.327Z",
+        "resolvedAt": null
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-8de6ccb6-0a26-40d8-aa4b-1f600e55fa41",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 63,
+      "type": "popup:started",
+      "timestamp": "2026-10-10T03:49:24.328Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "taskId": "item-474e74e7-c608-48b7-a938-f020e01c20b8",
+        "policy": {
+          "mode": "popup-viewport",
+          "revision": "popup-viewport-1",
+          "maxActions": 3,
+          "maxDecisions": 6,
+          "maxReads": 4,
+          "maxCandidates": 8
+        }
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-1138f769-49b0-4c85-87a8-7efb59152125",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 64,
+      "type": "visual-discovery:configured",
+      "timestamp": "2026-10-10T03:49:24.329Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "enabled": false,
+        "algorithmVersion": "visual-focus-3"
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-7952ff9f-fa8e-4b58-b7b8-bd7473b7c38a",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 65,
+      "type": "tool:started",
+      "timestamp": "2026-10-10T03:49:24.330Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "attemptId": "program-7f356978-2d9a-4284-92de-1cbecdd9a238",
+        "toolCallId": "ee2a3109-d4dc-4e93-856d-4ca9931a4446",
+        "tool": "popup_check",
+        "origin": "agent",
+        "startedAt": 1791604164330,
+        "deadlineAt": 1791604179330
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-417c5106-f90e-49e1-ab64-58b569b63982",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 66,
+      "type": "popup:provider",
+      "timestamp": "2026-10-10T03:49:25.493Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "requestId": "816a1f91-2217-4bd1-937c-e68da2089aa0",
+        "campaignId": "19b67843-f204-4501-8d96-fd6cfefc4e70",
+        "packetHash": "ae323972da587e0f23ebaf928d7174ae656857af343216f92398cfa55d538db0",
+        "wireHash": "f47662c3ac99c2850eef02e39d05ec965ece6df28a366c4d852f4887d65e5ab5",
+        "dispatched": true,
+        "actualUsd": null,
+        "error": "popup-provider-unavailable"
+      },
+      "evidenceRefs": [
+        "b8be9772-bc9c-4997-924f-bbdb2728dbe9.json"
+      ]
+    },
+    {
+      "id": "evt-e20a6a6d-ef40-4316-a3e1-95c01d0405b9",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 67,
+      "type": "popup:state",
+      "timestamp": "2026-10-10T03:49:25.494Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "revision": "popup-viewport-1",
+        "goal": "Check whether an actual popup exceeds the visible viewport. User focus: 检查弹窗是否超出视口。; delegated context: Check whether the popup/dialog opened from the Details control overflows the 320x480 viewport (same entry, anonymous session, local UI only).",
+        "status": "handoff",
+        "reason": "popup-account-stopped",
+        "attempts": [],
+        "evidenceRefs": [
+          "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+          "c082ee8b-6af3-449f-9d58-79baa722cf32.json"
+        ],
+        "missing": [
+          "popup-account-stopped"
+        ],
+        "decisions": 1,
+        "reads": 0,
+        "observation": {
+          "binding": "d5b0fe07adf9a2d5f1e95aa152c075fee0208936e3c3d349fe7f862b423bbeb1",
+          "url": "http://127.0.0.1:62521/p/one",
+          "entryIds": [
+            "item-0eb4aa09-ee11-41e3-afb9-3d77acfac75e",
+            "item-6c87fb69-0b22-4266-a18c-e416f63f1176",
+            "item-eda214c7-bcb6-4a5b-a420-ee0fc1310cd0"
+          ],
+          "panelIds": []
+        },
+        "taskId": "item-474e74e7-c608-48b7-a938-f020e01c20b8",
+        "budgetRemaining": {
+          "actions": 3,
+          "calls": 2,
+          "timeMs": 128081.6
+        }
+      },
+      "evidenceRefs": [
+        "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+        "c082ee8b-6af3-449f-9d58-79baa722cf32.json"
+      ]
+    },
+    {
+      "id": "evt-17a25691-20c9-4b2d-9b44-72c66fce2278",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 68,
+      "type": "tool:finished",
+      "timestamp": "2026-10-10T03:49:25.495Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "attemptId": "program-7f356978-2d9a-4284-92de-1cbecdd9a238",
+        "toolCallId": "ee2a3109-d4dc-4e93-856d-4ca9931a4446",
+        "tool": "popup_check",
+        "status": "success",
+        "durationMs": 1165
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-9e82303f-3e4f-427b-8097-aa4e0ec63fdd",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 69,
+      "type": "network:allowed-summary",
+      "timestamp": "2026-10-10T03:49:25.499Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "policyRevision": "url-scan-network-1",
+        "entries": [
+          {
+            "origin": "http://127.0.0.1:62521",
+            "destination": "document",
+            "count": 1
+          }
+        ],
+        "total": 1
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-73a6a973-b2cf-4531-9694-dacddcdf8692",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 70,
+      "type": "network:sealed",
+      "timestamp": "2026-10-10T03:49:25.500Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "reason": "inspection-finalization",
+        "abandonedReads": 0
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-0439f800-b4aa-4ba9-bf31-3e1122ecd68e",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 71,
+      "type": "run:phase-changed",
+      "timestamp": "2026-10-10T03:49:25.502Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "from": "exploring",
+        "to": "finalizing",
+        "reason": "agent-ready"
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-a77aafcc-fbfd-47f1-93dd-75cbeb0d672d",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 72,
+      "type": "finish:accepted",
+      "timestamp": "2026-10-10T03:49:25.503Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "reasonCode": "unverified-scope",
+        "kind": "ui-scan",
+        "businessResult": "not-applicable",
+        "contractHash": "a7eaf037cd6e9ca07b4e7c390d1eae506c13f98c6f88dffbb0d7aaf9aa02c99f",
+        "inspectionProof": {
+          "version": "inspection-proof-4",
+          "kind": "ui-scan",
+          "claim": "unverified-scope",
+          "outcome": "blocked",
+          "contractHash": "a7eaf037cd6e9ca07b4e7c390d1eae506c13f98c6f88dffbb0d7aaf9aa02c99f",
+          "scopeDigest": "b56e005fa69cd7af583527ce5873fb5827695320466545937087f97a513213fa",
+          "specDigest": "d70d8a486eb3a103d502ed270481c4c70d6ce5c3b8e8790035848b8d197f59c8",
+          "items": [
+            {
+              "itemId": "item-aa499d51-e4f2-40b7-b869-6218f77dc951",
+              "category": "investigation",
+              "status": "verified",
+              "reasonCode": null,
+              "evidenceRefs": [
+                "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+                "c082ee8b-6af3-449f-9d58-79baa722cf32.json"
+              ],
+              "basis": "default-sampling:entry-registration"
+            },
+            {
+              "itemId": "item-aa75f0f8-1d80-4dd3-bf45-a9b3a5ea4bae",
+              "category": "entry-observation",
+              "status": "verified",
+              "reasonCode": null,
+              "evidenceRefs": [
+                "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+                "c082ee8b-6af3-449f-9d58-79baa722cf32.json"
+              ],
+              "basis": "the entry document was navigated and observed"
+            },
+            {
+              "itemId": "item-0eb4aa09-ee11-41e3-afb9-3d77acfac75e",
+              "category": "local-interaction",
+              "status": "pending",
+              "reasonCode": "v2-mandatory-checks-incomplete",
+              "evidenceRefs": [
+                "847f7552-6d91-4a2c-b96e-2c96e7e9ec82.png",
+                "bd9d9b33-6b54-4a6b-9757-58c75b33d44d.json"
+              ],
+              "basis": "observed candidate: button \"Sort alphabetically\"",
+              "checks": {
+                "revision": "item-checks-2",
+                "sourceReview": {
+                  "state": "sealed",
+                  "revision": "public-effect-sources-1",
+                  "refs": [
+                    "847f7552-6d91-4a2c-b96e-2c96e7e9ec82.png",
+                    "bd9d9b33-6b54-4a6b-9757-58c75b33d44d.json"
+                  ],
+                  "reasons": [],
+                  "page": {
+                    "url": "http://127.0.0.1:62521/p/one",
+                    "nodes": [
+                      {
+                        "selector": "html > body:nth-of-type(1) > h1:nth-of-type(1)",
+                        "path": "html > body:nth-of-type(1) > h1:nth-of-type(1)",
+                        "leaf": true,
+                        "incidental": false,
+                        "parentSelector": "html > body:nth-of-type(1)",
+                        "tag": "h1",
+                        "name": "Workspace",
+                        "text": "Workspace",
+                        "visible": true,
+                        "attributes": {},
+                        "truncated": false
+                      },
+                      {
+                        "selector": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+                        "path": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+                        "leaf": true,
+                        "incidental": false,
+                        "parentSelector": "html > body:nth-of-type(1)",
+                        "tag": "button",
+                        "name": "Sort alphabetically",
+                        "text": "Sort alphabetically",
+                        "visible": true,
+                        "attributes": {},
+                        "value": "",
+                        "truncated": false
+                      },
+                      {
+                        "selector": "html > body:nth-of-type(1) > button:nth-of-type(2)",
+                        "path": "html > body:nth-of-type(1) > button:nth-of-type(2)",
+                        "leaf": true,
+                        "incidental": false,
+                        "parentSelector": "html > body:nth-of-type(1)",
+                        "tag": "button",
+                        "name": "Change density",
+                        "text": "Change density",
+                        "visible": true,
+                        "attributes": {},
+                        "value": "",
+                        "truncated": false
+                      },
+                      {
+                        "selector": "html > body:nth-of-type(1) > button:nth-of-type(3)",
+                        "path": "html > body:nth-of-type(1) > button:nth-of-type(3)",
+                        "leaf": true,
+                        "incidental": false,
+                        "parentSelector": "html > body:nth-of-type(1)",
+                        "tag": "button",
+                        "name": "Details",
+                        "text": "Details",
+                        "visible": true,
+                        "attributes": {},
+                        "value": "",
+                        "truncated": false
+                      },
+                      {
+                        "selector": "html > body:nth-of-type(1) > dialog:nth-of-type(1)",
+                        "path": "html > body:nth-of-type(1) > dialog:nth-of-type(1)",
+                        "leaf": true,
+                        "incidental": false,
+                        "parentSelector": "html > body:nth-of-type(1)",
+                        "tag": "dialog",
+                        "name": "Details overview",
+                        "text": "Details overview",
+                        "visible": false,
+                        "attributes": {},
+                        "truncated": false
+                      }
+                    ],
+                    "total": 5,
+                    "complete": true,
+                    "documentVersion": "88ef43b0bc5b10104204428092be1bfa7c137930a6e1df7c4c38c1a4a6121660"
+                  },
+                  "goalHash": "5ee09e025e6bd0d777a9f356b3f908cc946942f6d786553d5bdceb0643b1b0dc",
+                  "contractHash": "a7eaf037cd6e9ca07b4e7c390d1eae506c13f98c6f88dffbb0d7aaf9aa02c99f",
+                  "hash": "5f494f93d6186099c841c03100a9550c1f7dd3459486faccad638e269edecfea",
+                  "ruleChecks": [
+                    {
+                      "ruleId": "overlay-blocking",
+                      "revision": "2.1.0",
+                      "contentHash": "c3acb6191549a481e1dbacd22655f6bde36459f78a0301e6f2ad2d88aa8ef424",
+                      "approvalRef": "installed-registry:overlay-blocking:2.1.0",
+                      "scopeItemIds": [
+                        "item-6d1f5d7c-45a5-420a-a13c-aa4249dcb529"
+                      ],
+                      "evidenceRefs": [
+                        "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+                        "c082ee8b-6af3-449f-9d58-79baa722cf32.json"
+                      ]
+                    }
+                  ]
+                },
+                "generic": {
+                  "state": "pending",
+                  "evidenceRefs": [],
+                  "eventIds": []
+                },
+                "effects": []
+              }
+            },
+            {
+              "itemId": "item-6c87fb69-0b22-4266-a18c-e416f63f1176",
+              "category": "local-interaction",
+              "status": "pending",
+              "reasonCode": "v2-mandatory-checks-incomplete",
+              "evidenceRefs": [
+                "847f7552-6d91-4a2c-b96e-2c96e7e9ec82.png",
+                "bd9d9b33-6b54-4a6b-9757-58c75b33d44d.json"
+              ],
+              "basis": "observed candidate: button \"Change density\"",
+              "checks": {
+                "revision": "item-checks-2",
+                "sourceReview": {
+                  "state": "sealed",
+                  "revision": "public-effect-sources-1",
+                  "refs": [
+                    "847f7552-6d91-4a2c-b96e-2c96e7e9ec82.png",
+                    "bd9d9b33-6b54-4a6b-9757-58c75b33d44d.json"
+                  ],
+                  "reasons": [],
+                  "page": {
+                    "url": "http://127.0.0.1:62521/p/one",
+                    "nodes": [
+                      {
+                        "selector": "html > body:nth-of-type(1) > h1:nth-of-type(1)",
+                        "path": "html > body:nth-of-type(1) > h1:nth-of-type(1)",
+                        "leaf": true,
+                        "incidental": false,
+                        "parentSelector": "html > body:nth-of-type(1)",
+                        "tag": "h1",
+                        "name": "Workspace",
+                        "text": "Workspace",
+                        "visible": true,
+                        "attributes": {},
+                        "truncated": false
+                      },
+                      {
+                        "selector": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+                        "path": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+                        "leaf": true,
+                        "incidental": false,
+                        "parentSelector": "html > body:nth-of-type(1)",
+                        "tag": "button",
+                        "name": "Sort alphabetically",
+                        "text": "Sort alphabetically",
+                        "visible": true,
+                        "attributes": {},
+                        "value": "",
+                        "truncated": false
+                      },
+                      {
+                        "selector": "html > body:nth-of-type(1) > button:nth-of-type(2)",
+                        "path": "html > body:nth-of-type(1) > button:nth-of-type(2)",
+                        "leaf": true,
+                        "incidental": false,
+                        "parentSelector": "html > body:nth-of-type(1)",
+                        "tag": "button",
+                        "name": "Change density",
+                        "text": "Change density",
+                        "visible": true,
+                        "attributes": {},
+                        "value": "",
+                        "truncated": false
+                      },
+                      {
+                        "selector": "html > body:nth-of-type(1) > button:nth-of-type(3)",
+                        "path": "html > body:nth-of-type(1) > button:nth-of-type(3)",
+                        "leaf": true,
+                        "incidental": false,
+                        "parentSelector": "html > body:nth-of-type(1)",
+                        "tag": "button",
+                        "name": "Details",
+                        "text": "Details",
+                        "visible": true,
+                        "attributes": {},
+                        "value": "",
+                        "truncated": false
+                      },
+                      {
+                        "selector": "html > body:nth-of-type(1) > dialog:nth-of-type(1)",
+                        "path": "html > body:nth-of-type(1) > dialog:nth-of-type(1)",
+                        "leaf": true,
+                        "incidental": false,
+                        "parentSelector": "html > body:nth-of-type(1)",
+                        "tag": "dialog",
+                        "name": "Details overview",
+                        "text": "Details overview",
+                        "visible": false,
+                        "attributes": {},
+                        "truncated": false
+                      }
+                    ],
+                    "total": 5,
+                    "complete": true,
+                    "documentVersion": "88ef43b0bc5b10104204428092be1bfa7c137930a6e1df7c4c38c1a4a6121660"
+                  },
+                  "goalHash": "5ee09e025e6bd0d777a9f356b3f908cc946942f6d786553d5bdceb0643b1b0dc",
+                  "contractHash": "a7eaf037cd6e9ca07b4e7c390d1eae506c13f98c6f88dffbb0d7aaf9aa02c99f",
+                  "hash": "5f494f93d6186099c841c03100a9550c1f7dd3459486faccad638e269edecfea",
+                  "ruleChecks": [
+                    {
+                      "ruleId": "overlay-blocking",
+                      "revision": "2.1.0",
+                      "contentHash": "c3acb6191549a481e1dbacd22655f6bde36459f78a0301e6f2ad2d88aa8ef424",
+                      "approvalRef": "installed-registry:overlay-blocking:2.1.0",
+                      "scopeItemIds": [
+                        "item-6d1f5d7c-45a5-420a-a13c-aa4249dcb529"
+                      ],
+                      "evidenceRefs": [
+                        "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+                        "c082ee8b-6af3-449f-9d58-79baa722cf32.json"
+                      ]
+                    }
+                  ]
+                },
+                "generic": {
+                  "state": "pending",
+                  "evidenceRefs": [],
+                  "eventIds": []
+                },
+                "effects": []
+              }
+            },
+            {
+              "itemId": "item-eda214c7-bcb6-4a5b-a420-ee0fc1310cd0",
+              "category": "local-interaction",
+              "status": "pending",
+              "reasonCode": "v2-mandatory-checks-incomplete",
+              "evidenceRefs": [
+                "847f7552-6d91-4a2c-b96e-2c96e7e9ec82.png",
+                "bd9d9b33-6b54-4a6b-9757-58c75b33d44d.json"
+              ],
+              "basis": "observed candidate: button \"Details\"",
+              "checks": {
+                "revision": "item-checks-2",
+                "sourceReview": {
+                  "state": "sealed",
+                  "revision": "public-effect-sources-1",
+                  "refs": [
+                    "847f7552-6d91-4a2c-b96e-2c96e7e9ec82.png",
+                    "bd9d9b33-6b54-4a6b-9757-58c75b33d44d.json"
+                  ],
+                  "reasons": [],
+                  "page": {
+                    "url": "http://127.0.0.1:62521/p/one",
+                    "nodes": [
+                      {
+                        "selector": "html > body:nth-of-type(1) > h1:nth-of-type(1)",
+                        "path": "html > body:nth-of-type(1) > h1:nth-of-type(1)",
+                        "leaf": true,
+                        "incidental": false,
+                        "parentSelector": "html > body:nth-of-type(1)",
+                        "tag": "h1",
+                        "name": "Workspace",
+                        "text": "Workspace",
+                        "visible": true,
+                        "attributes": {},
+                        "truncated": false
+                      },
+                      {
+                        "selector": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+                        "path": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+                        "leaf": true,
+                        "incidental": false,
+                        "parentSelector": "html > body:nth-of-type(1)",
+                        "tag": "button",
+                        "name": "Sort alphabetically",
+                        "text": "Sort alphabetically",
+                        "visible": true,
+                        "attributes": {},
+                        "value": "",
+                        "truncated": false
+                      },
+                      {
+                        "selector": "html > body:nth-of-type(1) > button:nth-of-type(2)",
+                        "path": "html > body:nth-of-type(1) > button:nth-of-type(2)",
+                        "leaf": true,
+                        "incidental": false,
+                        "parentSelector": "html > body:nth-of-type(1)",
+                        "tag": "button",
+                        "name": "Change density",
+                        "text": "Change density",
+                        "visible": true,
+                        "attributes": {},
+                        "value": "",
+                        "truncated": false
+                      },
+                      {
+                        "selector": "html > body:nth-of-type(1) > button:nth-of-type(3)",
+                        "path": "html > body:nth-of-type(1) > button:nth-of-type(3)",
+                        "leaf": true,
+                        "incidental": false,
+                        "parentSelector": "html > body:nth-of-type(1)",
+                        "tag": "button",
+                        "name": "Details",
+                        "text": "Details",
+                        "visible": true,
+                        "attributes": {},
+                        "value": "",
+                        "truncated": false
+                      },
+                      {
+                        "selector": "html > body:nth-of-type(1) > dialog:nth-of-type(1)",
+                        "path": "html > body:nth-of-type(1) > dialog:nth-of-type(1)",
+                        "leaf": true,
+                        "incidental": false,
+                        "parentSelector": "html > body:nth-of-type(1)",
+                        "tag": "dialog",
+                        "name": "Details overview",
+                        "text": "Details overview",
+                        "visible": false,
+                        "attributes": {},
+                        "truncated": false
+                      }
+                    ],
+                    "total": 5,
+                    "complete": true,
+                    "documentVersion": "88ef43b0bc5b10104204428092be1bfa7c137930a6e1df7c4c38c1a4a6121660"
+                  },
+                  "goalHash": "5ee09e025e6bd0d777a9f356b3f908cc946942f6d786553d5bdceb0643b1b0dc",
+                  "contractHash": "a7eaf037cd6e9ca07b4e7c390d1eae506c13f98c6f88dffbb0d7aaf9aa02c99f",
+                  "hash": "5f494f93d6186099c841c03100a9550c1f7dd3459486faccad638e269edecfea",
+                  "ruleChecks": [
+                    {
+                      "ruleId": "overlay-blocking",
+                      "revision": "2.1.0",
+                      "contentHash": "c3acb6191549a481e1dbacd22655f6bde36459f78a0301e6f2ad2d88aa8ef424",
+                      "approvalRef": "installed-registry:overlay-blocking:2.1.0",
+                      "scopeItemIds": [
+                        "item-6d1f5d7c-45a5-420a-a13c-aa4249dcb529"
+                      ],
+                      "evidenceRefs": [
+                        "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+                        "c082ee8b-6af3-449f-9d58-79baa722cf32.json"
+                      ]
+                    }
+                  ]
+                },
+                "generic": {
+                  "state": "pending",
+                  "evidenceRefs": [],
+                  "eventIds": []
+                },
+                "effects": []
+              }
+            },
+            {
+              "itemId": "item-ac4160e1-38fe-4386-a1be-ead30ab5c9b1",
+              "category": "investigation",
+              "status": "verified",
+              "reasonCode": null,
+              "evidenceRefs": [
+                "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+                "c082ee8b-6af3-449f-9d58-79baa722cf32.json"
+              ],
+              "basis": "default-sampling:local:http://127.0.0.1:62521/p/one"
+            },
+            {
+              "itemId": "item-6d1f5d7c-45a5-420a-a13c-aa4249dcb529",
+              "category": "automatic-check",
+              "status": "verified",
+              "reasonCode": null,
+              "evidenceRefs": [
+                "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+                "c082ee8b-6af3-449f-9d58-79baa722cf32.json"
+              ],
+              "basis": "automatic rule overlay-blocking applies to the observed state"
+            },
+            {
+              "itemId": "item-14881771-1e96-4318-9f3c-b24f85de1904",
+              "category": "automatic-check",
+              "status": "unverified",
+              "reasonCode": "control-text-supported-scope-limit",
+              "evidenceRefs": [
+                "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+                "c082ee8b-6af3-449f-9d58-79baa722cf32.json",
+                "c355ac01-1471-4d7b-ae2c-eef1e06c2d3e.json"
+              ],
+              "basis": "automatic rule control-text-disappearance applies to the observed state"
+            },
+            {
+              "itemId": "item-1e031f80-a68e-4114-8c1d-eab2dc3cb2ad",
+              "category": "automatic-check",
+              "status": "unverified",
+              "reasonCode": "control-layout-supported-scope-limit",
+              "evidenceRefs": [
+                "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+                "c082ee8b-6af3-449f-9d58-79baa722cf32.json",
+                "8262fe61-939a-431d-a932-5864215f9cdf.json"
+              ],
+              "basis": "automatic rule control-text-clipping applies to the observed state"
+            },
+            {
+              "itemId": "item-316a906b-8371-42eb-8b92-5dcad5f3ec81",
+              "category": "automatic-check",
+              "status": "unverified",
+              "reasonCode": "control-layout-supported-scope-limit",
+              "evidenceRefs": [
+                "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+                "c082ee8b-6af3-449f-9d58-79baa722cf32.json",
+                "8262fe61-939a-431d-a932-5864215f9cdf.json"
+              ],
+              "basis": "automatic rule control-text-overlap applies to the observed state"
+            },
+            {
+              "itemId": "item-9fd8b95a-98a0-431f-97e3-51e0b156dd3e",
+              "category": "investigation",
+              "status": "verified",
+              "reasonCode": null,
+              "evidenceRefs": [
+                "847f7552-6d91-4a2c-b96e-2c96e7e9ec82.png",
+                "bd9d9b33-6b54-4a6b-9757-58c75b33d44d.json"
+              ],
+              "basis": "default-checks:page-source-review:http://127.0.0.1:62521/p/one"
+            },
+            {
+              "itemId": "item-474e74e7-c608-48b7-a938-f020e01c20b8",
+              "category": "investigation",
+              "status": "pending",
+              "reasonCode": null,
+              "evidenceRefs": [],
+              "basis": "popup-viewport-1: bounded popup viewport subtask"
+            }
+          ],
+          "counts": {
+            "total": 12,
+            "verified": 5,
+            "failed": 0,
+            "unverified": 3,
+            "excluded": 0
+          },
+          "unsupported": [
+            "authenticated-session",
+            "business-write",
+            "post-data-query",
+            "graphql-post",
+            "file-upload",
+            "file-download",
+            "new-window",
+            "websocket",
+            "service-worker",
+            "control-text-clipping:coverage",
+            "control-text-overlap:coverage",
+            "control-text-disappearance:coverage",
+            "control-text-disappearance",
+            "control-text-clipping",
+            "control-text-overlap"
+          ],
+          "decidedAt": "2026-10-10T03:49:25.502Z",
+          "blockerEvidence": [],
+          "hash": "a1589a3174cf4af82d8b1c1820a423f7baa6405852f4ae603dc8e81896b1603d"
+        },
+        "scopeDigest": "b56e005fa69cd7af583527ce5873fb5827695320466545937087f97a513213fa",
+        "task": {
+          "goal": "检查弹窗是否超出视口。",
+          "hypotheses": [],
+          "conditions": [
+            {
+              "trigger": "payment-success",
+              "applicability": "pending"
+            },
+            {
+              "trigger": "payment-rejected",
+              "applicability": "pending"
+            },
+            {
+              "trigger": "business-success",
+              "applicability": "pending"
+            },
+            {
+              "trigger": "business-rejected",
+              "applicability": "pending"
+            },
+            {
+              "trigger": "retryable-failure",
+              "applicability": "pending"
+            },
+            {
+              "trigger": "overlay-present",
+              "applicability": "pending"
+            }
+          ],
+          "unexploredBranches": []
+        }
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-929d41ba-bc65-4bf0-82dd-485994d17a8f",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 73,
+      "type": "inspection:summary",
+      "timestamp": "2026-10-10T03:49:25.504Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "kind": "ui-scan",
+        "coverage": "partial",
+        "counts": {
+          "total": 12,
+          "selected": 9,
+          "pending": 4,
+          "verified": 5,
+          "failed": 0,
+          "unverified": 3,
+          "excluded": 0
+        },
+        "unsupported": [
+          "authenticated-session",
+          "business-write",
+          "post-data-query",
+          "graphql-post",
+          "file-upload",
+          "file-download",
+          "new-window",
+          "websocket",
+          "service-worker",
+          "control-text-clipping:coverage",
+          "control-text-overlap:coverage",
+          "control-text-disappearance:coverage",
+          "control-text-disappearance",
+          "control-text-clipping",
+          "control-text-overlap"
+        ]
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-9cf6bfc4-4f19-4951-8688-30457ec26785",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 74,
+      "type": "agent:done",
+      "timestamp": "2026-10-10T03:49:25.504Z",
+      "stepId": "initial",
+      "actionId": null,
+      "payload": {
+        "reasonCode": "unverified-scope",
+        "businessResult": "not-applicable"
+      },
+      "evidenceRefs": [
+        "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+        "c082ee8b-6af3-449f-9d58-79baa722cf32.json"
+      ]
+    },
+    {
+      "id": "evt-a8634a3b-289a-4205-8e84-67b7738990dd",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 75,
+      "type": "run:delegated-resource-closed",
+      "timestamp": "2026-10-10T03:49:25.548Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "closed": true,
+        "parentRunId": "run-60c6c8bc-eeca-4e67-bab8-845b368babee"
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-d9f64215-af34-4348-beed-55529936e3f0",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 76,
+      "type": "run:completed",
+      "timestamp": "2026-10-10T03:49:25.549Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "status": "blocked",
+        "businessResult": "not-applicable",
+        "stopReason": "blocked",
+        "usage": {
+          "actions": 0,
+          "modelCalls": 1,
+          "elapsedMs": 1659,
+          "modelInputTokens": 0,
+          "modelOutputTokens": 0
+        },
+        "tokenUsage": "unavailable"
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-07987b2f-f665-4eb8-b0f4-7b6c50d71250",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 77,
+      "type": "execution:profile",
+      "timestamp": "2026-10-10T03:49:25.550Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "version": "1",
+        "wallMs": 1662.1395419999972,
+        "exclusiveMs": {
+          "unattributed": 324.79937499999505,
+          "observation": 96.9793729999983,
+          "validation": 18.809375000000728,
+          "screenshot": 7.708166000000347,
+          "persistence": 35.605042000010144,
+          "dom": 3.6178340000005846,
+          "a11y": 14.29254199999923,
+          "rules": 25.32983399999648,
+          "tool": 1134.9980009999963
+        },
+        "inclusiveMs": {
+          "observation": 170.3301250000004,
+          "validation": 18.809375000000728,
+          "screenshot": 7.708166000000347,
+          "persistence": 35.605042000010144,
+          "dom": 3.6178340000005846,
+          "a11y": 14.29254199999923,
+          "rules": 27.59624999999869,
+          "tool": 1164.7540829999998
+        },
+        "unfinished": 0,
+        "spans": [
+          {
+            "id": 1,
+            "kind": "observation",
+            "startMs": 224.10149999999703,
+            "endMs": 394.43162499999744,
+            "status": "success",
+            "attributes": {}
+          },
+          {
+            "id": 2,
+            "parentId": 1,
+            "kind": "validation",
+            "startMs": 234.42224999999962,
+            "endMs": 243.01900000000023,
+            "status": "success",
+            "attributes": {}
+          },
+          {
+            "id": 3,
+            "parentId": 1,
+            "kind": "screenshot",
+            "startMs": 251.32408399999986,
+            "endMs": 259.0322500000002,
+            "status": "success",
+            "attributes": {}
+          },
+          {
+            "id": 4,
+            "parentId": 1,
+            "kind": "persistence",
+            "startMs": 259.057249999998,
+            "endMs": 260.39979200000016,
+            "status": "success",
+            "attributes": {
+              "type": "screenshot"
+            }
+          },
+          {
+            "id": 5,
+            "parentId": 1,
+            "kind": "dom",
+            "startMs": 260.40999999999985,
+            "endMs": 264.02783400000044,
+            "status": "success",
+            "attributes": {}
+          },
+          {
+            "id": 6,
+            "parentId": 1,
+            "kind": "persistence",
+            "startMs": 264.0639999999985,
+            "endMs": 265.9839589999974,
+            "status": "success",
+            "attributes": {
+              "type": "snapshot"
+            }
+          },
+          {
+            "id": 7,
+            "parentId": 1,
+            "kind": "persistence",
+            "startMs": 319.31683399999747,
+            "endMs": 321.3244589999995,
+            "status": "success",
+            "attributes": {
+              "type": "ui-rule-facts"
+            }
+          },
+          {
+            "id": 8,
+            "parentId": 1,
+            "kind": "persistence",
+            "startMs": 321.4242919999997,
+            "endMs": 322.8580839999995,
+            "status": "success",
+            "attributes": {
+              "type": "control-layout-facts"
+            }
+          },
+          {
+            "id": 9,
+            "parentId": 1,
+            "kind": "a11y",
+            "startMs": 322.8937499999993,
+            "endMs": 337.1862919999985,
+            "status": "success",
+            "attributes": {}
+          },
+          {
+            "id": 10,
+            "parentId": 1,
+            "kind": "validation",
+            "startMs": 337.1917919999978,
+            "endMs": 342.02708399999756,
+            "status": "success",
+            "attributes": {}
+          },
+          {
+            "id": 11,
+            "parentId": 1,
+            "kind": "rules",
+            "startMs": 366.81154199999946,
+            "endMs": 394.40779199999815,
+            "status": "success",
+            "attributes": {}
+          },
+          {
+            "id": 12,
+            "parentId": 11,
+            "kind": "persistence",
+            "startMs": 383.41799999999785,
+            "endMs": 384.49199999999837,
+            "status": "success",
+            "attributes": {
+              "type": "image-fallback-review"
+            }
+          },
+          {
+            "id": 13,
+            "parentId": 11,
+            "kind": "persistence",
+            "startMs": 384.52770899999814,
+            "endMs": 385.7201249999998,
+            "status": "success",
+            "attributes": {
+              "type": "ui-rule-observation"
+            }
+          },
+          {
+            "id": 14,
+            "kind": "persistence",
+            "startMs": 425.7801249999975,
+            "endMs": 426.94095899999957,
+            "status": "success",
+            "attributes": {
+              "type": "screenshot"
+            }
+          },
+          {
+            "id": 15,
+            "kind": "persistence",
+            "startMs": 428.859666999997,
+            "endMs": 429.9547919999968,
+            "status": "success",
+            "attributes": {
+              "type": "check-source-observation"
+            }
+          },
+          {
+            "id": 16,
+            "kind": "tool",
+            "startMs": 442.1677920000002,
+            "endMs": 1606.921875,
+            "status": "success",
+            "attributes": {
+              "tool": "popup_check",
+              "toolCallId": "ee2a3109-d4dc-4e93-856d-4ca9931a4446"
+            }
+          },
+          {
+            "id": 17,
+            "parentId": 16,
+            "kind": "validation",
+            "startMs": 442.35804199999984,
+            "endMs": 447.7353750000002,
+            "status": "success",
+            "attributes": {}
+          },
+          {
+            "id": 18,
+            "parentId": 16,
+            "kind": "persistence",
+            "startMs": 453.6165839999994,
+            "endMs": 454.8774169999997,
+            "status": "success",
+            "attributes": {
+              "type": "popup-question"
+            }
+          },
+          {
+            "id": 19,
+            "parentId": 16,
+            "kind": "persistence",
+            "startMs": 1324.260833999997,
+            "endMs": 1347.3787499999999,
+            "status": "success",
+            "attributes": {
+              "type": "popup-jev-request"
+            }
+          }
+        ]
+      },
+      "evidenceRefs": []
+    },
+    {
+      "id": "evt-fb8a90c8-848d-4a2e-8061-34bdc9448186",
+      "runId": "check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030",
+      "seq": 78,
+      "type": "run:statistics",
+      "timestamp": "2026-10-10T03:49:25.551Z",
+      "stepId": null,
+      "actionId": null,
+      "payload": {
+        "requests": {
+          "total": 0,
+          "agent": 0,
+          "vision": 0,
+          "success": 0,
+          "error": 0,
+          "totalInputTokens": 0,
+          "totalOutputTokens": 0,
+          "totalDurationMs": 0,
+          "avgInputTokensPerCall": null
+        },
+        "progress": {
+          "totalResponses": 0,
+          "categories": {
+            "action": 0,
+            "observe-only": 0,
+            "hypothesis": 0,
+            "finding": 0,
+            "finish": 0,
+            "judgment": 0,
+            "no-progress": 0
+          },
+          "effectiveActionRate": null,
+          "noProgressRate": null,
+          "noProgressDecisions": 0
+        },
+        "observations": {
+          "total": 1,
+          "totalChecks": 0,
+          "totalStale": 0,
+          "reusedCount": 0,
+          "consecutiveStale": 0
+        },
+        "perRequest": [],
+        "perResponse": []
+      },
+      "evidenceRefs": []
+    }
+  ],
+  "hypotheses": [],
+  "artifacts": [
+    {
+      "id": "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+      "type": "screenshot",
+      "kind": "screenshot",
+      "metadata": {
+        "url": "http://127.0.0.1:62521/p/one",
+        "viewport": {
+          "width": 320,
+          "height": 480
+        },
+        "capturedAt": "2026-10-10T03:49:24.147Z",
+        "evidenceIntegrity": {
+          "version": 1,
+          "status": "clean",
+          "interventionIds": []
+        }
+      },
+      "available": true,
+      "url": "/api/runs/check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030/artifacts/8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png"
+    },
+    {
+      "id": "c082ee8b-6af3-449f-9d58-79baa722cf32.json",
+      "type": "snapshot",
+      "kind": "snapshot",
+      "metadata": {
+        "evidenceIntegrity": {
+          "version": 1,
+          "status": "clean",
+          "interventionIds": []
+        }
+      },
+      "available": true,
+      "url": "/api/runs/check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030/artifacts/c082ee8b-6af3-449f-9d58-79baa722cf32.json"
+    },
+    {
+      "id": "c355ac01-1471-4d7b-ae2c-eef1e06c2d3e.json",
+      "type": "ui-rule-facts",
+      "kind": "ui-rule-facts",
+      "metadata": {
+        "evidenceIntegrity": {
+          "version": 1,
+          "status": "clean",
+          "interventionIds": []
+        }
+      },
+      "available": true,
+      "url": "/api/runs/check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030/artifacts/c355ac01-1471-4d7b-ae2c-eef1e06c2d3e.json"
+    },
+    {
+      "id": "8262fe61-939a-431d-a932-5864215f9cdf.json",
+      "type": "control-layout-facts",
+      "kind": "control-layout-facts",
+      "metadata": {
+        "evidenceIntegrity": {
+          "version": 1,
+          "status": "clean",
+          "interventionIds": []
+        }
+      },
+      "available": true,
+      "url": "/api/runs/check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030/artifacts/8262fe61-939a-431d-a932-5864215f9cdf.json"
+    },
+    {
+      "id": "ca1fe854-1209-4a62-957e-20397cb001ce.json",
+      "type": "image-fallback-review",
+      "kind": "image-fallback-review",
+      "metadata": {
+        "evidenceIntegrity": {
+          "version": 1,
+          "status": "clean",
+          "interventionIds": []
+        }
+      },
+      "available": true,
+      "url": "/api/runs/check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030/artifacts/ca1fe854-1209-4a62-957e-20397cb001ce.json"
+    },
+    {
+      "id": "51624c09-c4d3-43ad-b529-9f8035abf1f3.json",
+      "type": "ui-rule-observation",
+      "kind": "ui-rule-observation",
+      "metadata": {
+        "evidenceIntegrity": {
+          "version": 1,
+          "status": "clean",
+          "interventionIds": []
+        }
+      },
+      "available": true,
+      "url": "/api/runs/check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030/artifacts/51624c09-c4d3-43ad-b529-9f8035abf1f3.json"
+    },
+    {
+      "id": "847f7552-6d91-4a2c-b96e-2c96e7e9ec82.png",
+      "type": "screenshot",
+      "kind": "screenshot",
+      "metadata": {
+        "evidenceIntegrity": {
+          "version": 1,
+          "status": "clean",
+          "interventionIds": []
+        }
+      },
+      "available": true,
+      "url": "/api/runs/check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030/artifacts/847f7552-6d91-4a2c-b96e-2c96e7e9ec82.png"
+    },
+    {
+      "id": "bd9d9b33-6b54-4a6b-9757-58c75b33d44d.json",
+      "type": "check-source-observation",
+      "kind": "check-source-observation",
+      "metadata": {
+        "evidenceIntegrity": {
+          "version": 1,
+          "status": "clean",
+          "interventionIds": []
+        }
+      },
+      "available": true,
+      "url": "/api/runs/check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030/artifacts/bd9d9b33-6b54-4a6b-9757-58c75b33d44d.json"
+    },
+    {
+      "id": "3851c706-8890-400b-b02e-39e054c29b4f.json",
+      "type": "popup-question",
+      "kind": "popup-question",
+      "metadata": {
+        "evidenceIntegrity": {
+          "version": 1,
+          "status": "clean",
+          "interventionIds": []
+        }
+      },
+      "available": true,
+      "url": "/api/runs/check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030/artifacts/3851c706-8890-400b-b02e-39e054c29b4f.json"
+    },
+    {
+      "id": "b8be9772-bc9c-4997-924f-bbdb2728dbe9.json",
+      "type": "popup-jev-request",
+      "kind": "popup-jev-request",
+      "metadata": {
+        "evidenceIntegrity": {
+          "version": 1,
+          "status": "clean",
+          "interventionIds": []
+        }
+      },
+      "available": true,
+      "url": "/api/runs/check-d7beeffe-8807-4a0e-9bc6-68dad3a4d030/artifacts/b8be9772-bc9c-4997-924f-bbdb2728dbe9.json"
+    }
+  ],
+  "evaluations": [
+    {
+      "ruleId": "overlay-blocking",
+      "ruleRevision": "2.1.0",
+      "verdict": "pass",
+      "severity": "info",
+      "title": "Action hit testing",
+      "expected": "Visible enabled actions receive pointer input",
+      "actual": "0 intercepted actions; 0 partially covered; 0 unmeasured",
+      "evidenceRefs": [
+        "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+        "c082ee8b-6af3-449f-9d58-79baa722cf32.json"
+      ],
+      "confidence": 0.8,
+      "details": {
+        "blocked": false,
+        "blockedTargets": [],
+        "partialTargets": [],
+        "method": "five-point-hit-test",
+        "originalViewport": {
+          "width": 320,
+          "height": 480
+        }
+      },
+      "eventId": "evt-e8d1ff19-5d4d-49c1-aaa2-5c4cfee96325",
+      "stepId": "initial"
+    },
+    {
+      "ruleId": "control-text-disappearance",
+      "ruleRevision": "0.1.0",
+      "verdict": "unknown",
+      "severity": "info",
+      "title": "Native action text paint",
+      "expected": "The sole native action text name has distinguishable paint in the supported presentation",
+      "actual": "html > body:nth-child(2) > button:nth-child(3): unknown (native-appearance-unmeasured; canvas-background-unresolved); html > body:nth-child(2) > button:nth-child(4): unknown (native-appearance-unmeasured; canvas-background-unresolved); html > body:nth-child(2) > button:nth-child(5): unknown (native-appearance-unmeasured; canvas-background-unresolved)",
+      "evidenceRefs": [
+        "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+        "c082ee8b-6af3-449f-9d58-79baa722cf32.json",
+        "c355ac01-1471-4d7b-ae2c-eef1e06c2d3e.json"
+      ],
+      "confidence": 0,
+      "details": {
+        "knowledgeId": "UIK-D005",
+        "rows": [
+          {
+            "selector": "html > body:nth-child(2) > button:nth-child(3)",
+            "verdict": "unknown",
+            "reason": "native-appearance-unmeasured; canvas-background-unresolved",
+            "fact": {
+              "selector": "html > body:nth-child(2) > button:nth-child(3)",
+              "matchCount": 1,
+              "nodeId": 1,
+              "text": "Sort alphabetically",
+              "roleBasis": "enabled-native-button-text-name",
+              "excluded": null,
+              "issues": [
+                "native-appearance-unmeasured",
+                "canvas-background-unresolved"
+              ],
+              "textBounds": {
+                "x": 24,
+                "y": 90.875,
+                "width": 108.9375,
+                "height": 15
+              },
+              "foreground": [
+                0,
+                0,
+                0,
+                1
+              ],
+              "background": null,
+              "composed": null,
+              "layers": [
+                {
+                  "selector": "html > body:nth-child(2) > button:nth-child(3)",
+                  "color": "rgb(239, 239, 239)",
+                  "rgba": [
+                    239,
+                    239,
+                    239,
+                    1
+                  ]
+                },
+                {
+                  "selector": "html > body:nth-child(2)",
+                  "color": "rgba(0, 0, 0, 0)",
+                  "rgba": [
+                    0,
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "selector": "html",
+                  "color": "rgba(0, 0, 0, 0)",
+                  "rgba": [
+                    0,
+                    0,
+                    0,
+                    0
+                  ]
+                }
+              ]
+            },
+            "pixel": {
+              "selector": "html > body:nth-child(2) > button:nth-child(3)",
+              "samples": 0,
+              "backgroundPixels": 0,
+              "foregroundPixels": 0,
+              "otherPixels": 0
+            }
+          },
+          {
+            "selector": "html > body:nth-child(2) > button:nth-child(4)",
+            "verdict": "unknown",
+            "reason": "native-appearance-unmeasured; canvas-background-unresolved",
+            "fact": {
+              "selector": "html > body:nth-child(2) > button:nth-child(4)",
+              "matchCount": 1,
+              "nodeId": 2,
+              "text": "Change density",
+              "roleBasis": "enabled-native-button-text-name",
+              "excluded": null,
+              "issues": [
+                "native-appearance-unmeasured",
+                "canvas-background-unresolved"
+              ],
+              "textBounds": {
+                "x": 164.9375,
+                "y": 90.875,
+                "width": 92.640625,
+                "height": 15
+              },
+              "foreground": [
+                0,
+                0,
+                0,
+                1
+              ],
+              "background": null,
+              "composed": null,
+              "layers": [
+                {
+                  "selector": "html > body:nth-child(2) > button:nth-child(4)",
+                  "color": "rgb(239, 239, 239)",
+                  "rgba": [
+                    239,
+                    239,
+                    239,
+                    1
+                  ]
+                },
+                {
+                  "selector": "html > body:nth-child(2)",
+                  "color": "rgba(0, 0, 0, 0)",
+                  "rgba": [
+                    0,
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "selector": "html",
+                  "color": "rgba(0, 0, 0, 0)",
+                  "rgba": [
+                    0,
+                    0,
+                    0,
+                    0
+                  ]
+                }
+              ]
+            },
+            "pixel": {
+              "selector": "html > body:nth-child(2) > button:nth-child(4)",
+              "samples": 0,
+              "backgroundPixels": 0,
+              "foregroundPixels": 0,
+              "otherPixels": 0
+            }
+          },
+          {
+            "selector": "html > body:nth-child(2) > button:nth-child(5)",
+            "verdict": "unknown",
+            "reason": "native-appearance-unmeasured; canvas-background-unresolved",
+            "fact": {
+              "selector": "html > body:nth-child(2) > button:nth-child(5)",
+              "matchCount": 1,
+              "nodeId": 3,
+              "text": "Details",
+              "roleBasis": "enabled-native-button-text-name",
+              "excluded": null,
+              "issues": [
+                "native-appearance-unmeasured",
+                "canvas-background-unresolved"
+              ],
+              "textBounds": {
+                "x": 24,
+                "y": 127.875,
+                "width": 40.75,
+                "height": 15
+              },
+              "foreground": [
+                0,
+                0,
+                0,
+                1
+              ],
+              "background": null,
+              "composed": null,
+              "layers": [
+                {
+                  "selector": "html > body:nth-child(2) > button:nth-child(5)",
+                  "color": "rgb(239, 239, 239)",
+                  "rgba": [
+                    239,
+                    239,
+                    239,
+                    1
+                  ]
+                },
+                {
+                  "selector": "html > body:nth-child(2)",
+                  "color": "rgba(0, 0, 0, 0)",
+                  "rgba": [
+                    0,
+                    0,
+                    0,
+                    0
+                  ]
+                },
+                {
+                  "selector": "html",
+                  "color": "rgba(0, 0, 0, 0)",
+                  "rgba": [
+                    0,
+                    0,
+                    0,
+                    0
+                  ]
+                }
+              ]
+            },
+            "pixel": {
+              "selector": "html > body:nth-child(2) > button:nth-child(5)",
+              "samples": 0,
+              "backgroundPixels": 0,
+              "foregroundPixels": 0,
+              "otherPixels": 0
+            }
+          }
+        ],
+        "problems": [],
+        "scope": "Sole native button/link text name, not task importance, accessibility compliance, charts or overall readability; no manual semantic confirmation required.",
+        "total": 3,
+        "omitted": 0
+      },
+      "unchecked": {
+        "reasonCode": "control-text-supported-scope-limit"
+      },
+      "eventId": "evt-b54c3e31-1d13-4d78-9d11-a52d338af5e7",
+      "stepId": "initial"
+    },
+    {
+      "ruleId": "control-text-clipping",
+      "ruleRevision": "0.1.0",
+      "verdict": "unknown",
+      "severity": "info",
+      "title": "原生操作文字被垂直裁切",
+      "expected": "The sole local native action label retains its glyph ink; alternative or abbreviation intent must be established separately",
+      "actual": "html > body:nth-of-type(1) > button:nth-of-type(1): unknown (unsupported-flat-colors; unsupported-control-paint; control-border); html > body:nth-of-type(1) > button:nth-of-type(2): unknown (unsupported-flat-colors; unsupported-control-paint; control-border); html > body:nth-of-type(1) > button:nth-of-type(3): unknown (unsupported-flat-colors; unsupported-control-paint; control-border)",
+      "evidenceRefs": [
+        "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+        "c082ee8b-6af3-449f-9d58-79baa722cf32.json",
+        "8262fe61-939a-431d-a932-5864215f9cdf.json"
+      ],
+      "confidence": 0,
+      "details": {
+        "knowledgeId": "UIK-D001",
+        "rows": [
+          {
+            "selector": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+            "text": "Sort alphabetically",
+            "verdict": "unknown",
+            "reason": "unsupported-flat-colors; unsupported-control-paint; control-border",
+            "basis": "sole-visible-native-action-text; local presentation only",
+            "relatedSelectors": [],
+            "relatedRuleIds": []
+          },
+          {
+            "selector": "html > body:nth-of-type(1) > button:nth-of-type(2)",
+            "text": "Change density",
+            "verdict": "unknown",
+            "reason": "unsupported-flat-colors; unsupported-control-paint; control-border",
+            "basis": "sole-visible-native-action-text; local presentation only",
+            "relatedSelectors": [],
+            "relatedRuleIds": []
+          },
+          {
+            "selector": "html > body:nth-of-type(1) > button:nth-of-type(3)",
+            "text": "Details",
+            "verdict": "unknown",
+            "reason": "unsupported-flat-colors; unsupported-control-paint; control-border",
+            "basis": "sole-visible-native-action-text; local presentation only",
+            "relatedSelectors": [],
+            "relatedRuleIds": []
+          }
+        ],
+        "problems": [],
+        "totalObserved": 3,
+        "omitted": 0,
+        "enumerationComplete": true,
+        "scope": "Vertical glyph clipping of a sole native text name; no claim that all text must be complete or that no recovery exists elsewhere"
+      },
+      "unchecked": {
+        "reasonCode": "control-layout-supported-scope-limit"
+      },
+      "eventId": "evt-005d2402-72ef-43ef-8ed8-96b9dd15ca9b",
+      "stepId": "initial"
+    },
+    {
+      "ruleId": "control-text-overlap",
+      "ruleRevision": "0.1.0",
+      "verdict": "unknown",
+      "severity": "info",
+      "title": "共同操作组中文字被兄弟控件遮盖",
+      "expected": "Independently enabled members of the public action group retain distinguishable label ink",
+      "actual": "html > body:nth-of-type(1) > button:nth-of-type(1): unknown (unsupported-flat-colors; unsupported-control-paint; control-border); html > body:nth-of-type(1) > button:nth-of-type(2): unknown (unsupported-flat-colors; unsupported-control-paint; control-border); html > body:nth-of-type(1) > button:nth-of-type(3): unknown (unsupported-flat-colors; unsupported-control-paint; control-border)",
+      "evidenceRefs": [
+        "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+        "c082ee8b-6af3-449f-9d58-79baa722cf32.json",
+        "8262fe61-939a-431d-a932-5864215f9cdf.json"
+      ],
+      "confidence": 0,
+      "details": {
+        "knowledgeId": "UIK-D002",
+        "rows": [
+          {
+            "selector": "html > body:nth-of-type(1) > button:nth-of-type(1)",
+            "text": "Sort alphabetically",
+            "verdict": "unknown",
+            "reason": "unsupported-flat-colors; unsupported-control-paint; control-border",
+            "basis": "coexistence-not-established",
+            "relatedSelectors": [],
+            "relatedRuleIds": []
+          },
+          {
+            "selector": "html > body:nth-of-type(1) > button:nth-of-type(2)",
+            "text": "Change density",
+            "verdict": "unknown",
+            "reason": "unsupported-flat-colors; unsupported-control-paint; control-border",
+            "basis": "coexistence-not-established",
+            "relatedSelectors": [],
+            "relatedRuleIds": []
+          },
+          {
+            "selector": "html > body:nth-of-type(1) > button:nth-of-type(3)",
+            "text": "Details",
+            "verdict": "unknown",
+            "reason": "unsupported-flat-colors; unsupported-control-paint; control-border",
+            "basis": "coexistence-not-established",
+            "relatedSelectors": [],
+            "relatedRuleIds": []
+          }
+        ],
+        "problems": [],
+        "totalObserved": 3,
+        "omitted": 0,
+        "enumerationComplete": true,
+        "scope": "Public nav/fieldset/toolbar sibling label paint; not pointer interception, all-rectangles-must-not-overlap, or general coexistence inference"
+      },
+      "unchecked": {
+        "reasonCode": "control-layout-supported-scope-limit"
+      },
+      "eventId": "evt-b99fe387-c14c-4162-ab7b-45173e213ff6",
+      "stepId": "initial"
+    }
+  ],
+  "evidenceRefs": [
+    "8bc0593f-4ac7-46f4-a07e-5766aee6fe33.png",
+    "c082ee8b-6af3-449f-9d58-79baa722cf32.json",
+    "c355ac01-1471-4d7b-ae2c-eef1e06c2d3e.json",
+    "8262fe61-939a-431d-a932-5864215f9cdf.json",
+    "ca1fe854-1209-4a62-957e-20397cb001ce.json",
+    "51624c09-c4d3-43ad-b529-9f8035abf1f3.json",
+    "847f7552-6d91-4a2c-b96e-2c96e7e9ec82.png",
+    "bd9d9b33-6b54-4a6b-9757-58c75b33d44d.json",
+    "3851c706-8890-400b-b02e-39e054c29b4f.json",
+    "b8be9772-bc9c-4997-924f-bbdb2728dbe9.json"
+  ],
+  "exploredStates": [],
+  "unexploredBranches": [],
+  "untriggeredBranches": [],
+  "conditions": [
+    {
+      "trigger": "payment-success",
+      "applicability": "pending"
+    },
+    {
+      "trigger": "payment-rejected",
+      "applicability": "pending"
+    },
+    {
+      "trigger": "business-success",
+      "applicability": "pending"
+    },
+    {
+      "trigger": "business-rejected",
+      "applicability": "pending"
+    },
+    {
+      "trigger": "retryable-failure",
+      "applicability": "pending"
+    },
+    {
+      "trigger": "overlay-present",
+      "applicability": "pending"
+    }
+  ],
+  "analysisTasks": [],
+  "evaluatedRuleCount": 4,
+  "unknownCount": 3,
+  "coverage": {
+    "exploredStates": [],
+    "unexploredBranches": [],
+    "checks": "checked",
+    "executionErrors": [],
+    "unverifiedInterventionScope": [],
+    "visualUnverified": [],
+    "unverifiedAnalysisTasks": [],
+    "persistenceIssues": [],
+    "stopReason": "blocked"
+  }
+}

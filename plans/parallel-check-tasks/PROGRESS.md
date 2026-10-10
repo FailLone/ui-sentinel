@@ -29,3 +29,9 @@ Merge order: independently review this branch's new check-task/network-budget mo
 ## 真实并行小批次准备（2026-10-10，未收费）
 
 同步接收后的 main `5595a14`。发现并免费补齐主通道/子 Jev 共用原账户的受信任启动接点，以及子几何目标收窄后保留父完整目标的接点；候选运行源码更新为 `c8f59a24bbb8465107ed35f24837206bf32f4e59`。3 行冻结计划、请求/费用/时间上限、机器摘要、单次批准闸门和执行命令均见 [real-preparation/PLAN.md](real-preparation/PLAN.md)。定向 26 项、类型检查和构建通过；最终 P01 免费单行原 API/Chromium/provider/ledger 检查通过，5 主请求 + 2 Jev 请求逐笔对齐，实际付费 0。未重跑旧矩阵或 DNS 全套；等待维护者统一确认新的 USD 1.86 批次授权，不沿用旧提案。
+
+## 授权真实批次封存（2026-10-10）
+
+维护者转达用户对交付 `9cd8480` 对应冻结批次的直接“授权”。按原 manifest/bundle 在一个新原账户执行，P01 的两次真实 `check_task_submit` 均接受，两子 Jev ENTRY 请求并行在途，随后 `jev-http-error` 触发全批停止；无有效 Jev 选择、点击或几何测量，P02/P03 未启动。完整目标未验证。共派发 3 主模型 + 2 Jev：2 笔已结算 USD 0.0028128，3 笔 unknown 保守计提 USD 0.066，held 与活动 lease 均为 0；实际总费用仍未知。
+
+冻结代码、参数及失败原件未改，不重试、不追加批次、不处理旧账户。两子浏览器关闭，原父子完成事件及子证据离线检查通过；保留父 cancelled 报告的 `not-final` 原标记。冻结包装层未留存 Jev HTTP 状态码/正文，不能确定具体根因；进程退出码 0 不表示批次成功。详见 [结果报告](real-result-20261010/RESULT.md)、[费用及原始证据](real-result-20261010/evidence/)、[哈希清单](real-result-20261010/archive-manifest.json)。仅封存和离线核对，无修复后续跑、推送或合并 main。
