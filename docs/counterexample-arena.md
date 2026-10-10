@@ -14,13 +14,13 @@
 | 弹窗异步/已存在/多浮层、内部滚动、变换 unknown | `scripts/popup-ui-contract/validate.ts`、`scripts/popup-product/validate.ts`、`src/execution/popup/geometry.test.ts` 与 `ui-runtime.test.ts` | **已有回归，保留引用**。旧脚本 URL/title 有测试语义，不直接作为 Agent 新靶场入口；内部滚动与复杂绘制边界不为凑数再造页。 |
 | 并发取消、迟到结果、子证据互换、数据库篡改、费用 unknown/超限 | `scripts/validation/parallel-popup-product.ts`；`src/execution/popup/ui-runtime.test.ts`；`src/execution/completion-integrity.test.ts`；`evaluation/support/campaign-ledger.test.ts`、`campaign-session.test.ts`、`cost-reconciliation.test.ts` | **协议/集成回归保留**。网页无法证明账本、取消传播、证据所有权和持久历史正确。原数据库和费用证据留 data/归档，不做 UI 故障开关。 |
 | DNS fake-IP、私网/重定向、预算与完成证明 | `src/execution/network/{resolver,boundary-dns,session-dns,acceptance}.test.ts`；`src/inspection/completion.test.ts`；[R0 接手](r0-closeout.md) | **协议回归保留**。历史公网拒绝是网络观察，不是页面缺陷，不用本地页面冒充公网复现。 |
-| 动作前登记的资料路径，第一步创建第二步按钮后准入失败 | 原失败保留于 R2 工作区 `data/reviews/r2-maintainer/REVIEW.md`、`dynamic-control-repro.ts`；原审查候选 `aa535ca`、交付 `30002a3`；修复 `d8b5cee`、证据交付 `53d60ae` | **R2 已修复，有独立长期回归，待整合**：`scripts/validation/r2-product-sources.ts --dynamic-only` 与 `evaluation/r2-product-sources/dynamic-admission.json` 已在 R2 分支入库；整合后才可与本靶场在同一 checkout 使用。本分支只建立引用，不复制页面或执行器。 |
+| 动作前登记的资料路径，第一步创建第二步按钮后准入失败 | 原失败保留于 R2 工作区 `data/reviews/r2-maintainer/REVIEW.md`、`dynamic-control-repro.ts`；原审查候选 `aa535ca`、交付 `30002a3`；修复 `d8b5cee`、证据交付 `53d60ae` | **R2 已修复并合入 main，有独立长期回归**：`scripts/validation/r2-product-sources.ts --dynamic-only` 与 `evaluation/r2-product-sources/dynamic-admission.json` 已在 main 入库，可与本靶场在同一 checkout 使用。目录只建立引用，不复制页面或执行器。 |
 | 文字消失、加载占位、缺图及同区替代材料 | `src/experiments/rules-batch2.test.ts`、`src/execution/ui-rule-integration.test.ts`、`scripts/validation/rules-clipping-overlap.ts` 的 existing 场景；[第二批](rule-library/rules-batch2.md)、[普通接入](rule-library/rules-scan-integration.md) | **已有回归/本轮暂缓新增入口**。本轮选成熟裁切/覆盖与滚动对照；合理加载不是持续缺陷，缺图审查也不是确定缺陷或健康 pass。 |
 | 原 Jira 图片/文字报告、旧真实网站扫描 | [D004 来源与范围](rule-library/image-shape-candidate.md)、[整合交接](rule-library/rules-main-integration-handoff.md)；旧索引与归档 Git、原工作区 data | **暂缓**。缺原资源、设计附件或完整可重放环境；本轮全部只称“合成机制示例”，不称原 Jira/网站复现。旧日志不批量进 Git。 |
 
 历史计划按 `git show archive/pre-r2-cleanup-20261010:<旧路径>` 只读查阅；不恢复 plans 树。清理后的冻结资产和旧全套失败基线见[维护记录](maintenance/pre-r2-cleanup.md)。本轮未逐一重核所有旧 data 原始包，盘点依据是现存源码、回归及已注明来源的交接索引。
 
-R2 整合交接核对（2026-10-10）：只读核对实现 `d8b5ceec8d5f2a72bbc3301971e760dd7566a989` 与交付 `53d60ae7749a0b9b6749f585f00af0055d1385e4` 的 Git 内容。独立动态入口覆盖健康、错误结果、目标缺失、重名、未登记额外按钮、默认样本仍 pending 六种情况，并保留重启与准入证据篡改回归；准入绑定动作前冻结的资料名称、唯一原节点、前置条件及预算，不开放任意新控件。上述两个路径尚不在本靶场分支，可先用 `git show 53d60ae:<路径>` 核对；整合并构建后再使用 `DOTENV_CONFIG_PATH=/dev/null pnpm exec tsx scripts/validation/r2-product-sources.ts --dynamic-only`。其收据记录的是 **fixed-local 固定模型 + 真实 Chromium**，不证明真实 Agent 自主提取或选择能力，不计入下方 14 个靶场变体的验证成绩。本次仅更新目录交接，未重跑该回归；原维护者失败反例和首次八场景证据继续保留。
+合并前 R2 文档交接核对（2026-10-10，`a3b7fff`）：只读核对实现 `d8b5ceec8d5f2a72bbc3301971e760dd7566a989` 与交付 `53d60ae7749a0b9b6749f585f00af0055d1385e4` 的 Git 内容。独立动态入口覆盖健康、错误结果、目标缺失、重名、未登记额外按钮、默认样本仍 pending 六种情况，并保留重启与准入证据篡改回归；准入绑定动作前冻结的资料名称、唯一原节点、前置条件及预算，不开放任意新控件。交接当时两个路径仅在 R2 分支；现已由 `cfe5bdd` / `2963bd4` 合入 main，构建后可使用 `DOTENV_CONFIG_PATH=/dev/null pnpm exec tsx scripts/validation/r2-product-sources.ts --dynamic-only`。其收据记录的是 **fixed-local 固定模型 + 真实 Chromium**，不证明真实 Agent 自主提取或选择能力，不计入下方 14 个靶场变体的验证成绩。该次文档交接未重跑回归，main 组合验证另列于下文；原维护者失败反例和首次八场景证据继续保留。
 
 ## 三个场景族与私有预期
 
@@ -49,10 +49,10 @@ R2 整合交接核对（2026-10-10）：只读核对实现 `d8b5ceec8d5f2a72bbc3
 
 ## 启动、选择与免费验证
 
-在本分支仓库根目录执行；不使用有他人修改的默认项目目录。Node 24 与锁定依赖：
+在 main 仓库根目录执行；不使用有他人修改的默认项目目录。Node 24 与锁定依赖：
 
 ```sh
-cd /Users/xietian/.codex/worktrees/counterexample-arena/ui-sentinel
+cd /Users/xietian/.codex/worktrees/rules-main-closeout/ui-sentinel
 export PATH=/Users/xietian/.local/share/fnm/node-versions/v24.21.0/installation/bin:$PATH
 pnpm install --frozen-lockfile
 DOTENV_CONFIG_PATH=/dev/null node --import tsx scripts/validation/counterexample-arena/serve.ts --list
@@ -71,7 +71,7 @@ DOTENV_CONFIG_PATH=/dev/null node node_modules/vitest/vitest.mjs run \
 
 每次独立写 `data/counterexample-arena/<timestamp>/`：summary、源码与 bundle SHA256 清单、每例完整采集/规则输出、截图、图像响应字节、字形参考图。失败保留失败截图和 summary 并非零退出，不覆盖旧结果。仅作为 fixture 与检查器接线验证：**不证明 Agent 自主选择入口/规格/合同，不证明正式执行器完成门、持久报告或网络策略通过**。D004 合同仍由验证宿主根据公开规格显式绑定；不能宣传为模型自动识别图片意图。
 
-## 本轮验证
+## 首次交付验证（合并前）
 
 2026-10-10，Node 24.21.0、Playwright Chromium：
 
@@ -82,3 +82,7 @@ DOTENV_CONFIG_PATH=/dev/null node node_modules/vitest/vitest.mjs run \
 - 类型检查、`pnpm build`（服务端、工作台、两个原靶场）、改动的 8 个 TypeScript 文件格式、差异空白及两份文档本地链接检查均通过；锁文件、package.json、共享构建配置未改。
 
 未重跑 R0/R1 全矩阵或全套测试；[维护记录](maintenance/pre-r2-cleanup.md)的旧失败基线不在本轮宣称修复范围。没有付费、公网或固定模型调用。页面与检查器接线通过不代表真实 Agent 自主能力通过，合入仍由维护者独立审查。
+
+## main 组合验证（2026-10-10）
+
+首批实现 `3e0d68b` 与文档交接 `a3b7fff` 已由 `2963bd4` 正常合入 main；R2 源交付 `53d60ae` 先由 `cfe5bdd` 合入。组合候选下仅运行一次本靶场 14 变体入口与一次 R2 动态六场景入口，结果、命令、证据及持续回溯责任统一见[main 合并收尾记录](maintenance/arena-library-followup.md#main-合并与组合验证2026-10-10)。源分支与原证据保留；不重复计入首次 31 项/4 项成绩，不扩大为真实 Agent 验收。

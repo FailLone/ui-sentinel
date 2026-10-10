@@ -6,21 +6,21 @@
 
 | 工作 | 负责人 / 会话 | 分支与状态 |
 | --- | --- | --- |
-| 近期反例盘点、首批可复用场景沉淀 | [盘点近期反例并沉淀可复用靶场](codex://threads/01a125f2-a8b6-7490-b024-2c8c2cfd4f8c) | `codex/counterexample-arena`，提交 `3e0d68b`；维护者已审阅，可接收本轮交付，尚未合并 |
-| 资料路径后续新控件准入及对应回归 | [R2：实现资料驱动的关键路径验证](codex://threads/01a125d9-90be-7a32-8370-773b6a8745a2) | `codex/r2-product-sources`；实现 `d8b5cee`、交付 `53d60ae`；动态按钮 P1 已闭合，尚未合并 |
+| 近期反例盘点、首批可复用场景沉淀 | [盘点近期反例并沉淀可复用靶场](codex://threads/01a125f2-a8b6-7490-b024-2c8c2cfd4f8c) | `codex/counterexample-arena`，实现 `3e0d68b`、文档交接 `a3b7fff`；已由 `2963bd4` 合入 main |
+| 资料路径后续新控件准入及对应回归 | [R2：实现资料驱动的关键路径验证](codex://threads/01a125d9-90be-7a32-8370-773b6a8745a2) | `codex/r2-product-sources`；实现 `d8b5cee`、交付 `53d60ae`；动态按钮 P1 已闭合，已由 `cfe5bdd` 合入 main |
 
-靶场工作区：`/Users/xietian/.codex/worktrees/counterexample-arena/ui-sentinel`。约定交付入口为该分支的 `docs/counterexample-arena.md`；在实际生成、审阅和合并前，不视为 main 已有能力。架构边界参照[靶场与评估](../arena-and-evaluation.md)。
+靶场工作区：`/Users/xietian/.codex/worktrees/counterexample-arena/ui-sentinel`。长期交付入口为 main 的[靶场目录](../counterexample-arena.md)；两分支现已合入同一 checkout，原工作区与证据继续保留。架构边界参照[靶场与评估](../arena-and-evaluation.md)。
 
-本轮靶场 Agent 先盘点已有资产，最多沉淀 2–3 个成熟场景族，优先复用已有页面和验证入口；不等待 R2，不修改 R2 工作区、产品执行器或完成门，不运行付费模型。R2 的动态按钮反例只在盘点中关联，避免两边重复开发。
+首次靶场交付约定先盘点已有资产，最多沉淀 2–3 个成熟场景族，优先复用已有页面和验证入口；不等待 R2，不修改 R2 工作区、产品执行器或完成门，不运行付费模型。R2 的动态按钮反例只在盘点中关联，避免两边重复开发。
 
-## 本轮审阅结果（2026-10-10）
+## 合并前审阅结果（2026-10-10）
 
-两份交付均已核对代码、证据索引与源码摘要，未发现新的合并阻塞；本次没有重跑测试或调用模型。下述能力仍在各自分支，不表示 main 已包含实现。
+两份交付均已核对代码、证据索引与源码摘要，未发现新的合并阻塞；本次没有重跑测试或调用模型。审阅时两份交付尚在各自分支；随后 main 合并与组合验证单列在下节，不改写原成绩。
 
 - **靶场首批**：`3e0d68b` 沉淀浮层、图片比例和控件布局三个场景族、14 个变体，包含健康、异常和未知对照。页面、静态资产、私有判定、启动与验证入口随 Git 保存；复用已有规则和页面构造。交付记录为 14/14 验证与复位通过、原 4 项弹窗回归通过、31 项定向测试通过。维护者核对 23 项源码输入及验证构建摘要一致。它证明场景与程序检查器接线，不证明真实 Agent 自主检查质量。
 - **R2 修复**：冻结资料步骤可绑定后续出现的唯一控件，保留节点身份、前置条件和预算检查；未登记额外按钮不能借此准入。六个动态场景覆盖健康、缺陷、缺失、歧义、额外操作拒绝及默认义务未完成；重启恢复与准入证据损坏检查通过。交付记录为 306 项定向测试通过。维护者核对 40 份回执/日志、354 份产物及 376 项源码摘要一致，原 P1 可关闭；真实模型提取和执行质量尚未验证。
 
-长期入口（均相对于对应分支仓库根目录）：
+长期入口（现均相对于 main 仓库根目录）：
 
 | 资产 | 入口 |
 | --- | --- |
@@ -31,17 +31,51 @@
 | R2 动态路径长期回归 | `scripts/validation/r2-product-sources.ts --dynamic-only` |
 | R2 动态路径证据索引 | `evaluation/r2-product-sources/dynamic-admission.json` |
 
+## main 合并与组合验证（2026-10-10）
+
+本轮唯一整合工作区为 `/Users/xietian/.codex/worktrees/rules-main-closeout/ui-sentinel`，默认项目目录未用于整合。正常 merge 保留全部历史：R2 源交付 `53d60ae7749a0b9b6749f585f00af0055d1385e4` 合并为 `cfe5bdd67dfd1e1bca9b70ff15837a199dbdad0b`；靶场最终交接 `a3b7fff9b3b2c738f674fb059a3890277deaf15e`（包含实现 `3e0d68b`）合并为 `2963bd4d08f1116fd586079122cd1e138c58be55`。维护者 `fff7d9a`、`860569c` 均保留为祖先。仅 Roadmap 的阶段状态发生合并冲突，保留维护者已审阅结论并关联最终产品说明；没有产品功能补丁，`src/` 与已审阅 R2 分支逐字节一致。
+
+组合验证冻结于 `2963bd4`，后续交付只更新文档。Node 24.21.0，`DOTENV_CONFIG_PATH=/dev/null`，在该工作区运行：
+
+```sh
+export PATH=/Users/xietian/.local/share/fnm/node-versions/v24.21.0/installation/bin:$PATH
+export DOTENV_CONFIG_PATH=/dev/null
+pnpm build
+# 35 个此次新增/修改的 TypeScript 文件，按 git diff fff7d9a 2963bd4 列表调用 biome format
+pnpm exec biome format --changed --since=fff7d9a
+pnpm exec tsx scripts/validation/r2-product-sources.ts --dynamic-only
+node --import tsx scripts/validation/counterexample-arena/validate.ts
+```
+
+以上命令均须带前述隔离环境；构建包含类型检查，不重复 typecheck。实际格式检查按差异名单逐文件执行（35 文件，无修改），上面的 `--changed` 是等价的再次检查入口。R2 与靶场入口本轮各运行一次：
+
+- **R2 六场景全部符合预期**：健康 covered/verified，第二步真实错误 covered/failed；缺失、重名、未登记额外按钮 partial/unverified；路径两步通过但默认样本 pending 仍 partial，covered 申请被拒绝。服务重启后六报告一致，重启前后 12 份报告持久校验问题为空；准入证据被篡改时降为 unverified/partial。未放宽完成门、权限、采样或预算。
+- **靶场 14/14 通过**：真实 DOM/几何/资源/滚动见证与原检查器结果符合各自健康、缺陷、未知预期，14 次复位通过；不能把未知或几何通过改称功能通过。它只证明网页与检查器接线。
+- **构建/类型、改动格式及差异空白检查通过**。复用源交付 306 项、31 项和原 4 项回归，没有重跑或相加宣称新测试分母；没有重跑 R0/R1 全矩阵或全套，Journey/DNS 旧失败基线未修复或重新分类。真实模型与付费调用均为 0。
+
+组合证据均在上述 main 工作区：
+
+| 材料 | 本地位置 |
+| --- | --- |
+| R2 六场景、重启报告与篡改报告 | `data/r2-product-sources/2026-10-10T14-02-44-568Z/` |
+| 靶场 14 变体、截图、采集值及源码/bundle 摘要 | `data/counterexample-arena/2026-10-10T14-02-25-738Z/` |
+| 构建、格式、两入口日志与组合收据 | `data/maintenance/r2-arena-integration-20261010/` |
+
+组合 `receipt.json` SHA-256 为 `f9d978547e19f81844e906422fb0809c850a025b0dd314f21208b32fb9599d4a`，引用报告/日志摘要与 354 份 R2 原始产物的 `artifact-index.json`。这些本地材料不会随 Git 自动迁移；上表长期脚本、网页、私有场景目录与原交付索引已随 main 保存，可在新 checkout 重现。源分支、工作树、原八场景证据、P1 原失败和靶场首次证据均保留。
+
+可用产品入口为[工作台/API 的资料输入](../product-sources.md#使用)，仍需显式启用 `EXECUTION_URL_SCAN=1`、`EXECUTION_PRODUCT_SOURCES=1`；靶场按[启动命令](../counterexample-arena.md#启动选择与免费验证)选择场景。当前仅支持一份文本/Markdown到一条有来源的 1–3 步有界匿名路径；真实模型提取/执行质量未验收，Figma、登录角色、业务写入、多文档与完整业务路径后置。后续只建议选一份实际产品说明及对应匿名页面，验证要求提取与报告是否可用；需要模型调用时另行取得授权，本轮没有启动该验证。
+
 ## 下一次回溯
 
-下一步在合并收尾时补记 main 合并提交，并将 R2 动态路径回归关联到靶场目录；保留原测试入口，不复制页面或执行器。靶场目录目前对 R2 的“待整改”描述是交付时快照，整合时应同步更新。无需为本次接收追加同类实验。后续每次回溯重点确认：
+本次合并已关联 R2 动态回归与靶场目录，保留原测试入口，没有复制页面或执行器。后续阶段交付、缺陷修复接收和规则迭代继续由维护者按本页回溯，不建立重复追踪文件。每次重点确认：
 
 1. 盘点是否区分已有覆盖、本轮入库、协议回归、其他 Agent 负责和暂缓；已有覆盖是否只引用而没有重复实现。
 2. 入库场景能否在新工作区按命令启动、重置并复现；所需页面、规格、代码和小型资产是否随 Git 交付，而非仍只存在于忽略的 `data/`。
 3. 是否保留健康对照、真实缺陷和必要的未知情形；私有答案、故障标签和控制入口是否与 Agent 可见页面隔离。
 4. 证据证明的是页面状态、程序判定还是固定模型集成；不得扩大为真实 Agent 自主能力或原 Jira/公网问题复现。
-5. R2 动态按钮整改完成后，回查其新增回归路径；适合复用时纳入场景目录，保留原回归，不复制另一份页面或执行器。
+5. 新增或修订资料路径时回查动态按钮回归及对应来源；适合复用的反例关联到场景目录，保留原回归，不复制另一份页面或执行器。
 
-本次动态按钮原反例在 R2 工作区的 `data/reviews/r2-maintainer/REVIEW.md` 和 `dynamic-control-repro.ts`；运行证据位于其下 `dynamic-control/2026-10-10T13-08-38-953Z/`。这些是原失败的本地证据定位，继续保留；修复后的长期回归已提交到上表中的 R2 脚本及证据索引，尚未统一纳入靶场目录。
+本次动态按钮原反例在 R2 工作区的 `data/reviews/r2-maintainer/REVIEW.md` 和 `dynamic-control-repro.ts`；运行证据位于其下 `dynamic-control/2026-10-10T13-08-38-953Z/`。这些是原失败的本地证据定位，继续保留；修复后的长期回归已提交到上表中的 R2 脚本及证据索引，已由靶场目录统一关联，仍保持独立回归入口。
 
 ## 后续积累方式
 
