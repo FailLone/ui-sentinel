@@ -1,0 +1,183 @@
+{
+  "schema": "r2-source-citations-free-1",
+  "date": "2026-10-11",
+  "branch": "codex/r2-source-citations",
+  "implementationCommit": "b7608b5c744e95c48e342c438287487ed8257be2",
+  "baseCommit": "afd399483904f86bd30f20e764fc991ba6c58c5f",
+  "scope": "program-issued exact references, bounded registration repair, phase/source guidance; local-only validation",
+  "paidRequests": 0,
+  "review": "Self-reviewed by implementing Agent; not independent human or real-model acceptance.",
+  "commands": [
+    {
+      "command": "pnpm build",
+      "result": "passed including typecheck"
+    },
+    {
+      "command": "pnpm exec vitest run src/inspection/product-source.test.ts src/inspection/product-citations.test.ts src/inspection/product-admission.test.ts src/inspection/product-artifacts.test.ts src/execution/product-registration.test.ts src/inspection/completion.test.ts src/agent/context/compact-history.test.ts",
+      "files": 7,
+      "tests": 53,
+      "result": "passed"
+    },
+    {
+      "command": "pnpm exec tsx scripts/validation/r2-product-sources.ts --citations-only",
+      "result": "passed, three cases"
+    },
+    {
+      "command": "pnpm exec tsx scripts/validation/r2-product-sources.ts --dynamic-only",
+      "result": "passed, six cases"
+    },
+    {
+      "command": "pnpm typecheck; biome format on 13 modified TS files; git diff --check",
+      "result": "passed"
+    }
+  ],
+  "environment": {
+    "node": "24.21.0",
+    "dotenv": "/dev/null",
+    "provider": "loopback fixed-local",
+    "browser": "real Playwright Chromium",
+    "product": "normal compiled HTTP API and original executor"
+  },
+  "runs": [
+    {
+      "directory": "data/r2-product-sources/2026-10-10T16-10-48-214Z",
+      "recordedBaseCommit": "afd399483904f86bd30f20e764fc991ba6c58c5f",
+      "executedFromWorkingTree": true,
+      "verifiedImplementationCommit": "b7608b5c744e95c48e342c438287487ed8257be2",
+      "sourceHash": "fa302e5d5592569e1d2ebf970f96ed93c1167919d781962f1c76384522854090",
+      "buildHash": "5a6df22d5f9c02c94a7b001684716dbc1df9014fbdccc44777d6690ef7359788",
+      "runnerHash": "e7458a9f8dc1ab29f3a61246963198dc4f48d2a56bc80cc6b4b588121afd8d2a",
+      "fixtureHash": "96aa032356347a839ca30062017673a24f09b0b7420f1635fda8d995495f7d9e",
+      "results": [
+        {
+          "mode": "citation-healthy",
+          "runId": "run-45979001-b882-4dda-a1cb-5f3f49665fa7",
+          "status": "completed",
+          "coverage": "covered",
+          "state": "verified",
+          "actions": 2
+        },
+        {
+          "mode": "citation-defect",
+          "runId": "run-7945024d-fe93-48a1-9248-df098c6e7a21",
+          "status": "completed",
+          "coverage": "covered",
+          "state": "failed",
+          "actions": 2
+        },
+        {
+          "mode": "citation-unavailable",
+          "runId": "run-1736bce5-2858-4548-b4fa-219b683f2fd1",
+          "status": "blocked",
+          "coverage": "partial",
+          "state": "unverified",
+          "actions": 0
+        }
+      ],
+      "restartFullReportsEqual": 3,
+      "admissionCorruptionRejected": true
+    },
+    {
+      "directory": "data/r2-product-sources/2026-10-10T16-10-59-318Z",
+      "recordedBaseCommit": "afd399483904f86bd30f20e764fc991ba6c58c5f",
+      "executedFromWorkingTree": true,
+      "verifiedImplementationCommit": "b7608b5c744e95c48e342c438287487ed8257be2",
+      "sourceHash": "fa302e5d5592569e1d2ebf970f96ed93c1167919d781962f1c76384522854090",
+      "buildHash": "5a6df22d5f9c02c94a7b001684716dbc1df9014fbdccc44777d6690ef7359788",
+      "runnerHash": "e7458a9f8dc1ab29f3a61246963198dc4f48d2a56bc80cc6b4b588121afd8d2a",
+      "fixtureHash": "96aa032356347a839ca30062017673a24f09b0b7420f1635fda8d995495f7d9e",
+      "results": [
+        {
+          "mode": "dynamic-healthy",
+          "runId": "run-1730eefa-a719-478c-b940-8026d21a3d38",
+          "status": "completed",
+          "coverage": "covered",
+          "state": "verified",
+          "actions": 2
+        },
+        {
+          "mode": "dynamic-defect",
+          "runId": "run-bc49165d-94fa-4bbe-88e2-3087ba168681",
+          "status": "completed",
+          "coverage": "covered",
+          "state": "failed",
+          "actions": 2
+        },
+        {
+          "mode": "dynamic-missing",
+          "runId": "run-0e290d7e-35d0-4c8b-8792-eec515392a58",
+          "status": "blocked",
+          "coverage": "partial",
+          "state": "unverified",
+          "actions": 1
+        },
+        {
+          "mode": "dynamic-duplicate",
+          "runId": "run-16b9340b-9512-4e85-b846-c447e9eec633",
+          "status": "blocked",
+          "coverage": "partial",
+          "state": "unverified",
+          "actions": 1
+        },
+        {
+          "mode": "dynamic-extra",
+          "runId": "run-5dcf74f9-0c65-4a1f-a3db-2301c07b4998",
+          "status": "blocked",
+          "coverage": "partial",
+          "state": "unverified",
+          "actions": 1
+        },
+        {
+          "mode": "dynamic-pending",
+          "runId": "run-15cedda2-0c76-4a4d-8f41-404585519ba0",
+          "status": "blocked",
+          "coverage": "partial",
+          "state": "verified",
+          "actions": 2
+        }
+      ],
+      "restartFullReportsEqual": 6,
+      "admissionCorruptionRejected": true
+    }
+  ],
+  "preservedDevelopmentFailures": [
+    {
+      "directory": "data/r2-product-sources/2026-10-10T16-08-57-348Z",
+      "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ 'unverified'\n- 'verified'\n"
+    },
+    {
+      "directory": "data/r2-product-sources/2026-10-10T16-10-10-653Z",
+      "error": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n\n  assert.ok(calls.some((c) => c.turn === 9 && c.name === 'product_path_register'))\n"
+    }
+  ],
+  "r4Replay": {
+    "file": "data/r2-product-acceptance/source-citations-20261011/r4-replay.json",
+    "sha256": "262a0d870b557acd4008ef54d05e2cf153f4a0fed74df245030c01314d41ed72",
+    "oldOffsetsRejected": true,
+    "strictValidatedWithIssuedReferences": true,
+    "normalization": "Only optional value:null omitted. Original semantics and quote strings unchanged."
+  },
+  "verification": {
+    "file": "data/r2-product-acceptance/source-citations-20261011/verification.json",
+    "sha256": "6e1c3e3abf4916891d167aecc29875200015c4375b9e4ffac8f45770fd0536c7",
+    "evidenceFilesIndexed": 579,
+    "artifactFilesVerified": 503,
+    "sourceFilesMatchedAgainstCommit": 888
+  },
+  "historicalRealBatch": {
+    "commit": "afd399483904f86bd30f20e764fc991ba6c58c5f",
+    "passed": 0,
+    "planned": 6,
+    "requests": 38,
+    "knownCostUsd": 0.0567585,
+    "earlierUnknownUsd": 0.116,
+    "authorization": "consumed; not reused"
+  },
+  "limitations": [
+    "Fixed-local plan supplied only inside test provider; not real-model extraction/efficiency evidence.",
+    "Existing no-progress guard can end before the three executor-level registration rejections.",
+    "R6 4096 output exhaustion remains unresolved; no budget/model/reasoning changes.",
+    "No R0/R1/full suite, paid run, push or merge.",
+    "Next same-MD six-task proposal requires a fresh frozen candidate, quote check and separate authorization."
+  ]
+}
