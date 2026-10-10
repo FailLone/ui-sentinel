@@ -58,6 +58,7 @@ export const config = Object.freeze({
   lengthRecoveryWithoutReasoning: process.env.AGENT_LENGTH_RECOVERY_WITHOUT_REASONING === '1',
 
   features: {
+    productSources: process.env.EXECUTION_PRODUCT_SOURCES === '1',
     popupCheck: process.env.EXECUTION_POPUP_JEV === '1',
     atomicInvestigation: process.env.EXECUTION_ATOMIC_INVESTIGATION !== '0',
     blockerReview: process.env.EXECUTION_BLOCKER_REVIEW === '1',

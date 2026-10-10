@@ -380,3 +380,29 @@ describe('proof integrity', () => {
     expect(decision.proof?.items.every((i) => i.status !== 'pending')).toBe(true)
   })
 })
+
+it('requires product path evidence in addition to ordinary covered scope', () => {
+  const scope = coveredScope()
+  const spec = { uiContract: { productSource: { contentHash: 'frozen' } } }
+  expect(
+    decideInspectionCompletion({ reason: 'scope-covered', facts: facts({ scope, spec }) }),
+  ).toMatchObject({ accepted: false, reasonCode: 'product-requirements-unverified' })
+  expect(
+    decideInspectionCompletion({
+      reason: 'scope-covered',
+      facts: facts({ scope, spec, productPathComplete: true }),
+    }),
+  ).toMatchObject({ accepted: true })
+  const pending = scope.createItem({
+    ...observation,
+    category: 'investigation',
+    basis: 'independent selected work',
+    targetSource: 'executor',
+  })
+  const decision = decideInspectionCompletion({
+    reason: 'scope-covered',
+    facts: facts({ scope, spec, productPathComplete: true }),
+  })
+  expect(decision.accepted).toBe(false)
+  expect(decision.missingItems).toContain(pending.itemId)
+})

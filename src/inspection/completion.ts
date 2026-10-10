@@ -22,6 +22,7 @@ export const INSPECTION_CHECK_PROOF_VERSION = 'inspection-proof-4' as const
 export type InspectionReason = 'scope-covered' | 'observed-blocker' | 'unverified-scope'
 
 export type CompletionRefusal =
+  | 'product-requirements-unverified'
   | 'url-scan-disabled'
   | 'not-a-ui-scan'
   | 'contract-unverified'
@@ -63,6 +64,7 @@ export interface InspectionProof {
 }
 
 export interface InspectionCompletionFacts {
+  readonly productPathComplete?: boolean
   readonly kind: RunKind
   readonly featureEnabled: boolean
   readonly spec?: unknown
@@ -201,7 +203,10 @@ export function decideInspectionCompletion(input: {
           reason: 'v2-missing-facets',
           reasonCode: 'v2-missing-facets',
         })
+  const productPending =
+    !!(facts.spec as any)?.uiContract?.productSource && facts.productPathComplete !== true
   const gapText = [
+    ...(productPending ? ['product-requirements-unverified'] : []),
     ...gaps.map((g) => `${g.category}:${g.reason}`),
     ...facts.scope.snapshot().unsupported.map((u) => `unsupported:${u.dimension}`),
     ...(facts.integrityEpoch > 0
@@ -278,6 +283,13 @@ export function decideInspectionCompletion(input: {
 
   // scope-covered: the six conditions of plan 6.2, in the order a reader would check them.
   const refusals: { reasonCode: CompletionRefusal; missingFacts: string[] }[] = []
+  if (productPending)
+    refusals.push({
+      reasonCode: 'product-requirements-unverified',
+      missingFacts: [
+        'Selected product path requires frozen sources and original action/effect evidence.',
+      ],
+    })
   if (!facts.contractValid)
     refusals.push({
       reasonCode: 'contract-unverified',

@@ -1,3 +1,4 @@
+import { productPathReport } from '../../inspection/product-path.ts'
 import { checkTaskReport } from '../../execution/check-tasks/report.ts'
 import { popupReport } from './popup-report.ts'
 import { r1Report } from './r1-report.ts'
@@ -29,6 +30,7 @@ import type { Run, RunEvent } from '../../shared/types.ts'
 export type UiCoverage = 'covered' | 'partial' | 'not-started'
 
 export interface UiScanReport {
+  readonly productSource?: ReturnType<typeof productPathReport>
   readonly checkTasks?: ReturnType<typeof checkTaskReport>
   readonly functionalChecks?: {
     itemId: string
@@ -238,6 +240,16 @@ export function uiScanSummary(
                 (i) => i.selected && i.checks?.sourceReview.state !== 'sealed' && i.checks,
               ).length,
           },
+        }
+      : {}),
+    ...(contract.productSource
+      ? {
+          productSource: productPathReport(
+            contract.productSource,
+            events,
+            readable,
+            additionalIssues,
+          ),
         }
       : {}),
     kind: 'ui-scan',

@@ -77,3 +77,7 @@ pnpm exec tsx scripts/validation/reconcile-cost.ts <campaign-directory> <batch-d
 `evaluation/fixtures/legacy-runs/` 保存仍被回归或离线工具消费的历史冻结输入，保持原字节与内部来源记录；其中一次性生成脚本仅作来源材料，不参与当前 TypeScript 构建。当前 Vitest 专用配置位于 `evaluation/configs/`。Biome 排除冻结夹具及文档/评估 JSON 证据，源码和测试继续检查格式；禁止用格式化改写证据哈希。
 
 本次整理的范围、恢复命令及验证限制见[维护记录](maintenance/pre-r2-cleanup.md)。
+
+## R2 免费产品闭环
+
+构建后执行 `DOTENV_CONFIG_PATH=/dev/null pnpm exec tsx scripts/validation/r2-product-sources.ts`，经正式工作台/API、固定本地模型与真实浏览器验证资料路径及历史恢复。原文、动作、测量、无时限反例与缺失/篡改证据分别核对；具体支持范围见[产品资料](product-sources.md)。

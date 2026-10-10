@@ -192,4 +192,4 @@ pnpm validate:learning -- --recheck <已关闭且已批准的学习目录>
 
 格式使用 Biome，类型检查使用 TypeScript 7。当前不启用严格 lint；运行 pnpm format 整理格式。密钥、数据库及原始证据留在本机。
 
-历史计划与批次原始材料已从当前开发树移出，保留在 Git 标签 `archive/pre-r2-cleanup-20261010`；测试仍使用的冻结输入保留在 `evaluation/fixtures/legacy-runs/`。参见[整理记录](docs/maintenance/pre-r2-cleanup.md)。当前任务见 [R2 资料驱动路径验证](plans/r2-product-sources/README.md)。
+历史计划与批次原始材料已从当前开发树移出，保留在 Git 标签 `archive/pre-r2-cleanup-20261010`；测试仍使用的冻结输入保留在 `evaluation/fixtures/legacy-runs/`。参见[整理记录](docs/maintenance/pre-r2-cleanup.md)。R2 首批产品行为、免费验收入口与边界见[资料驱动路径验证](docs/product-sources.md)。

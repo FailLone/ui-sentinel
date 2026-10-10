@@ -8,6 +8,8 @@
  */
 
 export interface UiScanFormInput {
+  readonly productSourceTitle?: string
+  readonly productSourceMarkdown?: string
   readonly popupCheck?: boolean
   readonly exploration?: boolean
   readonly jev?: boolean
@@ -66,6 +68,14 @@ export function buildUiScanRequest(input: UiScanFormInput): Record<string, unkno
   }
   return {
     kind: 'ui-scan',
+    ...(input.productSourceMarkdown?.trim()
+      ? {
+          productSource: {
+            title: input.productSourceTitle?.trim() || '产品说明',
+            markdown: input.productSourceMarkdown,
+          },
+        }
+      : {}),
     ...(input.popupCheck ? { popupCheck: { mode: 'popup-viewport' } } : {}),
     ...(!input.popupCheck && input.exploration
       ? { exploration: { mode: 'program', jev: input.jev === true } }

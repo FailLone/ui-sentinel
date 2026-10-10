@@ -164,6 +164,37 @@ export function extractToolSummary(item: Record<string, unknown>): ToolSummary {
       summary.elements = result.elements
     copy((result as Record<string, unknown> | null)?.observation)
     copy(result)
+    if (toolName.startsWith('product_source_') && result && typeof result === 'object') {
+      for (const key of [
+        'sourceId',
+        'contentHash',
+        'version',
+        'text',
+        'sections',
+        'hits',
+        'offsetUnit',
+        'endOffset',
+        'startLine',
+        'endLine',
+        'trust',
+        'note',
+      ])
+        if (key in result) summary[key] = (result as Record<string, unknown>)[key]
+    }
+    if (toolName.startsWith('product_path_') && result && typeof result === 'object') {
+      for (const key of [
+        'bound',
+        'step',
+        'itemId',
+        'expectation',
+        'plan',
+        'steps',
+        'unchecked',
+        'issues',
+        'complete',
+      ])
+        if (key in result) summary[key] = (result as Record<string, unknown>)[key]
+    }
     if (result && typeof result === 'object' && 'results' in result)
       summary.results =
         toolName === 'checks_run' && Array.isArray(result.results)

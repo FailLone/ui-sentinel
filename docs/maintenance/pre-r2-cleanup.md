@@ -23,7 +23,7 @@ git worktree add --detach ../ui-sentinel-pre-r2 archive/pre-r2-cleanup-20261010
 
 删除 10 个已合并且没有工作区占用的本地分支；远端分支未删除。仍有历史工作区、未合并 Jev 研究及 R2 初稿，不能声称仓库只剩 main。原项目目录的未提交内容和本地原始证据保留。
 
-R2 初稿单独保存于 `archive/r2-product-sources-draft-20261010`（`90498c0`）。R2 新开发分支从本次整理后的 main 开始，初稿仅供选择性复用；[任务书](../../plans/r2-product-sources/README.md)是当前执行范围。
+R2 初稿单独保存于 `archive/r2-product-sources-draft-20261010`（`90498c0`）。R2 新开发分支从本次整理后的 main 开始，初稿仅供选择性复用；后续执行范围与接口现见[产品资料](../product-sources.md)。
 
 ## 检查记录
 

@@ -1,3 +1,4 @@
+import { productPathReport } from './product-path.ts'
 import { samplingHistoryIssues } from './sampling-history.ts'
 import { verifyInspectionProof, proofDigest, type InspectionProof } from './completion.ts'
 import { projectInspectionScope } from './scope.ts'
@@ -28,6 +29,16 @@ function inspectHistory(
   const proof = accepted?.payload.inspectionProof as InspectionProof | undefined
   if (!accepted || !proof) return ['inspection-proof-missing']
   if (!verifyInspectionProof(proof)) return ['inspection-proof-unverified']
+  if (
+    run.spec.uiContract?.productSource &&
+    proof.claim === 'scope-covered' &&
+    !productPathReport(
+      run.spec.uiContract.productSource,
+      events.filter((e) => e.seq < accepted.seq),
+      readable,
+    ).complete
+  )
+    return ['product-path-evidence-incomplete']
   const issues: string[] = [...recoveryHistoryIssues(events), ...probeHistoryIssues(events)]
   if (
     !run.spec.uiContract ||

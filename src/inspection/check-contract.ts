@@ -49,7 +49,12 @@ export interface PublicCheckPage {
 export interface EffectRequirement {
   requirementId: string
   requirementHash: string
-  sourceKind: 'original-goal' | 'required-check' | 'page-declaration' | 'approved-rule'
+  sourceKind:
+    | 'original-goal'
+    | 'required-check'
+    | 'page-declaration'
+    | 'approved-rule'
+    | 'product-source'
   sourceId: string
   sourceHash: string
   sourceRefs: string[]
@@ -257,6 +262,7 @@ export function reviewPublicSources(input: {
   control: PublicNode
   refs: string[]
   required: RequiredCheck[]
+  productEffects?: EffectRequirement[]
 }): ItemChecks {
   const { contract, page, control, refs } = input,
     c = emptyChecks(),
@@ -406,6 +412,7 @@ export function reviewPublicSources(input: {
       { type: check.action, value: check.value },
     )
   }
+  effects.push(...(input.productEffects ?? []))
   if (effects.length > 12) {
     reasons.push('source-overflow')
     effects.splice(12)

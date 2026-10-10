@@ -65,6 +65,7 @@ const uiScanBodySchema = z
     exploration: uiScanRequestSchema.shape.exploration,
     popupCheck: uiScanRequestSchema.shape.popupCheck,
     requiredChecks: uiScanRequestSchema.shape.requiredChecks,
+    productSource: uiScanRequestSchema.shape.productSource,
     entryUrl: z.string().min(1).max(4096),
     goal: z.string().trim().max(2000).optional(),
     scope: z
@@ -244,6 +245,11 @@ async function createUiScanRun(c: Context, raw: unknown) {
   if (!parsed.success)
     return c.json({ error: 'invalid-request', details: parsed.error.issues }, 400)
   const body = parsed.data
+  if (body.productSource && !config.features.productSources)
+    return c.json(
+      { error: 'product-sources-disabled', message: 'Product source intake is not enabled.' },
+      400,
+    )
   if (
     body.popupCheck &&
     (body.exploration ||
