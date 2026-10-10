@@ -52,3 +52,5 @@
 从最新main另建自有worktree与 `codex/parallel-check-tasks` 分支。默认项目目录是旧脏分支，不切换/清理；维护者main和弹窗/研究工作区仅只读。开发Agent不直接合入或推送main。
 
 用户已授权本任务免费开发与必要验证，未授权新付费模型批次；原研究的不限费用许可不复用。先完成可审阅实现，只有需要真实调用时才提出具体范围和预算。旧账本、unknown、claim及失败证据原样保留。
+
+真实并行弹窗小批次的免费准备见 [real-preparation/PLAN.md](real-preparation/PLAN.md)；3 父任务 / 最多 30 主模型 + 18 Jev / 新增 USD 1.86，尚未批准或执行收费请求。冻结机器清单和免费连接证据在同目录。

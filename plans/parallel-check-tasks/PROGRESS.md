@@ -25,3 +25,7 @@ Merge order: independently review this branch's new check-task/network-budget mo
 ## 第二轮冻结整合（2026-10-10）
 
 完整合入弹窗 `3225754`，原 executor 子运行、原 Jev/动作/测量/持久化/报告、父配额预留、账户共享独占会话及 drain 全部接通，实现 SHA `e7139716ca9c902a84846f2a70ed9c1373870b6e`。产品免费脚本与旧只读回归通过；TypeScript 和构建通过。21 文件 172 项相关测试通过，另 32 项 DNS 隔离通过；组合复跑存在原 DNS 计数波动，原失败日志保留。详细边界与用法见 [INTEGRATION.md](INTEGRATION.md)，本轮证据单独存放 `product-evidence/`；第一轮证据未覆盖。
+
+## 真实并行小批次准备（2026-10-10，未收费）
+
+同步接收后的 main `5595a14`。发现并免费补齐主通道/子 Jev 共用原账户的受信任启动接点，以及子几何目标收窄后保留父完整目标的接点；候选运行源码更新为 `c8f59a24bbb8465107ed35f24837206bf32f4e59`。3 行冻结计划、请求/费用/时间上限、机器摘要、单次批准闸门和执行命令均见 [real-preparation/PLAN.md](real-preparation/PLAN.md)。定向 26 项、类型检查和构建通过；最终 P01 免费单行原 API/Chromium/provider/ledger 检查通过，5 主请求 + 2 Jev 请求逐笔对齐，实际付费 0。未重跑旧矩阵或 DNS 全套；等待维护者统一确认新的 USD 1.86 批次授权，不沿用旧提案。

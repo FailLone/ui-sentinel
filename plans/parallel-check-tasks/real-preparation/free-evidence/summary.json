@@ -1,0 +1,109 @@
+{
+  "mode": "free-synthetic-only",
+  "realPaidRequests": 0,
+  "parentCount": 1,
+  "childCount": 2,
+  "mainRequests": 5,
+  "jevRequests": 2,
+  "parentCoverage": "partial",
+  "requestFeesMatched": true,
+  "remainingAccountLeaseCount": 0,
+  "spending": {
+    "limitUsd": 1.86,
+    "knownCostUsd": 5.2e-05,
+    "unknownReservedUsd": 0,
+    "heldReservedUsd": 0,
+    "accountedUsd": 5.2e-05,
+    "unknownCount": 0,
+    "exceeded": false
+  },
+  "fees": [
+    {
+      "request_id": "5e0bb5931efca73c8e601f81",
+      "run_id": "run-59e5a6a3-d4ac-4242-8b9a-da07cc42f48f",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reserved_usd": 0.06,
+      "actual_usd": 1e-05,
+      "created_at": "2026-10-10T01:54:18.488Z",
+      "settled_at": "2026-10-10T01:54:18.498Z",
+      "dispatched_at": "2026-10-10T01:54:18.490Z"
+    },
+    {
+      "request_id": "c2a83cd49d501f37f4232f2a",
+      "run_id": "run-59e5a6a3-d4ac-4242-8b9a-da07cc42f48f",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reserved_usd": 0.06,
+      "actual_usd": 1e-05,
+      "created_at": "2026-10-10T01:54:18.539Z",
+      "settled_at": "2026-10-10T01:54:18.551Z",
+      "dispatched_at": "2026-10-10T01:54:18.543Z"
+    },
+    {
+      "request_id": "e02910275a97a0c5b76cb2cc",
+      "run_id": "run-59e5a6a3-d4ac-4242-8b9a-da07cc42f48f",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reserved_usd": 0.06,
+      "actual_usd": 1e-05,
+      "created_at": "2026-10-10T01:54:18.581Z",
+      "settled_at": "2026-10-10T01:54:18.592Z",
+      "dispatched_at": "2026-10-10T01:54:18.584Z"
+    },
+    {
+      "request_id": "68a40a62-fa6d-4f7b-9adc-c936547ff2d5",
+      "run_id": "check-a90e2416-c0ea-4d6a-b93e-e350e3a07986",
+      "model": "typesafe/jev-1.13",
+      "provider": "TypeSafe",
+      "status": "settled",
+      "reserved_usd": 0.003,
+      "actual_usd": 1e-06,
+      "created_at": "2026-10-10T01:54:18.953Z",
+      "settled_at": "2026-10-10T01:54:19.220Z",
+      "dispatched_at": "2026-10-10T01:54:18.955Z"
+    },
+    {
+      "request_id": "5c513737-efbd-4368-92e0-902bf7b1ab61",
+      "run_id": "check-76704118-97bb-43f1-8a41-fc19357ab3e6",
+      "model": "typesafe/jev-1.13",
+      "provider": "TypeSafe",
+      "status": "settled",
+      "reserved_usd": 0.003,
+      "actual_usd": 1e-06,
+      "created_at": "2026-10-10T01:54:18.981Z",
+      "settled_at": "2026-10-10T01:54:19.239Z",
+      "dispatched_at": "2026-10-10T01:54:18.982Z"
+    },
+    {
+      "request_id": "5174f35c81d9b6576538289e",
+      "run_id": "run-59e5a6a3-d4ac-4242-8b9a-da07cc42f48f",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reserved_usd": 0.06,
+      "actual_usd": 1e-05,
+      "created_at": "2026-10-10T01:54:19.618Z",
+      "settled_at": "2026-10-10T01:54:19.628Z",
+      "dispatched_at": "2026-10-10T01:54:19.620Z"
+    },
+    {
+      "request_id": "ddc9a8a76763f14b12398021",
+      "run_id": "run-59e5a6a3-d4ac-4242-8b9a-da07cc42f48f",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reserved_usd": 0.06,
+      "actual_usd": 1e-05,
+      "created_at": "2026-10-10T01:54:21.121Z",
+      "settled_at": "2026-10-10T01:54:21.130Z",
+      "dispatched_at": "2026-10-10T01:54:21.124Z"
+    }
+  ],
+  "sourceOutput": "data/parallel-popup-real/dry-release",
+  "sourceCommit": "c8f59a24bbb8465107ed35f24837206bf32f4e59",
+  "note": "Original provider/ledger path with synthetic transport only; not real model delegation or Jev accuracy evidence."
+}
