@@ -619,5 +619,18 @@
     "nextRecommendation": "优先用本批真实轨迹做免费离线回放，改进资料检索到精确引用/登记的接口，使模型不必手算偏移；保持动作前冻结与逐字校验，然后再申请新的小批复测授权。",
     "noReruns": true
   },
-  "preservation": "Original 637-file preparation evidence, 12-case fix evidence and previous failed/unknown records retained; no real retries or new experiments. Raw local paths are not migrated by Git."
+  "preservation": "Original 637-file preparation evidence, 12-case fix evidence and previous failed/unknown records retained; no real retries or new experiments. Raw local paths are not migrated by Git.",
+  "followUpBatches": [
+    {
+      "deliveryFile": "evaluation/private/r2-product-acceptance/real-citations-acceptance.json",
+      "executionCommit": "da3ebb8f46b5742769dffeafc4c41e2b98bcb792",
+      "manifestHash": "2272b82fcad4d6357568c04a6ffea2ee56659c7755fb5b467c40f9b9ae603e86",
+      "primaryAccepted": 0,
+      "planned": 6,
+      "registered": 4,
+      "actions": 0,
+      "knownCostUsd": 0.07266395,
+      "note": "Separate newly authorized batch. Original review, costs, artifacts and failed result retained unchanged."
+    }
+  ]
 }

@@ -100,3 +100,11 @@ node --import tsx scripts/validation/counterexample-arena/validate.ts
 本轮单独免费结果：53 项定向单测；中文三对照 verified/failed/unverified、动作2/2/0；原动态六场景保持原预期（包括默认 pending）；九份完整历史报告重启相等、两组准入篡改拒绝。原 v2 与新 v3 均继续验证绑定附件和动态准入。保留两个开发失败目录，无进展阈值不改。证据索引与候选提交见[修复收据](../../evaluation/r2-product-sources/source-citations.json)，范围、限制和未授权复测提案见[实验追加节](../experiments/r2-product-acceptance.md#引用与登记修复免费结果2026-10-11)。
 
 这批只是程序接口与固定模型集成通过，不计入原真实6行，也不证明重复阅读或真实模型可靠性已解决。R6 输出耗尽与历史费用 unknown 保留。尚未合并或推送；应先审阅再决定是否运行新真实小批。
+
+## R2 引用修复后的新授权真实批次（2026-10-11，结果已交付）
+
+用户后续明确授权原六任务、USD7.56上限；本轮在已审阅 `da3ebb8` 上冻结新hash `2272b82fcad4d6357568c04a6ffea2ee56659c7755fb5b467c40f9b9ae603e86`，同一MD与RA01–03、原配置实跑一次。没有重跑免费53项/九场景，也没有改产品、提示、预算或runner。claim已消费，不可补跑。
+
+新观察是“能登记，但仍不动作”：合法ID登记4/6（16处引用核对通过），动作0，严格任务0/6、8效果未验证，两个缺陷未到详情。4份计划都把可测事实或明确规格放入assumptions；R2/R5绑定被原门拒绝，R5还漏了详情前置，R2/R5的contains“可用”无法排除“暂不可用”。R4正确识别前置不足，边界子项1/2通过，但不因此免除原文提取错误。六行仍由无进展结束；本批没有length，旧R6输出问题不能据此关闭。
+
+48请求已知usage USD0.07266395、unknown/held 0，六份完整报告恢复相等，95份原件/副本hash核对。由实验Agent完成五项逐行审阅，不称人类或独立复核。新语义反例适合保留在协议/登记反馈层，复用现有页族；下一步建议免费回放假设分类，不新增页面、放松执行门或直接补付费样本。详见[实验追加节](../experiments/r2-product-acceptance.md#引用修复后真实复测2026-10-11已完成审阅)和[新交付索引](../../evaluation/private/r2-product-acceptance/real-citations-acceptance.json)。旧批0/6、USD0.0567585及历史unknown USD0.116全部保留。分支仍未合并或推送。

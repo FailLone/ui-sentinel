@@ -1,0 +1,747 @@
+{
+  "revision": "r2-real-citations-acceptance-delivery-1",
+  "executionCommit": "da3ebb8f46b5742769dffeafc4c41e2b98bcb792",
+  "implementationCommit": "b7608b5c744e95c48e342c438287487ed8257be2",
+  "branch": "codex/r2-source-citations",
+  "manifestHash": "2272b82fcad4d6357568c04a6ffea2ee56659c7755fb5b467c40f9b9ae603e86",
+  "protocolAtExecution": "git show da3ebb8f46b5742769dffeafc4c41e2b98bcb792:docs/experiments/r2-product-acceptance.md",
+  "rawDirectory": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/real-citations-authorized-20261011",
+  "evidenceIndex": {
+    "path": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/real-citations-authorized-20261011/evidence-index.json",
+    "sha256": "a5d03062608c8f03d93d7e6d9ea512cc9c435acdd3e1509d0c66c3852b5fee03",
+    "files": 270
+  },
+  "reviewFile": {
+    "path": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/real-citations-authorized-20261011/review.json",
+    "sha256": "2a063fced280830a1412153a6d5e1dbd07699b89494a0b69b6c650c72a36d297"
+  },
+  "frozenManifest": {
+    "path": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/manifest-citations-authorized-20261011.json",
+    "fileSha256": "500fb45de322a144803feb58b497e637a47fb54e9dd0f2c77d2a5f3417580362"
+  },
+  "approval": {
+    "path": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/real-citations-authorized-20261011/approval.json",
+    "sha256": "627002616fe99f69fea6dbba6c3da422442939b7ea3e317cc3d7d68efdf21a90",
+    "approvedBy": "用户（经维护者会话明确转交原话）",
+    "approvalReference": "codex://threads/01a1116d-7621-7962-b4fe-5f904b5fbf13；本会话收到的 codex_delegation：维护者已向用户说明 b7608b5/da3ebb8 的引用修复、免费结果、原六任务与 USD7.56 预留；用户原话“好的，授权”。",
+    "bindingNote": "用户授权的是已说明的具体内容与上限，允许实验Agent完成冻结后的hash绑定；不表示用户先前见过此hash。不复用旧manifest/claim，不授权预算变更、修改提示、自动重试或补跑。",
+    "expiresAt": "2026-10-11T16:21:29Z",
+    "consumedOnce": true
+  },
+  "review": {
+    "schema": "r2-agent-semantic-review-2",
+    "manifestHash": "2272b82fcad4d6357568c04a6ffea2ee56659c7755fb5b467c40f9b9ae603e86",
+    "executionCommit": "da3ebb8f46b5742769dffeafc4c41e2b98bcb792",
+    "reviewer": "本实验设计与审阅Agent",
+    "reviewerKind": "agent",
+    "humanReviewed": false,
+    "reviewedAt": "2026-10-10T16:30:11.268726+00:00",
+    "reviewCompleted": true,
+    "sameAuthorLimitation": "同一Agent设计合成规格、产品修复与实验并审阅；不是独立盲测或人类复核，不推断稳定泛化。",
+    "mechanicalTriage": "原始results/summary的pending-human-review保留；本文件为已完成的Agent语义审阅，不冒称人类已复核。",
+    "reviewCoverage": {
+      "requestBodies": 48,
+      "providerResponses": 48,
+      "rowToolEventTraces": 6,
+      "rowReportsAndRestored": 12,
+      "copiedAndOriginalArtifacts": 95
+    },
+    "rows": [
+      {
+        "id": "R1",
+        "runId": "run-31fe90e0-b8e7-40b6-b594-3e44f7fc5243",
+        "variant": "healthy",
+        "classification": "no-progress-without-registration",
+        "primaryAcceptance": false,
+        "criteria": {
+          "sourceReadingAndExtraction": {
+            "state": "unverified",
+            "reason": "完整原文、program引用ID与ready-to-register指引已进入请求，但持续读取/搜索，未提交可审阅计划。",
+            "evidenceRefs": [
+              "R1/report.json",
+              "R1/events.json",
+              "trajectory-audit.json#row=R1",
+              "input-audit.json#row=R1"
+            ]
+          },
+          "selectionAndRegistration": {
+            "state": "fail",
+            "reason": "没有product:planned事件，没有成功登记路径。",
+            "evidenceRefs": [
+              "R1/report.json",
+              "R1/events.json",
+              "trajectory-audit.json#row=R1"
+            ]
+          },
+          "executionAndMeasurement": {
+            "state": "unverified",
+            "reason": "0绑定/0动作/0效果测量；无法核销预览或详情效果。",
+            "evidenceRefs": [
+              "R1/report.json",
+              "R1/events.json",
+              "trajectory-audit.json#row=R1",
+              "tool-receipt-audit.json#row=R1"
+            ]
+          },
+          "scopeAndConclusion": {
+            "state": "unverified",
+            "reason": "报告诚实保持partial/unverified和未检查范围，没有豁免默认采样或虚报全站通过；但模型未交付该对照的完整有证据结论。",
+            "evidenceRefs": [
+              "R1/report.json",
+              "R1/events.json",
+              "trajectory-audit.json#row=R1"
+            ]
+          },
+          "trustedRecovery": {
+            "state": "pass",
+            "reason": "关闭夹具和原服务后恢复的完整报告JSON相等，持久校验无问题；附件原件/副本逐项hash与字节一致。恢复未完成报告不等于功能已验证。",
+            "evidenceRefs": [
+              "R1/report.json",
+              "R1/restored-report.json",
+              "R1/artifact-index.json",
+              "artifact-verification.json"
+            ]
+          }
+        },
+        "productStatus": "blocked",
+        "coverage": "partial",
+        "pathState": "unverified",
+        "requests": 6,
+        "knownCostUsd": 0.009627,
+        "elapsedMs": 31639,
+        "successfulRegistrations": 0,
+        "modelRequestsThroughRegistration": null,
+        "modelRequestsBeforeRegistration": null,
+        "citationIdUsed": false,
+        "citationFields": 0,
+        "registrationErrors": [],
+        "registrationRepair": "not-exercised: all four attempts accepted; no new citation error was submitted",
+        "actions": 0,
+        "bindings": 0,
+        "sourceReadSearchCalls": 9,
+        "exactRepeatedSourceCalls": 2,
+        "sourceOverviewCalls": 2,
+        "noProgressEvents": 1,
+        "noProgressEventRefs": [
+          "R1/events.json#event=evt-9644f4f1-7d91-45da-ad92-fc0b886af0e2"
+        ],
+        "outputExhaustion": false,
+        "boundarySubscore": null,
+        "requiredEffects": [
+          {
+            "name": "预览就绪",
+            "state": "unverified",
+            "actionId": null,
+            "measurement": null
+          },
+          {
+            "name": "详情已就绪",
+            "state": "unverified",
+            "actionId": null,
+            "measurement": null
+          }
+        ],
+        "uncheckedScope": [
+          "资料尚未登记关键路径；全文未验证"
+        ],
+        "sourceReadSubscore": "pass",
+        "restoredFullJsonEqual": true,
+        "artifactCount": 14
+      },
+      {
+        "id": "R2",
+        "runId": "run-bdecd4cf-9744-4014-b4ac-52e6c585dfcb",
+        "variant": "defect",
+        "classification": "registered-assumed-plan-blocked",
+        "primaryAcceptance": false,
+        "criteria": {
+          "sourceReadingAndExtraction": {
+            "state": "fail",
+            "reason": "两个即时效果有精确原文，引用ID合法；但把当前可用状态当作assumption写入已冻结计划，且availability用contains“可用”，也会匹配“暂不可用”，不满足前置条件语义。初始预览状态可核验，却没有充分理由作为关键前置的替代。",
+            "evidenceRefs": [
+              "R2/report.json",
+              "R2/events.json",
+              "trajectory-audit.json#row=R2",
+              "input-audit.json#row=R2"
+            ]
+          },
+          "selectionAndRegistration": {
+            "state": "pass",
+            "reason": "通过引用ID成功冻结一份两步计划；本项只确认合法来源登记，不表示假设计划可执行或任务通过。",
+            "evidenceRefs": [
+              "R2/report.json",
+              "R2/events.json",
+              "trajectory-audit.json#row=R2",
+              "citation-audit.json#row=R2"
+            ]
+          },
+          "executionAndMeasurement": {
+            "state": "unverified",
+            "reason": "product_path_bind返回product-requirement-not-explicit；含假设计划未取得绑定，0动作/0效果测量。",
+            "evidenceRefs": [
+              "R2/report.json",
+              "R2/events.json",
+              "trajectory-audit.json#row=R2",
+              "tool-receipt-audit.json#row=R2"
+            ]
+          },
+          "scopeAndConclusion": {
+            "state": "unverified",
+            "reason": "报告诚实保持partial/unverified和未检查范围，没有豁免默认采样或虚报全站通过；但模型未交付该对照的完整有证据结论。",
+            "evidenceRefs": [
+              "R2/report.json",
+              "R2/events.json",
+              "trajectory-audit.json#row=R2"
+            ]
+          },
+          "trustedRecovery": {
+            "state": "pass",
+            "reason": "关闭夹具和原服务后恢复的完整报告JSON相等，持久校验无问题；附件原件/副本逐项hash与字节一致。恢复未完成报告不等于功能已验证。",
+            "evidenceRefs": [
+              "R2/report.json",
+              "R2/restored-report.json",
+              "R2/artifact-index.json",
+              "artifact-verification.json"
+            ]
+          }
+        },
+        "productStatus": "blocked",
+        "coverage": "partial",
+        "pathState": "unverified",
+        "requests": 13,
+        "knownCostUsd": 0.02051715,
+        "elapsedMs": 70730,
+        "successfulRegistrations": 1,
+        "modelRequestsThroughRegistration": 3,
+        "modelRequestsBeforeRegistration": 2,
+        "citationIdUsed": true,
+        "citationFields": 5,
+        "registrationErrors": [],
+        "registrationRepair": "not-exercised: all four attempts accepted; no new citation error was submitted",
+        "actions": 0,
+        "bindings": 0,
+        "sourceReadSearchCalls": 6,
+        "exactRepeatedSourceCalls": 4,
+        "sourceOverviewCalls": 3,
+        "noProgressEvents": 2,
+        "noProgressEventRefs": [
+          "R2/events.json#event=evt-6b83fad7-a642-4d8d-a81d-f2e81c233b6a",
+          "R2/events.json#event=evt-de7b0455-2a72-42a0-a271-ea24ec5ebb14"
+        ],
+        "outputExhaustion": false,
+        "boundarySubscore": null,
+        "requiredEffects": [
+          {
+            "name": "预览就绪",
+            "state": "unverified",
+            "actionId": null,
+            "measurement": null
+          },
+          {
+            "name": "详情已就绪",
+            "state": "unverified",
+            "actionId": null,
+            "measurement": null
+          }
+        ],
+        "uncheckedScope": [
+          "需登录的收藏/同步/管理员功能不在匿名范围",
+          "移动端适配、读屏器、长时间稳定性、网络恢复未验证",
+          "推荐目录内容与排序未承诺"
+        ],
+        "sourceReadSubscore": "pass",
+        "restoredFullJsonEqual": true,
+        "artifactCount": 18
+      },
+      {
+        "id": "R3",
+        "runId": "run-c968a7d4-d1fb-47b6-9d9d-dbee799d0f65",
+        "variant": "unavailable",
+        "classification": "no-progress-without-registration",
+        "primaryAcceptance": false,
+        "criteria": {
+          "sourceReadingAndExtraction": {
+            "state": "unverified",
+            "reason": "完整读取且精确查找前置、预览和详情原文；第3次回复finish_reason=stop但无内容/工具，不是length。没有计划或有来源的前置不足说明。",
+            "evidenceRefs": [
+              "R3/report.json",
+              "R3/events.json",
+              "trajectory-audit.json#row=R3",
+              "input-audit.json#row=R3"
+            ]
+          },
+          "selectionAndRegistration": {
+            "state": "fail",
+            "reason": "没有product:planned事件，没有成功登记路径。",
+            "evidenceRefs": [
+              "R3/report.json",
+              "R3/events.json",
+              "trajectory-audit.json#row=R3"
+            ]
+          },
+          "executionAndMeasurement": {
+            "state": "unverified",
+            "reason": "0绑定/0动作/0效果测量；无法核销预览或详情效果。",
+            "evidenceRefs": [
+              "R3/report.json",
+              "R3/events.json",
+              "trajectory-audit.json#row=R3",
+              "tool-receipt-audit.json#row=R3"
+            ]
+          },
+          "scopeAndConclusion": {
+            "state": "unverified",
+            "reason": "报告诚实保持partial/unverified和未检查范围，没有豁免默认采样或虚报全站通过；但模型未交付该对照的完整有证据结论。",
+            "evidenceRefs": [
+              "R3/report.json",
+              "R3/events.json",
+              "trajectory-audit.json#row=R3"
+            ]
+          },
+          "trustedRecovery": {
+            "state": "pass",
+            "reason": "关闭夹具和原服务后恢复的完整报告JSON相等，持久校验无问题；附件原件/副本逐项hash与字节一致。恢复未完成报告不等于功能已验证。",
+            "evidenceRefs": [
+              "R3/report.json",
+              "R3/restored-report.json",
+              "R3/artifact-index.json",
+              "artifact-verification.json"
+            ]
+          }
+        },
+        "productStatus": "blocked",
+        "coverage": "partial",
+        "pathState": "unverified",
+        "requests": 5,
+        "knownCostUsd": 0.0056978,
+        "elapsedMs": 13131,
+        "successfulRegistrations": 0,
+        "modelRequestsThroughRegistration": null,
+        "modelRequestsBeforeRegistration": null,
+        "citationIdUsed": false,
+        "citationFields": 0,
+        "registrationErrors": [],
+        "registrationRepair": "not-exercised: all four attempts accepted; no new citation error was submitted",
+        "actions": 0,
+        "bindings": 0,
+        "sourceReadSearchCalls": 5,
+        "exactRepeatedSourceCalls": 1,
+        "sourceOverviewCalls": 1,
+        "noProgressEvents": 1,
+        "noProgressEventRefs": [
+          "R3/events.json#event=evt-4d4a6159-3383-4c10-b9d8-58a86c93671b"
+        ],
+        "outputExhaustion": false,
+        "boundarySubscore": {
+          "state": "unverified",
+          "reason": "保守无动作不等于完成前置不足的有来源解释。"
+        },
+        "requiredEffects": [],
+        "uncheckedScope": [
+          "资料尚未登记关键路径；全文未验证"
+        ],
+        "sourceReadSubscore": "pass",
+        "restoredFullJsonEqual": true,
+        "artifactCount": 14
+      },
+      {
+        "id": "R4",
+        "runId": "run-d499207d-7f7a-4760-8eb5-acf12a4e9298",
+        "variant": "unavailable",
+        "classification": "registered-unavailable-boundary-correct-but-source-assumed",
+        "primaryAcceptance": false,
+        "criteria": {
+          "sourceReadingAndExtraction": {
+            "state": "fail",
+            "reason": "正确提取两个即时效果与两级前置，并识别当前暂不可用；引用合法。但把原文明确规定的“两个状态区域各自展示自己的状态文本”放入assumptions，违反“不用假设替换资料”的提取标准。未知边界判断另外记pass，不抹掉本项错误。",
+            "evidenceRefs": [
+              "R4/report.json",
+              "R4/events.json",
+              "trajectory-audit.json#row=R4",
+              "input-audit.json#row=R4"
+            ]
+          },
+          "selectionAndRegistration": {
+            "state": "pass",
+            "reason": "通过引用ID成功冻结一份两步计划；本项只确认合法来源登记，不表示假设计划可执行或任务通过。",
+            "evidenceRefs": [
+              "R4/report.json",
+              "R4/events.json",
+              "trajectory-audit.json#row=R4",
+              "citation-audit.json#row=R4"
+            ]
+          },
+          "executionAndMeasurement": {
+            "state": "pass",
+            "reason": "第4次请求后的page_inspect直接观察到availability文本“暂不可用”和预览按钮enabled:false，登记说明已保留前置不足；0次动作，没有强行点击或报告功能缺陷。未知对照允许只读取证，本项通过边界约束，不表示两个功能效果通过。",
+            "evidenceRefs": [
+              "R4/report.json",
+              "R4/events.json",
+              "trajectory-audit.json#row=R4",
+              "R4/events.json#event=evt-c739cb3f-4fc7-47dd-b902-b0b3a52203e2",
+              "R4/evidence/fb2f8e63-c307-4007-88ab-50bfe5334ff9.json"
+            ]
+          },
+          "scopeAndConclusion": {
+            "state": "pass",
+            "reason": "报告保持partial/unverified，保留前置不足与未检查范围，不虚报功能缺陷或强行完成；未替换默认采样。没有独立最终模型说明，正确边界说明保存在已接受计划及只读观察中。",
+            "evidenceRefs": [
+              "R4/report.json",
+              "R4/events.json",
+              "trajectory-audit.json#row=R4"
+            ]
+          },
+          "trustedRecovery": {
+            "state": "pass",
+            "reason": "关闭夹具和原服务后恢复的完整报告JSON相等，持久校验无问题；附件原件/副本逐项hash与字节一致。恢复未完成报告不等于功能已验证。",
+            "evidenceRefs": [
+              "R4/report.json",
+              "R4/restored-report.json",
+              "R4/artifact-index.json",
+              "artifact-verification.json"
+            ]
+          }
+        },
+        "productStatus": "blocked",
+        "coverage": "partial",
+        "pathState": "unverified",
+        "requests": 7,
+        "knownCostUsd": 0.01386065,
+        "elapsedMs": 34305,
+        "successfulRegistrations": 1,
+        "modelRequestsThroughRegistration": 3,
+        "modelRequestsBeforeRegistration": 2,
+        "citationIdUsed": true,
+        "citationFields": 4,
+        "registrationErrors": [],
+        "registrationRepair": "not-exercised: all four attempts accepted; no new citation error was submitted",
+        "actions": 0,
+        "bindings": 0,
+        "sourceReadSearchCalls": 2,
+        "exactRepeatedSourceCalls": 1,
+        "sourceOverviewCalls": 1,
+        "noProgressEvents": 1,
+        "noProgressEventRefs": [
+          "R4/events.json#event=evt-76336315-55b7-4868-a9d4-3c5526c3993a"
+        ],
+        "outputExhaustion": false,
+        "boundarySubscore": {
+          "state": "pass",
+          "reason": "已接受计划正确说明暂不可用，公开DOM观察支持，未点击也未当作缺陷。"
+        },
+        "requiredEffects": [],
+        "uncheckedScope": [
+          "当前目录可用状态为“暂不可用”，预览前置条件未满足，无法进入预览与详情流程",
+          "页面无同源链接，导航样例未能覆盖",
+          "推荐、收藏同步、移动端、读屏器等明确不在本次范围"
+        ],
+        "sourceReadSubscore": "pass",
+        "restoredFullJsonEqual": true,
+        "artifactCount": 16
+      },
+      {
+        "id": "R5",
+        "runId": "run-71af4808-bbfe-4f7a-8f11-931123133442",
+        "variant": "defect",
+        "classification": "registered-assumed-plan-blocked",
+        "primaryAcceptance": false,
+        "criteria": {
+          "sourceReadingAndExtraction": {
+            "state": "fail",
+            "reason": "精确短引文支持两项效果，但将可测可用状态写为假设，availability采用不能区分暂不可用的contains“可用”；第二步preconditions为空，按钮依赖仅写limitation，未登记原文要求的预览就绪前置。",
+            "evidenceRefs": [
+              "R5/report.json",
+              "R5/events.json",
+              "trajectory-audit.json#row=R5",
+              "input-audit.json#row=R5"
+            ]
+          },
+          "selectionAndRegistration": {
+            "state": "pass",
+            "reason": "通过引用ID成功冻结一份两步计划；本项只确认合法来源登记，不表示假设计划可执行或任务通过。",
+            "evidenceRefs": [
+              "R5/report.json",
+              "R5/events.json",
+              "trajectory-audit.json#row=R5",
+              "citation-audit.json#row=R5"
+            ]
+          },
+          "executionAndMeasurement": {
+            "state": "unverified",
+            "reason": "product_path_bind返回product-requirement-not-explicit；含假设计划未取得绑定，0动作/0效果测量。",
+            "evidenceRefs": [
+              "R5/report.json",
+              "R5/events.json",
+              "trajectory-audit.json#row=R5",
+              "tool-receipt-audit.json#row=R5"
+            ]
+          },
+          "scopeAndConclusion": {
+            "state": "unverified",
+            "reason": "报告诚实保持partial/unverified和未检查范围，没有豁免默认采样或虚报全站通过；但模型未交付该对照的完整有证据结论。",
+            "evidenceRefs": [
+              "R5/report.json",
+              "R5/events.json",
+              "trajectory-audit.json#row=R5"
+            ]
+          },
+          "trustedRecovery": {
+            "state": "pass",
+            "reason": "关闭夹具和原服务后恢复的完整报告JSON相等，持久校验无问题；附件原件/副本逐项hash与字节一致。恢复未完成报告不等于功能已验证。",
+            "evidenceRefs": [
+              "R5/report.json",
+              "R5/restored-report.json",
+              "R5/artifact-index.json",
+              "artifact-verification.json"
+            ]
+          }
+        },
+        "productStatus": "blocked",
+        "coverage": "partial",
+        "pathState": "unverified",
+        "requests": 9,
+        "knownCostUsd": 0.0112188,
+        "elapsedMs": 24376,
+        "successfulRegistrations": 1,
+        "modelRequestsThroughRegistration": 6,
+        "modelRequestsBeforeRegistration": 5,
+        "citationIdUsed": true,
+        "citationFields": 3,
+        "registrationErrors": [],
+        "registrationRepair": "not-exercised: all four attempts accepted; no new citation error was submitted",
+        "actions": 0,
+        "bindings": 0,
+        "sourceReadSearchCalls": 5,
+        "exactRepeatedSourceCalls": 0,
+        "sourceOverviewCalls": 1,
+        "noProgressEvents": 2,
+        "noProgressEventRefs": [
+          "R5/events.json#event=evt-78078e2e-d0cc-4fae-b5ca-fdc4f7daacf3",
+          "R5/events.json#event=evt-e04d726c-7b33-44b1-83b7-34e5197cecd1"
+        ],
+        "outputExhaustion": false,
+        "boundarySubscore": null,
+        "requiredEffects": [
+          {
+            "name": "预览就绪",
+            "state": "unverified",
+            "actionId": null,
+            "measurement": null
+          },
+          {
+            "name": "详情已就绪",
+            "state": "unverified",
+            "actionId": null,
+            "measurement": null
+          }
+        ],
+        "uncheckedScope": [
+          "目录可用状态为暂不可用时是否禁止预览",
+          "刷新后状态是否恢复初始",
+          "详情状态与预览状态是否各自展示"
+        ],
+        "sourceReadSubscore": "pass",
+        "restoredFullJsonEqual": true,
+        "artifactCount": 15
+      },
+      {
+        "id": "R6",
+        "runId": "run-e4cfcec9-26be-4ef6-a4d2-bcb90c2ed072",
+        "variant": "healthy",
+        "classification": "registered-assumed-plan-blocked",
+        "primaryAcceptance": false,
+        "criteria": {
+          "sourceReadingAndExtraction": {
+            "state": "fail",
+            "reason": "两个效果、立即时限及两级前置均可追溯到原文，availability使用精确等于；但将当前可用状态填入assumptions，冻结后整条路径保持assumed/unverified。",
+            "evidenceRefs": [
+              "R6/report.json",
+              "R6/events.json",
+              "trajectory-audit.json#row=R6",
+              "input-audit.json#row=R6"
+            ]
+          },
+          "selectionAndRegistration": {
+            "state": "pass",
+            "reason": "通过引用ID成功冻结一份两步计划；本项只确认合法来源登记，不表示假设计划可执行或任务通过。",
+            "evidenceRefs": [
+              "R6/report.json",
+              "R6/events.json",
+              "trajectory-audit.json#row=R6",
+              "citation-audit.json#row=R6"
+            ]
+          },
+          "executionAndMeasurement": {
+            "state": "unverified",
+            "reason": "0绑定/0动作/0效果测量；无法核销预览或详情效果。",
+            "evidenceRefs": [
+              "R6/report.json",
+              "R6/events.json",
+              "trajectory-audit.json#row=R6",
+              "tool-receipt-audit.json#row=R6"
+            ]
+          },
+          "scopeAndConclusion": {
+            "state": "unverified",
+            "reason": "报告诚实保持partial/unverified和未检查范围，没有豁免默认采样或虚报全站通过；但模型未交付该对照的完整有证据结论。",
+            "evidenceRefs": [
+              "R6/report.json",
+              "R6/events.json",
+              "trajectory-audit.json#row=R6"
+            ]
+          },
+          "trustedRecovery": {
+            "state": "pass",
+            "reason": "关闭夹具和原服务后恢复的完整报告JSON相等，持久校验无问题；附件原件/副本逐项hash与字节一致。恢复未完成报告不等于功能已验证。",
+            "evidenceRefs": [
+              "R6/report.json",
+              "R6/restored-report.json",
+              "R6/artifact-index.json",
+              "artifact-verification.json"
+            ]
+          }
+        },
+        "productStatus": "blocked",
+        "coverage": "partial",
+        "pathState": "unverified",
+        "requests": 8,
+        "knownCostUsd": 0.01174255,
+        "elapsedMs": 36239,
+        "successfulRegistrations": 1,
+        "modelRequestsThroughRegistration": 3,
+        "modelRequestsBeforeRegistration": 2,
+        "citationIdUsed": true,
+        "citationFields": 4,
+        "registrationErrors": [],
+        "registrationRepair": "not-exercised: all four attempts accepted; no new citation error was submitted",
+        "actions": 0,
+        "bindings": 0,
+        "sourceReadSearchCalls": 2,
+        "exactRepeatedSourceCalls": 1,
+        "sourceOverviewCalls": 1,
+        "noProgressEvents": 1,
+        "noProgressEventRefs": [
+          "R6/events.json#event=evt-d626c405-4407-497e-8b28-53f69bdbc583"
+        ],
+        "outputExhaustion": false,
+        "boundarySubscore": null,
+        "requiredEffects": [
+          {
+            "name": "预览就绪",
+            "state": "unverified",
+            "actionId": null,
+            "measurement": null
+          },
+          {
+            "name": "详情已就绪",
+            "state": "unverified",
+            "actionId": null,
+            "measurement": null
+          }
+        ],
+        "uncheckedScope": [
+          "按阅读偏好推荐目录（内容、排序依据、刷新时机未定，本版本不承诺）",
+          "保存收藏、跨设备同步、管理员维护（需登录，匿名范围外）",
+          "移动端适配、读屏器完整体验、长时间稳定性、网络恢复（不在验收范围内）",
+          "页面刷新后恢复初始状态未在本次路径中验证"
+        ],
+        "sourceReadSubscore": "pass",
+        "restoredFullJsonEqual": true,
+        "artifactCount": 18
+      }
+    ],
+    "summary": {
+      "planned": 6,
+      "dispatched": 6,
+      "terminalRows": 6,
+      "unstarted": 0,
+      "primaryAccepted": 0,
+      "registrationPass": 4,
+      "actions": 0,
+      "bindings": 0,
+      "requiredEffects": {
+        "planned": 8,
+        "verified": 0,
+        "failed": 0,
+        "unverified": 8
+      },
+      "defect": {
+        "rows": 2,
+        "hit": 0,
+        "miss": 2,
+        "notReached": 2
+      },
+      "healthy": {
+        "rows": 2,
+        "completed": 0,
+        "falsePositive": 0,
+        "unverified": 2
+      },
+      "unavailable": {
+        "rows": 2,
+        "boundaryPass": 1,
+        "strictPrimaryPass": 0,
+        "forcedActions": 0
+      },
+      "registrationRequestSequences": {
+        "R2": 3,
+        "R4": 3,
+        "R5": 6,
+        "R6": 3
+      },
+      "citationFieldsVerified": 16,
+      "registrationRejections": 0,
+      "sourceReadSearchCalls": 29,
+      "exactRepeatedSourceCalls": 9,
+      "repeatDefinition": "Count source_read/search calls after the first occurrence of the identical tool-name and canonical argument JSON; excludes overview/status/tool_result_read and different queries for overlapping text. This is a conservative repeat count, not all redundant work.",
+      "noProgressRows": 6,
+      "noProgressEvents": 8,
+      "outputExhaustionRows": 0,
+      "emptyStopNoToolRows": [
+        "R3:request3"
+      ],
+      "knownCostUsd": 0.07266395,
+      "unknownReservedUsd": 0,
+      "heldReservedUsd": 0,
+      "knownRequests": 48,
+      "hardStop": null,
+      "termination": "All six fixed rows terminated with honest no-progress/unverified-scope; no hard-stop file or retry.",
+      "recovery": {
+        "fullJsonEqual": 6,
+        "artifactPairsVerified": 95
+      },
+      "conclusion": "引用接口在真实模型中被采用并使4行完成合法登记，但主Agent仍未开始浏览器动作，严格任务完成0/6；主要阻碍转为把可测事实/明确规格放入assumptions后冻结，以及重复只读行为。R4有正确前置不足边界子项，仍不满足无假设替换资料的完整标准。"
+    },
+    "comparisonWithPrevious": {
+      "previousCommit": "3668f5446404e04f5ea332e338cc0147af8a48fd",
+      "previousPrimaryAccepted": 0,
+      "currentPrimaryAccepted": 0,
+      "previousRegistrations": 0,
+      "currentRegistrations": 4,
+      "previousActions": 0,
+      "currentActions": 0,
+      "previousRequests": 38,
+      "currentRequests": 48,
+      "previousKnownCostUsd": 0.0567585,
+      "currentKnownCostUsd": 0.07266395,
+      "previousSourceReadSearchCalls": 37,
+      "currentSourceReadSearchCalls": 29,
+      "previousExactRepeatedSourceCalls": 7,
+      "currentExactRepeatedSourceCalls": 9,
+      "previousLengthRows": 1,
+      "currentLengthRows": 0,
+      "interpretation": "这六行观察到登记改善，但没有动作/完整效果改善；请求数与费用增加。不能从总读取数下降宣称效率提升，也不能从本批无length推断R6问题已解决。"
+    },
+    "nextRecommendation": "先基于这4份冻结计划做免费回放，厘清显式原文要求、可测页面前置与assumptions的分类和登记前反馈；保持假设不得执行、冻结后不可改计划及原预算边界。完成该最小接口/引导改进后再考虑新的独立授权复测，不直接继续付费补跑。",
+    "historicalAccountingPreserved": {
+      "firstBatchKnownUsd": 0.0567585,
+      "earlierUnknownUsd": 0.116,
+      "reusedAuthorization": false,
+      "offsetOrClearedUnknown": false
+    }
+  },
+  "rawMechanicalReviewPendingDoesNotOverrideCompletedAgentReview": true,
+  "noCodeOrConfigurationChanges": true,
+  "noRebuildOrRepeatedFreeMatrix": true,
+  "newPaidBatchCount": 1
+}
