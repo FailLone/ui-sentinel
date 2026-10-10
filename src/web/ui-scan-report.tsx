@@ -51,6 +51,76 @@ function Coverage({ report, runId }: { report: UiScanReport; runId: string }) {
         边界：匿名会话 · 不提交业务操作 · 仅支持 GET 型数据 · 有界采样（最多{' '}
         {report.contract.scope.maxPages} 页，深度 {report.contract.scope.maxDepth}）
       </p>
+      {report.productSource && (
+        <section aria-label="产品资料路径报告">
+          <h3>产品资料：{report.productSource.source.title}</h3>
+          <p>
+            路径结论：
+            {
+              (
+                { verified: '通过', failed: '缺陷', unverified: '未验证' } as Record<string, string>
+              )[report.productSource.state]
+            }
+            。仅对应选定路径，不表示整份资料已验证。
+          </p>
+          <p>
+            {report.productSource.plan?.title} · {report.productSource.plan?.rationale}
+          </p>
+          <p>
+            来源版本：{report.productSource.source.version}（{report.productSource.source.revision}
+            ） · SHA-256：{report.productSource.source.contentHash}
+          </p>
+          {report.productSource.steps.map((s) => (
+            <article key={s.index}>
+              <h4>
+                {s.index + 1}. {s.title} —{' '}
+                {{ verified: '通过', failed: '缺陷', unverified: '未验证' }[s.state]}
+              </h4>
+              <blockquote>{s.citation.quote}</blockquote>
+              <p>
+                原文位置 {s.citation.start}–{s.citation.end}；预期：
+                {s.expectation?.expected ?? '不明确'}；实测：
+                {s.actual.length ? s.actual.join('，') : '尚无有效测量'}；结论依据：{s.reason}
+              </p>
+              <p>
+                原动作：{s.actionId ?? '未执行'}；要求：{s.requirementId ?? '未绑定'}
+              </p>
+              {s.preconditions.map((p, i) => (
+                <p key={i}>
+                  前置条件：{p.description}；实测：
+                  {s.preconditionMeasurements[i]?.measured?.values?.join('，') ?? '未核对'}
+                </p>
+              ))}
+              {s.evidenceRefs.map((ref) => (
+                <a
+                  key={ref}
+                  href={`/api/runs/${runId}/artifacts/${encodeURIComponent(ref)}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  证据 {ref.slice(0, 8)}{' '}
+                </a>
+              ))}
+            </article>
+          ))}
+          <h4>未检查范围</h4>
+          <ul>
+            {report.productSource.unchecked.map((v, i) => (
+              <li key={i}>{v}</li>
+            ))}
+          </ul>
+          {!!report.productSource.plan?.assumptions.length && (
+            <p>模型假设：{report.productSource.plan.assumptions.join('；')}</p>
+          )}
+          {!!report.productSource.issues.length && (
+            <p>来源或证据失效：{report.productSource.issues.join('；')}</p>
+          )}
+          <details>
+            <summary>冻结原文</summary>
+            <pre style={{ whiteSpace: 'pre-wrap' }}>{report.productSource.source.markdown}</pre>
+          </details>
+        </section>
+      )}
       {report.checkTasks && (
         <section aria-label="并行检查子任务">
           <h3>并行检查子任务</h3>

@@ -1,3 +1,4 @@
+import { productPathSkill } from './skills/product-path.ts'
 import { programInstructions } from '../execution/investigation/program.ts'
 import { shortFinishInstructions } from '../execution/finish-contract.ts'
 import { temporalInvestigationInstructions } from '../execution/temporal-investigation.ts'
@@ -33,9 +34,11 @@ function uiScanPolicy(
     | 'requiredChecks'
     | 'samplingPolicy'
     | 'checkPolicy'
+    | 'productSource'
   >,
 ): string {
   const access = [
+    ...(uiScan.productSource ? [productPathSkill] : []),
     `This run is anonymous and read-only: it may reach ${uiScan.origin} and pages on that origin, ` +
       `at most ${uiScan.scope.maxPages} unique route(s) and ${uiScan.scope.maxDepth} level(s) from ` +
       `the entry.`,
@@ -165,6 +168,7 @@ export function inspectionPolicy(
     | 'requiredChecks'
     | 'samplingPolicy'
     | 'checkPolicy'
+    | 'productSource'
   > | null,
 ) {
   // A `ui-scan` run has no adapter, so it is briefed as what it is rather than as a business with

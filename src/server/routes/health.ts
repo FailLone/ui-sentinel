@@ -21,7 +21,10 @@ healthRoutes.get('/api/health', async (c) => {
   return c.json(
     {
       status: healthy ? 'ok' : 'degraded',
-      features: { popupCheck: config.features.popupCheck },
+      features: {
+        popupCheck: config.features.popupCheck,
+        productSources: config.features.productSources,
+      },
       storage: { ok: storage.ok, error: storage.error ?? null },
       model: { ready: model.ready, missing: model.missing },
       activeRuns,

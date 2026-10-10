@@ -106,3 +106,18 @@ it('workbench omits R1 by default and Jev requires both explicit toggles', () =>
       .exploration,
   ).toEqual({ mode: 'program', jev: true })
 })
+
+it('accepts ordinary pasted material without requiring selectors or a checklist', () => {
+  expect(
+    buildUiScanRequest({
+      entryUrl: 'https://example.org/',
+      productSourceMarkdown: '  # Product\nClick Preview to see Ready.  ',
+    }),
+  ).toMatchObject({
+    productSource: { title: '产品说明', markdown: '  # Product\nClick Preview to see Ready.  ' },
+  })
+  expect(
+    buildUiScanRequest({ entryUrl: 'https://example.org/', productSourceMarkdown: '   ' })
+      .productSource,
+  ).toBeUndefined()
+})

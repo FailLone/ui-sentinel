@@ -130,13 +130,19 @@ import { startRunExecution, cancelRunExecution } from './executor.ts'
 import { initDatabase } from '../storage/database.ts'
 import { clearRules } from '../rules/engine.ts'
 import { registerBuiltinRules } from '../rules/builtin/index.ts'
-import { resolveUiScanContract } from '../inspection/contract.ts'
+import { projectInspectionScope } from '../inspection/scope.ts'
+import { buildUiContractSnapshot, resolveUiScanContract } from '../inspection/contract.ts'
 import type { RunSpec } from '../shared/types.ts'
 
 const ids: string[] = []
 let runId: string | undefined
 const server = createServer((request, response) => {
   const url = request.url ?? '/'
+  if (url.startsWith('/gap')) {
+    response.setHeader('content-type', 'text/html')
+    response.end('<h1>Public account overview</h1>')
+    return
+  }
   if (url.startsWith('/api/items')) {
     response.setHeader('content-type', 'application/json')
     response.end(JSON.stringify({ items: [{ id: 'a' }, { id: 'b' }] }))
@@ -145,8 +151,8 @@ const server = createServer((request, response) => {
   response.setHeader('content-type', 'text/html')
   response.end(
     `<html><head><title>Catalog</title></head><body><h1>Catalog</h1>` +
-      `<button id="filter">Filter</button>` +
-      `<button id="sort">Sort</button>` +
+      `<p id="filter-spec">Synchronously after clicking "Filter", show text exactly "Filtered".</p><button id="filter" aria-describedby="filter-spec">Filter</button>` +
+      `<p id="sort-spec">Synchronously after clicking "Sort", show text exactly "Sorted".</p><button id="sort" aria-describedby="sort-spec">Sort</button>` +
       `<a href="/detail?id=1">Detail</a>` +
       // A control whose click is observable: the run measures the response, which is what makes the
       // response-time rule applicable at all (its event type is `response:observed`).
@@ -184,13 +190,19 @@ beforeEach(() => {
 const call = (tools: any, name: string, input: any = {}) => tools[name].execute(input, {})
 
 /** A run created from a resolved UI contract, the way the API route will create one (B3). */
-async function makeUiRun(request: Record<string, unknown> = {}) {
+async function makeUiRun(request: Record<string, unknown> = {}, legacyNavigationOnly = false) {
   const resolved = resolveUiScanContract(
     { kind: 'ui-scan', entryUrl, ...request },
     { reachableOrigins: harness.trustedOrigins },
   )
   if (resolved.kind !== 'resolved') throw new Error(`contract refused: ${resolved.reasonCode}`)
-  const contract = resolved.contract
+  const contract = legacyNavigationOnly
+    ? buildUiContractSnapshot({
+        ...resolved.contract,
+        samplingPolicy: undefined,
+        requiredChecks: undefined,
+      })
+    : resolved.contract
   const spec: Omit<RunSpec, 'budget' | 'viewport'> & { budget?: Partial<RunSpec['budget']> } = {
     goal: contract.goal,
     environmentId: 'url-scan',
@@ -204,10 +216,28 @@ async function makeUiRun(request: Record<string, unknown> = {}) {
   return run
 }
 
+async function completeLocalSample(tools: any) {
+  for (const [selector, expected] of [
+    ['#filter', 'Filtered'],
+    ['#sort', 'Sorted'],
+  ])
+    await call(tools, 'page_act', {
+      type: 'click',
+      selector,
+      verify: {
+        selector: 'h1',
+        condition: 'text-equals',
+        expected,
+        basis: 'Public per-control declaration',
+      },
+    })
+}
+
 describe('ui-scan executor assembly', () => {
   it('does not transfer a pending selection to a replacement node with the same selector', async () => {
     let phase = 0,
       original = ''
+    let replacementResult: any
     harness.handler = async (tools: any, prompt: string) => {
       if (phase++ > 0) return []
       const packet = JSON.parse(prompt)
@@ -228,7 +258,7 @@ describe('ui-scan executor assembly', () => {
         old.replaceWith(replacement)
       })
       await call(tools, 'page_observe', {})
-      await call(tools, 'page_act', {
+      replacementResult = await call(tools, 'page_act', {
         type: 'click',
         selector: '#filter',
         verify: {
@@ -254,9 +284,12 @@ describe('ui-scan executor assembly', () => {
     ).toBe(false)
     const proof = events.find((e) => e.type === 'finish:accepted')?.payload.inspectionProof as any
     expect(proof.items.find((i: any) => i.itemId === original).status).toBe('pending')
+    // Current frozen sampling refuses a replacement as a new optional target.
+    expect(replacementResult).toMatchObject({ status: 'denied', dispatched: false })
+    expect(events.some((e) => e.type === 'action:executing')).toBe(false)
     expect(
       proof.items.some((i: any) => i.category === 'local-interaction' && i.status === 'verified'),
-    ).toBe(true)
+    ).toBe(false)
   })
 
   it('persists budget exhaustion with unverified UI scope and no invented business success', async () => {
@@ -394,7 +427,10 @@ describe('ui-scan executor assembly', () => {
       }
       return []
     }
-    const run = await makeUiRun()
+    const run = await makeUiRun({
+      entryUrl: origin + '/gap',
+      goal: 'Review unavailable account settings',
+    })
     await startRunExecution(run.id)
 
     expect(covered.accepted).toBe(false)
@@ -479,48 +515,9 @@ describe('ui-scan executor assembly', () => {
     harness.handler = async (tools: any, prompt: string) => {
       if (phase++ === 0) return []
       if (phase === 2) {
-        const packet = JSON.parse(prompt)
-        // The candidates are items the executor created from the observation, not a model-supplied
-        // list: select the controls it actually offered.
-        const [button, link] = ['local-interaction', 'navigation'].map((category) =>
-          packet.inspectionScope.candidates.find(
-            (c: any) =>
-              c.category === category &&
-              (category !== 'local-interaction' || c.description.includes('Filter')),
-          ),
-        )
-        await call(tools, 'exploration_update', {
-          state: 'catalog',
-          unexploredBranches: [],
-          selectItems: [
-            {
-              itemId: button.itemId,
-              basis: 'the filter control is the page’s own stated affordance',
-            },
-          ],
-        })
-        await call(tools, 'page_act', {
-          type: 'click',
-          selector: `#filter`,
-          verify: {
-            selector: 'h1',
-            condition: 'text-equals',
-            expected: 'Filtered',
-            basis: 'filter updates catalog heading',
-          },
-        })
-        await call(tools, 'page_act', { type: 'navigate', url: `${origin}/detail?id=1` })
-        if (live.page?.url().includes('/detail'))
-          await call(tools, 'page_act', {
-            type: 'click',
-            selector: '#sort',
-            verify: {
-              selector: 'h1',
-              condition: 'text-equals',
-              expected: 'Sorted',
-              basis: 'Sort updates catalog heading',
-            },
-          })
+        await completeLocalSample(tools)
+        await call(tools, 'page_act', { type: 'click', selector: 'a' })
+        await completeLocalSample(tools)
         covered = await call(tools, 'run_finish', { reason: 'scope-covered' })
         if (!covered.accepted) await call(tools, 'run_finish', { reason: 'unverified-scope' })
       }
@@ -555,8 +552,10 @@ describe('ui-scan executor assembly', () => {
     expect(items.some((i) => i.category === 'navigation' && i.status === 'verified')).toBe(true)
     // The navigation scope is executed, not just declared: the run landed on the target it decided
     // before dispatch, and that move is on the record.
-    const committed = events.find((e) => e.type === 'navigation:committed')
-    expect(committed?.payload.url).toBe(`${origin}/detail?id=1`)
+    const navigation = projectInspectionScope(events)
+      .snapshot()
+      .items.find((i) => i.category === 'navigation' && i.status === 'verified')
+    expect(navigation?.url).toBe(`${origin}/detail?id=1`)
   })
 
   it('completes a covered run when a builtin rule reports a limit this contract cannot judge', async () => {
@@ -571,41 +570,9 @@ describe('ui-scan executor assembly', () => {
     harness.handler = async (tools: any, prompt: string) => {
       if (phase++ === 0) return []
       if (phase === 2) {
-        const packet = JSON.parse(prompt)
-        const [button, link] = ['local-interaction', 'navigation'].map((category) =>
-          packet.inspectionScope.candidates.find(
-            (c: any) =>
-              c.category === category &&
-              (category !== 'local-interaction' || c.description.includes('Sort')),
-          ),
-        )
-        await call(tools, 'exploration_update', {
-          state: 'catalog',
-          unexploredBranches: [],
-          selectItems: [{ itemId: button.itemId, basis: 'the page’s own stated affordance' }],
-        })
-        await call(tools, 'page_act', {
-          type: 'click',
-          selector: '#sort',
-          verify: {
-            selector: 'h1',
-            condition: 'text-equals',
-            expected: 'Sorted',
-            basis: 'sort updates catalog heading',
-          },
-        })
-        await call(tools, 'page_act', { type: 'navigate', url: `${origin}/detail?id=1` })
-        if (live.page?.url().includes('/detail'))
-          await call(tools, 'page_act', {
-            type: 'click',
-            selector: '#sort',
-            verify: {
-              selector: 'h1',
-              condition: 'text-equals',
-              expected: 'Sorted',
-              basis: 'Sort updates catalog heading',
-            },
-          })
+        await completeLocalSample(tools)
+        await call(tools, 'page_act', { type: 'click', selector: 'a' })
+        await completeLocalSample(tools)
         covered = await call(tools, 'run_finish', { reason: 'scope-covered' })
         if (!covered.accepted) await call(tools, 'run_finish', { reason: 'unverified-scope' })
       }
@@ -638,7 +605,9 @@ describe('ui-scan executor assembly', () => {
         countsBefore = (await getEvents(runId!)).filter(
           (e) => e.type === 'navigation:committed',
         ).length
-        await call(tools, 'page_act', { type: 'navigate', url: `${origin}/detail?id=1` })
+        await completeLocalSample(tools)
+        await call(tools, 'page_act', { type: 'click', selector: 'a' })
+        await completeLocalSample(tools)
         countsBefore = (await getEvents(runId!)).filter(
           (e) => e.type === 'navigation:committed',
         ).length
@@ -654,13 +623,14 @@ describe('ui-scan executor assembly', () => {
       }
       return []
     }
-    const run = await makeUiRun()
+    // The legacy navigation surface remains supported; current frozen scope separately refuses optional navigation before this boundary.
+    const run = await makeUiRun({}, true)
     runId = run.id
     const url = `${origin}/a/b/c`
     await startRunExecution(run.id)
 
     // The contract's `maxDepth` is enforced on the execution path, not only in the policy text: this
-    // run's maxDepth is 1, so a three-segment path is refused, and the refusal reaches the model as a
+    // run's maxDepth is 1, so a second navigation edge is refused, and the refusal reaches the model as a
     // failed call rather than a served page.
     expect(String(refusal)).toMatch(/navigation denied: depth-exceeded/)
     const events = await getEvents(run.id)

@@ -250,6 +250,9 @@ function App() {
   // selector gets exactly the behaviour they had before; `ui-scan` is chosen explicitly.
   const [mode, setMode] = useState<'business' | 'ui-scan'>('business')
   const [popupAvailable, setPopupAvailable] = useState(false)
+  const [productSourcesAvailable, setProductSourcesAvailable] = useState(false)
+  const [productSourceTitle, setProductSourceTitle] = useState('产品说明')
+  const [productSourceMarkdown, setProductSourceMarkdown] = useState('')
   const [popupCheck, setPopupCheck] = useState(false)
   const [exploration, setExploration] = useState(false)
   const [jev, setJev] = useState(false)
@@ -275,11 +278,12 @@ function App() {
       try {
         const h = await api<{
           model: { ready: boolean; missing: string[] }
-          features?: { popupCheck?: boolean }
+          features?: { popupCheck?: boolean; productSources?: boolean }
         }>('/api/health')
         if (!stopped) {
           setReady(h.model.ready)
           setPopupAvailable(h.features?.popupCheck === true)
+          setProductSourcesAvailable(h.features?.productSources === true)
           setHealth(h.model.ready ? '服务就绪' : `模型待配置：${h.model.missing.join(', ')}`)
         }
       } catch {
@@ -362,6 +366,7 @@ function App() {
         const result = await api<{ runId: string }>(
           '/api/runs',
           buildUiScanRequest({
+            ...(productSourcesAvailable ? { productSourceTitle, productSourceMarkdown } : {}),
             popupCheck,
             exploration,
             jev,
@@ -454,6 +459,32 @@ function App() {
               <textarea value={uiGoal} onChange={(e) => setUiGoal(e.target.value)} />
               <small>{UI_SAMPLING_DESCRIPTION}</small>
             </label>
+            {productSourcesAvailable && (
+              <fieldset>
+                <legend>产品资料与关键路径</legend>
+                <label>
+                  资料名称
+                  <input
+                    maxLength={160}
+                    value={productSourceTitle}
+                    onChange={(e) => setProductSourceTitle(e.target.value)}
+                  />
+                </label>
+                <label>
+                  产品说明 / Markdown
+                  <textarea
+                    maxLength={24000}
+                    value={productSourceMarkdown}
+                    onChange={(e) => setProductSourceMarkdown(e.target.value)}
+                  />
+                </label>
+                <small>
+                  可粘贴一份资料，最多 24,000 字符。Agent
+                  根据原文选择一条最多三步的短路径，核对预期与实际证据；含糊或不支持的要求保留“未验证”。资料不会授予额外操作权限，当前不能与
+                  R1 探索或弹窗模式组合。
+                </small>
+              </fieldset>
+            )}
             {popupAvailable && (
               <label>
                 <input

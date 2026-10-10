@@ -1,0 +1,294 @@
+{
+  "candidate": "d8b5ceec8d5f2a72bbc3301971e760dd7566a989",
+  "baseDelivery": "30002a3",
+  "scope": "Maintainer P1: preregistered source path may admit a unique dynamically revealed original control; no general optional scope expansion.",
+  "fixture": "scripts/validation/r2-product-sources.ts",
+  "command": "DOTENV_CONFIG_PATH=/dev/null pnpm build && DOTENV_CONFIG_PATH=/dev/null pnpm exec tsx scripts/validation/r2-product-sources.ts --dynamic-only",
+  "acceptance": {
+    "passed": true,
+    "results": [
+      {
+        "mode": "dynamic-healthy",
+        "runId": "run-7f8455d7-7e15-4d98-b9fc-9b985adcd403",
+        "status": "completed",
+        "coverage": "covered",
+        "state": "verified",
+        "actions": 2
+      },
+      {
+        "mode": "dynamic-defect",
+        "runId": "run-ec4a40bc-1987-4be4-92a4-3e5aebd8b6a1",
+        "status": "completed",
+        "coverage": "covered",
+        "state": "failed",
+        "actions": 2
+      },
+      {
+        "mode": "dynamic-missing",
+        "runId": "run-821f0a6a-370f-4166-9fee-e3b931a54049",
+        "status": "blocked",
+        "coverage": "partial",
+        "state": "unverified",
+        "actions": 1
+      },
+      {
+        "mode": "dynamic-duplicate",
+        "runId": "run-953f044d-fc95-4b7b-95a8-9be27e415105",
+        "status": "blocked",
+        "coverage": "partial",
+        "state": "unverified",
+        "actions": 1
+      },
+      {
+        "mode": "dynamic-extra",
+        "runId": "run-a477d05c-a666-4268-a2db-ceb8b5724085",
+        "status": "blocked",
+        "coverage": "partial",
+        "state": "unverified",
+        "actions": 1
+      },
+      {
+        "mode": "dynamic-pending",
+        "runId": "run-75cee54f-8f71-4b03-bbfc-d4642867adae",
+        "status": "blocked",
+        "coverage": "partial",
+        "state": "verified",
+        "actions": 2
+      }
+    ],
+    "historyRestart": true,
+    "admissionCorruptionRejected": true,
+    "sourceCorruptionRejected": false,
+    "evidenceCorruptionRejected": false,
+    "missingEvidenceRejected": false,
+    "screenshotCorruptionRejected": false,
+    "model": "fixed-local",
+    "paidCalls": 0
+  },
+  "historyPersistenceIssues": [],
+  "targetedTests": {
+    "files": 26,
+    "passed": 306,
+    "failed": 0,
+    "command": "DOTENV_CONFIG_PATH=/dev/null pnpm exec vitest run src/inspection src/agent/context src/server/routes/ui-scan-runs.test.ts src/web/ui-scan-request.test.ts src/execution/ui-executor.test.ts src/execution/interaction-verification.test.ts src/execution/default-check-sampling.test.ts"
+  },
+  "buildIncludesTypecheck": true,
+  "formatPassed": true,
+  "localEvidenceDirectory": "/Users/xietian/.codex/worktrees/r2-product-sources/ui-sentinel/data/r2-product-sources/2026-10-10T13-20-46-509Z",
+  "artifactCount": 354,
+  "receiptFiles": [
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-sources/ui-sentinel/data/r2-product-sources/2026-10-10T13-20-46-509Z/acceptance.json",
+      "bytes": 1551,
+      "sha256": "92c6d79d27fcd8d217cf41be49b2178dbb88214c89774862bf718f3833acf791"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-sources/ui-sentinel/data/r2-product-sources/2026-10-10T13-20-46-509Z/admission-corrupt-report.json",
+      "bytes": 730872,
+      "sha256": "039703e75b861670882f4f1727eb15661304d46159a5ea96a914c0a7589322fb"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-sources/ui-sentinel/data/r2-product-sources/2026-10-10T13-20-46-509Z/artifact-index.json",
+      "bytes": 151368,
+      "sha256": "db44d003c21b34975628a54605bd3e92d24cb7d9737c82905bdc4a08116efadd"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-sources/ui-sentinel/data/r2-product-sources/2026-10-10T13-20-46-509Z/dynamic-defect-calls.json",
+      "bytes": 175970,
+      "sha256": "71ec2895a5ab52c08ddce040ac44984805fcdb444bed84ac64fc90c730e969af"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-sources/ui-sentinel/data/r2-product-sources/2026-10-10T13-20-46-509Z/dynamic-defect-events.json",
+      "bytes": 477532,
+      "sha256": "304c3c857cafd17e16d2e14e86a7d44e8ed1e51e6da7f9073630dcca06a6a023"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-sources/ui-sentinel/data/r2-product-sources/2026-10-10T13-20-46-509Z/dynamic-defect-report.json",
+      "bytes": 734741,
+      "sha256": "3b337550b3d85608e291e917d2988d1a4fa5b468a0a0f98ad95c8b957f44eb6c"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-sources/ui-sentinel/data/r2-product-sources/2026-10-10T13-20-46-509Z/dynamic-defect-requests.json",
+      "bytes": 55,
+      "sha256": "ee1537c6083f4b0b08f86ff1e5dd0c3e807897572e9e4ac422d2846021f9e877"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-sources/ui-sentinel/data/r2-product-sources/2026-10-10T13-20-46-509Z/dynamic-defect-restarted-report.json",
+      "bytes": 734741,
+      "sha256": "3b337550b3d85608e291e917d2988d1a4fa5b468a0a0f98ad95c8b957f44eb6c"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-sources/ui-sentinel/data/r2-product-sources/2026-10-10T13-20-46-509Z/dynamic-duplicate-calls.json",
+      "bytes": 170033,
+      "sha256": "f459d2ca37630ed1ceddbbd8905f2bdc8d27887222a3e5cb6f736a492d8c2b22"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-sources/ui-sentinel/data/r2-product-sources/2026-10-10T13-20-46-509Z/dynamic-duplicate-events.json",
+      "bytes": 392945,
+      "sha256": "0bc000a972b3a8815d8f18353cddbb8b19065493d7874d178128fae96a195c54"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-sources/ui-sentinel/data/r2-product-sources/2026-10-10T13-20-46-509Z/dynamic-duplicate-report.json",
+      "bytes": 601996,
+      "sha256": "4c3a3099af8e6e645a528c872bd8ffc6c28b4c274a16c0666966b5e34163ab4d"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-sources/ui-sentinel/data/r2-product-sources/2026-10-10T13-20-46-509Z/dynamic-duplicate-requests.json",
+      "bytes": 55,
+      "sha256": "ee1537c6083f4b0b08f86ff1e5dd0c3e807897572e9e4ac422d2846021f9e877"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-sources/ui-sentinel/data/r2-product-sources/2026-10-10T13-20-46-509Z/dynamic-duplicate-restarted-report.json",
+      "bytes": 601996,
+      "sha256": "4c3a3099af8e6e645a528c872bd8ffc6c28b4c274a16c0666966b5e34163ab4d"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-sources/ui-sentinel/data/r2-product-sources/2026-10-10T13-20-46-509Z/dynamic-extra-calls.json",
+      "bytes": 204779,
+      "sha256": "ebabb27767752c088f3111a907340ed555416ae107be017f58bdc5d53a7edeab"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-sources/ui-sentinel/data/r2-product-sources/2026-10-10T13-20-46-509Z/dynamic-extra-events.json",
+      "bytes": 412451,
+      "sha256": "57c6a732b27442bdaf47251ee0c1b0644f5c390d9ad4af210b073249c3a7d81d"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-sources/ui-sentinel/data/r2-product-sources/2026-10-10T13-20-46-509Z/dynamic-extra-report.json",
+      "bytes": 608243,
+      "sha256": "87b462b589eb597cadb6f44d83f94cfa6787157fd426dd6b4b056c0311bcf056"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-sources/ui-sentinel/data/r2-product-sources/2026-10-10T13-20-46-509Z/dynamic-extra-requests.json",
+      "bytes": 55,
+      "sha256": "ee1537c6083f4b0b08f86ff1e5dd0c3e807897572e9e4ac422d2846021f9e877"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-sources/ui-sentinel/data/r2-product-sources/2026-10-10T13-20-46-509Z/dynamic-extra-restarted-report.json",
+      "bytes": 608243,
+      "sha256": "87b462b589eb597cadb6f44d83f94cfa6787157fd426dd6b4b056c0311bcf056"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-sources/ui-sentinel/data/r2-product-sources/2026-10-10T13-20-46-509Z/dynamic-healthy-calls.json",
+      "bytes": 175970,
+      "sha256": "338a52984250fa7cb3f0cfde632d3b97efbc58f36e31d8b8f18507f58a4a92d8"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-sources/ui-sentinel/data/r2-product-sources/2026-10-10T13-20-46-509Z/dynamic-healthy-events.json",
+      "bytes": 475311,
+      "sha256": "aae15e62a3d7c50c8d69bd9805103922b485fcc7fb964204328fab1e09804633"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-sources/ui-sentinel/data/r2-product-sources/2026-10-10T13-20-46-509Z/dynamic-healthy-report.json",
+      "bytes": 730601,
+      "sha256": "5fb4f240b487a0e35c249544fffa170c605dde41cb6db4c8f5eb7ab07af56728"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-sources/ui-sentinel/data/r2-product-sources/2026-10-10T13-20-46-509Z/dynamic-healthy-requests.json",
+      "bytes": 55,
+      "sha256": "ee1537c6083f4b0b08f86ff1e5dd0c3e807897572e9e4ac422d2846021f9e877"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-sources/ui-sentinel/data/r2-product-sources/2026-10-10T13-20-46-509Z/dynamic-healthy-restarted-report.json",
+      "bytes": 730601,
+      "sha256": "5fb4f240b487a0e35c249544fffa170c605dde41cb6db4c8f5eb7ab07af56728"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-sources/ui-sentinel/data/r2-product-sources/2026-10-10T13-20-46-509Z/dynamic-missing-calls.json",
+      "bytes": 180532,
+      "sha256": "0940c6a6c8d19e04d0d9917e5842e29d4a5b2e6432522f3414b38664ab3b99ac"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-sources/ui-sentinel/data/r2-product-sources/2026-10-10T13-20-46-509Z/dynamic-missing-events.json",
+      "bytes": 361508,
+      "sha256": "8a3b9e0547abe79d8a29af05962e6f46c90630bfc79f586a66ebfbfb1c49ca2a"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-sources/ui-sentinel/data/r2-product-sources/2026-10-10T13-20-46-509Z/dynamic-missing-report.json",
+      "bytes": 538390,
+      "sha256": "a2d8cd370b808d813e63756aad0310a18afebbc91860427d3acbe94aadbaa7e4"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-sources/ui-sentinel/data/r2-product-sources/2026-10-10T13-20-46-509Z/dynamic-missing-requests.json",
+      "bytes": 55,
+      "sha256": "ee1537c6083f4b0b08f86ff1e5dd0c3e807897572e9e4ac422d2846021f9e877"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-sources/ui-sentinel/data/r2-product-sources/2026-10-10T13-20-46-509Z/dynamic-missing-restarted-report.json",
+      "bytes": 538390,
+      "sha256": "a2d8cd370b808d813e63756aad0310a18afebbc91860427d3acbe94aadbaa7e4"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-sources/ui-sentinel/data/r2-product-sources/2026-10-10T13-20-46-509Z/dynamic-pending-calls.json",
+      "bytes": 268973,
+      "sha256": "ccded9dca8b17ae47ca450809595af75ac49fe844d5cbfecfe18c9f926973e1c"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-sources/ui-sentinel/data/r2-product-sources/2026-10-10T13-20-46-509Z/dynamic-pending-events.json",
+      "bytes": 887905,
+      "sha256": "e8f56620851f3c17ea97d7f4435a9a96a359e5ae1da3a898e543afff6a41f779"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-sources/ui-sentinel/data/r2-product-sources/2026-10-10T13-20-46-509Z/dynamic-pending-report.json",
+      "bytes": 1262152,
+      "sha256": "58e3bdb7361649da3e47de2f6978e80a721d000e6137cd15c5a6a9c558b656b9"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-sources/ui-sentinel/data/r2-product-sources/2026-10-10T13-20-46-509Z/dynamic-pending-requests.json",
+      "bytes": 55,
+      "sha256": "ee1537c6083f4b0b08f86ff1e5dd0c3e807897572e9e4ac422d2846021f9e877"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-sources/ui-sentinel/data/r2-product-sources/2026-10-10T13-20-46-509Z/dynamic-pending-restarted-report.json",
+      "bytes": 1262152,
+      "sha256": "58e3bdb7361649da3e47de2f6978e80a721d000e6137cd15c5a6a9c558b656b9"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-sources/ui-sentinel/data/r2-product-sources/2026-10-10T13-20-46-509Z/identity.json",
+      "bytes": 41657,
+      "sha256": "6d21078479ba0a44a4268357da2f0efd7aefe65744661bcd35143258924e4817"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-sources/ui-sentinel/data/r2-product-sources/2026-10-10T13-20-46-509Z/results.json",
+      "bytes": 1156,
+      "sha256": "56061ee13b64d96d68488fa5db7f0daab5098ba6b82d3e83af65607d2980ded8"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-sources/ui-sentinel/data/r2-product-sources/2026-10-10T13-20-46-509Z/server-log.json",
+      "bytes": 611,
+      "sha256": "48870ccda31697130780b4d2eb9a617f448d4f1e2f1be51374e1b56c99f387b8"
+    }
+  ],
+  "validationLogs": [
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-sources/ui-sentinel/data/r2-product-sources/p1-validation/build.log",
+      "bytes": 1320,
+      "sha256": "078b32e80f71ca1fabd82da0abc6277dadb17851404d3780c195bca49817fe19"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-sources/ui-sentinel/data/r2-product-sources/p1-validation/dynamic.log",
+      "bytes": 1039,
+      "sha256": "3efd48b96068a400337ee8465d7d1002779d69e3881d2f5e1e9e1c16535ae940"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-sources/ui-sentinel/data/r2-product-sources/p1-validation/format.log",
+      "bytes": 161,
+      "sha256": "3f6d703e4dc5edc65939b3431c61cd5363164e14acbef1b76f6fd9fd31d7d306"
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-sources/ui-sentinel/data/r2-product-sources/p1-validation/targeted.log",
+      "bytes": 230,
+      "sha256": "90b82bb286e544f3c79121c50c64b42c2010a0f72928410ce4349ba41f0a1c13"
+    }
+  ],
+  "originalEvidencePreserved": {
+    "initialAcceptance": "evaluation/r2-product-sources/acceptance.json",
+    "maintainerReview": "data/reviews/r2-maintainer/REVIEW.md",
+    "maintainerFailure": "data/reviews/r2-maintainer/dynamic-control/2026-10-10T13-08-38-953Z/",
+    "originalEightReusedNotRerun": true
+  },
+  "limitations": [
+    "Fixed local responses do not validate real-model extraction quality.",
+    "No full-suite or R0/R1 rerun. No paid calls. No main merge.",
+    "Full evidence artifacts remain local; use the committed fixture to reproduce elsewhere."
+  ]
+}

@@ -1,4 +1,10 @@
 import {
+  productSourceInput,
+  freezeProductSource,
+  validProductSource,
+  type ProductSource,
+} from './product-source.ts'
+import {
   popupRequestSchema,
   POPUP_POLICY,
   validPopupPolicy,
@@ -151,6 +157,7 @@ export const uiScanRequestSchema = z
     entryUrl: z.string().min(1).max(4096),
     goal: z.string().max(UI_GOAL_MAX_LENGTH).optional(),
     requiredChecks: requiredChecksInput.optional(),
+    productSource: productSourceInput.optional(),
     scope: z
       .object({
         maxPages: z.number().int().min(1).max(UI_MAX_PAGES).optional(),
@@ -186,6 +193,7 @@ export const uiScanRequestSchema = z
 export type UiScanRequest = z.infer<typeof uiScanRequestSchema>
 
 export interface UiContractSnapshot {
+  readonly productSource?: ProductSource
   readonly popupCheck?: PopupPolicy
   readonly exploration?: ExplorationPolicy
   readonly schemaVersion: typeof UI_CONTRACT_SCHEMA_VERSION
@@ -282,6 +290,7 @@ export function buildUiContractSnapshot(input: {
   requestedGoal?: string
   goalSource?: 'user' | 'default'
   requiredChecks?: readonly RequiredCheck[]
+  productSource?: ProductSource
   samplingPolicy?: UiSamplingPolicy
   popupCheck?: PopupPolicy
   exploration?: ExplorationPolicy
@@ -292,6 +301,7 @@ export function buildUiContractSnapshot(input: {
   const goal = input.goal?.trim() ? input.goal.trim() : UI_DEFAULT_GOAL
   const body = {
     schemaVersion: UI_CONTRACT_SCHEMA_VERSION,
+    ...(input.productSource ? { productSource: structuredClone(input.productSource) } : {}),
     ...(input.popupCheck ? { popupCheck: structuredClone(input.popupCheck) } : {}),
     ...(input.exploration ? { exploration: structuredClone(input.exploration) } : {}),
     policyRevision: input.samplingPolicy
@@ -366,6 +376,14 @@ export function verifyUiContractSnapshot(snapshot: UiContractSnapshot): boolean 
     return false
   if (snapshot.exploration !== undefined && !validExploration(snapshot.exploration)) return false
   if (
+    snapshot.productSource !== undefined &&
+    (!validProductSource(snapshot.productSource) ||
+      !snapshot.checkPolicy ||
+      snapshot.exploration ||
+      snapshot.popupCheck)
+  )
+    return false
+  if (
     snapshot.popupCheck !== undefined &&
     (!validPopupPolicy(snapshot.popupCheck) || snapshot.exploration || !snapshot.checkPolicy)
   )
@@ -414,6 +432,13 @@ export function resolveUiScanContract(
     }
   }
   const data = parsed.data
+  if (data.productSource && (data.exploration || data.popupCheck))
+    return {
+      kind: 'refused',
+      reasonCode: 'url-malformed',
+      field: 'productSource',
+      message: 'Product source intake currently uses the ordinary Agent path; choose one mode.',
+    }
   const parsedUrl = parseEntryUrl(data.entryUrl)
   if (!parsedUrl.ok) return refusal(parsedUrl.reasonCode, 'entryUrl')
   const url = parsedUrl.url
@@ -449,6 +474,7 @@ export function resolveUiScanContract(
       origin: url.origin,
       goal: data.goal,
       requiredChecks: data.requiredChecks,
+      ...(data.productSource ? { productSource: freezeProductSource(data.productSource) } : {}),
       samplingPolicy: UI_SAMPLING_POLICY_V2,
       ...(data.popupCheck ? { popupCheck: POPUP_POLICY } : {}),
       ...(data.exploration ? { exploration: freezeExploration(data.exploration) } : {}),

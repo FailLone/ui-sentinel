@@ -1,3 +1,4 @@
+import { productEffects, PRODUCT_SKILL_REVISION } from './product-path.ts'
 import { evaluatePopupEffect } from './popup-effect.ts'
 import { popupArtifactIssues } from './popup-artifacts.ts'
 import { readFile } from 'node:fs/promises'
@@ -33,18 +34,68 @@ export async function defaultCheckArtifactIssues(
     if (!cache.has(ref)) cache.set(ref, JSON.parse(await readFile(a.path, 'utf8')))
     return cache.get(ref)
   }
+  for (const event of events.filter(
+    (e) =>
+      e.type.startsWith('product:') ||
+      (contract.productSource &&
+        ['interaction:generic-collected-v2', 'interaction:effect-measured-v2'].includes(e.type)),
+  )) {
+    try {
+      const hashes = event.payload.artifactHashes as Record<string, string>
+      if (!hashes || !event.evidenceRefs.length || event.evidenceRefs.some((ref) => !hashes[ref]))
+        throw Error('product-artifact-hashes-missing')
+      for (const ref of event.evidenceRefs) {
+        const a = artifacts.find((a) => a.id === ref)
+        if (
+          !a ||
+          createHash('sha256')
+            .update(await readFile(a.path))
+            .digest('hex') !== hashes[ref]
+        )
+          throw Error('product-artifact-unavailable-or-changed')
+      }
+      if (event.type === 'product:planned') {
+        const plan = await load(event.evidenceRefs[0]!, 'product-plan')
+        if (
+          checkHash(plan.plan) !== checkHash(event.payload.plan) ||
+          plan.revision !== event.payload.revision
+        )
+          throw Error('product-plan-artifact-mismatch')
+      }
+      if (event.type === 'product:bound') {
+        const checks = await load(event.evidenceRefs[0]!, 'product-preconditions')
+        if (checkHash(checks) !== checkHash(event.payload.checks))
+          throw Error('product-precondition-artifact-mismatch')
+        if (
+          events.find((e) => e.type === 'product:planned')?.payload.revision ===
+          PRODUCT_SKILL_REVISION
+        ) {
+          const binding = await load(event.evidenceRefs[2]!, 'product-binding')
+          const { artifactHashes: _, ...payload } = event.payload
+          if (checkHash(binding) !== checkHash(payload))
+            throw Error('product-binding-artifact-mismatch')
+        }
+      }
+    } catch (error) {
+      issues.push(String(error instanceof Error ? error.message : error))
+    }
+  }
   for (const event of events.filter((e) => e.type === 'interaction:sources-reviewed-v2'))
     for (const [ref, hash] of Object.entries(
       (event.payload.evidenceHashes as Record<string, string>) ?? {},
     )) {
-      const a = artifacts.find((a) => a.id === ref)
-      if (
-        !a ||
-        createHash('sha256')
-          .update(await readFile(a.path))
-          .digest('hex') !== hash
-      )
-        issues.push('v2-source-bytes-changed')
+      try {
+        const a = artifacts.find((a) => a.id === ref)
+        if (
+          !a ||
+          createHash('sha256')
+            .update(await readFile(a.path))
+            .digest('hex') !== hash
+        )
+          issues.push('v2-source-bytes-changed')
+      } catch {
+        issues.push('v2-source-bytes-unavailable')
+      }
     }
   for (const frozen of events.filter((e) => e.type === 'scope:sampling-frozen')) {
     const reviewed = events.find(
@@ -128,6 +179,13 @@ export async function defaultCheckArtifactIssues(
           control,
           refs: c.sourceReview.refs,
           required,
+          productEffects: productEffects(
+            contract.productSource,
+            events,
+            item.itemId,
+            page,
+            control,
+          ),
         })
         for (const e of reconstructed.effects) admittedBefore.add(effectKey(e))
         for (const e of reconstructed.effects)

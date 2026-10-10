@@ -220,6 +220,11 @@ export function createDefaultCheckRuntime(host: {
   page(): Page
   version(): number
   documentVersion(): string
+  productEffects?(
+    itemId: string,
+    page: PublicCheckPage,
+    control: PublicNode,
+  ): Promise<EffectRequirement[]>
   ruleSources(): ItemChecks['sourceReview']['ruleChecks']
   clean(): boolean
   guard(): void
@@ -278,6 +283,7 @@ export function createDefaultCheckRuntime(host: {
       control,
       refs: sample.refs,
       required,
+      productEffects: await host.productEffects?.(itemId, sample.page, control),
     })
     if (item.checks.effects.length) {
       const keys = new Set(checks.effects.map(effectKey))

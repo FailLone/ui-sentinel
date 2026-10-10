@@ -1,3 +1,5 @@
+import { createProductPath } from './product-path.ts'
+import { productEffects } from '../inspection/product-path.ts'
 import type { DelegatedExecution } from './check-tasks/original-executor.ts'
 import { withIndependentProgramScope } from '../agent/model/request.ts'
 import { createProductCheckHost, parallelChecksEnabled } from './check-tasks/host.ts'
@@ -454,6 +456,7 @@ async function executeProfiledRun(
   }
   const findingFacts = new Set<string>()
   const measurementFacts = new Set<string>()
+  const productSourceFacts = new Set<string>()
   let noToolStreak = 0
   let noProgressDecisions = 0
   const phaseTracker = createPhaseTracker(budget)
@@ -512,6 +515,7 @@ async function executeProfiledRun(
         }
       : undefined
   }
+  let productPath: ReturnType<typeof createProductPath> | null = null
   let checkRuntime: ReturnType<typeof createDefaultCheckRuntime> | null = null
   let preparedV2: any = null
   let programActionItems: string[] | null = null
@@ -2232,9 +2236,68 @@ async function executeProfiledRun(
           ),
       ).length
     }
+    const hashCheckRefs = async (refs: readonly string[]) => {
+      const hashes: Record<string, string> = {}
+      for (const ref of refs) {
+        const rows = await getDbClient().execute({
+          sql: 'SELECT file_path FROM artifacts WHERE id=? AND run_id=?',
+          args: [ref, runId],
+        })
+        if (rows.rows.length !== 1) throw Error('check-evidence-not-owned')
+        hashes[ref] = createHash('sha256')
+          .update(await readFile(String(rows.rows[0]!.file_path)))
+          .digest('hex')
+      }
+      return hashes
+    }
+    if (uiScan?.productSource && inspection) {
+      productPath = createProductPath({
+        progress: (key) => productSourceFacts.add('product-source:' + key),
+        source: uiScan.productSource,
+        inspection,
+        page: () => page,
+        guard,
+        events: () => getEvents(runId),
+        clean: () => integrity.epoch() === 0,
+        emit: async (type, payload, refs = []) =>
+          appendEvent(
+            runId,
+            type,
+            { ...payload, artifactHashes: await hashCheckRefs(refs) },
+            { stepId, evidenceRefs: refs },
+          ),
+        save: (type, body) => saveEvidence(runId, type, body, evidenceMetadata(), guard),
+        remaining: () => ({
+          actions: remainingActions(),
+          modelCalls: remainingModels(),
+          timeMs: Math.max(0, budget.totalTimeoutMs - (Date.now() - startedAt)),
+        }),
+        selector: async (ref) => {
+          const d = elementStore.getDetail(ref)
+          if (!d.found || !d.fresh) throw Error('product-stale-control-ref')
+          const bound = candidateBindings.get(ref)
+          const locator = page.locator(d.element.selector)
+          if (
+            !bound ||
+            (await locator.count()) !== 1 ||
+            !(await bound
+              .evaluate(
+                (node, selector) => node.isConnected && document.querySelector(selector) === node,
+                d.element.selector,
+              )
+              .catch(() => false))
+          )
+            throw Error('product-control-identity-lost')
+          return d.element.selector
+        },
+      })
+      await inspection.flush()
+    }
     if (uiScan?.checkPolicy && inspection)
       checkRuntime = createDefaultCheckRuntime({
         contract: uiScan,
+        productEffects: async (itemId, page, control) =>
+          productEffects(uiScan.productSource, await getEvents(runId), itemId, page, control),
         inspection,
         page: () => page,
         version: () => usage.actions,
@@ -2282,22 +2345,20 @@ async function executeProfiledRun(
             ).length,
         observe: () => performObservation(false),
         save: (type, body) => saveEvidence(runId, type, body, evidenceMetadata(), guard),
-        hashRefs: async (refs) => {
-          const out: Record<string, string> = {}
-          for (const ref of refs) {
-            const r = await getDbClient().execute({
-              sql: 'SELECT file_path FROM artifacts WHERE id=? AND run_id=?',
-              args: [ref, runId],
-            })
-            if (r.rows.length !== 1) throw Error('v2-evidence-not-owned')
-            out[ref] = createHash('sha256')
-              .update(await readFile(String(r.rows[0]!.file_path)))
-              .digest('hex')
-          }
-          return out
-        },
-        emit: (type, payload, refs = [], actionId) =>
-          appendEvent(runId, type, payload, { evidenceRefs: refs, actionId }),
+        hashRefs: hashCheckRefs,
+        emit: async (type, payload, refs = [], actionId) =>
+          appendEvent(
+            runId,
+            type,
+            {
+              ...payload,
+              ...(uiScan.productSource &&
+              ['interaction:generic-collected-v2', 'interaction:effect-measured-v2'].includes(type)
+                ? { artifactHashes: await hashCheckRefs(refs) }
+                : {}),
+            },
+            { evidenceRefs: refs, actionId },
+          ),
         publishFailure: async (requirement, original, measurementRef, measurement, refs) => {
           const finding = await submitFinding(
             {
@@ -2704,6 +2765,7 @@ async function executeProfiledRun(
         [...inspection.selectedCandidates(), ...inspection.candidateItems()].find(
           (c) => c.ref === actingRef && c.snapshotId === actionSnapshotPage,
         )
+      await productPath?.assertAction(boundCandidate?.itemId)
       if (!checkRuntime && boundCandidate && ['click', 'fill'].includes(input.type))
         interactionExploration.assertNotRepeated(boundCandidate.itemId)
       if (
@@ -3363,11 +3425,13 @@ async function executeProfiledRun(
           proof: undefined,
         }
 
+      const productProgress = await productPath?.sync()
       const facts = inspection!.completionFacts()
       return decideInspectionCompletion({
         reason: reason as Parameters<typeof decideInspectionCompletion>[0]['reason'],
         facts: {
           kind: 'ui-scan',
+          productPathComplete: productProgress?.complete,
           featureEnabled: !!config.features?.urlScan,
           spec: run!.spec,
           contractValid:
@@ -3973,6 +4037,7 @@ async function executeProfiledRun(
       await emit('popup:started', { taskId: item.itemId, policy: uiScan.popupCheck }, [])
     }
     const tools = {
+      ...(productPath ? productPath.tools(serial) : {}),
       ...(checkTasks ? checkTaskTools(checkTasks, serial) : {}),
       popup_check: createTool({
         id: 'popup.check',
@@ -5381,6 +5446,38 @@ async function executeProfiledRun(
               visualFindings: visualFocus?.facts ?? [],
             }
           : {}),
+        ...(productPath
+          ? {
+              productPath: ((report) => ({
+                source: {
+                  sourceId: report.source.sourceId,
+                  contentHash: report.source.contentHash,
+                  title: report.source.title,
+                  version: report.source.version,
+                },
+                skillRevision: report.skillRevision,
+                state: report.state,
+                complete: report.complete,
+                title: report.plan?.title,
+                unchecked: report.unchecked,
+                issues: report.issues,
+                steps: report.steps.map((s) => ({
+                  index: s.index,
+                  title: s.title,
+                  state: s.state,
+                  reason: s.reason,
+                  action: s.action,
+                  value: s.value,
+                  expectation: s.expectation,
+                  citation: { start: s.citation.start, end: s.citation.end },
+                  itemId: s.itemId,
+                  actionId: s.actionId,
+                  requirementId: s.requirementId,
+                })),
+                note: 'Use product_path_status for exact durable requirements and evidence; product_source_read for original context.',
+              }))(await productPath.status()),
+            }
+          : {}),
         observation: {
           url: latest?.snapshot.url,
           title: latest?.snapshot.title,
@@ -5906,6 +6003,7 @@ async function executeProfiledRun(
         measurementFacts: [...measurementFacts],
         // Bounded first access to original evidence can inform a decision; it is not a new verification.
         retrievedFacts: [
+          ...productSourceFacts,
           ...inspectedResultRefs,
           ...(checkTasks
             ?.status()

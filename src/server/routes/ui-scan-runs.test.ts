@@ -22,7 +22,13 @@ vi.mock('../../shared/config.ts', () => ({
     databaseUrl: ':memory:',
     agentModel: 'openai/test-mock',
     visionModel: 'test',
-    features: { observation: false, ruleRouting: false, journeys: false, urlScan: true },
+    features: {
+      observation: false,
+      ruleRouting: false,
+      journeys: false,
+      urlScan: true,
+      productSources: true,
+    },
     urlScan: { trustedOrigins: ['http://127.0.0.1:5055'] },
     completionReview: { model: 'm', expectedModel: 'm', apiKey: '', timeoutMs: 100 },
     budget: {
@@ -269,4 +275,30 @@ it('rejects deployment DNS configuration supplied by a scan request', async () =
     const response = await post({ kind: 'ui-scan', entryUrl: UI_ENTRY, ...injected })
     expect(response.status).toBe(400)
   }
+})
+
+it('freezes product source before queueing and rejects mixed/oversized inputs', async () => {
+  const input = {
+    kind: 'ui-scan',
+    entryUrl: 'http://127.0.0.1:5055/catalog',
+    productSource: {
+      title: 'Brief',
+      version: 'v2',
+      markdown: 'Click Preview: immediately show Ready.',
+    },
+  }
+  const response = await post(input)
+  expect(response.status).toBe(202)
+  const body = await response.json()
+  const run = await getRun(body.runId)
+  expect(run?.spec.uiContract?.productSource).toMatchObject({
+    ...input.productSource,
+    revision: 'product-source-1',
+    contentHash: expect.stringMatching(/^[a-f0-9]{64}$/),
+  })
+  expect((await post({ ...input, exploration: { mode: 'program' } })).status).toBe(400)
+  expect(
+    (await post({ ...input, productSource: { title: 'Brief', markdown: 'x'.repeat(24001) } }))
+      .status,
+  ).toBe(400)
 })

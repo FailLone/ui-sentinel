@@ -1,0 +1,108 @@
+{
+  "candidate": "aa535cac0ae868fd5a51b190c81903de620873df",
+  "freeModel": "loopback fixed-local (not real-model quality validation)",
+  "acceptance": {
+    "passed": true,
+    "results": [
+      {
+        "mode": "healthy",
+        "runId": "run-a5aea807-1c8c-4a88-ab4d-2632abcd2c22",
+        "status": "completed",
+        "coverage": "covered",
+        "state": "verified",
+        "actions": 1
+      },
+      {
+        "mode": "defect",
+        "runId": "run-3e7e0fd3-4e29-47b6-9812-8873e90e3d81",
+        "status": "completed",
+        "coverage": "covered",
+        "state": "failed",
+        "actions": 1
+      },
+      {
+        "mode": "ambiguous",
+        "runId": "run-793b031b-f7a5-4e6f-903c-3f43b21e4bef",
+        "status": "blocked",
+        "coverage": "partial",
+        "state": "unverified",
+        "actions": 0
+      },
+      {
+        "mode": "missing",
+        "runId": "run-e48b1158-2754-4b44-908e-70d07485178b",
+        "status": "blocked",
+        "coverage": "partial",
+        "state": "unverified",
+        "actions": 0
+      },
+      {
+        "mode": "two-step",
+        "runId": "run-0174c5eb-95fa-4dd0-840e-20c66a3f9a19",
+        "status": "completed",
+        "coverage": "covered",
+        "state": "verified",
+        "actions": 2
+      },
+      {
+        "mode": "pending",
+        "runId": "run-8eff11cc-b2f1-4a68-91c7-1146996d8a9d",
+        "status": "blocked",
+        "coverage": "partial",
+        "state": "verified",
+        "actions": 1
+      },
+      {
+        "mode": "async-wrong",
+        "runId": "run-12f91b03-816c-4551-8d05-979f3c9b8f8b",
+        "status": "blocked",
+        "coverage": "partial",
+        "state": "unverified",
+        "actions": 1
+      },
+      {
+        "mode": "legacy",
+        "runId": "run-ae012400-48d3-4a1d-af7c-da45ed9d696a",
+        "status": "completed",
+        "coverage": "covered",
+        "actions": 1
+      }
+    ],
+    "historyRestart": true,
+    "sourceCorruptionRejected": true,
+    "evidenceCorruptionRejected": true,
+    "missingEvidenceRejected": true,
+    "screenshotCorruptionRejected": true,
+    "model": "fixed-local",
+    "paidCalls": 0
+  },
+  "affectedTests": {
+    "files": 25,
+    "passed": 302
+  },
+  "fullSuiteDuringImplementation": {
+    "files": 239,
+    "passed": 2450,
+    "failed": 2,
+    "skipped": 1,
+    "remaining": [
+      "Journey write barrier expected nextStep 0, received 1",
+      "DNS resolver cross-test calls count expected 0, received 1"
+    ],
+    "note": "Broad run began before final evidence/report hardening; frozen candidate separately passed targeted tests and browser acceptance."
+  },
+  "artifacts": 310,
+  "localEvidenceDirectory": "/Users/xietian/.codex/worktrees/r2-product-sources/ui-sentinel/data/r2-product-sources/2026-10-10T13-03-38-388Z",
+  "evidenceFiles": {
+    "browser.log": "040b965bc26b00de16249d4a2d94a18d1d348ce1ef57e0bffd20d8366a2374d8",
+    "format.log": "79b666feeece4ff48bee904dd45fb69ddfa7c70a1b5df00ec0e681b444e42130",
+    "affected-tests.log": "a2bcc9756621e8f9c700dafd93b4e4e9374eae1f6fc7f0153c2da6116b3be6ce",
+    "acceptance.json": "2657031b5cacd0930090b277e6161445a672d17ec92e4148613b664ecd56f5dc",
+    "full-tests-during-implementation.log": "9a7f9fc8032cd998508434568120615bcde84bddf93ca46828f67042aa492fea",
+    "history.png": "96bddcb65bb1a9c25a010e7c51b85e14300eda0a8144471b571336ffd8c82b83",
+    "artifact-index.json": "610d64e4f1c6210332543a05d89fe974826785ae5b1873f9ec9d331518bbe5ea",
+    "identity.json": "37a2cec7cb81036436b80f94fdfbc95d4add2f8031d2e410f41e5e5e123e78cc",
+    "workbench.png": "91fe3d9ba78727806b20df60a3d95510ed4fe0cb8def5056002709cefe051bd5",
+    "build.log": "56bd96ce5e2ceab5f0a52c72e8522f5d5fcbb00f03f2d3ab425d45f1eb9b8d67"
+  }
+}
