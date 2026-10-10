@@ -1,0 +1,293 @@
+{
+  "row": "P03",
+  "parent": "run-973e05f7-5d41-47fe-b23f-213367e5dc6d",
+  "parentStarts": 10,
+  "parentUsage": 14,
+  "mainFees": [
+    {
+      "requestId": "6010f36c20e0297614b4f2d2",
+      "runId": "run-973e05f7-5d41-47fe-b23f-213367e5dc6d",
+      "phase": "parallel-popup-real-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.06,
+      "actualUsd": 0.0010821,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-10T04:40:14.204Z"
+    },
+    {
+      "requestId": "a3c3d5cc658a72444c7efe90",
+      "runId": "run-973e05f7-5d41-47fe-b23f-213367e5dc6d",
+      "phase": "parallel-popup-real-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.06,
+      "actualUsd": 0.0022814,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-10T04:40:18.908Z"
+    },
+    {
+      "requestId": "13cc6e23e399396a611d27d7",
+      "runId": "run-973e05f7-5d41-47fe-b23f-213367e5dc6d",
+      "phase": "parallel-popup-real-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.06,
+      "actualUsd": 0.0008768,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-10T04:40:25.944Z"
+    },
+    {
+      "requestId": "8ed0902f6b646a682bd47973",
+      "runId": "run-973e05f7-5d41-47fe-b23f-213367e5dc6d",
+      "phase": "parallel-popup-real-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.06,
+      "actualUsd": 0.0009467,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-10T04:40:28.586Z"
+    },
+    {
+      "requestId": "a5ea1287fd80b38ec59b1b40",
+      "runId": "run-973e05f7-5d41-47fe-b23f-213367e5dc6d",
+      "phase": "parallel-popup-real-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.06,
+      "actualUsd": 0.0025197,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-10T04:40:30.463Z"
+    },
+    {
+      "requestId": "bc2e0d63fa9ab95320834135",
+      "runId": "run-973e05f7-5d41-47fe-b23f-213367e5dc6d",
+      "phase": "parallel-popup-real-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.06,
+      "actualUsd": 0.0033369,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-10T04:40:37.429Z"
+    },
+    {
+      "requestId": "001a6d383905543f5817c19d",
+      "runId": "run-973e05f7-5d41-47fe-b23f-213367e5dc6d",
+      "phase": "parallel-popup-real-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.06,
+      "actualUsd": 0.00163025,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-10T04:40:47.168Z"
+    },
+    {
+      "requestId": "9c0b854b2a2fe85c3bd0fcfb",
+      "runId": "run-973e05f7-5d41-47fe-b23f-213367e5dc6d",
+      "phase": "parallel-popup-real-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.06,
+      "actualUsd": 0.00274545,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-10T04:40:52.309Z"
+    },
+    {
+      "requestId": "88954171ebe0fb39c48a1737",
+      "runId": "run-973e05f7-5d41-47fe-b23f-213367e5dc6d",
+      "phase": "parallel-popup-real-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.06,
+      "actualUsd": 0.00167985,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-10T04:41:00.604Z"
+    },
+    {
+      "requestId": "736a1757bd2e56ec6182a3fc",
+      "runId": "run-973e05f7-5d41-47fe-b23f-213367e5dc6d",
+      "phase": "parallel-popup-real-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "status": "settled",
+      "reservedUsd": 0.06,
+      "actualUsd": 0.0033119,
+      "priceSource": "gateway-estimate",
+      "createdAt": "2026-10-10T04:41:05.783Z"
+    }
+  ],
+  "childFees": [
+    {
+      "requestId": "8481693e-c37d-4df1-8bd3-5edda0b0776d",
+      "runId": "check-67978a67-b021-4824-8e8f-0636f7f6e7d2",
+      "phase": "popup-product",
+      "model": "typesafe/jev-1.13",
+      "provider": "TypeSafe",
+      "status": "settled",
+      "reservedUsd": 0.003,
+      "actualUsd": 0.00004221,
+      "priceSource": "TypeSafe <=0.042 USD/M input; <=32000 prompt; reserve 0.003",
+      "createdAt": "2026-10-10T04:40:27.286Z"
+    },
+    {
+      "requestId": "c69b90aa-7495-4238-9aae-6fa157997c2c",
+      "runId": "check-6b654871-80b7-4361-9692-f294592a0782",
+      "phase": "popup-product",
+      "model": "typesafe/jev-1.13",
+      "provider": "TypeSafe",
+      "status": "settled",
+      "reservedUsd": 0.003,
+      "actualUsd": 0.000042252,
+      "priceSource": "TypeSafe <=0.042 USD/M input; <=32000 prompt; reserve 0.003",
+      "createdAt": "2026-10-10T04:40:27.305Z"
+    },
+    {
+      "requestId": "f031a188-f3f1-43ce-82c0-2ace8d2f6f04",
+      "runId": "check-67978a67-b021-4824-8e8f-0636f7f6e7d2",
+      "phase": "popup-product",
+      "model": "typesafe/jev-1.13",
+      "provider": "TypeSafe",
+      "status": "settled",
+      "reservedUsd": 0.003,
+      "actualUsd": 0.000047922,
+      "priceSource": "TypeSafe <=0.042 USD/M input; <=32000 prompt; reserve 0.003",
+      "createdAt": "2026-10-10T04:40:29.548Z"
+    },
+    {
+      "requestId": "f6be6990-33d9-445a-99ea-a37953ca5ecf",
+      "runId": "check-6b654871-80b7-4361-9692-f294592a0782",
+      "phase": "popup-product",
+      "model": "typesafe/jev-1.13",
+      "provider": "TypeSafe",
+      "status": "settled",
+      "reservedUsd": 0.003,
+      "actualUsd": 0.000048174,
+      "priceSource": "TypeSafe <=0.042 USD/M input; <=32000 prompt; reserve 0.003",
+      "createdAt": "2026-10-10T04:40:29.570Z"
+    }
+  ],
+  "providers": [
+    {
+      "runId": "check-67978a67-b021-4824-8e8f-0636f7f6e7d2",
+      "requestId": "8481693e-c37d-4df1-8bd3-5edda0b0776d",
+      "campaignId": "847332ad-be0a-4988-8195-870ddb3ec41a",
+      "packetHash": "9a47800abfe0f0ca3b6256eabf3beb70ca8de843b7fedd94b973cd4c8fc768ff",
+      "wireHash": "30c538b7d166ba2f1658fc38b072ab74bfda9862d074bc416577dd53f6598753",
+      "dispatched": true,
+      "transport": {
+        "requestId": "8481693e-c37d-4df1-8bd3-5edda0b0776d",
+        "runId": "check-67978a67-b021-4824-8e8f-0636f7f6e7d2",
+        "channel": "popup-jev",
+        "model": "typesafe/jev-1.13",
+        "provider": "TypeSafe",
+        "wireSha256": "e7df2b799d86946dfa6aa967703afb37ff17f5380322981f642dae05ae5e0409",
+        "startedAt": "2026-10-10T04:40:27.289Z",
+        "observedAt": "2026-10-10T04:40:27.289Z",
+        "outcome": "success",
+        "headersAt": "2026-10-10T04:40:27.655Z",
+        "httpStatus": 200,
+        "responseHeaders": {
+          "x-generation-id": "gen-dec-1791607227-h9HbmJEIGUTeyTRxC5LE"
+        },
+        "generationId": "gen-dec-1791607227-h9HbmJEIGUTeyTRxC5LE",
+        "finishedAt": "2026-10-10T04:40:27.664Z"
+      },
+      "actualUsd": 0.00004221,
+      "error": null
+    },
+    {
+      "runId": "check-67978a67-b021-4824-8e8f-0636f7f6e7d2",
+      "requestId": "f031a188-f3f1-43ce-82c0-2ace8d2f6f04",
+      "campaignId": "847332ad-be0a-4988-8195-870ddb3ec41a",
+      "packetHash": "3766e1fe13af9f3c341f18fef6120a857b417043c999abc434e6aeb8d94ec67c",
+      "wireHash": "eed13e8b6d1d893ab275bbdb716e5451fa967c4af9948ec48d7d2a0d855caaf1",
+      "dispatched": true,
+      "transport": {
+        "requestId": "f031a188-f3f1-43ce-82c0-2ace8d2f6f04",
+        "runId": "check-67978a67-b021-4824-8e8f-0636f7f6e7d2",
+        "channel": "popup-jev",
+        "model": "typesafe/jev-1.13",
+        "provider": "TypeSafe",
+        "wireSha256": "69abeff647f980ad92a47fbf044c4218066280b16ad3ff209f275481ad637f02",
+        "startedAt": "2026-10-10T04:40:29.555Z",
+        "observedAt": "2026-10-10T04:40:29.555Z",
+        "outcome": "success",
+        "headersAt": "2026-10-10T04:40:29.943Z",
+        "httpStatus": 200,
+        "responseHeaders": {
+          "x-generation-id": "gen-dec-1791607229-iMTjm7oQ3r71cQj24By9"
+        },
+        "generationId": "gen-dec-1791607229-iMTjm7oQ3r71cQj24By9",
+        "finishedAt": "2026-10-10T04:40:29.946Z"
+      },
+      "actualUsd": 0.000047922,
+      "error": null
+    },
+    {
+      "runId": "check-6b654871-80b7-4361-9692-f294592a0782",
+      "requestId": "c69b90aa-7495-4238-9aae-6fa157997c2c",
+      "campaignId": "847332ad-be0a-4988-8195-870ddb3ec41a",
+      "packetHash": "12b1f811f0d77bcb8b3dd0eab5a8efdd6c2ac018cc1b473282e0902767195d75",
+      "wireHash": "791e9c4941ec0667b2cbc8a9ae59e6b378b421d6975ca26e5624fe2d7203a119",
+      "dispatched": true,
+      "transport": {
+        "requestId": "c69b90aa-7495-4238-9aae-6fa157997c2c",
+        "runId": "check-6b654871-80b7-4361-9692-f294592a0782",
+        "channel": "popup-jev",
+        "model": "typesafe/jev-1.13",
+        "provider": "TypeSafe",
+        "wireSha256": "619b43c9d22549938b838a49eaaf1da6bd26894f4c2df8eb69a49aba947dbfc5",
+        "startedAt": "2026-10-10T04:40:27.308Z",
+        "observedAt": "2026-10-10T04:40:27.308Z",
+        "outcome": "success",
+        "headersAt": "2026-10-10T04:40:27.711Z",
+        "httpStatus": 200,
+        "responseHeaders": {
+          "x-generation-id": "gen-dec-1791607227-Lf6o3iksi3V7hm9eVk37"
+        },
+        "generationId": "gen-dec-1791607227-Lf6o3iksi3V7hm9eVk37",
+        "finishedAt": "2026-10-10T04:40:27.714Z"
+      },
+      "actualUsd": 0.000042252,
+      "error": null
+    },
+    {
+      "runId": "check-6b654871-80b7-4361-9692-f294592a0782",
+      "requestId": "f6be6990-33d9-445a-99ea-a37953ca5ecf",
+      "campaignId": "847332ad-be0a-4988-8195-870ddb3ec41a",
+      "packetHash": "e612bfdd86f4eef006b780c4e4527ad8e6901ab5cc5b35e76d0c14c37ada00ef",
+      "wireHash": "bcfc1fe1be6720d51e5d16ba6f88e428b811237ff58f2b819c12d345d4515cee",
+      "dispatched": true,
+      "transport": {
+        "requestId": "f6be6990-33d9-445a-99ea-a37953ca5ecf",
+        "runId": "check-6b654871-80b7-4361-9692-f294592a0782",
+        "channel": "popup-jev",
+        "model": "typesafe/jev-1.13",
+        "provider": "TypeSafe",
+        "wireSha256": "30686ab3288ba7844bf3a6c075d2ab32d58905ac24a08bc72b932fd36f54d1a1",
+        "startedAt": "2026-10-10T04:40:29.575Z",
+        "observedAt": "2026-10-10T04:40:29.575Z",
+        "outcome": "success",
+        "headersAt": "2026-10-10T04:40:29.988Z",
+        "httpStatus": 200,
+        "responseHeaders": {
+          "x-generation-id": "gen-dec-1791607229-Dk8ouDB4rDxcS3e2LfWq"
+        },
+        "generationId": "gen-dec-1791607229-Dk8ouDB4rDxcS3e2LfWq",
+        "finishedAt": "2026-10-10T04:40:29.989Z"
+      },
+      "actualUsd": 0.000048174,
+      "error": null
+    }
+  ],
+  "matched": true
+}

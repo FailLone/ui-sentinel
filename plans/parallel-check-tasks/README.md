@@ -58,3 +58,5 @@
 后续免费修复已交付：修正 Jev choice 协议、增加传输失败诊断、停止退出码及取消持久化判定，详情与尚未执行的单请求诊断提案见 [transport-fix-20261010/RESULT.md](transport-fix-20261010/RESULT.md)。三笔原 unknown 仍保留。
 
 上述单请求提案后获用户授权，已于 2026-10-10 执行并封存：[single-jev-result-20261010/RESULT.md](single-jev-result-20261010/RESULT.md)。1 次真实 Jev 返回 HTTP 200，选择 Details（0.99），费用 USD 0.000040614，unknown/held 均为 0；仅协议诊断通过，完整弹窗目标仍未验证。
+
+最新完整三场景批次已按新的 USD 1.86 授权执行并封存：[real-result-02-20261010/RESULT.md](real-result-02-20261010/RESULT.md)。三行全部运行：P01 通过，P02 嵌套入口未完成，P03 诚实 unknown 符合预期；整体目标未全部通过，父均 partial。40 请求已结算 USD 0.075323624，无新增 unknown，未追加批次。

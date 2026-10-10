@@ -45,3 +45,7 @@ Merge order: independently review this branch's new check-task/network-budget mo
 ## 授权单次真实 Jev 诊断（2026-10-10）
 
 用户经维护者明确授权冻结 manifest `986698d6...169299`。原产品 createPopupProvider 执行 1 次 Jev，无主模型/浏览器；HTTP 200、原协议校验通过，选择 Details（0.99），generation `gen-dec-1791606475-bUM8EvyGwtNN5RqyXrWv`。新原账户已结算 USD 0.000040614，unknown/held/活动 lease 均为 0。723 源文件及 wire/packet/安装锁一致，无重建或重跑测试。只证明此冻结请求被接受并产生可解析选择，不证明页面操作/几何/并发完整目标。单次 claim 已消费，结果已封存，不重试、不恢复 P02/P03、不动旧账户。详见 [single-jev-result-20261010/RESULT.md](single-jev-result-20261010/RESULT.md)。
+
+## 修复后三场景新授权批次（2026-10-10）
+
+用户经维护者明确“好的，开始”，批准修复后的整批新增 USD 1.86。新冻结 manifest `bf261f6c...365fda`、bundle `0d9a8c71...4e2b72`，源码仍 `7dc39a7`；16 文件差异恰好为既有修复，政策和公开场景未扩。三行均运行，P01 通过、P02 嵌套继续未完成、P03 动作后诚实 unknown 符合预期；整批目标未全部通过，exit 3，无硬停止/未运行行。40 真实请求（30 主+10 Jev）全部结算 USD 0.075323624，unknown/held/活动 lease 为 0。六个子浏览器关闭，九个原运行持久化/子证据检查通过；三个父仍 blocked/partial。537 附件及全部原记录封存于 [real-result-02-20261010/RESULT.md](real-result-02-20261010/RESULT.md)。无重试、补样、失败后改代码、旧账修改、下一批或 main 合并推送。
