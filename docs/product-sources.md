@@ -84,3 +84,9 @@ DOTENV_CONFIG_PATH=/dev/null pnpm exec tsx scripts/validation/r2-product-sources
 可提交的[验收收据与 hash 索引](../evaluation/r2-product-sources/acceptance.json)标明源码版本、结果、日志摘要和本机材料位置。原始材料位于本工作区 `data/r2-product-sources/2026-10-10T13-03-38-388Z/`，产物路径见其中 `artifact-index.json`；这些文件未随 Git 自动迁移。
 
 首次交付判断（随后维护者以动态目标反例指出 P1，修复见上述动态回归）：本轮限定的“资料→短路径→真实浏览器操作/测量→来源对照报告→历史恢复”免费确定性闭环完成，可供维护者审阅；尚未合入 main。真实主模型提取与绑定质量没有本轮验收，不把固定模型成绩称为真实模型稳定性或完整 R2 泛化完成。Figma、角色、业务写入、多文档和完整业务路径仍后置。
+
+### 动态控件 P1 修复验证（2026-10-10）
+
+冻结候选 `d8b5ceec8d5f2a72bbc3301971e760dd7566a989`：构建/类型/格式通过，26 文件/306 项定向回归通过。`--dynamic-only` 六场景全部符合预期：健康为 covered/verified，错误结果为 covered/failed；缺失、重名、未登记额外按钮为 partial/unverified；默认样本 pending 场景资料路径 verified，但 covered 完成申请被拒绝、运行仍 partial。后续按钮准入没有改变原默认样本分母。
+
+服务重启后六份报告结果一致，重启前后共 12 份报告持久校验问题为空；准入产物身份字段篡改后可读报告降为 unverified/partial。354 份原始产物已建立 hash 索引。可提交的[动态准入验收收据](../evaluation/r2-product-sources/dynamic-admission.json)包含完整候选、命令、六场景运行 ID、日志和产物索引摘要；本机证据位于 `data/r2-product-sources/2026-10-10T13-20-46-509Z/`。原八场景与维护者失败反例均保留，本轮没有重跑全套/R0/R1、调用付费模型或合入 main。
