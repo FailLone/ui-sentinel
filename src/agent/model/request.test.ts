@@ -517,3 +517,58 @@ it('cancels a provider-directed backoff without starting another request', async
   await vi.runAllTimersAsync()
   expect(generate).toHaveBeenCalledTimes(1)
 })
+
+it('independent child scope survives parent tool expiry and drains cleanup after abort', async () => {
+  const { withIndependentProgramScope } = await import('./request.ts')
+  const childController = new AbortController()
+  let resume!: () => void, finish!: () => void, progressed!: () => void
+  const childProgress = new Promise<void>((resolve) => {
+    progressed = resolve
+  })
+  let child!: Promise<void>
+  let cleaned = false,
+    parentIndependent = false
+  await executeModelRequest(
+    agent(async () => {
+      beginAttemptTool()
+      child = withIndependentProgramScope(childController.signal, async () => {
+        await new Promise<void>((resolve) => {
+          resume = resolve
+        })
+        try {
+          guardModelAttempt()
+          parentIndependent = true
+        } finally {
+          progressed()
+        }
+        await new Promise<void>((resolve) => {
+          finish = resolve
+        })
+        try {
+          guardModelAttempt()
+        } finally {
+          cleaned = true
+        }
+      })
+      return { text: 'ok', toolResults: [] }
+    }),
+    '{}',
+    opts(),
+  )
+  resume()
+  await childProgress
+  expect(parentIndependent).toBe(true)
+  childController.abort(Error('child-cancelled'))
+  let settled = false
+  const result = child
+    .catch(() => {})
+    .finally(() => {
+      settled = true
+    })
+  await Promise.resolve()
+  expect(settled).toBe(false)
+  expect(cleaned).toBe(false)
+  finish()
+  await result
+  expect(cleaned).toBe(true)
+})

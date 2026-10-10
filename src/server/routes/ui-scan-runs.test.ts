@@ -136,6 +136,13 @@ describe('U01: an invalid request is refused before anything is created', () => 
     return body
   }
 
+  it('refuses disabled popup capability before creating a run or reading model credentials', async () => {
+    await refused(
+      { kind: 'ui-scan', entryUrl: UI_ENTRY, popupCheck: { mode: 'popup-viewport' } },
+      'popup-check-unavailable',
+    )
+  })
+
   it('refuses a relative address with an actionable reason and field', async () => {
     const body = await refused({ kind: 'ui-scan', entryUrl: '/catalog' }, 'url-not-absolute')
     expect(body.field).toBe('entryUrl')

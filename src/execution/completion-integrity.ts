@@ -1,3 +1,4 @@
+import { checkTaskArtifactIssues, checkTaskReport } from './check-tasks/report.ts'
 import { defaultCheckArtifactIssues } from '../inspection/check-artifacts.ts'
 import { interactionFindingIssues } from './interaction-finding-proof.ts'
 import { createClient } from '@libsql/client'
@@ -61,6 +62,18 @@ export async function verifyCompletionCommit(expected: {
     const snapshot = await getRunSnapshot(expected.runId, reader)
     if (!snapshot) throw Error('completion-commit-run-missing')
     const issues = completionIssues(snapshot.run, snapshot.events)
+    issues.push(
+      ...(await checkTaskArtifactIssues(
+        snapshot.events,
+        snapshot.artifactRows.rows.map((r) => ({
+          id: String(r.id),
+          path: String(r.file_path),
+          metadata: JSON.parse(String(r.metadata)),
+        })),
+      )),
+    )
+    if (snapshot.run.stopReason === 'goal-reached')
+      issues.push(...checkTaskReport(snapshot.events).issues)
     if (
       snapshot.run.spec.kind === 'ui-scan' &&
       ['completed', 'blocked'].includes(snapshot.run.status) &&

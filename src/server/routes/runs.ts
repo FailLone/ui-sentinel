@@ -1,3 +1,5 @@
+import { popupConfiguration } from '../../agent/popup/provider.ts'
+import { hasInjectedPopupDecision } from '../../agent/popup/contract.ts'
 import { productJevConfiguration } from '../../agent/exploration/integration/product-jev.ts'
 import { buildReport } from '../reports/run-report.ts'
 import { terminalRunStatuses as terminals } from '../../execution/run-status.ts'
@@ -61,6 +63,7 @@ const uiScanBodySchema = z
   .object({
     kind: z.literal('ui-scan'),
     exploration: uiScanRequestSchema.shape.exploration,
+    popupCheck: uiScanRequestSchema.shape.popupCheck,
     requiredChecks: uiScanRequestSchema.shape.requiredChecks,
     entryUrl: z.string().min(1).max(4096),
     goal: z.string().trim().max(2000).optional(),
@@ -241,6 +244,20 @@ async function createUiScanRun(c: Context, raw: unknown) {
   if (!parsed.success)
     return c.json({ error: 'invalid-request', details: parsed.error.issues }, 400)
   const body = parsed.data
+  if (
+    body.popupCheck &&
+    (body.exploration ||
+      !config.features.popupCheck ||
+      (!popupConfiguration() && !hasInjectedPopupDecision()))
+  )
+    return c.json(
+      {
+        error: 'popup-check-unavailable',
+        message:
+          'Enable the popup feature with an approved Jev account; choose one exploration mode.',
+      },
+      400,
+    )
   if (body.exploration?.jev && !productJevConfiguration())
     return c.json(
       {

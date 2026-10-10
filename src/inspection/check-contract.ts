@@ -1,3 +1,4 @@
+import { popupFocusIntent } from '../shared/popup-policy.ts'
 import { explorationRevisitIntent } from '../shared/r1-policy.ts'
 import { createHash } from 'node:crypto'
 import { UI_DEFAULT_GOAL } from '../shared/ui-goal.ts'
@@ -287,7 +288,9 @@ export function reviewPublicSources(input: {
     described = false,
   ) {
     const parsed =
-      kind === 'original-goal' && contract.exploration && explorationRevisitIntent(text)
+      kind === 'original-goal' &&
+      ((contract.popupCheck && popupFocusIntent(text)) ||
+        (contract.exploration && explorationRevisitIntent(text)))
         ? ({ focus: true, sync: false } as Parsed)
         : parsePublicRelation(text, described ? control.name : undefined)
     if (!parsed) {

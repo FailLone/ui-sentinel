@@ -97,46 +97,7 @@ export function createProductJevScore(options: {
       readOnly.close()
     }
     // Metadata is public and read before obtaining the private provider credential.
-    await (
-      options.quote ??
-      (async () => {
-        const r = await fetch('https://openrouter.ai/api/v1/models/typesafe/jev-1.13/endpoints', {
-          signal: AbortSignal.any([signal, AbortSignal.timeout(10000)]),
-          redirect: 'error',
-        })
-        if (!r.ok) throw Error('r1-jev-quote-unavailable')
-        const data: any = await r.json(),
-          list = data?.data?.endpoints?.filter(
-            (e: any) => e.provider_name === 'TypeSafe' && e.status === 0,
-          )
-        if (list?.length !== 1) throw Error('r1-jev-quote-changed')
-        const e = list[0],
-          p = e.pricing,
-          number = (v: unknown) =>
-            typeof v === 'string' && /^\d+(\.\d+)?(?:e-\d+)?$/i.test(v)
-              ? Number(v)
-              : typeof v === 'number'
-                ? v
-                : NaN
-        if (
-          e.model_id !== DEFAULT_PROFILE.requestModel ||
-          e.name !== 'TypeSafe | ' + DEFAULT_PROFILE.expectedModel ||
-          e.context_length !== 64000 ||
-          e.max_prompt_tokens !== 32000 ||
-          !Number.isFinite(number(p?.prompt)) ||
-          number(p.prompt) < 0 ||
-          number(p.prompt) > 0.000000042 ||
-          number(p.completion) !== 0 ||
-          Object.entries(p).some(
-            ([k, v]) =>
-              !['prompt', 'completion'].includes(k) &&
-              (!['discount', 'request', 'image', 'input_cache_write'].includes(k) ||
-                number(v) !== 0),
-          )
-        )
-          throw Error('r1-jev-quote-changed')
-      })
-    )()
+    await (options.quote ?? (() => verifyProductJevQuote(signal)))()
     let sent = false,
       reserved = false,
       responseSaved = false,
@@ -278,4 +239,42 @@ export function createProductJevScore(options: {
       }
     }
   }
+}
+
+/** Public metadata only; shared by bounded semantic decisions. */
+export async function verifyProductJevQuote(signal: AbortSignal) {
+  const r = await fetch('https://openrouter.ai/api/v1/models/typesafe/jev-1.13/endpoints', {
+    signal: AbortSignal.any([signal, AbortSignal.timeout(10000)]),
+    redirect: 'error',
+  })
+  if (!r.ok) throw Error('r1-jev-quote-unavailable')
+  const data: any = await r.json(),
+    list = data?.data?.endpoints?.filter(
+      (e: any) => e.provider_name === 'TypeSafe' && e.status === 0,
+    )
+  if (list?.length !== 1) throw Error('r1-jev-quote-changed')
+  const e = list[0],
+    p = e.pricing,
+    number = (v: unknown) =>
+      typeof v === 'string' && /^\d+(\.\d+)?(?:e-\d+)?$/i.test(v)
+        ? Number(v)
+        : typeof v === 'number'
+          ? v
+          : NaN
+  if (
+    e.model_id !== DEFAULT_PROFILE.requestModel ||
+    e.name !== 'TypeSafe | ' + DEFAULT_PROFILE.expectedModel ||
+    e.context_length !== 64000 ||
+    e.max_prompt_tokens !== 32000 ||
+    !Number.isFinite(number(p?.prompt)) ||
+    number(p.prompt) < 0 ||
+    number(p.prompt) > 0.000000042 ||
+    number(p.completion) !== 0 ||
+    Object.entries(p).some(
+      ([k, v]) =>
+        !['prompt', 'completion'].includes(k) &&
+        (!['discount', 'request', 'image', 'input_cache_write'].includes(k) || number(v) !== 0),
+    )
+  )
+    throw Error('r1-jev-quote-changed')
 }

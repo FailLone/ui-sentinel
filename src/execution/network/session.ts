@@ -1,3 +1,4 @@
+import type { SharedNetworkBudget } from './shared-budget.ts'
 import { config } from '../../shared/config.ts'
 import { createResolver, ResolutionFailure } from './resolver.ts'
 export { systemLookup } from './resolver.ts'
@@ -31,6 +32,7 @@ export const DEFAULT_LIMITS: NetworkLimits = {
   maxTotalBytes: 50 * 1024 * 1024,
 }
 export interface UiNetworkSessionOptions {
+  readonly sharedBudget?: SharedNetworkBudget
   readonly context: BrowserContext
   readonly page: Page
   readonly policy: NetworkPolicy
@@ -74,7 +76,8 @@ export async function installUiNetworkSession(options: UiNetworkSessionOptions) 
   const { policy } = options
   const limits = { ...DEFAULT_LIMITS, ...options.limits }
   const resolver = options.resolver ?? createResolver(config.urlScan.dns, options.lookup)
-  const budget = createBodyBudget(limits.maxResponseBytes, limits.maxTotalBytes)
+  const budget =
+    options.sharedBudget?.body ?? createBodyBudget(limits.maxResponseBytes, limits.maxTotalBytes)
   const navigation = createNavigationBudget({
     entryUrl: policy.entryUrl,
     ...(options.scope ?? { maxPages: 3, maxDepth: 1 }),
@@ -219,6 +222,8 @@ export async function installUiNetworkSession(options: UiNetworkSessionOptions) 
         if (dispatched >= limits.maxRequests) return await refuse('request-budget-exhausted')
         if (budget.exhausted()) return await refuse('response-budget-exhausted')
         // Reserve before any await, so concurrent DNS lookups cannot overspend the request cap.
+        if (options.sharedBudget && !options.sharedBudget.reserveRequest())
+          return await refuse('request-budget-exhausted')
         dispatched++
         const hops = previous ? previous.hops + 1 : 0
         if (hops > 5) return await refuse('outside-navigation-scope', 'redirect-limit')

@@ -373,3 +373,22 @@ export async function executeProgramTool<T>(
     clearTimeout(timer)
   }
 }
+
+/** Independent executor ownership; unlike an individual tool timeout, cancellation waits for cleanup. */
+export async function withIndependentProgramScope<T>(
+  signal: AbortSignal,
+  operation: () => Promise<T>,
+): Promise<T> {
+  const context: AttemptContext = {
+    id: 'child-' + randomUUID(),
+    signal,
+    active: true,
+    toolsStarted: false,
+    responseReceived() {},
+  }
+  try {
+    return await attempts.run(context, operation)
+  } finally {
+    context.active = false
+  }
+}

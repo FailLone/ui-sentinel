@@ -1,3 +1,4 @@
+import { POPUP_POLICY } from '../shared/popup-policy.ts'
 import { freezeExploration } from '../shared/r1-policy.ts'
 import { expect, it } from 'vitest'
 import { buildUiContractSnapshot, verifyUiContractSnapshot } from './contract.ts'
@@ -346,4 +347,24 @@ it('R1 exact revisit intent is a focus only when opted in; mixed effect text sta
       }),
     ).sourceReview.state,
   ).toBe('unresolved')
+})
+
+it('popup geometry focus is registered without fabricating an effect; unrelated goal requirements remain unresolved', () => {
+  const focus = reviewPublicSources({
+    contract: { ...contract('检查弹窗是否超出视口。'), popupCheck: POPUP_POLICY },
+    page,
+    control,
+    refs: ['source'],
+    required: [],
+  })
+  expect(focus.sourceReview.reasons).not.toContain('goal-unresolved')
+  expect(focus.effects).toEqual([])
+  const unrelated = reviewPublicSources({
+    contract: { ...contract('Delete every record successfully'), popupCheck: POPUP_POLICY },
+    page,
+    control,
+    refs: ['source'],
+    required: [],
+  })
+  expect(unrelated.sourceReview.reasons).toContain('goal-unresolved')
 })

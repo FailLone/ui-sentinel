@@ -48,11 +48,14 @@ export async function createRun(
     budget?: Partial<RunSpec['budget']>
     viewport?: RunSpec['viewport']
   },
+  delegatedId?: string,
 ): Promise<Run> {
   await initDatabase()
   const db = getDbClient()
 
-  const id = `run-${randomUUID()}`
+  if (delegatedId && !/^check-[a-f0-9-]{36}$/.test(delegatedId))
+    throw Error('invalid-delegated-run-id')
+  const id = delegatedId ?? `run-${randomUUID()}`
   const now = new Date().toISOString()
 
   const fullSpec: RunSpec = {

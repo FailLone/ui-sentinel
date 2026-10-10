@@ -51,6 +51,84 @@ function Coverage({ report, runId }: { report: UiScanReport; runId: string }) {
         边界：匿名会话 · 不提交业务操作 · 仅支持 GET 型数据 · 有界采样（最多{' '}
         {report.contract.scope.maxPages} 页，深度 {report.contract.scope.maxDepth}）
       </p>
+      {report.checkTasks && (
+        <section aria-label="并行检查子任务">
+          <h3>并行检查子任务</h3>
+          <p>子任务测量保留独立证据；原有必查和已选事项仍需各自验证。</p>
+          <ul>
+            {report.checkTasks.tasks.map((s) => (
+              <li key={s.task.childTaskId}>
+                {s.task.purpose}：{s.status}；动作 {s.usage.actions} 次，模型调用{' '}
+                {s.usage.modelCalls} 次，补充读取 {s.usage.reads} 次，耗时 {s.usage.elapsedMs} ms
+                {s.result?.unchecked.map((item) => (
+                  <p key={item}>未检查：{item}</p>
+                ))}
+                {s.error && <p>{s.error}</p>}
+                {s.execution && <a href={s.execution.reportUrl}>子任务原始报告</a>}
+                {s.result?.original?.evidence.map((e) => (
+                  <a key={e.id} href={e.url}>
+                    {' '}
+                    原证据{' '}
+                  </a>
+                ))}
+                {(s.evidenceRefs ?? s.result?.evidenceRefs)?.map((ref) => (
+                  <a key={ref} href={artifactUrl(runId, ref)}>
+                    {' '}
+                    证据{' '}
+                  </a>
+                ))}
+              </li>
+            ))}
+          </ul>
+          {report.checkTasks.issues.map((issue) => (
+            <p key={issue}>{issue}</p>
+          ))}
+        </section>
+      )}
+      {report.popupCheck && (
+        <section aria-label="弹窗视口检查">
+          <h3>弹窗视口检查</h3>
+          <p>
+            子任务：
+            {report.popupCheck.verdict === 'pass'
+              ? '已测弹窗外框未越界'
+              : report.popupCheck.verdict === 'fail'
+                ? '已测弹窗外框被裁切'
+                : '未验证'}
+          </p>
+          <p>此结论仅适用于记录时测量的弹窗；整任务覆盖仍以上方结果为准。</p>
+          <p>
+            语义决策 {report.popupCheck.decisions} 次，动作 {report.popupCheck.attempts.length}{' '}
+            次，补充读取 {report.popupCheck.reads} 次。
+          </p>
+          {report.popupCheck.attempts.map((a, i) => (
+            <p key={i}>
+              {report.inspection.items
+                .find((item) => item.itemId === a.itemId)
+                ?.basis.replace('observed candidate: ', '') ?? '已记录的入口'}{' '}
+              · {a.result === 'completed' ? '已操作' : '未完成'}
+            </p>
+          ))}
+          {report.popupCheck.missing.length > 0 && (
+            <p>尚不能确认目标弹窗或取得支持范围内的稳定测量，详见证据详情。</p>
+          )}
+          <details>
+            <summary>证据详情</summary>
+            <p>{report.popupCheck.reason}</p>
+            {report.popupCheck.attempts.map((a, i) => (
+              <p key={i}>
+                入口 {a.itemId} · 动作 {a.actionId ?? '未派发'}
+              </p>
+            ))}
+            {report.popupCheck.missing.length > 0 && (
+              <p>待补事实：{report.popupCheck.missing.join('；')}</p>
+            )}
+          </details>
+          {report.popupCheck.receiptRef && (
+            <a href={artifactUrl(runId, report.popupCheck.receiptRef)}>查看几何测量回执</a>
+          )}
+        </section>
+      )}
       {report.exploration && (
         <section aria-label="R1 路径与检查">
           <h3>R1 路径与检查</h3>

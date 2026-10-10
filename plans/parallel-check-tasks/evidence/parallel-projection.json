@@ -1,0 +1,767 @@
+{
+  "runId": "run-3b37c4d6-4797-4970-be6c-9b9f8ff0f96f",
+  "status": "blocked",
+  "stopReason": "blocked",
+  "persistence": {
+    "status": "verified",
+    "issues": [],
+    "recordedStatus": "blocked",
+    "recordedBusinessResult": "not-applicable",
+    "recordedStopReason": "blocked",
+    "readConsistency": "single-read-transaction"
+  },
+  "usage": {
+    "actions": 0,
+    "modelCalls": 5,
+    "elapsedMs": 1956,
+    "modelInputTokens": 50,
+    "modelOutputTokens": 50
+  },
+  "checkTasks": {
+    "version": 1,
+    "tasks": [
+      {
+        "task": {
+          "version": 1,
+          "key": "child-0",
+          "kind": "element-measurement",
+          "purpose": "Measure independent viewport 0",
+          "target": {
+            "selector": "#target"
+          },
+          "start": {
+            "url": "http://127.0.0.1:56699/",
+            "viewport": {
+              "width": 320,
+              "height": 480
+            },
+            "prerequisites": []
+          },
+          "publicFacts": [],
+          "evidenceRefs": [],
+          "permissions": {
+            "session": "anonymous",
+            "writes": "none",
+            "actions": "none"
+          },
+          "quota": {
+            "actions": 0,
+            "modelCalls": 0,
+            "reads": 2
+          },
+          "deadlineAt": 1791568810756,
+          "parentRunId": "run-3b37c4d6-4797-4970-be6c-9b9f8ff0f96f",
+          "childTaskId": "58c385f2-fb10-4d08-a4d0-a3347d370e52",
+          "taskHash": "02c352454a09074ede6bf87cf12e52261878220b9e1107cb4a9350544f949439",
+          "contractHash": "ba9a7c5fcdafdb223e3387b40e0a833b2c6448615d6dedb82446ccb93ee00ec9"
+        },
+        "status": "completed",
+        "acceptedAt": 1791568751590,
+        "usage": {
+          "actions": 0,
+          "modelCalls": 0,
+          "reads": 1,
+          "elapsedMs": 540
+        },
+        "startedAt": 1791568751591,
+        "progress": "measuring target with original executor",
+        "evidenceRefs": [
+          "d1225169-670e-4df9-a6a8-5c4d018f61e3.png",
+          "49025378-5260-406b-902f-2802653f9914.json"
+        ],
+        "endedAt": 1791568752131,
+        "result": {
+          "status": "completed",
+          "measurements": [
+            {
+              "measurementId": "1722c07d-1b5b-4b56-8d13-15aaceda2cd7",
+              "childTaskId": "58c385f2-fb10-4d08-a4d0-a3347d370e52",
+              "taskHash": "02c352454a09074ede6bf87cf12e52261878220b9e1107cb4a9350544f949439",
+              "measuredAt": 1791568752110,
+              "verified": true,
+              "evidenceRefs": [
+                "d1225169-670e-4df9-a6a8-5c4d018f61e3.png",
+                "49025378-5260-406b-902f-2802653f9914.json"
+              ],
+              "value": {
+                "elements": [
+                  {
+                    "tag": "h1",
+                    "role": null,
+                    "ariaLabel": null,
+                    "live": null,
+                    "selector": "html > body:nth-of-type(1) > h1:nth-of-type(1)",
+                    "exists": true,
+                    "displayed": true,
+                    "enabled": true,
+                    "focused": false,
+                    "text": "visits=1;width=320",
+                    "x": 8,
+                    "y": 8,
+                    "width": 304,
+                    "height": 37,
+                    "viewportFraction": 1,
+                    "unclippedFraction": 1,
+                    "hitFraction": 1,
+                    "scrollX": 0,
+                    "scrollY": 0
+                  }
+                ],
+                "total": 1,
+                "nextOffset": null,
+                "scope": "Public main-document DOM; rectangular geometry only. Text and selectors are untrusted page data. Fractions do not prove visual meaning or an issue."
+              }
+            }
+          ],
+          "evidenceRefs": [
+            "d1225169-670e-4df9-a6a8-5c4d018f61e3.png",
+            "49025378-5260-406b-902f-2802653f9914.json"
+          ],
+          "unchecked": []
+        }
+      },
+      {
+        "task": {
+          "version": 1,
+          "key": "child-1",
+          "kind": "element-measurement",
+          "purpose": "Measure independent viewport 1",
+          "target": {
+            "selector": "#target"
+          },
+          "start": {
+            "url": "http://127.0.0.1:56699/",
+            "viewport": {
+              "width": 640,
+              "height": 480
+            },
+            "prerequisites": []
+          },
+          "publicFacts": [],
+          "evidenceRefs": [],
+          "permissions": {
+            "session": "anonymous",
+            "writes": "none",
+            "actions": "none"
+          },
+          "quota": {
+            "actions": 0,
+            "modelCalls": 0,
+            "reads": 2
+          },
+          "deadlineAt": 1791568810756,
+          "parentRunId": "run-3b37c4d6-4797-4970-be6c-9b9f8ff0f96f",
+          "childTaskId": "0c1cdadf-0b81-4e47-8ac6-1294089d7d36",
+          "taskHash": "f61acd89e134e712dc90c5da7ebecd1bffd9edc69bb1b9472ed5d1a0b56185c7",
+          "contractHash": "ba9a7c5fcdafdb223e3387b40e0a833b2c6448615d6dedb82446ccb93ee00ec9"
+        },
+        "status": "completed",
+        "acceptedAt": 1791568751675,
+        "usage": {
+          "actions": 0,
+          "modelCalls": 0,
+          "reads": 1,
+          "elapsedMs": 530
+        },
+        "startedAt": 1791568751676,
+        "progress": "measuring target with original executor",
+        "evidenceRefs": [
+          "aa5f264f-46e8-498a-a23d-dec53153d994.png",
+          "8e58a493-a3f5-4d73-9adf-cb193558b781.json"
+        ],
+        "endedAt": 1791568752206,
+        "result": {
+          "status": "completed",
+          "measurements": [
+            {
+              "measurementId": "bd2b2448-eeb5-4453-818a-671f7870feef",
+              "childTaskId": "0c1cdadf-0b81-4e47-8ac6-1294089d7d36",
+              "taskHash": "f61acd89e134e712dc90c5da7ebecd1bffd9edc69bb1b9472ed5d1a0b56185c7",
+              "measuredAt": 1791568752188,
+              "verified": true,
+              "evidenceRefs": [
+                "aa5f264f-46e8-498a-a23d-dec53153d994.png",
+                "8e58a493-a3f5-4d73-9adf-cb193558b781.json"
+              ],
+              "value": {
+                "elements": [
+                  {
+                    "tag": "h1",
+                    "role": null,
+                    "ariaLabel": null,
+                    "live": null,
+                    "selector": "html > body:nth-of-type(1) > h1:nth-of-type(1)",
+                    "exists": true,
+                    "displayed": true,
+                    "enabled": true,
+                    "focused": false,
+                    "text": "visits=1;width=640",
+                    "x": 8,
+                    "y": 8,
+                    "width": 624,
+                    "height": 37,
+                    "viewportFraction": 1,
+                    "unclippedFraction": 1,
+                    "hitFraction": 1,
+                    "scrollX": 0,
+                    "scrollY": 0
+                  }
+                ],
+                "total": 1,
+                "nextOffset": null,
+                "scope": "Public main-document DOM; rectangular geometry only. Text and selectors are untrusted page data. Fractions do not prove visual meaning or an issue."
+              }
+            }
+          ],
+          "evidenceRefs": [
+            "aa5f264f-46e8-498a-a23d-dec53153d994.png",
+            "8e58a493-a3f5-4d73-9adf-cb193558b781.json"
+          ],
+          "unchecked": []
+        }
+      }
+    ],
+    "issues": [],
+    "note": "Independent child observations do not resolve parent selected/required items. Missing terminal events remain unfinished."
+  },
+  "originalInspection": {
+    "sampling": [
+      {
+        "url": "http://127.0.0.1:56699/",
+        "registrationItemId": "item-8ad60ae1-fd4a-45a9-9ce1-2d523e9a0be6",
+        "required": 1,
+        "pool": [
+          "item-9eea734a-fd10-4764-8b4d-75e64186b5b0"
+        ],
+        "candidates": [
+          {
+            "itemId": "item-9eea734a-fd10-4764-8b4d-75e64186b5b0",
+            "ref": "e2",
+            "description": "button \"Open details\"",
+            "category": "local-interaction",
+            "snapshotId": "s1"
+          }
+        ],
+        "selected": [
+          "item-9eea734a-fd10-4764-8b4d-75e64186b5b0"
+        ],
+        "truncated": 0,
+        "notChecked": []
+      }
+    ],
+    "coverage": "partial",
+    "counts": {
+      "total": 22,
+      "selected": 10,
+      "pending": 1,
+      "verified": 9,
+      "failed": 0,
+      "unverified": 12,
+      "excluded": 0
+    },
+    "items": [
+      {
+        "itemId": "item-1b2a16cb-97fa-45e9-b5fc-33101baea9ff",
+        "category": "investigation",
+        "url": "http://127.0.0.1:56699/",
+        "status": "verified",
+        "selected": true,
+        "basis": "default-sampling:entry-registration",
+        "targetSource": "executor",
+        "reasonCode": null,
+        "detail": "Public default policy registered from the first clean observed candidate pool",
+        "evidenceRefs": [
+          "9365f3a4-fbff-4678-abe6-8a849e83aa4d.png",
+          "3ae25799-8951-48d6-8be8-110e37b21641.json"
+        ],
+        "ruleRevision": null,
+        "parentNavigation": null
+      },
+      {
+        "itemId": "item-db3f049c-2c23-4c41-9814-7977b6fef4aa",
+        "category": "entry-observation",
+        "url": "http://127.0.0.1:56699/",
+        "status": "verified",
+        "selected": true,
+        "basis": "the entry document was navigated and observed",
+        "targetSource": "executor",
+        "reasonCode": null,
+        "detail": "observed http://127.0.0.1:56699/",
+        "evidenceRefs": [
+          "9365f3a4-fbff-4678-abe6-8a849e83aa4d.png",
+          "3ae25799-8951-48d6-8be8-110e37b21641.json"
+        ],
+        "ruleRevision": null,
+        "parentNavigation": null
+      },
+      {
+        "checks": {
+          "revision": "item-checks-2",
+          "sourceReview": {
+            "state": "sealed",
+            "revision": "public-effect-sources-1",
+            "refs": [
+              "b002e101-910c-403d-a67f-3c292591d74d.png",
+              "ef5ac43d-3632-441a-8913-55e2713e97c2.json"
+            ],
+            "reasons": [],
+            "goalHash": "294e39f20dedccf45395f22017275a58f17bf0a44f754da4bb87b6ed93bab8fd",
+            "contractHash": "ba9a7c5fcdafdb223e3387b40e0a833b2c6448615d6dedb82446ccb93ee00ec9",
+            "hash": "5981a793c160df27bf3d9c9d08bbe903bb62d5dc66c479c4dacad9c9e62243f2",
+            "ruleChecks": [
+              {
+                "ruleId": "overlay-blocking",
+                "revision": "2.1.0",
+                "contentHash": "c3acb6191549a481e1dbacd22655f6bde36459f78a0301e6f2ad2d88aa8ef424",
+                "approvalRef": "installed-registry:overlay-blocking:2.1.0",
+                "scopeItemIds": [
+                  "item-331460a0-050a-4eb7-802b-d13b5f52e107"
+                ],
+                "evidenceRefs": [
+                  "9365f3a4-fbff-4678-abe6-8a849e83aa4d.png",
+                  "3ae25799-8951-48d6-8be8-110e37b21641.json"
+                ]
+              }
+            ]
+          },
+          "generic": {
+            "state": "pending",
+            "evidenceRefs": [],
+            "eventIds": []
+          },
+          "effects": []
+        },
+        "itemId": "item-9eea734a-fd10-4764-8b4d-75e64186b5b0",
+        "category": "local-interaction",
+        "url": "http://127.0.0.1:56699/",
+        "status": "pending",
+        "selected": true,
+        "basis": "observed candidate: button \"Open details\"",
+        "targetSource": "executor",
+        "reasonCode": "v2-mandatory-checks-incomplete",
+        "detail": "Public sources reviewed before operation; missing semantics are not invented",
+        "evidenceRefs": [
+          "b002e101-910c-403d-a67f-3c292591d74d.png",
+          "ef5ac43d-3632-441a-8913-55e2713e97c2.json"
+        ],
+        "ruleRevision": null,
+        "parentNavigation": null
+      },
+      {
+        "itemId": "item-8ad60ae1-fd4a-45a9-9ce1-2d523e9a0be6",
+        "category": "investigation",
+        "url": "http://127.0.0.1:56699/",
+        "status": "verified",
+        "selected": true,
+        "basis": "default-sampling:local:http://127.0.0.1:56699/",
+        "targetSource": "executor",
+        "reasonCode": null,
+        "detail": "Frozen public sample selected: item-9eea734a-fd10-4764-8b4d-75e64186b5b0; target effects remain separate selected obligations",
+        "evidenceRefs": [
+          "9365f3a4-fbff-4678-abe6-8a849e83aa4d.png",
+          "3ae25799-8951-48d6-8be8-110e37b21641.json"
+        ],
+        "ruleRevision": null,
+        "parentNavigation": null
+      },
+      {
+        "itemId": "item-331460a0-050a-4eb7-802b-d13b5f52e107",
+        "category": "automatic-check",
+        "url": "http://127.0.0.1:56699/",
+        "status": "verified",
+        "selected": true,
+        "basis": "automatic rule overlay-blocking applies to the observed state",
+        "targetSource": "executor",
+        "reasonCode": null,
+        "detail": "overlay-blocking verdict: pass",
+        "evidenceRefs": [
+          "9365f3a4-fbff-4678-abe6-8a849e83aa4d.png",
+          "3ae25799-8951-48d6-8be8-110e37b21641.json"
+        ],
+        "ruleRevision": "2.1.0",
+        "parentNavigation": null
+      },
+      {
+        "itemId": "item-6d9e66c7-e274-4538-b951-1790929a1afc",
+        "category": "automatic-check",
+        "url": "http://127.0.0.1:56699/",
+        "status": "unverified",
+        "selected": false,
+        "basis": "automatic rule control-text-disappearance applies to the observed state",
+        "targetSource": "executor",
+        "reasonCode": "control-text-supported-scope-limit",
+        "detail": "control-text-disappearance verdict: unknown",
+        "evidenceRefs": [
+          "9365f3a4-fbff-4678-abe6-8a849e83aa4d.png",
+          "3ae25799-8951-48d6-8be8-110e37b21641.json",
+          "4f8db37a-5fcb-4cf0-9c32-7b5f4518dbb0.json"
+        ],
+        "ruleRevision": "0.1.0",
+        "parentNavigation": null
+      },
+      {
+        "itemId": "item-df42094f-6665-4a92-8b0c-1f32fd9545b8",
+        "category": "automatic-check",
+        "url": "http://127.0.0.1:56699/",
+        "status": "unverified",
+        "selected": false,
+        "basis": "automatic rule control-text-clipping applies to the observed state",
+        "targetSource": "executor",
+        "reasonCode": "control-layout-supported-scope-limit",
+        "detail": "control-text-clipping verdict: unknown",
+        "evidenceRefs": [
+          "9365f3a4-fbff-4678-abe6-8a849e83aa4d.png",
+          "3ae25799-8951-48d6-8be8-110e37b21641.json",
+          "6a61ac63-23f2-44e8-85c7-ebea9ec82b1d.json"
+        ],
+        "ruleRevision": "0.1.0",
+        "parentNavigation": null
+      },
+      {
+        "itemId": "item-beb4d2eb-715e-481a-8dc2-886fa926b8f4",
+        "category": "automatic-check",
+        "url": "http://127.0.0.1:56699/",
+        "status": "unverified",
+        "selected": false,
+        "basis": "automatic rule control-text-overlap applies to the observed state",
+        "targetSource": "executor",
+        "reasonCode": "control-layout-supported-scope-limit",
+        "detail": "control-text-overlap verdict: unknown",
+        "evidenceRefs": [
+          "9365f3a4-fbff-4678-abe6-8a849e83aa4d.png",
+          "3ae25799-8951-48d6-8be8-110e37b21641.json",
+          "6a61ac63-23f2-44e8-85c7-ebea9ec82b1d.json"
+        ],
+        "ruleRevision": "0.1.0",
+        "parentNavigation": null
+      },
+      {
+        "itemId": "item-be35ef3b-3225-4c8e-8215-448cf93f790e",
+        "category": "investigation",
+        "url": "http://127.0.0.1:56699/",
+        "status": "verified",
+        "selected": true,
+        "basis": "default-checks:page-source-review:http://127.0.0.1:56699/",
+        "targetSource": "executor",
+        "reasonCode": null,
+        "detail": "Bounded source observation completeness, not functional correctness",
+        "evidenceRefs": [
+          "b002e101-910c-403d-a67f-3c292591d74d.png",
+          "ef5ac43d-3632-441a-8913-55e2713e97c2.json"
+        ],
+        "ruleRevision": null,
+        "parentNavigation": null
+      },
+      {
+        "itemId": "item-80a4f40c-3020-4de5-9acd-a095af070154",
+        "category": "entry-observation",
+        "url": "http://127.0.0.1:56699/",
+        "status": "verified",
+        "selected": true,
+        "basis": "the entry document was navigated and observed",
+        "targetSource": "executor",
+        "reasonCode": null,
+        "detail": "observed http://127.0.0.1:56699/",
+        "evidenceRefs": [
+          "20df77d5-d512-432c-9a75-4af1d25e899e.png",
+          "3cd7b574-353e-41d4-a92e-a7e30cdfa817.json"
+        ],
+        "ruleRevision": null,
+        "parentNavigation": null
+      },
+      {
+        "itemId": "item-d3bd3cdc-1ff5-4359-b151-b3472e9317d2",
+        "category": "automatic-check",
+        "url": "http://127.0.0.1:56699/",
+        "status": "verified",
+        "selected": true,
+        "basis": "automatic rule overlay-blocking applies to the observed state",
+        "targetSource": "executor",
+        "reasonCode": null,
+        "detail": "overlay-blocking verdict: pass",
+        "evidenceRefs": [
+          "20df77d5-d512-432c-9a75-4af1d25e899e.png",
+          "3cd7b574-353e-41d4-a92e-a7e30cdfa817.json"
+        ],
+        "ruleRevision": "2.1.0",
+        "parentNavigation": null
+      },
+      {
+        "itemId": "item-606d268e-2c2d-4f97-a231-c9561bfe46fa",
+        "category": "automatic-check",
+        "url": "http://127.0.0.1:56699/",
+        "status": "unverified",
+        "selected": false,
+        "basis": "automatic rule control-text-disappearance applies to the observed state",
+        "targetSource": "executor",
+        "reasonCode": "control-text-supported-scope-limit",
+        "detail": "control-text-disappearance verdict: unknown",
+        "evidenceRefs": [
+          "20df77d5-d512-432c-9a75-4af1d25e899e.png",
+          "3cd7b574-353e-41d4-a92e-a7e30cdfa817.json",
+          "ce1efa80-ce5d-4da4-bf15-08b785f81daa.json"
+        ],
+        "ruleRevision": "0.1.0",
+        "parentNavigation": null
+      },
+      {
+        "itemId": "item-a6edecb7-851a-4c61-b4ba-e87c14710c98",
+        "category": "automatic-check",
+        "url": "http://127.0.0.1:56699/",
+        "status": "unverified",
+        "selected": false,
+        "basis": "automatic rule control-text-clipping applies to the observed state",
+        "targetSource": "executor",
+        "reasonCode": "control-layout-supported-scope-limit",
+        "detail": "control-text-clipping verdict: unknown",
+        "evidenceRefs": [
+          "20df77d5-d512-432c-9a75-4af1d25e899e.png",
+          "3cd7b574-353e-41d4-a92e-a7e30cdfa817.json",
+          "800df6e3-135d-4a29-bbd4-292a74b3715c.json"
+        ],
+        "ruleRevision": "0.1.0",
+        "parentNavigation": null
+      },
+      {
+        "itemId": "item-1c828675-e551-4436-b3da-7adddcaad92d",
+        "category": "automatic-check",
+        "url": "http://127.0.0.1:56699/",
+        "status": "unverified",
+        "selected": false,
+        "basis": "automatic rule control-text-overlap applies to the observed state",
+        "targetSource": "executor",
+        "reasonCode": "control-layout-supported-scope-limit",
+        "detail": "control-text-overlap verdict: unknown",
+        "evidenceRefs": [
+          "20df77d5-d512-432c-9a75-4af1d25e899e.png",
+          "3cd7b574-353e-41d4-a92e-a7e30cdfa817.json",
+          "800df6e3-135d-4a29-bbd4-292a74b3715c.json"
+        ],
+        "ruleRevision": "0.1.0",
+        "parentNavigation": null
+      },
+      {
+        "itemId": "item-be5f1796-2568-47fb-963b-8a67027b210b",
+        "category": "entry-observation",
+        "url": "http://127.0.0.1:56699/",
+        "status": "verified",
+        "selected": true,
+        "basis": "the entry document was navigated and observed",
+        "targetSource": "executor",
+        "reasonCode": null,
+        "detail": "observed http://127.0.0.1:56699/",
+        "evidenceRefs": [
+          "0a908a54-4b98-4f46-973f-5c5589b171f7.png",
+          "78340694-e736-45e9-a598-24c35912fac9.json"
+        ],
+        "ruleRevision": null,
+        "parentNavigation": null
+      },
+      {
+        "itemId": "item-7f08c26c-af11-4586-bc9a-91cb2d6362a4",
+        "category": "automatic-check",
+        "url": "http://127.0.0.1:56699/",
+        "status": "unverified",
+        "selected": false,
+        "basis": "automatic rule control-text-disappearance applies to the observed state",
+        "targetSource": "executor",
+        "reasonCode": "control-text-supported-scope-limit",
+        "detail": "control-text-disappearance verdict: unknown",
+        "evidenceRefs": [
+          "0a908a54-4b98-4f46-973f-5c5589b171f7.png",
+          "78340694-e736-45e9-a598-24c35912fac9.json",
+          "726c55bf-7d14-4828-b2e4-7093c454e3f8.json"
+        ],
+        "ruleRevision": "0.1.0",
+        "parentNavigation": null
+      },
+      {
+        "itemId": "item-fa18c98c-61e4-4d08-9955-42f9438aa1bc",
+        "category": "automatic-check",
+        "url": "http://127.0.0.1:56699/",
+        "status": "unverified",
+        "selected": false,
+        "basis": "automatic rule control-text-clipping applies to the observed state",
+        "targetSource": "executor",
+        "reasonCode": "control-layout-supported-scope-limit",
+        "detail": "control-text-clipping verdict: unknown",
+        "evidenceRefs": [
+          "0a908a54-4b98-4f46-973f-5c5589b171f7.png",
+          "78340694-e736-45e9-a598-24c35912fac9.json",
+          "bfab9cac-937a-4cba-89b1-55b48bca401b.json"
+        ],
+        "ruleRevision": "0.1.0",
+        "parentNavigation": null
+      },
+      {
+        "itemId": "item-4d7fcd22-9cdf-4e69-ad8c-a4438d0c2020",
+        "category": "automatic-check",
+        "url": "http://127.0.0.1:56699/",
+        "status": "unverified",
+        "selected": false,
+        "basis": "automatic rule control-text-overlap applies to the observed state",
+        "targetSource": "executor",
+        "reasonCode": "control-layout-supported-scope-limit",
+        "detail": "control-text-overlap verdict: unknown",
+        "evidenceRefs": [
+          "0a908a54-4b98-4f46-973f-5c5589b171f7.png",
+          "78340694-e736-45e9-a598-24c35912fac9.json",
+          "bfab9cac-937a-4cba-89b1-55b48bca401b.json"
+        ],
+        "ruleRevision": "0.1.0",
+        "parentNavigation": null
+      },
+      {
+        "itemId": "item-64df5984-c031-450b-84f2-fbdc2363824c",
+        "category": "entry-observation",
+        "url": "http://127.0.0.1:56699/",
+        "status": "verified",
+        "selected": true,
+        "basis": "the entry document was navigated and observed",
+        "targetSource": "executor",
+        "reasonCode": null,
+        "detail": "observed http://127.0.0.1:56699/",
+        "evidenceRefs": [
+          "40afaa30-7148-4fcc-a95f-4251b21ac7bb.png",
+          "c9c980d8-ecef-4b07-9254-4c316593f47f.json"
+        ],
+        "ruleRevision": null,
+        "parentNavigation": null
+      },
+      {
+        "itemId": "item-3191ccea-1af7-47d7-99ba-982da1c38ef4",
+        "category": "automatic-check",
+        "url": "http://127.0.0.1:56699/",
+        "status": "unverified",
+        "selected": false,
+        "basis": "automatic rule control-text-disappearance applies to the observed state",
+        "targetSource": "executor",
+        "reasonCode": "control-text-supported-scope-limit",
+        "detail": "control-text-disappearance verdict: unknown",
+        "evidenceRefs": [
+          "40afaa30-7148-4fcc-a95f-4251b21ac7bb.png",
+          "c9c980d8-ecef-4b07-9254-4c316593f47f.json",
+          "1114bbe9-c73b-404f-85f9-3a3b5c2f4faa.json"
+        ],
+        "ruleRevision": "0.1.0",
+        "parentNavigation": null
+      },
+      {
+        "itemId": "item-f45b17e7-8b90-4d40-a979-94e1a57a9554",
+        "category": "automatic-check",
+        "url": "http://127.0.0.1:56699/",
+        "status": "unverified",
+        "selected": false,
+        "basis": "automatic rule control-text-clipping applies to the observed state",
+        "targetSource": "executor",
+        "reasonCode": "control-layout-supported-scope-limit",
+        "detail": "control-text-clipping verdict: unknown",
+        "evidenceRefs": [
+          "40afaa30-7148-4fcc-a95f-4251b21ac7bb.png",
+          "c9c980d8-ecef-4b07-9254-4c316593f47f.json",
+          "f92cc34a-a5d3-4438-ae04-7bc461f5f809.json"
+        ],
+        "ruleRevision": "0.1.0",
+        "parentNavigation": null
+      },
+      {
+        "itemId": "item-fd48c423-02ef-4503-b16b-39fae1372d58",
+        "category": "automatic-check",
+        "url": "http://127.0.0.1:56699/",
+        "status": "unverified",
+        "selected": false,
+        "basis": "automatic rule control-text-overlap applies to the observed state",
+        "targetSource": "executor",
+        "reasonCode": "control-layout-supported-scope-limit",
+        "detail": "control-text-overlap verdict: unknown",
+        "evidenceRefs": [
+          "40afaa30-7148-4fcc-a95f-4251b21ac7bb.png",
+          "c9c980d8-ecef-4b07-9254-4c316593f47f.json",
+          "f92cc34a-a5d3-4438-ae04-7bc461f5f809.json"
+        ],
+        "ruleRevision": "0.1.0",
+        "parentNavigation": null
+      }
+    ],
+    "gaps": [
+      {
+        "itemId": "item-9eea734a-fd10-4764-8b4d-75e64186b5b0",
+        "category": "local-interaction",
+        "status": "pending",
+        "reason": "v2-mandatory-checks-incomplete",
+        "reasonCode": "v2-mandatory-checks-incomplete"
+      }
+    ],
+    "candidates": {
+      "categories": [
+        "local-interaction"
+      ],
+      "detail": "1 operable control(s) offered by the observation",
+      "truncated": 0,
+      "observedAt": "2026-10-09T17:59:12.659Z"
+    },
+    "unsupported": [
+      {
+        "dimension": "authenticated-session",
+        "reasonCode": "unsupported-release-capability"
+      },
+      {
+        "dimension": "business-write",
+        "reasonCode": "unsupported-release-capability"
+      },
+      {
+        "dimension": "post-data-query",
+        "reasonCode": "unsupported-release-capability"
+      },
+      {
+        "dimension": "graphql-post",
+        "reasonCode": "unsupported-release-capability"
+      },
+      {
+        "dimension": "file-upload",
+        "reasonCode": "unsupported-release-capability"
+      },
+      {
+        "dimension": "file-download",
+        "reasonCode": "unsupported-release-capability"
+      },
+      {
+        "dimension": "new-window",
+        "reasonCode": "unsupported-release-capability"
+      },
+      {
+        "dimension": "websocket",
+        "reasonCode": "unsupported-release-capability"
+      },
+      {
+        "dimension": "service-worker",
+        "reasonCode": "unsupported-release-capability"
+      },
+      {
+        "dimension": "control-text-clipping:coverage",
+        "reasonCode": "bounded-layout-measurement-incomplete"
+      },
+      {
+        "dimension": "control-text-overlap:coverage",
+        "reasonCode": "bounded-layout-measurement-incomplete"
+      },
+      {
+        "dimension": "control-text-disappearance:coverage",
+        "reasonCode": "bounded-text-measurement-incomplete"
+      },
+      {
+        "dimension": "control-text-disappearance",
+        "reasonCode": "control-text-supported-scope-limit"
+      },
+      {
+        "dimension": "control-text-clipping",
+        "reasonCode": "control-layout-supported-scope-limit"
+      },
+      {
+        "dimension": "control-text-overlap",
+        "reasonCode": "control-layout-supported-scope-limit"
+      }
+    ]
+  },
+  "proofVerified": true
+}
