@@ -1,0 +1,143 @@
+{
+  "baseCommit": "6fc8605",
+  "implementationCommit": "95d7208f95dd0c52f6cf54842204813303b4c1e1",
+  "branch": "codex/r2-registration-decision",
+  "skillRevision": "product-path-11",
+  "status": "free-validation-passed",
+  "sourceHash": "4109f2e69dff2f49034546e32c3efa3d694427cfcc8bf021059bf75fe04ff1dc",
+  "distHash": "283909dde55cc9afef92397025b632d4c132fbbcf7e61f59adf0382aca53ed24",
+  "browserBuildConsistency": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/registration-decision-free-20261011/browser-build-consistency.json",
+  "originalFailure": {
+    "path": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/registration-decision-free-20261011/original-r1-complete-contexts.json",
+    "sha256": "e08fc4b481fde59ffeeb8dca2d8d360fc718313f53b295927c0b5ef24a44eb79",
+    "sourceHash": "ea562970feaaf24b272bec372e4f18ef55a1246c79bbeb44be0889f86740ab38",
+    "fullRequests": 5,
+    "retainedResult": "Latest real batch remains 5/6; R1 5 requests, 0 registration/actions despite full source and reminder."
+  },
+  "flowComparison": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/registration-decision-free-20261011/flow-comparison.json",
+  "modelTask": {
+    "draft": "Same original resolveProductPlan/readiness validator; no parallel plan service.",
+    "retrieve": "One counted model request containing 1-3 typed queries. Existing reader bodies run within one serial tool deadline; nested work consumes original tool/read counters. No nested serial or permission round-trip.",
+    "unsupported": "Persist explanation/unchecked scope as interpretation, then original finishInspection unverified-scope in bounded program context after the queue resolves; zero extra model requests.",
+    "malformed": "No dispatch from invalid schema; incorrect citation/assumption gets original diagnostics; no-progress and original three-rejection limit bound repair.",
+    "perResponse": "Original offered-tool snapshot and one-decision guard plus SDK named choice. State changes cannot authorize a second decision or another unoffered tool in the same response.",
+    "progress": "Only exact newly returned character coverage or original plan/action/measurement facts; wording and decision records add no progress. Registration cannot borrow post-closure reminder/contract-repair scheduling."
+  },
+  "actualCallCost": {
+    "normalDraft": "read -> draft: same two model requests as an immediate old read -> register; no added turn",
+    "missingEvidence": "one retrieve decision executes its queries now, then the next original counted request reviews the results; no separate permission request",
+    "unsupported": "one decide request, then no-model finish",
+    "unknown": "Real model tokens, latency, adoption and success rate not measured."
+  },
+  "distinctTests": 121,
+  "testFiles": 11,
+  "tests": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/registration-decision-free-20261011/tests-passed.log",
+  "build": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/registration-decision-free-20261011/build-final.log",
+  "typecheck": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/registration-decision-free-20261011/typecheck-final.log",
+  "format": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/registration-decision-free-20261011/format.log",
+  "diffCheck": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/registration-decision-free-20261011/diff-check.log",
+  "browserRoot": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-sources/2026-10-11T16-04-57-110Z",
+  "browserResults": [
+    {
+      "mode": "feedback-healthy",
+      "runId": "run-c5801dc9-0d83-408c-b883-f62a9a4353bd",
+      "status": "completed",
+      "coverage": "covered",
+      "state": "verified",
+      "actions": 2
+    },
+    {
+      "mode": "feedback-defect",
+      "runId": "run-548bf6cd-410b-462f-a102-1d2d2dc3d2ad",
+      "status": "completed",
+      "coverage": "covered",
+      "state": "failed",
+      "actions": 2
+    },
+    {
+      "mode": "feedback-unavailable-enabled",
+      "runId": "run-3b9f2ca3-411d-45bf-920c-be04e5eeba41",
+      "status": "blocked",
+      "coverage": "partial",
+      "state": "unverified",
+      "actions": 0
+    },
+    {
+      "mode": "feedback-registration-stall",
+      "runId": "run-34ef6634-f60b-480a-86b7-02e528fc2214",
+      "status": "blocked",
+      "coverage": "partial",
+      "state": "unverified",
+      "actions": 0
+    },
+    {
+      "mode": "feedback-unsupported",
+      "runId": "run-6fe2eedd-db95-4513-9035-b4bc6dde454c",
+      "status": "blocked",
+      "coverage": "partial",
+      "state": "unverified",
+      "actions": 0
+    },
+    {
+      "mode": "feedback-budget",
+      "runId": "run-18c268d4-ba1e-4406-9af8-bd40234e944c",
+      "status": "blocked",
+      "coverage": "partial",
+      "state": "unverified",
+      "actions": 0
+    }
+  ],
+  "browserCalls": {
+    "feedback-healthy": 9,
+    "feedback-defect": 9,
+    "feedback-unavailable-enabled": 7,
+    "feedback-registration-stall": 4,
+    "feedback-unsupported": 2,
+    "feedback-budget": 1
+  },
+  "restartedReports": 6,
+  "sdkValidation": [
+    "named tool_choice plus sole active tool",
+    "original registration schema and diagnostics",
+    "wrong citation, assumption, missing field and action query refused",
+    "text-only response performs no tool work or hidden follow-up",
+    "original three rejected-registration limit",
+    "source pagination and exact quote in one decision",
+    "original resultRef pagination remains retrievable",
+    "changed gap wording adds no coverage",
+    "unsupported reason/scope retained without verified plan"
+  ],
+  "executorValidation": [
+    "same reply second decision refused",
+    "unoffered page_inspect refused at SDK before dispatch after first draft freezes",
+    "real health/defect/prerequisite measurement chain with original nextAction IDs",
+    "three repeated gaps close at original streak=3 after 4 total requests",
+    "unsupported saves reason and scope then original finish without extra model request (2 total)",
+    "maxModelCalls=3 uses original UI closing reserve after first read; no new query/plan/action or budget extension",
+    "current six full reports equal after restart"
+  ],
+  "failuresPreserved": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/registration-decision-free-20261011/failures-preserved.json",
+  "reusedEvidence": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/registration-decision-free-20261011/reused-evidence.json",
+  "evidenceIndex": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/registration-decision-free-20261011/evidence-index.json",
+  "evidenceIndexSha256": "20bb5628d9784442938d3749343635b7994f57277aa244e7cc737efa660bb740",
+  "evidenceFiles": 653,
+  "artifactFilesIncludingDevelopmentAttempts": 507,
+  "paidCalls": 0,
+  "newPaidAuthorizationOrClaim": false,
+  "historicalUnknownUsd": [
+    0.063,
+    0.063,
+    0.116
+  ],
+  "historicalBillingInvestigation": false,
+  "limitations": [
+    "Free model replies are author-controlled; this proves scheduling/schema/validation, not live model adoption or improved real success.",
+    "Gap reasons and unsupported explanations are Agent interpretations. The program does not infer semantic completeness or necessary missing facts.",
+    "A model may still choose repeated gaps or invalid/text-only output; unchanged progress, request/time/action bounds end it partial.",
+    "Named tool/schema adds an explicit result form; semantic plan extraction, citation choice and necessary queries remain model work.",
+    "Only source registration is changed. No provider/model/reasoning/timeout, price/cost policy, R1/Jev/Figma, generic planning framework or acceptance scoring edits."
+  ],
+  "candidateConclusion": "Implementation and necessary free validation complete; reviewable and eligible to freeze under original six-row/five-condition/eight-effect acceptance. No paid run is authorized by this engineering delivery.",
+  "noPushOrMerge": true,
+  "roadmapUnchanged": true
+}
