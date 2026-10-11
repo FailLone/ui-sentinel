@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { productStepReview } from './product-readiness.ts'
 import { sourceCitation, type ProductCitation, type ProductSource } from './product-source.ts'
 import { productPlanInput, validateProductPlan } from './product-path.ts'
 
@@ -8,13 +9,24 @@ const citationInput = z.union([
 ])
 const stepInput = productPlanInput.shape.steps.element
 export const productRegisterInput = productPlanInput.extend({
+  assumptions: productPlanInput.shape.assumptions.describe(
+    'Unsupported hypotheses, not facts or unmeasured current-state predicates. Any unresolved assumption prevents executable registration; do not clear without source-based reclassification.',
+  ),
   steps: z
     .array(
       stepInput.extend({
         citation: citationInput,
+        review: productStepReview
+          .optional()
+          .describe(
+            'Required before executable registration. Self-review of the source, not verification evidence. Missing/false fields return repair diagnostics without freezing.',
+          ),
         preconditions: z
           .array(stepInput.shape.preconditions.element.extend({ citation: citationInput }))
-          .max(5),
+          .max(5)
+          .describe(
+            'All source conditions for this step, with explicit expected values; current state is measured at bind and again before action, not assumed true at registration.',
+          ),
       }),
     )
     .min(1)
@@ -58,7 +70,7 @@ export function resolveProductPlan(
   }
   return validateProductPlan(source, {
     ...draft,
-    steps: draft.steps.map((s, i) => ({
+    steps: draft.steps.map(({ review: _review, ...s }, i) => ({
       ...s,
       citation: resolve(s.citation, `steps[${i}].citation`),
       preconditions: s.preconditions.map((p, j) => ({

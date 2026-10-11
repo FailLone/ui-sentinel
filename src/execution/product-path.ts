@@ -28,6 +28,7 @@ import {
   resolveProductPlan,
   registrationDiagnostics,
 } from '../inspection/product-citations.ts'
+import { productReadinessDiagnostics } from '../inspection/product-readiness.ts'
 import { readPublicCheckPage } from './default-check-runtime.ts'
 import { measureInteraction } from './interaction-verification.ts'
 
@@ -79,7 +80,7 @@ export function createProductPath(host: {
             : rejected.length
               ? 'repair-needed'
               : issued.size
-                ? 'ready-to-register'
+                ? 'source-located'
                 : 'need-source',
         invalidAttempts: rejected.length,
         maxInvalidAttempts: 3,
@@ -87,12 +88,13 @@ export function createProductPath(host: {
         recentCitations: [...issued.values()]
           .slice(-12)
           .map(({ citationId, start, end }) => ({ citationId, start, end })),
-        diagnostics: rejected.at(-1)?.payload.diagnostics ?? [],
+        diagnostics: frozen ? [] : (rejected.at(-1)?.payload.diagnostics ?? []),
+        readiness: frozen ? 'frozen-requirements-not-measured' : 'not-yet-approved-for-binding',
         nextAction: frozen
-          ? 'Use the frozen plan and bindings; registration cannot be revised.'
+          ? 'Use bind to measure actual prerequisites; registration does not prove they hold. Frozen expectations cannot be revised.'
           : rejected.length >= 3
             ? 'Finish unverified-scope; registration repair limit reached.'
-            : 'Choose one short path from the original. Reuse returned citationIds; search exact quotes only for missing citations. Correct indicated fields before retrying. Repeated reads/searches do not advance the run.',
+            : 'Submit a source-grounded path for pre-freeze readiness checks. Explicit source rules are requirements; unknown current states are measurable prerequisites; unsupported assumptions prevent executable registration. Review step prerequisites and distinguishing predicates. Reuse issued citationIds. Correct indicated fields before retrying. Repeated reads/searches do not advance the run.',
       },
     }
   }
@@ -119,6 +121,10 @@ export function createProductPath(host: {
     if (!plan) throw Error('product-register-path-before-any-action')
     if (!itemId) return
     const binding = events.find((e) => e.type === 'product:bound' && e.payload.itemId === itemId)
+    const unmet = events
+      .filter((e) => e.type === 'product:precondition-missing' && e.payload.itemId === itemId)
+      .at(-1)
+    if (unmet && (!binding || binding.seq < unmet.seq)) throw Error('product-precondition-missing')
     if (binding) {
       const report = await status()
       const index = Number(binding.payload.step)
@@ -197,7 +203,7 @@ export function createProductPath(host: {
       product_path_register: createTool({
         id: 'product_path_register',
         description:
-          'Before any browser action, freeze one short path using issued {citationId} or legacy {start,end,quote} citations. Correct rejected fields before retrying (at most 3 invalid registration attempts). Ambiguity and assumptions stay unverified. Cannot replace plan.',
+          'Before any browser action, freeze one short path using issued {citationId} or legacy {start,end,quote} citations. Correct rejected fields before retrying (at most 3 invalid registration attempts). Blocking assumptions, ambiguity, unmeasurable conditions or missing step reviews return diagnostics WITHOUT freezing. Do not just remove assumptions. Unsupported paths may finish unverified-scope. Success means eligible for bind, not measured prerequisites. Cannot replace a frozen plan.',
         inputSchema: productRegisterInput,
         execute: (raw) =>
           serial('product_path_register', async () => {
@@ -210,18 +216,28 @@ export function createProductPath(host: {
                 error: 'product-registration-repair-limit',
                 registration: (await status()).registration,
               }
-            let plan
-            try {
-              plan = resolveProductPlan(host.source, raw, issued)
-            } catch (error) {
-              const diagnostics = registrationDiagnostics(error)
+            const reject = async (diagnostics: ReturnType<typeof registrationDiagnostics>) => {
               await host.emit('product:registration-rejected', { diagnostics })
               return {
                 error: 'product-registration-invalid',
+                frozen: false,
                 diagnostics,
                 registration: (await status()).registration,
               }
             }
+            let plan
+            try {
+              plan = resolveProductPlan(host.source, raw, issued)
+            } catch (error) {
+              return reject(registrationDiagnostics(error))
+            }
+            const draft = productRegisterInput.parse(raw)
+            const diagnostics = productReadinessDiagnostics(
+              host.source,
+              plan,
+              draft.steps.map((s) => s.review),
+            )
+            if (diagnostics.length) return reject(diagnostics)
             const ref = await host.save(
               'product-plan',
               JSON.stringify({ revision: PRODUCT_SKILL_REVISION, plan }),
@@ -304,10 +320,11 @@ export function createProductPath(host: {
             )
             const ref = await host.save('product-preconditions', JSON.stringify(checks))
             if (checks.some((c) => c.outcome !== 'verified')) {
-              await host.emit('product:precondition-missing', { step: i.step, checks }, [
-                ref,
-                screenshot,
-              ])
+              await host.emit(
+                'product:precondition-missing',
+                { step: i.step, itemId: target.itemId, checks },
+                [ref, screenshot],
+              )
               return { error: 'product-precondition-missing', dispatched: false }
             }
             // Result must exist before dispatch, uniquely; identity substitution is checked by the shared runtime.

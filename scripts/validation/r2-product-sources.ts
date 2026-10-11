@@ -2,7 +2,7 @@
 import { createServer } from 'node:http'
 import { spawn, execFileSync } from 'node:child_process'
 import { randomUUID } from 'node:crypto'
-import { mkdir, writeFile, readFile, rename } from 'node:fs/promises'
+import { mkdir, writeFile, readFile, rename, copyFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { createClient } from '@libsql/client'
 import { chromium } from 'playwright'
@@ -10,6 +10,22 @@ import assert from 'node:assert/strict'
 import { hashTree } from './url-scan-freeze.ts'
 import { documentFor, type Variant } from '../../evaluation/fixtures/r2-product-acceptance/page.ts'
 import { citationSource, r4Draft, r4Quotes, r4WithReferences } from './r2-citation-replay.ts'
+import {
+  originalReadinessInput,
+  correctedReadinessPlan,
+  confirmedReview,
+  readinessRows,
+} from './r2-readiness-replay.ts'
+const readinessOnly = process.argv.includes('--readiness-only')
+const readinessModes = [
+  'readiness-healthy',
+  'readiness-defect',
+  'readiness-unavailable',
+  'readiness-unavailable-enabled',
+  'dynamic-pending',
+]
+const readinessVariant = () =>
+  mode === 'readiness-unavailable-enabled' ? 'unavailable' : (mode.slice(10) as Variant)
 const citationsOnly = process.argv.includes('--citations-only')
 const citationModes = ['citation-healthy', 'citation-defect', 'citation-unavailable']
 const citationRefs = new Map<string, string>()
@@ -32,7 +48,13 @@ await save('identity.json', {
   dist: await hashTree('dist'),
   validationScripts: await hashTree('scripts/validation'),
   fixtures: await hashTree('evaluation/fixtures/r2-product-acceptance'),
-  mode: citationsOnly ? 'citations-only' : dynamicOnly ? 'dynamic-only' : 'all',
+  mode: readinessOnly
+    ? 'readiness-only'
+    : citationsOnly
+      ? 'citations-only'
+      : dynamicOnly
+        ? 'dynamic-only'
+        : 'all',
 })
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 async function listen(s: ReturnType<typeof createServer>) {
@@ -52,6 +74,12 @@ let mode = '',
 const fixture = createServer((req, res) => {
   requests.push({ method: req.method, url: req.url })
   res.writeHead(200, { 'content-type': 'text/html' })
+  if (mode.startsWith('readiness-')) {
+    const html = documentFor(readinessVariant())
+    // Fault injection for the prerequisite gate only: same unavailable DOM, enabled button.
+    res.end(mode === 'readiness-unavailable-enabled' ? html.replace(' disabled', '') : html)
+    return
+  }
   if (mode.startsWith('citation-')) {
     res.end(documentFor(mode.slice(9) as Variant))
     return
@@ -83,7 +111,7 @@ function setup(m: string) {
   calls = []
   requests = []
   citationRefs.clear()
-  if (m.startsWith('citation-')) {
+  if (m.startsWith('citation-') || m.startsWith('readiness-')) {
     source = citationSource
     return
   }
@@ -169,7 +197,58 @@ const model = createServer(async (req, res) => {
         ? 'unverified-scope'
         : 'scope-covered',
     }
-  if (mode.startsWith('citation-')) {
+  if (mode.startsWith('readiness-')) {
+    const unavailable = mode.includes('unavailable')
+    args = { reason: unavailable ? 'unverified-scope' : 'scope-covered' }
+    if (turn === 0) {
+      name = 'product_source_read'
+      args = { offset: 0 }
+    } else if (turn === 1) {
+      name = 'product_source_search'
+      args = { quote: r4Quotes[0], offset: 0 }
+      for (const quote of r4Quotes.slice(1))
+        additionalCalls.push({ name, args: { quote, offset: 0 } })
+      // R5 original detail/availability IDs refer to shorter quotes; issue these too.
+      const original = readinessRows.find((r) => r.row === 'R5')!.originalPersistedPlan
+      for (const step of original.steps)
+        for (const p of [step, ...step.preconditions])
+          if (!r4Quotes.includes(p.citation.quote))
+            additionalCalls.push({ name, args: { quote: p.citation.quote, offset: 0 } })
+    } else if (turn === 2) {
+      for (const t of packet.latestToolResults.tools) {
+        assert.equal(t.matches.length, 1)
+        const c = t.matches[0].citation
+        citationRefs.set(c.quote, c.citationId)
+      }
+      name = 'product_path_register'
+      args = originalReadinessInput('R5')
+    } else if (turn === 3) {
+      const result = packet.latestToolResults.tools[0]
+      assert.equal(result.frozen, false)
+      assert.ok(result.diagnostics.some((d: any) => d.field === 'assumptions[0]'))
+      name = 'product_path_register'
+      args = correctedReadinessPlan('R5', citationRefs)
+    } else if (turn === 4 || (turn === 6 && !unavailable)) {
+      const step = turn === 4 ? 0 : 1,
+        target = step === 0 ? '预览目录' : '查看详情'
+      name = 'product_path_bind'
+      args = {
+        step,
+        ref:
+          packet.inspectionScope.candidates.find((c: any) => c.description.includes(target))?.ref ??
+          'unavailable-control',
+        resultSelector: step === 0 ? '#preview-state' : '#details-state',
+        preconditionSelectors: [step === 0 ? '#availability' : '#preview-state'],
+      }
+    } else if (
+      (turn === 5 && !unavailable) ||
+      (turn === 7 && !unavailable) ||
+      (turn === 5 && mode === 'readiness-unavailable-enabled')
+    ) {
+      name = 'page_act'
+      args = { type: 'click', role: 'button', name: turn === 7 ? '查看详情' : '预览目录' }
+    }
+  } else if (mode.startsWith('citation-')) {
     args = { reason: mode === 'citation-unavailable' ? 'unverified-scope' : 'scope-covered' }
     if (turn === 3) {
       for (const result of packet.latestToolResults.tools) {
@@ -289,6 +368,8 @@ const model = createServer(async (req, res) => {
     name = 'run_finish'
     args = { reason: 'scope-covered' }
   }
+  if (name === 'product_path_register' && !mode.startsWith('readiness-'))
+    for (const step of args.steps) step.review = { ...confirmedReview }
   calls.push({ turn: turn++, name, args, additionalCalls, packet })
   if (turn > 13) {
     res.writeHead(500)
@@ -325,13 +406,13 @@ const model = createServer(async (req, res) => {
 const modelOrigin = await listen(model),
   dbfile = resolve(root, 'runs.db'),
   logs: string[] = []
-function start() {
+function start(database = dbfile) {
   const child = spawn(process.execPath, ['dist/server/index.js'], {
     env: {
       ...process.env,
       DOTENV_CONFIG_PATH: '/dev/null',
       PORT: new URL(base).port,
-      DATABASE_URL: 'file:' + dbfile,
+      DATABASE_URL: 'file:' + database,
       AGENT_MODEL: 'openai/fixed-local',
       OPENAI_BASE_URL: modelOrigin + '/v1',
       OPENAI_API_KEY: 'local-only',
@@ -396,8 +477,9 @@ try {
   browser = await chromium.launch({ headless: true })
   const page = await browser.newPage({ viewport: { width: 1280, height: 1000 } })
   for (const m of [
+    ...(readinessOnly ? readinessModes : []),
     ...(citationsOnly ? citationModes : []),
-    ...(dynamicOnly || citationsOnly
+    ...(dynamicOnly || citationsOnly || readinessOnly
       ? []
       : [
           'healthy',
@@ -409,7 +491,7 @@ try {
           'async-wrong',
           'legacy',
         ]),
-    ...(citationsOnly ? [] : dynamicModes),
+    ...(citationsOnly || readinessOnly ? [] : dynamicModes),
   ]) {
     setup(m)
     if (m === 'healthy') {
@@ -462,7 +544,32 @@ try {
     })
     await save('results.json', results)
     console.log(JSON.stringify(results.at(-1)))
-    if (m.startsWith('citation-')) {
+    if (m.startsWith('readiness-')) {
+      const unavailable = m.includes('unavailable')
+      assert.equal(
+        state,
+        unavailable ? 'unverified' : m === 'readiness-defect' ? 'failed' : 'verified',
+      )
+      assert.equal(r.uiScan.inspection.coverage, unavailable ? 'partial' : 'covered')
+      assert.equal(events.filter((e) => e.type === 'action:executing').length, unavailable ? 0 : 2)
+      assert.equal(events.filter((e) => e.type === 'product:planned').length, 1)
+      assert.equal(events.filter((e) => e.type === 'product:registration-rejected').length, 1)
+      assert.ok(
+        events.find((e) => e.type === 'product:registration-rejected').seq <
+          events.find((e) => e.type === 'product:planned').seq,
+      )
+      if (m === 'readiness-unavailable-enabled') {
+        const unmet = events.find((e) => e.type === 'product:precondition-missing')
+        assert.ok(unmet?.payload.itemId)
+        assert.equal(unmet.payload.checks[0].outcome, 'failed')
+        assert.ok(calls.some((c) => c.name === 'page_act'))
+        assert.ok(
+          calls.some((c) =>
+            JSON.stringify(c.packet.latestToolResults).includes('product-precondition-missing'),
+          ),
+        )
+      }
+    } else if (m.startsWith('citation-')) {
       const unavailable = m === 'citation-unavailable'
       assert.equal(
         state,
@@ -546,7 +653,7 @@ try {
   await new Promise((r) => child.once('exit', r))
   child = start()
   await ready()
-  for (const m of citationsOnly ? citationModes : dynamicModes) {
+  for (const m of readinessOnly ? readinessModes : citationsOnly ? citationModes : dynamicModes) {
     const recovered = await report(ids[m])
     assert.equal(recovered.uiScan.productSource.state, results.find((r) => r.mode === m).state)
     const original = JSON.parse(await readFile(resolve(root, m + '-report.json'), 'utf8'))
@@ -558,7 +665,15 @@ try {
   const admissionRows = (
     await admissionDb.execute({
       sql: "SELECT file_path FROM artifacts WHERE run_id=? AND type='product-binding'",
-      args: [ids[citationsOnly ? 'citation-healthy' : 'dynamic-healthy']!],
+      args: [
+        ids[
+          readinessOnly
+            ? 'readiness-healthy'
+            : citationsOnly
+              ? 'citation-healthy'
+              : 'dynamic-healthy'
+        ]!,
+      ],
     })
   ).rows
   const admissionPath = (
@@ -573,13 +688,17 @@ try {
   const invalidBinding = JSON.parse(admissionPath.bytes.toString())
   invalidBinding.admission.identity = 'substituted-node'
   await writeFile(admissionPath.path, JSON.stringify(invalidBinding))
-  const invalidAdmission = await report(ids[citationsOnly ? 'citation-healthy' : 'dynamic-healthy'])
+  const invalidAdmission = await report(
+    ids[
+      readinessOnly ? 'readiness-healthy' : citationsOnly ? 'citation-healthy' : 'dynamic-healthy'
+    ],
+  )
   await save('admission-corrupt-report.json', invalidAdmission)
   assert.equal(invalidAdmission.uiScan.productSource.state, 'unverified')
   assert.equal(invalidAdmission.uiScan.inspection.coverage, 'partial')
   await writeFile(admissionPath.path, admissionPath.bytes)
   admissionDb.close()
-  if (!dynamicOnly && !citationsOnly) {
+  if (!dynamicOnly && !citationsOnly && !readinessOnly) {
     await page.reload()
     await page.getByLabel('恢复历史运行').fill(ids.healthy!)
     await page.getByRole('button', { name: '打开运行', exact: true }).click()
@@ -648,17 +767,40 @@ try {
     })
     db.close()
   }
+  const oldReports = []
+  if (readinessOnly) {
+    child.kill('SIGTERM')
+    await new Promise((r) => child.once('exit', r))
+    const requestCount = calls.length
+    for (const { row, runId: oldRunId } of readinessRows) {
+      const oldRoot = resolve('data/r2-product-acceptance/real-citations-authorized-20261011', row)
+      const copy = resolve(root, row + '-historical.db')
+      await copyFile(resolve(oldRoot, 'runs.db'), copy)
+      child = start(copy)
+      await ready()
+      const restored = await report(oldRunId),
+        original = JSON.parse(await readFile(resolve(oldRoot, 'report.json'), 'utf8'))
+      assert.deepEqual(restored, original)
+      await save(row + '-historical-report.json', restored)
+      oldReports.push({ row, runId: oldRunId, fullJsonEqual: true })
+      child.kill('SIGTERM')
+      await new Promise((r) => child.once('exit', r))
+    }
+    assert.equal(calls.length, requestCount)
+  }
   await save('acceptance.json', {
     passed: true,
     results,
     historyRestart: true,
     admissionCorruptionRejected: true,
-    sourceCorruptionRejected: !dynamicOnly && !citationsOnly,
-    evidenceCorruptionRejected: !dynamicOnly && !citationsOnly,
-    missingEvidenceRejected: !dynamicOnly && !citationsOnly,
-    screenshotCorruptionRejected: !dynamicOnly && !citationsOnly,
+    sourceCorruptionRejected: !dynamicOnly && !citationsOnly && !readinessOnly,
+    evidenceCorruptionRejected: !dynamicOnly && !citationsOnly && !readinessOnly,
+    missingEvidenceRejected: !dynamicOnly && !citationsOnly && !readinessOnly,
+    screenshotCorruptionRejected: !dynamicOnly && !citationsOnly && !readinessOnly,
     model: 'fixed-local',
     citationReplay: citationsOnly,
+    readinessReplay: readinessOnly,
+    historicalReports: oldReports,
     artifacts: Object.fromEntries(
       await Promise.all(
         Object.entries(ids).map(async ([m, id]) => [m, await hashTree('data/artifacts/' + id)]),

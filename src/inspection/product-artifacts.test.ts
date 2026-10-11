@@ -22,7 +22,7 @@ it('diagnostic rejection is not required evidence and cannot become completion p
   expect(await defaultCheckArtifactIssues(run, events, [])).toEqual([])
   expect(productPathReport(source, events)).toMatchObject({ complete: false, state: 'unverified' })
 })
-it.each(['product-path-2', 'product-path-3'])(
+it.each(['product-path-2', 'product-path-3', 'product-path-4'])(
   'retains binding byte and admission validation for %s history',
   async (revision) => {
     const dir = await mkdtemp(join(tmpdir(), 'product-history-'))

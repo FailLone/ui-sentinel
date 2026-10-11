@@ -219,3 +219,31 @@ pnpm exec tsx scripts/r2-product-acceptance/cli.ts --run \
 本实验Agent已读全部48份请求/响应、六行工具轨迹与报告，按原五项逐行完成语义review，**不是人类复核或独立盲测**。六份完整报告重启JSON相同；95份附件通过只读SQLite找到原件，和下载副本逐项hash/字节一致。原机械pending-human-review输出保留为原始数据；新增reviewCompleted=true的Agent审阅已经交付，未把任务停在待审。
 
 完整五项理由、事件ID、每行费用、引用审计、重复请求计数、恢复与证据hash见[新真实交付索引](../../evaluation/private/r2-product-acceptance/real-citations-acceptance.json)。首次[真实交付](../../evaluation/private/r2-product-acceptance/real-acceptance.json)只追加后续批次指针，原review与原始证据不变；免费成绩不计入本批。建议下一步只做**免费回放这四份假设计划，改进登记前的事实/前置/假设分类与反馈**，保持假设不得执行及冻结边界，再决定是否申请新的真实复测；本轮不继续派发付费请求。
+
+## 登记前可执行性整改免费结果（2026-10-11）
+
+本轮在完整基线 `92cd3cffc9b4b2f8201323a5924f52885bd2a0bb` 上新建 `codex/r2-plan-readiness`，仅授权免费整改。两个真实批次仍分别0/6、0/6；其38/48请求、USD0.0567585/USD0.07266395与历史unknown USD0.116原样保留，不混入免费成绩。没有生成approval、调用供应商或价格校准，没有改费用、安全/取消/DNS/Jev/模型/时间/token预算，没有推送或合并。
+
+原锁死点是 register 接受 assumptions 并不可逆冻结，而 bind 无条件拒绝含假设计划。v4 把可证明的结构阻断项前移到同一登记入口：非空假设、非明确要求、缺少谓词、未完成步骤来源核对均在保存前返回字段反馈。模型应把可测的未知状态登记成待实测前置，把明确规格保留为要求；真正无依据/不支持内容仍可用 unverified-scope 结束，不生成误导性的成功计划。失败沿用三次上限和原无进展门，不增进度、不消费动作、不核销事项；成功后仍不可改预期。
+
+另外，文本包含检查只对原文引号文字做子串碰撞提示：实际可发现 R2/R5 的“可用”也匹配“暂不可用”，但不会推断整个自然语言状态机。改用精确比较，或对合理 contains 提交来源解释；不全局禁止 contains。每步 review 要求显式确认原文前置已完整登记、谓词能区分状态；缺前置若模型谎报确认，程序仍不能自动识别。本轮测试明确保留这个能力边界，不把布尔确认当语义通过。前置实测失败的目标另记 itemId，普通动作同样拒绝，防止只绕过失败绑定就点击。
+
+原真实R2/R4/R5/R6的请求参数（含null、错误分类、谓词和遗漏）及原持久计划，原样保存到[最小回归输入](../../evaluation/private/r2-product-acceptance/readiness-failures.json)，包含批次、runId、requestId和请求序号。回放仅按旧SDK省略optional null，先证明四份原输入都在冻结前被拒绝且给出assumptions字段、逐步review缺项，R2/R5另外命中子串碰撞。只删除assumptions仍被拒绝。固定作者修正再按原文重建两级可测前置、分别绑定原结果槽、改为精确状态比较并完成来源核对；R5确实补齐详情前置。修正不是生产程序自动推断，不能证明真实模型会自发照做。
+
+免费验证均在 Node24、DOTENV_CONFIG_PATH=/dev/null、loopback固定模型、正式编译服务及真实Chromium下执行：
+
+| 验证 | 结果及限度 |
+| --- | --- |
+| 6文件55项定向测试 | 四份真实失败冻结前反馈、仅删假设不通过、来源修正、三次上限、动作后拒绝改计划、无假设自动执行、合理contains、语义遗漏不能自动证明、v2/v3/v4历史证据及原完成门通过 |
+| 原中文MD健康/缺陷/前置不足 | 经正常API先提交原R5失败输入、再提交作者修正版；健康两步verified/2动作，缺陷第二步failed/2动作，暂不可用unverified/0动作 |
+| 同页定向故障注入 | 只在测试夹具将暂不可用页面的按钮启用；前置实测失败，后续故意page_act也被拒，0动作。独立负例，不冒充原三对照的新能力分母 |
+| 原dynamic-pending | 两步资料通过但其他默认项pending，仍blocked/partial；未重跑其余旧动态矩阵 |
+| 历史与证据 | 新五份完整报告重启相等；原四份真实v3运行用数据库副本经新服务API恢复，完整JSON不变、无模型调用；旧原件不改。新准入附件篡改仍降为unverified并恢复字节 |
+
+构建（含typecheck）通过。最小命令为 `pnpm build`，以及 `pnpm exec vitest run src/execution/product-registration.test.ts src/inspection/product-readiness.test.ts src/inspection/product-citations.test.ts src/inspection/product-artifacts.test.ts src/inspection/completion.test.ts src/agent/context/compact-history.test.ts` 和 `pnpm exec tsx scripts/validation/r2-product-sources.ts --readiness-only`。本轮没有重跑全套/R0/R1或旧九场景。
+
+浏览器证据目录 `data/r2-product-sources/2026-10-11T02-44-23-491Z/`（上海10:44），含身份、工具输入/上下文、事件、报告、历史副本和SQLite；原产物仍在 data/artifacts。开发中一次编辑语法错误先由格式/typecheck拒绝，修正后才启动首次浏览器验证；保留在 `data/r2-product-acceptance/readiness-development-20261011.json`，没有覆盖旧失败。实现提交、源码/构建/回归输入hash、回放诊断、附件索引见[本轮收据](../../evaluation/r2-product-sources/plan-readiness.json)。
+
+剩余限制：程序不能自动证明引文充分、前置完整、substringJustification合理或模型review诚实；未引用的替代状态也可能逃过字面检查。成功登记不证明页面满足条件。旧已冻结的假设计划继续按原语义未验证，不能借v4重新放行。真实模型分类、纠正后是否操作、重读是否减少、R6历史输出耗尽均待真实证据，本轮不宣称解决。
+
+下一次真实小批仅作准备提案：仍用原MD/三对照/原六行顺序、相同模型/provider/reasoning与所有预算，先审阅本候选再冻结新的源码/构建/协议hash并另获明确授权；原两份claim不能复用。本轮没有创建approval或执行真实请求。

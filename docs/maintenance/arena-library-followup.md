@@ -108,3 +108,11 @@ node --import tsx scripts/validation/counterexample-arena/validate.ts
 新观察是“能登记，但仍不动作”：合法ID登记4/6（16处引用核对通过），动作0，严格任务0/6、8效果未验证，两个缺陷未到详情。4份计划都把可测事实或明确规格放入assumptions；R2/R5绑定被原门拒绝，R5还漏了详情前置，R2/R5的contains“可用”无法排除“暂不可用”。R4正确识别前置不足，边界子项1/2通过，但不因此免除原文提取错误。六行仍由无进展结束；本批没有length，旧R6输出问题不能据此关闭。
 
 48请求已知usage USD0.07266395、unknown/held 0，六份完整报告恢复相等，95份原件/副本hash核对。由实验Agent完成五项逐行审阅，不称人类或独立复核。新语义反例适合保留在协议/登记反馈层，复用现有页族；下一步建议免费回放假设分类，不新增页面、放松执行门或直接补付费样本。详见[实验追加节](../experiments/r2-product-acceptance.md#引用修复后真实复测2026-10-11已完成审阅)和[新交付索引](../../evaluation/private/r2-product-acceptance/real-citations-acceptance.json)。旧批0/6、USD0.0567585及历史unknown USD0.116全部保留。分支仍未合并或推送。
+
+## R2 冻结前可执行性反馈（2026-10-11，免费候选待审阅）
+
+`codex/r2-plan-readiness` 从92cd3cf保留原分支另建。四份真实失败输入原样沉淀到 `evaluation/private/r2-product-acceptance/readiness-failures.json`；按协议层反例维护，不新建网页族。v4把含假设等确定阻断项前移到登记保存之前，给出来源分类、可测前置、步骤核对与子串风险反馈，纠错仍有界，原预期冻结/完成门不放松。缺失自然语言前置仍不能仅靠程序或模型复核声明证明齐全。
+
+免费55项定向测试、原中文三对照、启用按钮但前置不足的故障注入及旧默认pending反例通过；五份新报告重启一致，四份原真实v3报告在数据库副本上经新API恢复完全相等。前置实测失败后普通动作仍拒绝，未操作；四份计划的修正由固定测试作者完成，不计真实模型能力。源码/构建/证据及命令见[免费收据](../../evaluation/r2-product-sources/plan-readiness.json)与[实验追加节](../experiments/r2-product-acceptance.md#登记前可执行性整改免费结果2026-10-11)。
+
+原0/6+0/6、两批已知费用及历史unknown不改，无新真实请求/approval。后续只准备同MD/三对照/原模型预算的小批方案，须另获授权；本候选尚未合并或推送。
