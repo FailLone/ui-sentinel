@@ -176,6 +176,8 @@ pnpm validate:learning -- --recheck <已关闭且已批准的学习目录>
 
 ## 当前能力与边界
 
+**R2本期资料路径验收已通过并合入main（6/6）**：网址加一份文本/Markdown，验证一条有来源的1–3步匿名本地路径，输出原动作与测量对应的报告。使用 `EXECUTION_URL_SCAN=1 EXECUTION_PRODUCT_SOURCES=1 pnpm start` 启动，在工作台填写资料。详见[R2交付与边界](docs/r2-delivery.md)及[使用说明](docs/product-sources.md)。单一合成页族的结果不代表任意网站或整份PRD已覆盖。
+
 购物、导出业务、输入区域聚焦验证与可组合调查均已实现；**R0阶段交付完成，可支持R1；真实模型稳定性与正式验收待完成**（见唯一 [R0最终交付入口](docs/r0-delivery.md)）。当前仍为受信单机服务，未实现任意网站全覆盖、PRD/Figma 自动接入、多机调度或通用规则自动发布。业务调查仍沿用业务完成契约，调查结束并不意味着整体报告会显示业务成功；未知与未验证范围必须保留。
 
 - [R0最终交付与使用入口](docs/r0-delivery.md)

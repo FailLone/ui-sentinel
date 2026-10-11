@@ -1,6 +1,6 @@
 # 当前架构与职责
 
-2026-10-10。R0阶段交付完成；R1本期程序优先探索已通过28项真实验收并合入main。实现范围见 [R0阶段交付](r0-delivery.md)和[R1最终交付](r1-delivery.md)，演进方向见 [Roadmap](product-roadmap.md)。R0历史正式验收缺口继续保留。
+2026-10-12。R0阶段交付完成；R1本期程序优先探索已通过28项真实验收，R2本期有界资料路径通过6项真实验收，均已合入main。实现范围见 [R0阶段交付](r0-delivery.md)和[R1最终交付](r1-delivery.md)，演进方向见 [Roadmap](product-roadmap.md)。R0历史正式验收缺口继续保留。
 
 UI Sentinel 是绑定loopback的受信单机服务，采用TypeScript、Mastra Core、Playwright、Midscene/Qwen、Hono、libSQL和React。工作台与API同端口；顶层队列串行，显式开启时单个UI扫描内可委派最多两个隔离子执行，关闭工作台不取消任务。没有多用户认证、远程Worker、分布式调度或第二套浏览器Agent循环。
 
@@ -43,6 +43,12 @@ flowchart LR
 `RunSpec.kind`区分business与ui-scan。业务模式保留购物checkout@1和导出export@1的注册要求、环境、副作用预算与业务事实；无kind的历史按原语义解释。UI模式不装配空业务profile、不使用业务结果作为通过依据，businessResult固定not-applicable。共用的是生命周期、工具、浏览器、证据和规则机制。
 
 UI先冻结入口、来源、scope/access和预算并计算hash，再安装网络会话，最后导航。网络边界逐跳检查导航、资源和GET数据权限；匿名有界模式不支持登录、业务写入、POST查询、上传下载、新窗口、WebSocket等。不能按按钮名称推定安全，不能以资源许可授予API许可。
+
+## R2 资料理解与执行状态
+
+可选productSource接在原UI执行器内，没有另建模型循环。版本化Skill指导语义理解；资料工具提供原文和引用；登记阶段强制交付有据草案、携带查询的具体缺口或无法验证说明。草案复用原验证器，成功后冻结短路径。程序维护当前步骤和绑定，提供原动作参数，测量关联原requirement/action。
+
+纠错上下文直接附相关原文。恢复被省略正文时有最多两次、3000字节的局部调度机会，真实无进展计数与总预算保留。来源、动作、效果、未完成义务和历史证明仍归原执行器。6/6通过批次采用结构化登记及参数交接，但未触发纠错恢复；完整支持范围及证据见[R2交付](r2-delivery.md)。
 
 ## R0 v2 同item两维检查
 

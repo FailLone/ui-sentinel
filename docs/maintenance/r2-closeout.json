@@ -1,0 +1,101 @@
+{
+  "date": "2026-10-12",
+  "mainBefore": "1db982428ffe4735450f2fca6a601d72f4b965dc",
+  "merge": "0db24d4e08d77a4681af6f68b523645da848ad73",
+  "acceptedDelivery": "253a0fcb6da1604a862eca17dca086ac6e87ee58",
+  "executionCandidate": "d95ff9c259de1dcc3e96668a7f44c15c993dd22a",
+  "acceptance": "6/6; two healthy, two detected defects, two grounded abstentions retaining partial",
+  "validation": {
+    "buildAndTypecheck": "passed",
+    "productSourceScriptsInputsEqualToDelivery": true,
+    "builtFilesEqualToCandidate": 9,
+    "repeatedTests": false,
+    "newPaidCalls": 0,
+    "mainBuildLog": "data/maintenance/r2-closeout-20261012/build.log",
+    "mainBuildLogSha256": "73786e4fce583b1d743198e7f49da757993afaaf0ff88918565abcab142be672",
+    "acceptedRawEvidenceFilesPreviouslyVerified": 790
+  },
+  "deletedMergedLocalBranches": [
+    {
+      "branch": "codex/r2-decision-price-authorized",
+      "commit": "98f43b005de9dc7d50c8be3425a053ad9d66a503"
+    },
+    {
+      "branch": "codex/r2-final-candidate",
+      "commit": "b3f65e3357b85ea6324a1e9c00427e6b337da04f"
+    },
+    {
+      "branch": "codex/r2-handoff-price-authorized",
+      "commit": "6fc86056a3508f6142db0a40bacf6922a6c2cff0"
+    },
+    {
+      "branch": "codex/r2-handoff-repeat-acceptance",
+      "commit": "78ed9ec6e04b3aea52be5dbf252db995c0c33872"
+    },
+    {
+      "branch": "codex/r2-path-continuation",
+      "commit": "591f233fa916f5f11bf4d0a725280db9ce6331cc"
+    },
+    {
+      "branch": "codex/r2-plan-readiness",
+      "commit": "adfe2cdc68568df351bb3e76fd178d06d54f1b31"
+    },
+    {
+      "branch": "codex/r2-product-acceptance",
+      "commit": "afd399483904f86bd30f20e764fc991ba6c58c5f"
+    },
+    {
+      "branch": "codex/r2-progress-feedback",
+      "commit": "054fe95a0640a61d1ecdacf36fbb0a04f67ef3ad"
+    },
+    {
+      "branch": "codex/r2-registration-action-handoff",
+      "commit": "4bc7e3a12427a16354bdbe2240794282a0ea11ea"
+    },
+    {
+      "branch": "codex/r2-registration-action-handoff-acceptance",
+      "commit": "b3c63ae27064d4b5266426c821600988094342a8"
+    },
+    {
+      "branch": "codex/r2-registration-decision",
+      "commit": "27cc6efc6c71c9b58233ec0c192236c2c9985098"
+    },
+    {
+      "branch": "codex/r2-registration-decision-acceptance",
+      "commit": "8ab0157db7080b4a21ddcea54114b778f3d86c10"
+    },
+    {
+      "branch": "codex/r2-registration-recovery",
+      "commit": "d95ff9c259de1dcc3e96668a7f44c15c993dd22a"
+    },
+    {
+      "branch": "codex/r2-source-citations",
+      "commit": "92cd3cffc9b4b2f8201323a5924f52885bd2a0bb"
+    },
+    {
+      "branch": "codex/r2-stage-decisions",
+      "commit": "60e39faaa50319f8ef20a8bc11a0011e68cc2af6"
+    },
+    {
+      "branch": "codex/r2-stage-retrieval",
+      "commit": "86d941db2b1ccb8aa9444aef016abea4e8408f6b"
+    }
+  ],
+  "retainedR2Branches": [
+    {
+      "branch": "codex/r2-product-sources",
+      "commit": "53d60ae7749a0b9b6749f585f00af0055d1385e4",
+      "reason": "worktree or final delivery"
+    },
+    {
+      "branch": "codex/r2-recovery-acceptance",
+      "commit": "253a0fcb6da1604a862eca17dca086ac6e87ee58",
+      "reason": "worktree or final delivery"
+    }
+  ],
+  "remoteBranchesDeleted": false,
+  "worktreesDeleted": false,
+  "evidenceWorkspace": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel",
+  "historicalEvidenceAndAccounting": "preserved; raw data ignored by Git; historical unknown reconciliation deferred by user",
+  "nextStage": "R3 minimal verified path reuse; not started"
+}

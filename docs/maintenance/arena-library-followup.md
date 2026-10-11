@@ -2,6 +2,8 @@
 
 2026-10-10，用户确认：记录当前靶场 Agent，并在后续交付与功能迭代时回溯近期反例，逐步建立可复用靶场库。本页由维护者维护，记录当前责任、接收入口与回溯方法；不堆叠运行日志，也不表示已建立定时自动任务。
 
+**2026-10-12当前状态：R2本期真实6/6通过并合入main。** 后文逐轮记录保留原时点结论；最终入口见[R2交付](../r2-delivery.md)。验收Agent本期结束，不自动启动新实验。
+
 ## 当前责任与入口
 
 | 工作 | 负责人 / 会话 | 分支与状态 |
@@ -280,3 +282,11 @@ v11在首次原文返回后，只提供命名的`product_path_decide`，接受�
 本执行Agent逐轨迹审阅达到原6/6：R1/R6健康完整通过，R2/R5详情缺陷测出，R3/R4原文和实际不可用DOM支持有据弃权；后两行仍blocked/partial/unverified，各保留2缺口，绑定身份门先拒绝，非成功测量业务前置false。8效果为6 verified/2 failed。六次首次draft成功、24处有效先发引用、8次动作参数均匹配原nextAction，零错误ID；零retrieve/unsupported/登记拒绝/repairContext曝光/来源恢复机会。不能把本次成绩归因于未触发的纠错恢复机制，也不推断泛化可靠性。
 
 45请求/47回执，已知US$0.052500035，新增unknown/held均0，253.053秒；6报告恢复一致、337对附件一致。790项索引`a6b4a19eafba323318e3971e070c404b7fea3f1980f9d3f341ed4cf5cda45cda`，见[交付和Agent审阅](../../evaluation/private/r2-product-acceptance/real-registration-recovery-acceptance.json)。机械pending-human-review保留，非独立/人工复核。历史三笔unknown原样保留暂缓，不与旧批拼分；一次claim已耗用，不自动重试/补跑/修补，未推送合并/main/Roadmap修改。
+
+## R2 本期最终接收与下次回溯（2026-10-12）
+
+交付253a0fc已由0db24d4合入main。原六任务同批6/6，含两项仍partial的有据弃权；候选与固定脚本的历史成绩不相加。合并后的代码与源交付一致，维护者只做构建、身份和文档核对，不重跑全部靶场或真实模型。
+
+可复用资产继续落在同一MD/页族：`evaluation/fixtures/r2-product-acceptance/`，私有预期在`evaluation/private/r2-product-acceptance/truth.ts`。引用错位、参数混淆、登记缺口、同回复越阶段、压缩正文恢复、默认pending及未知不重放等反例由`src`定向测试和`scripts/validation/r2-product-sources.ts`各有界模式维护；它们是协议/上下文反例，不都需要变成独立网页。原始付费轨迹不暴露为被测Agent答案。
+
+下一次R3交付或规则迭代时，由维护者回溯“路径复用成功、节点/来源变化失效、失败安全交回”是否值得新增靶场变体。优先扩展现有页族与复位，不重复复制执行器。责任会话和历史证据继续保留，本次不新开靶场Agent或追加验收矩阵。
