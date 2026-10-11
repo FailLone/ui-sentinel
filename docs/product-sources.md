@@ -192,3 +192,9 @@ v10随后执行了一次用户授权的原六行真实批次（第七批），�
 实施`95d7208`，121项针对性测试、构建/typecheck和六个必要免费浏览器流程通过，六报告重启一致；原R1全部五轮上下文、实际SDK/调度对照及开发失败见[交付记录](../evaluation/r2-product-sources/registration-decision.json)。固定回复验证不算真实采用，最新真实结果仍5/6、原6/6门槛未达。本轮无付费调用或新claim，历史三笔未知费用原样保留；候选具备按原标准审阅/冻结的工程条件。
 
 v11随后获得一次原六行真实授权，但在任何推理前被现行报价门阻断：2026-10-12 00:19（Asia/Shanghai）实际Wafer输入报价US$0.065/百万，高于授权US$0.06/百万。原响应已保存；离线冻结只记录阻断候选身份，没有写可执行approval或消费claim。六行全部未运行，新费用/unknown/held为0，旧5/6与历史未知记录保持独立。没有结构化决定真实采用的新证据；未自动调整上限或补跑，详见[本次阻断记录](../evaluation/private/r2-product-acceptance/decision-price-blocked.json)。
+
+v11在用户明确接受输入US$0.065/百万后完成一次原六行真实批次，新增总额仍US$7.56，未重建/重测免费矩阵。Agent逐轨迹审阅仍5/6：R1健康、R2/R5缺陷与R3/R4有据弃权通过，R6因额外前置不可测而登记被拒，随后两次取回旧回执未修正，原streak=3关闭。不可用任务仍partial/unverified并保留缺口，不是成功绑定前置测量。
+
+8个登记阶段请求均限定命名`product_path_decide`，共11个调用：5成功draft、1readiness拒绝draft、3多余schema无效决定、2真实retrieve；无unsupported。五个计划22处引用精确有效，R4多余失败草案截短未发引用保留。R6两次取回原回执分页在同一次决定内执行，原JSON/游标与下一轮投影一致，没有单独许可请求或新增来源覆盖；这证明入口与回执链实际采用，不能保证模型修正计划。6实际动作均匹配原nextAction，零错误ID；原8效果4 verified/2 failed/2 unverified。
+
+44请求，已知US$0.078688552，新unknown/held 0，6报告恢复一致、281对附件一致。原6/6出口仍未达，不与旧5/6拼接；历史三笔未知继续保留暂缓，本批授权消耗后不自动重试或补跑。详见[真实决定批次交付](../evaluation/private/r2-product-acceptance/real-decision-price-acceptance.json)。

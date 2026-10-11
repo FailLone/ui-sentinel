@@ -253,3 +253,11 @@ v11在首次原文返回后，只提供命名的`product_path_decide`，接受�
 维护者会话用户“授权”已只读核验；按审阅候选 `27cc6ef/95d7208` 建独立验收分支，源码/构建及原协议输入一致，复用121项/6流程，未重建重测。启动前唯一公开报价在00:19:07返回Wafer输入US$0.065/百万，高于原获准US$0.06/百万，`quote-outside-policy`阻断；输出US$1.60/百万未超限，实际拒绝原响应已保留。
 
 离线冻结阻断身份 `f6720c8da6c3c9207d07681b1e22a9fd603db261e5fdf52e2397fc896bf1664c`，无可执行approval、新claim或凭证访问/推理。六行未派发、8效果未验证，新费用/unknown/held均0。没有新真实结果，旧5/6和三笔历史unknown不变；结构化决定实际采用仍待可合法启动的真实验收。详见[阻断交付](../../evaluation/private/r2-product-acceptance/decision-price-blocked.json)。未放宽价格/预算、轮询、重试、补跑、换供应商或追加修复，未推送合并，main/Roadmap未改。
+
+## v11 新价格授权后真实批次完成，仍5/6（2026-10-12）
+
+用户“授权，继续吧”接受输入US$0.065/百万；仅价格门和边界测试调整，2项通过，原US$7.56/120请求/6任务及所有停止门不变。执行`ebe21c2`，manifest `7e76f7ff3ab23a3959aec4493c8c9165f44256b0033cc84eb60fbfd447f4077a`，复用审阅v11源/构建及121项/6免费流程。新claim只用一次，执行前后身份一致，无中途修改。
+
+独立Agent语义审阅5/6：R1健康通过，R2/R5详情缺陷测出，R3/R4来源+真实不可用DOM支持有据弃权（仍partial/unverified，保留1/2缺口），R6草案额外前置缺可测谓词被拒，随后两次旧回执分页没有完成修正，原streak=3结束。五个成功计划22处精确先发引用；三个回复各含多余schema无效决定，R4另含截短未发引用，均保留。8个登记请求命名choice实际送达，11个决定调用，5草案成功、2原查询实际派发，unsupported未触达。R6回执两片逐字匹配原0.1及cursor，不增加来源覆盖、不续期。6实际动作均采用程序原nextAction，零错误ID；8效果为4 verified/2 failed/2 unverified。
+
+44请求，已知US$0.078688552，新unknown/held 0；271.336秒，6报告恢复一致、281对附件一致、48工具回执完整。673项索引`3d18c630d8d765d8eaad788ad66c5f5babe5ed5f97b43f1a55e300b12ee34717`；[原始交付及审阅](../../evaluation/private/r2-product-acceptance/real-decision-price-acceptance.json)。结构化入口和旧回执查询已实际采用，但语义修正可靠性未解决，原6/6出口仍未达。历史三笔unknown原样保留暂缓；无自动重试、补跑或后续改动，未推送合并，main/Roadmap不变。

@@ -633,3 +633,30 @@ v10复用现有remaining-obligation指导的一次额度，在登记阶段无进
 六行全部未派发、未审阅；8效果均未验证，新费用/new unknown/held均为0。本准备未产生新的真实六行成绩，不能把未运行解释为模型失败或把旧5/6拼入本次。结构化wire/三类决定/nextAction采用均未触达；原R2 6/6出口仍未达。三笔历史unknown US$0.063、US$0.063、US$0.116继续原账目保留、暂缓核查。
 
 原报价、授权接收、阻断identity及未运行分母见[阻断交付](../../evaluation/private/r2-product-acceptance/decision-price-blocked.json)。本次停在报价门，不自行放宽上限，不自动重试、补跑、换供应商、修补或追加实验；未推送、合并或改main/维护者Roadmap。
+
+## v11 接受新价格后的独立真实验收（2026-10-12）
+
+用户在上一轮报价阻断后直接回复“授权，继续吧”，据明确上下文将输入上限从US$0.06/百万调至US$0.065/百万，只授权一次原六任务新批次。总额US$7.56、每请求预留US$0.063、120请求/6行、131072线缆字节、4096输出、原时间/动作限制、模型/provider/low、所有停止门及不重试约束不变。两个价格边界测试通过（其余6项未重跑）；已审阅v11产品源/构建、121项测试与6个免费流程复用，无重建。历史US$0.063、US$0.063、US$0.116未知记录保留暂缓。
+
+在分支`codex/r2-decision-price-authorized`，执行提交`ebe21c224a32bcac45861e9faaedc776d58b4777`冻结manifest `7e76f7ff3ab23a3959aec4493c8c9165f44256b0033cc84eb60fbfd447f4077a`。预检与启动原报价门均通过，审批在用户授权后绑定新hash并仅消费一次claim。执行前后完整manifest一致；过程中无产品/配置修改。
+
+**本批Agent逐轨迹语义审阅为5/6，原6/6出口仍未达。** 六行报告均完成归档，不把程序completed或blocked直接当作语义得分：
+
+| 行 | 请求 | 实际动作 | 原始结果与审阅 |
+| --- | ---: | ---: | --- |
+| R1 健康 | 9 | 2 | 第3请求draft成功；两步原槽verified，covered，通过 |
+| R2 缺陷 | 7 | 2 | 第2请求draft成功；预览verified、详情failed，缺陷测出，covered，通过 |
+| R3 不可用 | 6 | 0 | 第3请求首draft成功，多余空queries被SDK拒绝；真实DOM暂不可用/disabled，绑定身份门拒绝后主动结束，有据弃权；仍partial/unverified，保留1缺口 |
+| R4 不可用 | 9 | 0 | 第3请求首draft成功；多余draft含null字段和截短未发引用，被SDK拒绝；真实DOM支持不可用，绑定两次身份拒绝，原streak=3关闭，有据弃权；仍partial/unverified，保留2缺口 |
+| R5 缺陷 | 9 | 2 | 第3请求首draft成功，多余空queries被SDK拒绝；预览verified、详情failed，covered，通过 |
+| R6 健康 | 4 | 0 | 第2请求draft额外按钮存在前置给expectation:null，原readiness拒绝；两次原回执分页后仍无修正，streak=3关闭，未通过 |
+
+五个有效计划共22处引用均先发且精确，语义覆盖两步状态、立即时序和availability/preview前置。R1额外初始状态/按钮文本前置亦有据；无未决assumptions。R4多余失败草案的截短引用完整保留；R6引用精确并不弥补不可测谓词。原8效果分母：4 verified、2 failed、2 unverified。两个边界通过不意味着动作路径verified、成功绑定测得前置false或默认义务全部解决；报告如实保留缺口。三个covered任务均无未解决的已选义务，未检查的其他范围继续保留。
+
+**实际采用及限制。** 8个登记阶段请求都只暴露`product_path_decide`并指定命名tool choice。供应商共交付11个决定调用：7 draft（5成功、1原readiness拒绝、1多余schema拒绝），4 retrieve（2空查询schema拒绝、2实际取回旧回执）；无unsupported。R3/R4/R5同回复各有多余无效调用，不能称模型始终遵守单决定形式；实际只有首个有效决定执行。
+
+R6两次retrieve在各自同一外层调用内执行`tool_result_read`，没有单独查询许可请求。取回原第0.1回执0→717和717→1062两片，逐字匹配原JSON，完整总长2245；首片在下一模型请求保留原cursor/独立receiptRef。它们不增加已读609字符来源覆盖，也未冻结计划；原无进展阈值关闭，未为剩余分页续期。没有source新片段、source搜索查询或unsupported实际采用证据，相关免费验证保持独立。6个实际page_act的requirementId/ref/type/value均匹配程序nextAction，零错误ID；这证明本批可观察采用，不证明因果收益或登记可靠性解决。
+
+44请求/完整响应，已知US$0.078688552，新unknown/held均0，墙钟271.336秒；无整批硬停止。6/6完整报告重启一致，281对原始/副本附件hash与字节一致，48条工具回执完整。事后审计脚本首次比较未剔除事件附加artifactHashes，及未考虑SDK省略可选null，产生派生核对问题；修正仅在审计层，原始证据不变，修正说明保留。673文件索引hash `3d18c630d8d765d8eaad788ad66c5f5babe5ed5f97b43f1a55e300b12ee34717`。详见[本批交付与逐项审阅](../../evaluation/private/r2-product-acceptance/real-decision-price-acceptance.json)。审阅者为执行Agent，非独立/人工审阅，原机械pending-human-review保留。
+
+本批与历史5/6、超时批及零推理报价阻断分别保存，不拼接分数、不推断成功率提升。一次授权已用尽，本次不重试、补跑、追加修复/校准；未推送、合并或改main/维护者Roadmap。
