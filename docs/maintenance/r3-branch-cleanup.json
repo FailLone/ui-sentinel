@@ -1,0 +1,236 @@
+{
+  "date": "2026-10-12",
+  "mainBefore": "6350034caa2b09098b33af303416de280ea80c49",
+  "branchesBefore": [
+    {
+      "name": "archive/r2-product-sources-draft-20261010",
+      "commit": "90498c0ea898e4b5163b457c9f6aae34e5911b2e",
+      "merged": false
+    },
+    {
+      "name": "codex/counterexample-arena",
+      "commit": "a3b7fff9b3b2c738f674fb059a3890277deaf15e",
+      "merged": true
+    },
+    {
+      "name": "codex/jev-benefit-study",
+      "commit": "27c4b7b78ddb5f078d265d7cb7c1e5aeea8f85c5",
+      "merged": false
+    },
+    {
+      "name": "codex/network-dns-compat",
+      "commit": "b0174b148923cf801db6cc596fbd288f30511bf4",
+      "merged": true
+    },
+    {
+      "name": "codex/r0-closeout",
+      "commit": "d636d7e6ceea46ed22f43205a7164a149cb3600a",
+      "merged": true
+    },
+    {
+      "name": "codex/r1-jev-closeout",
+      "commit": "84246f9c5316a1ee69c92b30f124ed03b5d9e8fc",
+      "merged": true
+    },
+    {
+      "name": "codex/r2-product-sources",
+      "commit": "53d60ae7749a0b9b6749f585f00af0055d1385e4",
+      "merged": true
+    },
+    {
+      "name": "codex/r2-recovery-acceptance",
+      "commit": "253a0fcb6da1604a862eca17dca086ac6e87ee58",
+      "merged": true
+    },
+    {
+      "name": "codex/r3-path-reuse",
+      "commit": "2f79c509ac506101e4c804b90a03738cec988bb5",
+      "merged": true
+    },
+    {
+      "name": "feat/composable-investigations",
+      "commit": "88d63c05b1c6df509498b4fd17122dd6d62f4b73",
+      "merged": true
+    },
+    {
+      "name": "main",
+      "commit": "6350034caa2b09098b33af303416de280ea80c49",
+      "merged": true
+    },
+    {
+      "name": "review/visual-focus-p4",
+      "commit": "31f490e146c258ed4999b9cfe3ba0e03a8027778",
+      "merged": true
+    }
+  ],
+  "worktreesBefore": [
+    {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel",
+      "branch": "codex/r0-closeout",
+      "commit": "d636d7e6ceea46ed22f43205a7164a149cb3600a",
+      "dirty": true
+    },
+    {
+      "path": "/private/tmp/ui-sentinel-network-dns-compat",
+      "branch": "codex/network-dns-compat",
+      "commit": "b0174b148923cf801db6cc596fbd288f30511bf4",
+      "dirty": false
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/counterexample-arena/ui-sentinel",
+      "branch": "codex/counterexample-arena",
+      "commit": "a3b7fff9b3b2c738f674fb059a3890277deaf15e",
+      "dirty": false
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel",
+      "branch": "codex/r2-recovery-acceptance",
+      "commit": "253a0fcb6da1604a862eca17dca086ac6e87ee58",
+      "dirty": false
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-sources/ui-sentinel",
+      "branch": "codex/r2-product-sources",
+      "commit": "53d60ae7749a0b9b6749f585f00af0055d1385e4",
+      "dirty": false
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r3-path-reuse/ui-sentinel",
+      "branch": "codex/r3-path-reuse",
+      "commit": "2f79c509ac506101e4c804b90a03738cec988bb5",
+      "dirty": false
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/rules-main-closeout/ui-sentinel",
+      "branch": "main",
+      "commit": "6350034caa2b09098b33af303416de280ea80c49",
+      "dirty": false
+    },
+    {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-p3-review",
+      "branch": "review/visual-focus-p4",
+      "commit": "31f490e146c258ed4999b9cfe3ba0e03a8027778",
+      "dirty": false
+    },
+    {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-frame-20261009",
+      "branch": null,
+      "commit": "6acae6edd91ffebd020ff3dd90174bbb3d7a30b4",
+      "dirty": true
+    },
+    {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007",
+      "branch": "codex/r1-jev-closeout",
+      "commit": "84246f9c5316a1ee69c92b30f124ed03b5d9e8fc",
+      "dirty": false
+    },
+    {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/data/r1-product/runtime-98f7854",
+      "branch": null,
+      "commit": "98f7854472c3df9e3baa913ab3e74f97d8cff3c7",
+      "dirty": false
+    },
+    {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/data/r1-product/runtime-ddf1dd9",
+      "branch": null,
+      "commit": "ddf1dd943f238dc71c2d3e4e6ef327e1ba44c2db",
+      "dirty": false
+    },
+    {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-jev-closeout-20261007/data/r1-product/runtime-e3de7cb",
+      "branch": null,
+      "commit": "e3de7cb890803c69e89e2ef8b91986e392901fc4",
+      "dirty": false
+    },
+    {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel-r1-online-runtime",
+      "branch": null,
+      "commit": "de54a7ee7c141e719f212852e774b304162cd3dc",
+      "dirty": true
+    }
+  ],
+  "deleteLocal": [
+    {
+      "name": "codex/counterexample-arena",
+      "commit": "a3b7fff9b3b2c738f674fb059a3890277deaf15e",
+      "merged": true
+    },
+    {
+      "name": "codex/network-dns-compat",
+      "commit": "b0174b148923cf801db6cc596fbd288f30511bf4",
+      "merged": true
+    },
+    {
+      "name": "codex/r1-jev-closeout",
+      "commit": "84246f9c5316a1ee69c92b30f124ed03b5d9e8fc",
+      "merged": true
+    },
+    {
+      "name": "codex/r2-product-sources",
+      "commit": "53d60ae7749a0b9b6749f585f00af0055d1385e4",
+      "merged": true
+    },
+    {
+      "name": "codex/r2-recovery-acceptance",
+      "commit": "253a0fcb6da1604a862eca17dca086ac6e87ee58",
+      "merged": true
+    },
+    {
+      "name": "feat/composable-investigations",
+      "commit": "88d63c05b1c6df509498b4fd17122dd6d62f4b73",
+      "merged": true
+    },
+    {
+      "name": "review/visual-focus-p4",
+      "commit": "31f490e146c258ed4999b9cfe3ba0e03a8027778",
+      "merged": true
+    }
+  ],
+  "deleteRemote": [
+    {
+      "ref": "refs/heads/codex/r0-closeout",
+      "commit": "d636d7e6ceea46ed22f43205a7164a149cb3600a"
+    },
+    {
+      "ref": "refs/heads/codex/r1-jev-closeout",
+      "commit": "cd5d58d09a443675807abcecca79557a0bdfa54a"
+    },
+    {
+      "ref": "refs/heads/codex/r1-jev-input-20261007",
+      "commit": "c15f0ff3af50bc8c77da429a706432e8df739cde"
+    },
+    {
+      "ref": "refs/heads/feat/composable-investigations",
+      "commit": "88009d6b6af2291a708bc546257cc2b033e16b27"
+    },
+    {
+      "ref": "refs/heads/review/visual-focus-p1",
+      "commit": "1df75dde6c611aafc384f2cc7dd86ce2dbc7ffe8"
+    },
+    {
+      "ref": "refs/heads/review/visual-focus-p2",
+      "commit": "6946df98b79eadae19473bb5348400373d280c08"
+    },
+    {
+      "ref": "refs/heads/review/visual-focus-p3",
+      "commit": "65f550246413d954936ac18d90a127a7500da792"
+    },
+    {
+      "ref": "refs/heads/review/visual-focus-p4",
+      "commit": "31f490e146c258ed4999b9cfe3ba0e03a8027778"
+    }
+  ],
+  "policy": "Preserve unmerged branches, original dirty workspace, active R3 and every worktree/data directory; detach clean completed worktrees at identical commits before deleting merged branch names.",
+  "completed": true,
+  "note": "Initial branch -d refused R1 because upstream lagged main; verified ancestor of main and removed obsolete upstream before safe deletion. No force deletion used.",
+  "remainingLocal": [
+    "archive/r2-product-sources-draft-20261010",
+    "codex/jev-benefit-study",
+    "codex/r0-closeout",
+    "codex/r3-path-reuse",
+    "main"
+  ],
+  "remainingRemote": [
+    "6350034caa2b09098b33af303416de280ea80c49\trefs/heads/main"
+  ]
+}
