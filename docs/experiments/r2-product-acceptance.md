@@ -1,6 +1,6 @@
 # R2 产品资料真实主模型小批验收
 
-最近真实结果：2026-10-11 最终候选的新授权六行批次已完成实验Agent审阅。按原五项标准 **3/6**（R2缺陷正确，R3/R4前置不足正确）；真实动作2，八个必要效果中1 verified、1 failed、6 unverified，整批门槛仍未达到。详见文末第四批结果及[交付索引](../../evaluation/private/r2-product-acceptance/real-final-acceptance.json)。以下先前阶段记录保留其当时授权与结果。
+最近真实结果：2026-10-11 推进反馈候选的新授权批次已完成Agent审阅，按原标准 **1/6**，仅R1健康路径完整执行。R5第6请求超时且费用未知，原闸门停止批次，R6未派发；六任务和八效果分母不变。已知USD0.040360993，新增unknown预留USD0.063、held 0，本期R2未达原完成条件。详见文末第五批结果及[交付索引](../../evaluation/private/r2-product-acceptance/real-progress-acceptance.json)。此前四批原结果、费用和授权记录保持不变。
 
 2026-10-10。状态：**本轮已获用户授权并完成唯一真实批次；预定验收未通过（0/6）**。实际运行冻结在 `3668f5446404e04f5ea332e338cc0147af8a48fd`，结果交付仅更新审阅材料，不变更运行配置。不能把固定模型、浏览器真值检查或旧 R0/R1 成绩当作本轮能力成绩。基线 main/origin/main 均为 `1db982428ffe4735450f2fca6a601d72f4b965dc`，建工作区时无新增提交差异。
 
@@ -376,3 +376,37 @@ R6原计划第一步有“可用”“尚未预览”两个前置，bind只传�
 开发失败也保留：测试脚本使用当前TS lib未声明的findLast，改为filter().at(-1)；第一份浏览器回放完成两步后，新诊断事件被旧通配附件检查误当测量证据，导致持久校验失败，随后明确诊断分类并补测。失败目录 `data/r2-product-sources/2026-10-11T10-45-33-429Z` 未覆盖；通过目录为 `data/r2-product-sources/2026-10-11T10-46-53-512Z`。源码hash `7de8a3d8c520ca1e351741caaa303ceda98571a8dd45d2ac113ddeadfa8deb61`，构建hash `f05e23279cbcf58c666ce168d1f620f63f45f3cda9b89eba6752c1b019162f23`。
 
 原始反例在 `evaluation/private/r2-product-acceptance/progress-feedback-failures.json`，完整前后回执、测试/构建、原附件与失败记录由[免费交付索引](../../evaluation/r2-product-sources/progress-feedback.json)定位；此前六组证据共1939项hash重新核对不变。已有免费依据支持审阅后沿用原六行、五项、原预算冻结候选，无需新矩阵；真实模型是否停止重读并正确补绑仍需另外授权的真实验收确认。本轮未冻结可消费新claim、未运行真实模型、未合并或推送。
+
+
+## 推进反馈候选真实验收（2026-10-11，已停止并完成Agent审阅）
+
+用户经维护者审阅实现 `6c12192c26cd8a0d17c091b59934bad70adc67e4`、免费交付 `40803d9db5ae31724f6e02271498d41d56028103` 后明确“好，授权”，批准冻结此候选并执行一次原六行批次。授权时尚未生成新manifest，不能声称用户提前看过其hash。本Agent随后在干净候选上冻结 `62bcbaac3db7bb6a107cc9adfdd269bc29b84649d320477e57993e44b5ea33f5`，独立approval绑定该hash，24小时有效且claim仅消费一次。源码hash `7de8a3d8c520ca1e351741caaa303ceda98571a8dd45d2ac113ddeadfa8deb61`、构建hash `f05e23279cbcf58c666ce168d1f620f63f45f3cda9b89eba6752c1b019162f23` 与已审阅免费交付完全一致。
+
+原609字符MD、三页族、六行顺序、五项标准、八效果、DeepSeek V4.1 Flash/Wafer、reasoning low、4096输出及原20请求/8动作/180秒、60秒模型/15秒工具、整批120请求/25分钟/USD7.56均未改。实时公开报价prompt/completion/cache-read分别USD0.000000035/0.00000099/0.000000034每token，在原冻结价格上限内；单请求预留仍USD0.063。Jev/视觉/fallback关闭，无重试、备用或补跑。既有31项/四场景/构建证据复用，未重建或重复免费测试。结束后、文档修改前再次构造完整manifest与冻结完全一致。
+
+**结果：1/6，原整批完成条件未达到。** 实际派发5行，R6因硬停止未派发仍占六行分母。四个可执行任务的8效果为2 verified、0 failed、6 unverified（包括R6未派发的2个）；健康完成1/2、该功能误报0，缺陷命中0/2、两个均未到详情。两个前置不足对照都未登记，完整有来源弃权任务0/2；R3只读取证支持边界子项，不替代完整任务。
+
+| 行 | 对照 | 请求 | 五项语义判定（读/登记/执行/范围/恢复） | 原产品状态与结果 | 已知usage USD | 未知预留 USD |
+| --- | --- | --- | --- | --- | --- | --- |
+| R1 | 健康 | 12 | pass / pass / pass / pass / pass | completed/covered；两步原效果正确 | 0.010830226 | 0 |
+| R2 | 缺陷 | 11 | pass / pass / unverified / unverified / pass | blocked；登记并取得节点，未绑定/操作 | 0.010284335 | 0 |
+| R3 | 前置不足 | 6 | unverified / fail / pass / unverified / pass | blocked；只读边界事实有据，但未登记 | 0.008797798 | 0 |
+| R4 | 前置不足 | 5 | unverified / fail / unverified / unverified / pass | blocked；反复读搜，未登记 | 0.006313866 | 0 |
+| R5 | 缺陷 | 6 | unverified / fail / unverified / unverified / pass | cancelled；第6请求超时，未登记/操作 | 0.004134768 | 0.063 |
+| R6 | 健康 | 0 | 全部unverified | 未派发，无报告，不虚构恢复 | 0 | 0 |
+
+R1首次读全文后第3请求正确登记；两个效果和两级前置均引用原文，assumptions为空、精确状态谓词区分成败、立即定义支持action-complete。第7/11请求绑定原预览/详情状态区域，第8/12请求点击原控件；action `a76a451c-fa8b-42d3-812f-2cf5607780b5` / requirement `requirement:7130f3cb844540224f42c841` 测得“预览就绪”，action `2f83c230-1b19-4286-8e9f-062449ece1af` / requirement `requirement:97ed620273439ba697081443` 测得“详情已就绪”。原测量附件为 `dd4f61d8-98f5-432e-90b6-10564f0866e8.json`、`b9bb67a8-4c02-43bc-b143-23d814674698.json`；两次前置在动作前分别单节点测得可用/预览就绪。动态详情准入、事件先后、actionId/requirementId/结果节点与原附件逐项核对一致。16个已选义务均verified、gaps为空，20个未选自动检查仍unverified；无全站通过声明。第9请求仍重读全文一次，不能说无目标重读已消除。
+
+R2第4请求登记的两步计划也正确。四处引用使用220..462片段，包含两级前置、效果、立即定义及各自状态区域，全文已在前请求读取；逐条核对review声明，不只看true。第5请求element_details传6个ref超过原上限5，被schema拒绝；第6请求缩至4个后已取得正确节点，第7请求再次确认可用和两个初始状态。此后只读status、回执和原文，从未bind或click。这个修正是element_details数组上限，不是本轮前置数量诊断修复。
+
+R3第3请求在原节点读取暂不可用、禁用按钮和初始结果，第5请求精确查回“这不代表预览功能发生了错误”的前置段，足以支持原只读取证边界子项；但没有登记路径、完整范围声明，主要任务不通过。R4仅反复读搜，没有登记或对当前前置不足的后续核对/解释，不因初始观察存在和无动作就推定弃权已完成。两行均保留partial/unverified，不改成covered。R5超时前5次回复同样没有登记，不能猜测未返回的第6次会采取什么动作。
+
+**修复是否实际触发。** 40份真实请求均含新阶段说明、已审阅wire schema和product-path-7技能；R1首次全文后登记并完成健康路径，但R3/R4/R5仍未登记，R2登记后仍停滞，不能声称提示修复带来稳定收益。全批只有R1两次bind，均一次给足前置数组，数量错误0、`repair-binding-input`未触发；真实模型采用数量诊断的能力仍未验证。30次读搜、精确重复8次（同工具原参数定义，排除overview/status/回执），20次搜索均成功但无空keyword输入；19 quote配null、1 keyword配null，也没有零匹配绑定修复。登记拒绝与修正仍未触发。
+
+**停止和费用。** R5第6请求 `1ec47d9d1b0888c70901ca4a` 于2026-10-11 11:01:51 UTC派发，产品模型事件 `evt-08a799da-4dd8-45cd-8941-3a60cd670b29` 在60010ms记录 `model-request-timeout`、usage unknown；网关记录 `downstream-disconnected`、60015ms。上游有HTTP200和2950字节，但无可验证data event/完整usage，不能据此归零费用或断言未计费。原批次于11:02:51 UTC记录 `transport-error`，取消R5并阻止R6派发；最后没有实际工具调用、没有length恢复、重试或替补。
+
+共40请求：39笔已结算usage逐一与原供应商回执核对，Decimal合计 **USD0.040360993**；1笔unknown保留预留 **USD0.063**，held 0。已知加未知预留占用USD0.103360993不是实际总费用。四批旧已知USD0.0567585、0.07266395、0.031491048、0.038317084与更早unknown USD0.116分别保留，未核销、抵扣或扩大风险豁免。新unknown和硬停止本身已不满足原整批门槛。
+
+五份已运行报告在夹具/服务关闭后重启只读恢复完全一致，持久校验无问题；129对附件原件/副本hash与字节一致。R6没有运行和报告，恢复分母如实为5份。此前七组共2310项证据hash核对不变。40份请求/响应记录（39完整、1中断）、59个工具回执、8处登记引用、全部动作/原事项/测量及账本已完成本实验Agent审阅；非人类复核或独立盲测，原机械pending-human-review保持。
+
+新结果、前后身份和346项证据索引见[第五批交付](../../evaluation/private/r2-product-acceptance/real-progress-acceptance.json)。第四批原3/6仍是一条完整缺陷路径加两项partial/unverified有来源弃权，不改写。当前剩余阻塞是新费用unknown、请求超时及登记前/后推进不稳定；数量诊断真实采用尚未触发。本期R2未满足原完成条件，不合并main、不推送、不修改维护者Roadmap。后续建议先审阅本次未知费用与停滞证据，再决定是否继续；本轮不自动整改、追加真实批次或申请扩大预算。

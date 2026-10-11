@@ -157,3 +157,12 @@ node --import tsx scripts/validation/counterexample-arena/validate.ts
 31项定向测试、构建/类型及差异检查通过；原MD/页族四个必要免费场景为健康2动作、缺陷2动作、实际前置不足0动作、另有必需pending的路径2动作仍partial。四份新报告和两份原v6 R2/R6报告恢复完全相等。原字段输入、完整上下文、schema/技能、反馈前后差异、一次测试脚本类型错误及一次新诊断事件持久分类错误全部留存。修复后诊断不作为完成证明，真实附件校验未放宽。
 
 不新增网页族、规划层或审核层；固定作者回放不是模型采用证据，原3/6语义结果及两项partial/unverified弃权不改。旧1939项证据及全部费用保留，新付费请求0。具备沿用原六行/五项/预算提交候选审阅的免费依据，未获下一批付费授权。见[实验整改节](../experiments/r2-product-acceptance.md#登记与前置数量反馈整改2026-10-11免费交付)、[免费交付](../../evaluation/r2-product-sources/progress-feedback.json)及 `progress-feedback-failures.json`。main和维护者Roadmap未修改，未推送/合并。
+
+
+## R2 推进反馈候选真实结果（2026-10-11，硬停止后已交付）
+
+用户审阅40803d9/6c12192后明确授权冻结并执行一次，随后生成新manifest `62bcbaac3db7bb6a107cc9adfdd269bc29b84649d320477e57993e44b5ea33f5`；授权不冒称用户事先看过hash。原六行/五项/八效果/预算不变，未重建、重跑免费检查或中途修补。结束后完整manifest仍与干净冻结候选相等。
+
+实际5行，原分母6行，Agent语义审阅1/6：R1完成健康两步，R2登记后停留只读，R3有前置不足只读事实但未登记，R4重复读搜未登记，R5未登记且第6请求约60秒超时，R6由硬停止阻止派发。8效果2 verified、6 unverified；缺陷命中0/2，完整弃权任务0/2，原出口未达。两次bind都没有数量错误，不能宣称新数量诊断被真实采用；R2修正的是element_details refs上限，单独记录。
+
+40请求中39笔已知USD0.040360993，另1笔unknown预留USD0.063、held 0；网关transport-error后保留claim、取消活动行，无重试/补跑。未知不是零费用，旧unknown USD0.116和四批账目均保留。五份完整报告恢复相等，129对附件一致，旧2310项证据核对不变。非独立/人类复核；本期R2未满足原条件，剩余超时/未知费用和推进不稳定需先审阅，本轮不追加整改实验。详见[第五批实验](../experiments/r2-product-acceptance.md#推进反馈候选真实验收2026-10-11已停止并完成agent审阅)和[交付索引](../../evaluation/private/r2-product-acceptance/real-progress-acceptance.json)。main、维护者Roadmap未改，未推送/合并。
