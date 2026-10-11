@@ -1,0 +1,526 @@
+{
+  "revision": "r3-path-reuse-delivery-1",
+  "date": "2026-10-12",
+  "timezone": "Asia/Shanghai",
+  "baseline": "2f79c509ac506101e4c804b90a03738cec988bb5",
+  "implementationCommit": "6f56588cceb1603497eb7ad1b5a32b54862ec5de",
+  "branch": "codex/r3-path-reuse",
+  "workspace": "/Users/xietian/.codex/worktrees/r3-path-reuse/ui-sentinel",
+  "rawEvidence": "/Users/xietian/.codex/worktrees/r3-path-reuse/ui-sentinel/data/r3-path-reuse/2026-10-11T17-56-40-961Z",
+  "artifactRoot": "/Users/xietian/.codex/worktrees/r3-path-reuse/ui-sentinel/data/artifacts",
+  "verification": {
+    "node": "24.21.0",
+    "build": "passed (typecheck/server/workbench/both existing arenas)",
+    "unit": {
+      "files": 8,
+      "passed": 84,
+      "log": {
+        "path": "data/r3-unit.log",
+        "sha256": "a7b915885875f9096a74071c93ba4119fabb66af9ef3b1a90051fdefbf0dea82",
+        "bytes": 558
+      }
+    },
+    "apiScenarios": 11,
+    "workbenchScenario": 1,
+    "restartReports": 12,
+    "realModelRequests": 0,
+    "paidCalls": 0,
+    "result": [
+      {
+        "mode": "baseline",
+        "runId": "run-ed348e4e-9459-4471-bde5-db2bee705c79",
+        "status": "completed",
+        "coverage": "covered",
+        "product": "verified",
+        "modelRequests": 6,
+        "planningRequests": 2,
+        "actions": 2
+      },
+      {
+        "mode": "healthy",
+        "runId": "run-695c23b4-d6eb-4263-9e17-614aab9bc70e",
+        "status": "completed",
+        "coverage": "covered",
+        "product": "verified",
+        "modelRequests": 0,
+        "planningRequests": 0,
+        "actions": 2,
+        "reuse": "reused",
+        "reason": "path-remeasured"
+      },
+      {
+        "mode": "defect",
+        "runId": "run-67cbfa97-5115-4592-83bf-00963ef6eaa9",
+        "status": "completed",
+        "coverage": "covered",
+        "product": "failed",
+        "modelRequests": 0,
+        "planningRequests": 0,
+        "actions": 2,
+        "reuse": "measured-failure",
+        "reason": "new-measurement-failed"
+      },
+      {
+        "mode": "source-changed",
+        "runId": "run-656f6657-4a9a-4e54-927f-36a9ec82d9e5",
+        "status": "blocked",
+        "coverage": "partial",
+        "product": "unverified",
+        "modelRequests": 1,
+        "planningRequests": 1,
+        "actions": 0,
+        "reuse": "handoff",
+        "reason": "source-version-mismatch"
+      },
+      {
+        "mode": "ambiguous",
+        "runId": "run-72021909-98a4-42e4-bcdc-2ae0c0d29924",
+        "status": "blocked",
+        "coverage": "partial",
+        "product": "unverified",
+        "modelRequests": 2,
+        "planningRequests": 0,
+        "actions": 1,
+        "reuse": "handoff",
+        "reason": "product-target-not-unique-source-match"
+      },
+      {
+        "mode": "missing",
+        "runId": "run-245eca2a-6ff9-4cd3-a663-28bd011abfdb",
+        "status": "blocked",
+        "coverage": "partial",
+        "product": "unverified",
+        "modelRequests": 2,
+        "planningRequests": 0,
+        "actions": 1,
+        "reuse": "handoff",
+        "reason": "target-missing-or-ambiguous"
+      },
+      {
+        "mode": "changed-target",
+        "runId": "run-bedc7c8e-c6e2-4a66-bf52-951c5e9eea72",
+        "status": "blocked",
+        "coverage": "partial",
+        "product": "unverified",
+        "modelRequests": 2,
+        "planningRequests": 0,
+        "actions": 0,
+        "reuse": "handoff",
+        "reason": "target-description-changed"
+      },
+      {
+        "mode": "precondition",
+        "runId": "run-ced2853c-fb19-4212-9588-8d307e34d686",
+        "status": "blocked",
+        "coverage": "partial",
+        "product": "unverified",
+        "modelRequests": 2,
+        "planningRequests": 0,
+        "actions": 0,
+        "reuse": "handoff",
+        "reason": "product-precondition-missing"
+      },
+      {
+        "mode": "execution-error",
+        "runId": "run-6615b147-77c2-4412-ab5e-4e81bba6c825",
+        "status": "execution-error",
+        "coverage": "partial",
+        "product": "unverified",
+        "modelRequests": 0,
+        "planningRequests": 0,
+        "actions": 1,
+        "reuse": "interrupted"
+      },
+      {
+        "mode": "network-write",
+        "runId": "run-41c94612-0791-4804-9df3-cc0a1ca73b12",
+        "status": "blocked",
+        "coverage": "partial",
+        "product": "unverified",
+        "modelRequests": 0,
+        "planningRequests": 0,
+        "actions": 1,
+        "reuse": "handoff",
+        "reason": "original-action-unverified-or-refused"
+      },
+      {
+        "mode": "cancel",
+        "runId": "run-9a2b646b-82be-44ff-bea3-4f6ad74399c5",
+        "status": "cancelled",
+        "coverage": "partial",
+        "product": "unverified",
+        "modelRequests": 0,
+        "planningRequests": 0,
+        "actions": 1,
+        "reuse": "interrupted"
+      }
+    ]
+  },
+  "workbench": {
+    "runId": "run-a555276e-4e7e-4209-ac16-4526900d7ab8",
+    "status": "completed",
+    "coverage": "covered",
+    "reuse": "reused",
+    "modelRequests": 0,
+    "actions": 2,
+    "saveButton": "passed",
+    "formSubmission": "passed"
+  },
+  "requestComparison": {
+    "baseline": {
+      "beforeRegistration": 2,
+      "total": 6,
+      "actions": 2
+    },
+    "reused": {
+      "beforeRegistration": 0,
+      "total": 0,
+      "actions": 2
+    },
+    "scope": "fixed local model wiring only; no real-model efficiency claim"
+  },
+  "artifactCount": 525,
+  "sourceFileCount": 753,
+  "rawFiles": [
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/ambiguous-model.json",
+      "sha256": "3be1c33d2516b6a37abaf907b4574fc1d236441d7d93c581ec15f6d3eb82ad8d",
+      "bytes": 69156
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/ambiguous-report.json",
+      "sha256": "6f6717d1225a5b95f023284e240e517b2959509b24e9b9e155c77355b36ecb0f",
+      "bytes": 680186
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/ambiguous-requests.json",
+      "sha256": "1721b375b4e654f45056c9fbdfcde1b5cef073ef5e83b1aaeade91147d1cc62c",
+      "bytes": 47
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/ambiguous-restored.json",
+      "sha256": "6f6717d1225a5b95f023284e240e517b2959509b24e9b9e155c77355b36ecb0f",
+      "bytes": 680186
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/ambiguous-reuse.png",
+      "sha256": "ff8b60c867f9aa3094086156eee4f0647df10168fc4a71e19bd167c58484850e",
+      "bytes": 33683
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/artifact-index.json",
+      "sha256": "f2c50e414bf7913fba4664df1bee12b58a5026d1f021abf18e3f8661907077d1",
+      "bytes": 191552
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/baseline-model.json",
+      "sha256": "5c45153bcd71f167edb0377f771d358512e8b8688b799369f555aeb2e7844572",
+      "bytes": 162937
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/baseline-report.json",
+      "sha256": "42d59f2886be696e6a16877f41f8a5a7392902cd933d7d4a8c966969bf7078a3",
+      "bytes": 924540
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/baseline-requests.json",
+      "sha256": "1721b375b4e654f45056c9fbdfcde1b5cef073ef5e83b1aaeade91147d1cc62c",
+      "bytes": 47
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/baseline-restored.json",
+      "sha256": "42d59f2886be696e6a16877f41f8a5a7392902cd933d7d4a8c966969bf7078a3",
+      "bytes": 924540
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/build-index.json",
+      "sha256": "076bcea75cae18c95218dc9b91d7a777a01984e32f424ee79f76a85d55aa5b85",
+      "bytes": 1367
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/cancel-model.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "bytes": 2
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/cancel-receipt.json",
+      "sha256": "2138a11fc6c3a0d27bce80ff497665670427e603fbb57dc8c186f09541bb59e9",
+      "bytes": 22
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/cancel-report.json",
+      "sha256": "1d518ced194d66d928e161ac9fb5f0e353968e789be84bb8894671ac53b08b5a",
+      "bytes": 233626
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/cancel-requests.json",
+      "sha256": "87e506a7eb9040dec48fec2957f2d689e6b449354d39b62b43be0bc3aebfccce",
+      "bytes": 96
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/cancel-restored.json",
+      "sha256": "1d518ced194d66d928e161ac9fb5f0e353968e789be84bb8894671ac53b08b5a",
+      "bytes": 233626
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/changed-target-model.json",
+      "sha256": "41df4265f610f426d2a94c702fe80d2ac6665f00ea3b6e9dd3e2e7311ba74bae",
+      "bytes": 38770
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/changed-target-report.json",
+      "sha256": "e9513765d5768812fb1492526f8131438343ea7db9f6f7e50f6cf02e195c6a21",
+      "bytes": 325004
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/changed-target-requests.json",
+      "sha256": "1721b375b4e654f45056c9fbdfcde1b5cef073ef5e83b1aaeade91147d1cc62c",
+      "bytes": 47
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/changed-target-restored.json",
+      "sha256": "e9513765d5768812fb1492526f8131438343ea7db9f6f7e50f6cf02e195c6a21",
+      "bytes": 325004
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/defect-model.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "bytes": 2
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/defect-report.json",
+      "sha256": "d90d794460932ebe6c203192775414c7562216191e88cfef8fd3892c4eb2c6fd",
+      "bytes": 881484
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/defect-requests.json",
+      "sha256": "1721b375b4e654f45056c9fbdfcde1b5cef073ef5e83b1aaeade91147d1cc62c",
+      "bytes": 47
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/defect-restored.json",
+      "sha256": "d90d794460932ebe6c203192775414c7562216191e88cfef8fd3892c4eb2c6fd",
+      "bytes": 881484
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/defect-reuse.png",
+      "sha256": "cca0514f48085d7c5feb67771eee44f86fecffefe7ccbdfce1bbe5e4e3ef78bb",
+      "bytes": 36734
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/execution-error-model.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "bytes": 2
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/execution-error-report.json",
+      "sha256": "980c3e5e079636c311543e0d924f2fa8db1f75848d39c284270cd95c2b752142",
+      "bytes": 299263
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/execution-error-requests.json",
+      "sha256": "1721b375b4e654f45056c9fbdfcde1b5cef073ef5e83b1aaeade91147d1cc62c",
+      "bytes": 47
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/execution-error-restored.json",
+      "sha256": "980c3e5e079636c311543e0d924f2fa8db1f75848d39c284270cd95c2b752142",
+      "bytes": 299263
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/healthy-model.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "bytes": 2
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/healthy-report.json",
+      "sha256": "b41355ba284f21734c1cc537c4fca9ba8591eac941db763500cfa643b674c7b5",
+      "bytes": 877510
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/healthy-requests.json",
+      "sha256": "1721b375b4e654f45056c9fbdfcde1b5cef073ef5e83b1aaeade91147d1cc62c",
+      "bytes": 47
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/healthy-restored.json",
+      "sha256": "b41355ba284f21734c1cc537c4fca9ba8591eac941db763500cfa643b674c7b5",
+      "bytes": 877510
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/healthy-reuse.png",
+      "sha256": "c409d307c60809afb04e02b9a3a3b61bf26d58c10f5cffeef200c57a4d0b4031",
+      "bytes": 35410
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/missing-model.json",
+      "sha256": "448e03c1416790dd01065443196fdd6bc7512f6f458356fbcda64c284d099d08",
+      "bytes": 67732
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/missing-report.json",
+      "sha256": "f4c7f661910696da626f818ae2df9e46f344c9c5262650c94a49185856eb0ee0",
+      "bytes": 596108
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/missing-requests.json",
+      "sha256": "1721b375b4e654f45056c9fbdfcde1b5cef073ef5e83b1aaeade91147d1cc62c",
+      "bytes": 47
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/missing-restored.json",
+      "sha256": "f4c7f661910696da626f818ae2df9e46f344c9c5262650c94a49185856eb0ee0",
+      "bytes": 596108
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/network-write-model.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "bytes": 2
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/network-write-report.json",
+      "sha256": "0314f85d728645c1a8d1544e1e2347455224d26f92e9aa38132171036110aaec",
+      "bytes": 388587
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/network-write-requests.json",
+      "sha256": "1721b375b4e654f45056c9fbdfcde1b5cef073ef5e83b1aaeade91147d1cc62c",
+      "bytes": 47
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/network-write-restored.json",
+      "sha256": "0314f85d728645c1a8d1544e1e2347455224d26f92e9aa38132171036110aaec",
+      "bytes": 388587
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/precondition-model.json",
+      "sha256": "b02a3e7bfebd78d0e3b45e252e4368cdcc15c52f29bd71bffaafa723c80e4724",
+      "bytes": 44329
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/precondition-report.json",
+      "sha256": "e98f58525cbb490c95ba41b5487e3f2878472623cad1923caa7fcac6f17c9f99",
+      "bytes": 332732
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/precondition-requests.json",
+      "sha256": "1721b375b4e654f45056c9fbdfcde1b5cef073ef5e83b1aaeade91147d1cc62c",
+      "bytes": 47
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/precondition-restored.json",
+      "sha256": "e98f58525cbb490c95ba41b5487e3f2878472623cad1923caa7fcac6f17c9f99",
+      "bytes": 332732
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/results.json",
+      "sha256": "5ea7c196fffccf39cb832db916aa43b5fb6bfe7b6714dce4baa89e641fa8cbfa",
+      "bytes": 3278
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/runs.db",
+      "sha256": "68dab93f1d2094860b200a59d5b3d11d38fed9a1ffd81f1a2a2d8b9c9d8cf5f8",
+      "bytes": 3739648
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/saved-program.json",
+      "sha256": "107af7afde2902c1c5e64c7a6f4aa419d7b7b79d0b90b3268201f64d8a8a26da",
+      "bytes": 6658
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/server.log",
+      "sha256": "8e7ac904f5086e12e18c60629c7502c75393007fc34171f2e77735e28ceaa891",
+      "bytes": 530
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/source-changed-model.json",
+      "sha256": "7827b9ba9dbd5cada78dbd0232e4583126816f41c7cd3cc2a51210b547f20d9d",
+      "bytes": 16263
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/source-changed-report.json",
+      "sha256": "f946202c63ee0a171765b52ad8272146f7585f615351b6796318c0e353ded8a6",
+      "bytes": 254090
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/source-changed-requests.json",
+      "sha256": "1721b375b4e654f45056c9fbdfcde1b5cef073ef5e83b1aaeade91147d1cc62c",
+      "bytes": 47
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/source-changed-restored.json",
+      "sha256": "f946202c63ee0a171765b52ad8272146f7585f615351b6796318c0e353ded8a6",
+      "bytes": 254090
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/source-index.json",
+      "sha256": "55850fe27f01ff89c358d2573f35a5d420ef1f53696443d9692778ca68c581b0",
+      "bytes": 127398
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/summary.json",
+      "sha256": "173c1272fd51264f0a5da4b568c6f8ae987bcc97d6fe2d49162a3a9cdbbc6236",
+      "bytes": 3616
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/workbench-inputs.json",
+      "sha256": "ba48bc9dc2cd716f31e1b328e1b8d01d058c9c1bcc885fdbb59de34c08a711af",
+      "bytes": 206
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/workbench-report.json",
+      "sha256": "edcbb76ab2a28735666d668d139289436c3e8e033b6b86f04122e0d39736c28a",
+      "bytes": 877976
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/workbench-restored.json",
+      "sha256": "edcbb76ab2a28735666d668d139289436c3e8e033b6b86f04122e0d39736c28a",
+      "bytes": 877976
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-56-40-961Z/workbench.png",
+      "sha256": "d52ae9ba4893c359d68639f0aae79ed24fe1b75fc7822b8f46ac320a720e0cbb",
+      "bytes": 1623992
+    }
+  ],
+  "logs": [
+    {
+      "path": "data/r3-build.log",
+      "sha256": "2cbcc8a646b1c956ffa16596cbd9a6c50efd5f7ca4f759f1bcdf59db790b597e",
+      "bytes": 1310
+    },
+    {
+      "path": "data/r3-typecheck.log",
+      "sha256": "0b3f1e0c6f0c2e5d74a75e9fa5e258773e5621cdd86d1ba299502f46b07e549d",
+      "bytes": 105
+    },
+    {
+      "path": "data/r3-validation-final.log",
+      "sha256": "38f8e614e5c6fcc0607f6ab0f2a3fde86969449f8d5ca6371b76f3bb318bdcb3",
+      "bytes": 2982
+    }
+  ],
+  "earlierRuns": [
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-51-50-523Z",
+      "result": "Stopped at an incorrect test expectation: removing result node is original execution-error, not cache handoff. Original report/logs retained. Product error propagation preserved."
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T17-53-09-843Z",
+      "result": "10 cases and report restart passed before adding cancellation and workbench submission; not added to final denominator."
+    }
+  ],
+  "limitations": [
+    "No paid/real model acceptance",
+    "Exact entry/source only; structural migration unsupported",
+    "After installed-plan invalidation: read-only continuation and original verification only",
+    "Same-run live replacement covered by deterministic runner and real DOM identity tests; no arbitrary semantic-equivalence proof",
+    "Original unknown-write exception propagation unit-tested; anonymous UI does not dispatch business writes",
+    "Raw artifacts are local ignored data, not included in Git; all fixture and validation source is tracked"
+  ],
+  "commands": [
+    "DOTENV_CONFIG_PATH=/dev/null pnpm build",
+    "DOTENV_CONFIG_PATH=/dev/null pnpm test src/execution/path-reuse src/inspection/path-reuse-contract.test.ts src/execution/product-handoff.test.ts src/inspection/contract.test.ts src/server/routes/ui-scan-runs.test.ts src/web/ui-scan-request.test.ts src/web/ui-scan-report.test.ts",
+    "DOTENV_CONFIG_PATH=/dev/null pnpm exec tsx scripts/validation/r3-path-reuse.ts"
+  ]
+}
