@@ -1,3 +1,5 @@
+import { loadPathProgram } from './path-reuse/library.ts'
+import { runPathProgram, type ReuseResult } from './path-reuse/runner.ts'
 import { productRecoveryDelivery } from '../agent/context/product-recovery.ts'
 import { productStageAllows } from '../inspection/product-stage.ts'
 import { createProductPath } from './product-path.ts'
@@ -26,7 +28,11 @@ import {
 } from './experimental-decision-host.ts'
 import { createUiRuleObservation } from './ui-rule-observation.ts'
 import { checkHash } from '../inspection/check-contract.ts'
-import { createDefaultCheckRuntime, summary as checkSummary } from './default-check-runtime.ts'
+import {
+  readPublicCheckPage,
+  createDefaultCheckRuntime,
+  summary as checkSummary,
+} from './default-check-runtime.ts'
 import { admitOptionalScope, localExtensionBound } from './scope-admission.ts'
 import { actionInputValidationError } from './action-input.ts'
 import { publishInteractionFinding } from './interaction-finding.ts'
@@ -520,6 +526,7 @@ async function executeProfiledRun(
         }
       : undefined
   }
+  let pathReuseResult: ReuseResult | undefined
   let productPath: ReturnType<typeof createProductPath> | null = null
   let checkRuntime: ReturnType<typeof createDefaultCheckRuntime> | null = null
   let preparedV2: any = null
@@ -2508,6 +2515,12 @@ async function executeProfiledRun(
       guard()
       // A unique selector/ref does not resolve the public ambiguity that caused handoff.
       // This gate also covers investigation_run, which delegates every act here.
+      if (pathReuseResult?.readOnly)
+        return {
+          error: 'path-reuse-read-only-handoff',
+          dispatched: false,
+          reason: pathReuseResult.reason,
+        }
       if (productReadOnlyHandoff) {
         await appendEvent(runId, 'r1:action-refused', {
           reason: productReadOnlyHandoff,
@@ -5231,6 +5244,52 @@ async function executeProfiledRun(
     })
     if (visualScanEligible && config.features?.visualDiscovery) await visualFocus.scan()
     if (checkTasks && uiScan?.popupCheck) popupAuto = false
+    if (uiScan?.pathProgramId && productPath && inspection) {
+      const path = productPath
+      pathReuseResult = await runPathProgram(await loadPathProgram(uiScan.pathProgramId), {
+        programId: uiScan.pathProgramId,
+        contract: uiScan,
+        guard,
+        clean: () => integrity.epoch() === 0 && !sideEffectPending,
+        remaining: () => ({
+          actions: remainingActions(),
+          timeMs: budget.totalTimeoutMs - (Date.now() - startedAt),
+        }),
+        observe: () => observe(true),
+        page: () => readPublicCheckPage(page, String(observeCount)),
+        ref: async (selector) => {
+          const candidates = inspection!.candidateItems().filter(
+            (c) =>
+              c.category === 'local-interaction' &&
+              c.ref &&
+              (() => {
+                const d = elementStore.getDetail(c.ref)
+                return d.found && d.fresh && d.element.selector === selector
+              })(),
+          )
+          if (candidates.length !== 1) throw Error('current-control-ref-missing-or-ambiguous')
+          return candidates[0]!.ref!
+        },
+        install: (plan) => path.installReusablePlan(plan),
+        status: () => path.sync(),
+        events: () => getEvents(runId),
+        emit: (type, payload) => appendEvent(runId, type, payload),
+        call: async (name, args) => {
+          attemptTools = 0
+          attemptReads = 0
+          const result = await executeProgramTool(
+            signal,
+            Math.min(config.budget.toolTimeoutMs, budget.totalTimeoutMs - (Date.now() - startedAt)),
+            () => tools[name]!.execute!(args as never, {} as never),
+          )
+          const toolResults = [{ toolName: name, args, result }]
+          history.push({ text: '', toolResults: JSON.stringify(toolResults) })
+          await appendEvent(runId, 'path-reuse:step', { toolResults })
+          await persistUsage()
+          return result
+        },
+      })
+    }
     while (!finished) {
       if (
         checkTasks?.status().some((s) => s.status === 'running' || s.status === 'queued') &&
@@ -5541,6 +5600,7 @@ async function executeProfiledRun(
           : {}),
         ...(productPath
           ? {
+              pathReuse: pathReuseResult,
               productPath: ((report) => ({
                 source: {
                   sourceId: report.source.sourceId,

@@ -19,6 +19,7 @@ import {
   type ProductSource,
 } from '../inspection/product-source.ts'
 import {
+  validateProductPlan,
   productBindInput,
   productPlan,
   productPathReport,
@@ -548,5 +549,24 @@ export function createProductPath(host: {
       }),
     }
   }
-  return { tools, status, sync, assertAction, authorizeTool }
+  // Internal-only: an immutable server-derived candidate carries the original semantic plan,
+  // but every binding, requirement and measurement is created anew in this run.
+  async function installReusablePlan(raw: unknown) {
+    host.guard()
+    if (
+      !host.clean() ||
+      (await host.events()).some((e) => ['product:planned', 'action:executing'].includes(e.type))
+    )
+      throw Error('reuse-requires-clean-unplanned-run')
+    const plan = validateProductPlan(host.source, raw)
+    const ref = await host.save(
+      'product-plan',
+      JSON.stringify({ revision: PRODUCT_SKILL_REVISION, plan }),
+    )
+    await host.emit('product:planned', { revision: PRODUCT_SKILL_REVISION, plan }, [ref])
+    host.progress('plan-frozen')
+    await host.inspection.flush()
+    return status()
+  }
+  return { tools, status, sync, assertAction, authorizeTool, installReusablePlan }
 }

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { UI_CHECK_DESCRIPTION, UI_SAMPLING_DESCRIPTION } from '../shared/ui-sampling-policy.ts'
 import type { UiScanReport } from '../server/reports/ui-scan-report.ts'
 import { artifactUrl } from './state.ts'
@@ -21,6 +22,32 @@ const COVERAGE_LABEL: Record<UiScanReport['inspection']['coverage'], string> = {
   'not-started': '未开始检查',
 }
 
+function SavePath({ runId }: { runId: string }) {
+  const [message, setMessage] = useState('')
+  const [saving, setSaving] = useState(false)
+  async function save() {
+    setSaving(true)
+    try {
+      const response = await fetch(`/api/runs/${encodeURIComponent(runId)}/path-program`, {
+        method: 'POST',
+      })
+      const body = await response.json()
+      setMessage(response.ok ? `已保存路径 ID：${body.program.id}` : `未保存：${body.error}`)
+    } catch {
+      setMessage('保存失败，请检查服务连接。')
+    } finally {
+      setSaving(false)
+    }
+  }
+  return (
+    <div>
+      <button disabled={saving} onClick={save}>
+        保存可复用路径
+      </button>
+      <p role="status">{message}</p>
+    </div>
+  )
+}
 function Coverage({ report, runId }: { report: UiScanReport; runId: string }) {
   const { inspection } = report
   // A covered verdict is only shown as covered when the proof behind it verifies. The report already
@@ -51,9 +78,40 @@ function Coverage({ report, runId }: { report: UiScanReport; runId: string }) {
         边界：匿名会话 · 不提交业务操作 · 仅支持 GET 型数据 · 有界采样（最多{' '}
         {report.contract.scope.maxPages} 页，深度 {report.contract.scope.maxDepth}）
       </p>
+      {report.pathReuse && (
+        <section aria-label="路径复用报告">
+          <h3>
+            路径复用：
+            {{
+              reused: '已重新执行',
+              handoff: '已交回 Agent',
+              'measured-failure': '本次测出缺陷',
+              running: '正在执行',
+              interrupted: '执行中断',
+              'not-started': '未开始',
+            }[report.pathReuse.status] ?? report.pathReuse.status}
+          </h3>
+          <p>路径 ID：{report.pathReuse.programId}</p>
+          <p>
+            规划请求 {report.pathReuse.planningRequests} · 模型请求 {report.pathReuse.modelRequests}{' '}
+            · 实际动作 {report.pathReuse.actualActions}
+          </p>
+          <p>原因：{report.pathReuse.result?.reason ?? '查看本次停止原因；不得自动重放。'}</p>
+          <p>
+            未完成步骤：
+            {report.pathReuse.result?.remainingSteps.map((i) => i + 1).join('、') ||
+              '见下方本次测量与未检查范围'}
+          </p>
+          <details>
+            <summary>交回事实与操作记录</summary>
+            <pre>{JSON.stringify(report.pathReuse.result, null, 2)}</pre>
+          </details>
+        </section>
+      )}
       {report.productSource && (
         <section aria-label="产品资料路径报告">
           <h3>产品资料：{report.productSource.source.title}</h3>
+          {covered && report.productSource.state === 'verified' && <SavePath runId={runId} />}
           <p>
             路径结论：
             {

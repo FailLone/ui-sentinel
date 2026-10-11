@@ -102,6 +102,11 @@ export async function initializeDatabase(db: Client): Promise<void> {
       FOREIGN KEY (finding_id) REFERENCES findings(id)
     );
 
+    CREATE TABLE IF NOT EXISTS path_programs (
+      id TEXT PRIMARY KEY,
+      program TEXT NOT NULL
+    );
+
     CREATE TABLE IF NOT EXISTS journeys (
       id TEXT PRIMARY KEY,
       revision TEXT NOT NULL,

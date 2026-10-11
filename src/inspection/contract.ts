@@ -158,6 +158,10 @@ export const uiScanRequestSchema = z
     goal: z.string().max(UI_GOAL_MAX_LENGTH).optional(),
     requiredChecks: requiredChecksInput.optional(),
     productSource: productSourceInput.optional(),
+    pathProgramId: z
+      .string()
+      .regex(/^path-[a-f0-9]{64}$/)
+      .optional(),
     scope: z
       .object({
         maxPages: z.number().int().min(1).max(UI_MAX_PAGES).optional(),
@@ -193,6 +197,7 @@ export const uiScanRequestSchema = z
 export type UiScanRequest = z.infer<typeof uiScanRequestSchema>
 
 export interface UiContractSnapshot {
+  readonly pathProgramId?: string
   readonly productSource?: ProductSource
   readonly popupCheck?: PopupPolicy
   readonly exploration?: ExplorationPolicy
@@ -290,6 +295,7 @@ export function buildUiContractSnapshot(input: {
   requestedGoal?: string
   goalSource?: 'user' | 'default'
   requiredChecks?: readonly RequiredCheck[]
+  pathProgramId?: string
   productSource?: ProductSource
   samplingPolicy?: UiSamplingPolicy
   popupCheck?: PopupPolicy
@@ -301,6 +307,7 @@ export function buildUiContractSnapshot(input: {
   const goal = input.goal?.trim() ? input.goal.trim() : UI_DEFAULT_GOAL
   const body = {
     schemaVersion: UI_CONTRACT_SCHEMA_VERSION,
+    ...(input.pathProgramId ? { pathProgramId: input.pathProgramId } : {}),
     ...(input.productSource ? { productSource: structuredClone(input.productSource) } : {}),
     ...(input.popupCheck ? { popupCheck: structuredClone(input.popupCheck) } : {}),
     ...(input.exploration ? { exploration: structuredClone(input.exploration) } : {}),
@@ -388,6 +395,11 @@ export function verifyUiContractSnapshot(snapshot: UiContractSnapshot): boolean 
     (!validPopupPolicy(snapshot.popupCheck) || snapshot.exploration || !snapshot.checkPolicy)
   )
     return false
+  if (
+    snapshot.pathProgramId !== undefined &&
+    (!snapshot.productSource || !/^path-[a-f0-9]{64}$/.test(snapshot.pathProgramId))
+  )
+    return false
   const { hash, ...body } = snapshot
   if (typeof hash !== 'string') return false
   const expected = createHash('sha256').update(canonical(body)).digest('hex')
@@ -432,6 +444,13 @@ export function resolveUiScanContract(
     }
   }
   const data = parsed.data
+  if (data.pathProgramId && !data.productSource)
+    return {
+      kind: 'refused',
+      reasonCode: 'url-malformed',
+      field: 'pathProgramId',
+      message: 'Path reuse requires current product source.',
+    }
   if (data.productSource && (data.exploration || data.popupCheck))
     return {
       kind: 'refused',
@@ -474,6 +493,7 @@ export function resolveUiScanContract(
       origin: url.origin,
       goal: data.goal,
       requiredChecks: data.requiredChecks,
+      ...(data.pathProgramId ? { pathProgramId: data.pathProgramId } : {}),
       ...(data.productSource ? { productSource: freezeProductSource(data.productSource) } : {}),
       samplingPolicy: UI_SAMPLING_POLICY_V2,
       ...(data.popupCheck ? { popupCheck: POPUP_POLICY } : {}),

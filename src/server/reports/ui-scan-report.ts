@@ -1,3 +1,4 @@
+import type { ReuseResult } from '../../execution/path-reuse/runner.ts'
 import { productPathReport } from '../../inspection/product-path.ts'
 import { checkTaskReport } from '../../execution/check-tasks/report.ts'
 import { popupReport } from './popup-report.ts'
@@ -30,6 +31,14 @@ import type { Run, RunEvent } from '../../shared/types.ts'
 export type UiCoverage = 'covered' | 'partial' | 'not-started'
 
 export interface UiScanReport {
+  readonly pathReuse?: {
+    programId: string
+    result?: ReuseResult
+    status: string
+    modelRequests: number
+    planningRequests: number
+    actualActions: number
+  }
   readonly productSource?: ReturnType<typeof productPathReport>
   readonly checkTasks?: ReturnType<typeof checkTaskReport>
   readonly functionalChecks?: {
@@ -165,7 +174,31 @@ export function uiScanSummary(
       detail: (e.payload.detail as string | null) ?? null,
     }))
 
+  const reuse = events.find((e) => e.type === 'path-reuse:finished')?.payload as
+    | ReuseResult
+    | undefined
+  const plannedSeq = events.find((e) => e.type === 'product:planned')?.seq ?? Infinity
   return {
+    ...(contract.pathProgramId
+      ? {
+          pathReuse: {
+            programId: contract.pathProgramId,
+            result: reuse,
+            status:
+              reuse?.status ??
+              (events.some((e) => e.type === 'path-reuse:started')
+                ? ['queued', 'running'].includes(run.status)
+                  ? 'running'
+                  : 'interrupted'
+                : 'not-started'),
+            modelRequests: events.filter((e) => e.type === 'model:request-started').length,
+            planningRequests: events.filter(
+              (e) => e.type === 'model:request-started' && e.seq < plannedSeq,
+            ).length,
+            actualActions: events.filter((e) => e.type === 'action:executing').length,
+          },
+        }
+      : {}),
     ...(contract.popupCheck?.revision === 'popup-viewport-2'
       ? {
           functionalChecks: snapshot.items.flatMap((i) =>

@@ -251,6 +251,8 @@ function App() {
   const [mode, setMode] = useState<'business' | 'ui-scan'>('business')
   const [popupAvailable, setPopupAvailable] = useState(false)
   const [productSourcesAvailable, setProductSourcesAvailable] = useState(false)
+  const [pathProgramId, setPathProgramId] = useState('')
+  const [productSourceVersion, setProductSourceVersion] = useState('1')
   const [productSourceTitle, setProductSourceTitle] = useState('产品说明')
   const [productSourceMarkdown, setProductSourceMarkdown] = useState('')
   const [popupCheck, setPopupCheck] = useState(false)
@@ -366,7 +368,9 @@ function App() {
         const result = await api<{ runId: string }>(
           '/api/runs',
           buildUiScanRequest({
-            ...(productSourcesAvailable ? { productSourceTitle, productSourceMarkdown } : {}),
+            ...(productSourcesAvailable
+              ? { productSourceTitle, productSourceMarkdown, productSourceVersion, pathProgramId }
+              : {}),
             popupCheck,
             exploration,
             jev,
@@ -462,6 +466,22 @@ function App() {
             {productSourcesAvailable && (
               <fieldset>
                 <legend>产品资料与关键路径</legend>
+                <label>
+                  资料版本
+                  <input
+                    value={productSourceVersion}
+                    maxLength={80}
+                    onChange={(e) => setProductSourceVersion(e.target.value)}
+                  />
+                </label>
+                <label>
+                  复用路径 ID（可空）
+                  <input value={pathProgramId} onChange={(e) => setPathProgramId(e.target.value)} />
+                </label>
+                <small>
+                  从健康报告保存路径后粘贴 ID。仅尝试同网址、同资料版本；每次重新测量，失效交回
+                  Agent。
+                </small>
                 <label>
                   资料名称
                   <input
