@@ -170,6 +170,10 @@ export async function loadPathProgram(id: string): Promise<PathProgram | undefin
     args: [id],
   })
   if (!rows.rows.length) return undefined
-  const program = JSON.parse(String(rows.rows[0]!.program)) as PathProgram
-  return validPathProgram(program) ? program : undefined
+  try {
+    const program = JSON.parse(String(rows.rows[0]!.program)) as PathProgram
+    return program.id === id && validPathProgram(program) ? program : undefined
+  } catch {
+    return undefined
+  }
 }

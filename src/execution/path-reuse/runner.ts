@@ -23,6 +23,16 @@ export type ReuseResult = {
   instruction: string
   readOnly: boolean
 }
+export class PathReuseInvalidated extends Error {}
+const bindingReasons = new Set([
+  'entry-or-origin-mismatch',
+  'target-missing-or-ambiguous',
+  'target-description-changed',
+  'target-not-visible-or-unidentified',
+  'product-target-not-unique-source-match',
+  'current-control-ref-missing-or-ambiguous',
+  'live-node-replaced',
+])
 /** Bounded orchestration only: every tool goes through the original serialized executor. */
 export async function runPathProgram(
   program: PathProgram | undefined,
@@ -38,7 +48,11 @@ export async function runPathProgram(
     install(plan: PathProgram['plan']): Promise<unknown>
     status(): Promise<Status>
     events(): Promise<readonly RunEvent[]>
-    call(name: 'product_path_bind' | 'page_act', args: Record<string, unknown>): Promise<any>
+    call(
+      name: 'product_path_bind' | 'page_act',
+      args: Record<string, unknown>,
+      beforeDispatch?: () => Promise<void>,
+    ): Promise<any>
     emit(type: string, payload: Record<string, unknown>): Promise<unknown>
   },
 ): Promise<ReuseResult> {
@@ -140,26 +154,53 @@ export async function runPathProgram(
     }
     host.guard()
     if (!bound?.bound) return finish('handoff', String(bound?.error ?? 'binding-refused'))
-    const page = await host.page()
-    if (
-      page.url !== program.entryUrl ||
-      witnesses.some((w) => {
-        const nodes = page.nodes.filter((n) => n.selector === w.selector || n.path === w.selector)
-        return nodes.length !== 1 || nodes[0]!.identity !== w.identity
-      })
-    )
-      return finish('handoff', 'live-node-replaced')
+    const beforeDispatch = async () => {
+      host.guard()
+      const page = await host.page()
+      host.guard()
+      try {
+        if (
+          page.url !== program.entryUrl ||
+          witnesses.some((w) => {
+            const nodes = page.nodes.filter(
+              (n) => n.selector === w.selector || n.path === w.selector,
+            )
+            return nodes.length !== 1 || nodes[0]!.identity !== w.identity
+          })
+        )
+          throw Error('live-node-replaced')
+        for (const target of [binding.control, binding.result, ...binding.preconditions])
+          matchTarget(page, target)
+        productTarget(program.plan.steps[index]!, page, binding.control.selector)
+      } catch (error) {
+        if (error instanceof Error && bindingReasons.has(error.message))
+          throw new PathReuseInvalidated(error.message)
+        throw error
+      }
+    }
+    try {
+      await beforeDispatch()
+    } catch (error) {
+      host.guard()
+      if (!(error instanceof PathReuseInvalidated)) throw error
+      return finish('handoff', error.message)
+    }
     const next = (await host.status()).nextAction
     if (!next) return finish('handoff', 'original-action-unavailable')
     // Never catch/retry dispatch exceptions: cancellation, unknown writes and execution errors
     // retain their original terminal meaning in the outer executor.
-    const result = await host.call('page_act', next.args)
+    const result = await host.call('page_act', next.args, beforeDispatch)
     host.guard()
     const state = await host.status()
     if (state.steps[index]?.state === 'failed')
       return finish('measured-failure', 'new-measurement-failed')
     if (result?.error || state.steps[index]?.state !== 'verified')
-      return finish('handoff', 'original-action-unverified-or-refused')
+      return finish(
+        'handoff',
+        result?.error === 'path-reuse-invalidated-before-dispatch'
+          ? String(result.reason)
+          : 'original-action-unverified-or-refused',
+      )
   }
   return finish('reused', 'path-remeasured')
 }

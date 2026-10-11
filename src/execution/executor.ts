@@ -1,5 +1,5 @@
 import { loadPathProgram } from './path-reuse/library.ts'
-import { runPathProgram, type ReuseResult } from './path-reuse/runner.ts'
+import { runPathProgram, PathReuseInvalidated, type ReuseResult } from './path-reuse/runner.ts'
 import { productRecoveryDelivery } from '../agent/context/product-recovery.ts'
 import { productStageAllows } from '../inspection/product-stage.ts'
 import { createProductPath } from './product-path.ts'
@@ -526,6 +526,7 @@ async function executeProfiledRun(
         }
       : undefined
   }
+  let pathReuseDispatchCheck: (() => Promise<void>) | undefined
   let pathReuseResult: ReuseResult | undefined
   let productPath: ReturnType<typeof createProductPath> | null = null
   let checkRuntime: ReturnType<typeof createDefaultCheckRuntime> | null = null
@@ -2820,7 +2821,22 @@ async function executeProfiledRun(
         [...inspection.selectedCandidates(), ...inspection.candidateItems()].find(
           (c) => c.ref === actingRef && c.snapshotId === actionSnapshotPage,
         )
-      await productPath?.assertAction(boundCandidate?.itemId)
+      try {
+        await productPath?.assertAction(boundCandidate?.itemId)
+      } catch (error) {
+        guard()
+        if (
+          !pathReuseDispatchCheck ||
+          !(error instanceof Error) ||
+          !error.message.startsWith('product-')
+        )
+          throw error
+        return {
+          error: 'path-reuse-invalidated-before-dispatch',
+          reason: error.message,
+          dispatched: false,
+        }
+      }
       if (!checkRuntime && boundCandidate && ['click', 'fill'].includes(input.type))
         interactionExploration.assertNotRepeated(boundCandidate.itemId)
       if (
@@ -2942,6 +2958,25 @@ async function executeProfiledRun(
           timing.observer.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true});
           window.__sentinelTiming=timing;
         `)
+      if (pathReuseDispatchCheck) {
+        try {
+          // R3 must recheck after prepare() and timing setup, before counting/dispatching.
+          await productPath?.assertAction(boundCandidate?.itemId)
+          await pathReuseDispatchCheck()
+        } catch (error) {
+          guard()
+          if (
+            !(error instanceof PathReuseInvalidated) &&
+            !(error instanceof Error && error.message.startsWith('product-'))
+          )
+            throw error
+          return {
+            error: 'path-reuse-invalidated-before-dispatch',
+            reason: error.message,
+            dispatched: false,
+          }
+        }
+      }
       countAction()
       await appendEvent(
         runId,
@@ -5274,13 +5309,20 @@ async function executeProfiledRun(
         status: () => path.sync(),
         events: () => getEvents(runId),
         emit: (type, payload) => appendEvent(runId, type, payload),
-        call: async (name, args) => {
+        call: async (name, args, beforeDispatch) => {
           attemptTools = 0
           attemptReads = 0
           const result = await executeProgramTool(
             signal,
             Math.min(config.budget.toolTimeoutMs, budget.totalTimeoutMs - (Date.now() - startedAt)),
-            () => tools[name]!.execute!(args as never, {} as never),
+            async () => {
+              pathReuseDispatchCheck = beforeDispatch
+              try {
+                return await tools[name]!.execute!(args as never, {} as never)
+              } finally {
+                pathReuseDispatchCheck = undefined
+              }
+            },
           )
           const toolResults = [{ toolName: name, args, result }]
           history.push({ text: '', toolResults: JSON.stringify(toolResults) })

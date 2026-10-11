@@ -193,3 +193,32 @@ it('browser read errors retain execution failure rather than cache invalidation'
   await expect(runPathProgram(h.program, h.host)).rejects.toThrow('browser connection lost')
   expect(h.calls).toHaveLength(0)
 })
+
+it.each(['rename', 'duplicate', 'result-parent'])(
+  'revalidates %s after binding even if node identity is unchanged',
+  async (change) => {
+    const h = harness(),
+      call = h.host.call
+    h.host.call = async (name: string) => {
+      const result = await call(name)
+      if (name === 'product_path_bind') {
+        if (change === 'rename') h.page.nodes[0].name = 'Other'
+        if (change === 'duplicate')
+          h.page.nodes.push({ ...h.page.nodes[0], selector: '#other', identity: 'other' })
+        if (change === 'result-parent') {
+          h.page.nodes[0].parentSelector = '#parent'
+          h.page.nodes.push({
+            ...h.page.nodes[0],
+            selector: '#parent',
+            tag: 'section',
+            attributes: { 'aria-label': 'Other result' },
+          })
+        }
+      }
+      return result
+    }
+    const result = await runPathProgram(h.program, h.host)
+    expect(result.status).toBe('handoff')
+    expect(h.calls).toEqual(['product_path_bind'])
+  },
+)

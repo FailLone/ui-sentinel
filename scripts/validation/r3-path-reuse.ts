@@ -71,6 +71,7 @@ const draft = {
     },
   ],
 }
+const reviewOnly = process.argv.includes('--review-only')
 let mode = 'baseline'
 let currentRunId = ''
 let cancellation: Promise<unknown> | undefined
@@ -116,6 +117,18 @@ const fixture = createServer((req, res) => {
       "document.querySelector('#preview-state').textContent='预览就绪';",
       "document.querySelector('#preview-state').textContent='预览就绪'; fetch('/write', {method:'POST'});",
     )
+  if (mode.startsWith('dispatch-')) {
+    const mutation =
+      mode === 'dispatch-rename'
+        ? "document.querySelector('#preview').textContent='其他预览'"
+        : mode === 'dispatch-duplicate'
+          ? "const duplicate=document.querySelector('#preview').cloneNode(true); duplicate.id='duplicate'; document.querySelector('main').append(duplicate)"
+          : "document.querySelector('#availability').textContent='暂不可用'"
+    html = html.replace(
+      '</body>',
+      `<script>(()=>{let r3Timing; Object.defineProperty(window,'__sentinelTiming',{configurable:true,get(){return r3Timing},set(value){r3Timing=value; ${mutation}; }});})();</script></body>`,
+    )
+  }
   res.writeHead(200, { 'content-type': 'text/html; charset=utf-8' })
   res.end(html)
 })
@@ -252,19 +265,28 @@ let browser: Awaited<ReturnType<typeof chromium.launch>> | undefined
 try {
   await ready()
   let programId: string | undefined
-  for (mode of [
-    'baseline',
-    'healthy',
-    'defect',
-    'source-changed',
-    'ambiguous',
-    'missing',
-    'changed-target',
-    'precondition',
-    'execution-error',
-    'network-write',
-    'cancel',
-  ]) {
+  for (mode of reviewOnly
+    ? [
+        'baseline',
+        'healthy',
+        'defect',
+        'dispatch-rename',
+        'dispatch-duplicate',
+        'dispatch-precondition',
+      ]
+    : [
+        'baseline',
+        'healthy',
+        'defect',
+        'source-changed',
+        'ambiguous',
+        'missing',
+        'changed-target',
+        'precondition',
+        'execution-error',
+        'network-write',
+        'cancel',
+      ]) {
     requests = []
     calls = []
     attemptReplay = false
@@ -386,7 +408,7 @@ try {
   await page.getByRole('button', { name: '保存可复用路径' }).click()
   await page.getByText('已保存路径 ID：', { exact: false }).waitFor()
   await page.screenshot({ path: resolve(root, 'workbench.png'), fullPage: true })
-  for (const label of ['healthy', 'defect', 'ambiguous']) {
+  for (const label of ['healthy', 'defect', reviewOnly ? 'dispatch-duplicate' : 'ambiguous']) {
     await page.goto(base + '/?run=' + reports[label].runId)
     await page
       .getByRole('region', { name: '路径复用报告' })
