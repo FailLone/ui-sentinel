@@ -50,6 +50,7 @@ export function createProductPath(host: {
   selector(ref: string): Promise<string>
   remaining(): { actions: number; modelCalls: number; timeMs: number }
   clean(): boolean
+  reviewBinding?(itemId: string, selector: string): Promise<void>
 }) {
   const scope = host.inspection.scope
   const item = scope.createItem({
@@ -62,15 +63,22 @@ export function createProductPath(host: {
     targetSource: 'executor',
   })
   const issued = new Map<string, ProductCitation>()
+  let covered: [number, number][] = []
   const remember = (citation: ProductCitation) => {
     issued.set(citation.citationId, citation)
-    // Reading/searching another phrase in a covered source window is not new progress.
-    for (
-      let page = Math.floor(citation.start / 4000);
-      page <= Math.floor((citation.end - 1) / 4000);
-      page++
-    )
-      host.progress('source-page:' + page)
+    const before = covered.reduce((n, [start, end]) => n + end - start, 0)
+    const merged: [number, number][] = []
+    for (const range of [...covered, [citation.start, citation.end] as [number, number]].sort(
+      (a, b) => a[0] - b[0],
+    )) {
+      const last = merged.at(-1)
+      if (last && range[0] <= last[1]) last[1] = Math.max(last[1], range[1])
+      else merged.push([...range])
+    }
+    covered = merged
+    const after = covered.reduce((n, [start, end]) => n + end - start, 0)
+    // Exact source coverage only; another quote in returned text is not a new fact.
+    if (after > before) host.progress('source-coverage:' + after)
   }
   const status = async () => {
     const events = await host.events()
@@ -94,6 +102,15 @@ export function createProductPath(host: {
         invalidAttempts: rejected.length,
         maxInvalidAttempts: 3,
         availableCitationCount: issued.size,
+        sourceCoverage: {
+          returnedChars: covered.reduce((n, [start, end]) => n + end - start, 0),
+          totalChars: host.source.markdown.length,
+          complete:
+            covered.length === 1 &&
+            covered[0]![0] === 0 &&
+            covered[0]![1] === host.source.markdown.length,
+          semanticCompleteness: 'not-inferred',
+        },
         recentCitations: [...issued.values()]
           .slice(-12)
           .map(({ citationId, start, end }) => ({ citationId, start, end })),
@@ -110,7 +127,44 @@ export function createProductPath(host: {
                 : 'Locate and read the relevant original text with product_source_read/search before extracting a path; section titles alone are not requirements.',
       },
     }
-    return { ...state, stage: productStage(state) }
+    const stage = productStage(state)
+    const bindings = events.filter(
+      (e) => e.type === 'product:bound' && e.payload.step === stage.step,
+    )
+    const binding = bindings.length === 1 ? bindings[0] : undefined
+    const target = scope.snapshot().items.find((i) => i.itemId === binding?.payload.itemId)
+    const step = report.plan?.steps[stage.step ?? -1]
+    const effects =
+      target?.checks?.effects.filter(
+        (e) =>
+          e.sourceKind === 'product-source' &&
+          e.sourceId === `${host.source.sourceId}:step:${stage.step}` &&
+          e.actionContract.type === step?.action &&
+          e.actionContract.value === step?.value &&
+          e.predicate.selector === binding?.payload.resultSelector &&
+          e.predicate.condition === step?.expectation?.condition &&
+          e.predicate.expected === step?.expectation?.expected,
+      ) ?? []
+    const nextAction =
+      stage.phase === 'act-bound-step' &&
+      binding &&
+      host.clean() &&
+      target?.selected &&
+      target.status === 'pending' &&
+      target.checks?.sourceReview.state === 'sealed' &&
+      !target.checks.generic.actionId &&
+      effects.length === 1
+        ? {
+            tool: 'page_act' as const,
+            args: {
+              type: step!.action,
+              ref: String(binding.payload.ref),
+              ...(step!.value === undefined ? {} : { value: step!.value }),
+              requirementId: effects[0]!.requirementId,
+            },
+          }
+        : undefined
+    return { ...state, stage, nextAction }
   }
   async function authorizeTool(tool: string) {
     const { stage } = await status()
@@ -399,8 +453,13 @@ export function createProductPath(host: {
                 ],
                 true,
               )
+            // Materialize the original source-owned effect before asking the model to act.
+            // prepare() still samples and revalidates it again immediately before dispatch.
+            await host.reviewBinding?.(target.itemId, selector)
+            host.guard()
             host.progress('bound:' + i.step)
             return {
+              nextAction: (await status()).nextAction,
               bound: true,
               step: i.step,
               itemId: target.itemId,

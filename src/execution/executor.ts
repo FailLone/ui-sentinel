@@ -2262,6 +2262,10 @@ async function executeProfiledRun(
         guard,
         events: () => getEvents(runId),
         clean: () => integrity.epoch() === 0,
+        reviewBinding: async (itemId, selector) => {
+          if (!checkRuntime) throw Error('product-check-runtime-required')
+          await checkRuntime.reviewBinding(itemId, selector)
+        },
         emit: async (type, payload, refs = []) =>
           appendEvent(
             runId,
@@ -5233,6 +5237,30 @@ async function executeProfiledRun(
         }
       }
       if (await closeCoveredUiScope()) break
+      // Spend the existing bounded guidance before closure, without a scheduling extension.
+      if (
+        productPath &&
+        noToolStreak >= 1 &&
+        noToolStreak < 3 &&
+        !guidanceExhausted &&
+        phaseTracker.phase !== 'finalizing' &&
+        !phaseTracker.shouldFinalize({
+          elapsedMs: Date.now() - startedAt,
+          modelCallsUsed: usage.modelCalls,
+          noProgressStreak: noToolStreak,
+        }).should
+      ) {
+        remainingObligationGuidance = remainingGuidance.take(
+          [],
+          (await productPath.status()).registration,
+        )
+        if (remainingObligationGuidance)
+          await appendEvent(
+            runId,
+            'execution:remaining-obligation-guidance',
+            remainingObligationGuidance,
+          )
+      }
       if (uiScan && inspection && noToolStreak >= 3) {
         if (!uiRecoveryUsed) {
           uiRecoveryUsed = true
@@ -5315,7 +5343,8 @@ async function executeProfiledRun(
       const finCheck = phaseTracker.shouldFinalize({
         elapsedMs: Date.now() - startedAt,
         modelCallsUsed: usage.modelCalls,
-        noProgressStreak: remainingObligationGuidance ? 0 : noToolStreak,
+        noProgressStreak:
+          remainingObligationGuidance?.kind === 'remaining-obligations' ? 0 : noToolStreak,
       })
       if (finCheck.should) {
         if (
@@ -5475,6 +5504,7 @@ async function executeProfiledRun(
                 registration: report.registration,
                 execution: report.execution,
                 stage: report.stage,
+                nextAction: report.nextAction,
                 state: report.state,
                 complete: report.complete,
                 title: report.plan?.title,

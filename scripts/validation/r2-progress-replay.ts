@@ -16,7 +16,7 @@ export function progressHarness(input = productSource(), enforceStage = false) {
   const source = freezeProductSource(input),
     events: any[] = [],
     progress = new Set<string>()
-  const target = { itemId: 'original-control', status: 'pending', selected: true }
+  const target: any = { itemId: 'original-control', status: 'pending', selected: true }
   const runtime = createProductPath({
     source,
     progress: (key) => {
@@ -46,6 +46,7 @@ export function progressHarness(input = productSource(), enforceStage = false) {
   )
   return {
     source,
+    target,
     events,
     progress,
     runtime,
@@ -73,7 +74,7 @@ export async function replayProgressFeedback() {
         progressKeys: [...h.progress],
       })
     }
-    assert.equal(h.progress.size, 2) // overview + one covered window, including repeated searches
+    assert.equal(h.progress.size, 2) // overview + original full source coverage, including repeated searches
     rows.push({
       row: id,
       originalContexts: original.contexts.map((c: any) => ({

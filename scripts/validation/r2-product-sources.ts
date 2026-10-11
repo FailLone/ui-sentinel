@@ -18,31 +18,51 @@ import {
 } from './r2-readiness-replay.ts'
 import { continuationReply, continuationRows } from './r2-continuation-replay.ts'
 import { progressReply, progressRow } from './r2-progress-replay.ts'
+const handoffOnly = process.argv.includes('--registration-action-handoff-only')
+const handoffFixture = JSON.parse(
+  await readFile(
+    'evaluation/private/r2-product-acceptance/registration-action-handoff-failures.json',
+    'utf8',
+  ),
+)
+const originalHandoff = (row: string) => handoffFixture.rows.find((r: any) => r.row === row)
+let registrationPrefix = 0
 const retrievalOnly = process.argv.includes('--stage-retrieval-only')
 const stageBoundaryOnly = process.argv.includes('--stage-boundary-only')
 const stageOnly =
-  process.argv.includes('--stage-decisions-only') || stageBoundaryOnly || retrievalOnly
+  process.argv.includes('--stage-decisions-only') ||
+  stageBoundaryOnly ||
+  retrievalOnly ||
+  handoffOnly
 const feedbackOnly = process.argv.includes('--progress-feedback-only') || stageOnly
 const continuationOnly = process.argv.includes('--continuation-only') || feedbackOnly
-const continuationModes = retrievalOnly
-  ? ['feedback-healthy', 'feedback-unavailable-enabled', 'feedback-unknown']
-  : stageBoundaryOnly
-    ? ['feedback-healthy']
-    : feedbackOnly
-      ? [
-          'feedback-healthy',
-          'feedback-defect',
-          'feedback-unavailable-enabled',
-          ...(stageOnly ? ['feedback-unknown'] : []),
-          'dynamic-pending',
-        ]
-      : [
-          'continuation-healthy',
-          'continuation-defect',
-          'continuation-unavailable',
-          'continuation-unavailable-enabled',
-          'dynamic-pending',
-        ]
+const continuationModes = handoffOnly
+  ? [
+      'feedback-healthy',
+      'feedback-defect',
+      'feedback-registration-stall',
+      'feedback-unavailable-enabled',
+      'feedback-unknown',
+    ]
+  : retrievalOnly
+    ? ['feedback-healthy', 'feedback-unavailable-enabled', 'feedback-unknown']
+    : stageBoundaryOnly
+      ? ['feedback-healthy']
+      : feedbackOnly
+        ? [
+            'feedback-healthy',
+            'feedback-defect',
+            'feedback-unavailable-enabled',
+            ...(stageOnly ? ['feedback-unknown'] : []),
+            'dynamic-pending',
+          ]
+        : [
+            'continuation-healthy',
+            'continuation-defect',
+            'continuation-unavailable',
+            'continuation-unavailable-enabled',
+            'dynamic-pending',
+          ]
 const readinessOnly = process.argv.includes('--readiness-only')
 const readinessModes = [
   'readiness-healthy',
@@ -75,23 +95,25 @@ await save('identity.json', {
   dist: await hashTree('dist'),
   validationScripts: await hashTree('scripts/validation'),
   fixtures: await hashTree('evaluation/fixtures/r2-product-acceptance'),
-  mode: retrievalOnly
-    ? 'stage-retrieval-only'
-    : stageBoundaryOnly
-      ? 'stage-boundary-only'
-      : stageOnly
-        ? 'stage-decisions-only'
-        : feedbackOnly
-          ? 'progress-feedback-only'
-          : continuationOnly
-            ? 'continuation-only'
-            : readinessOnly
-              ? 'readiness-only'
-              : citationsOnly
-                ? 'citations-only'
-                : dynamicOnly
-                  ? 'dynamic-only'
-                  : 'all',
+  mode: handoffOnly
+    ? 'registration-action-handoff-only'
+    : retrievalOnly
+      ? 'stage-retrieval-only'
+      : stageBoundaryOnly
+        ? 'stage-boundary-only'
+        : stageOnly
+          ? 'stage-decisions-only'
+          : feedbackOnly
+            ? 'progress-feedback-only'
+            : continuationOnly
+              ? 'continuation-only'
+              : readinessOnly
+                ? 'readiness-only'
+                : citationsOnly
+                  ? 'citations-only'
+                  : dynamicOnly
+                    ? 'dynamic-only'
+                    : 'all',
 })
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 async function listen(s: ReturnType<typeof createServer>) {
@@ -116,9 +138,11 @@ const fixture = createServer((req, res) => {
     const html = documentFor(
       mode.includes('unavailable')
         ? 'unavailable'
-        : mode === 'feedback-unknown'
-          ? 'defect'
-          : (mode.slice(9) as Variant),
+        : mode === 'feedback-registration-stall'
+          ? 'healthy'
+          : mode === 'feedback-unknown'
+            ? 'defect'
+            : (mode.slice(9) as Variant),
     )
     res.end(mode.includes('unavailable') ? html.replace(' disabled', '') : html)
     return
@@ -259,7 +283,15 @@ const model = createServer(async (req, res) => {
         ? 'unverified-scope'
         : 'scope-covered',
     }
-  if (mode.startsWith('feedback-')) {
+  if (mode === 'feedback-registration-stall') {
+    const original = originalHandoff('R1').receipts.filter((r: any) => r.requestSeq === turn + 1)
+    assert.ok(original.length, 'R1 replay must close within its original six decisions')
+    name = original[0].toolName
+    args = original[0].originalArguments
+    additionalCalls.push(
+      ...original.slice(1).map((r: any) => ({ name: r.toolName, args: r.originalArguments })),
+    )
+  } else if (mode.startsWith('feedback-')) {
     // Reuse the exact DOM receipt already returned to this scripted operator.
     const prior = calls
       .filter((c) => c.packet.latestToolResults?.tools?.some((t: any) => t.tool === 'page_inspect'))
@@ -473,6 +505,58 @@ const model = createServer(async (req, res) => {
   if ((stageBoundaryOnly || retrievalOnly) && mode === 'feedback-healthy' && [0, 1].includes(turn))
     additionalCalls.push({ name: 'product_source_read', args: { offset: 0 } })
   let receiptSubturn = false
+  if (handoffOnly && mode === 'feedback-healthy' && turn === 1 && registrationPrefix === 0) {
+    // R1 had the complete text before these four exact searches; then explicitly decide.
+    const originals = originalHandoff('R1').receipts.filter((r: any) => r.requestSeq === 3)
+    name = originals[0].toolName
+    args = originals[0].originalArguments
+    additionalCalls.push(
+      ...originals.slice(1).map((r: any) => ({ name: r.toolName, args: r.originalArguments })),
+    )
+    registrationPrefix++
+    receiptSubturn = true
+  } else if (handoffOnly && mode === 'feedback-healthy' && turn === 1) {
+    assert.equal(packet.remainingObligationGuidance?.kind, 'product-registration')
+    assert.equal(packet.remainingObligationGuidance.sourceCoverage.complete, true)
+  }
+  if (
+    handoffOnly &&
+    ['feedback-healthy', 'feedback-defect', 'feedback-unknown'].includes(mode) &&
+    [5, 8].includes(turn)
+  ) {
+    const next = packet.productPath.nextAction
+    assert.equal(next?.tool, 'page_act')
+    assert.ok(next.args.requirementId.startsWith('requirement:'))
+    assert.notEqual(
+      next.args.requirementId,
+      packet.productPath.steps[packet.productPath.stage.step].itemId,
+    )
+    assert.equal(
+      next.args.requirementId,
+      packet.productPath.steps[packet.productPath.stage.step].requirementId,
+    )
+    const bindReceipt = packet.latestToolResults.tools.find(
+      (t: any) => t.tool === 'product_path_bind',
+    )
+    assert.deepEqual(bindReceipt.nextAction, next)
+    if (mode === 'feedback-unknown') {
+      name = next.tool
+      args = next.args
+    } else {
+      const originals = originalHandoff(mode === 'feedback-defect' ? 'R5' : 'R6').errors.filter(
+        (e: any) => e.stage.step === (turn === 5 ? 0 : 1),
+      )
+      assert.ok(originals.length)
+      const negatives = originals.map((e: any) => ({
+        name: 'page_act',
+        args: { ...e.input, ref: next.args.ref },
+      }))
+      name = negatives[0].name
+      args = negatives[0].args
+      additionalCalls.push(...negatives.slice(1), { name: next.tool, args: next.args })
+    }
+  }
+
   if (retrievalOnly && mode === 'feedback-unknown' && turn === 9 && !originalReceiptRead) {
     const receipt = packet.latestToolResults.tools.find((t: any) => t.tool === 'page_act')
     assert.ok(receipt.resultRef)
@@ -619,6 +703,7 @@ try {
     ...(citationsOnly || readinessOnly || continuationOnly ? [] : dynamicModes),
   ]) {
     setup(m)
+    registrationPrefix = 0
     if (m === 'healthy') {
       await page.goto(base)
       await page.getByLabel('网址 UI 检查（匿名、有界，不需要业务适配器）').check()
@@ -698,6 +783,45 @@ try {
         assert.ok(receipt.chunk.length > 0)
         assert.ok(receipt.nextOffset > 0)
       }
+    }
+    if (handoffOnly && ['feedback-healthy', 'feedback-registration-stall'].includes(m)) {
+      const guidance = events.filter(
+        (e) =>
+          e.type === 'execution:remaining-obligation-guidance' &&
+          e.payload.kind === 'product-registration',
+      )
+      assert.equal(guidance.length, 1)
+      assert.ok(
+        calls.some((c) => c.packet.remainingObligationGuidance?.kind === 'product-registration'),
+      )
+      if (m === 'feedback-registration-stall') {
+        assert.equal(state, 'unverified')
+        assert.equal(r.uiScan.inspection.coverage, 'partial')
+        assert.equal(
+          events.filter((e) => e.type === 'product:planned' || e.type === 'action:executing')
+            .length,
+          0,
+        )
+        const closure = events.find((e) => e.type === 'run:no-progress')
+        assert.equal(closure.payload.streak, 3)
+        assert.ok(guidance[0].seq < closure.seq)
+        assert.ok(calls.length <= 6)
+        continue
+      }
+    }
+    if (handoffOnly && ['feedback-healthy', 'feedback-defect'].includes(m)) {
+      const bad = events.filter(
+        (e) =>
+          e.type === 'tool:finished' &&
+          JSON.stringify(e.payload).includes('v2-requirement-not-owned'),
+      )
+      assert.equal(bad.length, m === 'feedback-healthy' ? 2 : 3)
+      await save(m + '-handoff-comparison.json', {
+        original: originalHandoff(m === 'feedback-healthy' ? 'R6' : 'R5').errors,
+        replayed: calls.filter((c) => c.name === 'page_act'),
+        rejected: bad,
+        note: 'Original wrong requirementIds retained verbatim; only the observed ref is rebound to this isolated run. Valid calls copy program args. Fixed author responses do not prove live model adoption.',
+      })
     }
     if (m.startsWith('feedback-')) {
       const unavailable = m.includes('unavailable')
@@ -1007,7 +1131,7 @@ try {
     db.close()
   }
   const oldReports = []
-  if ((readinessOnly || continuationOnly) && !stageBoundaryOnly && !retrievalOnly) {
+  if ((readinessOnly || continuationOnly) && !stageBoundaryOnly && !retrievalOnly && !handoffOnly) {
     child.kill('SIGTERM')
     await new Promise((r) => child.once('exit', r))
     const requestCount = calls.length
@@ -1060,6 +1184,7 @@ try {
     continuationReplay: continuationOnly && !feedbackOnly,
     progressFeedbackReplay: feedbackOnly,
     stageDecisions: stageOnly,
+    registrationActionHandoff: handoffOnly,
     directStageRetrieval: retrievalOnly,
     sameResponseStageBoundary: stageBoundaryOnly,
     historicalReports: oldReports,

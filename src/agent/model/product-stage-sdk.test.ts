@@ -121,7 +121,11 @@ it('actual SDK retrieves truncated source directly, preserves legal same-respons
     if (i < 3) expect((await h.runtime.status()).plan).toBeUndefined()
   }
   expect((await h.runtime.status()).stage.phase).toBe('bind-next-step')
-  expect([...h.progress].sort()).toEqual(['plan-frozen', 'source-page:0', 'source-page:1'])
+  expect([...h.progress].sort()).toEqual([
+    'plan-frozen',
+    'source-coverage:4000',
+    `source-coverage:${h.source.markdown.length}`,
+  ])
   expect(h.events.some((e) => e.type === 'action:executing')).toBe(false)
   const dest = process.env.R2_STAGE_RETRIEVAL_EVIDENCE_DIR
   if (dest)

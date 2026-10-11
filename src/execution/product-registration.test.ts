@@ -96,19 +96,23 @@ describe('registration repair and bounded source progress', () => {
     )
     expect(h.save).not.toHaveBeenCalled()
   })
-  it('counts newly located source windows, never refreshed keywords or missing results', async () => {
+  it('counts exact new coverage within a window without counting repeated keywords or misses', async () => {
     const h = harness()
-    await h.call('product_source_search', { keyword: '预览', offset: 0 })
-    expect([...h.progress]).toEqual(['source-page:0'])
-    await h.call('product_source_search', { keyword: '详情', offset: 0 })
+    await h.call('product_source_search', { quote: '预览', offset: 0 })
+    const partial = (await h.runtime.status()).registration.sourceCoverage
+    expect(partial.returnedChars).toBeLessThan(partial.totalChars)
+    const before = [...h.progress]
+    await h.call('product_source_search', { quote: '预览', offset: 0 })
+    expect([...h.progress]).toEqual(before)
     await h.call('product_source_read', { offset: 0 })
+    const complete = (await h.runtime.status()).registration.sourceCoverage
+    expect(complete.complete).toBe(true)
+    expect(complete.semanticCompleteness).toBe('not-inferred')
+    expect(h.progress.size).toBeGreaterThan(before.length)
+    const after = [...h.progress]
     await h.draft()
-    expect(h.progress.size).toBe(1)
-    expect(
-      await h.call('product_source_search', { keyword: '预览', quote: '预览', offset: 0 }),
-    ).toHaveProperty('error')
     await h.call('product_source_search', { quote: 'not in source', offset: 0 })
-    expect(h.progress.size).toBe(1)
+    expect([...h.progress]).toEqual(after)
   })
 })
 

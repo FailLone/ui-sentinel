@@ -193,6 +193,7 @@ export function extractToolSummary(item: Record<string, unknown>): ToolSummary {
         'frozen',
         'diagnostics',
         'bound',
+        'nextAction',
         'step',
         'itemId',
         'expectation',

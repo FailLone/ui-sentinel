@@ -18,7 +18,10 @@ describe('original trace feedback through actual SDK tools', () => {
       expect(status.registration.nextAction).toContain('specific missing')
       expect(status.plan).toBeUndefined()
       expect(status.complete).toBe(false)
-      expect([...h.progress].sort()).toEqual(['overview', 'source-page:0'])
+      expect([...h.progress].sort()).toEqual([
+        'overview',
+        `source-coverage:${h.source.markdown.length}`,
+      ])
       // The existing supported R2 draft is an author-selected compatibility control, not inferred by product.
       const registered = await h.call(
         'product_path_register',

@@ -26,3 +26,21 @@ it('offers one decision turn for existing obligations, never manufactures progre
     g.take([{ itemId: 'original', ref: 'e4', category: 'local-interaction', description: 'Open' }]),
   ).toBeUndefined()
 })
+
+it('shares the one reminder with registration and never promises semantic completeness', () => {
+  const g = createRemainingObligationGuidance()
+  const sourceCoverage = {
+    returnedChars: 20,
+    totalChars: 100,
+    complete: false,
+    semanticCompleteness: 'not-inferred',
+  }
+  expect(g.take([], { phase: 'need-source', sourceCoverage })).toBeUndefined()
+  const reminder = g.take([], { phase: 'source-located', sourceCoverage })
+  expect(reminder).toMatchObject({ kind: 'product-registration', sourceCoverage })
+  expect(reminder?.instruction).toContain('specific remaining requirement')
+  expect(g.take([], { phase: 'repair-needed', sourceCoverage })).toBeUndefined()
+  expect(
+    g.take([{ itemId: 'original', ref: 'e1', category: 'local-interaction', description: 'Open' }]),
+  ).toBeUndefined()
+})
