@@ -1,0 +1,82 @@
+{
+  "baseCommit": "60e39fa",
+  "implementationCommit": "f4d655508d8bff24b7a20e1a1f971423b00fb4fd",
+  "branch": "codex/r2-stage-retrieval",
+  "sourceHash": "999f8ec7cc419afef0ac8f566a506c89bebbbd806d0dbaac69e1d8abcfebd3db",
+  "distHash": "6cf7c882cd9cda1ce3f7b791d172b856c11ef09918f975868c8c7d4c1785a065",
+  "browserRoot": "data/r2-product-sources/2026-10-11T13-15-56-942Z",
+  "identityNote": "Browser started on baseline with these edits; exact source/build hashes identify the implementation, not a paid freeze.",
+  "paidCalls": 0,
+  "distinctTests": 67,
+  "testFiles": 6,
+  "status": "free-validation-passed",
+  "entry": "Use the original read-only tool directly from stage.readOnlyTools / activeTools. No product_path_gap tool remains.",
+  "flowComparison": "data/r2-product-acceptance/stage-retrieval-free-20261011/flow-comparison.json",
+  "tests": "data/r2-product-acceptance/stage-retrieval-free-20261011/tests-attempt-2.log",
+  "build": "data/r2-product-acceptance/stage-retrieval-free-20261011/build-attempt-1.log",
+  "format": "data/r2-product-acceptance/stage-retrieval-free-20261011/format.log",
+  "failurePreserved": {
+    "file": "data/r2-product-acceptance/stage-retrieval-free-20261011/tests-attempt-1.log",
+    "finding": "Oversized source receipt lost nextOffset during compression. Fixed by retaining only existing cursor fields with omitted=true; no budget increase."
+  },
+  "browserResults": [
+    {
+      "mode": "feedback-healthy",
+      "runId": "run-46167b6e-5b8f-4237-b484-da72639645f1",
+      "status": "completed",
+      "coverage": "covered",
+      "state": "verified",
+      "actions": 2
+    },
+    {
+      "mode": "feedback-unavailable-enabled",
+      "runId": "run-48f55915-1ea8-43f4-a35b-7b9263f67418",
+      "status": "blocked",
+      "coverage": "partial",
+      "state": "unverified",
+      "actions": 0
+    },
+    {
+      "mode": "feedback-unknown",
+      "runId": "run-20390004-a3e5-44e1-9513-1bb484f3f5b6",
+      "status": "blocked",
+      "coverage": "partial",
+      "state": "unverified",
+      "actions": 2
+    }
+  ],
+  "newReportsRecovered": 3,
+  "reusedEvidence": "data/r2-product-acceptance/stage-retrieval-free-20261011/reused-evidence.json",
+  "evidenceIndex": "data/r2-product-acceptance/stage-retrieval-free-20261011/evidence-index.json",
+  "evidenceFiles": 200,
+  "evidenceIndexSha256": "ede52f7a4865493fc7c9e21510efac2b8aa21a73ea29676f9632651865b64c90",
+  "candidateConclusion": "Engineering-ready for review/freezing against the unchanged original six tasks, not a real-model success claim or paid authorization.",
+  "possibleRealScope": {
+    "tasks": 6,
+    "pageFamily": [
+      "healthy",
+      "defect",
+      "unavailable"
+    ],
+    "rowsUnchanged": true,
+    "criteria": [
+      "read",
+      "source-grounded registration",
+      "execute or grounded abstain",
+      "honest scope",
+      "recover"
+    ],
+    "modelAndProvider": "unchanged DeepSeek V4.1 Flash / Wafer",
+    "perRunLimits": "20 requests / 8 actions / 180s; model request 60s, tool 15s",
+    "batchLimits": "120 requests / 25min / USD7.56; existing hard stops and no retry",
+    "authorization": "not granted by this free task; no new paid manifest/claim and no old batch resume"
+  },
+  "historicResult": "Fifth paid batch remains 1/6. Unknown fees retained, reconciliation deferred per user; no further billing investigation.",
+  "limitations": [
+    "Direct source reads may still be repeated; unchanged no-progress limits apply.",
+    "Model still chooses relevant passages, completeness of prerequisites, grounded plan and observed nodes.",
+    "Fixed replies do not establish causal stall diagnosis or real-model latency/success gains."
+  ],
+  "noPushOrMerge": true,
+  "roadmapUnchanged": true
+}
