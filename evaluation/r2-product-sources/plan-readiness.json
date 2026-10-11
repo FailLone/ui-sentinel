@@ -1,0 +1,321 @@
+{
+  "schema": "r2-plan-readiness-free-1",
+  "date": "2026-10-11",
+  "branch": "codex/r2-plan-readiness",
+  "implementationCommit": "ddbc8e2e7ff07e0fe0caa7d58cf21fb87ec4518b",
+  "baseCommit": "92cd3cffc9b4b2f8201323a5924f52885bd2a0bb",
+  "skillRevision": "product-path-4",
+  "paidCalls": 0,
+  "approvalCreated": false,
+  "reviewer": "Implementing Agent; self-review, not independent human/real-model acceptance.",
+  "scope": "Pre-freeze executable readiness diagnostics, explicit source review, substring overlap feedback, and refusing actions on a target with a measured failed prerequisite. No change to budgets, model, safety/URL/cancellation/DNS/Jev or completion thresholds.",
+  "validation": {
+    "commands": [
+      {
+        "command": "pnpm build",
+        "result": "passed including typecheck"
+      },
+      {
+        "command": "pnpm exec vitest run src/execution/product-registration.test.ts src/inspection/product-readiness.test.ts src/inspection/product-citations.test.ts src/inspection/product-artifacts.test.ts src/inspection/completion.test.ts src/agent/context/compact-history.test.ts",
+        "files": 6,
+        "tests": 55,
+        "result": "passed"
+      },
+      {
+        "command": "pnpm exec tsx scripts/validation/r2-product-sources.ts --readiness-only",
+        "result": "passed, five targeted cases; no full/old nine-case matrix"
+      },
+      {
+        "command": "biome format on 12 changed TS files; git diff --check",
+        "result": "passed"
+      }
+    ],
+    "environment": {
+      "node": "24.21.0",
+      "dotenv": "/dev/null",
+      "provider": "fixed-local loopback",
+      "browser": "real Chromium",
+      "server": "normal compiled HTTP API; original executor"
+    },
+    "browserDirectory": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-sources/2026-10-11T02-44-23-491Z",
+    "recordedBaseCommit": "92cd3cffc9b4b2f8201323a5924f52885bd2a0bb",
+    "executedFromWorkingTree": true,
+    "sourceFilesMatchedAgainstImplementationCommit": 447,
+    "sourceHash": "778a26a23b98b4a16a6da737eace1444b602ac06d5e3d2539bc6600da30581c3",
+    "buildHash": "4fd34438022c7ab11706f87ea8b030b208dd14485c8441650a68c07fc539c7db",
+    "runnerHash": "1c7a2aadfb8a6207555b8965b9d20e2a3be53c74520e4fdcb347efcbe0642e28",
+    "publicFixtureHash": "96aa032356347a839ca30062017673a24f09b0b7420f1635fda8d995495f7d9e",
+    "regressionInputs": [
+      {
+        "path": "evaluation/private/r2-product-acceptance/readiness-failures.json",
+        "sha256": "e47471814a534d70ecaa016994e7d6acc838088d92aea93576096ea3512556b6"
+      },
+      {
+        "path": "evaluation/private/r2-product-acceptance/r4-registration-draft.json",
+        "sha256": "9de85e6fe0e53e96b48188c03bef179f242e4e0c5dc937098c34b562e598ae31"
+      }
+    ],
+    "results": [
+      {
+        "mode": "readiness-healthy",
+        "runId": "run-3ac8d8e4-84f6-4526-9b39-e1237426e5da",
+        "status": "completed",
+        "coverage": "covered",
+        "state": "verified",
+        "actions": 2
+      },
+      {
+        "mode": "readiness-defect",
+        "runId": "run-d244f22a-3e70-4102-9709-d5294b91a8e9",
+        "status": "completed",
+        "coverage": "covered",
+        "state": "failed",
+        "actions": 2
+      },
+      {
+        "mode": "readiness-unavailable",
+        "runId": "run-dc134702-badb-4637-9960-25355c7191bf",
+        "status": "blocked",
+        "coverage": "partial",
+        "state": "unverified",
+        "actions": 0
+      },
+      {
+        "mode": "readiness-unavailable-enabled",
+        "runId": "run-2f5a30ed-8aad-433a-8b71-5242b431a053",
+        "status": "blocked",
+        "coverage": "partial",
+        "state": "unverified",
+        "actions": 0
+      },
+      {
+        "mode": "dynamic-pending",
+        "runId": "run-ea56252c-89d8-412c-a991-8a4494eecb17",
+        "status": "blocked",
+        "coverage": "partial",
+        "state": "verified",
+        "actions": 2
+      }
+    ],
+    "newFullReportsEqualAfterRestart": 5,
+    "historicalReports": [
+      {
+        "row": "R2",
+        "runId": "run-bdecd4cf-9744-4014-b4ac-52e6c585dfcb",
+        "fullJsonEqual": true
+      },
+      {
+        "row": "R4",
+        "runId": "run-d499207d-7f7a-4760-8eb5-acf12a4e9298",
+        "fullJsonEqual": true
+      },
+      {
+        "row": "R5",
+        "runId": "run-71af4808-bbfe-4f7a-8f11-931123133442",
+        "fullJsonEqual": true
+      },
+      {
+        "row": "R6",
+        "runId": "run-e4cfcec9-26be-4ef6-a4d2-bcb90c2ed072",
+        "fullJsonEqual": true
+      }
+    ],
+    "historicalRecoveryUsedCopies": true,
+    "historicalRecoveryModelCalls": 0,
+    "admissionCorruptionRejected": true,
+    "newArtifactFilesVerified": 251,
+    "historicalOriginalArtifactsVerified": 67
+  },
+  "realFailureReplay": {
+    "rawInputsUnchanged": true,
+    "sourceBatch": "real-citations-authorized-20261011",
+    "rows": [
+      {
+        "row": "R2",
+        "requestId": "9d91da63addce1e9bc590094",
+        "blockingDiagnostics": [
+          {
+            "field": "assumptions[0]",
+            "reason": "product-unresolved-assumption",
+            "nextAction": "Do not merely delete this assumption. Reclassify a source-explicit rule as a cited requirement, or an observable current-state condition as a cited measurable precondition checked by bind. If unsupported or not measurable, keep it unverified and run_finish(unverified-scope); do not invent a plan."
+          },
+          {
+            "field": "steps[0].preconditions[1].expectation.condition",
+            "reason": "product-substring-overlap-needs-review",
+            "nextAction": "The predicate also accepts these quoted literals. They may describe different contexts; this is not a semantic classifier. For an exact status use text-equals. Keep text-contains only with a source-grounded step review.substringJustification explaining why the alternatives cannot confuse this check.",
+            "alternatives": [
+              "目录可用状态",
+              "暂不可用"
+            ]
+          },
+          {
+            "field": "steps[0].review.preconditionsComplete",
+            "reason": "product-preconditions-review-required",
+            "nextAction": "Reread the original and explicitly review all conditions, including prior-step results. Register each in preconditions with citation and predicate, not in limitation/unchecked. Confirm true only after this review; the program cannot detect every omitted natural-language condition."
+          },
+          {
+            "field": "steps[0].review.predicatesDistinguishStates",
+            "reason": "product-predicate-review-required",
+            "nextAction": "Check effects and prerequisites against alternative source states. Exact status labels normally require equality; substring matching must not accept a failure/unready label. Confirm true only after source review, not from actual page output."
+          },
+          {
+            "field": "steps[1].review.preconditionsComplete",
+            "reason": "product-preconditions-review-required",
+            "nextAction": "Reread the original and explicitly review all conditions, including prior-step results. Register each in preconditions with citation and predicate, not in limitation/unchecked. Confirm true only after this review; the program cannot detect every omitted natural-language condition."
+          },
+          {
+            "field": "steps[1].review.predicatesDistinguishStates",
+            "reason": "product-predicate-review-required",
+            "nextAction": "Check effects and prerequisites against alternative source states. Exact status labels normally require equality; substring matching must not accept a failure/unready label. Confirm true only after source review, not from actual page output."
+          }
+        ],
+        "correctedReadinessDiagnostics": []
+      },
+      {
+        "row": "R4",
+        "requestId": "ab1c358b308636aae80c47df",
+        "blockingDiagnostics": [
+          {
+            "field": "assumptions[0]",
+            "reason": "product-unresolved-assumption",
+            "nextAction": "Do not merely delete this assumption. Reclassify a source-explicit rule as a cited requirement, or an observable current-state condition as a cited measurable precondition checked by bind. If unsupported or not measurable, keep it unverified and run_finish(unverified-scope); do not invent a plan."
+          },
+          {
+            "field": "steps[0].review.preconditionsComplete",
+            "reason": "product-preconditions-review-required",
+            "nextAction": "Reread the original and explicitly review all conditions, including prior-step results. Register each in preconditions with citation and predicate, not in limitation/unchecked. Confirm true only after this review; the program cannot detect every omitted natural-language condition."
+          },
+          {
+            "field": "steps[0].review.predicatesDistinguishStates",
+            "reason": "product-predicate-review-required",
+            "nextAction": "Check effects and prerequisites against alternative source states. Exact status labels normally require equality; substring matching must not accept a failure/unready label. Confirm true only after source review, not from actual page output."
+          },
+          {
+            "field": "steps[1].review.preconditionsComplete",
+            "reason": "product-preconditions-review-required",
+            "nextAction": "Reread the original and explicitly review all conditions, including prior-step results. Register each in preconditions with citation and predicate, not in limitation/unchecked. Confirm true only after this review; the program cannot detect every omitted natural-language condition."
+          },
+          {
+            "field": "steps[1].review.predicatesDistinguishStates",
+            "reason": "product-predicate-review-required",
+            "nextAction": "Check effects and prerequisites against alternative source states. Exact status labels normally require equality; substring matching must not accept a failure/unready label. Confirm true only after source review, not from actual page output."
+          }
+        ],
+        "correctedReadinessDiagnostics": []
+      },
+      {
+        "row": "R5",
+        "requestId": "85df84cfed5156af11fbf0d5",
+        "blockingDiagnostics": [
+          {
+            "field": "assumptions[0]",
+            "reason": "product-unresolved-assumption",
+            "nextAction": "Do not merely delete this assumption. Reclassify a source-explicit rule as a cited requirement, or an observable current-state condition as a cited measurable precondition checked by bind. If unsupported or not measurable, keep it unverified and run_finish(unverified-scope); do not invent a plan."
+          },
+          {
+            "field": "steps[0].preconditions[0].expectation.condition",
+            "reason": "product-substring-overlap-needs-review",
+            "nextAction": "The predicate also accepts these quoted literals. They may describe different contexts; this is not a semantic classifier. For an exact status use text-equals. Keep text-contains only with a source-grounded step review.substringJustification explaining why the alternatives cannot confuse this check.",
+            "alternatives": [
+              "目录可用状态",
+              "暂不可用"
+            ]
+          },
+          {
+            "field": "steps[0].review.preconditionsComplete",
+            "reason": "product-preconditions-review-required",
+            "nextAction": "Reread the original and explicitly review all conditions, including prior-step results. Register each in preconditions with citation and predicate, not in limitation/unchecked. Confirm true only after this review; the program cannot detect every omitted natural-language condition."
+          },
+          {
+            "field": "steps[0].review.predicatesDistinguishStates",
+            "reason": "product-predicate-review-required",
+            "nextAction": "Check effects and prerequisites against alternative source states. Exact status labels normally require equality; substring matching must not accept a failure/unready label. Confirm true only after source review, not from actual page output."
+          },
+          {
+            "field": "steps[1].review.preconditionsComplete",
+            "reason": "product-preconditions-review-required",
+            "nextAction": "Reread the original and explicitly review all conditions, including prior-step results. Register each in preconditions with citation and predicate, not in limitation/unchecked. Confirm true only after this review; the program cannot detect every omitted natural-language condition."
+          },
+          {
+            "field": "steps[1].review.predicatesDistinguishStates",
+            "reason": "product-predicate-review-required",
+            "nextAction": "Check effects and prerequisites against alternative source states. Exact status labels normally require equality; substring matching must not accept a failure/unready label. Confirm true only after source review, not from actual page output."
+          }
+        ],
+        "correctedReadinessDiagnostics": []
+      },
+      {
+        "row": "R6",
+        "requestId": "4a3f58f1512acd613aea1ec9",
+        "blockingDiagnostics": [
+          {
+            "field": "assumptions[0]",
+            "reason": "product-unresolved-assumption",
+            "nextAction": "Do not merely delete this assumption. Reclassify a source-explicit rule as a cited requirement, or an observable current-state condition as a cited measurable precondition checked by bind. If unsupported or not measurable, keep it unverified and run_finish(unverified-scope); do not invent a plan."
+          },
+          {
+            "field": "steps[0].review.preconditionsComplete",
+            "reason": "product-preconditions-review-required",
+            "nextAction": "Reread the original and explicitly review all conditions, including prior-step results. Register each in preconditions with citation and predicate, not in limitation/unchecked. Confirm true only after this review; the program cannot detect every omitted natural-language condition."
+          },
+          {
+            "field": "steps[0].review.predicatesDistinguishStates",
+            "reason": "product-predicate-review-required",
+            "nextAction": "Check effects and prerequisites against alternative source states. Exact status labels normally require equality; substring matching must not accept a failure/unready label. Confirm true only after source review, not from actual page output."
+          },
+          {
+            "field": "steps[1].review.preconditionsComplete",
+            "reason": "product-preconditions-review-required",
+            "nextAction": "Reread the original and explicitly review all conditions, including prior-step results. Register each in preconditions with citation and predicate, not in limitation/unchecked. Confirm true only after this review; the program cannot detect every omitted natural-language condition."
+          },
+          {
+            "field": "steps[1].review.predicatesDistinguishStates",
+            "reason": "product-predicate-review-required",
+            "nextAction": "Check effects and prerequisites against alternative source states. Exact status labels normally require equality; substring matching must not accept a failure/unready label. Confirm true only after source review, not from actual page output."
+          }
+        ],
+        "correctedReadinessDiagnostics": []
+      }
+    ],
+    "replayFile": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/readiness-free-20261011/replay.json",
+    "replayFileSha256": "6fda58c61c78a6b11f40ff7f1ad9c49213c5964520642f4b3a7121c828b2c55d",
+    "normalization": "Only optional null fields omitted as before by SDK; original fixture preserves them.",
+    "correctionAuthority": "Test author after source review, not product auto-repair or real-model behavior.",
+    "correctionContent": "Reconstruct source-cited availability and prior-preview prerequisites; use exact state comparisons; retain source-explicit effects and separate result bindings; complete step review. R5 details prerequisite explicitly added. Merely deleting assumptions is rejected.",
+    "semanticWarning": "The program cannot prove missing prerequisites or a review assertion/substring justification correct; an explicitly tested false review can conceal an omitted natural-language condition. Corrected free fixtures do not prove real-model self-correction."
+  },
+  "evidenceIndex": {
+    "path": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/readiness-free-20261011/evidence-index.json",
+    "sha256": "d70ac725ba5995736f55115ce9fb4c9195260059bf86c4522400e18a32f84e07",
+    "files": 361
+  },
+  "preservedFailures": [
+    {
+      "path": "data/r2-product-acceptance/readiness-development-20261011.json",
+      "description": "One edit syntax error rejected by format/typecheck before browser validation; corrected. No old result overwritten."
+    }
+  ],
+  "historyPreserved": {
+    "firstRealAccepted": "0/6",
+    "secondRealAccepted": "0/6",
+    "firstRealKnownUsd": 0.0567585,
+    "secondRealKnownUsd": 0.07266395,
+    "earlierUnknownUsd": 0.116,
+    "previousEvidenceFilesUnchanged": 270,
+    "v3PlansReinterpreted": false
+  },
+  "remainingLimits": [
+    "Natural-language completeness and predicate meaning are not proved by readiness checks.",
+    "Literal collision scan only covers straight/Chinese double-quoted source text; different contexts may need legitimate contains and reviewed justification.",
+    "Registration review declarations are model assertions, never measurement evidence.",
+    "Real-model classification/retry behavior and reading efficiency untested; historical R6 output exhaustion unresolved.",
+    "At most three invalid attempts and unchanged no-progress limits; no extra repair turns guaranteed.",
+    "Frozen plans cannot be changed; source revisions require a new run."
+  ],
+  "nextRealProposal": {
+    "status": "proposal only, no approval/dispatch",
+    "matrix": "same MD, three page variants, original six rows",
+    "configuration": "same model/provider/reasoning/output/request/action/time limits; separate fresh freeze and explicit authorization required"
+  },
+  "notPushedOrMerged": true
+}
