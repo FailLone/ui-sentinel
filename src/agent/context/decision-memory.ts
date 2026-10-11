@@ -1,3 +1,5 @@
+import { recoveredSourceFragment } from './product-recovery.ts'
+import type { ProductSource } from '../../inspection/product-source.ts'
 import { extractToolSummary, type HistoryEntry } from './compact-history.ts'
 
 export const MEMORY_BUDGET_BYTES = 8000
@@ -139,7 +141,25 @@ export function historyPage(history: readonly HistoryEntry[], start: number, cou
   })
   return { total: history.length, start, nextStart: end < history.length ? end : null, entries }
 }
-export function readToolResult(history: readonly HistoryEntry[], ref: string, offset = 0) {
+type ToolResultPage = {
+  resultRef: string
+  evidenceBearing: boolean
+  offset: number
+  totalChars: number
+  chunk: string
+  sourceRecovery?: ReturnType<typeof recoveredSourceFragment>
+  nextOffset: number | null
+  format: string
+  error?: undefined
+}
+export function readToolResult(
+  history: readonly HistoryEntry[],
+  ref: string,
+  offset = 0,
+  source?: ProductSource,
+):
+  | ToolResultPage
+  | ({ error: string } & Partial<Record<keyof Omit<ToolResultPage, 'error'>, never>>) {
   const match = /^(\d+)\.(\d+)$/.exec(ref)
   if (!match) return { error: 'Invalid resultRef' }
   const entry = history[Number(match[1])]
@@ -170,6 +190,7 @@ export function readToolResult(history: readonly HistoryEntry[], ref: string, of
     offset,
     totalChars: raw.length,
     chunk,
+    ...(source ? { sourceRecovery: recoveredSourceFragment(source, item, raw, offset, next) } : {}),
     nextOffset: next < raw.length ? next : null,
     format: 'JSON fragment; follow nextOffset to read the remaining data',
   }

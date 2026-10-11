@@ -164,6 +164,13 @@ export function extractToolSummary(item: Record<string, unknown>): ToolSummary {
       summary.elements = result.elements
     copy((result as Record<string, unknown> | null)?.observation)
     copy(result)
+    if (
+      toolName === 'tool_result_read' &&
+      result &&
+      typeof result === 'object' &&
+      'sourceRecovery' in result
+    )
+      summary.sourceRecovery = (result as Record<string, unknown>).sourceRecovery
     if (toolName.startsWith('product_source_') && result && typeof result === 'object') {
       for (const key of [
         'sourceId',
@@ -195,6 +202,7 @@ export function extractToolSummary(item: Record<string, unknown>): ToolSummary {
         'execution',
         'frozen',
         'diagnostics',
+        'repairContext',
         'bound',
         'nextAction',
         'step',

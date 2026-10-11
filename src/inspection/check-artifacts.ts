@@ -87,6 +87,7 @@ export async function defaultCheckArtifactIssues(
             'product-path-8',
             'product-path-9',
             'product-path-10',
+            'product-path-11',
             PRODUCT_SKILL_REVISION,
           ].includes(String(events.find((e) => e.type === 'product:planned')?.payload.revision))
         ) {

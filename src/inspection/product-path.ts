@@ -10,7 +10,7 @@ import { validProductSource, type ProductSource } from './product-source.ts'
 import { projectInspectionScope } from './scope.ts'
 import type { RunEvent } from '../shared/types.ts'
 
-export const PRODUCT_SKILL_REVISION = 'product-path-11'
+export const PRODUCT_SKILL_REVISION = 'product-path-12'
 const citation = z
   .object({
     start: z.number().int().min(0),
@@ -264,6 +264,7 @@ export function productPathReport(
       'product-path-8',
       'product-path-9',
       'product-path-10',
+      'product-path-11',
       PRODUCT_SKILL_REVISION,
     ].includes(String(planned?.payload.revision)) &&
     plan

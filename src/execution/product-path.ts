@@ -1,3 +1,4 @@
+import { productRepairContext } from '../inspection/product-repair.ts'
 import { productDecisionInput, type ProductEvidenceQuery } from './product-decision.ts'
 import { productStage, productStageAllows } from '../inspection/product-stage.ts'
 import { checkHash } from '../inspection/check-contract.ts'
@@ -124,6 +125,7 @@ export function createProductPath(host: {
           .slice(-12)
           .map(({ citationId, start, end }) => ({ citationId, start, end })),
         diagnostics: frozen ? [] : (rejected.at(-1)?.payload.diagnostics ?? []),
+        repairContext: frozen ? undefined : rejected.at(-1)?.payload.repairContext,
         readiness: frozen ? 'frozen-see-execution-state' : 'not-yet-approved-for-binding',
         nextAction: frozen
           ? execution.nextAction
@@ -270,11 +272,13 @@ export function createProductPath(host: {
         registration: (await status()).registration,
       }
     const reject = async (diagnostics: ReturnType<typeof registrationDiagnostics>) => {
-      await host.emit('product:registration-rejected', { diagnostics })
+      const repairContext = productRepairContext(host.source, raw, diagnostics, issued)
+      await host.emit('product:registration-rejected', { diagnostics, repairContext })
       return {
         error: 'product-registration-invalid',
         frozen: false,
         diagnostics,
+        repairContext,
         registration: (await status()).registration,
       }
     }

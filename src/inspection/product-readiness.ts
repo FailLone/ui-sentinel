@@ -67,7 +67,7 @@ export function productReadinessDiagnostics(
         add(
           field + '.expectation',
           'product-requirement-unmeasurable',
-          'Provide a source-grounded supported predicate for this requirement before freezing; otherwise finish unverified-scope.',
+          'Use repairContext original requirement and exact source. Supply a supported business predicate, or explicitly classify a source-named action target under targetName structural admission. Do not delete a distinct obligation or turn existence into text equality. Unsupported separate requirements must remain unverified.',
         )
       if (p.expectation?.condition === 'text-contains') {
         const alternatives = literals

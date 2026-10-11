@@ -1,3 +1,4 @@
+import { productRecoveryDelivery } from '../agent/context/product-recovery.ts'
 import { productStageAllows } from '../inspection/product-stage.ts'
 import { createProductPath } from './product-path.ts'
 import { productEffects } from '../inspection/product-path.ts'
@@ -458,6 +459,9 @@ async function executeProfiledRun(
   const findingFacts = new Set<string>()
   const measurementFacts = new Set<string>()
   const productSourceFacts = new Set<string>()
+  const sourceDelivery = uiScan?.productSource
+    ? productRecoveryDelivery(uiScan.productSource)
+    : undefined
   let noToolStreak = 0
   let noProgressDecisions = 0
   const phaseTracker = createPhaseTracker(budget)
@@ -2274,7 +2278,12 @@ async function executeProfiledRun(
         retrieveReceipt: (query) =>
           query.tool === 'history_read'
             ? boundedHistoryPage(history, query.args.start, query.args.count ?? 1)
-            : readToolResult(history, query.args.resultRef, query.args.offset ?? 0),
+            : readToolResult(
+                history,
+                query.args.resultRef,
+                query.args.offset ?? 0,
+                uiScan.productSource,
+              ),
         reserveQuery: (tool) => {
           guard()
           if (++attemptTools > 8) throw Error('product-query-tool-budget-exhausted')
@@ -4458,7 +4467,12 @@ async function executeProfiledRun(
         inputSchema: toolResultReadInput,
         execute: (input) =>
           serial('tool_result_read', async () => {
-            const result = readToolResult(history, input.resultRef, input.offset ?? 0)
+            const result = readToolResult(
+              history,
+              input.resultRef,
+              input.offset ?? 0,
+              uiScan?.productSource,
+            )
             if (
               !('error' in result) &&
               result.chunk &&
@@ -5263,9 +5277,20 @@ async function executeProfiledRun(
         }
       }
       if (await closeCoveredUiScope()) break
+      // At most two delivery opportunities for previously omitted source characters.
+      // Not factual progress: streak is preserved; all original budget reserves still apply.
+      const recoveryStatus = await productPath?.status()
+      const sourceAllowance =
+        recoveryStatus?.stage.decisionRequired &&
+        noToolStreak >= 3 &&
+        phaseTracker.phase !== 'finalizing' &&
+        !sideEffectPending &&
+        integrity.epoch() === 0
+          ? sourceDelivery?.preview(decisionMemory(history))
+          : undefined
       // Source registration now has a required structured decision, not a second reminder.
       // Existing no-progress closure and post-registration guidance retain their budgets.
-      if (uiScan && inspection && noToolStreak >= 3) {
+      if (uiScan && inspection && noToolStreak >= 3 && !sourceAllowance) {
         const registrationPending =
           (await productPath?.status())?.execution.phase === 'registration-required'
         if (!uiRecoveryUsed) {
@@ -5352,7 +5377,9 @@ async function executeProfiledRun(
         elapsedMs: Date.now() - startedAt,
         modelCallsUsed: usage.modelCalls,
         noProgressStreak:
-          remainingObligationGuidance?.kind === 'remaining-obligations' ? 0 : noToolStreak,
+          remainingObligationGuidance?.kind === 'remaining-obligations' || sourceAllowance
+            ? 0
+            : noToolStreak,
       })
       if (finCheck.should) {
         if (
@@ -6016,6 +6043,15 @@ async function executeProfiledRun(
         {
           onStart: async (attempt) => {
             countModel()
+            if (sourceDelivery) {
+              const delivery = sourceDelivery.delivered(agentInput, sourceAllowance)
+              if (sourceAllowance)
+                await appendEvent(runId, 'execution:source-recovery-delivery', {
+                  ...delivery,
+                  allowance: sourceAllowance,
+                  preservedNoProgressStreak: noToolStreak,
+                })
+            }
             attemptProductTools = productStatus ? activeTools : undefined
             productDecisionUsed = false
             attemptTools = 0

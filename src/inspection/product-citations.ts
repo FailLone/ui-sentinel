@@ -1,3 +1,4 @@
+import { TARGET_CONTRACT } from './product-repair.ts'
 import { z } from 'zod'
 import { productStepReview } from './product-readiness.ts'
 import { sourceCitation, type ProductCitation, type ProductSource } from './product-source.ts'
@@ -16,6 +17,7 @@ export const productRegisterInput = productPlanInput.extend({
     .array(
       stepInput.extend({
         citation: citationInput,
+        targetName: stepInput.shape.targetName.describe(TARGET_CONTRACT),
         review: productStepReview
           .optional()
           .describe(
@@ -25,7 +27,7 @@ export const productRegisterInput = productPlanInput.extend({
           .array(stepInput.shape.preconditions.element.extend({ citation: citationInput }))
           .max(5)
           .describe(
-            'All source conditions for this step, with explicit expected values; current state is measured at bind and again before action, not assumed true at registration.',
+            'All source business state conditions with supported expected predicates; measured at bind and before action. Target existence/uniqueness is structural admission via targetName, not a text predicate. Model must justify reclassification from source; separate unsupported conditions cannot be silently dropped.',
           ),
       }),
     )
