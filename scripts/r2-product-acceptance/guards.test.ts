@@ -39,6 +39,26 @@ it('has a conservative quote, refuses changed/absent prices and requires a fresh
   expect(() => authorize(frozen, { ...approval, maxCostUsd: 7.55 }, frozen)).toThrow()
 })
 
+it('accepts the newly authorized input cap while rejecting any higher price', () => {
+  const quote = JSON.parse(
+    readFileSync('evaluation/private/r2-product-acceptance/price-source.json', 'utf8'),
+  )
+  const endpoint = quote.data.endpoints.find(
+    (e: any) => e.provider_name === policy.provider && e.status === 0,
+  )
+  endpoint.pricing.prompt = '0.00000006'
+  endpoint.pricing.completion = '0.0000016'
+  expect(validateQuote(quote)).toBe(endpoint)
+  expect(policy.reserveUsd).toBe(0.063)
+  expect(policy.maxCostUsd).toBe(7.56)
+  expect(policy.maxWireBytes).toBe(131072)
+  endpoint.pricing.prompt = '0.000000060001'
+  expect(() => validateQuote(quote)).toThrow('quote-outside-policy')
+  endpoint.pricing.prompt = '0.00000006'
+  endpoint.pricing.completion = '0.00000160001'
+  expect(() => validateQuote(quote)).toThrow('quote-outside-policy')
+})
+
 for (const outcome of ['known', 'unknown', 'overrun', 'wrong-provider', 'vision'] as const) {
   it(`covers R2 gateway → shared request ledger with ${outcome}`, async () => {
     const dir = await mkdtemp(join(tmpdir(), 'r2-fee-gate-'))

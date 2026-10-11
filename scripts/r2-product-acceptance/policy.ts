@@ -23,7 +23,7 @@ export const policy = {
   maxOutputTokens: 4096,
   maxWireBytes: 131072,
   contextTokens: 1048576,
-  promptPrice: 0.00000005,
+  promptPrice: 0.00000006,
   outputPrice: 0.0000016,
   retries: 0,
   fallback: false,
