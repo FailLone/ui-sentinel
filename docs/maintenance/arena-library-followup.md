@@ -166,3 +166,14 @@ node --import tsx scripts/validation/counterexample-arena/validate.ts
 实际5行，原分母6行，Agent语义审阅1/6：R1完成健康两步，R2登记后停留只读，R3有前置不足只读事实但未登记，R4重复读搜未登记，R5未登记且第6请求约60秒超时，R6由硬停止阻止派发。8效果2 verified、6 unverified；缺陷命中0/2，完整弃权任务0/2，原出口未达。两次bind都没有数量错误，不能宣称新数量诊断被真实采用；R2修正的是element_details refs上限，单独记录。
 
 40请求中39笔已知USD0.040360993，另1笔unknown预留USD0.063、held 0；网关transport-error后保留claim、取消活动行，无重试/补跑。未知不是零费用，旧unknown USD0.116和四批账目均保留。五份完整报告恢复相等，129对附件一致，旧2310项证据核对不变。非独立/人类复核；本期R2未满足原条件，剩余超时/未知费用和推进不稳定需先审阅，本轮不追加整改实验。详见[第五批实验](../experiments/r2-product-acceptance.md#推进反馈候选真实验收2026-10-11已停止并完成agent审阅)和[交付索引](../../evaluation/private/r2-product-acceptance/real-progress-acceptance.json)。main、维护者Roadmap未改，未推送/合并。
+
+
+## R2 阶段调度与未知费用核查（2026-10-11，免费交付）
+
+从第五批054fe95继续，在 `codex/r2-stage-decisions` 实现3bd494b。此前execution只是建议，模型仍可无目标重读。本轮把现有证据派生阶段接入SDK activeTools和串行执行检查：原文→登记/具体缺口→下一步骤绑定→原控件动作→原action只读核验。模型保留来源解释与节点选择；具体缺口可申请一次只读工具尝试，不重置进度/预算。已实测前置为假、失败或未知不变成通过，原完成/完整性/取消门保留。路径通过后仍需默认必需义务。
+
+第五批原R1–R5上下文/回执新增为原始反例；R1成功计划与R2登记后停滞都用于兼容检查。91项定向测试、构建/类型、5个必要浏览器场景及单例同回复串行阶段检查通过；原未知动作只读复测仍未知，第三次点击被拒。5份新报告和旧v6 R2/R6、v7 R1恢复完全相等。沿用原页族，无新增矩阵；两次测试类型构建错误和所有过程证据保留。模型/超时/费用/评分标准不改。
+
+超时请求1ec47d9d1b0888c70901ca4a缺失generation ID，无法调用要求该ID的官方只读账单详情接口；未猜ID或发推理。独立追加核查记录，保留USD0.063未知预留，旧USD0.116及原账本不变。新付费0，真实第五批1/6不改；固定本地回复不作为模型采用证据。
+
+见[实验记录](../experiments/r2-product-acceptance.md#证据驱动阶段调度2026-10-11免费交付)与[532项证据收据](../../evaluation/r2-product-sources/stage-decisions.json)。只准备免费工程审阅，不生成付费manifest/claim，不恢复旧批次；main、维护者Roadmap未改，未推送或合并。
