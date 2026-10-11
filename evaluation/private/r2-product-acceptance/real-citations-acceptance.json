@@ -743,5 +743,12 @@
   "rawMechanicalReviewPendingDoesNotOverrideCompletedAgentReview": true,
   "noCodeOrConfigurationChanges": true,
   "noRebuildOrRepeatedFreeMatrix": true,
-  "newPaidBatchCount": 1
+  "newPaidBatchCount": 1,
+  "followUpBatches": [
+    {
+      "deliveryIndex": "evaluation/private/r2-product-acceptance/real-readiness-acceptance.json",
+      "manifestHash": "a87b62b9178aedbb1225fd008d7084fc7993a453528876b2fb356b1f51dbe55f",
+      "note": "independently authorized third batch; prior review and costs unchanged"
+    }
+  ]
 }

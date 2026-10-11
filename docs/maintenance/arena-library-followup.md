@@ -116,3 +116,12 @@ node --import tsx scripts/validation/counterexample-arena/validate.ts
 免费55项定向测试、原中文三对照、启用按钮但前置不足的故障注入及旧默认pending反例通过；五份新报告重启一致，四份原真实v3报告在数据库副本上经新API恢复完全相等。前置实测失败后普通动作仍拒绝，未操作；四份计划的修正由固定测试作者完成，不计真实模型能力。源码/构建/证据及命令见[免费收据](../../evaluation/r2-product-sources/plan-readiness.json)与[实验追加节](../experiments/r2-product-acceptance.md#登记前可执行性整改免费结果2026-10-11)。
 
 原0/6+0/6、两批已知费用及历史unknown不改，无新真实请求/approval。后续只准备同MD/三对照/原模型预算的小批方案，须另获授权；本候选尚未合并或推送。
+
+
+## R2 可执行性整改后的独立真实批次（2026-10-11，结果已交付）
+
+用户审阅后明确授权一次原六行批次，在b3dd81c/ddbc8e2上冻结新manifest并消费独立claim。原MD/RA01–03/模型/provider与预算、停止逻辑不变；未重建或重跑免费测试，没有中途修补或新增任务。严格完成仍0/6，登记2/6，R1真实预览动作及效果1个，八个必要效果其余7个未验证；两个缺陷未到详情，两个未知对照没有完成有来源的弃权。48请求已知USD0.031491048，unknown/held 0。报告恢复6/6、原件/副本125对一致。
+
+两份初次提交计划都正确保留两级前置和精确状态谓词，审阅不靠assumptions为空或review=true直接判定；没有登记拒绝及修正过程，不能宣称真实纠错流程已通过。新观察集中在R1首步后已有动态详情目标仍持续只读，以及R5误用region作为CSS标签、得到正确section后仍不重绑。另有8次keyword空串搜索校验错误。这些是现有页族上的协议/工具使用反例，不新增网页库或改变验收分母；下一步建议免费回放原上下文与回执。
+
+由本实验Agent按原五项完成逐行审阅，非人类或独立复核；保留两批旧0/6、费用和历史unknown。详见[主实验第三批记录](../experiments/r2-product-acceptance.md#可执行性整改后真实复测2026-10-11已完成agent审阅)与[交付索引](../../evaluation/private/r2-product-acceptance/real-readiness-acceptance.json)。候选仍未合并或推送。
