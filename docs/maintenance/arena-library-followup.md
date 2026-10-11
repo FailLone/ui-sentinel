@@ -247,3 +247,9 @@ v11在首次原文返回后，只提供命名的`product_path_decide`，接受�
 121项/11文件、build/typecheck、格式/diff通过。必要六个免费浏览器流程：健康/缺陷两步的正确nextAction衔接，前置不足0动作，重复缺口原streak=3关闭，unsupported有理由的partial，低预算原关闭预留收尾；6/6报告完整重启一致。这不是新真实评分，固定回复不证明模型采用。默认pending、未知不重放复用旧有效证据，取消/晚回调由当前request测试覆盖。
 
 首次缺附件导致报告不一致、v10历史兼容遗漏、SDK先拒绝的断言差异及旧文案/格式失败均已修正且保留。653项证据、507份本次开发附件和前后调用成本见[工程交付](../../evaluation/r2-product-sources/registration-decision.json)与[实验记录](../experiments/r2-product-acceptance.md#资料阶段结构化交付2026-10-12免费工程候选-v11)。正常read→draft两请求；缺口一次决定直接查最多三项，超出需后续原预算内请求；unsupported后零额外模型请求。候选可按原六行/五项/8效果冻结审阅，原真实5/6不改。本轮无真实推理、新付费claim、校准或补跑；三笔历史unknown不变、暂缓核查，未推送、合并或改main/Roadmap。
+
+## R2 v11 真实授权在报价门停止（2026-10-12）
+
+维护者会话用户“授权”已只读核验；按审阅候选 `27cc6ef/95d7208` 建独立验收分支，源码/构建及原协议输入一致，复用121项/6流程，未重建重测。启动前唯一公开报价在00:19:07返回Wafer输入US$0.065/百万，高于原获准US$0.06/百万，`quote-outside-policy`阻断；输出US$1.60/百万未超限，实际拒绝原响应已保留。
+
+离线冻结阻断身份 `f6720c8da6c3c9207d07681b1e22a9fd603db261e5fdf52e2397fc896bf1664c`，无可执行approval、新claim或凭证访问/推理。六行未派发、8效果未验证，新费用/unknown/held均0。没有新真实结果，旧5/6和三笔历史unknown不变；结构化决定实际采用仍待可合法启动的真实验收。详见[阻断交付](../../evaluation/private/r2-product-acceptance/decision-price-blocked.json)。未放宽价格/预算、轮询、重试、补跑、换供应商或追加修复，未推送合并，main/Roadmap未改。

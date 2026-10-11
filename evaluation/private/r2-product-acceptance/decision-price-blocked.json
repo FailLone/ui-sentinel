@@ -1,0 +1,274 @@
+{
+  "revision": "r2-decision-price-blocked-1",
+  "status": "blocked-before-inference",
+  "candidateCommit": "27cc6efc6c71c9b58233ec0c192236c2c9985098",
+  "implementationCommit": "95d7208f95dd0c52f6cf54842204813303b4c1e1",
+  "branch": "codex/r2-registration-decision-acceptance",
+  "authorization": {
+    "receivedAt": "2026-10-11T16:18:21Z",
+    "verifiedAt": "2026-10-11T16:20:32.027Z",
+    "sourceThread": "01a1116d-7621-7962-b4fe-5f904b5fbf13",
+    "userTurn": "01a12bc1-83ee-7a40-8fb9-f399c60d282b",
+    "userMessage": "01a12bc1-8425-73c3-88ce-03eb205535ec",
+    "userText": "授权",
+    "question": "是否授权这一次验收，新增费用上限US$7.56？历史未知费用继续保留、暂缓核查，新异常按原规则停止，不自动重试或补跑",
+    "verifiedWith": "read_thread original user message and preceding explicit question",
+    "candidate": "27cc6efc6c71c9b58233ec0c192236c2c9985098",
+    "implementationCommit": "95d7208f95dd0c52f6cf54842204813303b4c1e1",
+    "scope": "One original six-task batch, existing USD0.06/million input cap and every other original limit retained. Authorization preceded subsequent offline manifest hash.",
+    "approvalWritten": false,
+    "blockedBeforeLaunch": true,
+    "noAutomaticRetry": true
+  },
+  "manifestHash": "f6720c8da6c3c9207d07681b1e22a9fd603db261e5fdf52e2397fc896bf1664c",
+  "frozenManifest": {
+    "path": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/prepared-decision-20261012/manifest.json",
+    "sha256": "36b341c935f1c8301b734cfbc6c55cb8d3535883b1f15924046c1b3bc152d2a2",
+    "purpose": "Offline identity record of the blocked candidate, not runnable approval"
+  },
+  "sourceHash": "4109f2e69dff2f49034546e32c3efa3d694427cfcc8bf021059bf75fe04ff1dc",
+  "buildHash": "283909dde55cc9afef92397025b632d4c132fbbcf7e61f59adf0382aca53ed24",
+  "blocker": {
+    "error": "quote-outside-policy",
+    "field": "pricing.prompt",
+    "observedUsdPerMillion": "0.065",
+    "authorizedUsdPerMillion": "0.06",
+    "outputUsdPerMillion": "1.60",
+    "quoteUrl": "https://openrouter.ai/api/v1/models/deepseek/deepseek-v4.1-flash/endpoints",
+    "quoteCheckedAt": "2026-10-11T16:19:07.061Z",
+    "quotePath": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/decision-authorization-20261012/public-quote.json",
+    "actualRejectedQuoteRetained": true,
+    "provider": "Wafer",
+    "model": "deepseek/deepseek-v4.1-flash",
+    "publicQueries": 1
+  },
+  "execution": {
+    "at": "2026-10-11T16:20:32.027Z",
+    "status": "preflight-price-blocked",
+    "error": "quote-outside-policy",
+    "failedField": "pricing.prompt",
+    "observedPerToken": 6.5e-08,
+    "authorizedCapPerToken": 6e-08,
+    "observedPerMillion": 0.065,
+    "authorizedCapPerMillion": 0.06,
+    "quoteFile": "public-quote.json",
+    "quoteIsActualRejectedResponse": true,
+    "executionCommit": "27cc6efc6c71c9b58233ec0c192236c2c9985098",
+    "manifestHash": "f6720c8da6c3c9207d07681b1e22a9fd603db261e5fdf52e2397fc896bf1664c",
+    "sourceHash": "4109f2e69dff2f49034546e32c3efa3d694427cfcc8bf021059bf75fe04ff1dc",
+    "buildHash": "283909dde55cc9afef92397025b632d4c132fbbcf7e61f59adf0382aca53ed24",
+    "cleanCandidate": true,
+    "reviewedProductMatches": true,
+    "fullManifestStillMatchesFrozen": true,
+    "freezeNote": "Read-only offline freeze ran after the failed quote preflight because commands were sequential lines. It records blocked candidate identity only; approve/launch were never invoked, and no executable approval or claim exists.",
+    "pathsAbsent": {
+      "approval": "data/r2-product-acceptance/decision-authorization-20261012/approval.json",
+      "launch": "data/r2-product-acceptance/decision-authorization-20261012/launch.json",
+      "executionEnd": "data/r2-product-acceptance/decision-authorization-20261012/execution-end.json",
+      "rawOutput": "data/r2-product-acceptance/real-decision-authorized-20261012",
+      "claim": "/Users/xietian/Documents/ChatGPT/ui-sentinel/.git/r2-product-acceptance-claims/f6720c8da6c3c9207d07681b1e22a9fd603db261e5fdf52e2397fc896bf1664c.json"
+    },
+    "newPaidBatchCount": 0,
+    "inferenceRequests": 0,
+    "dispatchedRows": 0,
+    "plannedRows": 6,
+    "newKnownCostUsd": 0,
+    "newUnknownReservedUsd": 0,
+    "newHeldReservedUsd": 0,
+    "historicalUnknownsRetainedUsd": [
+      0.063,
+      0.063,
+      0.116
+    ],
+    "noCredentialRead": true,
+    "noApprovalOrClaim": true,
+    "noRebuildOrFreeTestsRerun": true,
+    "noPolicyOrProductChange": true
+  },
+  "rows": [
+    {
+      "id": "R1",
+      "variant": "healthy",
+      "dispatched": false,
+      "status": "unrun-price-preflight-blocked",
+      "criteria": {
+        "read": "not-assessed-no-run",
+        "registration": "not-assessed-no-run",
+        "execution": "not-assessed-no-run",
+        "scope": "not-assessed-no-run",
+        "recovery": "not-assessed-no-run"
+      },
+      "requests": 0,
+      "actions": 0,
+      "requiredEffects": [
+        {
+          "step": 0,
+          "state": "unverified",
+          "reason": "Not dispatched"
+        },
+        {
+          "step": 1,
+          "state": "unverified",
+          "reason": "Not dispatched"
+        }
+      ]
+    },
+    {
+      "id": "R2",
+      "variant": "defect",
+      "dispatched": false,
+      "status": "unrun-price-preflight-blocked",
+      "criteria": {
+        "read": "not-assessed-no-run",
+        "registration": "not-assessed-no-run",
+        "execution": "not-assessed-no-run",
+        "scope": "not-assessed-no-run",
+        "recovery": "not-assessed-no-run"
+      },
+      "requests": 0,
+      "actions": 0,
+      "requiredEffects": [
+        {
+          "step": 0,
+          "state": "unverified",
+          "reason": "Not dispatched"
+        },
+        {
+          "step": 1,
+          "state": "unverified",
+          "reason": "Not dispatched"
+        }
+      ]
+    },
+    {
+      "id": "R3",
+      "variant": "unavailable",
+      "dispatched": false,
+      "status": "unrun-price-preflight-blocked",
+      "criteria": {
+        "read": "not-assessed-no-run",
+        "registration": "not-assessed-no-run",
+        "execution": "not-assessed-no-run",
+        "scope": "not-assessed-no-run",
+        "recovery": "not-assessed-no-run"
+      },
+      "requests": 0,
+      "actions": 0,
+      "requiredEffects": []
+    },
+    {
+      "id": "R4",
+      "variant": "unavailable",
+      "dispatched": false,
+      "status": "unrun-price-preflight-blocked",
+      "criteria": {
+        "read": "not-assessed-no-run",
+        "registration": "not-assessed-no-run",
+        "execution": "not-assessed-no-run",
+        "scope": "not-assessed-no-run",
+        "recovery": "not-assessed-no-run"
+      },
+      "requests": 0,
+      "actions": 0,
+      "requiredEffects": []
+    },
+    {
+      "id": "R5",
+      "variant": "defect",
+      "dispatched": false,
+      "status": "unrun-price-preflight-blocked",
+      "criteria": {
+        "read": "not-assessed-no-run",
+        "registration": "not-assessed-no-run",
+        "execution": "not-assessed-no-run",
+        "scope": "not-assessed-no-run",
+        "recovery": "not-assessed-no-run"
+      },
+      "requests": 0,
+      "actions": 0,
+      "requiredEffects": [
+        {
+          "step": 0,
+          "state": "unverified",
+          "reason": "Not dispatched"
+        },
+        {
+          "step": 1,
+          "state": "unverified",
+          "reason": "Not dispatched"
+        }
+      ]
+    },
+    {
+      "id": "R6",
+      "variant": "healthy",
+      "dispatched": false,
+      "status": "unrun-price-preflight-blocked",
+      "criteria": {
+        "read": "not-assessed-no-run",
+        "registration": "not-assessed-no-run",
+        "execution": "not-assessed-no-run",
+        "scope": "not-assessed-no-run",
+        "recovery": "not-assessed-no-run"
+      },
+      "requests": 0,
+      "actions": 0,
+      "requiredEffects": [
+        {
+          "step": 0,
+          "state": "unverified",
+          "reason": "Not dispatched"
+        },
+        {
+          "step": 1,
+          "state": "unverified",
+          "reason": "Not dispatched"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "plannedRows": 6,
+    "dispatchedRows": 0,
+    "assessedRows": 0,
+    "acceptedTasks": 0,
+    "denominator": 6,
+    "interpretation": "No new six-row result was produced; all planned rows remain unrun. Do not replace or combine prior real 5/6.",
+    "requiredEffects": {
+      "planned": 8,
+      "unverified": 8
+    },
+    "newKnownCostUsd": "0",
+    "newUnknownReservedUsd": "0",
+    "newHeldReservedUsd": "0",
+    "originalR2ExitMet": false
+  },
+  "actualAdoption": "Not exercised. No inference means no wire decision, draft/retrieve/unsupported selection, action-ID use or semantic path evidence in this preparation. Existing free evidence is not live adoption.",
+  "verificationReused": {
+    "tests": 121,
+    "browserCases": 6,
+    "delivery": "evaluation/r2-product-sources/registration-decision.json",
+    "evidenceIndexSha256": "20bb5628d9784442938d3749343635b7994f57277aa244e7cc737efa660bb740",
+    "fullPriorIndexRecheck": false,
+    "maintainerAlreadyChecked653Files": true,
+    "noBuildOrTestsRerun": true
+  },
+  "history": {
+    "latestRealAcceptance": "5/6, unchanged",
+    "unknownReservedUsd": [
+      0.063,
+      0.063,
+      0.116
+    ],
+    "billingReconciliation": "deferred, no investigation/zeroing/settlement",
+    "oldClaimsUnchanged": true
+  },
+  "evidenceIndex": {
+    "path": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/decision-authorization-20261012/evidence-index.json",
+    "sha256": "221fca5b2946fcb9114f93e8b0e9298c3650dca3363e6ad6a5906712d8c794c3",
+    "files": 19
+  },
+  "boundary": "Current authorized price cap prevents launch. No automated retry, polling, provider substitution, increased cap or budget, claim consumption, extra sample or repair. A new applicable user instruction is required to change this boundary.",
+  "noPushOrMerge": true,
+  "roadmapUnchanged": true
+}
