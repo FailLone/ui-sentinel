@@ -45,4 +45,4 @@ EXECUTION_URL_SCAN=1 EXECUTION_PRODUCT_SOURCES=1 pnpm start
 
 已清理16个合入main且没有工作区占用的本地R2中间分支；名称和原提交保存在[维护者收尾索引](maintenance/r2-closeout.json)，全部提交仍可从main历史恢复。保留两个有工作区占用的R2分支。远端旧分支和其他任务工作区不删除。主项目目录仍是用户原工作区，本次不强行切换或处理其中未提交内容。
 
-R2近期反例已关联[靶场回溯记录](maintenance/arena-library-followup.md)，不会按每次修复复制新页面。下一次计划是[R3最小脚本复用闭环](product-roadmap.md#下一次计划r3-的最小脚本复用闭环待启动)：保存一条已验证路径、同站点受控重执行、检测失效并安全交回Agent。本次只记录方向，未创建R3任务或新付费批次。
+R2近期反例已关联[靶场回溯记录](maintenance/arena-library-followup.md)，不会按每次修复复制新页面。下一次计划是[R3最小脚本复用闭环](product-roadmap.md#下一次计划r3-的最小脚本复用闭环)：保存一条已验证路径、同站点受控重执行、检测失效并安全交回Agent。本次只记录方向，未创建R3任务或新付费批次。
