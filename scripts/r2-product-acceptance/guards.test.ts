@@ -46,15 +46,15 @@ it('accepts the newly authorized input cap while rejecting any higher price', ()
   const endpoint = quote.data.endpoints.find(
     (e: any) => e.provider_name === policy.provider && e.status === 0,
   )
-  endpoint.pricing.prompt = '0.00000006'
+  endpoint.pricing.prompt = '0.000000065'
   endpoint.pricing.completion = '0.0000016'
   expect(validateQuote(quote)).toBe(endpoint)
   expect(policy.reserveUsd).toBe(0.063)
   expect(policy.maxCostUsd).toBe(7.56)
   expect(policy.maxWireBytes).toBe(131072)
-  endpoint.pricing.prompt = '0.000000060001'
+  endpoint.pricing.prompt = '0.000000065001'
   expect(() => validateQuote(quote)).toThrow('quote-outside-policy')
-  endpoint.pricing.prompt = '0.00000006'
+  endpoint.pricing.prompt = '0.000000065'
   endpoint.pricing.completion = '0.00000160001'
   expect(() => validateQuote(quote)).toThrow('quote-outside-policy')
 })
