@@ -1,0 +1,151 @@
+{
+  "createdAt": "2026-10-11T17:13:35.238889+00:00",
+  "implementationCommit": "3369c4f0b2f0c025135e298f501a0964abccc270",
+  "branch": "codex/r2-registration-recovery",
+  "sourceHash": "ebad93b8ac62020dbe8f0dd5bbf68896f2cf6a43487cc6c08e0209109f20487a",
+  "distHash": "7d7554ed11856d38e96663b46cc86a922927d11f30b0951808ed5bd0cdc1500b",
+  "freeBrowserRoot": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-sources/2026-10-11T17-09-27-406Z",
+  "freeRootsRetained": [
+    "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-sources/2026-10-11T17-00-44-560Z",
+    "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-sources/2026-10-11T17-02-25-577Z",
+    "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-sources/2026-10-11T17-07-21-481Z",
+    "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-sources/2026-10-11T17-08-39-101Z",
+    "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-sources/2026-10-11T17-09-27-406Z"
+  ],
+  "paidCalls": 0,
+  "newClaim": false,
+  "priceBudgetPolicyUnchangedFrom": "ebe21c224a32bcac45861e9faaedc776d58b4777",
+  "tests": {
+    "passed": 105,
+    "files": 10,
+    "log": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/registration-recovery-free-20261012/tests-third.log"
+  },
+  "build": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/registration-recovery-free-20261012/build-fourth.log",
+  "typecheck": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/registration-recovery-free-20261012/typecheck-final.log",
+  "format": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/registration-recovery-free-20261012/format-final.log",
+  "replay": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/registration-recovery-free-20261012/replay-result.log",
+  "sourceAndBuildMatchFinalBrowser": true,
+  "originalFailure": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/evaluation/private/r2-product-acceptance/registration-recovery-failure.json",
+  "flowComparison": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/registration-recovery-free-20261012/flow-comparison.json",
+  "browserCases": [
+    {
+      "mode": "feedback-healthy",
+      "calls": 12,
+      "status": "completed",
+      "coverage": "covered",
+      "pathState": "verified",
+      "actions": 2,
+      "deliveryOpportunities": 1,
+      "recovered": true
+    },
+    {
+      "mode": "feedback-defect",
+      "calls": 10,
+      "status": "completed",
+      "coverage": "covered",
+      "pathState": "failed",
+      "actions": 2,
+      "deliveryOpportunities": 0,
+      "recovered": true
+    },
+    {
+      "mode": "feedback-unavailable-enabled",
+      "calls": 8,
+      "status": "blocked",
+      "coverage": "partial",
+      "pathState": "unverified",
+      "actions": 0,
+      "deliveryOpportunities": 0,
+      "recovered": true
+    },
+    {
+      "mode": "dynamic-pending",
+      "calls": 8,
+      "status": "blocked",
+      "coverage": "partial",
+      "pathState": "verified",
+      "actions": 2,
+      "deliveryOpportunities": 0,
+      "recovered": true
+    },
+    {
+      "mode": "feedback-registration-stall",
+      "calls": 4,
+      "status": "blocked",
+      "coverage": "partial",
+      "pathState": "unverified",
+      "actions": 0,
+      "deliveryOpportunities": 0,
+      "recovered": true
+    },
+    {
+      "mode": "feedback-budget",
+      "calls": 1,
+      "status": "blocked",
+      "coverage": "partial",
+      "pathState": "unverified",
+      "actions": 0,
+      "deliveryOpportunities": 0,
+      "recovered": true
+    }
+  ],
+  "sdkEvidence": [
+    "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/registration-recovery-free-20261012/sdk-repair-wire-short.json",
+    "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/registration-recovery-free-20261012/sdk-repair-wire-long.json"
+  ],
+  "originalAttributionCorrection": "R6 request 2 had the full source. Later requests compacted it away. Two different JSON pages had a concrete repair purpose; closure after page 2 prevented applying that information. No assertion that another live decision would necessarily succeed.",
+  "repairInformation": "<=6000 serialized bytes, <=3 fields, exact frozen source ranges, original model requirement, only already-issued citation IDs, explicit omittedFields/text omission/source cursor. Missing or invalid references never fabricated. No automatic plan repair.",
+  "changedSchedulingSemantics": {
+    "kind": "bounded delivery continuation, not factual progress",
+    "maxUsesPerRun": 2,
+    "maxDecodedUtf8Bytes": 3000,
+    "identity": "frozen source identity/hash plus UTF-16 ranges; merged currently-visible and previously-recovered text deduplicates overlapping/aliased source content",
+    "currentVisibility": "Only exact source text present in the actual dispatch packet; re-evaluated at each request because older memory may omit it",
+    "recoveredCoverage": "Monotonic per-run record of source fragments already delivered through receipt recovery, never cleared by compaction, another citation/ref, or a new rejection",
+    "eligibility": "source registration stage, streak>=3, not finalizing, no pending side effect/intervention, valid recovered product_source_read text actually included in next memory; all original budget closing reserves still evaluated",
+    "effect": "Skip only this iteration of source-stage no-progress closure; preserve real streak; mark use at actual request start only if excerpt is in the packet. New plan or other original facts can independently reset progress as before.",
+    "repeatedReads": "No opportunity for the same recovered fragment or wrapper, invalid cursor, current-visible source, decoded-empty page, omitted payload, expired allowance or exhausted cap",
+    "observedFreeFallback": {
+      "streakPreserved": 3,
+      "opportunitiesUsed": 1,
+      "decodedBytes": 979,
+      "subsequentFixedReply": "author correction passed original validator; normal two-action path then completed"
+    }
+  },
+  "targetContract": "No new structure predicate. targetName and original bind admission provide unique connected eligible target identity. The model must explicitly classify target identity versus a separate source business obligation; no automatic condition deletion, missing predicate pass or text-equals-name substitute. Unsupported distinct obligations remain unverified.",
+  "preserved": [
+    "source plan/readiness/citations",
+    "three invalid registration limit",
+    "stage/one-decision guard",
+    "binding/admission/prerequisite remeasurement",
+    "original nextAction and requirement ID",
+    "effect measurement/no action replay",
+    "other mandatory/default scope",
+    "v2-v11 historical admission/artifact validation",
+    "all original model/tool/read/action/time/closing/safety/fee limits"
+  ],
+  "historicalReuse": {
+    "liveScore": "latest real batch stays 5/6; original five criteria/six rows/eight effects unchanged",
+    "freeEvidence": "Prior unmodified no-replay, unsupported and artifact protections reused where not affected; no full matrix rerun",
+    "unknownUsd": [
+      0.063,
+      0.063,
+      0.116
+    ],
+    "billingReview": "deferred, unchanged"
+  },
+  "limitations": [
+    "All new model replies are fixed local author choices. No real-model improvement or 6/6 claim.",
+    "Full text once present can later be omitted; initial source coverage is neither current visibility nor semantic understanding.",
+    "Fallback decoder only handles original product_source_read text; other tools retain existing bounded readers/search.",
+    "A cap may still close before a long repair is possible; unsupported remains honest partial.",
+    "The program cannot establish semantic completeness or justify reclassifying a distinct business condition for the model."
+  ],
+  "candidateStatus": "Implementation and necessary free validation complete; eligible for review/freeze against original six tasks. No real run authorized or started in this task.",
+  "developmentFailures": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/registration-recovery-free-20261012/development-failures.json",
+  "noPushMergeMainOrRoadmapChanges": true,
+  "evidenceIndex": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/registration-recovery-free-20261012/evidence-index.json",
+  "evidenceIndexSha256": "6b0d2144df4c9261888a9a24c3e7a8771922511351bc5ed92df7c25406c0d02d",
+  "evidenceFiles": 922,
+  "newArtifactFiles": 784
+}

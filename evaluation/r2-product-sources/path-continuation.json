@@ -1,0 +1,158 @@
+{
+  "schema": "r2-continuation-free-delivery-1",
+  "date": "2026-10-11",
+  "branch": "codex/r2-path-continuation",
+  "implementationCommit": "b2fbf02c5c0c74739b1eb9cb518ca978ad275e2b",
+  "baseCommit": "adfe2cdc68568df351bb3e76fd178d06d54f1b31",
+  "skillRevision": "product-path-5",
+  "paidCalls": 0,
+  "approvalCreated": false,
+  "reviewer": "实验Agent，非独立审阅或人类复核",
+  "scope": "Only advisory next-step/failed-binding feedback, context preservation and skill guidance; original execution gates, budgets, runner, models and fixture truth unchanged.",
+  "sourceHash": "4856fb230b609012a1c9df738c21eed7eda6173289382ae5d6a4f8eeab92886f",
+  "buildHash": "89748e4a183c2d5ec6b1fb203f3a805787935b432109c4cd27beeebf476fb349",
+  "sourceFilesVerifiedAgainstImplementationCommit": 384,
+  "validation": {
+    "buildAndTypecheck": "passed",
+    "targetedTests": {
+      "distinctPassingTests": 50,
+      "files": 5,
+      "firstInvocation": {
+        "tests": 48,
+        "files": [
+          "src/inspection/product-continuation.test.ts",
+          "src/execution/product-registration.test.ts",
+          "src/inspection/product-artifacts.test.ts",
+          "src/inspection/completion.test.ts",
+          "src/agent/context/compact-history.test.ts"
+        ]
+      },
+      "changedTestsRechecked": {
+        "tests": 12,
+        "files": [
+          "src/inspection/product-continuation.test.ts",
+          "src/inspection/product-artifacts.test.ts"
+        ]
+      },
+      "note": "Final distinct 50 = unchanged 38 + final 12; not 60 unique tests."
+    },
+    "browserCommand": "pnpm exec tsx scripts/validation/r2-product-sources.ts --continuation-only",
+    "environment": "Node v24.21.0; DOTENV_CONFIG_PATH=/dev/null; compiled normal API/server, real Chromium, fixed loopback provider; no real credentials read",
+    "browserEvidence": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-sources/2026-10-11T03-53-02-383Z",
+    "results": [
+      {
+        "mode": "continuation-healthy",
+        "runId": "run-2125ac1e-11c4-4743-815c-de1e1c56cf49",
+        "status": "completed",
+        "coverage": "covered",
+        "state": "verified",
+        "actions": 2
+      },
+      {
+        "mode": "continuation-defect",
+        "runId": "run-53cee6ca-97d2-433f-8adf-8d4b4d913cf7",
+        "status": "completed",
+        "coverage": "covered",
+        "state": "failed",
+        "actions": 2
+      },
+      {
+        "mode": "continuation-unavailable",
+        "runId": "run-cf5d8736-73c6-41f1-af28-ad026e2bdad3",
+        "status": "blocked",
+        "coverage": "partial",
+        "state": "unverified",
+        "actions": 0
+      },
+      {
+        "mode": "continuation-unavailable-enabled",
+        "runId": "run-b27431bf-a6a4-4c1f-a491-167ec492a4e1",
+        "status": "blocked",
+        "coverage": "partial",
+        "state": "unverified",
+        "actions": 0
+      },
+      {
+        "mode": "dynamic-pending",
+        "runId": "run-b5fe5a3d-0b6a-4e72-8fc9-b9520c9f71b1",
+        "status": "blocked",
+        "coverage": "partial",
+        "state": "verified",
+        "actions": 2
+      }
+    ],
+    "newReportsRestartEqual": 5,
+    "fixtureClosedBeforeRecovery": true,
+    "oldReports": [
+      {
+        "row": "R1",
+        "runId": "run-10298ab3-cd8d-489f-aff3-45a719bad8f6",
+        "fullJsonEqual": true
+      },
+      {
+        "row": "R5",
+        "runId": "run-078446e0-cfa4-40e7-9324-c27c4a70dc49",
+        "fullJsonEqual": true
+      }
+    ],
+    "admissionCorruptionRejectedAndBytesRestored": true,
+    "originalNewArtifactFiles": 260
+  },
+  "replay": {
+    "fixture": "evaluation/private/r2-product-acceptance/continuation-failures.json",
+    "fixtureSha256": "e20aff7a7ce066b4b977f8262b67a79b86a630b3dc77ba6c92bfb21e7de7ef10",
+    "provenance": "Original R1/R5 full product reports, relevant events, registration inputs and erroneous bind selectors retained with original file hashes and request IDs.",
+    "r1": "Original first effect verified -> guidance identifies step1 dynamic target, no original-action replay. Fixed author continuation obtains selectors from page_inspect and completes both effects.",
+    "r5": "Original zero-match selector -> diagnostic contains field, selector, expectation, measured count0, unverified; corrected selector comes from observed original state region; subsequent successful bind supersedes failed attempt, defect effect measured.",
+    "limits": "Fixed replay chooses tools and interprets DOM using author logic. Not a real-model run, no proof of model uptake or improved success rate. Search empty-keyword errors and broader repeated-reading behavior not fixed."
+  },
+  "evidenceIndex": {
+    "path": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/continuation-free-20261011/evidence-index.json",
+    "sha256": "a02052d399852f1a199c4bd8f1a64a68568381ef876ad61f4ff012332fa0565d",
+    "files": 716
+  },
+  "preservedDevelopmentFailures": [
+    "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-sources/2026-10-11T03-51-14-303Z",
+    "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-sources/2026-10-11T03-52-08-361Z"
+  ],
+  "historyPreserved": [
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/real-authorized-20261010/evidence-index.json",
+      "sha256": "51ec16bec55b458e241d705e62a1d15fa09266626d279555a17b8dee369b47a7",
+      "files": 236,
+      "unchanged": true
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/real-citations-authorized-20261011/evidence-index.json",
+      "sha256": "a5d03062608c8f03d93d7e6d9ea512cc9c435acdd3e1509d0c66c3852b5fee03",
+      "files": 270,
+      "unchanged": true
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/real-readiness-authorized-20261011/evidence-index.json",
+      "sha256": "8822ca32d5212c61450afe91e817c9d44086befd65c2af798b3c8a0abab219c4",
+      "files": 335,
+      "unchanged": true
+    }
+  ],
+  "historicalAccounting": {
+    "realBatchPrimaryAccepted": [
+      0,
+      0,
+      0
+    ],
+    "knownCostsUsd": [
+      0.0567585,
+      0.07266395,
+      0.031491048
+    ],
+    "earlierUnknownUsd": 0.116,
+    "unchanged": true
+  },
+  "remainingLimits": [
+    "Guidance cannot prove source interpretation or choose the correct original state node; model must use observed evidence.",
+    "No automatic binding/action, retry budget, progress reset or permission expansion. Actual failed/unsupported prerequisites remain stopped/unverified.",
+    "No new real-model approval or paid request; previous claims remain consumed."
+  ],
+  "notPushedOrMerged": true
+}

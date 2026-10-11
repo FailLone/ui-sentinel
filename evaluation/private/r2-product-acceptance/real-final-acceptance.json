@@ -1,0 +1,2083 @@
+{
+  "revision": "r2-real-final-acceptance-delivery-1",
+  "executionCommit": "414e90ae06e46bc5799637f8ce88da458ddca1d2",
+  "implementationCommit": "b5659c50120309fcf15dd9909302067627fcb169",
+  "branch": "codex/r2-final-candidate",
+  "manifestHash": "2fed1a672855e3efaedda78c44fdbf77182c32d8d93c18834edec440bb205ebc",
+  "protocolAtExecution": "git show 414e90ae06e46bc5799637f8ce88da458ddca1d2:docs/experiments/r2-product-acceptance.md",
+  "rawDirectory": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/real-final-candidate-authorized-20261011",
+  "evidenceIndex": {
+    "path": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/real-final-candidate-authorized-20261011/evidence-index.json",
+    "sha256": "d556f26c1dfd02e1e7935e3bf577ceb498477ad0c6b2a435d0f0c3be523946fb",
+    "files": 372
+  },
+  "reviewFile": {
+    "path": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/real-final-candidate-authorized-20261011/review.json",
+    "sha256": "a6e362f586b032bffacd87a9245b90d916afa70d7c89521ac1ce699d0f90659e"
+  },
+  "frozenManifest": {
+    "path": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/manifest-final-candidate-20261011.json",
+    "fileSha256": "375dcffcc88372e9dded33d64fb1a6ad04bc356a4e6363223de1caf1ec574d3a"
+  },
+  "approval": {
+    "path": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/real-final-candidate-authorized-20261011/approval.json",
+    "sha256": "8d97469c093c207c36d1ad7c0984e17286b08d93a6f5b6b2c0c6669b92ab2fff",
+    "approvedBy": "用户（原话经维护者会话明确转交）",
+    "approvalReference": "codex://threads/01a1116d-7621-7962-b4fe-5f904b5fbf13；维护者已说明414e90a冻结、清单/源码/构建一致、58项测试及构建通过、原六任务、最多120请求、新增USD7.56预留、无自动重试或补跑；用户随后原话“开始”。本会话收到该明确授权转交。",
+    "receivedAt": "2026-10-11T08:06:25Z",
+    "recordedAt": "2026-10-11T08:06:51.211Z",
+    "expiresAt": "2026-10-12T08:06:25Z",
+    "manifestHash": "2fed1a672855e3efaedda78c44fdbf77182c32d8d93c18834edec440bb205ebc",
+    "executionCommit": "414e90ae06e46bc5799637f8ce88da458ddca1d2",
+    "maxRuns": 6,
+    "maxRequests": 120,
+    "maxCostUsd": 7.56,
+    "reserveUsd": 0.063,
+    "scope": {
+      "policy": {
+        "version": "r2-product-acceptance-2",
+        "model": "deepseek/deepseek-v4.1-flash",
+        "provider": "Wafer",
+        "runs": 6,
+        "requestsPerRun": 20,
+        "maxRequests": 120,
+        "maxCostUsd": 7.56,
+        "reserveUsd": 0.063,
+        "totalTimeoutMs": 180000,
+        "modelTimeoutMs": 60000,
+        "toolTimeoutMs": 15000,
+        "maxActions": 8,
+        "batchMs": 1500000,
+        "maxOutputTokens": 4096,
+        "maxWireBytes": 131072,
+        "contextTokens": 1048576,
+        "promptPrice": 5e-08,
+        "outputPrice": 1.6e-06,
+        "retries": 0,
+        "fallback": false,
+        "jev": false,
+        "vision": false
+      },
+      "rows": [
+        {
+          "id": "R1",
+          "variant": "healthy",
+          "expected": "verified",
+          "preview": "预览就绪",
+          "details": "详情已就绪",
+          "caseId": "RA01",
+          "repetition": 1,
+          "mode": "program",
+          "scenario": "healthy",
+          "maxAgentRequests": 20,
+          "maxJevRequests": 0,
+          "htmlHash": "7714113990303d76fc6a73bfcf542f3276518d3b547eabd7ffe253ca7116cbbf"
+        },
+        {
+          "id": "R2",
+          "variant": "defect",
+          "expected": "failed",
+          "preview": "预览就绪",
+          "details": "详情未能展示",
+          "caseId": "RA02",
+          "repetition": 1,
+          "mode": "program",
+          "scenario": "defect",
+          "maxAgentRequests": 20,
+          "maxJevRequests": 0,
+          "htmlHash": "23450ed52d42237174a5e03fcbb90d5ac9b3086086b738c948d8b9a3deff9495"
+        },
+        {
+          "id": "R3",
+          "variant": "unavailable",
+          "expected": "unverified",
+          "preview": "尚未预览",
+          "details": "尚未查看",
+          "caseId": "RA03",
+          "repetition": 1,
+          "mode": "program",
+          "scenario": "unavailable",
+          "maxAgentRequests": 20,
+          "maxJevRequests": 0,
+          "htmlHash": "47787c74e5d81e06f92089e81ca8ab5c885c95caf303788fee0698d58eee60eb"
+        },
+        {
+          "id": "R4",
+          "variant": "unavailable",
+          "expected": "unverified",
+          "preview": "尚未预览",
+          "details": "尚未查看",
+          "caseId": "RA03",
+          "repetition": 2,
+          "mode": "program",
+          "scenario": "unavailable",
+          "maxAgentRequests": 20,
+          "maxJevRequests": 0,
+          "htmlHash": "47787c74e5d81e06f92089e81ca8ab5c885c95caf303788fee0698d58eee60eb"
+        },
+        {
+          "id": "R5",
+          "variant": "defect",
+          "expected": "failed",
+          "preview": "预览就绪",
+          "details": "详情未能展示",
+          "caseId": "RA02",
+          "repetition": 2,
+          "mode": "program",
+          "scenario": "defect",
+          "maxAgentRequests": 20,
+          "maxJevRequests": 0,
+          "htmlHash": "23450ed52d42237174a5e03fcbb90d5ac9b3086086b738c948d8b9a3deff9495"
+        },
+        {
+          "id": "R6",
+          "variant": "healthy",
+          "expected": "verified",
+          "preview": "预览就绪",
+          "details": "详情已就绪",
+          "caseId": "RA01",
+          "repetition": 2,
+          "mode": "program",
+          "scenario": "healthy",
+          "maxAgentRequests": 20,
+          "maxJevRequests": 0,
+          "htmlHash": "7714113990303d76fc6a73bfcf542f3276518d3b547eabd7ffe253ca7116cbbf"
+        }
+      ],
+      "reasoning": "low",
+      "skillRevision": "product-path-6"
+    },
+    "bindingNote": "仅一次原六行批次，任务内原有有界工具修正可用；不授权换模型、修改提示/配置/预算、额外行、替补、自动重试或失败后新实验。旧三批claim及费用独立，不复用或抵扣。",
+    "consumedOnce": true
+  },
+  "review": {
+    "schema": "r2-agent-semantic-review-4",
+    "manifestHash": "2fed1a672855e3efaedda78c44fdbf77182c32d8d93c18834edec440bb205ebc",
+    "executionCommit": "414e90ae06e46bc5799637f8ce88da458ddca1d2",
+    "implementationCommit": "b5659c50120309fcf15dd9909302067627fcb169",
+    "reviewer": "本实验设计与审阅Agent",
+    "reviewerKind": "agent",
+    "humanReviewed": false,
+    "reviewCompleted": true,
+    "reviewedAt": "2026-10-11T08:18:21.645401+00:00",
+    "sameAuthorLimitation": "同一实验Agent实现、设计与审阅；不是人类复核/独立盲测，小样本不证明泛化、稳定性或改动因果收益。",
+    "mechanicalTriage": "原results/summary pending-human-review保持不变，本文件单列完成的Agent语义审阅。",
+    "unknownScoringBasis": "沿用冻结协议允许只读取证、正确前置不足保留未验证，以及前批v3 R4对执行/范围的相同判法；本批R3/R4已另通过来源及登记，不以blocked或无动作单独判通过，也不将原pending改成covered。",
+    "reviewCoverage": {
+      "requestBodies": 47,
+      "providerResponses": 47,
+      "toolReceipts": 70,
+      "rowReportsAndRestored": 12,
+      "copiedAndOriginalArtifacts": 143
+    },
+    "rows": [
+      {
+        "id": "R1",
+        "runId": "run-37d91bcc-2226-49f9-b8eb-345c8583c748",
+        "variant": "healthy",
+        "classification": "no-progress-without-registration",
+        "primaryAcceptance": false,
+        "criteria": {
+          "sourceReadingAndExtraction": {
+            "state": "unverified",
+            "reason": "已完整读取原文，但无提交计划，不能由读取/搜索代替完整要求提取。",
+            "evidenceRefs": [
+              "R1/report.json",
+              "R1/events.json",
+              "trajectory-audit.json#row=R1",
+              "tool-receipt-audit.json#row=R1",
+              "input-audit.json#row=R1",
+              "citation-audit.json#row=R1"
+            ]
+          },
+          "selectionAndRegistration": {
+            "state": "fail",
+            "reason": "无登记调用或product:planned；原必需路径未建立。",
+            "evidenceRefs": [
+              "R1/report.json",
+              "R1/events.json",
+              "trajectory-audit.json#row=R1",
+              "tool-receipt-audit.json#row=R1"
+            ]
+          },
+          "executionAndMeasurement": {
+            "state": "unverified",
+            "reason": "读/搜10次、精确重复3次，未登记、绑定或执行；两个必要效果未验证。",
+            "evidenceRefs": [
+              "R1/report.json",
+              "R1/events.json",
+              "trajectory-audit.json#row=R1",
+              "tool-receipt-audit.json#row=R1"
+            ]
+          },
+          "scopeAndConclusion": {
+            "state": "unverified",
+            "reason": "报告保留默认采样和所有已选义务，区分效果未验证、缺陷与未检查范围；无全站/全文覆盖声明。 仍由no-progress保守终止，必要可执行路径未完成，完成子项未验证。",
+            "evidenceRefs": [
+              "R1/report.json",
+              "R1/events.json",
+              "trajectory-audit.json#row=R1",
+              "tool-receipt-audit.json#row=R1"
+            ]
+          },
+          "trustedRecovery": {
+            "state": "pass",
+            "reason": "关闭夹具/服务后重启只读恢复完整报告JSON相等；持久校验无issues，原附件与下载副本逐项hash和字节一致；不改未完成状态。",
+            "evidenceRefs": [
+              "R1/report.json",
+              "R1/restored-report.json",
+              "artifact-verification.json"
+            ]
+          }
+        },
+        "status": "blocked",
+        "coverage": "partial",
+        "pathState": "unverified",
+        "requests": 6,
+        "knownCostUsd": 0.003843847,
+        "elapsedMs": 19509,
+        "successfulRegistrations": 0,
+        "modelRequestsThroughRegistration": null,
+        "modelRequestsBeforeRegistration": null,
+        "requestStages": [
+          {
+            "requestSeq": 1,
+            "requestId": "4bbca4b618076ab2180a6dfd",
+            "stage": "source-reading-without-registration",
+            "executionPhase": "registration-required",
+            "tools": [
+              "product_source_overview"
+            ]
+          },
+          {
+            "requestSeq": 2,
+            "requestId": "d79157bd9d28a7892f4e72b7",
+            "stage": "source-reading-without-registration",
+            "executionPhase": "registration-required",
+            "tools": [
+              "product_source_read"
+            ]
+          },
+          {
+            "requestSeq": 3,
+            "requestId": "0f45807a5f78740207cc1122",
+            "stage": "source-reading-without-registration",
+            "executionPhase": "registration-required",
+            "tools": [
+              "product_source_search",
+              "product_source_search",
+              "product_source_search",
+              "product_source_search"
+            ]
+          },
+          {
+            "requestSeq": 4,
+            "requestId": "809b8376e2dab46cf936b8fc",
+            "stage": "source-reading-without-registration",
+            "executionPhase": "registration-required",
+            "tools": [
+              "product_source_read"
+            ]
+          },
+          {
+            "requestSeq": 5,
+            "requestId": "ff550b8fe5b42621603921b2",
+            "stage": "source-reading-without-registration",
+            "executionPhase": "registration-required",
+            "tools": [
+              "product_source_search",
+              "product_source_search",
+              "product_source_search",
+              "product_source_search"
+            ]
+          },
+          {
+            "requestSeq": 6,
+            "requestId": "8abf18083bc3d1743f806c37",
+            "stage": "source-reading-without-registration",
+            "executionPhase": "registration-required",
+            "tools": [
+              "product_source_overview"
+            ]
+          }
+        ],
+        "registrationAttempts": [],
+        "registrationRejections": [],
+        "registrationRepairs": 0,
+        "readinessSemanticReview": null,
+        "actions": 0,
+        "bindings": 0,
+        "toolErrors": [],
+        "sourceReadSearchCalls": 10,
+        "exactRepeatedSourceCalls": 3,
+        "noProgressEvents": 1,
+        "noProgressEventRefs": [
+          "R1/events.json#event=evt-ff26d552-9edb-4464-bdf9-3e99b80e01f7"
+        ],
+        "outputExhaustion": false,
+        "boundarySubscore": null,
+        "readOnlyNodeEvidence": [],
+        "requiredEffects": [
+          {
+            "name": "预览就绪",
+            "state": "unverified",
+            "actionId": null,
+            "requirementId": null,
+            "actual": null,
+            "reason": "not-executed",
+            "evidenceRefs": [],
+            "eventIds": []
+          },
+          {
+            "name": "详情已就绪",
+            "state": "unverified",
+            "actionId": null,
+            "requirementId": null,
+            "actual": null,
+            "reason": "not-executed",
+            "evidenceRefs": [],
+            "eventIds": []
+          }
+        ],
+        "uncheckedScope": [
+          "资料尚未登记关键路径；全文未验证"
+        ],
+        "scopeGatePreserved": true,
+        "sourceReadSubscore": "pass",
+        "restoredFullJsonEqual": true,
+        "artifactCount": 14
+      },
+      {
+        "id": "R2",
+        "runId": "run-07b4cfde-0023-49b0-b061-72e42aa68d7c",
+        "variant": "defect",
+        "classification": "defect-correct",
+        "primaryAcceptance": true,
+        "criteria": {
+          "sourceReadingAndExtraction": {
+            "state": "pass",
+            "reason": "完整原文实际进入模型请求；四处已发放精确引用支持两个即时效果、action-complete时限和两级前置。assumptions为空且逐条内容无假设替代；text-equals区分可用/暂不可用及详情成功/错误；review声明经原文核对成立，不以布尔值直接判分。",
+            "evidenceRefs": [
+              "R2/report.json",
+              "R2/events.json",
+              "trajectory-audit.json#row=R2",
+              "tool-receipt-audit.json#row=R2",
+              "input-audit.json#row=R2",
+              "citation-audit.json#row=R2"
+            ]
+          },
+          "selectionAndRegistration": {
+            "state": "pass",
+            "reason": "一次成功登记两步匿名click及有来源理由；保留正确前置与未支持范围，动态第二步来自真实观察，不扩权。",
+            "evidenceRefs": [
+              "R2/report.json",
+              "R2/events.json",
+              "trajectory-audit.json#row=R2",
+              "tool-receipt-audit.json#row=R2"
+            ]
+          },
+          "executionAndMeasurement": {
+            "state": "pass",
+            "reason": "首次绑定漏前置选择器被拒；读取回执后修正，两个成功绑定分别实测可用和预览就绪。先点击e5，在原预览状态区域测得预览就绪；再观察动态详情控件e38、绑定并点击，在原详情区域测得详情未能展示。两项action-complete原测量均可追到actionId、requirementId、引用、动作前绑定和附件。详情缺陷命中，无点击重放。",
+            "evidenceRefs": [
+              "R2/report.json",
+              "R2/events.json",
+              "trajectory-audit.json#row=R2",
+              "tool-receipt-audit.json#row=R2"
+            ]
+          },
+          "scopeAndConclusion": {
+            "state": "pass",
+            "reason": "报告保留默认采样和所有已选义务，区分效果未验证、缺陷与未检查范围；无全站/全文覆盖声明。 scope-covered时gaps为空，所有已选义务有结论；报告仍有20个未选自动检查unverified，未抹掉或当作已验证。真实详情失败与covered并不冲突。",
+            "evidenceRefs": [
+              "R2/report.json",
+              "R2/events.json",
+              "trajectory-audit.json#row=R2",
+              "tool-receipt-audit.json#row=R2"
+            ]
+          },
+          "trustedRecovery": {
+            "state": "pass",
+            "reason": "关闭夹具/服务后重启只读恢复完整报告JSON相等；持久校验无issues，原附件与下载副本逐项hash和字节一致；不改未完成状态。",
+            "evidenceRefs": [
+              "R2/report.json",
+              "R2/restored-report.json",
+              "artifact-verification.json"
+            ]
+          }
+        },
+        "status": "completed",
+        "coverage": "covered",
+        "pathState": "failed",
+        "requests": 13,
+        "knownCostUsd": 0.008488083,
+        "elapsedMs": 60293,
+        "successfulRegistrations": 1,
+        "modelRequestsThroughRegistration": 4,
+        "modelRequestsBeforeRegistration": 3,
+        "requestStages": [
+          {
+            "requestSeq": 1,
+            "requestId": "2d5404de29c678e0e688e1d8",
+            "stage": "source-reading-without-registration",
+            "executionPhase": "registration-required",
+            "tools": [
+              "product_source_overview",
+              "product_source_read"
+            ]
+          },
+          {
+            "requestSeq": 2,
+            "requestId": "4477841383a3dc343d3be696",
+            "stage": "source-reading-without-registration",
+            "executionPhase": "registration-required",
+            "tools": [
+              "product_path_status",
+              "product_source_search",
+              "product_source_search",
+              "product_source_search"
+            ]
+          },
+          {
+            "requestSeq": 3,
+            "requestId": "77e7f20a41b7ae2ec2e185c9",
+            "stage": "source-reading-without-registration",
+            "executionPhase": "registration-required",
+            "tools": [
+              "product_source_read"
+            ]
+          },
+          {
+            "requestSeq": 4,
+            "requestId": "8a4f3b68de7d92ace273b190",
+            "stage": "registration",
+            "executionPhase": "registration-required",
+            "tools": [
+              "product_path_register"
+            ]
+          },
+          {
+            "requestSeq": 5,
+            "requestId": "9cf6c2e99694e6b239868961",
+            "stage": "read-only-after-registration",
+            "executionPhase": "bind-next-step",
+            "tools": [
+              "product_path_status"
+            ]
+          },
+          {
+            "requestSeq": 6,
+            "requestId": "03d718a602153d68d34c32b0",
+            "stage": "read-only-after-registration",
+            "executionPhase": "bind-next-step",
+            "tools": [
+              "page_inspect"
+            ]
+          },
+          {
+            "requestSeq": 7,
+            "requestId": "dbc86ab9ae238cc353b98bd3",
+            "stage": "binding",
+            "executionPhase": "bind-next-step",
+            "tools": [
+              "product_path_bind"
+            ]
+          },
+          {
+            "requestSeq": 8,
+            "requestId": "3a822677b81f5a3383f055aa",
+            "stage": "read-only-after-registration",
+            "executionPhase": "bind-next-step",
+            "tools": [
+              "tool_result_read"
+            ]
+          },
+          {
+            "requestSeq": 9,
+            "requestId": "67046e7cef29c5bb6ae2195e",
+            "stage": "binding",
+            "executionPhase": "bind-next-step",
+            "tools": [
+              "product_path_bind"
+            ]
+          },
+          {
+            "requestSeq": 10,
+            "requestId": "57bf9432d1c8a2485483e371",
+            "stage": "action",
+            "executionPhase": "act-bound-step",
+            "tools": [
+              "page_act"
+            ]
+          },
+          {
+            "requestSeq": 11,
+            "requestId": "31b75742192574de1382b566",
+            "stage": "read-only-after-registration",
+            "executionPhase": "bind-next-step",
+            "tools": [
+              "page_inspect",
+              "element_details"
+            ]
+          },
+          {
+            "requestSeq": 12,
+            "requestId": "691d84d2baab49cf78aae590",
+            "stage": "binding",
+            "executionPhase": "bind-next-step",
+            "tools": [
+              "product_path_bind"
+            ]
+          },
+          {
+            "requestSeq": 13,
+            "requestId": "5f4d288a2e21b6ec89da1035",
+            "stage": "action",
+            "executionPhase": "act-bound-step",
+            "tools": [
+              "product_path_status",
+              "page_act"
+            ]
+          }
+        ],
+        "registrationAttempts": [
+          {
+            "seq": 4,
+            "requestId": "8a4f3b68de7d92ace273b190",
+            "input": {
+              "sourceId": "product-source:ec57d78d9c67448ca6796c79a45e76c8ce6f83bf1bece06ebad92f5ee2b15d6d",
+              "contentHash": "ea562970feaaf24b272bec372e4f18ef55a1246c79bbeb44be0889f86740ab38",
+              "title": "访客从预览目录走到详情就绪",
+              "rationale": "规格明确：预览前置条件是目录可用状态为“可用”；点击“预览目录”后预览状态立即变为“预览就绪”并出现“查看详情”；仅当预览状态为“预览就绪”时可点击“查看详情”，点击后详情状态立即变为“详情已就绪”。",
+              "unchecked": [
+                "推荐目录内容/排序/刷新时机未定义",
+                "保存收藏、跨设备同步、管理员维护（需登录，不在匿名范围）",
+                "移动端适配、读屏器完整体验、长时间稳定性、网络恢复不在验收范围"
+              ],
+              "assumptions": [],
+              "steps": [
+                {
+                  "title": "点击“预览目录”，预览状态立即变为“预览就绪”",
+                  "targetName": "预览目录",
+                  "citation": {
+                    "citationId": "pcite:c250613921a0b90fde5c1206d09fdf136207d52d5b5679405760642739d3ed0a"
+                  },
+                  "certainty": "explicit",
+                  "action": "click",
+                  "value": null,
+                  "expectation": {
+                    "condition": "text-equals",
+                    "expected": "预览就绪"
+                  },
+                  "timing": "action-complete",
+                  "preconditions": [
+                    {
+                      "description": "目录可用状态为“可用”",
+                      "citation": {
+                        "citationId": "pcite:c250613921a0b90fde5c1206d09fdf136207d52d5b5679405760642739d3ed0a"
+                      },
+                      "expectation": {
+                        "condition": "text-equals",
+                        "expected": "可用"
+                      }
+                    }
+                  ],
+                  "limitation": null,
+                  "review": {
+                    "preconditionsComplete": true,
+                    "predicatesDistinguishStates": true,
+                    "substringJustification": null
+                  }
+                },
+                {
+                  "title": "点击“查看详情”，详情状态立即变为“详情已就绪”",
+                  "targetName": "查看详情",
+                  "citation": {
+                    "citationId": "pcite:c250613921a0b90fde5c1206d09fdf136207d52d5b5679405760642739d3ed0a"
+                  },
+                  "certainty": "explicit",
+                  "action": "click",
+                  "value": null,
+                  "expectation": {
+                    "condition": "text-equals",
+                    "expected": "详情已就绪"
+                  },
+                  "timing": "action-complete",
+                  "preconditions": [
+                    {
+                      "description": "预览状态为“预览就绪”（上一步结果）",
+                      "citation": {
+                        "citationId": "pcite:c250613921a0b90fde5c1206d09fdf136207d52d5b5679405760642739d3ed0a"
+                      },
+                      "expectation": {
+                        "condition": "text-equals",
+                        "expected": "预览就绪"
+                      }
+                    }
+                  ],
+                  "limitation": null,
+                  "review": {
+                    "preconditionsComplete": true,
+                    "predicatesDistinguishStates": true,
+                    "substringJustification": null
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "registrationRejections": [],
+        "registrationRepairs": 0,
+        "readinessSemanticReview": {
+          "assumptions": [],
+          "bothPrerequisitesPresent": true,
+          "predicatesDistinguishStates": true,
+          "reviewBooleansTruth": "原文、完整参数和原始引用逐项核对，非仅接受true。",
+          "substringJustificationNeeded": false,
+          "newFeedbackRepairExercised": false,
+          "additionalInitialStatePrerequisites": false
+        },
+        "actions": 2,
+        "bindings": 2,
+        "toolErrors": [
+          {
+            "requestSeq": 7,
+            "tool": "product_path_bind",
+            "eventId": "evt-becc0259-3c09-446b-84a1-79478fe6479e",
+            "result": {
+              "status": "error",
+              "error": "product-precondition-bindings-required"
+            }
+          }
+        ],
+        "sourceReadSearchCalls": 5,
+        "exactRepeatedSourceCalls": 1,
+        "noProgressEvents": 0,
+        "noProgressEventRefs": [],
+        "outputExhaustion": false,
+        "boundarySubscore": null,
+        "readOnlyNodeEvidence": [
+          {
+            "requestSeq": 11,
+            "eventId": "evt-b4019306-62bf-4663-a750-cc2a37f8fc60",
+            "nodes": [
+              {
+                "ref": "e33",
+                "selector": "html > body:nth-of-type(1) > main:nth-of-type(1) > button:nth-of-type(1)",
+                "text": "预览目录",
+                "attributes": {
+                  "id": "preview",
+                  "type": "button"
+                }
+              },
+              {
+                "ref": "e38",
+                "selector": "html > body:nth-of-type(1) > main:nth-of-type(1) > div:nth-of-type(1) > button:nth-of-type(1)",
+                "text": "查看详情",
+                "attributes": {
+                  "type": "button"
+                }
+              },
+              {
+                "ref": "e35",
+                "selector": "html > body:nth-of-type(1) > main:nth-of-type(1) > section:nth-of-type(2) > p:nth-of-type(1)",
+                "text": "预览就绪",
+                "attributes": {
+                  "id": "preview-state",
+                  "role": "status"
+                }
+              },
+              {
+                "ref": "e37",
+                "selector": "html > body:nth-of-type(1) > main:nth-of-type(1) > section:nth-of-type(3) > p:nth-of-type(1)",
+                "text": "尚未查看",
+                "attributes": {
+                  "id": "details-state",
+                  "role": "status"
+                }
+              }
+            ]
+          }
+        ],
+        "requiredEffects": [
+          {
+            "name": "预览就绪",
+            "state": "verified",
+            "actionId": "5e03645d-fdc9-40e2-a784-767a906e286c",
+            "requirementId": "requirement:c6782eb18ef58c5bb25a61a8",
+            "actual": [
+              "预览就绪"
+            ],
+            "reason": "original-action-and-effect-measured",
+            "evidenceRefs": [
+              "b11bf733-bfe0-402c-bf0b-e749a576065b.json",
+              "1c85ab37-4e8f-4524-82a9-935ee047d968.json",
+              "ed6449ba-c4e4-4684-95e2-41ec4b6935c4.png",
+              "45b11a51-2937-49fa-b16b-3ab9b05a1e15.json",
+              "9dd0f9f1-77ff-42f9-b3cb-fabd72947e30.json",
+              "5dc93d46-e6b2-4efb-b509-a5e9b0931bb1.png",
+              "4b81d7d9-c21a-4d03-a42c-2326c4530934.png",
+              "21e89d06-2e04-47a4-bc2e-96a293072f58.json",
+              "5171b103-8278-4ffe-9340-35b24bfded72.png",
+              "11898867-8230-4809-86cb-de1cb84b640e.json",
+              "8cf97ff5-c5b6-445c-9e08-e9dbcc99a83a.png",
+              "d4bad6ae-4be1-4097-96a4-db5e43863787.json",
+              "130da909-0255-4a5b-95b0-4528203fb383.json"
+            ],
+            "eventIds": [
+              "evt-862ee50a-c3c2-4413-93ee-34602adbd8a7",
+              "evt-ca2a9531-8632-40d0-a395-faf433fe4887",
+              "evt-46cb2cc1-4886-4c35-b8c7-ce9fd5ad86d0"
+            ]
+          },
+          {
+            "name": "详情已就绪",
+            "state": "failed",
+            "actionId": "03441c21-3443-4ece-80c4-8a39cadad0c7",
+            "requirementId": "requirement:ac7931162523dae4ba744ede",
+            "actual": [
+              "详情未能展示"
+            ],
+            "reason": "original-action-and-effect-measured",
+            "evidenceRefs": [
+              "b11bf733-bfe0-402c-bf0b-e749a576065b.json",
+              "7144b72b-28c1-49d7-a2a3-5ae21b8c6100.json",
+              "0488a223-dbcb-469a-a667-3a57dd6dfb63.png",
+              "136e3ff7-951d-43f7-96ee-82ab395593cf.json",
+              "ce3d8d8b-7dd1-4002-a8f4-dc04fe796d0c.json",
+              "dfad8690-62d9-48c6-9402-5bedd5b15463.png",
+              "8e9485c2-f8e4-4d89-8d85-89a40b23be76.png",
+              "38ac23e0-af38-406b-a05a-443d387d6362.json",
+              "d5d2aa1f-6ebd-4a84-8e4e-bebefe49a557.png",
+              "722f8ed9-ed32-467d-b272-999b683ef6dc.json",
+              "df9736c1-817d-41b9-8f3a-8ea4abd6ab19.png",
+              "ff211ff3-1842-4111-8d08-b295cc78b195.json",
+              "6e7567cd-8de3-4fee-865b-46108ab7a7ca.json"
+            ],
+            "eventIds": [
+              "evt-85404d49-77e3-495c-95d3-81526f684fcf",
+              "evt-137b5184-a658-449f-ba76-cc896846d4ae",
+              "evt-e219d8c1-602a-429b-8402-824d41f37823"
+            ]
+          }
+        ],
+        "uncheckedScope": [
+          "推荐目录内容/排序/刷新时机未定义",
+          "保存收藏、跨设备同步、管理员维护（需登录，不在匿名范围）",
+          "移动端适配、读屏器完整体验、长时间稳定性、网络恢复不在验收范围"
+        ],
+        "scopeGatePreserved": true,
+        "sourceReadSubscore": "pass",
+        "restoredFullJsonEqual": true,
+        "artifactCount": 69
+      },
+      {
+        "id": "R3",
+        "runId": "run-50066307-f76b-42e2-9492-5a2a39fb8543",
+        "variant": "unavailable",
+        "classification": "prerequisite-insufficient-correct-readonly",
+        "primaryAcceptance": true,
+        "criteria": {
+          "sourceReadingAndExtraction": {
+            "state": "pass",
+            "reason": "完整原文实际进入模型请求；四处已发放精确引用支持两个即时效果、action-complete时限和两级前置。assumptions为空且逐条内容无假设替代；text-equals区分可用/暂不可用及详情成功/错误；review声明经原文核对成立，不以布尔值直接判分。 本行引用208..452，虽含两端截断文字，但四项要求、立即定义和各自状态区域说明均完整在内。",
+            "evidenceRefs": [
+              "R3/report.json",
+              "R3/events.json",
+              "trajectory-audit.json#row=R3",
+              "tool-receipt-audit.json#row=R3",
+              "input-audit.json#row=R3",
+              "citation-audit.json#row=R3"
+            ]
+          },
+          "selectionAndRegistration": {
+            "state": "pass",
+            "reason": "一次成功登记两步匿名click及有来源理由；保留正确前置与未支持范围，动态第二步来自真实观察，不扩权。",
+            "evidenceRefs": [
+              "R3/report.json",
+              "R3/events.json",
+              "trajectory-audit.json#row=R3",
+              "tool-receipt-audit.json#row=R3"
+            ]
+          },
+          "executionAndMeasurement": {
+            "state": "pass",
+            "reason": "登记条件性两步计划后，element_details在原availability节点观察暂不可用、preview按钮disabled，两个结果仍为初始状态。结合已接受前置与unchecked中明确不是功能错误的边界，支持有来源弃权；无动作、无缺陷误报。按原标准允许只读取证，不要求额外绑定/点击。",
+            "evidenceRefs": [
+              "R3/report.json",
+              "R3/events.json",
+              "trajectory-audit.json#row=R3",
+              "tool-receipt-audit.json#row=R3"
+            ]
+          },
+          "scopeAndConclusion": {
+            "state": "pass",
+            "reason": "报告保留默认采样和所有已选义务，区分效果未验证、缺陷与未检查范围；无全站/全文覆盖声明。 仍为blocked/unverified-scope，产品路径pending/no-progress原样保留，未伪装covered。未知对照只需有依据保留未验证，故语义边界可通过；这不是把普通partial记为通过。没有运行时前置测量，也没有独立最终模型说明，结论由审阅者以原计划和原只读事实核对。",
+            "evidenceRefs": [
+              "R3/report.json",
+              "R3/events.json",
+              "trajectory-audit.json#row=R3",
+              "tool-receipt-audit.json#row=R3"
+            ]
+          },
+          "trustedRecovery": {
+            "state": "pass",
+            "reason": "关闭夹具/服务后重启只读恢复完整报告JSON相等；持久校验无issues，原附件与下载副本逐项hash和字节一致；不改未完成状态。",
+            "evidenceRefs": [
+              "R3/report.json",
+              "R3/restored-report.json",
+              "artifact-verification.json"
+            ]
+          }
+        },
+        "status": "blocked",
+        "coverage": "partial",
+        "pathState": "unverified",
+        "requests": 6,
+        "knownCostUsd": 0.006586098,
+        "elapsedMs": 60038,
+        "successfulRegistrations": 1,
+        "modelRequestsThroughRegistration": 3,
+        "modelRequestsBeforeRegistration": 2,
+        "requestStages": [
+          {
+            "requestSeq": 1,
+            "requestId": "31c4b17c2e89ff6e4958e593",
+            "stage": "source-reading-without-registration",
+            "executionPhase": "registration-required",
+            "tools": [
+              "product_source_overview",
+              "product_source_search"
+            ]
+          },
+          {
+            "requestSeq": 2,
+            "requestId": "21d22c15cf09c6cbc46cbe61",
+            "stage": "source-reading-without-registration",
+            "executionPhase": "registration-required",
+            "tools": [
+              "product_source_read",
+              "product_source_read"
+            ]
+          },
+          {
+            "requestSeq": 3,
+            "requestId": "53656dc390ce9e22c1fc9d2e",
+            "stage": "registration",
+            "executionPhase": "registration-required",
+            "tools": [
+              "product_path_register"
+            ]
+          },
+          {
+            "requestSeq": 4,
+            "requestId": "5455f09714b04a55c9e54ebc",
+            "stage": "read-only-after-registration",
+            "executionPhase": "bind-next-step",
+            "tools": [
+              "element_details"
+            ]
+          },
+          {
+            "requestSeq": 5,
+            "requestId": "00809c0921c7e98c74581769",
+            "stage": "read-only-after-registration",
+            "executionPhase": "bind-next-step",
+            "tools": [
+              "tool_result_read"
+            ]
+          },
+          {
+            "requestSeq": 6,
+            "requestId": "3aebd4db5b209bfefa4f4b50",
+            "stage": "read-only-after-registration",
+            "executionPhase": "bind-next-step",
+            "tools": [
+              "product_path_status"
+            ]
+          }
+        ],
+        "registrationAttempts": [
+          {
+            "seq": 3,
+            "requestId": "53656dc390ce9e22c1fc9d2e",
+            "input": {
+              "sourceId": "product-source:ec57d78d9c67448ca6796c79a45e76c8ce6f83bf1bece06ebad92f5ee2b15d6d",
+              "contentHash": "ea562970feaaf24b272bec372e4f18ef55a1246c79bbeb44be0889f86740ab38",
+              "title": "访客从预览到详情就绪路径",
+              "rationale": "源文规定：目录可用状态为“可用”时，访客点击“预览目录”后预览状态立即变为“预览就绪”并出现“查看详情”；预览就绪后点击“查看详情”详情状态立即变为“详情已就绪”。冻结这两步以检查该匿名路径是否可达。",
+              "unchecked": [
+                "目录可用状态为“暂不可用”时预览功能的实际行为（源文声明这不代表功能错误）",
+                "移动端适配、读屏器体验、长时间稳定性、网络恢复",
+                "登录相关的收藏、同步、管理员维护",
+                "推荐内容与排序（本版本不承诺）"
+              ],
+              "assumptions": [],
+              "steps": [
+                {
+                  "title": "点击“预览目录”",
+                  "targetName": "预览目录",
+                  "citation": {
+                    "citationId": "pcite:f8c149cca2194e705b13f07886952464103a171fa25a2924b1245bf4387e02a6"
+                  },
+                  "certainty": "explicit",
+                  "action": "click",
+                  "value": null,
+                  "expectation": {
+                    "condition": "text-equals",
+                    "expected": "预览就绪"
+                  },
+                  "timing": "action-complete",
+                  "preconditions": [
+                    {
+                      "description": "目录可用状态的文字为“可用”",
+                      "citation": {
+                        "citationId": "pcite:f8c149cca2194e705b13f07886952464103a171fa25a2924b1245bf4387e02a6"
+                      },
+                      "expectation": {
+                        "condition": "text-equals",
+                        "expected": "可用"
+                      }
+                    }
+                  ],
+                  "limitation": null,
+                  "review": {
+                    "preconditionsComplete": true,
+                    "predicatesDistinguishStates": true,
+                    "substringJustification": null
+                  }
+                },
+                {
+                  "title": "点击“查看详情”",
+                  "targetName": "查看详情",
+                  "citation": {
+                    "citationId": "pcite:f8c149cca2194e705b13f07886952464103a171fa25a2924b1245bf4387e02a6"
+                  },
+                  "certainty": "explicit",
+                  "action": "click",
+                  "value": null,
+                  "expectation": {
+                    "condition": "text-equals",
+                    "expected": "详情已就绪"
+                  },
+                  "timing": "action-complete",
+                  "preconditions": [
+                    {
+                      "description": "预览状态区域的文字为“预览就绪”（由前一步点击“预览目录”达成，且“查看详情”按钮出现）",
+                      "citation": {
+                        "citationId": "pcite:f8c149cca2194e705b13f07886952464103a171fa25a2924b1245bf4387e02a6"
+                      },
+                      "expectation": {
+                        "condition": "text-equals",
+                        "expected": "预览就绪"
+                      }
+                    }
+                  ],
+                  "limitation": null,
+                  "review": {
+                    "preconditionsComplete": true,
+                    "predicatesDistinguishStates": true,
+                    "substringJustification": null
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "registrationRejections": [],
+        "registrationRepairs": 0,
+        "readinessSemanticReview": {
+          "assumptions": [],
+          "bothPrerequisitesPresent": true,
+          "predicatesDistinguishStates": true,
+          "reviewBooleansTruth": "原文、完整参数和原始引用逐项核对，非仅接受true。",
+          "substringJustificationNeeded": false,
+          "newFeedbackRepairExercised": false,
+          "additionalInitialStatePrerequisites": false
+        },
+        "actions": 0,
+        "bindings": 0,
+        "toolErrors": [],
+        "sourceReadSearchCalls": 3,
+        "exactRepeatedSourceCalls": 0,
+        "noProgressEvents": 1,
+        "noProgressEventRefs": [
+          "R3/events.json#event=evt-0f2c66a7-9fa4-45d4-afe3-99e0a5d9ff00"
+        ],
+        "outputExhaustion": false,
+        "boundarySubscore": {
+          "state": "pass",
+          "reason": "登记条件性两步计划后，element_details在原availability节点观察暂不可用、preview按钮disabled，两个结果仍为初始状态。结合已接受前置与unchecked中明确不是功能错误的边界，支持有来源弃权；无动作、无缺陷误报。按原标准允许只读取证，不要求额外绑定/点击。",
+          "noRuntimePreconditionMeasurement": true
+        },
+        "readOnlyNodeEvidence": [
+          {
+            "requestSeq": 4,
+            "eventId": "evt-2177d9cb-2747-4223-a3e0-98ed15728311",
+            "nodes": [
+              {
+                "ref": "e4",
+                "selector": "html > body:nth-of-type(1) > main:nth-of-type(1) > section:nth-of-type(1) > p:nth-of-type(1)",
+                "text": "暂不可用",
+                "attributes": {
+                  "id": "availability"
+                }
+              },
+              {
+                "ref": "e5",
+                "selector": "html > body:nth-of-type(1) > main:nth-of-type(1) > button:nth-of-type(1)",
+                "text": "预览目录",
+                "attributes": {
+                  "id": "preview",
+                  "type": "button",
+                  "disabled": ""
+                }
+              },
+              {
+                "ref": "e7",
+                "selector": "html > body:nth-of-type(1) > main:nth-of-type(1) > section:nth-of-type(2) > p:nth-of-type(1)",
+                "text": "尚未预览",
+                "attributes": {
+                  "id": "preview-state",
+                  "role": "status"
+                }
+              },
+              {
+                "ref": "e9",
+                "selector": "html > body:nth-of-type(1) > main:nth-of-type(1) > section:nth-of-type(3) > p:nth-of-type(1)",
+                "text": "尚未查看",
+                "attributes": {
+                  "id": "details-state",
+                  "role": "status"
+                }
+              }
+            ]
+          }
+        ],
+        "requiredEffects": [],
+        "uncheckedScope": [
+          "目录可用状态为“暂不可用”时预览功能的实际行为（源文声明这不代表功能错误）",
+          "移动端适配、读屏器体验、长时间稳定性、网络恢复",
+          "登录相关的收藏、同步、管理员维护",
+          "推荐内容与排序（本版本不承诺）"
+        ],
+        "scopeGatePreserved": true,
+        "sourceReadSubscore": "pass",
+        "restoredFullJsonEqual": true,
+        "artifactCount": 15
+      },
+      {
+        "id": "R4",
+        "runId": "run-72b9b286-1da3-4c0e-90f8-90cf776bfc2f",
+        "variant": "unavailable",
+        "classification": "prerequisite-insufficient-correct-readonly",
+        "primaryAcceptance": true,
+        "criteria": {
+          "sourceReadingAndExtraction": {
+            "state": "pass",
+            "reason": "完整原文实际进入模型请求；四处已发放精确引用支持两个即时效果、action-complete时限和两级前置。assumptions为空且逐条内容无假设替代；text-equals区分可用/暂不可用及详情成功/错误；review声明经原文核对成立，不以布尔值直接判分。",
+            "evidenceRefs": [
+              "R4/report.json",
+              "R4/events.json",
+              "trajectory-audit.json#row=R4",
+              "tool-receipt-audit.json#row=R4",
+              "input-audit.json#row=R4",
+              "citation-audit.json#row=R4"
+            ]
+          },
+          "selectionAndRegistration": {
+            "state": "pass",
+            "reason": "一次成功登记两步匿名click及有来源理由；保留正确前置与未支持范围，动态第二步来自真实观察，不扩权。",
+            "evidenceRefs": [
+              "R4/report.json",
+              "R4/events.json",
+              "trajectory-audit.json#row=R4",
+              "tool-receipt-audit.json#row=R4"
+            ]
+          },
+          "executionAndMeasurement": {
+            "state": "pass",
+            "reason": "模型请求3已明确描述暂不可用和禁用按钮，但误用investigation_check被原效果门拒绝，不将这份unknown回执算缺陷或测量。随后正确登记，page_inspect/element_details在原节点确认暂不可用、disabled和初始状态；有来源条件与实际不足相符，无动作/误报，按原只读取证规则记正确弃权。",
+            "evidenceRefs": [
+              "R4/report.json",
+              "R4/events.json",
+              "trajectory-audit.json#row=R4",
+              "tool-receipt-audit.json#row=R4"
+            ]
+          },
+          "scopeAndConclusion": {
+            "state": "pass",
+            "reason": "报告保留默认采样和所有已选义务，区分效果未验证、缺陷与未检查范围；无全站/全文覆盖声明。 仍为blocked/unverified-scope，产品路径pending/no-progress原样保留，未伪装covered。未知对照只需有依据保留未验证，故语义边界可通过；这不是把普通partial记为通过。没有运行时前置测量，也没有独立最终模型说明，结论由审阅者以原计划和原只读事实核对。",
+            "evidenceRefs": [
+              "R4/report.json",
+              "R4/events.json",
+              "trajectory-audit.json#row=R4",
+              "tool-receipt-audit.json#row=R4"
+            ]
+          },
+          "trustedRecovery": {
+            "state": "pass",
+            "reason": "关闭夹具/服务后重启只读恢复完整报告JSON相等；持久校验无issues，原附件与下载副本逐项hash和字节一致；不改未完成状态。",
+            "evidenceRefs": [
+              "R4/report.json",
+              "R4/restored-report.json",
+              "artifact-verification.json"
+            ]
+          }
+        },
+        "status": "blocked",
+        "coverage": "partial",
+        "pathState": "unverified",
+        "requests": 9,
+        "knownCostUsd": 0.009828082,
+        "elapsedMs": 131314,
+        "successfulRegistrations": 1,
+        "modelRequestsThroughRegistration": 5,
+        "modelRequestsBeforeRegistration": 4,
+        "requestStages": [
+          {
+            "requestSeq": 1,
+            "requestId": "6fdfce4747f2b86f78a5a6c9",
+            "stage": "source-reading-without-registration",
+            "executionPhase": "registration-required",
+            "tools": [
+              "product_source_overview"
+            ]
+          },
+          {
+            "requestSeq": 2,
+            "requestId": "44835afa896ea14455feb088",
+            "stage": "source-reading-without-registration",
+            "executionPhase": "registration-required",
+            "tools": [
+              "product_source_read",
+              "product_source_overview"
+            ]
+          },
+          {
+            "requestSeq": 3,
+            "requestId": "7de0ad6e2d4a63d4d081c3e9",
+            "stage": "source-reading-without-registration",
+            "executionPhase": "registration-required",
+            "tools": [
+              "investigation_check"
+            ]
+          },
+          {
+            "requestSeq": 4,
+            "requestId": "1177fd4835d7d45c3fb225a1",
+            "stage": "source-reading-without-registration",
+            "executionPhase": "registration-required",
+            "tools": [
+              "product_source_read"
+            ]
+          },
+          {
+            "requestSeq": 5,
+            "requestId": "03eecfb9fea2c24a3db161ee",
+            "stage": "registration",
+            "executionPhase": "registration-required",
+            "tools": [
+              "product_path_register"
+            ]
+          },
+          {
+            "requestSeq": 6,
+            "requestId": "b916e96d899863d3ade1d3f0",
+            "stage": "read-only-after-registration",
+            "executionPhase": "bind-next-step",
+            "tools": [
+              "tool_result_read",
+              "page_inspect"
+            ]
+          },
+          {
+            "requestSeq": 7,
+            "requestId": "da91209aaac98870b987d305",
+            "stage": "read-only-after-registration",
+            "executionPhase": "bind-next-step",
+            "tools": [
+              "product_path_status",
+              "tool_result_read"
+            ]
+          },
+          {
+            "requestSeq": 8,
+            "requestId": "ed64b5c5d762c5b724cd0da6",
+            "stage": "read-only-after-registration",
+            "executionPhase": "bind-next-step",
+            "tools": [
+              "element_details"
+            ]
+          },
+          {
+            "requestSeq": 9,
+            "requestId": "c052ecf2d9a9a3158e3a2e1d",
+            "stage": "read-only-after-registration",
+            "executionPhase": "bind-next-step",
+            "tools": [
+              "product_source_read"
+            ]
+          }
+        ],
+        "registrationAttempts": [
+          {
+            "seq": 5,
+            "requestId": "03eecfb9fea2c24a3db161ee",
+            "input": {
+              "sourceId": "product-source:ec57d78d9c67448ca6796c79a45e76c8ce6f83bf1bece06ebad92f5ee2b15d6d",
+              "contentHash": "ea562970feaaf24b272bec372e4f18ef55a1246c79bbeb44be0889f86740ab38",
+              "title": "访客预览→查看详情路径",
+              "rationale": "规格要求访客在目录可用时点击预览目录使预览状态立即变为预览就绪并出现查看详情，再点击查看详情使详情状态立即变为详情已就绪；两步均为本地点击，可在匿名只读范围验证。",
+              "unchecked": [
+                "详情状态是否变为详情已就绪取决于预览前置条件满足后执行",
+                "推荐/排序/刷新时机未承诺，不在验证范围",
+                "移动端适配、读屏器、长时间稳定性、网络恢复不在验收范围",
+                "保存收藏、跨设备同步、管理员维护需登录，超出匿名范围"
+              ],
+              "assumptions": [],
+              "steps": [
+                {
+                  "title": "点击预览目录",
+                  "targetName": "预览目录",
+                  "citation": {
+                    "citationId": "pcite:c250613921a0b90fde5c1206d09fdf136207d52d5b5679405760642739d3ed0a"
+                  },
+                  "certainty": "explicit",
+                  "action": "click",
+                  "value": null,
+                  "expectation": {
+                    "condition": "text-equals",
+                    "expected": "预览就绪"
+                  },
+                  "timing": "action-complete",
+                  "preconditions": [
+                    {
+                      "description": "目录可用状态为“可用”",
+                      "citation": {
+                        "citationId": "pcite:c250613921a0b90fde5c1206d09fdf136207d52d5b5679405760642739d3ed0a"
+                      },
+                      "expectation": {
+                        "condition": "text-equals",
+                        "expected": "可用"
+                      }
+                    }
+                  ],
+                  "limitation": null,
+                  "review": {
+                    "preconditionsComplete": true,
+                    "predicatesDistinguishStates": true,
+                    "substringJustification": null
+                  }
+                },
+                {
+                  "title": "点击查看详情",
+                  "targetName": "查看详情",
+                  "citation": {
+                    "citationId": "pcite:c250613921a0b90fde5c1206d09fdf136207d52d5b5679405760642739d3ed0a"
+                  },
+                  "certainty": "explicit",
+                  "action": "click",
+                  "value": null,
+                  "expectation": {
+                    "condition": "text-equals",
+                    "expected": "详情已就绪"
+                  },
+                  "timing": "action-complete",
+                  "preconditions": [
+                    {
+                      "description": "预览状态为“预览就绪”",
+                      "citation": {
+                        "citationId": "pcite:c250613921a0b90fde5c1206d09fdf136207d52d5b5679405760642739d3ed0a"
+                      },
+                      "expectation": {
+                        "condition": "text-equals",
+                        "expected": "预览就绪"
+                      }
+                    }
+                  ],
+                  "limitation": null,
+                  "review": {
+                    "preconditionsComplete": true,
+                    "predicatesDistinguishStates": true,
+                    "substringJustification": null
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "registrationRejections": [],
+        "registrationRepairs": 0,
+        "readinessSemanticReview": {
+          "assumptions": [],
+          "bothPrerequisitesPresent": true,
+          "predicatesDistinguishStates": true,
+          "reviewBooleansTruth": "原文、完整参数和原始引用逐项核对，非仅接受true。",
+          "substringJustificationNeeded": false,
+          "newFeedbackRepairExercised": false,
+          "additionalInitialStatePrerequisites": false
+        },
+        "actions": 0,
+        "bindings": 0,
+        "toolErrors": [
+          {
+            "requestSeq": 3,
+            "tool": "investigation_check",
+            "eventId": "evt-1712597a-26e1-4ce2-a5a5-d1954e9c2c91",
+            "result": {
+              "error": "v2-effect-checks-use-registered-requirements-and-original-checkRef",
+              "verdict": "unknown"
+            }
+          }
+        ],
+        "sourceReadSearchCalls": 3,
+        "exactRepeatedSourceCalls": 2,
+        "noProgressEvents": 1,
+        "noProgressEventRefs": [
+          "R4/events.json#event=evt-cb22fd8f-1bf2-4c92-a455-f1d7533650c5"
+        ],
+        "outputExhaustion": false,
+        "boundarySubscore": {
+          "state": "pass",
+          "reason": "模型请求3已明确描述暂不可用和禁用按钮，但误用investigation_check被原效果门拒绝，不将这份unknown回执算缺陷或测量。随后正确登记，page_inspect/element_details在原节点确认暂不可用、disabled和初始状态；有来源条件与实际不足相符，无动作/误报，按原只读取证规则记正确弃权。",
+          "noRuntimePreconditionMeasurement": true
+        },
+        "readOnlyNodeEvidence": [
+          {
+            "requestSeq": 8,
+            "eventId": "evt-9f0ae765-2601-4e00-a1da-d97c382d826e",
+            "nodes": [
+              {
+                "ref": "e4",
+                "selector": "html > body:nth-of-type(1) > main:nth-of-type(1) > section:nth-of-type(1) > p:nth-of-type(1)",
+                "text": "暂不可用",
+                "attributes": {
+                  "id": "availability"
+                }
+              },
+              {
+                "ref": "e5",
+                "selector": "html > body:nth-of-type(1) > main:nth-of-type(1) > button:nth-of-type(1)",
+                "text": "预览目录",
+                "attributes": {
+                  "id": "preview",
+                  "type": "button",
+                  "disabled": ""
+                }
+              },
+              {
+                "ref": "e7",
+                "selector": "html > body:nth-of-type(1) > main:nth-of-type(1) > section:nth-of-type(2) > p:nth-of-type(1)",
+                "text": "尚未预览",
+                "attributes": {
+                  "id": "preview-state",
+                  "role": "status"
+                }
+              },
+              {
+                "ref": "e9",
+                "selector": "html > body:nth-of-type(1) > main:nth-of-type(1) > section:nth-of-type(3) > p:nth-of-type(1)",
+                "text": "尚未查看",
+                "attributes": {
+                  "id": "details-state",
+                  "role": "status"
+                }
+              }
+            ]
+          }
+        ],
+        "requiredEffects": [],
+        "uncheckedScope": [
+          "详情状态是否变为详情已就绪取决于预览前置条件满足后执行",
+          "推荐/排序/刷新时机未承诺，不在验证范围",
+          "移动端适配、读屏器、长时间稳定性、网络恢复不在验收范围",
+          "保存收藏、跨设备同步、管理员维护需登录，超出匿名范围"
+        ],
+        "scopeGatePreserved": true,
+        "sourceReadSubscore": "pass",
+        "restoredFullJsonEqual": true,
+        "artifactCount": 16
+      },
+      {
+        "id": "R5",
+        "runId": "run-207fd7a8-2ad5-4273-a3f9-cf11c6cfafa7",
+        "variant": "defect",
+        "classification": "no-progress-without-registration",
+        "primaryAcceptance": false,
+        "criteria": {
+          "sourceReadingAndExtraction": {
+            "state": "unverified",
+            "reason": "已完整读取原文，但无提交计划，不能由读取/搜索代替完整要求提取。",
+            "evidenceRefs": [
+              "R5/report.json",
+              "R5/events.json",
+              "trajectory-audit.json#row=R5",
+              "tool-receipt-audit.json#row=R5",
+              "input-audit.json#row=R5",
+              "citation-audit.json#row=R5"
+            ]
+          },
+          "selectionAndRegistration": {
+            "state": "fail",
+            "reason": "无登记调用或product:planned；原必需路径未建立。",
+            "evidenceRefs": [
+              "R5/report.json",
+              "R5/events.json",
+              "trajectory-audit.json#row=R5",
+              "tool-receipt-audit.json#row=R5"
+            ]
+          },
+          "executionAndMeasurement": {
+            "state": "unverified",
+            "reason": "读/搜10次并重复原文和两条效果搜索，未登记、绑定或执行；两个效果未验证、详情缺陷未到达。",
+            "evidenceRefs": [
+              "R5/report.json",
+              "R5/events.json",
+              "trajectory-audit.json#row=R5",
+              "tool-receipt-audit.json#row=R5"
+            ]
+          },
+          "scopeAndConclusion": {
+            "state": "unverified",
+            "reason": "报告保留默认采样和所有已选义务，区分效果未验证、缺陷与未检查范围；无全站/全文覆盖声明。 仍由no-progress保守终止，必要可执行路径未完成，完成子项未验证。",
+            "evidenceRefs": [
+              "R5/report.json",
+              "R5/events.json",
+              "trajectory-audit.json#row=R5",
+              "tool-receipt-audit.json#row=R5"
+            ]
+          },
+          "trustedRecovery": {
+            "state": "pass",
+            "reason": "关闭夹具/服务后重启只读恢复完整报告JSON相等；持久校验无issues，原附件与下载副本逐项hash和字节一致；不改未完成状态。",
+            "evidenceRefs": [
+              "R5/report.json",
+              "R5/restored-report.json",
+              "artifact-verification.json"
+            ]
+          }
+        },
+        "status": "blocked",
+        "coverage": "partial",
+        "pathState": "unverified",
+        "requests": 6,
+        "knownCostUsd": 0.004713057,
+        "elapsedMs": 28961,
+        "successfulRegistrations": 0,
+        "modelRequestsThroughRegistration": null,
+        "modelRequestsBeforeRegistration": null,
+        "requestStages": [
+          {
+            "requestSeq": 1,
+            "requestId": "c8f064da6dfd3b7957bec4a8",
+            "stage": "source-reading-without-registration",
+            "executionPhase": "registration-required",
+            "tools": [
+              "product_source_overview"
+            ]
+          },
+          {
+            "requestSeq": 2,
+            "requestId": "60996b991cc2ad9a1c797336",
+            "stage": "source-reading-without-registration",
+            "executionPhase": "registration-required",
+            "tools": [
+              "product_source_read"
+            ]
+          },
+          {
+            "requestSeq": 3,
+            "requestId": "134f6b599d0625549e6bef82",
+            "stage": "source-reading-without-registration",
+            "executionPhase": "registration-required",
+            "tools": [
+              "product_source_search",
+              "product_source_search",
+              "product_source_search"
+            ]
+          },
+          {
+            "requestSeq": 4,
+            "requestId": "4d10df51bbb27d5cd4bef200",
+            "stage": "source-reading-without-registration",
+            "executionPhase": "registration-required",
+            "tools": [
+              "product_source_read"
+            ]
+          },
+          {
+            "requestSeq": 5,
+            "requestId": "7cb67c52fee989a1a7750b8e",
+            "stage": "source-reading-without-registration",
+            "executionPhase": "registration-required",
+            "tools": [
+              "product_source_search",
+              "product_source_search",
+              "product_source_search"
+            ]
+          },
+          {
+            "requestSeq": 6,
+            "requestId": "0e637f33ea0e37fb5e4fb2ff",
+            "stage": "source-reading-without-registration",
+            "executionPhase": "registration-required",
+            "tools": [
+              "product_source_search",
+              "product_source_search"
+            ]
+          }
+        ],
+        "registrationAttempts": [],
+        "registrationRejections": [],
+        "registrationRepairs": 0,
+        "readinessSemanticReview": null,
+        "actions": 0,
+        "bindings": 0,
+        "toolErrors": [],
+        "sourceReadSearchCalls": 10,
+        "exactRepeatedSourceCalls": 3,
+        "noProgressEvents": 1,
+        "noProgressEventRefs": [
+          "R5/events.json#event=evt-284d0160-4f7a-4dc5-8a00-06cf6d6450ca"
+        ],
+        "outputExhaustion": false,
+        "boundarySubscore": null,
+        "readOnlyNodeEvidence": [],
+        "requiredEffects": [
+          {
+            "name": "预览就绪",
+            "state": "unverified",
+            "actionId": null,
+            "requirementId": null,
+            "actual": null,
+            "reason": "not-executed",
+            "evidenceRefs": [],
+            "eventIds": []
+          },
+          {
+            "name": "详情已就绪",
+            "state": "unverified",
+            "actionId": null,
+            "requirementId": null,
+            "actual": null,
+            "reason": "not-executed",
+            "evidenceRefs": [],
+            "eventIds": []
+          }
+        ],
+        "uncheckedScope": [
+          "资料尚未登记关键路径；全文未验证"
+        ],
+        "scopeGatePreserved": true,
+        "sourceReadSubscore": "pass",
+        "restoredFullJsonEqual": true,
+        "artifactCount": 14
+      },
+      {
+        "id": "R6",
+        "runId": "run-4d65c5b5-75f0-41a2-af34-a4777fba92de",
+        "variant": "healthy",
+        "classification": "binding-cardinality-not-repaired",
+        "primaryAcceptance": false,
+        "criteria": {
+          "sourceReadingAndExtraction": {
+            "state": "pass",
+            "reason": "完整原文实际进入模型请求；四处已发放精确引用支持两个即时效果、action-complete时限和两级前置。assumptions为空且逐条内容无假设替代；text-equals区分可用/暂不可用及详情成功/错误；review声明经原文核对成立，不以布尔值直接判分。 本行六处引用：另把两个初始状态登记为首次执行的条件；均有原文且本页真实成立，不是无来源假设，但增加了每步需绑定的条件数量。",
+            "evidenceRefs": [
+              "R6/report.json",
+              "R6/events.json",
+              "trajectory-audit.json#row=R6",
+              "tool-receipt-audit.json#row=R6",
+              "input-audit.json#row=R6",
+              "citation-audit.json#row=R6"
+            ]
+          },
+          "selectionAndRegistration": {
+            "state": "pass",
+            "reason": "一次成功登记两步匿名click及有来源理由；保留正确前置与未支持范围，动态第二步来自真实观察，不扩权。",
+            "evidenceRefs": [
+              "R6/report.json",
+              "R6/events.json",
+              "trajectory-audit.json#row=R6",
+              "tool-receipt-audit.json#row=R6"
+            ]
+          },
+          "executionAndMeasurement": {
+            "state": "unverified",
+            "reason": "登记每步两个前置，却只为第一步传一个availability选择器；虽节点正确且已观察可用/尚未预览，仍因数量不匹配被product-precondition-bindings-required拒绝。之后重复读取登记和错误回执，未补第二个条件选择器，也未动作。不是零匹配或实际前置不足。",
+            "evidenceRefs": [
+              "R6/report.json",
+              "R6/events.json",
+              "trajectory-audit.json#row=R6",
+              "tool-receipt-audit.json#row=R6"
+            ]
+          },
+          "scopeAndConclusion": {
+            "state": "unverified",
+            "reason": "报告保留默认采样和所有已选义务，区分效果未验证、缺陷与未检查范围；无全站/全文覆盖声明。 仍由no-progress保守终止，必要可执行路径未完成，完成子项未验证。",
+            "evidenceRefs": [
+              "R6/report.json",
+              "R6/events.json",
+              "trajectory-audit.json#row=R6",
+              "tool-receipt-audit.json#row=R6"
+            ]
+          },
+          "trustedRecovery": {
+            "state": "pass",
+            "reason": "关闭夹具/服务后重启只读恢复完整报告JSON相等；持久校验无issues，原附件与下载副本逐项hash和字节一致；不改未完成状态。",
+            "evidenceRefs": [
+              "R6/report.json",
+              "R6/restored-report.json",
+              "artifact-verification.json"
+            ]
+          }
+        },
+        "status": "blocked",
+        "coverage": "partial",
+        "pathState": "unverified",
+        "requests": 7,
+        "knownCostUsd": 0.004857917,
+        "elapsedMs": 83700,
+        "successfulRegistrations": 1,
+        "modelRequestsThroughRegistration": 3,
+        "modelRequestsBeforeRegistration": 2,
+        "requestStages": [
+          {
+            "requestSeq": 1,
+            "requestId": "ee343a8f381d573cb270d334",
+            "stage": "source-reading-without-registration",
+            "executionPhase": "registration-required",
+            "tools": [
+              "product_source_overview"
+            ]
+          },
+          {
+            "requestSeq": 2,
+            "requestId": "270129d5dccfc3be384a3a36",
+            "stage": "source-reading-without-registration",
+            "executionPhase": "registration-required",
+            "tools": [
+              "product_source_read"
+            ]
+          },
+          {
+            "requestSeq": 3,
+            "requestId": "9f1abcd331c5eaccccef013f",
+            "stage": "registration",
+            "executionPhase": "registration-required",
+            "tools": [
+              "product_path_register"
+            ]
+          },
+          {
+            "requestSeq": 4,
+            "requestId": "80d07284383b652a00e6a676",
+            "stage": "read-only-after-registration",
+            "executionPhase": "bind-next-step",
+            "tools": [
+              "element_details"
+            ]
+          },
+          {
+            "requestSeq": 5,
+            "requestId": "2e651efb5cd976a4a5fc9849",
+            "stage": "binding",
+            "executionPhase": "bind-next-step",
+            "tools": [
+              "product_path_bind"
+            ]
+          },
+          {
+            "requestSeq": 6,
+            "requestId": "fc2d85d41b8ce7546d917a1d",
+            "stage": "read-only-after-registration",
+            "executionPhase": "bind-next-step",
+            "tools": [
+              "tool_result_read"
+            ]
+          },
+          {
+            "requestSeq": 7,
+            "requestId": "268f7bc24b51c7f5a0db1d8b",
+            "stage": "read-only-after-registration",
+            "executionPhase": "bind-next-step",
+            "tools": [
+              "tool_result_read",
+              "tool_result_read"
+            ]
+          }
+        ],
+        "registrationAttempts": [
+          {
+            "seq": 3,
+            "requestId": "9f1abcd331c5eaccccef013f",
+            "input": {
+              "sourceId": "product-source:ec57d78d9c67448ca6796c79a45e76c8ce6f83bf1bece06ebad92f5ee2b15d6d",
+              "contentHash": "ea562970feaaf24b272bec372e4f18ef55a1246c79bbeb44be0889f86740ab38",
+              "title": "访客预览到详情就绪路径",
+              "rationale": "源规格描述访客从预览目录到查看详情的两步本地路径：点击预览目录后预览状态立即变为预览就绪并出现查看详情按钮；随后点击查看详情，详情状态立即变为详情已就绪。",
+              "unchecked": [
+                "推荐结果与排序（本版本不承诺）",
+                "收藏/同步/管理员维护（需登录，不属匿名预览）",
+                "移动端适配、读屏器完整体验、长时间稳定性、网络恢复"
+              ],
+              "assumptions": [],
+              "steps": [
+                {
+                  "title": "点击预览目录",
+                  "targetName": "预览目录",
+                  "citation": {
+                    "citationId": "pcite:c250613921a0b90fde5c1206d09fdf136207d52d5b5679405760642739d3ed0a"
+                  },
+                  "certainty": "explicit",
+                  "action": "click",
+                  "value": null,
+                  "expectation": {
+                    "condition": "text-equals",
+                    "expected": "预览就绪"
+                  },
+                  "timing": "action-complete",
+                  "preconditions": [
+                    {
+                      "description": "目录可用状态为可用",
+                      "citation": {
+                        "citationId": "pcite:c250613921a0b90fde5c1206d09fdf136207d52d5b5679405760642739d3ed0a"
+                      },
+                      "expectation": {
+                        "condition": "text-equals",
+                        "expected": "可用"
+                      }
+                    },
+                    {
+                      "description": "预览状态初始为尚未预览",
+                      "citation": {
+                        "citationId": "pcite:c250613921a0b90fde5c1206d09fdf136207d52d5b5679405760642739d3ed0a"
+                      },
+                      "expectation": {
+                        "condition": "text-equals",
+                        "expected": "尚未预览"
+                      }
+                    }
+                  ],
+                  "limitation": null,
+                  "review": {
+                    "preconditionsComplete": true,
+                    "predicatesDistinguishStates": true,
+                    "substringJustification": null
+                  }
+                },
+                {
+                  "title": "点击查看详情",
+                  "targetName": "查看详情",
+                  "citation": {
+                    "citationId": "pcite:c250613921a0b90fde5c1206d09fdf136207d52d5b5679405760642739d3ed0a"
+                  },
+                  "certainty": "explicit",
+                  "action": "click",
+                  "value": null,
+                  "expectation": {
+                    "condition": "text-equals",
+                    "expected": "详情已就绪"
+                  },
+                  "timing": "action-complete",
+                  "preconditions": [
+                    {
+                      "description": "预览状态已为预览就绪（上一步结果），才可查看详情",
+                      "citation": {
+                        "citationId": "pcite:c250613921a0b90fde5c1206d09fdf136207d52d5b5679405760642739d3ed0a"
+                      },
+                      "expectation": {
+                        "condition": "text-equals",
+                        "expected": "预览就绪"
+                      }
+                    },
+                    {
+                      "description": "详情状态初始为尚未查看",
+                      "citation": {
+                        "citationId": "pcite:c250613921a0b90fde5c1206d09fdf136207d52d5b5679405760642739d3ed0a"
+                      },
+                      "expectation": {
+                        "condition": "text-equals",
+                        "expected": "尚未查看"
+                      }
+                    }
+                  ],
+                  "limitation": null,
+                  "review": {
+                    "preconditionsComplete": true,
+                    "predicatesDistinguishStates": true,
+                    "substringJustification": null
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "registrationRejections": [],
+        "registrationRepairs": 0,
+        "readinessSemanticReview": {
+          "assumptions": [],
+          "bothPrerequisitesPresent": true,
+          "predicatesDistinguishStates": true,
+          "reviewBooleansTruth": "原文、完整参数和原始引用逐项核对，非仅接受true。",
+          "substringJustificationNeeded": false,
+          "newFeedbackRepairExercised": false,
+          "additionalInitialStatePrerequisites": true
+        },
+        "actions": 0,
+        "bindings": 0,
+        "toolErrors": [
+          {
+            "requestSeq": 5,
+            "tool": "product_path_bind",
+            "eventId": "evt-7098341c-70d6-4231-a85c-19e138bf1820",
+            "result": {
+              "status": "error",
+              "error": "product-precondition-bindings-required"
+            }
+          }
+        ],
+        "sourceReadSearchCalls": 1,
+        "exactRepeatedSourceCalls": 0,
+        "noProgressEvents": 1,
+        "noProgressEventRefs": [
+          "R6/events.json#event=evt-3c1f061c-00ce-44db-a1f6-43e5a5869543"
+        ],
+        "outputExhaustion": false,
+        "boundarySubscore": null,
+        "readOnlyNodeEvidence": [
+          {
+            "requestSeq": 4,
+            "eventId": "evt-8cf33771-905e-487d-b831-80b32c121258",
+            "nodes": [
+              {
+                "ref": "e4",
+                "selector": "html > body:nth-of-type(1) > main:nth-of-type(1) > section:nth-of-type(1) > p:nth-of-type(1)",
+                "text": "可用",
+                "attributes": {
+                  "id": "availability"
+                }
+              },
+              {
+                "ref": "e5",
+                "selector": "html > body:nth-of-type(1) > main:nth-of-type(1) > button:nth-of-type(1)",
+                "text": "预览目录",
+                "attributes": {
+                  "id": "preview",
+                  "type": "button"
+                }
+              },
+              {
+                "ref": "e7",
+                "selector": "html > body:nth-of-type(1) > main:nth-of-type(1) > section:nth-of-type(2) > p:nth-of-type(1)",
+                "text": "尚未预览",
+                "attributes": {
+                  "id": "preview-state",
+                  "role": "status"
+                }
+              }
+            ]
+          }
+        ],
+        "requiredEffects": [
+          {
+            "name": "预览就绪",
+            "state": "unverified",
+            "actionId": null,
+            "requirementId": null,
+            "actual": [],
+            "reason": "product-step-not-measured",
+            "evidenceRefs": [
+              "5d977df1-e1a6-4782-85af-d574f60bbf56.json"
+            ],
+            "eventIds": []
+          },
+          {
+            "name": "详情已就绪",
+            "state": "unverified",
+            "actionId": null,
+            "requirementId": null,
+            "actual": [],
+            "reason": "product-prior-step-not-passed",
+            "evidenceRefs": [
+              "5d977df1-e1a6-4782-85af-d574f60bbf56.json"
+            ],
+            "eventIds": []
+          }
+        ],
+        "uncheckedScope": [
+          "推荐结果与排序（本版本不承诺）",
+          "收藏/同步/管理员维护（需登录，不属匿名预览）",
+          "移动端适配、读屏器完整体验、长时间稳定性、网络恢复"
+        ],
+        "scopeGatePreserved": true,
+        "sourceReadSubscore": "pass",
+        "restoredFullJsonEqual": true,
+        "artifactCount": 15
+      }
+    ],
+    "summary": {
+      "planned": 6,
+      "dispatched": 6,
+      "terminalRows": 6,
+      "unstarted": 0,
+      "primaryAccepted": 3,
+      "registrationPass": 4,
+      "sourceExtractionPass": 4,
+      "actions": 2,
+      "bindings": 2,
+      "requiredEffects": {
+        "planned": 8,
+        "verified": 1,
+        "failed": 1,
+        "unverified": 6
+      },
+      "defect": {
+        "rows": 2,
+        "hit": 1,
+        "miss": 1,
+        "notReached": 1
+      },
+      "healthy": {
+        "rows": 2,
+        "completed": 0,
+        "falsePositive": 0,
+        "unverified": 2
+      },
+      "unavailable": {
+        "rows": 2,
+        "boundaryPass": 2,
+        "strictPrimaryPass": 2,
+        "forcedActions": 0
+      },
+      "registrationRequestSequences": {
+        "R2": 4,
+        "R3": 3,
+        "R4": 5,
+        "R6": 3
+      },
+      "citationFieldsVerified": 18,
+      "registrationRejections": 0,
+      "registrationRepairs": 0,
+      "sourceReadSearchCalls": 32,
+      "exactRepeatedSourceCalls": 9,
+      "repeatDefinition": "same source_read/search name and canonical raw arguments; overview/status/tool_result_read excluded",
+      "searchCalls": 20,
+      "searchInputErrors": 0,
+      "emptyKeywordOccurrences": 0,
+      "emptyKeywordCompatibilityLiveExercised": false,
+      "bindingErrors": 2,
+      "bindingCardinalityRepairs": 1,
+      "zeroMatchBindingRepairsLiveExercised": false,
+      "noProgressRows": 5,
+      "noProgressEvents": 5,
+      "outputExhaustionRows": 0,
+      "knownCostUsd": 0.038317084,
+      "knownCostDecimalUsd": "0.038317084",
+      "unknownReservedUsd": 0,
+      "heldReservedUsd": 0,
+      "knownRequests": 47,
+      "hardStop": null,
+      "termination": "R2 completed/covered with supported failure; other five bounded no-progress; no retry/replacement/additional run.",
+      "recovery": {
+        "fullJsonEqual": 6,
+        "artifactPairsVerified": 143
+      },
+      "batchAcceptance": false,
+      "conclusion": "原标准语义任务3/6：一个缺陷正确、两个前置不足正确；可执行路径仅R2完成，八效果仅1 verified+1 failed。未达六行/八效果/两缺陷/两弃权整批门槛。"
+    },
+    "continuationAdoption": {
+      "R2": "首步后请求11/12收到completedSteps=[0], bind-next-step；观察动态详情并绑定，请求13 act-bound-step后真实动作，完成缺陷测量。",
+      "R6": "持续bind-next-step；数量错误回执未提供新明细，模型未修正。",
+      "causalClaim": false,
+      "zeroMatchScenario": "本批未出现零匹配；不能用数量错误修复代替零匹配反馈验证。"
+    },
+    "searchCompatibility": "20次真实搜索全部成功（17 quote+3 keyword），未出现空keyword；免费历史8反例和6 null对照的SDK回放仍是兼容修复证据，不宣称本批真实重现并修复空串。",
+    "comparisonWithPrevious": {
+      "primaryAccepted": [
+        0,
+        0,
+        0,
+        3
+      ],
+      "requests": [
+        38,
+        48,
+        48,
+        47
+      ],
+      "registrations": [
+        0,
+        4,
+        2,
+        4
+      ],
+      "actions": [
+        0,
+        0,
+        1,
+        2
+      ],
+      "knownCostUsd": [
+        0.0567585,
+        0.07266395,
+        0.031491048,
+        0.038317084
+      ],
+      "interpretation": "首次完整缺陷路径与两项有来源弃权；仍有重读和绑定停滞。报价不同，不以费用比较推断效率；本批无length不关闭历史输出耗尽。"
+    },
+    "nextRecommendation": "免费回放本批R1/R5注册前重复阅读及R6前置数量不匹配后的原上下文/回执，定位已有事实为何未促成登记/补齐绑定；复用原页族与预算/门，不直接新增付费批次。",
+    "historicalAccountingPreserved": {
+      "firstBatchKnownUsd": 0.0567585,
+      "secondBatchKnownUsd": 0.07266395,
+      "thirdBatchKnownUsd": 0.031491048,
+      "earlierUnknownUsd": 0.116,
+      "reusedAuthorization": false,
+      "offsetOrClearedUnknown": false
+    },
+    "evidenceReferences": [
+      "request-context-audit.json",
+      "input-audit.json",
+      "trajectory-audit.json",
+      "tool-receipt-audit.json",
+      "citation-audit.json",
+      "artifact-verification.json",
+      "post-run-identity.json",
+      "accounting.json",
+      "requests.jsonl",
+      "responses.jsonl"
+    ]
+  },
+  "rawMechanicalReviewPendingDoesNotOverrideCompletedAgentReview": true,
+  "noCodeOrConfigurationChanges": true,
+  "noRebuildOrRepeatedFreeMatrix": true,
+  "newPaidBatchCount": 1,
+  "historicalEvidencePreserved": [
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/real-authorized-20261010/evidence-index.json",
+      "sha256": "51ec16bec55b458e241d705e62a1d15fa09266626d279555a17b8dee369b47a7",
+      "filesVerified": 236
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/real-citations-authorized-20261011/evidence-index.json",
+      "sha256": "a5d03062608c8f03d93d7e6d9ea512cc9c435acdd3e1509d0c66c3852b5fee03",
+      "filesVerified": 270
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/real-readiness-authorized-20261011/evidence-index.json",
+      "sha256": "8822ca32d5212c61450afe91e817c9d44086befd65c2af798b3c8a0abab219c4",
+      "filesVerified": 335
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/continuation-free-20261011/evidence-index.json",
+      "sha256": "a02052d399852f1a199c4bd8f1a64a68568381ef876ad61f4ff012332fa0565d",
+      "filesVerified": 716
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/search-compatibility-free-20261011/evidence-index.json",
+      "sha256": "5b254e052fc4a81b40e1c10f47b1812074779326d18dd2e02b1db921922fc971",
+      "filesVerified": 10
+    }
+  ]
+}

@@ -1,0 +1,135 @@
+{
+  "schema": "r2-final-candidate-preparation-1",
+  "date": "2026-10-11",
+  "branch": "codex/r2-final-candidate",
+  "baseCommit": "591f233fa916f5f11bf4d0a725280db9ce6331cc",
+  "implementationCommit": "b5659c50120309fcf15dd9909302067627fcb169",
+  "skillRevision": "product-path-6",
+  "paidCalls": 0,
+  "approvalCreated": false,
+  "newClaimCreated": false,
+  "newBrowserMatrixRuns": 0,
+  "sdkBoundary": {
+    "validationBeforeExecute": true,
+    "localOnly": true,
+    "oldEmptyKeywordRejectedBeforeBody": 8,
+    "sameRawInputsNowReachSearch": 8,
+    "historicalNullControlsStillPass": 6,
+    "activeTextUnchanged": true,
+    "querySemantics": "trim is only for mode presence; keyword context search keeps its existing case-insensitive matching, quote stays exact/case-sensitive. No intent guessing or global SDK coercion changes."
+  },
+  "validation": {
+    "targetedFiles": 4,
+    "testsPassed": 58,
+    "newCompatibilityTests": 38,
+    "commands": [
+      "pnpm exec vitest run src/inspection/product-search-compatibility.test.ts src/inspection/product-source.test.ts src/execution/product-registration.test.ts src/inspection/product-artifacts.test.ts",
+      "pnpm build",
+      "pnpm exec tsx scripts/validation/r2-search-compatibility.ts"
+    ],
+    "buildWithTypecheck": "passed",
+    "priorEvidenceReused": "50 tests and five browser scenarios from path-continuation.json, not rerun or added to real scores",
+    "developmentFailure": "One test callback annotation typecheck error; fixed type only; runtime 58 tests had passed. Failure retained."
+  },
+  "sourceHash": "7e2fafc0b5fbbe52df30a8d628d734afa918c1b0593ff5c0dedea7474b95bbad",
+  "buildHash": "5ce88b54accae5d4b8c5f8a69857a87cafcf8a132ed669f2ca87a703c5413023",
+  "toolSchemasHash": "77c0cd8c03253fc31f8af2588b2dfe28b31fb9b2eb46be321915c9e6b16fd9d0",
+  "skillHash": "ea46db5b282ad04b7b92bf6617948ae65b1c83fb3f7f5649cda72274255bc7fa",
+  "schemaCoverage": "Six product tools explicitly serialized through actual SDK input-schema adapter; all other tool definitions also frozen by entire source/build and lock hashes in the final runner manifest.",
+  "evidenceIndex": {
+    "path": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/search-compatibility-free-20261011/evidence-index.json",
+    "sha256": "5b254e052fc4a81b40e1c10f47b1812074779326d18dd2e02b1db921922fc971",
+    "files": 10
+  },
+  "staticLoopAudit": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/search-compatibility-free-20261011/static-loop-audit.json",
+  "historyPreserved": [
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/real-authorized-20261010/evidence-index.json",
+      "sha256": "51ec16bec55b458e241d705e62a1d15fa09266626d279555a17b8dee369b47a7",
+      "verifiedFiles": 236
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/real-citations-authorized-20261011/evidence-index.json",
+      "sha256": "a5d03062608c8f03d93d7e6d9ea512cc9c435acdd3e1509d0c66c3852b5fee03",
+      "verifiedFiles": 270
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/real-readiness-authorized-20261011/evidence-index.json",
+      "sha256": "8822ca32d5212c61450afe91e817c9d44086befd65c2af798b3c8a0abab219c4",
+      "verifiedFiles": 335
+    },
+    {
+      "path": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/continuation-free-20261011/evidence-index.json",
+      "sha256": "a02052d399852f1a199c4bd8f1a64a68568381ef876ad61f4ff012332fa0565d",
+      "verifiedFiles": 716
+    }
+  ],
+  "publicPriceCheck": {
+    "path": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/search-compatibility-free-20261011/public-price.json",
+    "sha256": "8f6db005104af26802e3c324f21f31c70ba6c73c42fcfa24e0fbcc18d359010a",
+    "provider": "Wafer",
+    "pricing": {
+      "prompt": "0.000000035",
+      "completion": "0.00000099",
+      "input_cache_read": "0.000000009",
+      "discount": 0
+    },
+    "noCredentialsOrInference": true
+  },
+  "freezePreparation": {
+    "manifestPath": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/manifest-final-candidate-20261011.json",
+    "procedure": "Freeze exactly once using existing CLI after final documentation/receipt commit is clean. That manifest sourceSha is the full final candidate, including docs; its canonical hash and readiness checks are delivered alongside it in final-candidate-freeze.json. Do not commit again after freeze.",
+    "readinessReceiptPath": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/final-candidate-freeze.json"
+  },
+  "proposedNewAuthorization": {
+    "runs": 6,
+    "order": [
+      "healthy",
+      "defect",
+      "unavailable",
+      "unavailable",
+      "defect",
+      "healthy"
+    ],
+    "maxRequests": 120,
+    "maxReservedUsd": 7.56,
+    "reservePerRequestUsd": 0.063,
+    "model": "deepseek/deepseek-v4.1-flash",
+    "provider": "Wafer",
+    "reasoning": "low",
+    "maxOutputTokens": 4096,
+    "perRunRequests": 20,
+    "perRunActions": 8,
+    "perRunMs": 180000,
+    "modelRequestMs": 60000,
+    "toolMs": 15000,
+    "batchMs": 1500000,
+    "retries": 0,
+    "fallback": false,
+    "jev": false,
+    "vision": false,
+    "rubric": "Original five criteria, six primary tasks and eight necessary effects; same609 UTF16 MD and three fixtures. No replacement/new rows or mid-run changes.",
+    "status": "not-authorized; no approval or real inference"
+  },
+  "remainingRealProof": [
+    "Real model uptake and source interpretation",
+    "Correct original-node binding and multi-step completion",
+    "Honest unavailable conclusion and full six-row original rubric",
+    "Whether repeated reads/output exhaustion recur"
+  ],
+  "historicalResults": {
+    "primaryAccepted": [
+      0,
+      0,
+      0
+    ],
+    "knownUsd": [
+      0.0567585,
+      0.07266395,
+      0.031491048
+    ],
+    "earlierUnknownUsd": 0.116,
+    "separateAndUnchanged": true
+  },
+  "notPushedOrMerged": true
+}

@@ -667,6 +667,12 @@ export function createDefaultCheckRuntime(host: {
       }
       for (const c of pending) await review(c.itemId, c.selector, sample)
     },
+    async reviewBinding(itemId: string, selector: string) {
+      if (itemRefs.has(itemId)) throw Error('v2-original-item-already-dispatched')
+      const sample = await publicSample(-1)
+      if (!sample.page.complete) throw Error('v2-source-review-incomplete: no operation dispatched')
+      await review(itemId, selector, sample)
+    },
     async prepare(
       itemId: string,
       selector: string,

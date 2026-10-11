@@ -1,0 +1,152 @@
+import { it, expect } from 'vitest'
+import { mkdtemp, writeFile, rm } from 'node:fs/promises'
+import { join } from 'node:path'
+import { tmpdir } from 'node:os'
+import { createHash } from 'node:crypto'
+import { defaultCheckArtifactIssues } from './check-artifacts.ts'
+import { productPathReport } from './product-path.ts'
+import { freezeProductSource } from './product-source.ts'
+import { citationSource, r4Draft } from '../../scripts/validation/r2-citation-replay.ts'
+const source = freezeProductSource(citationSource)
+const run: any = { spec: { uiContract: { checkPolicy: {}, productSource: source } } }
+it.each(['product:registration-rejected', 'product:binding-rejected'])(
+  '%s is diagnostic history and cannot become completion proof',
+  async (type) => {
+    const events: any = [
+      {
+        id: 'bad',
+        seq: 1,
+        type,
+        payload: { diagnostics: [] },
+        evidenceRefs: [],
+      },
+    ]
+    expect(await defaultCheckArtifactIssues(run, events, [])).toEqual([])
+    expect(productPathReport(source, events)).toMatchObject({
+      complete: false,
+      state: 'unverified',
+    })
+  },
+)
+it.each([
+  'product-path-2',
+  'product-path-3',
+  'product-path-4',
+  'product-path-5',
+  'product-path-6',
+  'product-path-7',
+  'product-path-8',
+  'product-path-9',
+  'product-path-10',
+  'product-path-11',
+  'product-path-12',
+])('retains binding byte and admission validation for %s history', async (revision) => {
+  const dir = await mkdtemp(join(tmpdir(), 'product-history-'))
+  const artifacts: any[] = [],
+    events: any[] = []
+  const save = async (id: string, type: string, body: any) => {
+    const path = join(dir, id),
+      bytes = JSON.stringify(body)
+    await writeFile(path, bytes)
+    artifacts.push({
+      id,
+      type,
+      path,
+      metadata: { evidenceIntegrity: { version: 1, status: 'clean', interventionIds: [] } },
+    })
+    return createHash('sha256').update(bytes).digest('hex')
+  }
+  try {
+    const plan = r4Draft()
+    for (const step of plan.steps)
+      for (const p of [step, ...step.preconditions]) {
+        p.citation.start = source.markdown.indexOf(p.citation.quote)
+        p.citation.end = p.citation.start + p.citation.quote.length
+      }
+    events.push({
+      id: 'p',
+      seq: 1,
+      type: 'product:planned',
+      payload: {
+        plan,
+        revision,
+        artifactHashes: { p: await save('p', 'product-plan', { plan, revision }) },
+      },
+      evidenceRefs: ['p'],
+    })
+    const checks: any[] = [],
+      payload = {
+        step: 0,
+        checks,
+        itemId: 'missing-original',
+        planEventId: 'p',
+        targetWasSelected: false,
+      }
+    const hashes = {
+      c: await save('c', 'product-preconditions', checks),
+      s: await save('s', 'screenshot', {}),
+      b: await save('b', 'product-binding', { ...payload, itemId: 'substituted' }),
+    }
+    events.push({
+      id: 'b',
+      seq: 2,
+      type: 'product:bound',
+      payload: { ...payload, artifactHashes: hashes },
+      evidenceRefs: ['c', 's', 'b'],
+    })
+    expect(await defaultCheckArtifactIssues(run, events, artifacts)).toContain(
+      'product-binding-artifact-mismatch',
+    )
+    expect(productPathReport(source, events).issues).toContain('product-admission-invalid')
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+})
+
+it('other product receipts still require original artifact hashes', async () => {
+  const events: any = [{ id: 'bad', seq: 1, type: 'product:bound', payload: {}, evidenceRefs: [] }]
+  expect(await defaultCheckArtifactIssues(run, events, [])).toContain(
+    'product-artifact-hashes-missing',
+  )
+})
+
+it.each(['product:decision', 'product:decision-query', 'product:unsupported'])(
+  '%s preserves interpretation/query bytes without making completion proof',
+  async (type) => {
+    const dir = await mkdtemp(join(tmpdir(), 'product-decision-history-'))
+    try {
+      const path = join(dir, 'original.json')
+      const payload = {
+        reason: 'Unsupported interpretation',
+        unchecked: ['Path'],
+        sourceHash: source.contentHash,
+      }
+      const bytes = JSON.stringify(payload)
+      await writeFile(path, bytes)
+      const artifact: any = {
+        id: 'decision',
+        type: type.replace(':', '-'),
+        path,
+        metadata: { evidenceIntegrity: { version: 1, status: 'clean', interventionIds: [] } },
+      }
+      const event: any = {
+        id: 'e',
+        seq: 1,
+        type,
+        payload: {
+          ...payload,
+          artifactHashes: { decision: createHash('sha256').update(bytes).digest('hex') },
+        },
+        evidenceRefs: ['decision'],
+      }
+      expect(await defaultCheckArtifactIssues(run, [event], [artifact])).toEqual([])
+      expect(productPathReport(source, [event]).complete).toBe(false)
+      event.payload.reason = 'Changed interpretation'
+      expect(await defaultCheckArtifactIssues(run, [event], [artifact])).toContain(
+        'product-decision-artifact-mismatch',
+      )
+    } finally {
+      await rm(dir, { recursive: true, force: true })
+    }
+  },
+)

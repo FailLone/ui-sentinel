@@ -50,6 +50,7 @@ export interface ModelRequestOptions {
   readonly transport?: 'generate' | 'stream'
   readonly activeTools?: string[]
   readonly requireTool?: boolean
+  readonly requiredTool?: string
   /** Explicit capability opt-in for OpenAI-compatible models with optional thinking. */
   readonly lengthRecoveryWithoutReasoning?: boolean
 }
@@ -233,7 +234,11 @@ export async function executeModelRequest(
                   : undefined,
                 abortSignal: signal,
                 activeTools: options.activeTools,
-                toolChoice: options.requireTool ? 'required' : 'auto',
+                toolChoice: options.requiredTool
+                  ? { type: 'tool', toolName: options.requiredTool }
+                  : options.requireTool
+                    ? 'required'
+                    : 'auto',
                 onChunk,
               }),
             )
@@ -246,7 +251,11 @@ export async function executeModelRequest(
                 ? { openai: { reasoningEffort: 'none' } }
                 : undefined,
               activeTools: options.activeTools,
-              toolChoice: options.requireTool ? 'required' : 'auto',
+              toolChoice: options.requiredTool
+                ? { type: 'tool', toolName: options.requiredTool }
+                : options.requireTool
+                  ? 'required'
+                  : 'auto',
               abortSignal: signal,
               onChunk,
               onError: ({ error }) => {

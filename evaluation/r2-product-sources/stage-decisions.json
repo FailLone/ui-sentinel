@@ -1,0 +1,98 @@
+{
+  "baseCommit": "054fe95a0640a61d1ecdacf36fbb0a04f67ef3ad",
+  "implementationCommit": "3bd494b95eb5364e7df9c4703ba2f016cdcfa1e5",
+  "sourceHash": "0d46ce686bf32ee680a1bab518ad0262210062da1b1b60376f4e21106e87256f",
+  "distHash": "8a8c3925410fe35aefcc7292a761496cc4d81e908c4e33ff940179ea5e915334",
+  "finalBrowserIdentity": "data/r2-product-sources/2026-10-11T12-02-38-353Z/identity.json",
+  "identityNote": "Runs began from base commit with implementation edits; the committed source is identified by file hashes. No paid manifest or claim.",
+  "browserRoots": [
+    "data/r2-product-sources/2026-10-11T11-58-49-702Z",
+    "data/r2-product-sources/2026-10-11T12-00-28-264Z",
+    "data/r2-product-sources/2026-10-11T12-02-38-353Z"
+  ],
+  "distinctTests": 91,
+  "testFiles": 9,
+  "paidCalls": 0,
+  "status": "free-validation-passed",
+  "limitation": "Fixed local replies prove SDK/executor contracts, not real-model adoption. Fifth paid result remains 1/6.",
+  "mechanism": "Existing evidence-derived continuation intersects SDK activeTools and rechecks each serialized dispatch. Explicit one-attempt read-only gap is not progress, evidence or permission.",
+  "tests": "data/r2-product-acceptance/stage-decisions-free-20261011/tests-final.log",
+  "build": "data/r2-product-acceptance/stage-decisions-free-20261011/build-final-aligned.log",
+  "format": "data/r2-product-acceptance/stage-decisions-free-20261011/format.log",
+  "browser": "data/r2-product-sources/2026-10-11T11-58-49-702Z/acceptance.json",
+  "sameResponseBoundary": "data/r2-product-sources/2026-10-11T12-02-38-353Z/acceptance.json",
+  "verification": "data/r2-product-acceptance/stage-decisions-free-20261011/verification.json",
+  "billingReconciliation": "data/r2-product-acceptance/stage-decisions-free-20261011/billing-reconciliation.json",
+  "unknownReservedUsd": 0.063,
+  "olderUnknownReservedUsd": 0.116,
+  "billingStatus": "unknown; no generation ID, no authenticated lookup or inference",
+  "failedAttemptsRetained": [
+    "data/r2-product-acceptance/stage-decisions-free-20261011/build-attempt-1.log",
+    "data/r2-product-acceptance/stage-decisions-free-20261011/build-attempt-2.log"
+  ],
+  "evidenceIndex": "data/r2-product-acceptance/stage-decisions-free-20261011/evidence-index.json",
+  "evidenceFiles": 532,
+  "evidenceIndexSha256": "8bc5777ab0c61a79f9dc47d21b431d38dbedd850b211654c96b66c40c447342c",
+  "newReportsRecovered": 5,
+  "historicalReportsRecovered": [
+    {
+      "row": "R2",
+      "runId": "run-07b4cfde-0023-49b0-b061-72e42aa68d7c",
+      "fullJsonEqual": true
+    },
+    {
+      "row": "R6",
+      "runId": "run-4d65c5b5-75f0-41a2-af34-a4777fba92de",
+      "fullJsonEqual": true
+    },
+    {
+      "row": "R1",
+      "runId": "run-6dec5a41-7841-4900-8d16-ff1d11ba493e",
+      "fullJsonEqual": true
+    }
+  ],
+  "browserResults": [
+    {
+      "mode": "feedback-healthy",
+      "runId": "run-4cdc0431-e089-42a6-a64d-98d49d41409c",
+      "status": "completed",
+      "coverage": "covered",
+      "state": "verified",
+      "actions": 2
+    },
+    {
+      "mode": "feedback-defect",
+      "runId": "run-fd824827-ef5e-4f7f-8a4f-ea7694aa2f61",
+      "status": "completed",
+      "coverage": "covered",
+      "state": "failed",
+      "actions": 2
+    },
+    {
+      "mode": "feedback-unavailable-enabled",
+      "runId": "run-cd040d78-e809-4feb-be52-fadebe48a581",
+      "status": "blocked",
+      "coverage": "partial",
+      "state": "unverified",
+      "actions": 0
+    },
+    {
+      "mode": "feedback-unknown",
+      "runId": "run-127e81a2-8a93-4ca4-86ad-197a9e011d27",
+      "status": "blocked",
+      "coverage": "partial",
+      "state": "unverified",
+      "actions": 2
+    },
+    {
+      "mode": "dynamic-pending",
+      "runId": "run-3e5af54c-fb01-4c2a-95cf-3b6563d338f8",
+      "status": "blocked",
+      "coverage": "partial",
+      "state": "verified",
+      "actions": 2
+    }
+  ],
+  "noPushOrMerge": true,
+  "roadmapUnchanged": true
+}

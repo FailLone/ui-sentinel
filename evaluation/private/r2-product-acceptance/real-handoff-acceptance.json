@@ -1,0 +1,770 @@
+{
+  "revision": "r2-real-handoff-acceptance-delivery-1",
+  "executionCommit": "4bc7e3a12427a16354bdbe2240794282a0ea11ea",
+  "implementationCommit": "f4619ed8207655b0d6685334d14076f837028c7a",
+  "branch": "codex/r2-registration-action-handoff-acceptance",
+  "manifestHash": "0d0c1038c33a20bdf795fb445eb4bb30da780c0c8aba2e8b8bc179a373458afe",
+  "protocolAtExecution": "git show 4bc7e3a12427a16354bdbe2240794282a0ea11ea:docs/experiments/r2-product-acceptance.md",
+  "frozenManifest": {
+    "path": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/prepared-handoff-20261011/manifest.json",
+    "fileSha256": "4410d7bee5843584468ef0fca805d52b84f8923333222cd3cb5f37f3d5e91935"
+  },
+  "preparationIndex": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/prepared-handoff-20261011/preparation-index.json",
+  "runCommand": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/prepared-handoff-20261011/run-command.txt",
+  "rawDirectory": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/real-handoff-authorized-20261011",
+  "evidenceIndex": {
+    "path": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/real-handoff-authorized-20261011/evidence-index.json",
+    "sha256": "0e9941a5d46752997ab21686056233527aa85d629380d0e2d1f8cb4e0fa941b4",
+    "files": 88
+  },
+  "reviewFile": {
+    "path": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/real-handoff-authorized-20261011/review.json",
+    "sha256": "dd40493aed31a28b46c4b33c5c6a19ac6101298879bae2dc57ba1f612585bc19"
+  },
+  "approval": {
+    "path": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/real-handoff-authorized-20261011/approval.json",
+    "sha256": "137157d84ed38fa578dac17b31d4f9a929eb2ecfe196b1af6f102b4749622431",
+    "approvedBy": "用户（明确授权经维护者会话转交，并读取原用户消息核实）",
+    "approvalReference": "codex://threads/01a1116d-7621-7962-b4fe-5f904b5fbf13，turn 01a12b70-4f4a-7f20-9ede-f777c22c6aaa，用户消息01a12b70-4f83-7f53-a464-c158fa190741：对“是否授权新候选执行一次原六任务验收，新增费用上限US$7.56？历史未知费用继续暂缓核查，新异常按原规则停止，不自动重试或补跑”明确回复“授权”。授权基于已审阅4bc7e3a/f4619ed候选；manifest hash为随后冻结所得，不声称用户提前看过该hash。",
+    "receivedAt": "2026-10-11T14:49:56Z",
+    "recordedAt": "2026-10-11T14:51:59.039Z",
+    "expiresAt": "2026-10-12T14:44:56Z",
+    "expiryNote": "Conservatively within 24 hours of receipt.",
+    "manifestHash": "0d0c1038c33a20bdf795fb445eb4bb30da780c0c8aba2e8b8bc179a373458afe",
+    "executionCommit": "4bc7e3a12427a16354bdbe2240794282a0ea11ea",
+    "implementationCommit": "f4619ed8207655b0d6685334d14076f837028c7a",
+    "maxRuns": 6,
+    "maxRequests": 120,
+    "maxCostUsd": 7.56,
+    "reserveUsd": 0.063,
+    "scope": {
+      "policy": {
+        "version": "r2-product-acceptance-2",
+        "model": "deepseek/deepseek-v4.1-flash",
+        "provider": "Wafer",
+        "runs": 6,
+        "requestsPerRun": 20,
+        "maxRequests": 120,
+        "maxCostUsd": 7.56,
+        "reserveUsd": 0.063,
+        "totalTimeoutMs": 180000,
+        "modelTimeoutMs": 60000,
+        "toolTimeoutMs": 15000,
+        "maxActions": 8,
+        "batchMs": 1500000,
+        "maxOutputTokens": 4096,
+        "maxWireBytes": 131072,
+        "contextTokens": 1048576,
+        "promptPrice": 5e-08,
+        "outputPrice": 1.6e-06,
+        "retries": 0,
+        "fallback": false,
+        "jev": false,
+        "vision": false
+      },
+      "rows": [
+        {
+          "id": "R1",
+          "variant": "healthy",
+          "expected": "verified",
+          "preview": "预览就绪",
+          "details": "详情已就绪",
+          "caseId": "RA01",
+          "repetition": 1,
+          "mode": "program",
+          "scenario": "healthy",
+          "maxAgentRequests": 20,
+          "maxJevRequests": 0,
+          "htmlHash": "7714113990303d76fc6a73bfcf542f3276518d3b547eabd7ffe253ca7116cbbf"
+        },
+        {
+          "id": "R2",
+          "variant": "defect",
+          "expected": "failed",
+          "preview": "预览就绪",
+          "details": "详情未能展示",
+          "caseId": "RA02",
+          "repetition": 1,
+          "mode": "program",
+          "scenario": "defect",
+          "maxAgentRequests": 20,
+          "maxJevRequests": 0,
+          "htmlHash": "23450ed52d42237174a5e03fcbb90d5ac9b3086086b738c948d8b9a3deff9495"
+        },
+        {
+          "id": "R3",
+          "variant": "unavailable",
+          "expected": "unverified",
+          "preview": "尚未预览",
+          "details": "尚未查看",
+          "caseId": "RA03",
+          "repetition": 1,
+          "mode": "program",
+          "scenario": "unavailable",
+          "maxAgentRequests": 20,
+          "maxJevRequests": 0,
+          "htmlHash": "47787c74e5d81e06f92089e81ca8ab5c885c95caf303788fee0698d58eee60eb"
+        },
+        {
+          "id": "R4",
+          "variant": "unavailable",
+          "expected": "unverified",
+          "preview": "尚未预览",
+          "details": "尚未查看",
+          "caseId": "RA03",
+          "repetition": 2,
+          "mode": "program",
+          "scenario": "unavailable",
+          "maxAgentRequests": 20,
+          "maxJevRequests": 0,
+          "htmlHash": "47787c74e5d81e06f92089e81ca8ab5c885c95caf303788fee0698d58eee60eb"
+        },
+        {
+          "id": "R5",
+          "variant": "defect",
+          "expected": "failed",
+          "preview": "预览就绪",
+          "details": "详情未能展示",
+          "caseId": "RA02",
+          "repetition": 2,
+          "mode": "program",
+          "scenario": "defect",
+          "maxAgentRequests": 20,
+          "maxJevRequests": 0,
+          "htmlHash": "23450ed52d42237174a5e03fcbb90d5ac9b3086086b738c948d8b9a3deff9495"
+        },
+        {
+          "id": "R6",
+          "variant": "healthy",
+          "expected": "verified",
+          "preview": "预览就绪",
+          "details": "详情已就绪",
+          "caseId": "RA01",
+          "repetition": 2,
+          "mode": "program",
+          "scenario": "healthy",
+          "maxAgentRequests": 20,
+          "maxJevRequests": 0,
+          "htmlHash": "7714113990303d76fc6a73bfcf542f3276518d3b547eabd7ffe253ca7116cbbf"
+        }
+      ],
+      "reasoning": "low",
+      "skillRevision": "product-path-10"
+    },
+    "historicalRisk": {
+      "accepted": true,
+      "unknownReservedUsd": [
+        0.063,
+        0.116
+      ],
+      "reconciliation": "deferred by user",
+      "treatment": "Original records retained unchanged, without reconciliation or zero settlement. One independent incremental batch; no old claim/account reopened. Historical unknowns are not new-batch unknowns. Reservation is not a verified final bill ceiling."
+    },
+    "bindingNote": "Exactly one new isolated batch. All new unknown/held, cost/provider/safety/persistence/execution/false-covered stops remain. No retries, replacements, extra samples, calibration inference or mid-run edits.",
+    "consumedOnce": true,
+    "claimPath": "/Users/xietian/Documents/ChatGPT/ui-sentinel/.git/r2-product-acceptance-claims/0d0c1038c33a20bdf795fb445eb4bb30da780c0c8aba2e8b8bc179a373458afe.json"
+  },
+  "review": {
+    "reviewType": "Agent semantic review by experiment agent, not independent or human review",
+    "executionCommit": "4bc7e3a12427a16354bdbe2240794282a0ea11ea",
+    "implementationCommit": "f4619ed8207655b0d6685334d14076f837028c7a",
+    "manifestHash": "0d0c1038c33a20bdf795fb445eb4bb30da780c0c8aba2e8b8bc179a373458afe",
+    "authorization": {
+      "reference": "codex://threads/01a1116d-7621-7962-b4fe-5f904b5fbf13，turn 01a12b70-4f4a-7f20-9ede-f777c22c6aaa，用户消息01a12b70-4f83-7f53-a464-c158fa190741：对“是否授权新候选执行一次原六任务验收，新增费用上限US$7.56？历史未知费用继续暂缓核查，新异常按原规则停止，不自动重试或补跑”明确回复“授权”。授权基于已审阅4bc7e3a/f4619ed候选；manifest hash为随后冻结所得，不声称用户提前看过该hash。",
+      "oneBatch": true,
+      "hashNotRepresentedAsPreSeenByUser": true,
+      "historicalRiskExplicitlyAccepted": true
+    },
+    "summary": {
+      "plannedRows": 6,
+      "dispatchedRows": 1,
+      "completedRowRecords": 1,
+      "completedProductTasks": 0,
+      "cancelledRows": 1,
+      "notRunRows": 5,
+      "acceptedTasks": 0,
+      "denominator": 6,
+      "allOriginalConditionsMet": false,
+      "healthyCompleted": {
+        "pass": 0,
+        "denominator": 2,
+        "interrupted": 1,
+        "notRun": 1
+      },
+      "defectsDetected": {
+        "pass": 0,
+        "denominator": 2,
+        "notRun": 2
+      },
+      "completeGroundedAbstentions": {
+        "pass": 0,
+        "denominator": 2,
+        "notRun": 2
+      },
+      "browserActions": 0,
+      "requiredEffects": {
+        "plannedDenominator": 8,
+        "verified": 0,
+        "failed": 0,
+        "unverifiedOrUnrun": 8,
+        "registered": 0,
+        "measured": 0
+      },
+      "requests": 3,
+      "completeProviderResponses": 2,
+      "incompleteResponseRecords": 1,
+      "knownCostUsd": "0.000577370",
+      "newUnknownReservedUsd": "0.063",
+      "heldReservedUsd": "0",
+      "knownPlusReservedNotFinalBillUsd": "0.063577370",
+      "wallSeconds": 68.85,
+      "startedAt": "2026-10-11T14:51:59.207Z",
+      "endedAt": "2026-10-11T14:53:08.057Z",
+      "hardStop": "transport-error; model-request-timeout; new unknown cost",
+      "automaticRetry": false,
+      "allSixCondition": "NOT MET; interrupted batch, not six completed task failures."
+    },
+    "rows": [
+      {
+        "id": "R1",
+        "variant": "healthy",
+        "dispatched": true,
+        "runId": "run-77d71c0c-7599-4c0b-a88d-901a2a39f2dd",
+        "classification": "transport-timeout-cancelled-before-registration",
+        "primaryAcceptance": false,
+        "status": "cancelled",
+        "coverage": "partial",
+        "pathState": "unverified",
+        "criteria": {
+          "read": true,
+          "sourceGroundedRegistration": false,
+          "executeOrGroundedAbstain": false,
+          "honestScope": true,
+          "recover": true
+        },
+        "requests": 3,
+        "successfulRegistrations": 0,
+        "bindings": 0,
+        "actions": 0,
+        "registrationGuidanceCount": 0,
+        "nextActionPayloadDelivered": false,
+        "matchingProgramActionInputs": 0,
+        "wrongRequirementIdErrors": 0,
+        "requiredEffects": [
+          {
+            "step": 0,
+            "requiredOutcome": "预览目录 → 预览就绪",
+            "state": "unverified",
+            "reason": "interrupted-before-registration-and-action",
+            "actionId": null,
+            "measurementEventId": null
+          },
+          {
+            "step": 1,
+            "requiredOutcome": "查看详情 → 详情已就绪",
+            "state": "unverified",
+            "reason": "interrupted-before-registration-and-action",
+            "actionId": null,
+            "measurementEventId": null
+          }
+        ],
+        "sourceReadSearchCalls": 1,
+        "exactRepeatedSourceCalls": 0,
+        "knownCostUsd": "0.000577370",
+        "newUnknownReservedUsd": "0.063",
+        "evidence": {
+          "sourceReadReceiptEventId": "evt-05a0d10b-fd70-489c-b363-06988f3403cb",
+          "timeoutEventId": "evt-418bcb29-a942-4a79-a368-54ea31ba0f77",
+          "cancelEventId": "evt-19401e4b-da8d-46f2-8c04-d2619a9e2e5f",
+          "terminalEventId": "evt-f0050043-954a-4226-ba49-683484e87062",
+          "scope": {
+            "coverage": "partial",
+            "counts": {
+              "total": 10,
+              "selected": 7,
+              "pending": 2,
+              "verified": 5,
+              "failed": 0,
+              "unverified": 3,
+              "excluded": 0
+            },
+            "gaps": [
+              {
+                "itemId": "item-5be44eea-21e1-49c7-b0b1-52368d7f2736",
+                "category": "local-interaction",
+                "status": "pending",
+                "reason": "v2-mandatory-checks-incomplete",
+                "reasonCode": "v2-mandatory-checks-incomplete"
+              },
+              {
+                "itemId": "item-636284e8-b666-4c1a-9b1f-19f455b52ed2",
+                "category": "investigation",
+                "status": "pending",
+                "reason": "selected-not-resolved",
+                "reasonCode": null
+              }
+            ],
+            "selectedUnresolved": [
+              {
+                "checks": {
+                  "revision": "item-checks-2",
+                  "sourceReview": {
+                    "state": "sealed",
+                    "revision": "public-effect-sources-1",
+                    "refs": [
+                      "fa88cc65-4579-42b0-9e74-8808569e8c60.png",
+                      "a30414f5-ab0a-4a5d-ad8f-615fbabf3048.json"
+                    ],
+                    "reasons": [],
+                    "goalHash": "294e39f20dedccf45395f22017275a58f17bf0a44f754da4bb87b6ed93bab8fd",
+                    "contractHash": "074ed64357fe8a570625e81dad61fbd14876176dfb870f98b56f717569b4cbd6",
+                    "hash": "a7ea9db69f3b6e40e27a8845ec14082d1f24c894442e6d28128779fc5288c85a",
+                    "ruleChecks": [
+                      {
+                        "ruleId": "overlay-blocking",
+                        "revision": "2.1.0",
+                        "contentHash": "c3acb6191549a481e1dbacd22655f6bde36459f78a0301e6f2ad2d88aa8ef424",
+                        "approvalRef": "installed-registry:overlay-blocking:2.1.0",
+                        "scopeItemIds": [
+                          "item-ae3647d6-e9ed-463c-982b-56f95a4d549a"
+                        ],
+                        "evidenceRefs": [
+                          "ed244fcb-6bb4-4280-b242-7375c44685fb.png",
+                          "f83f642d-4e13-45ee-a0b5-403dbeed145e.json"
+                        ]
+                      }
+                    ]
+                  },
+                  "generic": {
+                    "state": "pending",
+                    "evidenceRefs": [],
+                    "eventIds": []
+                  },
+                  "effects": []
+                },
+                "itemId": "item-5be44eea-21e1-49c7-b0b1-52368d7f2736",
+                "category": "local-interaction",
+                "url": "http://127.0.0.1:52986/",
+                "status": "pending",
+                "selected": true,
+                "basis": "observed candidate: button[button] \"预览目录\"",
+                "targetSource": "executor",
+                "reasonCode": "v2-mandatory-checks-incomplete",
+                "detail": "Public sources reviewed before operation; missing semantics are not invented",
+                "evidenceRefs": [
+                  "fa88cc65-4579-42b0-9e74-8808569e8c60.png",
+                  "a30414f5-ab0a-4a5d-ad8f-615fbabf3048.json"
+                ],
+                "ruleRevision": null,
+                "parentNavigation": null
+              },
+              {
+                "itemId": "item-636284e8-b666-4c1a-9b1f-19f455b52ed2",
+                "category": "investigation",
+                "url": "http://127.0.0.1:52986/",
+                "status": "pending",
+                "selected": true,
+                "basis": "product-path:required-registration-and-evidence",
+                "targetSource": "executor",
+                "reasonCode": null,
+                "detail": null,
+                "evidenceRefs": [],
+                "ruleRevision": null,
+                "parentNavigation": null
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "R2",
+        "variant": "defect",
+        "dispatched": false,
+        "runId": null,
+        "classification": "not-run-after-hard-stop",
+        "primaryAcceptance": false,
+        "status": "not-run",
+        "coverage": null,
+        "pathState": null,
+        "criteria": {
+          "read": null,
+          "sourceGroundedRegistration": null,
+          "executeOrGroundedAbstain": null,
+          "honestScope": null,
+          "recover": null
+        },
+        "requests": 0,
+        "successfulRegistrations": 0,
+        "bindings": 0,
+        "actions": 0,
+        "registrationGuidanceCount": null,
+        "nextActionPayloadDelivered": null,
+        "matchingProgramActionInputs": null,
+        "wrongRequirementIdErrors": null,
+        "requiredEffects": [
+          {
+            "step": 0,
+            "requiredOutcome": "预览目录 → 预览就绪",
+            "state": "unverified",
+            "reason": "not-run-after-hard-stop",
+            "actionId": null,
+            "measurementEventId": null
+          },
+          {
+            "step": 1,
+            "requiredOutcome": "查看详情 → 详情已就绪",
+            "state": "unverified",
+            "reason": "not-run-after-hard-stop",
+            "actionId": null,
+            "measurementEventId": null
+          }
+        ],
+        "sourceReadSearchCalls": 0,
+        "exactRepeatedSourceCalls": 0,
+        "knownCostUsd": "0",
+        "newUnknownReservedUsd": "0",
+        "evidence": {
+          "reason": "Original batch guard stopped before this row; no replacement or retry."
+        }
+      },
+      {
+        "id": "R3",
+        "variant": "unavailable",
+        "dispatched": false,
+        "runId": null,
+        "classification": "not-run-after-hard-stop",
+        "primaryAcceptance": false,
+        "status": "not-run",
+        "coverage": null,
+        "pathState": null,
+        "criteria": {
+          "read": null,
+          "sourceGroundedRegistration": null,
+          "executeOrGroundedAbstain": null,
+          "honestScope": null,
+          "recover": null
+        },
+        "requests": 0,
+        "successfulRegistrations": 0,
+        "bindings": 0,
+        "actions": 0,
+        "registrationGuidanceCount": null,
+        "nextActionPayloadDelivered": null,
+        "matchingProgramActionInputs": null,
+        "wrongRequirementIdErrors": null,
+        "requiredEffects": [],
+        "sourceReadSearchCalls": 0,
+        "exactRepeatedSourceCalls": 0,
+        "knownCostUsd": "0",
+        "newUnknownReservedUsd": "0",
+        "evidence": {
+          "reason": "Original batch guard stopped before this row; no replacement or retry."
+        }
+      },
+      {
+        "id": "R4",
+        "variant": "unavailable",
+        "dispatched": false,
+        "runId": null,
+        "classification": "not-run-after-hard-stop",
+        "primaryAcceptance": false,
+        "status": "not-run",
+        "coverage": null,
+        "pathState": null,
+        "criteria": {
+          "read": null,
+          "sourceGroundedRegistration": null,
+          "executeOrGroundedAbstain": null,
+          "honestScope": null,
+          "recover": null
+        },
+        "requests": 0,
+        "successfulRegistrations": 0,
+        "bindings": 0,
+        "actions": 0,
+        "registrationGuidanceCount": null,
+        "nextActionPayloadDelivered": null,
+        "matchingProgramActionInputs": null,
+        "wrongRequirementIdErrors": null,
+        "requiredEffects": [],
+        "sourceReadSearchCalls": 0,
+        "exactRepeatedSourceCalls": 0,
+        "knownCostUsd": "0",
+        "newUnknownReservedUsd": "0",
+        "evidence": {
+          "reason": "Original batch guard stopped before this row; no replacement or retry."
+        }
+      },
+      {
+        "id": "R5",
+        "variant": "defect",
+        "dispatched": false,
+        "runId": null,
+        "classification": "not-run-after-hard-stop",
+        "primaryAcceptance": false,
+        "status": "not-run",
+        "coverage": null,
+        "pathState": null,
+        "criteria": {
+          "read": null,
+          "sourceGroundedRegistration": null,
+          "executeOrGroundedAbstain": null,
+          "honestScope": null,
+          "recover": null
+        },
+        "requests": 0,
+        "successfulRegistrations": 0,
+        "bindings": 0,
+        "actions": 0,
+        "registrationGuidanceCount": null,
+        "nextActionPayloadDelivered": null,
+        "matchingProgramActionInputs": null,
+        "wrongRequirementIdErrors": null,
+        "requiredEffects": [
+          {
+            "step": 0,
+            "requiredOutcome": "预览目录 → 预览就绪",
+            "state": "unverified",
+            "reason": "not-run-after-hard-stop",
+            "actionId": null,
+            "measurementEventId": null
+          },
+          {
+            "step": 1,
+            "requiredOutcome": "查看详情 → 详情已就绪",
+            "state": "unverified",
+            "reason": "not-run-after-hard-stop",
+            "actionId": null,
+            "measurementEventId": null
+          }
+        ],
+        "sourceReadSearchCalls": 0,
+        "exactRepeatedSourceCalls": 0,
+        "knownCostUsd": "0",
+        "newUnknownReservedUsd": "0",
+        "evidence": {
+          "reason": "Original batch guard stopped before this row; no replacement or retry."
+        }
+      },
+      {
+        "id": "R6",
+        "variant": "healthy",
+        "dispatched": false,
+        "runId": null,
+        "classification": "not-run-after-hard-stop",
+        "primaryAcceptance": false,
+        "status": "not-run",
+        "coverage": null,
+        "pathState": null,
+        "criteria": {
+          "read": null,
+          "sourceGroundedRegistration": null,
+          "executeOrGroundedAbstain": null,
+          "honestScope": null,
+          "recover": null
+        },
+        "requests": 0,
+        "successfulRegistrations": 0,
+        "bindings": 0,
+        "actions": 0,
+        "registrationGuidanceCount": null,
+        "nextActionPayloadDelivered": null,
+        "matchingProgramActionInputs": null,
+        "wrongRequirementIdErrors": null,
+        "requiredEffects": [
+          {
+            "step": 0,
+            "requiredOutcome": "预览目录 → 预览就绪",
+            "state": "unverified",
+            "reason": "not-run-after-hard-stop",
+            "actionId": null,
+            "measurementEventId": null
+          },
+          {
+            "step": 1,
+            "requiredOutcome": "查看详情 → 详情已就绪",
+            "state": "unverified",
+            "reason": "not-run-after-hard-stop",
+            "actionId": null,
+            "measurementEventId": null
+          }
+        ],
+        "sourceReadSearchCalls": 0,
+        "exactRepeatedSourceCalls": 0,
+        "knownCostUsd": "0",
+        "newUnknownReservedUsd": "0",
+        "evidence": {
+          "reason": "Original batch guard stopped before this row; no replacement or retry."
+        }
+      }
+    ],
+    "interruption": {
+      "requestId": "631f848c836e5ded0f9b3f34",
+      "modelRequestEvent": {
+        "id": "evt-418bcb29-a942-4a79-a368-54ea31ba0f77",
+        "runId": "run-77d71c0c-7599-4c0b-a88d-901a2a39f2dd",
+        "seq": 64,
+        "type": "model:request-finished",
+        "timestamp": "2026-10-11T14:53:07.064Z",
+        "stepId": null,
+        "actionId": null,
+        "payload": {
+          "attemptId": "e6c22290-8c1b-4e13-938b-1df00f151445",
+          "startedAt": 1791730327056,
+          "deadlineAt": 1791730387056,
+          "durationMs": 60007,
+          "modelDurationMs": 60007,
+          "status": "timeout",
+          "error": "model-request-timeout",
+          "hadToolCalls": false,
+          "usage": "unknown",
+          "timing": {
+            "transport": "stream",
+            "responseHeadersMs": null,
+            "firstModelDeltaMs": null,
+            "firstToolCallMs": null,
+            "firstToolExecutionMs": null,
+            "lastModelDeltaMs": null,
+            "maxDeltaGapMs": null,
+            "cancelledMs": 60003,
+            "responseCompleteMs": null
+          },
+          "seq": 3,
+          "purpose": "agent",
+          "model": "openai/deepseek/deepseek-v4.1-flash",
+          "inputTokens": null,
+          "outputTokens": null,
+          "decisionDurationMs": 60007
+        },
+        "evidenceRefs": []
+      },
+      "cancelEvent": {
+        "id": "evt-19401e4b-da8d-46f2-8c04-d2619a9e2e5f",
+        "runId": "run-77d71c0c-7599-4c0b-a88d-901a2a39f2dd",
+        "seq": 66,
+        "type": "run:cancel-requested",
+        "timestamp": "2026-10-11T14:53:07.081Z",
+        "stepId": null,
+        "actionId": null,
+        "payload": {},
+        "evidenceRefs": []
+      },
+      "terminalEvent": {
+        "id": "evt-f0050043-954a-4226-ba49-683484e87062",
+        "runId": "run-77d71c0c-7599-4c0b-a88d-901a2a39f2dd",
+        "seq": 67,
+        "type": "run:completed",
+        "timestamp": "2026-10-11T14:53:07.105Z",
+        "stepId": null,
+        "actionId": null,
+        "payload": {
+          "status": "cancelled",
+          "businessResult": "not-applicable",
+          "stopReason": "cancelled",
+          "usage": {
+            "actions": 0,
+            "modelCalls": 3,
+            "elapsedMs": 65837,
+            "modelInputTokens": 13894,
+            "modelOutputTokens": 92
+          },
+          "tokenUsage": "unavailable"
+        },
+        "evidenceRefs": []
+      },
+      "upstreamTiming": {
+        "row": "R1",
+        "sequence": 3,
+        "requestBodySha256": "cd5f5c579f4f280ba2cfd97f7ff58c85c3b5f757f01d03d5d33a721df91ad319",
+        "startedAt": "2026-10-11T14:52:07.077Z",
+        "headersMs": 10298,
+        "firstByteMs": 10777,
+        "firstEventMs": 59094,
+        "responseCompleteMs": null,
+        "validationEndMs": null,
+        "releaseMs": null,
+        "abortedMs": 59986,
+        "finishedMs": 60001,
+        "httpStatus": 200,
+        "upstreamBytes": 11082,
+        "dataEvents": 20,
+        "outcome": "aborted",
+        "boundary": "full-validation-before-release"
+      },
+      "observedSequence": "HTTP 200 headers at 10298 ms, first upstream bytes at 10777 ms, first SSE data event at 59094 ms; stream incomplete at 60-second timeout. Full-validation boundary released nothing; gateway recorded downstream-disconnected, batch stopped transport-error, unknown cost latched and remaining rows were not dispatched.",
+      "rootCauseLimit": "This locates the observed upstream-response timeout; it does not diagnose provider/network internals or an application semantic defect.",
+      "partialPayloadLimit": "Existing validated-upstream wrapper retained timing/counters (11082 bytes, 20 data events) but does not persist raw pre-validation partial payload. Third responses record contains zero released events, no terminal usage, and transportComplete=false. No reconstruction or claim of a complete third provider response."
+    },
+    "auditedMaterials": {
+      "requests": 3,
+      "completeResponses": 2,
+      "incompleteResponseRecords": 1,
+      "deliveredToolCalls": 2,
+      "toolReceipts": 2,
+      "missingReceiptsForDeliveredTools": 0,
+      "registeredCitationFields": 0,
+      "fullReportsRestored": 1,
+      "originalCopyArtifactPairs": 8,
+      "allWireToolScopesMatch": true,
+      "requestedModelProviderReasoningLimitsVerified": true,
+      "thirdActualProviderResponseNotValidated": true,
+      "postRunCompleteManifestMatches": true
+    },
+    "actualAdoption": {
+      "registrationGuidance": "Not triggered. Overview and full read were real source progress; the third request timed out before any decision was released. No no-progress streak event and no bounded registration reminder. Cannot assess reminder adoption.",
+      "source": "The source read at request 2 returned the entire 609 UTF-16-unit original; request 3 carried complete source coverage with 18 calls/8 actions/174211 ms still available. No repeated reads or quote search.",
+      "nextAction": "No registration, binding, nextAction payload or page_act occurred. Zero wrong IDs is an unexercised path, not evidence that confusion was solved.",
+      "completion": "No healthy completion, defect detection or unavailable-row abstention. R1 remained partial with mandatory local-interaction and source obligations unresolved.",
+      "comparison": "Do not combine this interrupted batch with the historical 5/6, free fixed replies, or a later R1-only retry."
+    },
+    "historicalUnknowns": {
+      "retainedUsd": [
+        0.063,
+        0.116
+      ],
+      "reconciliation": "deferred by user",
+      "changed": false,
+      "countedAsNewUnknown": false
+    },
+    "limitations": [
+      "Only R1 was dispatched; no causal/stability/success-rate conclusion about the two engineering fixes.",
+      "Third request final cost is unknown; USD0.063 is reserved accounting exposure, not a settled cost or verified final bill ceiling.",
+      "Unavailable rows were not run; no grounded abstention is awarded.",
+      "No production/prompt/budget/runner change, rebuild, free-test rerun, retry or replacement."
+    ],
+    "nextBoundary": "The one authorized batch is closed and claim consumed. R2 has not achieved its original completion threshold. Do not resume/retry/reconcile-and-reopen or perform additional repairs/experiments automatically.",
+    "evidenceReferences": [
+      "registration-action-handoff-audit.json",
+      "stage-process-audit.json",
+      "tool-error-audit.json",
+      "request-context-audit.json",
+      "trajectory-audit.json",
+      "tool-receipt-audit.json",
+      "citation-audit.json",
+      "evidence-facts.json",
+      "artifact-verification.json",
+      "cost-audit.json",
+      "post-run-identity.json",
+      "upstream-timing.jsonl",
+      "requests.jsonl",
+      "responses.jsonl",
+      "ledger.jsonl",
+      "accounting.json"
+    ]
+  },
+  "rawMechanicalReviewPendingDoesNotOverrideCompletedAgentReview": true,
+  "noCodeOrConfigurationChangesDuringExecution": true,
+  "noRebuildOrRepeatedFreeMatrix": true,
+  "newPaidBatchCount": 1,
+  "priorEvidence": {
+    "freeDelivery": "evaluation/r2-product-sources/registration-action-handoff.json",
+    "freeEvidenceIndexSha256": "a3f8d24e547fd6515f2f054cd9d7e9bc9a519fa4e0f6b401ac783d70488d666d",
+    "testsReused": 84,
+    "browserCasesReused": 5,
+    "fullHistoricalIndexRecheck": false
+  },
+  "historicalCosts": "Old USD0.063 and USD0.116 unchanged, reconciliation deferred. New USD0.063 unknown is separately retained and caused this batch to stop; no unknown ignored or settled to zero.",
+  "historicalResult": "Sixth batch 5/6 retained, not combined with this interrupted batch.",
+  "noPushOrMerge": true,
+  "roadmapUnchanged": true
+}

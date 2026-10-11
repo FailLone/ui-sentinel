@@ -1,3 +1,5 @@
+import { recoveredSourceFragment } from './product-recovery.ts'
+import type { ProductSource } from '../../inspection/product-source.ts'
 import { extractToolSummary, type HistoryEntry } from './compact-history.ts'
 
 export const MEMORY_BUDGET_BYTES = 8000
@@ -15,7 +17,25 @@ function boundedText(value: unknown, limit: number) {
 export function rawTools(entry: HistoryEntry): Record<string, unknown>[] {
   try {
     const result = JSON.parse(entry.toolResults)
-    return Array.isArray(result) ? result : []
+    if (!Array.isArray(result)) return []
+    // Preserve the parent decision receipt and expose its original query results through
+    // the same bounded summaries/cursors. References index this deterministic projection.
+    return result.flatMap((item) => {
+      const payload = item.payload ?? item
+      if (
+        payload.toolName !== 'product_path_decide' ||
+        !Array.isArray(payload.result?.queryResults)
+      )
+        return [item]
+      return [
+        item,
+        ...payload.result.queryResults.map((query: Record<string, unknown>) => ({
+          ...query,
+          parentToolCallId: payload.toolCallId,
+          origin: 'product-decision-query',
+        })),
+      ]
+    })
   } catch {
     return []
   }
@@ -58,6 +78,19 @@ function domLocator(summary: ReturnType<typeof projection>, queryBudget = 256) {
       : {}),
   }
 }
+/** Preserve existing document cursors when the original text is omitted, not inferred content. */
+function sourceCursor(summary: ReturnType<typeof projection>) {
+  if (summary.tool !== 'product_source_read') return {}
+  const data = summary as Record<string, unknown>
+  return Object.fromEntries(
+    ['offset', 'endOffset', 'totalChars', 'nextOffset'].flatMap((key) =>
+      (key === 'nextOffset' && data[key] === null) ||
+      (Number.isSafeInteger(data[key]) && Number(data[key]) >= 0)
+        ? [[key, data[key]]]
+        : [],
+    ),
+  )
+}
 function receipt(item: Record<string, unknown>, resultRef: string, budget: number) {
   const summary = projection(item, resultRef)
   if (bytes(summary) <= budget) return summary
@@ -84,6 +117,7 @@ function receipt(item: Record<string, unknown>, resultRef: string, budget: numbe
     error: boundedText(summary.error, 80),
     nextStep: boundedText(summary.nextStep, 160),
     ...domLocator(summary),
+    ...sourceCursor(summary),
     hint: 'Payload exceeds this page. Use tool_result_read(resultRef) for the original result.',
   }
   return short
@@ -107,7 +141,25 @@ export function historyPage(history: readonly HistoryEntry[], start: number, cou
   })
   return { total: history.length, start, nextStart: end < history.length ? end : null, entries }
 }
-export function readToolResult(history: readonly HistoryEntry[], ref: string, offset = 0) {
+type ToolResultPage = {
+  resultRef: string
+  evidenceBearing: boolean
+  offset: number
+  totalChars: number
+  chunk: string
+  sourceRecovery?: ReturnType<typeof recoveredSourceFragment>
+  nextOffset: number | null
+  format: string
+  error?: undefined
+}
+export function readToolResult(
+  history: readonly HistoryEntry[],
+  ref: string,
+  offset = 0,
+  source?: ProductSource,
+):
+  | ToolResultPage
+  | ({ error: string } & Partial<Record<keyof Omit<ToolResultPage, 'error'>, never>>) {
   const match = /^(\d+)\.(\d+)$/.exec(ref)
   if (!match) return { error: 'Invalid resultRef' }
   const entry = history[Number(match[1])]
@@ -138,6 +190,7 @@ export function readToolResult(history: readonly HistoryEntry[], ref: string, of
     offset,
     totalChars: raw.length,
     chunk,
+    ...(source ? { sourceRecovery: recoveredSourceFragment(source, item, raw, offset, next) } : {}),
     nextOffset: next < raw.length ? next : null,
     format: 'JSON fragment; follow nextOffset to read the remaining data',
   }
@@ -161,6 +214,7 @@ export function boundedHistoryPage(history: readonly HistoryEntry[], start: numb
       verdict: t.verdict,
       validationStatus: t.validationStatus,
       ...domLocator(t as ReturnType<typeof projection>, 80),
+      ...sourceCursor(t as ReturnType<typeof projection>),
     }))
   }
   if (bytes(page) > 1800) throw new Error('history-page-budget-contract')

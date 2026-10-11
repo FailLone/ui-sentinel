@@ -1,0 +1,91 @@
+{
+  "revision": "r2-detail-verdict-fix-1",
+  "supersedesRuntime": "df644309664a4d3e1ab757dc33020b84a23f59d1",
+  "oldRuntimeSuitableForPaidRun": false,
+  "candidate": "r2-product-acceptance-2; exact implementation tracked by file hashes and this receipt’s git history",
+  "scope": "Experiment verdict only. Product, specification, completion gates, sampling, matrix, fee/safety/persistence guards unchanged.",
+  "tests": {
+    "targetedFile": "scripts/r2-product-acceptance/detail-verdict.test.ts",
+    "passed": 12,
+    "newBrowserRuns": 0,
+    "supplierRequests": 0,
+    "old34TestsRerun": false,
+    "oldDynamicSixRerun": false,
+    "fullSuiteRerun": false,
+    "typecheck": "final passed; first test-fixture typing failure retained",
+    "format": "passed"
+  },
+  "counterexamples": [
+    "Actual full preview quote verified + detail failed: old guard stops, fixed guard does not",
+    "Preview verified only: partial-detail-unchecked",
+    "Linked exact detail requirement credited against original wrong result: hard stop",
+    "Changed legal citation/title/index joins: same outcome",
+    "Broad contains, missing binding, wrong action, missing/tampered measurement, duplicate effect and wrong result node: manual unverified"
+  ],
+  "sourceFiles": {
+    "scripts/r2-product-acceptance/detail-verdict.ts": "b6f5b8dd56837601688ebff159ad396ecbc1acdf0574344e911cd73ce86acf29",
+    "scripts/r2-product-acceptance/detail-verdict.test.ts": "55b8acf1d572d4c6cae252b5b0f205e17279ce71684778b13bbb3ec2802cd58d",
+    "scripts/r2-product-acceptance/run.ts": "726a6fc4b8429e31faa4caa765a5a0588361210fe6bbb0c2c52499c6bd5582cc",
+    "scripts/r2-product-acceptance/policy.ts": "e6c62d51759bf40a6f9b38b0c5528014a928e9682e18b79d2106cfe5bf2ec138",
+    "docs/experiments/r2-product-acceptance.md": "c17160b2602bb2d8de7b80c3d4c11b08afbfbb352b1e13a160c0adb4e4d689c9"
+  },
+  "identity": {
+    "productSourceUnchanged": true,
+    "sourceHash": "ba91dcbf283ced07f9b5b090b51c309fed3620ee53fc626dc6a608b71414c7cd",
+    "buildReusedUnchanged": true,
+    "buildHash": "bba35a70a547b1f13a4c7cc696274e3153b5a0dbb693617c5ef63e2700b3db15",
+    "publicInputMatrixTruthPricesLockUnchanged": true,
+    "policyOnlyRevisionChanged": true,
+    "originalEvidenceIndexUnchanged": true,
+    "originalEvidenceIndexSha256": "8f051a9c5bd86ed434d6027f89b83a9635c6c69c43f04808d98c97ed1960e82c",
+    "original637Files": "Not rewritten; maintainer full hash verification reused. No new full evidence traversal claimed."
+  },
+  "evidence": {
+    "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/detail-fix/dry-run.json": {
+      "sha256": "e3f0c6ab1d114a0d4d16928f4b4442f4f57711f7bee13b3d4033e6a4dcf0499b",
+      "bytes": 57694
+    },
+    "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/detail-fix/format.log": {
+      "sha256": "9ad3061813e3c34b67e1525c806d79bf9f6dc6a35ffbd900e3ada68ea8aa3dc6",
+      "bytes": 42
+    },
+    "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/detail-fix/identity-audit.json": {
+      "sha256": "4e9588928d116b587c4135067acfe56ae7eb9f0b12baa3eeac601dde72e051dd",
+      "bytes": 591
+    },
+    "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/detail-fix/tests-final.json": {
+      "sha256": "26ef0a036ec0d1103864b13cbd8eadd8927bf75a578e1e72be80861914841611",
+      "bytes": 4352
+    },
+    "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/detail-fix/tests-final.log": {
+      "sha256": "d206fe0c2231e62eed778bb290b3620012148c5326f3456092cae14d7683234a",
+      "bytes": 446
+    },
+    "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/detail-fix/tests.json": {
+      "sha256": "954d6cb6400ffa04219a861fd06970e9a82e754f9382ff789291efaa2526ee0f",
+      "bytes": 4352
+    },
+    "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/detail-fix/tests.log": {
+      "sha256": "e357716edecb5ce4ec9c571a6b8b4a7c2d9ed710c0d5f89856c099c54aa6ab5d",
+      "bytes": 440
+    },
+    "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/detail-fix/typecheck-final.log": {
+      "sha256": "f641f505537cf20ffecfa10424e8cf2a48203b3a90fec8e9f85303dc8bc2f442",
+      "bytes": 113
+    },
+    "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/detail-fix/typecheck.log": {
+      "sha256": "b785e66fa475e547d8aa329d862605646eef5e7fc23b9d37f831476939abe87e",
+      "bytes": 1285
+    }
+  },
+  "authorization": {
+    "required": true,
+    "tasks": 6,
+    "maxRequests": 120,
+    "maxCostUsd": 7.56,
+    "model": "deepseek/deepseek-v4.1-flash",
+    "provider": "Wafer",
+    "manifestPath": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/manifest-detail-fix.json",
+    "manifestHash": "Generated only after clean delivery commit; see the new manifest/delivery-freeze.json and handoff. No approval generated."
+  }
+}

@@ -10,7 +10,7 @@ import { validProductSource, type ProductSource } from './product-source.ts'
 import { projectInspectionScope } from './scope.ts'
 import type { RunEvent } from '../shared/types.ts'
 
-export const PRODUCT_SKILL_REVISION = 'product-path-2'
+export const PRODUCT_SKILL_REVISION = 'product-path-12'
 const citation = z
   .object({
     start: z.number().int().min(0),
@@ -86,22 +86,37 @@ export function validateProductPlan(source: ProductSource, raw: unknown): Produc
     source.contentHash !== plan.contentHash
   )
     throw Error('product-source-version-mismatch')
-  for (const step of plan.steps) {
-    for (const c of [step.citation, ...step.preconditions.map((p) => p.citation)])
-      if (c.end <= c.start || source.markdown.slice(c.start, c.end) !== c.quote)
-        throw Error('product-citation-mismatch')
-    for (const p of [step, ...step.preconditions])
+  const fail = (message: string, field: string): never => {
+    throw Object.assign(new Error(message), { field })
+  }
+  for (const [index, step] of plan.steps.entries()) {
+    for (const [j, c] of [step.citation, ...step.preconditions.map((p) => p.citation)].entries())
+      if (
+        c.end <= c.start ||
+        c.end > source.markdown.length ||
+        source.markdown.slice(c.start, c.end) !== c.quote
+      )
+        fail(
+          'product-citation-mismatch',
+          j === 0 ? `steps[${index}].citation` : `steps[${index}].preconditions[${j - 1}].citation`,
+        )
+    for (const [j, p] of [step, ...step.preconditions].entries())
       if (p.expectation && !p.citation.quote.includes(p.expectation.expected))
-        throw Error('product-expectation-not-in-frozen-quote')
+        fail(
+          'product-expectation-not-in-frozen-quote',
+          j === 0
+            ? `steps[${index}].expectation`
+            : `steps[${index}].preconditions[${j - 1}].expectation`,
+        )
     if (
       step.timing === 'action-complete' &&
       !/immediate|synchronous|同步|立即|即时/i.test(step.citation.quote)
     )
-      throw Error('product-explicit-timing-required')
+      fail('product-explicit-timing-required', `steps[${index}].timing`)
     if (step.targetName && !step.citation.quote.includes(step.targetName))
-      throw Error('product-target-name-not-in-frozen-quote')
+      fail('product-target-name-not-in-frozen-quote', `steps[${index}].targetName`)
     if (step.action === 'fill' && step.value === undefined)
-      throw Error('product-fill-value-required')
+      fail('product-fill-value-required', `steps[${index}].value`)
   }
   return plan
 }
@@ -237,7 +252,23 @@ export function productPathReport(
     issues.push('product-plan-replaced')
   if (events.some((e) => e.type === 'execution:intervention'))
     issues.push('product-evidence-intervened')
-  if (planned?.payload.revision === PRODUCT_SKILL_REVISION && plan) {
+  if (
+    planned &&
+    [
+      'product-path-2',
+      'product-path-3',
+      'product-path-4',
+      'product-path-5',
+      'product-path-6',
+      'product-path-7',
+      'product-path-8',
+      'product-path-9',
+      'product-path-10',
+      'product-path-11',
+      PRODUCT_SKILL_REVISION,
+    ].includes(String(planned?.payload.revision)) &&
+    plan
+  ) {
     for (const binding of events.filter((e) => e.type === 'product:bound')) {
       try {
         const before = projectInspectionScope(events.filter((e) => e.seq < binding.seq)).snapshot()
@@ -379,7 +410,11 @@ export function productPathReport(
         ? 'failed'
         : 'verified'
       : 'unverified',
-    unchecked: plan?.unchecked ?? ['资料尚未登记关键路径；全文未验证'],
+    unsupported: events.find((e) => e.type === 'product:unsupported')?.payload,
+    unchecked: plan?.unchecked ??
+      (events.find((e) => e.type === 'product:unsupported')?.payload.unchecked as
+        | string[]
+        | undefined) ?? ['资料尚未登记关键路径；全文未验证'],
     limitation:
       'Only the selected short path is evaluated; omitted document content is unchecked. Extraction is an Agent interpretation of the cited original.',
   }
