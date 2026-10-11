@@ -1,0 +1,200 @@
+{
+  "date": "2026-10-12",
+  "archives": [
+    {
+      "branch": "archive/r2-product-sources-draft-20261010",
+      "tag": "archive/r2-draft-20261012",
+      "commit": "90498c0ea898e4b5163b457c9f6aae34e5911b2e"
+    },
+    {
+      "branch": "codex/jev-benefit-study",
+      "tag": "archive/jev-benefit-study-20261012",
+      "commit": "27c4b7b78ddb5f078d265d7cb7c1e5aeea8f85c5"
+    },
+    {
+      "branch": "codex/r0-closeout",
+      "tag": "archive/r0-workspace-20261012",
+      "commit": "96aec5006e1c77f3f7f5565a0ea997e760d519d6"
+    }
+  ],
+  "r0BaseBeforeSnapshot": "d636d7e6ceea46ed22f43205a7164a149cb3600a",
+  "r0Snapshot": "96aec5006e1c77f3f7f5565a0ea997e760d519d6",
+  "r0PreservedFiles": [
+    {
+      "path": "docs/product-roadmap.md",
+      "sha256": "a0b63af6d82e2f7431803a7d4e4a954274d709f6d68478306726d5b4cf979673",
+      "bytes": 75676
+    },
+    {
+      "path": "docs/rule-library/README.md",
+      "sha256": "33caa5d69ea1aaab0bbc272204dda940b16df5c1f3ede9edab82c655561f4573",
+      "bytes": 5988
+    },
+    {
+      "path": "docs/rule-library/dedup-log.md",
+      "sha256": "277f019ea71ecdde086edef6c20c164ffeba3be01c7686bca97f377ab6ff36da",
+      "bytes": 8588
+    },
+    {
+      "path": "docs/rule-library/open-questions.md",
+      "sha256": "cf47771f2ebf4e38e6cb1729d45b2b58ba4f632ebd026c7647ed85a1cb7b5863",
+      "bytes": 6572
+    },
+    {
+      "path": "docs/rule-library/rule-catalog.md",
+      "sha256": "8aaff1bc6298fbffd48b5092ee9bfb146151517f6dc61fc2cdb735d231495d9c",
+      "bytes": 8142
+    },
+    {
+      "path": "docs/rule-library/rules/UIK-D001.md",
+      "sha256": "fbe16061a6a4ddfca5401f63e78fac039436658392f4dab9030bf7788e2861f8",
+      "bytes": 8304
+    },
+    {
+      "path": "docs/rule-library/rules/UIK-D002.md",
+      "sha256": "a2d975f129c996f6bd9a710260b9a696fd48e3d25a38791b0fe7119fb709b72b",
+      "bytes": 7572
+    },
+    {
+      "path": "docs/rule-library/rules/UIK-D003.md",
+      "sha256": "01e2e74d675281e49fc5b91c338430e29619c42cde9b6ee9c625d356e456bab0",
+      "bytes": 4872
+    },
+    {
+      "path": "docs/rule-library/rules/UIK-D004.md",
+      "sha256": "91dea5775236ca9ab6c3fc86dc6b0addb44bc779cfcf6049d391f62e25bdb2e7",
+      "bytes": 4313
+    },
+    {
+      "path": "docs/rule-library/rules/UIK-D005.md",
+      "sha256": "6cfb1005b198d790b0064a9df315a573b6012da63451e826bcc2b5dc427ff776",
+      "bytes": 4796
+    },
+    {
+      "path": "docs/rule-library/rules/UIK-D006.md",
+      "sha256": "88f394414447801166d9b7153b85594f6db21a24ece3bf18902bfb64f7f71792",
+      "bytes": 4721
+    },
+    {
+      "path": "docs/rule-library/rules/UIK-D007.md",
+      "sha256": "b4cb70fc4cef3f5a4aae7d0c5dbddf3c11888254e5b0665ba94604068d6139e2",
+      "bytes": 4196
+    },
+    {
+      "path": "docs/rule-library/rules/UIK-D008.md",
+      "sha256": "4b09e4df274115862c66e6900bbb3280651de30b99b0421704f6d6985cf37fdf",
+      "bytes": 5282
+    },
+    {
+      "path": "docs/rule-library/rules/UIK-D009.md",
+      "sha256": "743a7f0cb523ff7935d8ff4b31f434f7368aba5ba79a879e7f6022ded8a35907",
+      "bytes": 5126
+    },
+    {
+      "path": "docs/rule-library/rules/UIK-D010.md",
+      "sha256": "d97a93ba52b0ffd9ad7f8a9d71cc8289c558941f1120cdf22f1a2cfb5cbdcd60",
+      "bytes": 4120
+    },
+    {
+      "path": "docs/rule-library/rules/UIK-D011.md",
+      "sha256": "f6978c403256cb586a3e035f120f566069754ed8fbc034e9833626954b7f8537",
+      "bytes": 4499
+    },
+    {
+      "path": "docs/rule-library/rules/UIK-R001.md",
+      "sha256": "b9fa38d9df9a6cf241285b3ede6da5f31b6c0efb5667234514fb44a6f96a27ac",
+      "bytes": 8681
+    },
+    {
+      "path": "docs/rule-library/rules/UIK-R002.md",
+      "sha256": "158ab77d994a28498bc21baff75bf4e66c31cf30ab16fff4214e1d5962aecad1",
+      "bytes": 24182
+    },
+    {
+      "path": "docs/rule-library/rules/UIK-R003.md",
+      "sha256": "47ba1b487c75e2f2607bb72a6d34a5e2dcfdf7eb2da9258f82f28269cb23e316",
+      "bytes": 34356
+    },
+    {
+      "path": "docs/rule-library/rules/UIK-R004.md",
+      "sha256": "bcc0cf828c5d8505fc81f1103ce539778073b28038c475995020334946174b98",
+      "bytes": 10138
+    },
+    {
+      "path": "docs/rule-library/rules/UIK-R005.md",
+      "sha256": "381fe4d2a52929c3190751c03765f809e64802c74fd6ad2b50c1e0a3515472b4",
+      "bytes": 7336
+    },
+    {
+      "path": "docs/rule-library/rules/UIK-R006.md",
+      "sha256": "21b0a67f281c562156e5c22af2f5640a70dc5ffe9cf396a81226eca4812e0ce8",
+      "bytes": 6472
+    },
+    {
+      "path": "docs/rule-library/rules/UIK-R007.md",
+      "sha256": "0ae3628062b1568e90880c9cd37b9882d8eb928351d975fe1edda97507f1ebe2",
+      "bytes": 6567
+    },
+    {
+      "path": "docs/rule-library/rules/UIK-R008.md",
+      "sha256": "aadf238331e0e919daff052a0649e79702a2f5b16d6f488dd2a17a1983b1aaf5",
+      "bytes": 5504
+    },
+    {
+      "path": "docs/rule-library/rules/UIK-R009.md",
+      "sha256": "a704fffd98d9bf07a2399ceab0bf90c9c42b1c72d5a8a3bd3086bbb9c14ce3bd",
+      "bytes": 7071
+    },
+    {
+      "path": "docs/rule-library/rules/UIK-R010.md",
+      "sha256": "4ac24df03b2bc380f1bb83d070f11ff727a6a3309b5b1363e51a4e49b4c41d20",
+      "bytes": 4726
+    },
+    {
+      "path": "docs/rule-library/rules/UIK-R011.md",
+      "sha256": "7861547e5c32019123f132b84c8821b702fd1a2fdae662450e34125469161505",
+      "bytes": 5241
+    },
+    {
+      "path": "docs/rule-library/rules/UIK-R012.md",
+      "sha256": "68f176470d9701537c142e41258bfa73ef9cff4b27a6c7bbc262232340793fc6",
+      "bytes": 4496
+    },
+    {
+      "path": "docs/rule-library/ticket-mapping.md",
+      "sha256": "970b2b7af938e72bae8ac8946bf1acd16316ad74f82f6f3e52114e62fa5a0654",
+      "bytes": 382591
+    },
+    {
+      "path": "plans/evidence/r0-default-check-contract-v2-plan.json",
+      "sha256": "2ccb6a37ec48dd04727809a95d5a0428ef445ff80f76f7e8905c1d4b2c930f10",
+      "bytes": 18762
+    },
+    {
+      "path": "plans/independent-root-cause-diagnosis-2026-10-08.md",
+      "sha256": "aabda96b52b447b2c04029529444dcf0d9f50b00e73a98e6c3b63936530163b5",
+      "bytes": 18505
+    },
+    {
+      "path": "plans/r0-default-check-contract-v2-plan.md",
+      "sha256": "64a7476a907ee7c5dcb8ceae2ca4b8310a95a3442a66c96720f5ee4b56597f9d",
+      "bytes": 35811
+    },
+    {
+      "path": "plans/r0-v2-context-recovery.md",
+      "sha256": "3a60005ad6034e9536845e2a7d859cfc90ae6765b6f2d03463a85d875ca925e5",
+      "bytes": 3367
+    }
+  ],
+  "bundle": "/Users/xietian/.codex/worktrees/rules-main-closeout/ui-sentinel/data/maintenance/legacy-branches-20261012.bundle",
+  "bundleSha256": "e807cbaeeaab3c42efbdf1a480bea364ff5a14cdc939dae2a5a7afc77649e8c8",
+  "bundleBytes": 448325,
+  "bundleRequires": "Existing main history; verified with git bundle verify.",
+  "archiveLocation": "Local annotated tags and local bundle; not pushed.",
+  "originalWorkspace": "/Users/xietian/Documents/ChatGPT/ui-sentinel",
+  "originalWorkspaceState": "clean detached HEAD at exact archival snapshot; ignored data preserved",
+  "remainingBranches": [
+    "codex/r3-path-reuse",
+    "main"
+  ]
+}
