@@ -1,0 +1,87 @@
+{
+  "baseCommit": "86d941db2b1ccb8aa9444aef016abea4e8408f6b",
+  "implementationCommit": "f4619ed8207655b0d6685334d14076f837028c7a",
+  "branch": "codex/r2-registration-action-handoff",
+  "skillRevision": "product-path-10",
+  "status": "free-validation-passed",
+  "sourceHash": "d014f1eb86789f12935b577e04cbbee355452de02c074d742ea385f75ffc9627",
+  "distHash": "0c63c3e8f715d44770265046ed21cf6796bda387b20b3b62baa56ff9a902e7b2",
+  "browserBuildConsistency": "data/r2-product-acceptance/registration-action-handoff-free-20261011/browser-build-consistency.json",
+  "browserRoot": "data/r2-product-sources/2026-10-11T14-00-30-280Z",
+  "originalFixture": "evaluation/private/r2-product-acceptance/registration-action-handoff-failures.json",
+  "flowComparison": "data/r2-product-acceptance/registration-action-handoff-free-20261011/flow-comparison.json",
+  "distinctTests": 84,
+  "testFiles": 10,
+  "testLogs": [
+    "data/r2-product-acceptance/registration-action-handoff-free-20261011/tests-attempt-1.log",
+    "data/r2-product-acceptance/registration-action-handoff-free-20261011/handoff-tests-attempt-3.log"
+  ],
+  "browserResults": [
+    {
+      "mode": "feedback-healthy",
+      "runId": "run-2d641e51-e7cb-4f3b-b13f-cc17efdb565a",
+      "status": "completed",
+      "coverage": "covered",
+      "state": "verified",
+      "actions": 2
+    },
+    {
+      "mode": "feedback-defect",
+      "runId": "run-f06091c2-50cb-475a-973e-bdcb50112353",
+      "status": "completed",
+      "coverage": "covered",
+      "state": "failed",
+      "actions": 2
+    },
+    {
+      "mode": "feedback-registration-stall",
+      "runId": "run-c5c5cbcf-e4cd-4f84-92fe-6bf9b45e54b3",
+      "status": "blocked",
+      "coverage": "partial",
+      "state": "unverified",
+      "actions": 0
+    },
+    {
+      "mode": "feedback-unavailable-enabled",
+      "runId": "run-faa2ab27-4928-4870-8cf9-ddea2b6ded4f",
+      "status": "blocked",
+      "coverage": "partial",
+      "state": "unverified",
+      "actions": 0
+    },
+    {
+      "mode": "feedback-unknown",
+      "runId": "run-ab99725a-dedb-43e1-b54e-43d8a2c8e313",
+      "status": "blocked",
+      "coverage": "partial",
+      "state": "unverified",
+      "actions": 2
+    }
+  ],
+  "restartedReports": 5,
+  "build": "data/r2-product-acceptance/registration-action-handoff-free-20261011/build-final.log",
+  "format": "data/r2-product-acceptance/registration-action-handoff-free-20261011/format.log",
+  "diffCheck": "data/r2-product-acceptance/registration-action-handoff-free-20261011/diff-check.log",
+  "failuresPreserved": "data/r2-product-acceptance/registration-action-handoff-free-20261011/failures-preserved.json",
+  "reusedEvidence": "data/r2-product-acceptance/registration-action-handoff-free-20261011/reused-evidence.json",
+  "evidenceIndex": "data/r2-product-acceptance/registration-action-handoff-free-20261011/evidence-index.json",
+  "evidenceFiles": 498,
+  "evidenceIndexSha256": "a3f8d24e547fd6515f2f054cd9d7e9bc9a519fa4e0f6b401ac783d70488d666d",
+  "paidCalls": 0,
+  "newPaidAuthorizationOrClaim": false,
+  "historicalResult": "Sixth real batch remains 5/6; original all-six exit unmet. No old R1 retry.",
+  "changes": [
+    "One existing bounded reminder offered before registration no-progress closure. No reset, new budget or post-closure continuation.",
+    "Exact source character coverage distinguishes new material from duplicate reads; semantic completeness remains model responsibility.",
+    "Binding source review materializes original owned requirementId; current unique valid binding emits page_act args. Dispatch revalidates all original gates; wrong IDs remain rejected."
+  ],
+  "limitations": [
+    "Fixed author-controlled local replies do not establish actual model adoption or success rate.",
+    "New source coverage is not a semantic completeness judgment; reminders can be ignored.",
+    "Binding now performs a bounded public source sample inside the existing tool/time budget.",
+    "No automatic click or arbitrary-ID normalization."
+  ],
+  "candidateConclusion": "Ready for engineering review/freezing under the unchanged six-row criteria, not a new paid authorization or proof of real adoption.",
+  "roadmapUnchanged": true,
+  "noPushOrMerge": true
+}

@@ -199,3 +199,13 @@ node --import tsx scripts/validation/counterexample-arena/validate.ts
 56份wire工具集合与stage实际上下文一致，无gap工具，登记后的五行没有source重读；当前冻结前置全部正确送达。R5/R6共五次将itemId填入requirementId，操作前被拒，后来修正；原始证据保留，未出现动作重放。没有真实触发数量/零匹配修复，不能将免费验证当作本批采用证据。
 
 56次请求、已知usage US$0.067840720、新unknown/held 0；进程约6分20秒，无硬停止/自动重试/补跑。报告恢复6/6、275对附件相同，63份回执无缺失，运行后完整manifest仍等于冻结。历史费用暂缓核查且原样保留。657项新证据与精确命令见[真实交付](../../evaluation/private/r2-product-acceptance/real-stage-retrieval-acceptance.json)和[实验记录](../experiments/r2-product-acceptance.md#直接取证候选真实验收2026-10-11第六批已完成agent审阅)。本批关闭；登记停滞及ID混淆仍是后续待决问题，不自动新增任务/样本。不合并、不推送，不改main及维护者Roadmap。
+
+## R2 注册提示及原动作参数（2026-10-11，免费修复）
+
+按用户“好的，请你尝试吧”仅做两处工程修复，实施 `f4619ed`，分支 `codex/r2-registration-action-handoff`。第六批原R1已收到全文却反复检索；R5/R6五次itemId/requirementId混淆，四次缺原ID、一次已有ID仍错误。原始上下文及错误/成功输入留作对照。
+
+v10在原无进展关闭前复用一次已有指导额度，要求登记、具体缺失材料或诚实结束；精确新增字符覆盖才算读取进展，不推断语义完整性，不自动计划或扩预算。成功绑定先经原来源审阅生成需求，绑定回执/下一上下文给出唯一当前绑定的page_act参数；模型显式调用，原归属、身份、前置、取消与无重放门重新校验。任意错误ID仍拒绝。
+
+84项测试、构建/格式/diff与五个必要免费真实浏览器流程通过。继续忽略提示的R1在第4请求收到提醒，第5请求按streak=3关闭，零登记/动作；固定作者选择登记可完成健康流程。五个原错误ID全部拒绝，正确参数完成健康/缺陷路径；假前置零动作，未知效果不重放，五报告重启相同，mandatory pending门复用未变原证据。验证脚本/夹具的失败也保留。[交付收据](../../evaluation/r2-product-sources/registration-action-handoff.json)和[实验说明](../experiments/r2-product-acceptance.md#注册决策与动作参数修复2026-10-11免费工程候选)给出边界与证据。
+
+候选具备工程审阅/冻结条件，不代表真实模型已采用或成功率提高。原真实成绩仍5/6，原整批出口未达；本轮无付费调用、新授权/claim、旧R1补跑、推送或合并，历史费用暂缓核查。main及维护者Roadmap未改。
