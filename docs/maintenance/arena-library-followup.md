@@ -227,3 +227,13 @@ v10在原无进展关闭前复用一次已有指导额度，要求登记、具�
 公开报价原闸门拒绝 `quote-outside-policy`。随后只读诊断快照显示Wafer输入每百万US$0.06，高于既定US$0.05；输出US$1.60未超限。首个拒绝响应正文因助手先校验后保存而未留存，后续快照单独标时，不冒充原响应。准备approval因manifest尚未生成而停止，launch未调用。最终只离线冻结阻断候选身份 `382a066af41b7700c5fc04f964e0c64a12e7efd51b05091e7f416ab5ab8613fe`，保存授权接收记录，无可执行approval、新claim消费或推理请求。
 
 六行全部未派发，新增费用/unknown/held均为0；三笔历史unknown US$0.063、US$0.063、US$0.116不清零、不核查。第六批5/6、第七批超时结果不改。两项修复采用均未触达，R2原出口仍未达。22项证据和限制见[本次阻断交付](../../evaluation/private/r2-product-acceptance/handoff-repeat-price-blocked.json)。无自动价格轮询、连续重试、换供应商、扩大费用保护或追加修复；未推送、合并或修改main/Roadmap。
+
+## R2 输入报价获准后的完整批次（2026-10-11，第八批已交付）
+
+用户“接受上限，允许运行”后，只将输入价上限改为US$0.06/百万；执行 `8ef46a1`，产品仍是 `4bc7e3a/f4619ed`，其余原六行、标准、8效果、US$7.56/120请求和停止门不变。两项价格边界测试通过；84项/5场景复用，无重建。新冻结manifest `8c925ab5f744bcd2fc6664bffc7c3ee4f5c2636b6e435fdde970ab21f7e0638f` 独立approval/claim一次消费，执行后完整身份一致。
+
+六行均完成记录，Agent语义审阅 **5/6，原出口仍未达**。R2/R5正确测出详情缺陷，R6健康两步完成；R3/R4由原计划和实际暂不可用/disabled节点支持有据弃权，报告仍partial/unverified，绑定实际在身份门拒绝，不冒称已测得前置为假。R1第4请求收到登记提示仍重读，第5请求原阈值关闭，零登记/动作。8效果4 verified、2 failed、2 unverified。
+
+登记提示在R1/R2/R4/R6送达，R2/R6当轮登记，R4下一轮修正登记，R1未登记。六次实际动作的requirementId/ref/type/value均显式匹配程序nextAction，零错误ID；这是本批可观察采用，不能推论整体可靠性或因果增益。R2漏前置选择器、R4缺字段/截短未发引用以及不可用绑定错误均保留。48份wire阶段与前置审计通过，57份回执无缺失，20处成功引用精确匹配。
+
+322.537秒、48请求、已知US$0.074159028，新unknown/held 0，无硬停止或自动重试。三笔历史US$0.063/0.063/0.116未知不变，核查暂缓；旧第六/七批和报价阻断结果不合并。恢复6/6、276对附件相同，667项证据和原命令见[交付](../../evaluation/private/r2-product-acceptance/real-handoff-price-acceptance.json)及[实验记录](../experiments/r2-product-acceptance.md#输入报价获准后的衔接候选真实验收2026-10-11第八批已完成agent审阅)。授权已关闭，不自动追加修复/样本；未推送、合并或修改main/Roadmap。

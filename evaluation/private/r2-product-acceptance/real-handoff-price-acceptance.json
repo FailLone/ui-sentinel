@@ -1,0 +1,2122 @@
+{
+  "revision": "r2-real-handoff-price-acceptance-delivery-1",
+  "executionCommit": "8ef46a110b8a46d232797302f358d1500ec680af",
+  "implementationCommit": "f4619ed8207655b0d6685334d14076f837028c7a",
+  "branch": "codex/r2-handoff-price-authorized",
+  "manifestHash": "8c925ab5f744bcd2fc6664bffc7c3ee4f5c2636b6e435fdde970ab21f7e0638f",
+  "protocolAtExecution": "git show 8ef46a110b8a46d232797302f358d1500ec680af:docs/experiments/r2-product-acceptance.md",
+  "frozenManifest": {
+    "path": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/prepared-handoff-price-20261011/manifest.json",
+    "fileSha256": "02c33fb3e3054dde310926c89a3a6f4f4f88cf9f69a9acd271ca99f69476c48d"
+  },
+  "preparationIndex": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/prepared-handoff-price-20261011/preparation-index.json",
+  "runCommand": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/prepared-handoff-price-20261011/run-command.txt",
+  "rawDirectory": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/real-handoff-price-authorized-20261011",
+  "evidenceIndex": {
+    "path": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/real-handoff-price-authorized-20261011/evidence-index.json",
+    "sha256": "57b0eb3329c82b1ffbc43b573f722b9b8bc8f3c9d02a25ae2a6722d5bf6c3c9d",
+    "files": 667
+  },
+  "reviewFile": {
+    "path": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/real-handoff-price-authorized-20261011/review.json",
+    "sha256": "69a28d366d31aa26927760527c5b99d8712b2d1ce2eeae94c7e7e08593498249"
+  },
+  "approval": {
+    "path": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/real-handoff-price-authorized-20261011/approval.json",
+    "sha256": "54fcb26aa4c9b8c755762c4425e11619e732aed404ddf2c42f1d6cfd276d892b",
+    "approvedBy": "用户（当前会话直接授权）",
+    "approvalReference": "当前会话用户原文“接受上限，允许运行”。紧邻上下文已明确Wafer输入每百万US$0.06高于旧US$0.05门限、同产品原六任务及新增US$7.56；据此仅接受输入上限US$0.06/百万，执行一个独立新批次。承接维护者此前已核实的六任务授权范围和历史风险，不包含连续重试。授权基于同一已审阅产品及这项价格调整，新manifest hash在授权后生成，不声称用户提前看过。",
+    "receivedAt": "2026-10-11T15:28:55Z",
+    "recordedAt": "2026-10-11T15:31:39.396Z",
+    "expiresAt": "2026-10-12T15:23:55Z",
+    "expiryNote": "Conservatively within 24 hours of receipt.",
+    "manifestHash": "8c925ab5f744bcd2fc6664bffc7c3ee4f5c2636b6e435fdde970ab21f7e0638f",
+    "executionCommit": "8ef46a110b8a46d232797302f358d1500ec680af",
+    "productCandidate": "4bc7e3a12427a16354bdbe2240794282a0ea11ea",
+    "implementationCommit": "f4619ed8207655b0d6685334d14076f837028c7a",
+    "authorizedInputPriceCapPerToken": 6e-08,
+    "maxRuns": 6,
+    "maxRequests": 120,
+    "maxCostUsd": 7.56,
+    "reserveUsd": 0.063,
+    "scope": {
+      "policy": {
+        "version": "r2-product-acceptance-2",
+        "model": "deepseek/deepseek-v4.1-flash",
+        "provider": "Wafer",
+        "runs": 6,
+        "requestsPerRun": 20,
+        "maxRequests": 120,
+        "maxCostUsd": 7.56,
+        "reserveUsd": 0.063,
+        "totalTimeoutMs": 180000,
+        "modelTimeoutMs": 60000,
+        "toolTimeoutMs": 15000,
+        "maxActions": 8,
+        "batchMs": 1500000,
+        "maxOutputTokens": 4096,
+        "maxWireBytes": 131072,
+        "contextTokens": 1048576,
+        "promptPrice": 6e-08,
+        "outputPrice": 1.6e-06,
+        "retries": 0,
+        "fallback": false,
+        "jev": false,
+        "vision": false
+      },
+      "rows": [
+        {
+          "id": "R1",
+          "variant": "healthy",
+          "expected": "verified",
+          "preview": "预览就绪",
+          "details": "详情已就绪",
+          "caseId": "RA01",
+          "repetition": 1,
+          "mode": "program",
+          "scenario": "healthy",
+          "maxAgentRequests": 20,
+          "maxJevRequests": 0,
+          "htmlHash": "7714113990303d76fc6a73bfcf542f3276518d3b547eabd7ffe253ca7116cbbf"
+        },
+        {
+          "id": "R2",
+          "variant": "defect",
+          "expected": "failed",
+          "preview": "预览就绪",
+          "details": "详情未能展示",
+          "caseId": "RA02",
+          "repetition": 1,
+          "mode": "program",
+          "scenario": "defect",
+          "maxAgentRequests": 20,
+          "maxJevRequests": 0,
+          "htmlHash": "23450ed52d42237174a5e03fcbb90d5ac9b3086086b738c948d8b9a3deff9495"
+        },
+        {
+          "id": "R3",
+          "variant": "unavailable",
+          "expected": "unverified",
+          "preview": "尚未预览",
+          "details": "尚未查看",
+          "caseId": "RA03",
+          "repetition": 1,
+          "mode": "program",
+          "scenario": "unavailable",
+          "maxAgentRequests": 20,
+          "maxJevRequests": 0,
+          "htmlHash": "47787c74e5d81e06f92089e81ca8ab5c885c95caf303788fee0698d58eee60eb"
+        },
+        {
+          "id": "R4",
+          "variant": "unavailable",
+          "expected": "unverified",
+          "preview": "尚未预览",
+          "details": "尚未查看",
+          "caseId": "RA03",
+          "repetition": 2,
+          "mode": "program",
+          "scenario": "unavailable",
+          "maxAgentRequests": 20,
+          "maxJevRequests": 0,
+          "htmlHash": "47787c74e5d81e06f92089e81ca8ab5c885c95caf303788fee0698d58eee60eb"
+        },
+        {
+          "id": "R5",
+          "variant": "defect",
+          "expected": "failed",
+          "preview": "预览就绪",
+          "details": "详情未能展示",
+          "caseId": "RA02",
+          "repetition": 2,
+          "mode": "program",
+          "scenario": "defect",
+          "maxAgentRequests": 20,
+          "maxJevRequests": 0,
+          "htmlHash": "23450ed52d42237174a5e03fcbb90d5ac9b3086086b738c948d8b9a3deff9495"
+        },
+        {
+          "id": "R6",
+          "variant": "healthy",
+          "expected": "verified",
+          "preview": "预览就绪",
+          "details": "详情已就绪",
+          "caseId": "RA01",
+          "repetition": 2,
+          "mode": "program",
+          "scenario": "healthy",
+          "maxAgentRequests": 20,
+          "maxJevRequests": 0,
+          "htmlHash": "7714113990303d76fc6a73bfcf542f3276518d3b547eabd7ffe253ca7116cbbf"
+        }
+      ],
+      "reasoning": "low",
+      "skillRevision": "product-path-10"
+    },
+    "historicalRisk": {
+      "accepted": true,
+      "separateUnknownReservedUsd": [
+        0.063,
+        0.063,
+        0.116
+      ],
+      "sources": [
+        "seventh-batch timeout",
+        "previous unknown record",
+        "earlier unknown record"
+      ],
+      "reconciliation": "deferred by user",
+      "treatment": "Three original unresolved records stay unchanged in their closed campaigns. Do not zero, settle, investigate or resume them. Price-blocked preparation had no inference or consumed claim. This approval is one new independent batch; historical unknowns are not new-batch unknowns, and every new unknown/held retains the original stop."
+    },
+    "bindingNote": "Exactly one isolated batch. All non-price limits remain, including 131072 serialized request bytes, 4096 output tokens, USD0.063 reservation, USD7.56 batch cap, 120 requests, original time/action limits and stops. No retry, fallback, Jev, vision, extra sample, warm-up/calibration, mid-run edits or post-stop resume.",
+    "consumedOnce": true,
+    "claimPath": "/Users/xietian/Documents/ChatGPT/ui-sentinel/.git/r2-product-acceptance-claims/8c925ab5f744bcd2fc6664bffc7c3ee4f5c2636b6e435fdde970ab21f7e0638f.json"
+  },
+  "review": {
+    "reviewType": "Agent semantic review, same experiment agent; not independent or human review",
+    "executionCommit": "8ef46a110b8a46d232797302f358d1500ec680af",
+    "implementationCommit": "f4619ed8207655b0d6685334d14076f837028c7a",
+    "manifestHash": "8c925ab5f744bcd2fc6664bffc7c3ee4f5c2636b6e435fdde970ab21f7e0638f",
+    "authorization": {
+      "reference": "当前会话用户原文“接受上限，允许运行”。紧邻上下文已明确Wafer输入每百万US$0.06高于旧US$0.05门限、同产品原六任务及新增US$7.56；据此仅接受输入上限US$0.06/百万，执行一个独立新批次。承接维护者此前已核实的六任务授权范围和历史风险，不包含连续重试。授权基于同一已审阅产品及这项价格调整，新manifest hash在授权后生成，不声称用户提前看过。",
+      "oneBatch": true,
+      "hashNotRepresentedAsPreSeenByUser": true,
+      "historicalRiskExplicitlyAccepted": true,
+      "onlyAuthorizedPolicyChange": "input price cap USD0.06 per million; all other caps and stops unchanged"
+    },
+    "summary": {
+      "plannedRows": 6,
+      "dispatchedRows": 6,
+      "completedRowRecords": 6,
+      "acceptedTasks": 5,
+      "denominator": 6,
+      "allOriginalConditionsMet": false,
+      "healthyCompleted": {
+        "pass": 1,
+        "denominator": 2,
+        "falseFunctionalDefects": 0
+      },
+      "defectsDetected": {
+        "pass": 2,
+        "denominator": 2
+      },
+      "completeGroundedAbstentions": {
+        "pass": 2,
+        "denominator": 2,
+        "productReportsRemain": "partial/unverified"
+      },
+      "browserActions": 6,
+      "requiredEffects": {
+        "planned": 8,
+        "verified": 4,
+        "failed": 2,
+        "unverified": 2
+      },
+      "requests": 48,
+      "knownCostUsd": "0.074159028",
+      "newUnknownReservedUsd": "0",
+      "heldReservedUsd": "0",
+      "wallSeconds": 322.537,
+      "taskStatuses": {
+        "blocked": 3,
+        "completed": 3
+      },
+      "hardStop": null,
+      "automaticRetry": false
+    },
+    "rows": [
+      {
+        "id": "R1",
+        "variant": "healthy",
+        "runId": "run-c9e7ebc9-ecff-4306-80a7-c1e7db108173",
+        "classification": "source-reread-despite-registration-guidance",
+        "primaryAcceptance": false,
+        "criteria": {
+          "read": {
+            "state": "unverified",
+            "reason": "全文及精确搜索回执已返回；7次读搜含3次完全相同输入。具备已读事实，但没有成功计划证明完整来源转化。",
+            "evidenceRefs": [
+              "R1/report.json",
+              "R1/events.json",
+              "R1/restored-report.json",
+              "tool-receipt-audit.json",
+              "citation-audit.json",
+              "evidence-facts.json"
+            ]
+          },
+          "registration": {
+            "state": "fail",
+            "reason": "第4请求收到一次登记提示仍重读全文，第5请求重复检索，原streak=3关闭；没有登记尝试或计划。",
+            "evidenceRefs": [
+              "R1/report.json",
+              "R1/events.json",
+              "R1/restored-report.json",
+              "tool-receipt-audit.json",
+              "citation-audit.json",
+              "evidence-facts.json"
+            ]
+          },
+          "execution": {
+            "state": "unverified",
+            "reason": "没有绑定、动作或独立效果测量；健康路径两项均未覆盖。",
+            "evidenceRefs": [
+              "R1/report.json",
+              "R1/events.json",
+              "R1/restored-report.json",
+              "tool-receipt-audit.json",
+              "citation-audit.json",
+              "evidence-facts.json"
+            ]
+          },
+          "scope": {
+            "state": "unverified",
+            "reason": "partial/unverified诚实保留3项缺口，但主路径未完成，不能计完整范围通过。",
+            "evidenceRefs": [
+              "R1/report.json",
+              "R1/events.json",
+              "R1/restored-report.json",
+              "tool-receipt-audit.json",
+              "citation-audit.json",
+              "evidence-facts.json"
+            ]
+          },
+          "recovery": {
+            "state": "pass",
+            "reason": "完整报告JSON重启恢复相等，原附件/副本hash与字节一致；无新模型调用恢复。",
+            "evidenceRefs": [
+              "R1/report.json",
+              "R1/events.json",
+              "R1/restored-report.json",
+              "tool-receipt-audit.json",
+              "citation-audit.json",
+              "evidence-facts.json"
+            ]
+          }
+        },
+        "status": "blocked",
+        "coverage": "partial",
+        "pathState": "unverified",
+        "requests": 5,
+        "knownCostUsd": "0.004755816",
+        "unknownReservedUsd": "0",
+        "elapsedMs": 17491,
+        "successfulRegistrations": 0,
+        "successfulRegistrationRequest": null,
+        "actions": 0,
+        "bindings": 0,
+        "sourceReadSearchCalls": 7,
+        "exactRepeatedSourceCalls": 3,
+        "toolErrors": [],
+        "requiredEffects": [
+          {
+            "step": 0,
+            "targetName": "预览目录",
+            "state": "unverified",
+            "actionId": null,
+            "requirementId": null,
+            "actual": [],
+            "measurementArtifact": null,
+            "reason": "Never registered or acted; no effect evidence"
+          },
+          {
+            "step": 1,
+            "targetName": "查看详情",
+            "state": "unverified",
+            "actionId": null,
+            "requirementId": null,
+            "actual": [],
+            "measurementArtifact": null,
+            "reason": "Never registered or acted; no effect evidence"
+          }
+        ],
+        "scope": {
+          "coverage": "partial",
+          "counts": {
+            "total": 16,
+            "selected": 10,
+            "pending": 2,
+            "verified": 7,
+            "failed": 0,
+            "unverified": 7,
+            "excluded": 0
+          },
+          "gaps": [
+            {
+              "itemId": "item-3ab91465-fd09-4a60-80dc-6ca84f9a2914",
+              "category": "local-interaction",
+              "status": "pending",
+              "reason": "v2-mandatory-checks-incomplete",
+              "reasonCode": "v2-mandatory-checks-incomplete"
+            },
+            {
+              "itemId": "item-fa51bb8d-583c-48cc-821d-31c48e093546",
+              "category": "investigation",
+              "status": "pending",
+              "reason": "selected-not-resolved",
+              "reasonCode": null
+            },
+            {
+              "itemId": "item-55f532a5-270d-4f11-9ffa-61d1199639b6",
+              "category": "investigation",
+              "status": "unverified",
+              "reason": "no-progress",
+              "reasonCode": "no-progress"
+            }
+          ],
+          "selectedUnresolved": [
+            {
+              "checks": {
+                "revision": "item-checks-2",
+                "sourceReview": {
+                  "state": "sealed",
+                  "revision": "public-effect-sources-1",
+                  "refs": [
+                    "a12e0468-bc4b-47cd-b5da-8dd94c84ba8e.png",
+                    "c9f431da-e028-44b5-a5bd-6e6a11314d61.json"
+                  ],
+                  "reasons": [],
+                  "goalHash": "294e39f20dedccf45395f22017275a58f17bf0a44f754da4bb87b6ed93bab8fd",
+                  "contractHash": "8adbbd793e309665710c52676dcd368b9ec4e316b09b1c7ac134b1b6af03a157",
+                  "hash": "b481a5f05911c8020f6f05716879af680eea73d5d2fe3c4395925f2f9fa6920d",
+                  "ruleChecks": [
+                    {
+                      "ruleId": "overlay-blocking",
+                      "revision": "2.1.0",
+                      "contentHash": "c3acb6191549a481e1dbacd22655f6bde36459f78a0301e6f2ad2d88aa8ef424",
+                      "approvalRef": "installed-registry:overlay-blocking:2.1.0",
+                      "scopeItemIds": [
+                        "item-5e202021-ec6d-4ed7-952f-2d3f570548b3"
+                      ],
+                      "evidenceRefs": [
+                        "d2e204ef-8103-4de7-baad-43749d82f6db.png",
+                        "3b961d94-289a-4712-85ca-fc23a8bbb864.json"
+                      ]
+                    }
+                  ]
+                },
+                "generic": {
+                  "state": "pending",
+                  "evidenceRefs": [],
+                  "eventIds": []
+                },
+                "effects": []
+              },
+              "itemId": "item-3ab91465-fd09-4a60-80dc-6ca84f9a2914",
+              "category": "local-interaction",
+              "url": "http://127.0.0.1:53347/",
+              "status": "pending",
+              "selected": true,
+              "basis": "observed candidate: button[button] \"预览目录\"",
+              "targetSource": "executor",
+              "reasonCode": "v2-mandatory-checks-incomplete",
+              "detail": "Public sources reviewed before operation; missing semantics are not invented",
+              "evidenceRefs": [
+                "a12e0468-bc4b-47cd-b5da-8dd94c84ba8e.png",
+                "c9f431da-e028-44b5-a5bd-6e6a11314d61.json"
+              ],
+              "ruleRevision": null,
+              "parentNavigation": null
+            },
+            {
+              "itemId": "item-fa51bb8d-583c-48cc-821d-31c48e093546",
+              "category": "investigation",
+              "url": "http://127.0.0.1:53347/",
+              "status": "pending",
+              "selected": true,
+              "basis": "product-path:required-registration-and-evidence",
+              "targetSource": "executor",
+              "reasonCode": null,
+              "detail": null,
+              "evidenceRefs": [],
+              "ruleRevision": null,
+              "parentNavigation": null
+            },
+            {
+              "itemId": "item-55f532a5-270d-4f11-9ffa-61d1199639b6",
+              "category": "investigation",
+              "url": "http://127.0.0.1:53347/",
+              "status": "unverified",
+              "selected": true,
+              "basis": "Repeated reads added no relevant facts; bounded recovery exhausted.",
+              "targetSource": "agent",
+              "reasonCode": "no-progress",
+              "detail": "Repeated reads added no relevant facts; bounded recovery exhausted.",
+              "evidenceRefs": [],
+              "ruleRevision": null,
+              "parentNavigation": null
+            }
+          ]
+        },
+        "sourcePlan": null,
+        "uncheckedScope": [
+          "资料尚未登记关键路径；全文未验证"
+        ],
+        "boundary": null
+      },
+      {
+        "id": "R2",
+        "variant": "defect",
+        "runId": "run-8a0ee196-7c61-4874-b120-edf47e5ce371",
+        "classification": "complete-defect-detected",
+        "primaryAcceptance": true,
+        "criteria": {
+          "read": {
+            "state": "pass",
+            "reason": "全文和4次搜索后第4请求登记；4处已发精确引用逐项支持状态预期、立即语义及依赖前置。",
+            "evidenceRefs": [
+              "R2/report.json",
+              "R2/events.json",
+              "R2/restored-report.json",
+              "tool-receipt-audit.json",
+              "citation-audit.json",
+              "evidence-facts.json"
+            ]
+          },
+          "registration": {
+            "state": "pass",
+            "reason": "登记提示当轮成功登记；两步无assumptions，精确状态谓词和两个前置正确。第5请求绑定漏前置选择器被拒，第7请求修正。",
+            "evidenceRefs": [
+              "R2/report.json",
+              "R2/events.json",
+              "R2/restored-report.json",
+              "tool-receipt-audit.json",
+              "citation-audit.json",
+              "evidence-facts.json"
+            ]
+          },
+          "execution": {
+            "state": "pass",
+            "reason": "第8/11请求显式使用当前nextAction的原requirementId/ref执行两个动作；预览原槽verified，详情原槽实际为详情未能展示、failed。",
+            "evidenceRefs": [
+              "R2/report.json",
+              "R2/events.json",
+              "R2/restored-report.json",
+              "tool-receipt-audit.json",
+              "citation-audit.json",
+              "evidence-facts.json"
+            ]
+          },
+          "scope": {
+            "state": "pass",
+            "reason": "covered/failed、gaps=0，已选义务收尾；其余未检查范围仍不代表全站已验证。",
+            "evidenceRefs": [
+              "R2/report.json",
+              "R2/events.json",
+              "R2/restored-report.json",
+              "tool-receipt-audit.json",
+              "citation-audit.json",
+              "evidence-facts.json"
+            ]
+          },
+          "recovery": {
+            "state": "pass",
+            "reason": "完整报告JSON重启恢复相等，原附件/副本hash与字节一致；无新模型调用恢复。",
+            "evidenceRefs": [
+              "R2/report.json",
+              "R2/events.json",
+              "R2/restored-report.json",
+              "tool-receipt-audit.json",
+              "citation-audit.json",
+              "evidence-facts.json"
+            ]
+          }
+        },
+        "status": "completed",
+        "coverage": "covered",
+        "pathState": "failed",
+        "requests": 11,
+        "knownCostUsd": "0.013490884",
+        "unknownReservedUsd": "0",
+        "elapsedMs": 46957,
+        "successfulRegistrations": 1,
+        "successfulRegistrationRequest": 4,
+        "actions": 2,
+        "bindings": 2,
+        "sourceReadSearchCalls": 5,
+        "exactRepeatedSourceCalls": 0,
+        "toolErrors": [
+          {
+            "row": "R2",
+            "requestSeq": 5,
+            "tool": "product_path_bind",
+            "input": {
+              "step": 0,
+              "ref": "e5",
+              "resultSelector": "main > .preview-status p, main > :nth-child(6)",
+              "preconditionSelectors": []
+            },
+            "result": {
+              "error": "product-precondition-bindings-required",
+              "dispatched": false,
+              "diagnostics": {
+                "field": "preconditionSelectors",
+                "expectedCount": 1,
+                "receivedCount": 0,
+                "requirements": [
+                  {
+                    "index": 0,
+                    "field": "preconditionSelectors[0]",
+                    "description": "目录可用状态显示为“可用”（否则访客不能开始预览）",
+                    "expectation": {
+                      "condition": "text-equals",
+                      "expected": "可用"
+                    },
+                    "citation": {
+                      "start": 217,
+                      "end": 237
+                    },
+                    "suppliedSelector": null
+                  }
+                ],
+                "missingPositions": [
+                  0
+                ],
+                "extraPositions": [],
+                "mapping": "Positional only; supplied selectors have not been measured or matched semantically. Recheck every index against its frozen requirement."
+              },
+              "execution": {
+                "advisoryOnly": true,
+                "completedSteps": [],
+                "phase": "repair-binding-input",
+                "nextAction": "Supply exactly one observed DOM selector per frozen prerequisite in the listed order, then retry product_path_bind for this same unexecuted step. Reuse available DOM evidence; inspect only missing nodes. Missing positions do not identify which semantic condition was omitted. Do not remove requirements, guess selectors or act before successful binding.",
+                "step": 0,
+                "targetName": "预览目录",
+                "action": "click",
+                "diagnostics": {
+                  "field": "preconditionSelectors",
+                  "expectedCount": 1,
+                  "receivedCount": 0,
+                  "requirements": [
+                    {
+                      "index": 0,
+                      "field": "preconditionSelectors[0]",
+                      "description": "目录可用状态显示为“可用”（否则访客不能开始预览）",
+                      "expectation": {
+                        "condition": "text-equals",
+                        "expected": "可用"
+                      },
+                      "citation": {
+                        "start": 217,
+                        "end": 237
+                      },
+                      "suppliedSelector": null
+                    }
+                  ],
+                  "missingPositions": [
+                    0
+                  ],
+                  "extraPositions": [],
+                  "mapping": "Positional only; supplied selectors have not been measured or matched semantically. Recheck every index against its frozen requirement."
+                }
+              }
+            },
+            "eventId": "evt-0346c5fe-8e9e-4fce-9198-a84a33894d0c",
+            "stage": {
+              "key": "[\"bind-next-step\",0,null]",
+              "phase": "bind-next-step",
+              "step": 0,
+              "unrestricted": false,
+              "allowedTools": [
+                "product_path_bind",
+                "run_finish",
+                "findings_submit",
+                "page_inspect",
+                "element_details",
+                "page_observe",
+                "tool_result_read",
+                "history_read"
+              ],
+              "readOnlyTools": [
+                "page_inspect",
+                "element_details",
+                "page_observe",
+                "tool_result_read",
+                "history_read"
+              ],
+              "decision": "Perform the stage task using existing evidence. For a specific missing fact, call an available read-only tool directly with its original arguments; use returned pagination cursors for truncated material. Source-located does not mean all requirements are known. The model still authors the plan and chooses observed selectors. Finish unverified if unsupported."
+            },
+            "currentStepAtRequest": {
+              "index": 0,
+              "title": "点击“预览目录”，确认预览状态立即变为“预览就绪”",
+              "state": "unverified",
+              "reason": "仅覆盖目录可用状态为“可用”时的路径；不可用分支未验证。",
+              "action": "click",
+              "expectation": {
+                "condition": "text-equals",
+                "expected": "预览就绪"
+              },
+              "preconditions": [
+                {
+                  "description": "目录可用状态显示为“可用”（否则访客不能开始预览）",
+                  "citation": {
+                    "start": 217,
+                    "end": 237,
+                    "quote": "预览的前置条件是目录可用状态为“可用”。"
+                  },
+                  "expectation": {
+                    "condition": "text-equals",
+                    "expected": "可用"
+                  }
+                }
+              ],
+              "citation": {
+                "start": 283,
+                "end": 323
+              }
+            }
+          }
+        ],
+        "requiredEffects": [
+          {
+            "step": 0,
+            "targetName": "预览目录",
+            "state": "verified",
+            "actionId": "b8a4b9db-5eaa-47cf-9e2c-2c9cd82c64e4",
+            "requirementId": "requirement:1f5fec9dede2d3c4645da26b",
+            "actual": [
+              "预览就绪"
+            ],
+            "measurementArtifact": "d469587d-7a16-4575-8713-dc4e344a3d93.json",
+            "reason": "Original action/requirement/result-slot measurement verified against artifacts"
+          },
+          {
+            "step": 1,
+            "targetName": "查看详情",
+            "state": "failed",
+            "actionId": "24faa2c5-02dc-4a80-917f-1f65a9647c9b",
+            "requirementId": "requirement:abaeb1410258dbb490cac2ac",
+            "actual": [
+              "详情未能展示"
+            ],
+            "measurementArtifact": "5650050c-36f0-4240-9135-f2dadc13b4e7.json",
+            "reason": "Original action/requirement/result-slot measurement verified against artifacts"
+          }
+        ],
+        "scope": {
+          "coverage": "covered",
+          "counts": {
+            "total": 36,
+            "selected": 16,
+            "pending": 0,
+            "verified": 14,
+            "failed": 2,
+            "unverified": 20,
+            "excluded": 0
+          },
+          "gaps": [],
+          "selectedUnresolved": []
+        },
+        "sourcePlan": {
+          "sourceId": "product-source:ec57d78d9c67448ca6796c79a45e76c8ce6f83bf1bece06ebad92f5ee2b15d6d",
+          "contentHash": "ea562970feaaf24b272bec372e4f18ef55a1246c79bbeb44be0889f86740ab38",
+          "title": "轻阅目录：从预览到详情就绪的访客路径",
+          "rationale": "Source describes a single visitor flow: with catalog availability '可用', clicking '预览目录' immediately sets preview status to '预览就绪' and reveals '查看详情'; clicking '查看详情' immediately sets detail status to '详情已就绪'. Frozen as two clicks with status expectations on each region's own display.",
+          "unchecked": [
+            "目录可用状态为“暂不可用”时的预览行为未验证（当前为“可用”）",
+            "预览/详情状态区域的其它渲染或无障碍细节未验证",
+            "自动规则 control-text-clipping/overlap/disappearance 覆盖未决"
+          ],
+          "assumptions": [],
+          "steps": [
+            {
+              "title": "点击“预览目录”，确认预览状态立即变为“预览就绪”",
+              "targetName": "预览目录",
+              "citation": {
+                "start": 283,
+                "end": 323,
+                "quote": "访客点击“预览目录”后，预览状态应立即变为“预览就绪”，并出现“查看详情”按钮。"
+              },
+              "certainty": "explicit",
+              "action": "click",
+              "expectation": {
+                "condition": "text-equals",
+                "expected": "预览就绪"
+              },
+              "timing": "action-complete",
+              "preconditions": [
+                {
+                  "description": "目录可用状态显示为“可用”（否则访客不能开始预览）",
+                  "citation": {
+                    "start": 217,
+                    "end": 237,
+                    "quote": "预览的前置条件是目录可用状态为“可用”。"
+                  },
+                  "expectation": {
+                    "condition": "text-equals",
+                    "expected": "可用"
+                  }
+                }
+              ],
+              "limitation": "仅覆盖目录可用状态为“可用”时的路径；不可用分支未验证。"
+            },
+            {
+              "title": "点击“查看详情”，确认详情状态立即变为“详情已就绪”",
+              "targetName": "查看详情",
+              "citation": {
+                "start": 377,
+                "end": 406,
+                "quote": "访客点击“查看详情”后，详情状态应立即变为“详情已就绪”。"
+              },
+              "certainty": "explicit",
+              "action": "click",
+              "expectation": {
+                "condition": "text-equals",
+                "expected": "详情已就绪"
+              },
+              "timing": "action-complete",
+              "preconditions": [
+                {
+                  "description": "预览状态为“预览就绪”后才能查看详情（依赖上一冻结步骤的结果）",
+                  "citation": {
+                    "start": 356,
+                    "end": 377,
+                    "quote": "只有预览状态为“预览就绪”时才能查看详情。"
+                  },
+                  "expectation": {
+                    "condition": "text-equals",
+                    "expected": "预览就绪"
+                  }
+                }
+              ],
+              "limitation": "“查看详情”按钮由上一冻结步骤触发的状态才出现，须在步骤一成功后绑定。"
+            }
+          ]
+        },
+        "uncheckedScope": [
+          "目录可用状态为“暂不可用”时的预览行为未验证（当前为“可用”）",
+          "预览/详情状态区域的其它渲染或无障碍细节未验证",
+          "自动规则 control-text-clipping/overlap/disappearance 覆盖未决"
+        ],
+        "boundary": null
+      },
+      {
+        "id": "R3",
+        "variant": "unavailable",
+        "runId": "run-1b770ef4-6889-401d-bd23-f90cc045b4c1",
+        "classification": "grounded-unavailable-abstention",
+        "primaryAcceptance": true,
+        "criteria": {
+          "read": {
+            "state": "pass",
+            "reason": "全文后第3请求登记，4处原引用精确匹配，来源支持暂不可用边界及两个前置。",
+            "evidenceRefs": [
+              "R3/report.json",
+              "R3/events.json",
+              "R3/restored-report.json",
+              "tool-receipt-audit.json",
+              "citation-audit.json",
+              "evidence-facts.json"
+            ]
+          },
+          "registration": {
+            "state": "pass",
+            "reason": "两步无assumptions，availability可用及preview预览就绪前置完整；rationale明确当前暂不可用，不预判前置为真。",
+            "evidenceRefs": [
+              "R3/report.json",
+              "R3/events.json",
+              "R3/restored-report.json",
+              "tool-receipt-audit.json",
+              "citation-audit.json",
+              "evidence-facts.json"
+            ]
+          },
+          "execution": {
+            "state": "pass",
+            "reason": "第4请求实际DOM看到暂不可用、disabled预览按钮及初始结果；第5请求绑定身份门拒绝，第6请求观察后无进展关闭。零动作、零功能误报；没有成功绑定前置测量。",
+            "evidenceRefs": [
+              "R3/report.json",
+              "R3/events.json",
+              "R3/restored-report.json",
+              "tool-receipt-audit.json",
+              "citation-audit.json",
+              "evidence-facts.json"
+            ]
+          },
+          "scope": {
+            "state": "pass",
+            "reason": "原报告partial/unverified、2项缺口；来源计划和实际DOM支持完整有据弃权，但不等于操作路径verified。",
+            "evidenceRefs": [
+              "R3/report.json",
+              "R3/events.json",
+              "R3/restored-report.json",
+              "tool-receipt-audit.json",
+              "citation-audit.json",
+              "evidence-facts.json"
+            ]
+          },
+          "recovery": {
+            "state": "pass",
+            "reason": "完整报告JSON重启恢复相等，原附件/副本hash与字节一致；无新模型调用恢复。",
+            "evidenceRefs": [
+              "R3/report.json",
+              "R3/events.json",
+              "R3/restored-report.json",
+              "tool-receipt-audit.json",
+              "citation-audit.json",
+              "evidence-facts.json"
+            ]
+          }
+        },
+        "status": "blocked",
+        "coverage": "partial",
+        "pathState": "unverified",
+        "requests": 6,
+        "knownCostUsd": "0.01242474",
+        "unknownReservedUsd": "0",
+        "elapsedMs": 59920,
+        "successfulRegistrations": 1,
+        "successfulRegistrationRequest": 3,
+        "actions": 0,
+        "bindings": 0,
+        "sourceReadSearchCalls": 1,
+        "exactRepeatedSourceCalls": 0,
+        "toolErrors": [
+          {
+            "row": "R3",
+            "requestSeq": 5,
+            "tool": "product_path_bind",
+            "input": {
+              "step": 0,
+              "ref": "e5",
+              "resultSelector": "html > body:nth-of-type(1) > main:nth-of-type(1) > section:nth-of-type(2) > p:nth-of-type(1)",
+              "preconditionSelectors": [
+                "html > body:nth-of-type(1) > main:nth-of-type(1) > section:nth-of-type(1) > p:nth-of-type(1)"
+              ]
+            },
+            "result": {
+              "status": "error",
+              "error": "product-control-identity-lost"
+            },
+            "eventId": "evt-f48e5989-aa34-4d50-b1d4-6892ae5d13bd",
+            "stage": {
+              "key": "[\"bind-next-step\",0,null]",
+              "phase": "bind-next-step",
+              "step": 0,
+              "unrestricted": false,
+              "allowedTools": [
+                "product_path_bind",
+                "run_finish",
+                "findings_submit",
+                "page_inspect",
+                "element_details",
+                "page_observe",
+                "tool_result_read",
+                "history_read"
+              ],
+              "readOnlyTools": [
+                "page_inspect",
+                "element_details",
+                "page_observe",
+                "tool_result_read",
+                "history_read"
+              ],
+              "decision": "Perform the stage task using existing evidence. For a specific missing fact, call an available read-only tool directly with its original arguments; use returned pagination cursors for truncated material. Source-located does not mean all requirements are known. The model still authors the plan and chooses observed selectors. Finish unverified if unsupported."
+            },
+            "currentStepAtRequest": {
+              "index": 0,
+              "title": "点击“预览目录”开始预览",
+              "state": "unverified",
+              "reason": "product-step-not-measured",
+              "action": "click",
+              "expectation": {
+                "condition": "text-equals",
+                "expected": "预览就绪"
+              },
+              "preconditions": [
+                {
+                  "description": "目录可用状态区域显示“可用”",
+                  "citation": {
+                    "start": 0,
+                    "end": 609,
+                    "quote": "# 轻阅目录：访客预览说明\n\n版本：1.0。本文是合成产品规格，用于本地演示，不代表真实客户需求。\n\n轻阅目录让访客在决定是否登录前，先确认目录摘要与详情是否能正常查看。预览只改变当前页面的展示，不保存账号数据，也不向服务端提交内容。页面刷新后恢复初始状态。\n\n## 访客查看目录\n\n页面展示“目录可用状态”“预览状态”和“详情状态”。预览状态初始为“尚未预览”，详情状态初始为“尚未查看”。这两个状态区域从打开页面起就一直存在。\n\n预览的前置条件是目录可用状态为“可用”。状态为“暂不可用”时，目录内容尚未准备好，访客不能开始预览；这不代表预览功能发生了错误。\n\n访客点击“预览目录”后，预览状态应立即变为“预览就绪”，并出现“查看详情”按钮。这里的“立即”指本次点击处理完成时就更新，不需要等待后台任务。\n\n只有预览状态为“预览就绪”时才能查看详情。访客点击“查看详情”后，详情状态应立即变为“详情已就绪”。两个状态区域各自展示自己的状态，不用页面上其他地方的相同文字代替。\n\n本次关心的是访客能否从开始预览走到详情就绪。仅看到预览就绪还不能说明详情可用。\n\n## 后续设想与范围\n\n未来可能按阅读偏好推荐目录，但推荐内容、排序依据和刷新时机尚未确定，本版本不承诺推荐结果。\n\n保存收藏、跨设备同步与管理员维护需要登录，不属于本次匿名预览。移动端适配、读屏器完整体验、长时间稳定性和网络恢复也不在本次验收范围内。\n"
+                  },
+                  "expectation": {
+                    "condition": "text-equals",
+                    "expected": "可用"
+                  }
+                }
+              ],
+              "citation": {
+                "start": 0,
+                "end": 609
+              }
+            }
+          }
+        ],
+        "requiredEffects": [],
+        "scope": {
+          "coverage": "partial",
+          "counts": {
+            "total": 19,
+            "selected": 19,
+            "pending": 1,
+            "verified": 5,
+            "failed": 0,
+            "unverified": 1,
+            "excluded": 12
+          },
+          "gaps": [
+            {
+              "itemId": "item-0a6a7015-1531-43da-a730-a9d8ab8cfd0a",
+              "category": "investigation",
+              "status": "pending",
+              "reason": "selected-not-resolved",
+              "reasonCode": null
+            },
+            {
+              "itemId": "item-6709d37a-9089-4b93-a568-024fa359a699",
+              "category": "investigation",
+              "status": "unverified",
+              "reason": "no-progress",
+              "reasonCode": "no-progress"
+            }
+          ],
+          "selectedUnresolved": [
+            {
+              "itemId": "item-0a6a7015-1531-43da-a730-a9d8ab8cfd0a",
+              "category": "investigation",
+              "url": "http://127.0.0.1:53405/",
+              "status": "pending",
+              "selected": true,
+              "basis": "product-path:required-registration-and-evidence",
+              "targetSource": "executor",
+              "reasonCode": null,
+              "detail": null,
+              "evidenceRefs": [],
+              "ruleRevision": null,
+              "parentNavigation": null
+            },
+            {
+              "itemId": "item-6709d37a-9089-4b93-a568-024fa359a699",
+              "category": "investigation",
+              "url": "http://127.0.0.1:53405/",
+              "status": "unverified",
+              "selected": true,
+              "basis": "Repeated reads added no relevant facts; bounded recovery exhausted.",
+              "targetSource": "agent",
+              "reasonCode": "no-progress",
+              "detail": "Repeated reads added no relevant facts; bounded recovery exhausted.",
+              "evidenceRefs": [],
+              "ruleRevision": null,
+              "parentNavigation": null
+            }
+          ]
+        },
+        "sourcePlan": {
+          "sourceId": "product-source:ec57d78d9c67448ca6796c79a45e76c8ce6f83bf1bece06ebad92f5ee2b15d6d",
+          "contentHash": "ea562970feaaf24b272bec372e4f18ef55a1246c79bbeb44be0889f86740ab38",
+          "title": "访客预览到详情就绪路径",
+          "rationale": "源文明确：目录可用状态为“可用”时访客点击“预览目录”，预览状态立即变为“预览就绪”且出现“查看详情”按钮；仅当预览状态为“预览就绪”时点击“查看详情”，详情状态立即变为“详情已就绪”。当前页面 目录可用状态 显示“暂不可用”，因此第一步前置条件在绑定时可被测量，不预判为真。",
+          "unchecked": [
+            "按阅读偏好推荐目录（推荐内容、排序依据、刷新时机未确定，本版本不承诺）",
+            "保存收藏、跨设备同步、管理员维护（需要登录，不属于匿名预览）",
+            "移动端适配、读屏器完整体验、长时间稳定性、网络恢复（不在验收范围内）"
+          ],
+          "assumptions": [],
+          "steps": [
+            {
+              "title": "点击“预览目录”开始预览",
+              "targetName": "预览目录",
+              "citation": {
+                "start": 0,
+                "end": 609,
+                "quote": "# 轻阅目录：访客预览说明\n\n版本：1.0。本文是合成产品规格，用于本地演示，不代表真实客户需求。\n\n轻阅目录让访客在决定是否登录前，先确认目录摘要与详情是否能正常查看。预览只改变当前页面的展示，不保存账号数据，也不向服务端提交内容。页面刷新后恢复初始状态。\n\n## 访客查看目录\n\n页面展示“目录可用状态”“预览状态”和“详情状态”。预览状态初始为“尚未预览”，详情状态初始为“尚未查看”。这两个状态区域从打开页面起就一直存在。\n\n预览的前置条件是目录可用状态为“可用”。状态为“暂不可用”时，目录内容尚未准备好，访客不能开始预览；这不代表预览功能发生了错误。\n\n访客点击“预览目录”后，预览状态应立即变为“预览就绪”，并出现“查看详情”按钮。这里的“立即”指本次点击处理完成时就更新，不需要等待后台任务。\n\n只有预览状态为“预览就绪”时才能查看详情。访客点击“查看详情”后，详情状态应立即变为“详情已就绪”。两个状态区域各自展示自己的状态，不用页面上其他地方的相同文字代替。\n\n本次关心的是访客能否从开始预览走到详情就绪。仅看到预览就绪还不能说明详情可用。\n\n## 后续设想与范围\n\n未来可能按阅读偏好推荐目录，但推荐内容、排序依据和刷新时机尚未确定，本版本不承诺推荐结果。\n\n保存收藏、跨设备同步与管理员维护需要登录，不属于本次匿名预览。移动端适配、读屏器完整体验、长时间稳定性和网络恢复也不在本次验收范围内。\n"
+              },
+              "certainty": "explicit",
+              "action": "click",
+              "expectation": {
+                "condition": "text-equals",
+                "expected": "预览就绪"
+              },
+              "timing": "action-complete",
+              "preconditions": [
+                {
+                  "description": "目录可用状态区域显示“可用”",
+                  "citation": {
+                    "start": 0,
+                    "end": 609,
+                    "quote": "# 轻阅目录：访客预览说明\n\n版本：1.0。本文是合成产品规格，用于本地演示，不代表真实客户需求。\n\n轻阅目录让访客在决定是否登录前，先确认目录摘要与详情是否能正常查看。预览只改变当前页面的展示，不保存账号数据，也不向服务端提交内容。页面刷新后恢复初始状态。\n\n## 访客查看目录\n\n页面展示“目录可用状态”“预览状态”和“详情状态”。预览状态初始为“尚未预览”，详情状态初始为“尚未查看”。这两个状态区域从打开页面起就一直存在。\n\n预览的前置条件是目录可用状态为“可用”。状态为“暂不可用”时，目录内容尚未准备好，访客不能开始预览；这不代表预览功能发生了错误。\n\n访客点击“预览目录”后，预览状态应立即变为“预览就绪”，并出现“查看详情”按钮。这里的“立即”指本次点击处理完成时就更新，不需要等待后台任务。\n\n只有预览状态为“预览就绪”时才能查看详情。访客点击“查看详情”后，详情状态应立即变为“详情已就绪”。两个状态区域各自展示自己的状态，不用页面上其他地方的相同文字代替。\n\n本次关心的是访客能否从开始预览走到详情就绪。仅看到预览就绪还不能说明详情可用。\n\n## 后续设想与范围\n\n未来可能按阅读偏好推荐目录，但推荐内容、排序依据和刷新时机尚未确定，本版本不承诺推荐结果。\n\n保存收藏、跨设备同步与管理员维护需要登录，不属于本次匿名预览。移动端适配、读屏器完整体验、长时间稳定性和网络恢复也不在本次验收范围内。\n"
+                  },
+                  "expectation": {
+                    "condition": "text-equals",
+                    "expected": "可用"
+                  }
+                }
+              ]
+            },
+            {
+              "title": "点击“查看详情”查看详情",
+              "targetName": "查看详情",
+              "citation": {
+                "start": 0,
+                "end": 609,
+                "quote": "# 轻阅目录：访客预览说明\n\n版本：1.0。本文是合成产品规格，用于本地演示，不代表真实客户需求。\n\n轻阅目录让访客在决定是否登录前，先确认目录摘要与详情是否能正常查看。预览只改变当前页面的展示，不保存账号数据，也不向服务端提交内容。页面刷新后恢复初始状态。\n\n## 访客查看目录\n\n页面展示“目录可用状态”“预览状态”和“详情状态”。预览状态初始为“尚未预览”，详情状态初始为“尚未查看”。这两个状态区域从打开页面起就一直存在。\n\n预览的前置条件是目录可用状态为“可用”。状态为“暂不可用”时，目录内容尚未准备好，访客不能开始预览；这不代表预览功能发生了错误。\n\n访客点击“预览目录”后，预览状态应立即变为“预览就绪”，并出现“查看详情”按钮。这里的“立即”指本次点击处理完成时就更新，不需要等待后台任务。\n\n只有预览状态为“预览就绪”时才能查看详情。访客点击“查看详情”后，详情状态应立即变为“详情已就绪”。两个状态区域各自展示自己的状态，不用页面上其他地方的相同文字代替。\n\n本次关心的是访客能否从开始预览走到详情就绪。仅看到预览就绪还不能说明详情可用。\n\n## 后续设想与范围\n\n未来可能按阅读偏好推荐目录，但推荐内容、排序依据和刷新时机尚未确定，本版本不承诺推荐结果。\n\n保存收藏、跨设备同步与管理员维护需要登录，不属于本次匿名预览。移动端适配、读屏器完整体验、长时间稳定性和网络恢复也不在本次验收范围内。\n"
+              },
+              "certainty": "explicit",
+              "action": "click",
+              "expectation": {
+                "condition": "text-equals",
+                "expected": "详情已就绪"
+              },
+              "timing": "action-complete",
+              "preconditions": [
+                {
+                  "description": "预览状态区域显示“预览就绪”",
+                  "citation": {
+                    "start": 0,
+                    "end": 609,
+                    "quote": "# 轻阅目录：访客预览说明\n\n版本：1.0。本文是合成产品规格，用于本地演示，不代表真实客户需求。\n\n轻阅目录让访客在决定是否登录前，先确认目录摘要与详情是否能正常查看。预览只改变当前页面的展示，不保存账号数据，也不向服务端提交内容。页面刷新后恢复初始状态。\n\n## 访客查看目录\n\n页面展示“目录可用状态”“预览状态”和“详情状态”。预览状态初始为“尚未预览”，详情状态初始为“尚未查看”。这两个状态区域从打开页面起就一直存在。\n\n预览的前置条件是目录可用状态为“可用”。状态为“暂不可用”时，目录内容尚未准备好，访客不能开始预览；这不代表预览功能发生了错误。\n\n访客点击“预览目录”后，预览状态应立即变为“预览就绪”，并出现“查看详情”按钮。这里的“立即”指本次点击处理完成时就更新，不需要等待后台任务。\n\n只有预览状态为“预览就绪”时才能查看详情。访客点击“查看详情”后，详情状态应立即变为“详情已就绪”。两个状态区域各自展示自己的状态，不用页面上其他地方的相同文字代替。\n\n本次关心的是访客能否从开始预览走到详情就绪。仅看到预览就绪还不能说明详情可用。\n\n## 后续设想与范围\n\n未来可能按阅读偏好推荐目录，但推荐内容、排序依据和刷新时机尚未确定，本版本不承诺推荐结果。\n\n保存收藏、跨设备同步与管理员维护需要登录，不属于本次匿名预览。移动端适配、读屏器完整体验、长时间稳定性和网络恢复也不在本次验收范围内。\n"
+                  },
+                  "expectation": {
+                    "condition": "text-equals",
+                    "expected": "预览就绪"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "uncheckedScope": [
+          "按阅读偏好推荐目录（推荐内容、排序依据、刷新时机未确定，本版本不承诺）",
+          "保存收藏、跨设备同步、管理员维护（需要登录，不属于匿名预览）",
+          "移动端适配、读屏器完整体验、长时间稳定性、网络恢复（不在验收范围内）"
+        ],
+        "boundary": {
+          "groundedAbstention": true,
+          "actualPrerequisiteMeasurement": false,
+          "evidence": "Observed original DOM unavailable text and disabled button; bind rejected at identity gate; no action or functional-defect claim"
+        }
+      },
+      {
+        "id": "R4",
+        "variant": "unavailable",
+        "runId": "run-a46b512f-3d7c-4a9b-a0dd-ba96b778b80b",
+        "classification": "grounded-unavailable-abstention-after-registration-repair",
+        "primaryAcceptance": true,
+        "criteria": {
+          "read": {
+            "state": "pass",
+            "reason": "第1请求收到全文；第2请求登记不完整并含截短未发citationId，被输入校验拒绝。第3请求提示后重读，后续登记4处引用均精确匹配。",
+            "evidenceRefs": [
+              "R4/report.json",
+              "R4/events.json",
+              "R4/restored-report.json",
+              "tool-receipt-audit.json",
+              "citation-audit.json",
+              "evidence-facts.json"
+            ]
+          },
+          "registration": {
+            "state": "pass",
+            "reason": "第4请求修正为无assumptions的完整两步计划，两个前置和状态预期来自规格，明确当前暂不可用。原失败完整保留。",
+            "evidenceRefs": [
+              "R4/report.json",
+              "R4/events.json",
+              "R4/restored-report.json",
+              "tool-receipt-audit.json",
+              "citation-audit.json",
+              "evidence-facts.json"
+            ]
+          },
+          "execution": {
+            "state": "pass",
+            "reason": "第5请求实际DOM确认暂不可用和disabled预览按钮；第7/9请求绑定身份门拒绝，零动作、零功能误报。不是绑定成功测得前置为假。",
+            "evidenceRefs": [
+              "R4/report.json",
+              "R4/events.json",
+              "R4/restored-report.json",
+              "tool-receipt-audit.json",
+              "citation-audit.json",
+              "evidence-facts.json"
+            ]
+          },
+          "scope": {
+            "state": "pass",
+            "reason": "原报告partial/unverified、2项缺口；来源与DOM支持有据弃权。提示当轮未取得新事实，不能声称提醒当轮促成登记。",
+            "evidenceRefs": [
+              "R4/report.json",
+              "R4/events.json",
+              "R4/restored-report.json",
+              "tool-receipt-audit.json",
+              "citation-audit.json",
+              "evidence-facts.json"
+            ]
+          },
+          "recovery": {
+            "state": "pass",
+            "reason": "完整报告JSON重启恢复相等，原附件/副本hash与字节一致；无新模型调用恢复。",
+            "evidenceRefs": [
+              "R4/report.json",
+              "R4/events.json",
+              "R4/restored-report.json",
+              "tool-receipt-audit.json",
+              "citation-audit.json",
+              "evidence-facts.json"
+            ]
+          }
+        },
+        "status": "blocked",
+        "coverage": "partial",
+        "pathState": "unverified",
+        "requests": 9,
+        "knownCostUsd": "0.022719204",
+        "unknownReservedUsd": "0",
+        "elapsedMs": 110545,
+        "successfulRegistrations": 1,
+        "successfulRegistrationRequest": 4,
+        "actions": 0,
+        "bindings": 0,
+        "sourceReadSearchCalls": 2,
+        "exactRepeatedSourceCalls": 1,
+        "toolErrors": [
+          {
+            "row": "R4",
+            "requestSeq": 2,
+            "tool": "product_path_register",
+            "input": {
+              "sourceId": "product-source:ec57d78d9c67448ca6796c79a45e76c8ce6f83bf1bece06ebad92f5ee2b15d6d",
+              "contentHash": "ea562970feaaf24b272bec372e4f18ef55a1246c79bbeb44be0889f86740ab38",
+              "title": "访客从开始预览到详情就绪",
+              "rationale": "原文给出唯一的两步访客路径：目录可用状态为“可用”时点击“预览目录”，预览状态立即变为“预览就绪”并出现“查看详情”；随后在预览状态为“预览就绪”时点击“查看详情”，详情状态立即变为“详情已就绪”。第一步的目录可用前置条件与第二步的预览就绪前置条件均由页面上各自的状态区域直接测量。",
+              "unchecked": [
+                "目录何时/如何从“暂不可用”变为“可用”原文未定义（本版本当前页面为“暂不可用”）",
+                "推荐内容、排序依据与刷新时机未确定，不在本版本承诺范围",
+                "保存收藏、跨设备同步、管理员维护（需登录）不属于匿名预览",
+                "移动端适配、读屏器完整体验、长时间稳定性与网络恢复不在验收范围"
+              ],
+              "assumptions": [],
+              "steps": [
+                {
+                  "title": "点击“预览目录”使预览状态变为“预览就绪”",
+                  "targetName": "预览目录",
+                  "citation": {
+                    "citationId": "pcite:c250613921a0b90fde5c1206d09fdf136207d52d5b5679405760642739d3ed0a"
+                  },
+                  "certainty": "explicit",
+                  "action": "click",
+                  "value": null,
+                  "expectation": {
+                    "condition": "text-equals",
+                    "expected": "预览就绪"
+                  },
+                  "timing": "action-complete",
+                  "preconditions": [
+                    {
+                      "description": "目录可用状态为“可用”（当前页面为“暂不可用”即不满足）",
+                      "citation": {
+                        "citationId": "pcite:c250613921a0b90fde5c1206d09fdf136207d52d5b5679405760642739d3ed0a"
+                      },
+                      "expectation": {
+                        "condition": "text-equals",
+                        "expected": "可用"
+                      }
+                    }
+                  ],
+                  "limitation": "仅在目录可用状态为“可用”时可绑定；状态为“暂不可用”时不应开始预览。",
+                  "review": {
+                    "preconditionsComplete": true,
+                    "predicatesDistinguishStates": true,
+                    "substringJustification": null
+                  }
+                },
+                {
+                  "title": "点击“查看详情”使详情状态变为“详情已就绪”",
+                  "targetName": "查看详情",
+                  "citation": {
+                    "citationId": "pcite:c250613921a0b90fde5c1206d09fdf136207d52d5b5679405760642739d3ed0"
+                  }
+                }
+              ]
+            },
+            "result": {
+              "error": true,
+              "message": "Tool input validation failed for product_path_register. Please fix the following errors and try again:\n- steps.1.certainty: Invalid option: expected one of \"explicit\"|\"ambiguous\"|\"assumption\"\n- steps.1.action: Invalid option: expected one of \"click\"|\"fill\"\n- steps.1.timing: Invalid option: expected one of \"action-complete\"|\"unspecified\"\n- steps.1.preconditions: Invalid input: expected array, received undefined\n\nProvided arguments: {\n  \"sourceId\": \"product-source:ec57d78d9c67448ca6796c79a45e76c8ce6f83bf1bece06ebad92f5ee2b15d6d\",\n  \"contentHash\": \"ea562970feaaf24b272bec372e4f18ef55a1246c79bbeb44be0889f86740ab38\",\n  \"title\": \"访客从开... (truncated)",
+              "validationErrors": {
+                "errors": [],
+                "fields": {
+                  "steps": {
+                    "errors": [],
+                    "fields": {
+                      "1": {
+                        "errors": [],
+                        "fields": {
+                          "certainty": {
+                            "errors": [
+                              "Invalid option: expected one of \"explicit\"|\"ambiguous\"|\"assumption\""
+                            ],
+                            "fields": {}
+                          },
+                          "action": {
+                            "errors": [
+                              "Invalid option: expected one of \"click\"|\"fill\""
+                            ],
+                            "fields": {}
+                          },
+                          "timing": {
+                            "errors": [
+                              "Invalid option: expected one of \"action-complete\"|\"unspecified\""
+                            ],
+                            "fields": {}
+                          },
+                          "preconditions": {
+                            "errors": [
+                              "Invalid input: expected array, received undefined"
+                            ],
+                            "fields": {}
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "eventId": "evt-c2a7c72f-db27-4146-aab7-266ff3795ba7",
+            "stage": {
+              "key": "[\"source-located\",null,null]",
+              "phase": "source-located",
+              "unrestricted": false,
+              "allowedTools": [
+                "product_path_register",
+                "run_finish",
+                "findings_submit",
+                "product_source_read",
+                "product_source_search",
+                "tool_result_read",
+                "history_read"
+              ],
+              "readOnlyTools": [
+                "product_source_read",
+                "product_source_search",
+                "tool_result_read",
+                "history_read"
+              ],
+              "decision": "Perform the stage task using existing evidence. For a specific missing fact, call an available read-only tool directly with its original arguments; use returned pagination cursors for truncated material. Source-located does not mean all requirements are known. The model still authors the plan and chooses observed selectors. Finish unverified if unsupported."
+            },
+            "currentStepAtRequest": null
+          },
+          {
+            "row": "R4",
+            "requestSeq": 7,
+            "tool": "product_path_bind",
+            "input": {
+              "step": 0,
+              "ref": "e14",
+              "resultSelector": "html > body:nth-of-type(1) > main:nth-of-type(1) > section:nth-of-type(2) > p:nth-of-type(1)",
+              "preconditionSelectors": [
+                "html > body:nth-of-type(1) > main:nth-of-type(1) > section:nth-of-type(1) > p:nth-of-type(1)"
+              ]
+            },
+            "result": {
+              "status": "error",
+              "error": "product-control-identity-lost"
+            },
+            "eventId": "evt-ad6e3547-091b-4813-a146-ff12873ec20e",
+            "stage": {
+              "key": "[\"bind-next-step\",0,null]",
+              "phase": "bind-next-step",
+              "step": 0,
+              "unrestricted": false,
+              "allowedTools": [
+                "product_path_bind",
+                "run_finish",
+                "findings_submit",
+                "page_inspect",
+                "element_details",
+                "page_observe",
+                "tool_result_read",
+                "history_read"
+              ],
+              "readOnlyTools": [
+                "page_inspect",
+                "element_details",
+                "page_observe",
+                "tool_result_read",
+                "history_read"
+              ],
+              "decision": "Perform the stage task using existing evidence. For a specific missing fact, call an available read-only tool directly with its original arguments; use returned pagination cursors for truncated material. Source-located does not mean all requirements are known. The model still authors the plan and chooses observed selectors. Finish unverified if unsupported."
+            },
+            "currentStepAtRequest": {
+              "index": 0,
+              "title": "点击“预览目录”使预览状态变为“预览就绪”",
+              "state": "unverified",
+              "reason": "仅在目录可用状态为“可用”时可绑定；状态为“暂不可用”时访客不能开始预览。",
+              "action": "click",
+              "expectation": {
+                "condition": "text-equals",
+                "expected": "预览就绪"
+              },
+              "preconditions": [
+                {
+                  "description": "目录可用状态为“可用”（当前页面显示为“暂不可用”即不满足）",
+                  "citation": {
+                    "start": 0,
+                    "end": 609,
+                    "quote": "# 轻阅目录：访客预览说明\n\n版本：1.0。本文是合成产品规格，用于本地演示，不代表真实客户需求。\n\n轻阅目录让访客在决定是否登录前，先确认目录摘要与详情是否能正常查看。预览只改变当前页面的展示，不保存账号数据，也不向服务端提交内容。页面刷新后恢复初始状态。\n\n## 访客查看目录\n\n页面展示“目录可用状态”“预览状态”和“详情状态”。预览状态初始为“尚未预览”，详情状态初始为“尚未查看”。这两个状态区域从打开页面起就一直存在。\n\n预览的前置条件是目录可用状态为“可用”。状态为“暂不可用”时，目录内容尚未准备好，访客不能开始预览；这不代表预览功能发生了错误。\n\n访客点击“预览目录”后，预览状态应立即变为“预览就绪”，并出现“查看详情”按钮。这里的“立即”指本次点击处理完成时就更新，不需要等待后台任务。\n\n只有预览状态为“预览就绪”时才能查看详情。访客点击“查看详情”后，详情状态应立即变为“详情已就绪”。两个状态区域各自展示自己的状态，不用页面上其他地方的相同文字代替。\n\n本次关心的是访客能否从开始预览走到详情就绪。仅看到预览就绪还不能说明详情可用。\n\n## 后续设想与范围\n\n未来可能按阅读偏好推荐目录，但推荐内容、排序依据和刷新时机尚未确定，本版本不承诺推荐结果。\n\n保存收藏、跨设备同步与管理员维护需要登录，不属于本次匿名预览。移动端适配、读屏器完整体验、长时间稳定性和网络恢复也不在本次验收范围内。\n"
+                  },
+                  "expectation": {
+                    "condition": "text-equals",
+                    "expected": "可用"
+                  }
+                }
+              ],
+              "citation": {
+                "start": 0,
+                "end": 609
+              }
+            }
+          },
+          {
+            "row": "R4",
+            "requestSeq": 9,
+            "tool": "product_path_bind",
+            "input": {
+              "step": 0,
+              "ref": "e23",
+              "resultSelector": "html > body:nth-of-type(1) > main:nth-of-type(1) > section:nth-of-type(2) > p:nth-of-type(1)",
+              "preconditionSelectors": [
+                "html > body:nth-of-type(1) > main:nth-of-type(1) > section:nth-of-type(1) > p:nth-of-type(1)"
+              ]
+            },
+            "result": {
+              "status": "error",
+              "error": "product-control-identity-lost"
+            },
+            "eventId": "evt-19981d6d-2240-4212-bba4-6a46e28a471c",
+            "stage": {
+              "key": "[\"bind-next-step\",0,null]",
+              "phase": "bind-next-step",
+              "step": 0,
+              "unrestricted": false,
+              "allowedTools": [
+                "product_path_bind",
+                "run_finish",
+                "findings_submit",
+                "page_inspect",
+                "element_details",
+                "page_observe",
+                "tool_result_read",
+                "history_read"
+              ],
+              "readOnlyTools": [
+                "page_inspect",
+                "element_details",
+                "page_observe",
+                "tool_result_read",
+                "history_read"
+              ],
+              "decision": "Perform the stage task using existing evidence. For a specific missing fact, call an available read-only tool directly with its original arguments; use returned pagination cursors for truncated material. Source-located does not mean all requirements are known. The model still authors the plan and chooses observed selectors. Finish unverified if unsupported."
+            },
+            "currentStepAtRequest": {
+              "index": 0,
+              "title": "点击“预览目录”使预览状态变为“预览就绪”",
+              "state": "unverified",
+              "reason": "仅在目录可用状态为“可用”时可绑定；状态为“暂不可用”时访客不能开始预览。",
+              "action": "click",
+              "expectation": {
+                "condition": "text-equals",
+                "expected": "预览就绪"
+              },
+              "preconditions": [
+                {
+                  "description": "目录可用状态为“可用”（当前页面显示为“暂不可用”即不满足）",
+                  "citation": {
+                    "start": 0,
+                    "end": 609,
+                    "quote": "# 轻阅目录：访客预览说明\n\n版本：1.0。本文是合成产品规格，用于本地演示，不代表真实客户需求。\n\n轻阅目录让访客在决定是否登录前，先确认目录摘要与详情是否能正常查看。预览只改变当前页面的展示，不保存账号数据，也不向服务端提交内容。页面刷新后恢复初始状态。\n\n## 访客查看目录\n\n页面展示“目录可用状态”“预览状态”和“详情状态”。预览状态初始为“尚未预览”，详情状态初始为“尚未查看”。这两个状态区域从打开页面起就一直存在。\n\n预览的前置条件是目录可用状态为“可用”。状态为“暂不可用”时，目录内容尚未准备好，访客不能开始预览；这不代表预览功能发生了错误。\n\n访客点击“预览目录”后，预览状态应立即变为“预览就绪”，并出现“查看详情”按钮。这里的“立即”指本次点击处理完成时就更新，不需要等待后台任务。\n\n只有预览状态为“预览就绪”时才能查看详情。访客点击“查看详情”后，详情状态应立即变为“详情已就绪”。两个状态区域各自展示自己的状态，不用页面上其他地方的相同文字代替。\n\n本次关心的是访客能否从开始预览走到详情就绪。仅看到预览就绪还不能说明详情可用。\n\n## 后续设想与范围\n\n未来可能按阅读偏好推荐目录，但推荐内容、排序依据和刷新时机尚未确定，本版本不承诺推荐结果。\n\n保存收藏、跨设备同步与管理员维护需要登录，不属于本次匿名预览。移动端适配、读屏器完整体验、长时间稳定性和网络恢复也不在本次验收范围内。\n"
+                  },
+                  "expectation": {
+                    "condition": "text-equals",
+                    "expected": "可用"
+                  }
+                }
+              ],
+              "citation": {
+                "start": 0,
+                "end": 609
+              }
+            }
+          }
+        ],
+        "requiredEffects": [],
+        "scope": {
+          "coverage": "partial",
+          "counts": {
+            "total": 23,
+            "selected": 23,
+            "pending": 1,
+            "verified": 6,
+            "failed": 0,
+            "unverified": 1,
+            "excluded": 15
+          },
+          "gaps": [
+            {
+              "itemId": "item-a639a7f5-19fb-49cb-8195-46955c7e4507",
+              "category": "investigation",
+              "status": "pending",
+              "reason": "selected-not-resolved",
+              "reasonCode": null
+            },
+            {
+              "itemId": "item-1c2bbdd9-5ba8-41e2-8890-08c7496f7edb",
+              "category": "investigation",
+              "status": "unverified",
+              "reason": "no-progress",
+              "reasonCode": "no-progress"
+            }
+          ],
+          "selectedUnresolved": [
+            {
+              "itemId": "item-a639a7f5-19fb-49cb-8195-46955c7e4507",
+              "category": "investigation",
+              "url": "http://127.0.0.1:53445/",
+              "status": "pending",
+              "selected": true,
+              "basis": "product-path:required-registration-and-evidence",
+              "targetSource": "executor",
+              "reasonCode": null,
+              "detail": null,
+              "evidenceRefs": [],
+              "ruleRevision": null,
+              "parentNavigation": null
+            },
+            {
+              "itemId": "item-1c2bbdd9-5ba8-41e2-8890-08c7496f7edb",
+              "category": "investigation",
+              "url": "http://127.0.0.1:53445/",
+              "status": "unverified",
+              "selected": true,
+              "basis": "Repeated reads added no relevant facts; bounded recovery exhausted.",
+              "targetSource": "agent",
+              "reasonCode": "no-progress",
+              "detail": "Repeated reads added no relevant facts; bounded recovery exhausted.",
+              "evidenceRefs": [],
+              "ruleRevision": null,
+              "parentNavigation": null
+            }
+          ]
+        },
+        "sourcePlan": {
+          "sourceId": "product-source:ec57d78d9c67448ca6796c79a45e76c8ce6f83bf1bece06ebad92f5ee2b15d6d",
+          "contentHash": "ea562970feaaf24b272bec372e4f18ef55a1246c79bbeb44be0889f86740ab38",
+          "title": "访客从开始预览到详情就绪",
+          "rationale": "原文定义了唯一的两步访客路径：目录可用状态为“可用”时点击“预览目录”，预览状态立即变为“预览就绪”并出现“查看详情”；随后仅在预览状态为“预览就绪”时点击“查看详情”，详情状态立即变为“详情已就绪”。两步的期望均以对应状态区域的精确标签“立即”完成。第一步前置条件为目录可用状态“可用”，第二步前置条件为预览状态“预览就绪”（依赖第一步结果）。",
+          "unchecked": [
+            "目录何时/如何从“暂不可用”变为“可用”原文未定义（本版本当前页面为“暂不可用”）",
+            "推荐内容、排序依据与刷新时机未确定，不在本版本承诺范围",
+            "保存收藏、跨设备同步、管理员维护（需登录）不属于匿名预览",
+            "移动端适配、读屏器完整体验、长时间稳定性与网络恢复不在验收范围"
+          ],
+          "assumptions": [],
+          "steps": [
+            {
+              "title": "点击“预览目录”使预览状态变为“预览就绪”",
+              "targetName": "预览目录",
+              "citation": {
+                "start": 0,
+                "end": 609,
+                "quote": "# 轻阅目录：访客预览说明\n\n版本：1.0。本文是合成产品规格，用于本地演示，不代表真实客户需求。\n\n轻阅目录让访客在决定是否登录前，先确认目录摘要与详情是否能正常查看。预览只改变当前页面的展示，不保存账号数据，也不向服务端提交内容。页面刷新后恢复初始状态。\n\n## 访客查看目录\n\n页面展示“目录可用状态”“预览状态”和“详情状态”。预览状态初始为“尚未预览”，详情状态初始为“尚未查看”。这两个状态区域从打开页面起就一直存在。\n\n预览的前置条件是目录可用状态为“可用”。状态为“暂不可用”时，目录内容尚未准备好，访客不能开始预览；这不代表预览功能发生了错误。\n\n访客点击“预览目录”后，预览状态应立即变为“预览就绪”，并出现“查看详情”按钮。这里的“立即”指本次点击处理完成时就更新，不需要等待后台任务。\n\n只有预览状态为“预览就绪”时才能查看详情。访客点击“查看详情”后，详情状态应立即变为“详情已就绪”。两个状态区域各自展示自己的状态，不用页面上其他地方的相同文字代替。\n\n本次关心的是访客能否从开始预览走到详情就绪。仅看到预览就绪还不能说明详情可用。\n\n## 后续设想与范围\n\n未来可能按阅读偏好推荐目录，但推荐内容、排序依据和刷新时机尚未确定，本版本不承诺推荐结果。\n\n保存收藏、跨设备同步与管理员维护需要登录，不属于本次匿名预览。移动端适配、读屏器完整体验、长时间稳定性和网络恢复也不在本次验收范围内。\n"
+              },
+              "certainty": "explicit",
+              "action": "click",
+              "expectation": {
+                "condition": "text-equals",
+                "expected": "预览就绪"
+              },
+              "timing": "action-complete",
+              "preconditions": [
+                {
+                  "description": "目录可用状态为“可用”（当前页面显示为“暂不可用”即不满足）",
+                  "citation": {
+                    "start": 0,
+                    "end": 609,
+                    "quote": "# 轻阅目录：访客预览说明\n\n版本：1.0。本文是合成产品规格，用于本地演示，不代表真实客户需求。\n\n轻阅目录让访客在决定是否登录前，先确认目录摘要与详情是否能正常查看。预览只改变当前页面的展示，不保存账号数据，也不向服务端提交内容。页面刷新后恢复初始状态。\n\n## 访客查看目录\n\n页面展示“目录可用状态”“预览状态”和“详情状态”。预览状态初始为“尚未预览”，详情状态初始为“尚未查看”。这两个状态区域从打开页面起就一直存在。\n\n预览的前置条件是目录可用状态为“可用”。状态为“暂不可用”时，目录内容尚未准备好，访客不能开始预览；这不代表预览功能发生了错误。\n\n访客点击“预览目录”后，预览状态应立即变为“预览就绪”，并出现“查看详情”按钮。这里的“立即”指本次点击处理完成时就更新，不需要等待后台任务。\n\n只有预览状态为“预览就绪”时才能查看详情。访客点击“查看详情”后，详情状态应立即变为“详情已就绪”。两个状态区域各自展示自己的状态，不用页面上其他地方的相同文字代替。\n\n本次关心的是访客能否从开始预览走到详情就绪。仅看到预览就绪还不能说明详情可用。\n\n## 后续设想与范围\n\n未来可能按阅读偏好推荐目录，但推荐内容、排序依据和刷新时机尚未确定，本版本不承诺推荐结果。\n\n保存收藏、跨设备同步与管理员维护需要登录，不属于本次匿名预览。移动端适配、读屏器完整体验、长时间稳定性和网络恢复也不在本次验收范围内。\n"
+                  },
+                  "expectation": {
+                    "condition": "text-equals",
+                    "expected": "可用"
+                  }
+                }
+              ],
+              "limitation": "仅在目录可用状态为“可用”时可绑定；状态为“暂不可用”时访客不能开始预览。"
+            },
+            {
+              "title": "点击“查看详情”使详情状态变为“详情已就绪”",
+              "targetName": "查看详情",
+              "citation": {
+                "start": 0,
+                "end": 609,
+                "quote": "# 轻阅目录：访客预览说明\n\n版本：1.0。本文是合成产品规格，用于本地演示，不代表真实客户需求。\n\n轻阅目录让访客在决定是否登录前，先确认目录摘要与详情是否能正常查看。预览只改变当前页面的展示，不保存账号数据，也不向服务端提交内容。页面刷新后恢复初始状态。\n\n## 访客查看目录\n\n页面展示“目录可用状态”“预览状态”和“详情状态”。预览状态初始为“尚未预览”，详情状态初始为“尚未查看”。这两个状态区域从打开页面起就一直存在。\n\n预览的前置条件是目录可用状态为“可用”。状态为“暂不可用”时，目录内容尚未准备好，访客不能开始预览；这不代表预览功能发生了错误。\n\n访客点击“预览目录”后，预览状态应立即变为“预览就绪”，并出现“查看详情”按钮。这里的“立即”指本次点击处理完成时就更新，不需要等待后台任务。\n\n只有预览状态为“预览就绪”时才能查看详情。访客点击“查看详情”后，详情状态应立即变为“详情已就绪”。两个状态区域各自展示自己的状态，不用页面上其他地方的相同文字代替。\n\n本次关心的是访客能否从开始预览走到详情就绪。仅看到预览就绪还不能说明详情可用。\n\n## 后续设想与范围\n\n未来可能按阅读偏好推荐目录，但推荐内容、排序依据和刷新时机尚未确定，本版本不承诺推荐结果。\n\n保存收藏、跨设备同步与管理员维护需要登录，不属于本次匿名预览。移动端适配、读屏器完整体验、长时间稳定性和网络恢复也不在本次验收范围内。\n"
+              },
+              "certainty": "explicit",
+              "action": "click",
+              "expectation": {
+                "condition": "text-equals",
+                "expected": "详情已就绪"
+              },
+              "timing": "action-complete",
+              "preconditions": [
+                {
+                  "description": "预览状态为“预览就绪”（依赖第一步结果）",
+                  "citation": {
+                    "start": 0,
+                    "end": 609,
+                    "quote": "# 轻阅目录：访客预览说明\n\n版本：1.0。本文是合成产品规格，用于本地演示，不代表真实客户需求。\n\n轻阅目录让访客在决定是否登录前，先确认目录摘要与详情是否能正常查看。预览只改变当前页面的展示，不保存账号数据，也不向服务端提交内容。页面刷新后恢复初始状态。\n\n## 访客查看目录\n\n页面展示“目录可用状态”“预览状态”和“详情状态”。预览状态初始为“尚未预览”，详情状态初始为“尚未查看”。这两个状态区域从打开页面起就一直存在。\n\n预览的前置条件是目录可用状态为“可用”。状态为“暂不可用”时，目录内容尚未准备好，访客不能开始预览；这不代表预览功能发生了错误。\n\n访客点击“预览目录”后，预览状态应立即变为“预览就绪”，并出现“查看详情”按钮。这里的“立即”指本次点击处理完成时就更新，不需要等待后台任务。\n\n只有预览状态为“预览就绪”时才能查看详情。访客点击“查看详情”后，详情状态应立即变为“详情已就绪”。两个状态区域各自展示自己的状态，不用页面上其他地方的相同文字代替。\n\n本次关心的是访客能否从开始预览走到详情就绪。仅看到预览就绪还不能说明详情可用。\n\n## 后续设想与范围\n\n未来可能按阅读偏好推荐目录，但推荐内容、排序依据和刷新时机尚未确定，本版本不承诺推荐结果。\n\n保存收藏、跨设备同步与管理员维护需要登录，不属于本次匿名预览。移动端适配、读屏器完整体验、长时间稳定性和网络恢复也不在本次验收范围内。\n"
+                  },
+                  "expectation": {
+                    "condition": "text-equals",
+                    "expected": "预览就绪"
+                  }
+                }
+              ],
+              "limitation": "“查看详情”按钮仅在预览状态为“预览就绪”时出现；详情状态须由详情区域自身展示。"
+            }
+          ]
+        },
+        "uncheckedScope": [
+          "目录何时/如何从“暂不可用”变为“可用”原文未定义（本版本当前页面为“暂不可用”）",
+          "推荐内容、排序依据与刷新时机未确定，不在本版本承诺范围",
+          "保存收藏、跨设备同步、管理员维护（需登录）不属于匿名预览",
+          "移动端适配、读屏器完整体验、长时间稳定性与网络恢复不在验收范围"
+        ],
+        "boundary": {
+          "groundedAbstention": true,
+          "actualPrerequisiteMeasurement": false,
+          "evidence": "Observed original DOM unavailable text and disabled button; bind rejected at identity gate; no action or functional-defect claim"
+        }
+      },
+      {
+        "id": "R5",
+        "variant": "defect",
+        "runId": "run-34f3c775-a461-462f-a45c-3605d7ff72f3",
+        "classification": "complete-defect-detected",
+        "primaryAcceptance": true,
+        "criteria": {
+          "read": {
+            "state": "pass",
+            "reason": "第1请求取得全文，第2请求直接登记；4处已发引用精确匹配，无再次source读取。",
+            "evidenceRefs": [
+              "R5/report.json",
+              "R5/events.json",
+              "R5/restored-report.json",
+              "tool-receipt-audit.json",
+              "citation-audit.json",
+              "evidence-facts.json"
+            ]
+          },
+          "registration": {
+            "state": "pass",
+            "reason": "两步无assumptions，精确预期及availability/preview前置正确，节点由真实详情取得。",
+            "evidenceRefs": [
+              "R5/report.json",
+              "R5/events.json",
+              "R5/restored-report.json",
+              "tool-receipt-audit.json",
+              "citation-audit.json",
+              "evidence-facts.json"
+            ]
+          },
+          "execution": {
+            "state": "pass",
+            "reason": "第4/7请求绑定，第5/8请求显式使用当前程序原动作参数执行；预览verified，详情failed，无错误ID或重放。模型额外verify参数不替代原独立需求测量。",
+            "evidenceRefs": [
+              "R5/report.json",
+              "R5/events.json",
+              "R5/restored-report.json",
+              "tool-receipt-audit.json",
+              "citation-audit.json",
+              "evidence-facts.json"
+            ]
+          },
+          "scope": {
+            "state": "pass",
+            "reason": "covered/failed、gaps=0，两步原证据收尾，未检查范围明确。",
+            "evidenceRefs": [
+              "R5/report.json",
+              "R5/events.json",
+              "R5/restored-report.json",
+              "tool-receipt-audit.json",
+              "citation-audit.json",
+              "evidence-facts.json"
+            ]
+          },
+          "recovery": {
+            "state": "pass",
+            "reason": "完整报告JSON重启恢复相等，原附件/副本hash与字节一致；无新模型调用恢复。",
+            "evidenceRefs": [
+              "R5/report.json",
+              "R5/events.json",
+              "R5/restored-report.json",
+              "tool-receipt-audit.json",
+              "citation-audit.json",
+              "evidence-facts.json"
+            ]
+          }
+        },
+        "status": "completed",
+        "coverage": "covered",
+        "pathState": "failed",
+        "requests": 8,
+        "knownCostUsd": "0.009099364",
+        "unknownReservedUsd": "0",
+        "elapsedMs": 32938,
+        "successfulRegistrations": 1,
+        "successfulRegistrationRequest": 2,
+        "actions": 2,
+        "bindings": 2,
+        "sourceReadSearchCalls": 1,
+        "exactRepeatedSourceCalls": 0,
+        "toolErrors": [],
+        "requiredEffects": [
+          {
+            "step": 0,
+            "targetName": "预览目录",
+            "state": "verified",
+            "actionId": "22c273c1-e082-41fd-99ed-fcd018120929",
+            "requirementId": "requirement:c4739a165f708a3cba173f4b",
+            "actual": [
+              "预览就绪"
+            ],
+            "measurementArtifact": "ab3b3891-a796-4638-8fa9-a8eb0c292182.json",
+            "reason": "Original action/requirement/result-slot measurement verified against artifacts"
+          },
+          {
+            "step": 1,
+            "targetName": "查看详情",
+            "state": "failed",
+            "actionId": "c240aa61-4696-4ac9-9053-7914afc97d47",
+            "requirementId": "requirement:318b59326e5e4bbebc188f7e",
+            "actual": [
+              "详情未能展示"
+            ],
+            "measurementArtifact": "739567de-15a6-44eb-83d6-fb62e72670db.json",
+            "reason": "Original action/requirement/result-slot measurement verified against artifacts"
+          }
+        ],
+        "scope": {
+          "coverage": "covered",
+          "counts": {
+            "total": 36,
+            "selected": 16,
+            "pending": 0,
+            "verified": 14,
+            "failed": 2,
+            "unverified": 20,
+            "excluded": 0
+          },
+          "gaps": [],
+          "selectedUnresolved": []
+        },
+        "sourcePlan": {
+          "sourceId": "product-source:ec57d78d9c67448ca6796c79a45e76c8ce6f83bf1bece06ebad92f5ee2b15d6d",
+          "contentHash": "ea562970feaaf24b272bec372e4f18ef55a1246c79bbeb44be0889f86740ab38",
+          "title": "访客预览目录到详情就绪",
+          "rationale": "原始规格说明访客先确认目录可用状态为“可用”，点击“预览目录”后预览状态立即变为“预览就绪”并出现“查看详情”按钮，只有预览就绪时点击“查看详情”详情状态才立即变为“详情已就绪”。以该两步本地点击链路验证状态区域各自的更新。",
+          "unchecked": [
+            "推荐目录内容、排序依据与刷新时机未定义，不在本版本验收范围。",
+            "保存收藏、跨设备同步、管理员维护需要登录，不属于匿名预览范围。",
+            "移动端适配、读屏器完整体验、长时间稳定性与网络恢复不在验收范围。",
+            "目录可用状态为“暂不可用”时的分支无法在当前页面复现，未验证。"
+          ],
+          "assumptions": [],
+          "steps": [
+            {
+              "title": "点击“预览目录”后预览状态立即变为“预览就绪”",
+              "targetName": "预览目录",
+              "citation": {
+                "start": 0,
+                "end": 609,
+                "quote": "# 轻阅目录：访客预览说明\n\n版本：1.0。本文是合成产品规格，用于本地演示，不代表真实客户需求。\n\n轻阅目录让访客在决定是否登录前，先确认目录摘要与详情是否能正常查看。预览只改变当前页面的展示，不保存账号数据，也不向服务端提交内容。页面刷新后恢复初始状态。\n\n## 访客查看目录\n\n页面展示“目录可用状态”“预览状态”和“详情状态”。预览状态初始为“尚未预览”，详情状态初始为“尚未查看”。这两个状态区域从打开页面起就一直存在。\n\n预览的前置条件是目录可用状态为“可用”。状态为“暂不可用”时，目录内容尚未准备好，访客不能开始预览；这不代表预览功能发生了错误。\n\n访客点击“预览目录”后，预览状态应立即变为“预览就绪”，并出现“查看详情”按钮。这里的“立即”指本次点击处理完成时就更新，不需要等待后台任务。\n\n只有预览状态为“预览就绪”时才能查看详情。访客点击“查看详情”后，详情状态应立即变为“详情已就绪”。两个状态区域各自展示自己的状态，不用页面上其他地方的相同文字代替。\n\n本次关心的是访客能否从开始预览走到详情就绪。仅看到预览就绪还不能说明详情可用。\n\n## 后续设想与范围\n\n未来可能按阅读偏好推荐目录，但推荐内容、排序依据和刷新时机尚未确定，本版本不承诺推荐结果。\n\n保存收藏、跨设备同步与管理员维护需要登录，不属于本次匿名预览。移动端适配、读屏器完整体验、长时间稳定性和网络恢复也不在本次验收范围内。\n"
+              },
+              "certainty": "explicit",
+              "action": "click",
+              "expectation": {
+                "condition": "text-equals",
+                "expected": "预览就绪"
+              },
+              "timing": "action-complete",
+              "preconditions": [
+                {
+                  "description": "目录可用状态为“可用”",
+                  "citation": {
+                    "start": 0,
+                    "end": 609,
+                    "quote": "# 轻阅目录：访客预览说明\n\n版本：1.0。本文是合成产品规格，用于本地演示，不代表真实客户需求。\n\n轻阅目录让访客在决定是否登录前，先确认目录摘要与详情是否能正常查看。预览只改变当前页面的展示，不保存账号数据，也不向服务端提交内容。页面刷新后恢复初始状态。\n\n## 访客查看目录\n\n页面展示“目录可用状态”“预览状态”和“详情状态”。预览状态初始为“尚未预览”，详情状态初始为“尚未查看”。这两个状态区域从打开页面起就一直存在。\n\n预览的前置条件是目录可用状态为“可用”。状态为“暂不可用”时，目录内容尚未准备好，访客不能开始预览；这不代表预览功能发生了错误。\n\n访客点击“预览目录”后，预览状态应立即变为“预览就绪”，并出现“查看详情”按钮。这里的“立即”指本次点击处理完成时就更新，不需要等待后台任务。\n\n只有预览状态为“预览就绪”时才能查看详情。访客点击“查看详情”后，详情状态应立即变为“详情已就绪”。两个状态区域各自展示自己的状态，不用页面上其他地方的相同文字代替。\n\n本次关心的是访客能否从开始预览走到详情就绪。仅看到预览就绪还不能说明详情可用。\n\n## 后续设想与范围\n\n未来可能按阅读偏好推荐目录，但推荐内容、排序依据和刷新时机尚未确定，本版本不承诺推荐结果。\n\n保存收藏、跨设备同步与管理员维护需要登录，不属于本次匿名预览。移动端适配、读屏器完整体验、长时间稳定性和网络恢复也不在本次验收范围内。\n"
+                  },
+                  "expectation": {
+                    "condition": "text-equals",
+                    "expected": "可用"
+                  }
+                }
+              ]
+            },
+            {
+              "title": "点击“查看详情”后详情状态立即变为“详情已就绪”",
+              "targetName": "查看详情",
+              "citation": {
+                "start": 0,
+                "end": 609,
+                "quote": "# 轻阅目录：访客预览说明\n\n版本：1.0。本文是合成产品规格，用于本地演示，不代表真实客户需求。\n\n轻阅目录让访客在决定是否登录前，先确认目录摘要与详情是否能正常查看。预览只改变当前页面的展示，不保存账号数据，也不向服务端提交内容。页面刷新后恢复初始状态。\n\n## 访客查看目录\n\n页面展示“目录可用状态”“预览状态”和“详情状态”。预览状态初始为“尚未预览”，详情状态初始为“尚未查看”。这两个状态区域从打开页面起就一直存在。\n\n预览的前置条件是目录可用状态为“可用”。状态为“暂不可用”时，目录内容尚未准备好，访客不能开始预览；这不代表预览功能发生了错误。\n\n访客点击“预览目录”后，预览状态应立即变为“预览就绪”，并出现“查看详情”按钮。这里的“立即”指本次点击处理完成时就更新，不需要等待后台任务。\n\n只有预览状态为“预览就绪”时才能查看详情。访客点击“查看详情”后，详情状态应立即变为“详情已就绪”。两个状态区域各自展示自己的状态，不用页面上其他地方的相同文字代替。\n\n本次关心的是访客能否从开始预览走到详情就绪。仅看到预览就绪还不能说明详情可用。\n\n## 后续设想与范围\n\n未来可能按阅读偏好推荐目录，但推荐内容、排序依据和刷新时机尚未确定，本版本不承诺推荐结果。\n\n保存收藏、跨设备同步与管理员维护需要登录，不属于本次匿名预览。移动端适配、读屏器完整体验、长时间稳定性和网络恢复也不在本次验收范围内。\n"
+              },
+              "certainty": "explicit",
+              "action": "click",
+              "expectation": {
+                "condition": "text-equals",
+                "expected": "详情已就绪"
+              },
+              "timing": "action-complete",
+              "preconditions": [
+                {
+                  "description": "预览状态为“预览就绪”",
+                  "citation": {
+                    "start": 0,
+                    "end": 609,
+                    "quote": "# 轻阅目录：访客预览说明\n\n版本：1.0。本文是合成产品规格，用于本地演示，不代表真实客户需求。\n\n轻阅目录让访客在决定是否登录前，先确认目录摘要与详情是否能正常查看。预览只改变当前页面的展示，不保存账号数据，也不向服务端提交内容。页面刷新后恢复初始状态。\n\n## 访客查看目录\n\n页面展示“目录可用状态”“预览状态”和“详情状态”。预览状态初始为“尚未预览”，详情状态初始为“尚未查看”。这两个状态区域从打开页面起就一直存在。\n\n预览的前置条件是目录可用状态为“可用”。状态为“暂不可用”时，目录内容尚未准备好，访客不能开始预览；这不代表预览功能发生了错误。\n\n访客点击“预览目录”后，预览状态应立即变为“预览就绪”，并出现“查看详情”按钮。这里的“立即”指本次点击处理完成时就更新，不需要等待后台任务。\n\n只有预览状态为“预览就绪”时才能查看详情。访客点击“查看详情”后，详情状态应立即变为“详情已就绪”。两个状态区域各自展示自己的状态，不用页面上其他地方的相同文字代替。\n\n本次关心的是访客能否从开始预览走到详情就绪。仅看到预览就绪还不能说明详情可用。\n\n## 后续设想与范围\n\n未来可能按阅读偏好推荐目录，但推荐内容、排序依据和刷新时机尚未确定，本版本不承诺推荐结果。\n\n保存收藏、跨设备同步与管理员维护需要登录，不属于本次匿名预览。移动端适配、读屏器完整体验、长时间稳定性和网络恢复也不在本次验收范围内。\n"
+                  },
+                  "expectation": {
+                    "condition": "text-equals",
+                    "expected": "预览就绪"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "uncheckedScope": [
+          "推荐目录内容、排序依据与刷新时机未定义，不在本版本验收范围。",
+          "保存收藏、跨设备同步、管理员维护需要登录，不属于匿名预览范围。",
+          "移动端适配、读屏器完整体验、长时间稳定性与网络恢复不在验收范围。",
+          "目录可用状态为“暂不可用”时的分支无法在当前页面复现，未验证。"
+        ],
+        "boundary": null
+      },
+      {
+        "id": "R6",
+        "variant": "healthy",
+        "runId": "run-9b7600b3-11e3-424e-a3a1-36172e018d99",
+        "classification": "complete-healthy",
+        "primaryAcceptance": true,
+        "criteria": {
+          "read": {
+            "state": "pass",
+            "reason": "全文后第3请求重读；第4请求收到登记提示并成功登记，4处原引用精确匹配。",
+            "evidenceRefs": [
+              "R6/report.json",
+              "R6/events.json",
+              "R6/restored-report.json",
+              "tool-receipt-audit.json",
+              "citation-audit.json",
+              "evidence-facts.json"
+            ]
+          },
+          "registration": {
+            "state": "pass",
+            "reason": "两步无assumptions，原精确预期和两个前置完整，动态详情在预览完成后绑定。",
+            "evidenceRefs": [
+              "R6/report.json",
+              "R6/events.json",
+              "R6/restored-report.json",
+              "tool-receipt-audit.json",
+              "citation-audit.json",
+              "evidence-facts.json"
+            ]
+          },
+          "execution": {
+            "state": "pass",
+            "reason": "第6/8请求绑定，第7/9请求显式使用当前程序原动作参数；两项原效果verified，无错误ID或重放。",
+            "evidenceRefs": [
+              "R6/report.json",
+              "R6/events.json",
+              "R6/restored-report.json",
+              "tool-receipt-audit.json",
+              "citation-audit.json",
+              "evidence-facts.json"
+            ]
+          },
+          "scope": {
+            "state": "pass",
+            "reason": "covered/verified、gaps=0，无功能误报；未选控件和资料未承诺范围仍未验证。",
+            "evidenceRefs": [
+              "R6/report.json",
+              "R6/events.json",
+              "R6/restored-report.json",
+              "tool-receipt-audit.json",
+              "citation-audit.json",
+              "evidence-facts.json"
+            ]
+          },
+          "recovery": {
+            "state": "pass",
+            "reason": "完整报告JSON重启恢复相等，原附件/副本hash与字节一致；无新模型调用恢复。",
+            "evidenceRefs": [
+              "R6/report.json",
+              "R6/events.json",
+              "R6/restored-report.json",
+              "tool-receipt-audit.json",
+              "citation-audit.json",
+              "evidence-facts.json"
+            ]
+          }
+        },
+        "status": "completed",
+        "coverage": "covered",
+        "pathState": "verified",
+        "requests": 9,
+        "knownCostUsd": "0.01166902",
+        "unknownReservedUsd": "0",
+        "elapsedMs": 43540,
+        "successfulRegistrations": 1,
+        "successfulRegistrationRequest": 4,
+        "actions": 2,
+        "bindings": 2,
+        "sourceReadSearchCalls": 2,
+        "exactRepeatedSourceCalls": 1,
+        "toolErrors": [],
+        "requiredEffects": [
+          {
+            "step": 0,
+            "targetName": "预览目录",
+            "state": "verified",
+            "actionId": "a4902c36-ed79-40d9-a896-7e715afc2215",
+            "requirementId": "requirement:4a69e353fa8e7dc1136d7d12",
+            "actual": [
+              "预览就绪"
+            ],
+            "measurementArtifact": "53f84aa3-b462-474d-bff2-7df9475c574a.json",
+            "reason": "Original action/requirement/result-slot measurement verified against artifacts"
+          },
+          {
+            "step": 1,
+            "targetName": "查看详情",
+            "state": "verified",
+            "actionId": "8162e249-9a37-45b4-b641-f8d1162e4fb1",
+            "requirementId": "requirement:3260d8cf29ab64c1729b6131",
+            "actual": [
+              "详情已就绪"
+            ],
+            "measurementArtifact": "4943d329-f11c-482c-802c-9a22aa97c864.json",
+            "reason": "Original action/requirement/result-slot measurement verified against artifacts"
+          }
+        ],
+        "scope": {
+          "coverage": "covered",
+          "counts": {
+            "total": 36,
+            "selected": 16,
+            "pending": 0,
+            "verified": 16,
+            "failed": 0,
+            "unverified": 20,
+            "excluded": 0
+          },
+          "gaps": [],
+          "selectedUnresolved": []
+        },
+        "sourcePlan": {
+          "sourceId": "product-source:ec57d78d9c67448ca6796c79a45e76c8ce6f83bf1bece06ebad92f5ee2b15d6d",
+          "contentHash": "ea562970feaaf24b272bec372e4f18ef55a1246c79bbeb44be0889f86740ab38",
+          "title": "访客从预览目录到详情就绪",
+          "rationale": "原文明确规定：预览前置条件是目录可用状态为“可用”；点击“预览目录”后预览状态立即变为“预览就绪”并出现“查看详情”；只有预览就绪时才能点击“查看详情”，点击后详情状态立即变为“详情已就绪”。当前页已观测到目录可用状态为“可用”、预览状态“尚未预览”、详情状态“尚未查看”以及按钮“预览目录”，因此登记两步骤本地点击路径。",
+          "unchecked": [
+            "未来按阅读偏好推荐目录（推荐内容、排序依据、刷新时机未定）",
+            "保存收藏、跨设备同步、管理员维护（需登录，不属于本次匿名预览）",
+            "移动端适配、读屏器完整体验、长时间稳定性、网络恢复（明确不在验收范围）",
+            "匿名范围内其它未选中本地控件及同源链接"
+          ],
+          "assumptions": [],
+          "steps": [
+            {
+              "title": "点击“预览目录”，预览状态变为“预览就绪”",
+              "targetName": "预览目录",
+              "citation": {
+                "start": 0,
+                "end": 609,
+                "quote": "# 轻阅目录：访客预览说明\n\n版本：1.0。本文是合成产品规格，用于本地演示，不代表真实客户需求。\n\n轻阅目录让访客在决定是否登录前，先确认目录摘要与详情是否能正常查看。预览只改变当前页面的展示，不保存账号数据，也不向服务端提交内容。页面刷新后恢复初始状态。\n\n## 访客查看目录\n\n页面展示“目录可用状态”“预览状态”和“详情状态”。预览状态初始为“尚未预览”，详情状态初始为“尚未查看”。这两个状态区域从打开页面起就一直存在。\n\n预览的前置条件是目录可用状态为“可用”。状态为“暂不可用”时，目录内容尚未准备好，访客不能开始预览；这不代表预览功能发生了错误。\n\n访客点击“预览目录”后，预览状态应立即变为“预览就绪”，并出现“查看详情”按钮。这里的“立即”指本次点击处理完成时就更新，不需要等待后台任务。\n\n只有预览状态为“预览就绪”时才能查看详情。访客点击“查看详情”后，详情状态应立即变为“详情已就绪”。两个状态区域各自展示自己的状态，不用页面上其他地方的相同文字代替。\n\n本次关心的是访客能否从开始预览走到详情就绪。仅看到预览就绪还不能说明详情可用。\n\n## 后续设想与范围\n\n未来可能按阅读偏好推荐目录，但推荐内容、排序依据和刷新时机尚未确定，本版本不承诺推荐结果。\n\n保存收藏、跨设备同步与管理员维护需要登录，不属于本次匿名预览。移动端适配、读屏器完整体验、长时间稳定性和网络恢复也不在本次验收范围内。\n"
+              },
+              "certainty": "explicit",
+              "action": "click",
+              "expectation": {
+                "condition": "text-equals",
+                "expected": "预览就绪"
+              },
+              "timing": "action-complete",
+              "preconditions": [
+                {
+                  "description": "目录可用状态显示为“可用”",
+                  "citation": {
+                    "start": 0,
+                    "end": 609,
+                    "quote": "# 轻阅目录：访客预览说明\n\n版本：1.0。本文是合成产品规格，用于本地演示，不代表真实客户需求。\n\n轻阅目录让访客在决定是否登录前，先确认目录摘要与详情是否能正常查看。预览只改变当前页面的展示，不保存账号数据，也不向服务端提交内容。页面刷新后恢复初始状态。\n\n## 访客查看目录\n\n页面展示“目录可用状态”“预览状态”和“详情状态”。预览状态初始为“尚未预览”，详情状态初始为“尚未查看”。这两个状态区域从打开页面起就一直存在。\n\n预览的前置条件是目录可用状态为“可用”。状态为“暂不可用”时，目录内容尚未准备好，访客不能开始预览；这不代表预览功能发生了错误。\n\n访客点击“预览目录”后，预览状态应立即变为“预览就绪”，并出现“查看详情”按钮。这里的“立即”指本次点击处理完成时就更新，不需要等待后台任务。\n\n只有预览状态为“预览就绪”时才能查看详情。访客点击“查看详情”后，详情状态应立即变为“详情已就绪”。两个状态区域各自展示自己的状态，不用页面上其他地方的相同文字代替。\n\n本次关心的是访客能否从开始预览走到详情就绪。仅看到预览就绪还不能说明详情可用。\n\n## 后续设想与范围\n\n未来可能按阅读偏好推荐目录，但推荐内容、排序依据和刷新时机尚未确定，本版本不承诺推荐结果。\n\n保存收藏、跨设备同步与管理员维护需要登录，不属于本次匿名预览。移动端适配、读屏器完整体验、长时间稳定性和网络恢复也不在本次验收范围内。\n"
+                  },
+                  "expectation": {
+                    "condition": "text-equals",
+                    "expected": "可用"
+                  }
+                }
+              ]
+            },
+            {
+              "title": "点击“查看详情”，详情状态变为“详情已就绪”",
+              "targetName": "查看详情",
+              "citation": {
+                "start": 0,
+                "end": 609,
+                "quote": "# 轻阅目录：访客预览说明\n\n版本：1.0。本文是合成产品规格，用于本地演示，不代表真实客户需求。\n\n轻阅目录让访客在决定是否登录前，先确认目录摘要与详情是否能正常查看。预览只改变当前页面的展示，不保存账号数据，也不向服务端提交内容。页面刷新后恢复初始状态。\n\n## 访客查看目录\n\n页面展示“目录可用状态”“预览状态”和“详情状态”。预览状态初始为“尚未预览”，详情状态初始为“尚未查看”。这两个状态区域从打开页面起就一直存在。\n\n预览的前置条件是目录可用状态为“可用”。状态为“暂不可用”时，目录内容尚未准备好，访客不能开始预览；这不代表预览功能发生了错误。\n\n访客点击“预览目录”后，预览状态应立即变为“预览就绪”，并出现“查看详情”按钮。这里的“立即”指本次点击处理完成时就更新，不需要等待后台任务。\n\n只有预览状态为“预览就绪”时才能查看详情。访客点击“查看详情”后，详情状态应立即变为“详情已就绪”。两个状态区域各自展示自己的状态，不用页面上其他地方的相同文字代替。\n\n本次关心的是访客能否从开始预览走到详情就绪。仅看到预览就绪还不能说明详情可用。\n\n## 后续设想与范围\n\n未来可能按阅读偏好推荐目录，但推荐内容、排序依据和刷新时机尚未确定，本版本不承诺推荐结果。\n\n保存收藏、跨设备同步与管理员维护需要登录，不属于本次匿名预览。移动端适配、读屏器完整体验、长时间稳定性和网络恢复也不在本次验收范围内。\n"
+              },
+              "certainty": "explicit",
+              "action": "click",
+              "expectation": {
+                "condition": "text-equals",
+                "expected": "详情已就绪"
+              },
+              "timing": "action-complete",
+              "preconditions": [
+                {
+                  "description": "预览状态在前一步后显示为“预览就绪”",
+                  "citation": {
+                    "start": 0,
+                    "end": 609,
+                    "quote": "# 轻阅目录：访客预览说明\n\n版本：1.0。本文是合成产品规格，用于本地演示，不代表真实客户需求。\n\n轻阅目录让访客在决定是否登录前，先确认目录摘要与详情是否能正常查看。预览只改变当前页面的展示，不保存账号数据，也不向服务端提交内容。页面刷新后恢复初始状态。\n\n## 访客查看目录\n\n页面展示“目录可用状态”“预览状态”和“详情状态”。预览状态初始为“尚未预览”，详情状态初始为“尚未查看”。这两个状态区域从打开页面起就一直存在。\n\n预览的前置条件是目录可用状态为“可用”。状态为“暂不可用”时，目录内容尚未准备好，访客不能开始预览；这不代表预览功能发生了错误。\n\n访客点击“预览目录”后，预览状态应立即变为“预览就绪”，并出现“查看详情”按钮。这里的“立即”指本次点击处理完成时就更新，不需要等待后台任务。\n\n只有预览状态为“预览就绪”时才能查看详情。访客点击“查看详情”后，详情状态应立即变为“详情已就绪”。两个状态区域各自展示自己的状态，不用页面上其他地方的相同文字代替。\n\n本次关心的是访客能否从开始预览走到详情就绪。仅看到预览就绪还不能说明详情可用。\n\n## 后续设想与范围\n\n未来可能按阅读偏好推荐目录，但推荐内容、排序依据和刷新时机尚未确定，本版本不承诺推荐结果。\n\n保存收藏、跨设备同步与管理员维护需要登录，不属于本次匿名预览。移动端适配、读屏器完整体验、长时间稳定性和网络恢复也不在本次验收范围内。\n"
+                  },
+                  "expectation": {
+                    "condition": "text-equals",
+                    "expected": "预览就绪"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "uncheckedScope": [
+          "未来按阅读偏好推荐目录（推荐内容、排序依据、刷新时机未定）",
+          "保存收藏、跨设备同步、管理员维护（需登录，不属于本次匿名预览）",
+          "移动端适配、读屏器完整体验、长时间稳定性、网络恢复（明确不在验收范围）",
+          "匿名范围内其它未选中本地控件及同源链接"
+        ],
+        "boundary": null
+      }
+    ],
+    "auditedMaterials": {
+      "requests": 48,
+      "completeResponses": 48,
+      "toolReceipts": 57,
+      "missingReceipts": 0,
+      "acceptedRegistrationCitationFields": 20,
+      "rejectedRegistrationCitationFields": 3,
+      "invalidRejectedCitationFields": [
+        {
+          "row": "R4",
+          "requestSeq": 2,
+          "field": "steps[1].citation",
+          "issuedBeforeRegistration": false,
+          "exactUtf16Quote": false
+        }
+      ],
+      "fullReportsRestored": 6,
+      "originalCopyArtifactPairs": 276,
+      "allWireToolScopesMatch": true,
+      "allCurrentStepPreconditionsMatchPlans": true
+    },
+    "actualAdoption": {
+      "registration": {
+        "guidanceDeliveredRows": [
+          "R1",
+          "R2",
+          "R4",
+          "R6"
+        ],
+        "immediateSuccessfulRegistrationRows": [
+          "R2",
+          "R6"
+        ],
+        "ignoredOnGuidanceTurn": [
+          "R1",
+          "R4"
+        ],
+        "laterRegisteredAfterReread": [
+          "R4"
+        ],
+        "neverRegistered": [
+          "R1"
+        ],
+        "registeredWithoutGuidance": [
+          "R3",
+          "R5"
+        ],
+        "allGuidancePriorStreak": 1,
+        "guidanceDidNotResetStreakOrIncreaseBudget": true
+      },
+      "actionParameters": {
+        "explicitInputsMatchingProgramNextAction": 6,
+        "actualActions": 6,
+        "wrongRequirementIdErrors": 0,
+        "rows": [
+          "R2",
+          "R5",
+          "R6"
+        ],
+        "evidence": "Current packet nextAction and original provider page_act arguments match requirementId/ref/type/value; original action and independent requirement measurement persisted. This demonstrates observable use, not causal benefit or internal model reasoning."
+      },
+      "directRetrieval": "All 48 wire tool sets match the actual stage; no gap tool, no source reread after a successful registration.",
+      "currentPrerequisites": "Frozen current-step prerequisites matched plans in every eligible packet; delivery alone does not prove reliance.",
+      "remainingErrors": "R2 missing prerequisite selectors rejected once; R4 first schema-incomplete registration plus one shortened unissued citation rejected. Three unavailable bind identity errors remain. No errors erased.",
+      "unexercised": "No live unknown-effect verification/no-replay or zero/multi-selector repair; their free evidence stays separate."
+    },
+    "limitations": [
+      "R1 still failed after the actual pre-closure reminder; registration reliability unresolved and original full-batch exit unmet.",
+      "5/6 includes two grounded abstentions with partial/unverified reports; only three rows executed both actions.",
+      "Compared with the earlier sixth batch, 56 to 48 requests and five to zero wrong-ID errors are descriptive observations, not a causal efficacy estimate. Seventh interrupted run and price-blocked preparation remain separate.",
+      "No product, prompt, budget, runner or code changes occurred mid-batch; no rebuild or free matrix rerun. Two focused price-policy tests were run before freeze, separate from reused 84 tests/5 browser cases."
+    ],
+    "historicalUnknowns": {
+      "retainedUsd": [
+        0.063,
+        0.063,
+        0.116
+      ],
+      "sources": [
+        "seventh batch timeout",
+        "previous unknown",
+        "earlier unknown"
+      ],
+      "reconciliation": "deferred by user",
+      "changed": false,
+      "countedAsNewUnknown": false
+    },
+    "nextBoundary": "Authorized batch closed and claim consumed. No automatic retry, extra sample or follow-up fix. Original R2 exit remains unmet.",
+    "evidenceReferences": [
+      "registration-action-handoff-audit.json",
+      "stage-process-audit.json",
+      "tool-error-audit.json",
+      "request-context-audit.json",
+      "trajectory-audit.json",
+      "tool-receipt-audit.json",
+      "citation-audit.json",
+      "semantic-material.json",
+      "evidence-facts.json",
+      "artifact-verification.json",
+      "cost-audit.json",
+      "post-run-identity.json",
+      "requests.jsonl",
+      "responses.jsonl",
+      "ledger.jsonl",
+      "accounting.json"
+    ]
+  },
+  "rawMechanicalReviewPendingDoesNotOverrideCompletedAgentReview": true,
+  "noCodeOrConfigurationChangesDuringExecution": true,
+  "noRebuildOrRepeatedFreeMatrix": true,
+  "newPaidBatchCount": 1,
+  "priorEvidence": {
+    "freeDelivery": "evaluation/r2-product-sources/registration-action-handoff.json",
+    "freeEvidenceIndexSha256": "a3f8d24e547fd6515f2f054cd9d7e9bc9a519fa4e0f6b401ac783d70488d666d",
+    "testsReused": 84,
+    "browserCasesReused": 5,
+    "fullHistoricalIndexRecheck": false
+  },
+  "historicalCosts": "Three historical unknowns USD0.063, USD0.063 and USD0.116 unchanged; reconciliation deferred. This new batch has unknown/held zero. No old unknown ignored or settled to zero.",
+  "historicalResult": "Sixth batch 5/6, seventh interrupted 0/6, and zero-inference price-blocked preparation retained separately. New batch 5/6 does not meet original exit.",
+  "noPushOrMerge": true,
+  "roadmapUnchanged": true
+}
