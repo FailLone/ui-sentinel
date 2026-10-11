@@ -1,4 +1,4 @@
-import type { productPathReport } from './product-path.ts'
+import type { productPathReport, ProductPlan } from './product-path.ts'
 import type { RunEvent } from '../shared/types.ts'
 
 type Check = {
@@ -6,6 +6,35 @@ type Check = {
   measured?: { count?: number; values?: unknown[]; supported?: boolean } | null
   outcome: string
   reasonCode?: string
+}
+
+/** Array positions only: no inferred selector-to-requirement correspondence. */
+export function productBindingInputDiagnostics(
+  step: ProductPlan['steps'][number],
+  selectors: readonly string[],
+) {
+  if (selectors.length === step.preconditions.length) return undefined
+  return {
+    field: 'preconditionSelectors',
+    expectedCount: step.preconditions.length,
+    receivedCount: selectors.length,
+    requirements: step.preconditions.map((p, index) => ({
+      index,
+      field: `preconditionSelectors[${index}]`,
+      description: p.description,
+      expectation: p.expectation,
+      citation: { start: p.citation.start, end: p.citation.end },
+      suppliedSelector: selectors[index] ?? null,
+    })),
+    missingPositions: step.preconditions.flatMap((_, index) =>
+      index >= selectors.length ? [index] : [],
+    ),
+    extraPositions: selectors.flatMap((_, index) =>
+      index >= step.preconditions.length ? [index] : [],
+    ),
+    mapping:
+      'Positional only; supplied selectors have not been measured or matched semantically. Recheck every index against its frozen requirement.',
+  }
 }
 
 /** Feedback only: never chooses selectors, changes requirements, or authorizes an action. */
@@ -120,6 +149,15 @@ export function productContinuation(
       { ...target, ref: binding.payload.ref },
     )
   }
+  const rejected = events
+    .filter((e) => e.type === 'product:binding-rejected' && e.payload.step === step.index)
+    .at(-1)
+  if (rejected)
+    return result(
+      'repair-binding-input',
+      'Supply exactly one observed DOM selector per frozen prerequisite in the listed order, then retry product_path_bind for this same unexecuted step. Reuse available DOM evidence; inspect only missing nodes. Missing positions do not identify which semantic condition was omitted. Do not remove requirements, guess selectors or act before successful binding.',
+      { ...target, diagnostics: rejected.payload.diagnostics },
+    )
   return result(
     'bind-next-step',
     'Bind this next frozen step using its current observed control ref and the original result/prerequisite nodes. Reuse available page_inspect/element_details evidence; if missing, inspect only the missing target/node. Do not reread unchanged source, re-register the plan, or replay completed steps.',

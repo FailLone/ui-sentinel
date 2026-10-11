@@ -36,8 +36,9 @@ export async function defaultCheckArtifactIssues(
   }
   for (const event of events.filter(
     (e) =>
-      // Rejected registration is diagnostic history, never a verification receipt.
-      (e.type.startsWith('product:') && e.type !== 'product:registration-rejected') ||
+      // Rejected inputs are diagnostic history, never verification receipts.
+      (e.type.startsWith('product:') &&
+        !['product:registration-rejected', 'product:binding-rejected'].includes(e.type)) ||
       (contract.productSource &&
         ['interaction:generic-collected-v2', 'interaction:effect-measured-v2'].includes(e.type)),
   )) {
@@ -73,6 +74,7 @@ export async function defaultCheckArtifactIssues(
             'product-path-3',
             'product-path-4',
             'product-path-5',
+            'product-path-6',
             PRODUCT_SKILL_REVISION,
           ].includes(String(events.find((e) => e.type === 'product:planned')?.payload.revision))
         ) {

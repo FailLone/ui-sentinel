@@ -29,7 +29,10 @@ import {
   resolveProductPlan,
   registrationDiagnostics,
 } from '../inspection/product-citations.ts'
-import { productContinuation } from '../inspection/product-continuation.ts'
+import {
+  productContinuation,
+  productBindingInputDiagnostics,
+} from '../inspection/product-continuation.ts'
 import { productReadinessDiagnostics } from '../inspection/product-readiness.ts'
 import { readPublicCheckPage } from './default-check-runtime.ts'
 import { measureInteraction } from './interaction-verification.ts'
@@ -99,7 +102,11 @@ export function createProductPath(host: {
           ? execution.nextAction
           : rejected.length >= 3
             ? 'Finish unverified-scope; registration repair limit reached.'
-            : 'Submit a source-grounded path for pre-freeze readiness checks. Explicit source rules are requirements; unknown current states are measurable prerequisites; unsupported assumptions prevent executable registration. Review step prerequisites and distinguishing predicates. Reuse issued citationIds. Correct indicated fields before retrying. Repeated reads/searches do not advance the run.',
+            : rejected.length
+              ? 'Repair the reported registration fields using available original text and citationIds. Query only a specific missing or truncated passage; unsupported requirements remain unverified.'
+              : issued.size
+                ? 'Review the returned original text and extract a supported path for product_path_register using existing citationIds. No plan is registered yet. Query again only for a specific missing requirement, prerequisite or truncated passage. Returned text is not proof that a complete executable plan exists; if unsupported, finish unverified-scope.'
+                : 'Locate and read the relevant original text with product_source_read/search before extracting a path; section titles alone are not requirements.',
       },
     }
   }
@@ -293,8 +300,16 @@ export function createProductPath(host: {
               events.some((e) => e.type === 'product:bound' && e.payload.itemId === target.itemId)
             )
               throw Error('product-distinct-controls-required')
-            if (i.preconditionSelectors.length !== step.preconditions.length)
-              throw Error('product-precondition-bindings-required')
+            const diagnostics = productBindingInputDiagnostics(step, i.preconditionSelectors)
+            if (diagnostics) {
+              await host.emit('product:binding-rejected', { step: i.step, diagnostics })
+              return {
+                error: 'product-precondition-bindings-required',
+                dispatched: false,
+                diagnostics,
+                execution: (await status()).execution,
+              }
+            }
             let admission: ProductAdmission | undefined
             if (!target.selected) {
               const page = await readPublicCheckPage(host.page(), target.observationVersion)

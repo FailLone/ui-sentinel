@@ -17,14 +17,18 @@ import {
   readinessRows,
 } from './r2-readiness-replay.ts'
 import { continuationReply, continuationRows } from './r2-continuation-replay.ts'
-const continuationOnly = process.argv.includes('--continuation-only')
-const continuationModes = [
-  'continuation-healthy',
-  'continuation-defect',
-  'continuation-unavailable',
-  'continuation-unavailable-enabled',
-  'dynamic-pending',
-]
+import { progressReply, progressRow } from './r2-progress-replay.ts'
+const feedbackOnly = process.argv.includes('--progress-feedback-only')
+const continuationOnly = process.argv.includes('--continuation-only') || feedbackOnly
+const continuationModes = feedbackOnly
+  ? ['feedback-healthy', 'feedback-defect', 'feedback-unavailable-enabled', 'dynamic-pending']
+  : [
+      'continuation-healthy',
+      'continuation-defect',
+      'continuation-unavailable',
+      'continuation-unavailable-enabled',
+      'dynamic-pending',
+    ]
 const readinessOnly = process.argv.includes('--readiness-only')
 const readinessModes = [
   'readiness-healthy',
@@ -57,15 +61,17 @@ await save('identity.json', {
   dist: await hashTree('dist'),
   validationScripts: await hashTree('scripts/validation'),
   fixtures: await hashTree('evaluation/fixtures/r2-product-acceptance'),
-  mode: continuationOnly
-    ? 'continuation-only'
-    : readinessOnly
-      ? 'readiness-only'
-      : citationsOnly
-        ? 'citations-only'
-        : dynamicOnly
-          ? 'dynamic-only'
-          : 'all',
+  mode: feedbackOnly
+    ? 'progress-feedback-only'
+    : continuationOnly
+      ? 'continuation-only'
+      : readinessOnly
+        ? 'readiness-only'
+        : citationsOnly
+          ? 'citations-only'
+          : dynamicOnly
+            ? 'dynamic-only'
+            : 'all',
 })
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 async function listen(s: ReturnType<typeof createServer>) {
@@ -85,6 +91,13 @@ let mode = '',
 const fixture = createServer((req, res) => {
   requests.push({ method: req.method, url: req.url })
   res.writeHead(200, { 'content-type': 'text/html' })
+  if (mode.startsWith('feedback-')) {
+    const html = documentFor(
+      mode.includes('unavailable') ? 'unavailable' : (mode.slice(9) as Variant),
+    )
+    res.end(mode.includes('unavailable') ? html.replace(' disabled', '') : html)
+    return
+  }
   if (mode.startsWith('continuation-')) {
     const html = documentFor(
       mode.includes('unavailable') ? 'unavailable' : (mode.slice(13) as Variant),
@@ -129,7 +142,12 @@ function setup(m: string) {
   calls = []
   requests = []
   citationRefs.clear()
-  if (m.startsWith('citation-') || m.startsWith('readiness-') || m.startsWith('continuation-')) {
+  if (
+    m.startsWith('feedback-') ||
+    m.startsWith('citation-') ||
+    m.startsWith('readiness-') ||
+    m.startsWith('continuation-')
+  ) {
     source = citationSource
     return
   }
@@ -215,7 +233,16 @@ const model = createServer(async (req, res) => {
         ? 'unverified-scope'
         : 'scope-covered',
     }
-  if (mode.startsWith('continuation-')) {
+  if (mode.startsWith('feedback-')) {
+    // Reuse the exact DOM receipt already returned to this scripted operator.
+    const prior = calls
+      .filter((c) => c.packet.latestToolResults?.tools?.some((t: any) => t.tool === 'page_inspect'))
+      .at(-1)?.packet.latestToolResults
+    const replayPacket = turn === 4 ? { ...packet, latestToolResults: prior } : packet
+    const reply = progressReply(mode, turn, replayPacket)
+    name = reply.name
+    args = reply.args
+  } else if (mode.startsWith('continuation-')) {
     const reply = continuationReply(mode, turn, packet)
     name = reply.name
     args = reply.args
@@ -568,7 +595,26 @@ try {
     })
     await save('results.json', results)
     console.log(JSON.stringify(results.at(-1)))
-    if (m.startsWith('continuation-')) {
+    if (m.startsWith('feedback-')) {
+      const unavailable = m.includes('unavailable')
+      assert.equal(
+        state,
+        unavailable ? 'unverified' : m === 'feedback-defect' ? 'failed' : 'verified',
+      )
+      assert.equal(events.filter((e) => e.type === 'action:executing').length, unavailable ? 0 : 2)
+      assert.equal(events.filter((e) => e.type === 'product:planned').length, 1)
+      assert.equal(events.filter((e) => e.type === 'product:binding-rejected').length, 1)
+      assert.equal(events.filter((e) => e.type === 'product:bound').length, unavailable ? 0 : 2)
+      assert.equal(r.uiScan.inspection.coverage, unavailable ? 'partial' : 'covered')
+      assert.ok(calls.some((c) => c.packet.productPath.execution.phase === 'repair-binding-input'))
+      if (unavailable) {
+        assert.ok(calls.some((c) => c.name === 'page_act'))
+        assert.equal(
+          events.find((e) => e.type === 'product:precondition-missing').payload.checks[0].outcome,
+          'failed',
+        )
+      }
+    } else if (m.startsWith('continuation-')) {
       const unavailable = m.includes('unavailable')
       assert.equal(
         state,
@@ -729,7 +775,9 @@ try {
       args: [
         ids[
           continuationOnly
-            ? 'continuation-healthy'
+            ? feedbackOnly
+              ? 'feedback-healthy'
+              : 'continuation-healthy'
             : readinessOnly
               ? 'readiness-healthy'
               : citationsOnly
@@ -754,7 +802,9 @@ try {
   const invalidAdmission = await report(
     ids[
       continuationOnly
-        ? 'continuation-healthy'
+        ? feedbackOnly
+          ? 'feedback-healthy'
+          : 'continuation-healthy'
         : readinessOnly
           ? 'readiness-healthy'
           : citationsOnly
@@ -841,11 +891,17 @@ try {
     child.kill('SIGTERM')
     await new Promise((r) => child.once('exit', r))
     const requestCount = calls.length
-    for (const { row, runId: oldRunId } of continuationOnly ? continuationRows : readinessRows) {
+    for (const { row, runId: oldRunId } of feedbackOnly
+      ? ['R2', 'R6'].map(progressRow)
+      : continuationOnly
+        ? continuationRows
+        : readinessRows) {
       const oldRoot = resolve(
-        continuationOnly
-          ? 'data/r2-product-acceptance/real-readiness-authorized-20261011'
-          : 'data/r2-product-acceptance/real-citations-authorized-20261011',
+        feedbackOnly
+          ? 'data/r2-product-acceptance/real-final-candidate-authorized-20261011'
+          : continuationOnly
+            ? 'data/r2-product-acceptance/real-readiness-authorized-20261011'
+            : 'data/r2-product-acceptance/real-citations-authorized-20261011',
         row,
       )
       const copy = resolve(root, row + '-historical.db')
@@ -876,7 +932,8 @@ try {
     model: 'fixed-local',
     citationReplay: citationsOnly,
     readinessReplay: readinessOnly,
-    continuationReplay: continuationOnly,
+    continuationReplay: continuationOnly && !feedbackOnly,
+    progressFeedbackReplay: feedbackOnly,
     historicalReports: oldReports,
     artifacts: Object.fromEntries(
       await Promise.all(

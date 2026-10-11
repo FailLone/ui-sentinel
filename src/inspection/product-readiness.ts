@@ -8,7 +8,7 @@ export const productStepReview = z
     preconditionsComplete: z
       .boolean()
       .describe(
-        'After rereading the source, confirm every condition for this step is in preconditions, including dependencies on earlier results. limitation/unchecked do not register conditions. False if uncertain.',
+        'Using the relevant original text already returned, confirm every condition for this step is in preconditions, including dependencies on earlier results. limitation/unchecked do not register conditions. Read/search only a specific missing or truncated passage. False if uncertain.',
       ),
     predicatesDistinguishStates: z
       .boolean()
@@ -86,7 +86,7 @@ export function productReadinessDiagnostics(
       add(
         `steps[${i}].review.preconditionsComplete`,
         'product-preconditions-review-required',
-        'Reread the original and explicitly review all conditions, including prior-step results. Register each in preconditions with citation and predicate, not in limitation/unchecked. Confirm true only after this review; the program cannot detect every omitted natural-language condition.',
+        'Review the available original text for all conditions, including prior-step results; retrieve only a specific missing or truncated passage. Register each in preconditions with citation and predicate, not in limitation/unchecked. Confirm true only after this review; the program cannot detect every omitted natural-language condition.',
       )
     if (reviews[i]?.predicatesDistinguishStates !== true)
       add(
