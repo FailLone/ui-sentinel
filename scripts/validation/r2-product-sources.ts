@@ -16,6 +16,15 @@ import {
   confirmedReview,
   readinessRows,
 } from './r2-readiness-replay.ts'
+import { continuationReply, continuationRows } from './r2-continuation-replay.ts'
+const continuationOnly = process.argv.includes('--continuation-only')
+const continuationModes = [
+  'continuation-healthy',
+  'continuation-defect',
+  'continuation-unavailable',
+  'continuation-unavailable-enabled',
+  'dynamic-pending',
+]
 const readinessOnly = process.argv.includes('--readiness-only')
 const readinessModes = [
   'readiness-healthy',
@@ -48,13 +57,15 @@ await save('identity.json', {
   dist: await hashTree('dist'),
   validationScripts: await hashTree('scripts/validation'),
   fixtures: await hashTree('evaluation/fixtures/r2-product-acceptance'),
-  mode: readinessOnly
-    ? 'readiness-only'
-    : citationsOnly
-      ? 'citations-only'
-      : dynamicOnly
-        ? 'dynamic-only'
-        : 'all',
+  mode: continuationOnly
+    ? 'continuation-only'
+    : readinessOnly
+      ? 'readiness-only'
+      : citationsOnly
+        ? 'citations-only'
+        : dynamicOnly
+          ? 'dynamic-only'
+          : 'all',
 })
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 async function listen(s: ReturnType<typeof createServer>) {
@@ -74,6 +85,13 @@ let mode = '',
 const fixture = createServer((req, res) => {
   requests.push({ method: req.method, url: req.url })
   res.writeHead(200, { 'content-type': 'text/html' })
+  if (mode.startsWith('continuation-')) {
+    const html = documentFor(
+      mode.includes('unavailable') ? 'unavailable' : (mode.slice(13) as Variant),
+    )
+    res.end(mode === 'continuation-unavailable-enabled' ? html.replace(' disabled', '') : html)
+    return
+  }
   if (mode.startsWith('readiness-')) {
     const html = documentFor(readinessVariant())
     // Fault injection for the prerequisite gate only: same unavailable DOM, enabled button.
@@ -111,7 +129,7 @@ function setup(m: string) {
   calls = []
   requests = []
   citationRefs.clear()
-  if (m.startsWith('citation-') || m.startsWith('readiness-')) {
+  if (m.startsWith('citation-') || m.startsWith('readiness-') || m.startsWith('continuation-')) {
     source = citationSource
     return
   }
@@ -197,7 +215,12 @@ const model = createServer(async (req, res) => {
         ? 'unverified-scope'
         : 'scope-covered',
     }
-  if (mode.startsWith('readiness-')) {
+  if (mode.startsWith('continuation-')) {
+    const reply = continuationReply(mode, turn, packet)
+    name = reply.name
+    args = reply.args
+    additionalCalls.push(...reply.additionalCalls)
+  } else if (mode.startsWith('readiness-')) {
     const unavailable = mode.includes('unavailable')
     args = { reason: unavailable ? 'unverified-scope' : 'scope-covered' }
     if (turn === 0) {
@@ -477,9 +500,10 @@ try {
   browser = await chromium.launch({ headless: true })
   const page = await browser.newPage({ viewport: { width: 1280, height: 1000 } })
   for (const m of [
+    ...(continuationOnly ? continuationModes : []),
     ...(readinessOnly ? readinessModes : []),
     ...(citationsOnly ? citationModes : []),
-    ...(dynamicOnly || citationsOnly || readinessOnly
+    ...(dynamicOnly || citationsOnly || readinessOnly || continuationOnly
       ? []
       : [
           'healthy',
@@ -491,7 +515,7 @@ try {
           'async-wrong',
           'legacy',
         ]),
-    ...(citationsOnly || readinessOnly ? [] : dynamicModes),
+    ...(citationsOnly || readinessOnly || continuationOnly ? [] : dynamicModes),
   ]) {
     setup(m)
     if (m === 'healthy') {
@@ -544,7 +568,34 @@ try {
     })
     await save('results.json', results)
     console.log(JSON.stringify(results.at(-1)))
-    if (m.startsWith('readiness-')) {
+    if (m.startsWith('continuation-')) {
+      const unavailable = m.includes('unavailable')
+      assert.equal(
+        state,
+        unavailable ? 'unverified' : m === 'continuation-defect' ? 'failed' : 'verified',
+      )
+      assert.equal(events.filter((e) => e.type === 'action:executing').length, unavailable ? 0 : 2)
+      assert.equal(events.filter((e) => e.type === 'product:planned').length, 1)
+      assert.equal(events.filter((e) => e.type === 'product:registration-rejected').length, 0)
+      assert.equal(r.uiScan.inspection.coverage, unavailable ? 'partial' : 'covered')
+      if (m === 'continuation-unavailable-enabled') {
+        assert.ok(calls.some((c) => c.name === 'page_act'))
+        assert.equal(
+          events.find((e) => e.type === 'product:precondition-missing').payload.checks[0].outcome,
+          'failed',
+        )
+        assert.ok(
+          calls.some((c) =>
+            JSON.stringify(c.packet.latestToolResults).includes('product-precondition-missing'),
+          ),
+        )
+      }
+      if (m === 'continuation-defect') {
+        const missing = events.find((e) => e.type === 'product:precondition-missing')
+        assert.equal(missing.payload.checks[0].measured.count, 0)
+        assert.equal(events.filter((e) => e.type === 'product:bound').length, 2)
+      }
+    } else if (m.startsWith('readiness-')) {
       const unavailable = m.includes('unavailable')
       assert.equal(
         state,
@@ -648,12 +699,22 @@ try {
       await page.screenshot({ path: resolve(root, 'workbench.png'), fullPage: true })
     }
   }
+  if (continuationOnly) {
+    fixture.closeAllConnections()
+    await new Promise<void>((resolve) => fixture.close(() => resolve()))
+  }
   // Restart and recover through both HTTP and the ordinary workbench history input.
   child.kill('SIGTERM')
   await new Promise((r) => child.once('exit', r))
   child = start()
   await ready()
-  for (const m of readinessOnly ? readinessModes : citationsOnly ? citationModes : dynamicModes) {
+  for (const m of continuationOnly
+    ? continuationModes
+    : readinessOnly
+      ? readinessModes
+      : citationsOnly
+        ? citationModes
+        : dynamicModes) {
     const recovered = await report(ids[m])
     assert.equal(recovered.uiScan.productSource.state, results.find((r) => r.mode === m).state)
     const original = JSON.parse(await readFile(resolve(root, m + '-report.json'), 'utf8'))
@@ -667,11 +728,13 @@ try {
       sql: "SELECT file_path FROM artifacts WHERE run_id=? AND type='product-binding'",
       args: [
         ids[
-          readinessOnly
-            ? 'readiness-healthy'
-            : citationsOnly
-              ? 'citation-healthy'
-              : 'dynamic-healthy'
+          continuationOnly
+            ? 'continuation-healthy'
+            : readinessOnly
+              ? 'readiness-healthy'
+              : citationsOnly
+                ? 'citation-healthy'
+                : 'dynamic-healthy'
         ]!,
       ],
     })
@@ -690,7 +753,13 @@ try {
   await writeFile(admissionPath.path, JSON.stringify(invalidBinding))
   const invalidAdmission = await report(
     ids[
-      readinessOnly ? 'readiness-healthy' : citationsOnly ? 'citation-healthy' : 'dynamic-healthy'
+      continuationOnly
+        ? 'continuation-healthy'
+        : readinessOnly
+          ? 'readiness-healthy'
+          : citationsOnly
+            ? 'citation-healthy'
+            : 'dynamic-healthy'
     ],
   )
   await save('admission-corrupt-report.json', invalidAdmission)
@@ -698,7 +767,7 @@ try {
   assert.equal(invalidAdmission.uiScan.inspection.coverage, 'partial')
   await writeFile(admissionPath.path, admissionPath.bytes)
   admissionDb.close()
-  if (!dynamicOnly && !citationsOnly && !readinessOnly) {
+  if (!dynamicOnly && !citationsOnly && !readinessOnly && !continuationOnly) {
     await page.reload()
     await page.getByLabel('恢复历史运行').fill(ids.healthy!)
     await page.getByRole('button', { name: '打开运行', exact: true }).click()
@@ -768,12 +837,17 @@ try {
     db.close()
   }
   const oldReports = []
-  if (readinessOnly) {
+  if (readinessOnly || continuationOnly) {
     child.kill('SIGTERM')
     await new Promise((r) => child.once('exit', r))
     const requestCount = calls.length
-    for (const { row, runId: oldRunId } of readinessRows) {
-      const oldRoot = resolve('data/r2-product-acceptance/real-citations-authorized-20261011', row)
+    for (const { row, runId: oldRunId } of continuationOnly ? continuationRows : readinessRows) {
+      const oldRoot = resolve(
+        continuationOnly
+          ? 'data/r2-product-acceptance/real-readiness-authorized-20261011'
+          : 'data/r2-product-acceptance/real-citations-authorized-20261011',
+        row,
+      )
       const copy = resolve(root, row + '-historical.db')
       await copyFile(resolve(oldRoot, 'runs.db'), copy)
       child = start(copy)
@@ -793,13 +867,16 @@ try {
     results,
     historyRestart: true,
     admissionCorruptionRejected: true,
-    sourceCorruptionRejected: !dynamicOnly && !citationsOnly && !readinessOnly,
-    evidenceCorruptionRejected: !dynamicOnly && !citationsOnly && !readinessOnly,
-    missingEvidenceRejected: !dynamicOnly && !citationsOnly && !readinessOnly,
-    screenshotCorruptionRejected: !dynamicOnly && !citationsOnly && !readinessOnly,
+    sourceCorruptionRejected: !dynamicOnly && !citationsOnly && !readinessOnly && !continuationOnly,
+    evidenceCorruptionRejected:
+      !dynamicOnly && !citationsOnly && !readinessOnly && !continuationOnly,
+    missingEvidenceRejected: !dynamicOnly && !citationsOnly && !readinessOnly && !continuationOnly,
+    screenshotCorruptionRejected:
+      !dynamicOnly && !citationsOnly && !readinessOnly && !continuationOnly,
     model: 'fixed-local',
     citationReplay: citationsOnly,
     readinessReplay: readinessOnly,
+    continuationReplay: continuationOnly,
     historicalReports: oldReports,
     artifacts: Object.fromEntries(
       await Promise.all(

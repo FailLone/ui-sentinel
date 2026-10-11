@@ -5457,6 +5457,7 @@ async function executeProfiledRun(
                 },
                 skillRevision: report.skillRevision,
                 registration: report.registration,
+                execution: report.execution,
                 state: report.state,
                 complete: report.complete,
                 title: report.plan?.title,
@@ -5475,7 +5476,7 @@ async function executeProfiledRun(
                   actionId: s.actionId,
                   requirementId: s.requirementId,
                 })),
-                note: 'Follow registration.nextAction and diagnostics. Once the relevant source is read, register a short path using issued citationIds; rereading the same location does not advance progress. Use product_path_status for durable requirements/evidence.',
+                note: 'After registration, follow execution.phase/nextAction for the first unresolved step; this is advisory, not evidence or action permission. Before registration follow registration.nextAction and diagnostics. Once the relevant source is read, register a short path using issued citationIds; rereading the same location does not advance progress. Use product_path_status for durable requirements/evidence.',
               }))(await productPath.status()),
             }
           : {}),

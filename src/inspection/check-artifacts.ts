@@ -68,7 +68,7 @@ export async function defaultCheckArtifactIssues(
         if (checkHash(checks) !== checkHash(event.payload.checks))
           throw Error('product-precondition-artifact-mismatch')
         if (
-          ['product-path-2', 'product-path-3', PRODUCT_SKILL_REVISION].includes(
+          ['product-path-2', 'product-path-3', 'product-path-4', PRODUCT_SKILL_REVISION].includes(
             String(events.find((e) => e.type === 'product:planned')?.payload.revision),
           )
         ) {

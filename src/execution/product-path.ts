@@ -28,6 +28,7 @@ import {
   resolveProductPlan,
   registrationDiagnostics,
 } from '../inspection/product-citations.ts'
+import { productContinuation } from '../inspection/product-continuation.ts'
 import { productReadinessDiagnostics } from '../inspection/product-readiness.ts'
 import { readPublicCheckPage } from './default-check-runtime.ts'
 import { measureInteraction } from './interaction-verification.ts'
@@ -70,8 +71,11 @@ export function createProductPath(host: {
     const events = await host.events()
     const rejected = events.filter((e) => e.type === 'product:registration-rejected')
     const frozen = events.some((e) => e.type === 'product:planned' || e.type === 'action:executing')
+    const report = productPathReport(host.source, events)
+    const execution = productContinuation(report, events)
     return {
-      ...productPathReport(host.source, events),
+      ...report,
+      execution,
       registration: {
         phase: frozen
           ? 'frozen'
@@ -91,7 +95,7 @@ export function createProductPath(host: {
         diagnostics: frozen ? [] : (rejected.at(-1)?.payload.diagnostics ?? []),
         readiness: frozen ? 'frozen-requirements-not-measured' : 'not-yet-approved-for-binding',
         nextAction: frozen
-          ? 'Use bind to measure actual prerequisites; registration does not prove they hold. Frozen expectations cannot be revised.'
+          ? execution.nextAction
           : rejected.length >= 3
             ? 'Finish unverified-scope; registration repair limit reached.'
             : 'Submit a source-grounded path for pre-freeze readiness checks. Explicit source rules are requirements; unknown current states are measurable prerequisites; unsupported assumptions prevent executable registration. Review step prerequisites and distinguishing predicates. Reuse issued citationIds. Correct indicated fields before retrying. Repeated reads/searches do not advance the run.',
@@ -325,7 +329,11 @@ export function createProductPath(host: {
                 { step: i.step, itemId: target.itemId, checks },
                 [ref, screenshot],
               )
-              return { error: 'product-precondition-missing', dispatched: false }
+              return {
+                error: 'product-precondition-missing',
+                dispatched: false,
+                execution: (await status()).execution,
+              }
             }
             // Result must exist before dispatch, uniquely; identity substitution is checked by the shared runtime.
             if ((await host.page().locator(i.resultSelector).count()) !== 1)
