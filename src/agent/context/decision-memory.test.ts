@@ -341,3 +341,33 @@ it('canonicalizes equivalent numeric receipt refs for bounded read accounting', 
   }
   expect(readToolResult([entry], '00.00').resultRef).toBe('0.0')
 })
+
+it('keeps only original source cursors when multilingual source text exceeds the packet budget', () => {
+  const original = {
+    text: '未展示原文'.repeat(3000),
+    offset: 0,
+    endOffset: 4000,
+    nextOffset: 4000,
+    totalChars: 9000,
+  }
+  const h = [entry('product_source_read', original)]
+  const memory = decisionMemory(h)
+  const receipt = memory.latestToolResults!.tools[0] as any
+  expect(receipt).toMatchObject({
+    omitted: true,
+    resultRef: '0.0',
+    offset: 0,
+    endOffset: 4000,
+    nextOffset: 4000,
+    totalChars: 9000,
+  })
+  expect(receipt.text).toBeUndefined()
+  expect(Buffer.byteLength(JSON.stringify(memory))).toBeLessThanOrEqual(8000)
+  expect(readToolResult(h, '0.0')).toMatchObject({
+    resultRef: '0.0',
+    offset: 0,
+    nextOffset: expect.any(Number),
+  })
+  const final = decisionMemory([entry('product_source_read', { ...original, nextOffset: null })])
+  expect(final.latestToolResults!.tools[0]).toMatchObject({ nextOffset: null, omitted: true })
+})

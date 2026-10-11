@@ -5488,6 +5488,10 @@ async function executeProfiledRun(
                   action: s.action,
                   value: s.value,
                   expectation: s.expectation,
+                  preconditions:
+                    s.index === report.stage.step
+                      ? report.plan?.steps[s.index]?.preconditions
+                      : undefined,
                   citation: { start: s.citation.start, end: s.citation.end },
                   itemId: s.itemId,
                   actionId: s.actionId,

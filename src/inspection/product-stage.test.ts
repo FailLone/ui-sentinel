@@ -2,7 +2,6 @@ import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { progressHarness } from '../../scripts/validation/r2-progress-replay.ts'
 import { productStage, productStageAllows } from './product-stage.ts'
-import { extractToolSummary } from '../agent/context/compact-history.ts'
 
 const fixture = JSON.parse(
   readFileSync('evaluation/private/r2-product-acceptance/stage-decision-failures.json', 'utf8'),
@@ -13,7 +12,7 @@ const registration = (id: string) =>
 
 describe('fifth-batch evidence drives stage decisions', () => {
   it.each(['R1', 'R2', 'R3', 'R4', 'R5'])(
-    '%s exposes registration or explicit gap after returned source, without inventing a plan',
+    '%s permits targeted source retrieval alongside registration without inventing a plan',
     async (id) => {
       const h = progressHarness(undefined, true)
       const read = row(id).receipts.find((r: any) => r.toolName === 'product_source_read')
@@ -24,54 +23,36 @@ describe('fifth-batch evidence drives stage decisions', () => {
       expect(status.stage.phase).toBe('source-located')
       expect(status.stage.allowedTools).toContain('product_path_register')
       expect(status.plan).toBeUndefined()
-      expect(await h.call('product_source_read', read.originalArguments)).toMatchObject({
-        error: 'product-stage-tool-not-allowed',
-        dispatched: false,
-      })
-      const gap = await h.call('product_path_gap', {
-        question: 'Which exact passage specifies the unavailable-state boundary?',
-        tool: 'product_source_search',
-      })
-      expect(extractToolSummary({ tool: 'product_path_gap', result: gap })).toMatchObject({
-        stage: gap.stage,
-      })
+      expect(h.tools.product_path_gap).toBeUndefined()
       expect(await h.runtime.authorizeTool('page_inspect')).toMatchObject({ dispatched: false })
       const search = await h.call('product_source_search', { quote: '暂不可用', offset: 0 })
       expect(search.matches.length).toBeGreaterThan(0)
-      expect((await h.runtime.status()).stage.retrieval).toBeUndefined()
-      expect(await h.call('product_source_search', { quote: '暂不可用', offset: 0 })).toMatchObject(
-        { dispatched: false },
-      )
+      expect((await h.call('product_source_read', read.originalArguments)).text).toBe(result.text)
       expect([...h.progress]).toEqual(before)
       expect((await h.runtime.status()).complete).toBe(false)
     },
   )
   it.each(['R1', 'R2'])(
-    '%s reuses the original successful plan; registration invalidates an unused gap',
+    '%s reuses the original successful plan; registration retires source tools',
     async (id) => {
       const h = progressHarness(undefined, true)
       await h.call('product_source_read', { offset: 0 })
-      // R2 used a second issued shorter citation. Reproduce this actual reference issuance through a gap.
+      // R2 used a second issued shorter citation; call the original tool directly.
       for (const receipt of row(id).receipts.filter(
         (r: any) =>
           r.toolName === 'product_source_search' &&
           r.requestSeq <
             row(id).receipts.find((r: any) => r.toolName === 'product_path_register').requestSeq,
       )) {
-        await h.call('product_path_gap', {
-          question: 'Need the shorter original citation used by this recorded plan.',
-          tool: 'product_source_search',
-        })
         await h.call('product_source_search', receipt.originalArguments)
       }
-      await h.call('product_path_gap', {
-        question: 'Need to locate a missing source passage before deciding.',
-        tool: 'product_source_read',
-      })
       const result = await h.call('product_path_register', registration(id))
       expect(result.plan).toBeDefined()
       expect(result.stage).toMatchObject({ phase: 'bind-next-step', step: 0 })
-      expect(result.stage.retrieval).toBeUndefined()
+      expect(await h.runtime.authorizeTool('product_source_read')).toMatchObject({
+        dispatched: false,
+      })
+      expect(await h.runtime.authorizeTool('page_inspect')).toBeUndefined()
       expect(await h.runtime.authorizeTool('page_act')).toMatchObject({ dispatched: false })
       expect(await h.runtime.authorizeTool('product_path_register')).toMatchObject({
         dispatched: false,
@@ -104,15 +85,49 @@ describe('fifth-batch evidence drives stage decisions', () => {
       'product-action-requires-current-bound-step',
     )
   })
-  it('does not offer action tools as information-gap grants', async () => {
+  it('malformed retrieval parameters cannot dispatch an action or manufacture progress', async () => {
     const h = progressHarness(undefined, true)
-    const result = await h.call('product_path_gap', {
-      question: 'Click to learn what this control does.',
+    const result = await h.call('product_source_read', {
+      offset: 0,
       tool: 'page_act',
+      args: { type: 'click' },
     })
     expect(JSON.stringify(result)).toContain('validation')
-    expect((await h.runtime.status()).stage.retrieval).toBeUndefined()
+    expect(h.progress.size).toBe(0)
     expect(h.events).toEqual([])
+    expect(await h.runtime.authorizeTool('page_act')).toMatchObject({ dispatched: false })
+  })
+  it('bounded read-only sets follow the stage rather than reopening global exploration', () => {
+    const before = productStage({
+      registration: { phase: 'source-located' },
+      execution: { phase: 'registration-required' },
+    })
+    const after = productStage({
+      registration: { phase: 'frozen' },
+      execution: { phase: 'bind-next-step', step: 0 },
+    })
+    expect(before.readOnlyTools).toEqual([
+      'product_source_read',
+      'product_source_search',
+      'tool_result_read',
+      'history_read',
+    ])
+    expect(after.readOnlyTools).toEqual([
+      'page_inspect',
+      'element_details',
+      'page_observe',
+      'tool_result_read',
+      'history_read',
+    ])
+    for (const stage of [before, after])
+      for (const tool of [
+        'product_path_gap',
+        'investigation_run',
+        'exploration_update',
+        'journey_run',
+        'rule_check',
+      ])
+        expect(productStageAllows(stage, tool)).toBe(false)
   })
   it.each(row('R1').contexts as any[])(
     'preserves R1 next-step/original-action continuity at request $seq',
@@ -125,7 +140,7 @@ describe('fifth-batch evidence drives stage decisions', () => {
     },
   )
   it.each(['verify-original-action', 'prerequisite-not-satisfied', 'effect-failed', 'unverified'])(
-    '%s cannot bind or replay; gap/report remain possible',
+    '%s cannot bind or replay; direct read-only/report remain possible',
     (phase) => {
       const stage = productStage({
         registration: { phase: 'frozen' },

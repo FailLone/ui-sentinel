@@ -58,6 +58,19 @@ function domLocator(summary: ReturnType<typeof projection>, queryBudget = 256) {
       : {}),
   }
 }
+/** Preserve existing document cursors when the original text is omitted, not inferred content. */
+function sourceCursor(summary: ReturnType<typeof projection>) {
+  if (summary.tool !== 'product_source_read') return {}
+  const data = summary as Record<string, unknown>
+  return Object.fromEntries(
+    ['offset', 'endOffset', 'totalChars', 'nextOffset'].flatMap((key) =>
+      (key === 'nextOffset' && data[key] === null) ||
+      (Number.isSafeInteger(data[key]) && Number(data[key]) >= 0)
+        ? [[key, data[key]]]
+        : [],
+    ),
+  )
+}
 function receipt(item: Record<string, unknown>, resultRef: string, budget: number) {
   const summary = projection(item, resultRef)
   if (bytes(summary) <= budget) return summary
@@ -84,6 +97,7 @@ function receipt(item: Record<string, unknown>, resultRef: string, budget: numbe
     error: boundedText(summary.error, 80),
     nextStep: boundedText(summary.nextStep, 160),
     ...domLocator(summary),
+    ...sourceCursor(summary),
     hint: 'Payload exceeds this page. Use tool_result_read(resultRef) for the original result.',
   }
   return short
@@ -161,6 +175,7 @@ export function boundedHistoryPage(history: readonly HistoryEntry[], start: numb
       verdict: t.verdict,
       validationStatus: t.validationStatus,
       ...domLocator(t as ReturnType<typeof projection>, 80),
+      ...sourceCursor(t as ReturnType<typeof projection>),
     }))
   }
   if (bytes(page) > 1800) throw new Error('history-page-budget-contract')

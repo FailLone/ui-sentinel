@@ -18,27 +18,31 @@ import {
 } from './r2-readiness-replay.ts'
 import { continuationReply, continuationRows } from './r2-continuation-replay.ts'
 import { progressReply, progressRow } from './r2-progress-replay.ts'
+const retrievalOnly = process.argv.includes('--stage-retrieval-only')
 const stageBoundaryOnly = process.argv.includes('--stage-boundary-only')
-const stageOnly = process.argv.includes('--stage-decisions-only') || stageBoundaryOnly
+const stageOnly =
+  process.argv.includes('--stage-decisions-only') || stageBoundaryOnly || retrievalOnly
 const feedbackOnly = process.argv.includes('--progress-feedback-only') || stageOnly
 const continuationOnly = process.argv.includes('--continuation-only') || feedbackOnly
-const continuationModes = stageBoundaryOnly
-  ? ['feedback-healthy']
-  : feedbackOnly
-    ? [
-        'feedback-healthy',
-        'feedback-defect',
-        'feedback-unavailable-enabled',
-        ...(stageOnly ? ['feedback-unknown'] : []),
-        'dynamic-pending',
-      ]
-    : [
-        'continuation-healthy',
-        'continuation-defect',
-        'continuation-unavailable',
-        'continuation-unavailable-enabled',
-        'dynamic-pending',
-      ]
+const continuationModes = retrievalOnly
+  ? ['feedback-healthy', 'feedback-unavailable-enabled', 'feedback-unknown']
+  : stageBoundaryOnly
+    ? ['feedback-healthy']
+    : feedbackOnly
+      ? [
+          'feedback-healthy',
+          'feedback-defect',
+          'feedback-unavailable-enabled',
+          ...(stageOnly ? ['feedback-unknown'] : []),
+          'dynamic-pending',
+        ]
+      : [
+          'continuation-healthy',
+          'continuation-defect',
+          'continuation-unavailable',
+          'continuation-unavailable-enabled',
+          'dynamic-pending',
+        ]
 const readinessOnly = process.argv.includes('--readiness-only')
 const readinessModes = [
   'readiness-healthy',
@@ -71,21 +75,23 @@ await save('identity.json', {
   dist: await hashTree('dist'),
   validationScripts: await hashTree('scripts/validation'),
   fixtures: await hashTree('evaluation/fixtures/r2-product-acceptance'),
-  mode: stageBoundaryOnly
-    ? 'stage-boundary-only'
-    : stageOnly
-      ? 'stage-decisions-only'
-      : feedbackOnly
-        ? 'progress-feedback-only'
-        : continuationOnly
-          ? 'continuation-only'
-          : readinessOnly
-            ? 'readiness-only'
-            : citationsOnly
-              ? 'citations-only'
-              : dynamicOnly
-                ? 'dynamic-only'
-                : 'all',
+  mode: retrievalOnly
+    ? 'stage-retrieval-only'
+    : stageBoundaryOnly
+      ? 'stage-boundary-only'
+      : stageOnly
+        ? 'stage-decisions-only'
+        : feedbackOnly
+          ? 'progress-feedback-only'
+          : continuationOnly
+            ? 'continuation-only'
+            : readinessOnly
+              ? 'readiness-only'
+              : citationsOnly
+                ? 'citations-only'
+                : dynamicOnly
+                  ? 'dynamic-only'
+                  : 'all',
 })
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 async function listen(s: ReturnType<typeof createServer>) {
@@ -95,6 +101,7 @@ async function listen(s: ReturnType<typeof createServer>) {
 const reserve = createServer(),
   base = await listen(reserve)
 await new Promise<void>((r) => reserve.close(() => r()))
+let originalReceiptRead = false
 let mode = '',
   turn = 0,
   source: any,
@@ -156,6 +163,7 @@ const fixture = createServer((req, res) => {
 const origin = await listen(fixture)
 function setup(m: string) {
   mode = m
+  originalReceiptRead = false
   turn = 0
   calls = []
   requests = []
@@ -462,26 +470,16 @@ const model = createServer(async (req, res) => {
   }
   if (name === 'product_path_register' && !mode.startsWith('readiness-'))
     for (const step of args.steps) step.review = { ...confirmedReview }
-  if (stageBoundaryOnly && turn === 0)
+  if ((stageBoundaryOnly || retrievalOnly) && mode === 'feedback-healthy' && [0, 1].includes(turn))
     additionalCalls.push({ name: 'product_source_read', args: { offset: 0 } })
-  let gapOnly = false
-  if (
-    stageOnly &&
-    !packet.activeTools.includes(name) &&
-    ['product_source_read', 'product_source_search', 'page_inspect', 'element_details'].includes(
-      name,
-    )
-  ) {
-    // Fixed author-selected information needs, not an inference/adoption test.
-    args = {
-      question:
-        name === 'page_inspect'
-          ? 'Need the observed CSS selectors of the status nodes and current target for this frozen step.'
-          : 'Need the original full passage for the author-selected citation and prerequisite review.',
-      tool: name,
-    }
-    name = 'product_path_gap'
-    gapOnly = true
+  let receiptSubturn = false
+  if (retrievalOnly && mode === 'feedback-unknown' && turn === 9 && !originalReceiptRead) {
+    const receipt = packet.latestToolResults.tools.find((t: any) => t.tool === 'page_act')
+    assert.ok(receipt.resultRef)
+    name = 'tool_result_read'
+    args = { resultRef: receipt.resultRef, offset: 0 }
+    originalReceiptRead = true
+    receiptSubturn = true
   }
   if (stageOnly)
     assert.deepEqual(
@@ -496,7 +494,7 @@ const model = createServer(async (req, res) => {
     packet,
     wireTools: stageOnly ? body.tools.map((t: any) => t.function.name) : undefined,
   })
-  if (!gapOnly) turn++
+  if (!receiptSubturn) turn++
   if (turn > 13) {
     res.writeHead(500)
     res.end('fixed-model-unexpected-loop')
@@ -671,10 +669,35 @@ try {
     })
     await save('results.json', results)
     console.log(JSON.stringify(results.at(-1)))
-    if (stageBoundaryOnly) {
+    if ((stageBoundaryOnly || retrievalOnly) && m === 'feedback-healthy') {
       const first = calls[1].packet.latestToolResults.tools
       assert.equal(first.filter((t: any) => t.tool === 'product_source_read').length, 2)
-      assert.ok(first.some((t: any) => t.error === 'product-stage-tool-not-allowed'))
+      assert.ok(first.every((t: any) => !t.error)) // still in source stage: legal reads
+      const afterRegistration = calls[2].packet.latestToolResults.tools
+      assert.ok(afterRegistration.some((t: any) => t.error === 'product-stage-tool-not-allowed'))
+      const current = calls[2].packet.productPath.steps[0].preconditions
+      assert.equal(current.length, 2)
+      assert.deepEqual(
+        current.map((p: any) => p.expectation.expected),
+        ['可用', '尚未预览'],
+      )
+    }
+    if (retrievalOnly) {
+      assert.ok(calls.every((c) => !c.wireTools.includes('product_path_gap')))
+      if (m === 'feedback-unknown') {
+        const delivered = calls.find((c) =>
+          c.packet.latestToolResults?.tools?.some((t: any) => t.tool === 'tool_result_read'),
+        )
+        const receipt = delivered.packet.latestToolResults.tools.find(
+          (t: any) => t.tool === 'tool_result_read',
+        )
+        assert.equal(
+          receipt.resultRef,
+          calls.find((c) => c.name === 'tool_result_read').args.resultRef,
+        )
+        assert.ok(receipt.chunk.length > 0)
+        assert.ok(receipt.nextOffset > 0)
+      }
     }
     if (m.startsWith('feedback-')) {
       const unavailable = m.includes('unavailable')
@@ -984,7 +1007,7 @@ try {
     db.close()
   }
   const oldReports = []
-  if ((readinessOnly || continuationOnly) && !stageBoundaryOnly) {
+  if ((readinessOnly || continuationOnly) && !stageBoundaryOnly && !retrievalOnly) {
     child.kill('SIGTERM')
     await new Promise((r) => child.once('exit', r))
     const requestCount = calls.length
@@ -1037,6 +1060,7 @@ try {
     continuationReplay: continuationOnly && !feedbackOnly,
     progressFeedbackReplay: feedbackOnly,
     stageDecisions: stageOnly,
+    directStageRetrieval: retrievalOnly,
     sameResponseStageBoundary: stageBoundaryOnly,
     historicalReports: oldReports,
     artifacts: Object.fromEntries(
