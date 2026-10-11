@@ -125,3 +125,10 @@ node --import tsx scripts/validation/counterexample-arena/validate.ts
 两份初次提交计划都正确保留两级前置和精确状态谓词，审阅不靠assumptions为空或review=true直接判定；没有登记拒绝及修正过程，不能宣称真实纠错流程已通过。新观察集中在R1首步后已有动态详情目标仍持续只读，以及R5误用region作为CSS标签、得到正确section后仍不重绑。另有8次keyword空串搜索校验错误。这些是现有页族上的协议/工具使用反例，不新增网页库或改变验收分母；下一步建议免费回放原上下文与回执。
 
 由本实验Agent按原五项完成逐行审阅，非人类或独立复核；保留两批旧0/6、费用和历史unknown。详见[主实验第三批记录](../experiments/r2-product-acceptance.md#可执行性整改后真实复测2026-10-11已完成agent审阅)与[交付索引](../../evaluation/private/r2-product-acceptance/real-readiness-acceptance.json)。候选仍未合并或推送。
+
+
+## R2 下一步反馈及错误绑定修复（2026-10-11，免费候选）
+
+第三批R1/R5“已观测但不继续”和“region零匹配后不修正”沉淀到 `continuation-failures.json`，保留原报告、事件、工具输入及hash。`codex/r2-path-continuation` 的b2fbf02仅增加原证据派生的下一步反馈和失败绑定明细，不扩张权限、改变预期、自动行动或重置无进展。属于现有页族上的协议/反馈反例，不新增网页族或真实验收分母。
+
+免费固定回放完成原健康两步、错误绑定修正后命中详情缺陷；原前置不足0动作，启用按钮的故障注入仍被前置门拒绝；默认pending保持partial。50项去重定向测试通过，五份新报告重启一致，原R1/R5真实v4报告经新API恢复一致。两次测试作者断言/分支错误保留后修正。详见[实验追加节](../experiments/r2-product-acceptance.md#已观察证据到下一步操作的免费整改2026-10-11)和[免费收据](../../evaluation/r2-product-sources/path-continuation.json)。本轮付费请求0；三批0/6及其账目不变，真实模型采用反馈的能力尚未验证。候选未推送或合并。

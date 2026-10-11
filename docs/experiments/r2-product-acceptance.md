@@ -1,6 +1,6 @@
 # R2 产品资料真实主模型小批验收
 
-最新进展：2026-10-11 登记前可执行性整改后的独立授权批次已完成实验Agent审阅。严格任务 **0/6**；真实动作1、必要效果1/8已验证。详情见文末第三批结果及[交付索引](../../evaluation/private/r2-product-acceptance/real-readiness-acceptance.json)。以下先前阶段记录保留其当时授权与结果。
+最近真实结果：2026-10-11 登记前可执行性整改后的独立授权批次已完成实验Agent审阅。严格任务 **0/6**；真实动作1、必要效果1/8已验证。详情见文末第三批结果及[交付索引](../../evaluation/private/r2-product-acceptance/real-readiness-acceptance.json)。以下先前阶段记录保留其当时授权与结果。
 
 2026-10-10。状态：**本轮已获用户授权并完成唯一真实批次；预定验收未通过（0/6）**。实际运行冻结在 `3668f5446404e04f5ea332e338cc0147af8a48fd`，结果交付仅更新审阅材料，不变更运行配置。不能把固定模型、浏览器真值检查或旧 R0/R1 成绩当作本轮能力成绩。基线 main/origin/main 均为 `1db982428ffe4735450f2fca6a601d72f4b965dc`，建工作区时无新增提交差异。
 
@@ -279,3 +279,27 @@ R1预览动作具有原actionId `ecad2830-831b-446a-982d-fda36941bec7`、require
 六份完整报告在夹具和原服务关闭后恢复JSON相同，持久校验无问题；125份附件经只读SQLite定位原件，与下载副本逐项hash和字节一致。新证据索引335文件；此前两批236/270文件及免费361文件hash全部重新核对未变。原机械results/summary的pending-human-review保持原样，新增reviewCompleted=true代表**实验Agent完成审阅，不是人类复核或独立盲测**。同作者设计、修复、审阅与小样本偏差仍存在。
 
 [第三批交付索引](../../evaluation/private/r2-product-acceptance/real-readiness-acceptance.json)保存逐行五项判定、原始登记/review/诊断、每请求阶段、效果证据、费用与附件索引；本地原始目录为 `data/r2-product-acceptance/real-readiness-authorized-20261011/`。上一批索引仅追加后续指针，原review不变。下一步建议只做**免费回放R1首步后停滞与R5错误选择器绑定后的原始上下文**，聚焦如何利用已观察到的目标/选择器完成下一次绑定，复用现有页面、冻结预期与原无进展/安全/费用边界；本次授权已用完，不继续补付费样本。
+
+
+## 已观察证据到下一步操作的免费整改（2026-10-11）
+
+用户同意下一步免费回放后，从第三批交付 `adfe2cd` 新建 `codex/r2-path-continuation`，复用同一工作树、MD和页族；实现提交 `b2fbf02c5c0c74739b1eb9cb518ca978ad275e2b`。本轮真实供应商请求0，没有生成新approval或复用旧claim，三批真实成绩仍各自0/6。
+
+原轨迹核对发现：R1预览已测得通过，但registration.nextAction仍重复泛泛的bind提示，没有指出首个未完成的详情步骤；R5错误region选择器零匹配，工具只返回product-precondition-missing，未在直接回执区分“未定位节点”与“实际值不满足”。正确section选择器后来已在模型输入中，故不能把失败完全归因于信息缺失；新反馈是否会被真实模型使用仍未知。
+
+v5仅补充派生的execution反馈及通用技能说明：从原报告/事件指出首个未完成步骤、已完成步骤，以及待绑定、已绑定待动作、原动作待只读核验、实际前置不满足等状态。绑定失败反馈保留字段、原选择器、冻结谓词、测量值/节点数与原因；有支持的零/多匹配允许在原预算内观察原节点后重试同一未执行步骤，实际值不满足要求停止，不支持测量仍未验证。execution同时进入每轮上下文和压缩工具回执。它不选择替代节点、不绑定/点击、不改预期或scope，不增预算/进度、不绕过原门；历史v2/v3/v4附件验证继续保留。
+
+[原始反例](../../evaluation/private/r2-product-acceptance/continuation-failures.json)保存第三批R1/R5完整产品报告、相关原事件、原登记输入/错误bind参数及来源hash。测试作者在固定回放中解释观测DOM、选择下一工具和修正选择器，代码只在验证脚本中使用，产品不读取这些答案。
+
+| 免费检查 | 结果 |
+| --- | --- |
+| 定向回归 | 5文件共50项不同测试通过；首轮48项，改动的两文件复验12项，去重为50，不重复累计；构建含typecheck通过 |
+| 原R1健康路径 | 原计划不改预期；首步通过后反馈定位第二步，从page_inspect获取真实状态区域选择器并继续；2动作、两效果verified |
+| 原R5错误绑定 | 原region选择器先产生count0/unverified，回执及后续上下文保持inspect-binding；作者改用观测到的section选择器后成功绑定，2动作，详情效果failed |
+| 原前置不足 | 观察到暂不可用和禁用按钮，0动作，保持partial/unverified |
+| 同页故障注入 | 只在测试夹具启用原禁用按钮；测得前置failed，故意page_act仍被原门拒绝，0动作 |
+| 默认义务与恢复 | dynamic-pending两步通过仍partial；关闭夹具并重启服务，五份报告完整JSON相等；两份原v4真实报告在数据库副本上经新API恢复完全相同，无模型调用；新准入附件篡改仍降为unverified并恢复字节 |
+
+验证入口为 `pnpm exec tsx scripts/validation/r2-product-sources.ts --continuation-only`，Node24、空dotenv配置、正式编译服务/正常API与真实Chromium，模型仅loopback固定响应。最终证据目录 `data/r2-product-sources/2026-10-11T03-53-02-383Z/`；260份新原始附件，716文件索引含历史引用和开发失败。此前两次测试作者错误（禁用控件被错误期待为候选、启用故障分支误落入正常动作断言）均保留原目录和说明，修正脚本后第三次完整通过，不覆盖失败。
+
+三批真实236/270/335文件证据索引逐项核验不变；USD0.0567585、USD0.07266395、USD0.031491048与更早unknown USD0.116均独立保留。本轮收据、源码/构建hash、历史恢复与边界见[免费交付](../../evaluation/r2-product-sources/path-continuation.json)。剩余限制是模型是否利用新反馈、是否正确选中原结果节点、是否减少重读；空keyword搜索错误本轮未改。固定回放不能折算真实任务通过率；尚未推送或合并，也未启动新的真实复测。
