@@ -303,3 +303,20 @@ v5仅补充派生的execution反馈及通用技能说明：从原报告/事件�
 验证入口为 `pnpm exec tsx scripts/validation/r2-product-sources.ts --continuation-only`，Node24、空dotenv配置、正式编译服务/正常API与真实Chromium，模型仅loopback固定响应。最终证据目录 `data/r2-product-sources/2026-10-11T03-53-02-383Z/`；260份新原始附件，716文件索引含历史引用和开发失败。此前两次测试作者错误（禁用控件被错误期待为候选、启用故障分支误落入正常动作断言）均保留原目录和说明，修正脚本后第三次完整通过，不覆盖失败。
 
 三批真实236/270/335文件证据索引逐项核验不变；USD0.0567585、USD0.07266395、USD0.031491048与更早unknown USD0.116均独立保留。本轮收据、源码/构建hash、历史恢复与边界见[免费交付](../../evaluation/r2-product-sources/path-continuation.json)。剩余限制是模型是否利用新反馈、是否正确选中原结果节点、是否减少重读；空keyword搜索错误本轮未改。固定回放不能折算真实任务通过率；尚未推送或合并，也未启动新的真实复测。
+
+
+## 最终收敛候选与复测冻结准备（2026-10-11）
+
+维护者已接收第三批结果及v5免费续步反馈，用户要求推进本期最小真实闭环；本条仅授权一次实现、免费验证和冻结准备。从 `591f233fa916f5f11bf4d0a725280db9ce6331cc` 建立 `codex/r2-final-candidate`，实现为 `b5659c50120309fcf15dd9909302067627fcb169`，Skill v6。没有新增approval/claim、推理校准或付费请求，不扩展原任务、页族、模型或判定门。
+
+第三批原R5/R6请求共八次传入 `keyword:""` 与有效quote，SDK在调用工具body之前校验失败；另六次 `keyword:null` 对照由原SDK正常处理。原参数字符串、解析对象、SDK回执参数和结果逐项保存到[搜索反例](../../evaluation/private/r2-product-acceptance/search-empty-failures.json)。本地兼容只允许一个明确非空模式，另一个未使用空值按省略处理；trim仅判空，不改查询文本。双有效模式、全空、类型错误及原长度/游标边界继续拒绝。工具schema先接受合法的未用空值，本工具body归一化后仍走同一原文搜索/引用逻辑；不改全局SDK。
+
+免费回放通过实际Mastra Tool.execute包装，证明八份原错误输入修复前不进入body、修复后得到原文和程序引用；六份null对照仍成功。新增兼容38项，加受影响原文/登记/附件回归共4文件58项通过；含中文、emoji和首尾空白的quote逐字保留，keyword模式、双模式/无模式、错误类型、边界、重复匹配及无匹配均检查。构建含typecheck通过；一次测试参数类型推导错误在构建前修正并留证，不改变产品行为。复用上一候选50项/五个浏览器场景，不重复运行或折算真实成绩。
+
+静态闭环核对覆盖读取/引用→登记诊断→绑定诊断→第一步到第二步→原动作测量→默认义务与收尾。仅修两处明确提示矛盾：要求核对已可用原文而非强制再读；冻结后上下文不再重复要求登记，readiness改为指向execution，避免与已测步骤矛盾。当前步骤仍由原报告/事件派生；不增加规划框架、审核步骤或泛泛长提示。模型理解、选择正确原节点、采用反馈和完成第二步的能力留给真实复测。旧v2至v5仍核验动态准入及附件。
+
+本次源码、构建、六个产品工具的实际SDK输入schema、Skill及静态核对见[准备收据](../../evaluation/r2-product-sources/final-candidate.json)。三批原236/270/335证据和最新免费716文件逐项hash未变；三批0/6、USD0.0567585/USD0.07266395/USD0.031491048及更早unknown USD0.116分别保留。只读取公开Wafer元数据，报价在原价格上限内，保留每请求USD0.063及总USD7.56预留。
+
+完成本节和收据提交后，使用原CLI在干净最终候选上一次冻结到 `data/r2-product-acceptance/manifest-final-candidate-20261011.json`；其sourceSha同时绑定代码、文档和完整候选。canonical manifest hash及复核结果另存 `data/r2-product-acceptance/final-candidate-freeze.json`，冻结后不再追加提交或改构建，不能复用旧claim。manifest包含完整src/dist、协议、runner/费用与停止代码、共享支持、锁文件、原MD、原三页族hash和私有五项判定；显式工具schema/Skill摘要与之核对。
+
+待新授权范围固定为一次原六行：healthy、defect、unavailable、unavailable、defect、healthy；原609 UTF-16字符MD，五项标准、八个必要效果不变。DeepSeek V4.1 Flash/Wafer、reasoning low、4096输出；每行20请求/8动作/180秒、请求60秒、工具15秒；整批最多120请求、25分钟、USD7.56新增预留，Jev/视觉/fallback关闭、重试0。原unknown/held、安全/供应商/持久化/执行错误/虚假covered停止门全部保留。没有新行、替补、预算追加或中途修补授权。通过原六任务真实出口后才考虑整合main，免费通过不标记本期完成。

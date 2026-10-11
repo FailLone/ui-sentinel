@@ -132,3 +132,10 @@ node --import tsx scripts/validation/counterexample-arena/validate.ts
 第三批R1/R5“已观测但不继续”和“region零匹配后不修正”沉淀到 `continuation-failures.json`，保留原报告、事件、工具输入及hash。`codex/r2-path-continuation` 的b2fbf02仅增加原证据派生的下一步反馈和失败绑定明细，不扩张权限、改变预期、自动行动或重置无进展。属于现有页族上的协议/反馈反例，不新增网页族或真实验收分母。
 
 免费固定回放完成原健康两步、错误绑定修正后命中详情缺陷；原前置不足0动作，启用按钮的故障注入仍被前置门拒绝；默认pending保持partial。50项去重定向测试通过，五份新报告重启一致，原R1/R5真实v4报告经新API恢复一致。两次测试作者断言/分支错误保留后修正。详见[实验追加节](../experiments/r2-product-acceptance.md#已观察证据到下一步操作的免费整改2026-10-11)和[免费收据](../../evaluation/r2-product-sources/path-continuation.json)。本轮付费请求0；三批0/6及其账目不变，真实模型采用反馈的能力尚未验证。候选未推送或合并。
+
+
+## R2 最终搜索兼容与同范围复测准备（2026-10-11）
+
+`codex/r2-final-candidate` 从591f233继续，b5659c5只修复原R5/R6八次空keyword与有效quote并存的SDK前置校验问题，保存原输入/回执；兼容不改有效查询字节，双模式、全空、错误类型和边界继续拒绝。58项新增/受影响测试与构建通过，复用50项/五场景，不再跑浏览器矩阵。静态闭环只纠正无必要重读、冻结后重复登记及已测状态提示矛盾，不新增页面、模型或判定门。
+
+本期出口仍是原六任务中的真实资料提取、绑定、两步执行/测量、正确健康/缺陷/前置不足结论及报告恢复。当前三批0/6保持，最新候选待新的同配置授权，预算提案最多6任务/120请求/USD7.56；没有新approval或付费请求。候选最后提交后一次冻结原manifest，随后可直接按新授权执行，不再设计新矩阵。详见[主实验准备节](../experiments/r2-product-acceptance.md#最终收敛候选与复测冻结准备2026-10-11)与[候选收据](../../evaluation/r2-product-sources/final-candidate.json)。未合并/推送，main与历史证据不改。
