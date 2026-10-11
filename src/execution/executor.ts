@@ -1,3 +1,4 @@
+import { productStageAllows } from '../inspection/product-stage.ts'
 import { createProductPath } from './product-path.ts'
 import { productEffects } from '../inspection/product-path.ts'
 import type { DelegatedExecution } from './check-tasks/original-executor.ts'
@@ -729,6 +730,8 @@ async function executeProfiledRun(
         return { error: 'scope-closing', status: 'denied', dispatched: false } as T
       const denied = phaseTracker.authorizeTool(tool, taskState.hasOpenHypotheses())
       if (denied) return { error: denied, status: 'denied' } as T
+      const stageDenied = await productPath?.authorizeTool(tool)
+      if (stageDenied) return stageDenied as T
       const toolCallId = randomUUID(),
         toolStartedAt = Date.now()
       const deadline = setTimeout(
@@ -4075,6 +4078,17 @@ async function executeProfiledRun(
                 .strict(),
               execute: ({ checkRef, selector, purpose, requirementId }) =>
                 serial('interaction_verify', async () => {
+                  const stage = (await productPath?.status())?.stage
+                  if (
+                    stage &&
+                    !stage.unrestricted &&
+                    checkRuntime?.available().find((entry) => entry.checkRef === checkRef)
+                      ?.actionId !== stage.actionId
+                  )
+                    return {
+                      error: 'product-verify-requires-original-action',
+                      outcome: 'unverified',
+                    }
                   if (checkRuntime?.owns(checkRef)) {
                     try {
                       return await checkRuntime.recover(
@@ -5359,7 +5373,9 @@ async function executeProfiledRun(
       const pendingRules = await pendingKnownRules()
       const retryBlocker =
         config.features?.blockerReview && !uiScan ? await measuredRetryBlocker() : undefined
+      const productStatus = await productPath?.status()
       const activeTools = Object.keys(tools).filter((name) => {
+        if (productStatus && !productStageAllows(productStatus.stage, name)) return false
         // A UI run never reads or publishes a cross-run Journey: the plan closes that capability for
         // this kind, because a segment evidenced under another site's contract could otherwise be
         // replayed against a URL it was never about (plan 1.3, 7).
@@ -5458,6 +5474,7 @@ async function executeProfiledRun(
                 skillRevision: report.skillRevision,
                 registration: report.registration,
                 execution: report.execution,
+                stage: report.stage,
                 state: report.state,
                 complete: report.complete,
                 title: report.plan?.title,
@@ -5479,7 +5496,7 @@ async function executeProfiledRun(
                 note: report.plan
                   ? 'Plan frozen. Follow execution.phase/nextAction for the first unresolved step; guidance is not evidence or action permission. Reuse current page evidence; do not re-register or replay completed actions.'
                   : 'Follow registration.nextAction and diagnostics. Once relevant source text is available, register using issued citationIds; repeating the same read does not advance progress.',
-              }))(await productPath.status()),
+              }))(productStatus!),
             }
           : {}),
         observation: {

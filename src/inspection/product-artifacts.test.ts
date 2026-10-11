@@ -35,6 +35,7 @@ it.each([
   'product-path-5',
   'product-path-6',
   'product-path-7',
+  'product-path-8',
 ])('retains binding byte and admission validation for %s history', async (revision) => {
   const dir = await mkdtemp(join(tmpdir(), 'product-history-'))
   const artifacts: any[] = [],

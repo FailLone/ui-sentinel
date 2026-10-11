@@ -187,6 +187,7 @@ export function extractToolSummary(item: Record<string, unknown>): ToolSummary {
     }
     if (toolName.startsWith('product_path_') && result && typeof result === 'object') {
       for (const key of [
+        'stage',
         'registration',
         'execution',
         'frozen',

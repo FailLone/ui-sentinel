@@ -12,7 +12,7 @@ export const progressFailures = JSON.parse(
   readFileSync('evaluation/private/r2-product-acceptance/progress-feedback-failures.json', 'utf8'),
 )
 export const progressRow = (id: string): any => progressFailures.rows.find((r: any) => r.row === id)
-export function progressHarness(input = productSource()) {
+export function progressHarness(input = productSource(), enforceStage = false) {
   const source = freezeProductSource(input),
     events: any[] = [],
     progress = new Set<string>()
@@ -40,7 +40,10 @@ export function progressHarness(input = productSource()) {
     remaining: () => ({ actions: 8, modelCalls: 20, timeMs: 180000 }),
     clean: () => true,
   })
-  const tools: any = runtime.tools(async (_, fn) => fn())
+  const tools: any = runtime.tools(
+    async (name, fn) =>
+      (enforceStage ? await runtime.authorizeTool(name) : undefined) ?? (await fn()),
+  )
   return {
     source,
     events,

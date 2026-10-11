@@ -1,3 +1,9 @@
+import {
+  productGapTools,
+  productStage,
+  productStageAllows,
+  type ProductGap,
+} from '../inspection/product-stage.ts'
 import { checkHash } from '../inspection/check-contract.ts'
 import { createTool } from '@mastra/core/tools'
 import { z } from 'zod'
@@ -60,6 +66,7 @@ export function createProductPath(host: {
     basis: 'product-path:required-registration-and-evidence',
     targetSource: 'executor',
   })
+  let gap: ProductGap | undefined
   const issued = new Map<string, ProductCitation>()
   const remember = (citation: ProductCitation) => {
     issued.set(citation.citationId, citation)
@@ -77,7 +84,7 @@ export function createProductPath(host: {
     const frozen = events.some((e) => e.type === 'product:planned' || e.type === 'action:executing')
     const report = productPathReport(host.source, events)
     const execution = productContinuation(report, events)
-    return {
+    const state = {
       ...report,
       execution,
       registration: {
@@ -109,6 +116,15 @@ export function createProductPath(host: {
                 : 'Locate and read the relevant original text with product_source_read/search before extracting a path; section titles alone are not requirements.',
       },
     }
+    return { ...state, stage: productStage(state, gap) }
+  }
+  async function authorizeTool(tool: string) {
+    const { stage } = await status()
+    if (!productStageAllows(stage, tool))
+      return { error: 'product-stage-tool-not-allowed', status: 'denied', dispatched: false, stage }
+    // A grant buys one attempt, not a success or progress. Other gates can still reject it.
+    if (stage.retrieval?.tool === tool) gap = undefined
+    return undefined
   }
   const sync = async () => {
     const report = await status()
@@ -131,6 +147,17 @@ export function createProductPath(host: {
     const events = await host.events(),
       plan = productPlan(events)
     if (!plan) throw Error('product-register-path-before-any-action')
+    const current = await status()
+    if (current.execution.phase !== 'path-evaluated') {
+      const next = current.steps.find((s) => s.state !== 'verified')
+      const bound = events.find((e) => e.type === 'product:bound' && e.payload.step === next?.index)
+      if (
+        current.execution.phase !== 'act-bound-step' ||
+        !itemId ||
+        bound?.payload.itemId !== itemId
+      )
+        throw Error('product-action-requires-current-bound-step')
+    }
     if (!itemId) return
     const binding = events.find((e) => e.type === 'product:bound' && e.payload.itemId === itemId)
     const unmet = events
@@ -164,6 +191,20 @@ export function createProductPath(host: {
   function tools(serial: (name: string, fn: () => Promise<any>) => Promise<any>) {
     const empty = z.object({}).strict()
     return {
+      product_path_gap: createTool({
+        id: 'product_path_gap',
+        description:
+          'Declare a specific missing source passage, DOM fact or original receipt needed for the current stage. Grants one read-only tool attempt within unchanged budgets. Reuse returned evidence first; does not register, bind, act, verify or reset progress.',
+        inputSchema: z
+          .object({ question: z.string().trim().min(12).max(600), tool: z.enum(productGapTools) })
+          .strict(),
+        execute: (input) =>
+          serial('product_path_gap', async () => {
+            const { stage } = await status()
+            gap = { ...input, stageKey: stage.key }
+            return { evidence: false, progress: false, stage: (await status()).stage }
+          }),
+      }),
       product_source_overview: createTool({
         id: 'product_source_overview',
         description: 'Read frozen document identity and section offsets. Titles only locate text.',
@@ -393,5 +434,5 @@ export function createProductPath(host: {
       }),
     }
   }
-  return { tools, status, sync, assertAction }
+  return { tools, status, sync, assertAction, authorizeTool }
 }

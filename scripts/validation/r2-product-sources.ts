@@ -18,17 +18,27 @@ import {
 } from './r2-readiness-replay.ts'
 import { continuationReply, continuationRows } from './r2-continuation-replay.ts'
 import { progressReply, progressRow } from './r2-progress-replay.ts'
-const feedbackOnly = process.argv.includes('--progress-feedback-only')
+const stageBoundaryOnly = process.argv.includes('--stage-boundary-only')
+const stageOnly = process.argv.includes('--stage-decisions-only') || stageBoundaryOnly
+const feedbackOnly = process.argv.includes('--progress-feedback-only') || stageOnly
 const continuationOnly = process.argv.includes('--continuation-only') || feedbackOnly
-const continuationModes = feedbackOnly
-  ? ['feedback-healthy', 'feedback-defect', 'feedback-unavailable-enabled', 'dynamic-pending']
-  : [
-      'continuation-healthy',
-      'continuation-defect',
-      'continuation-unavailable',
-      'continuation-unavailable-enabled',
-      'dynamic-pending',
-    ]
+const continuationModes = stageBoundaryOnly
+  ? ['feedback-healthy']
+  : feedbackOnly
+    ? [
+        'feedback-healthy',
+        'feedback-defect',
+        'feedback-unavailable-enabled',
+        ...(stageOnly ? ['feedback-unknown'] : []),
+        'dynamic-pending',
+      ]
+    : [
+        'continuation-healthy',
+        'continuation-defect',
+        'continuation-unavailable',
+        'continuation-unavailable-enabled',
+        'dynamic-pending',
+      ]
 const readinessOnly = process.argv.includes('--readiness-only')
 const readinessModes = [
   'readiness-healthy',
@@ -61,17 +71,21 @@ await save('identity.json', {
   dist: await hashTree('dist'),
   validationScripts: await hashTree('scripts/validation'),
   fixtures: await hashTree('evaluation/fixtures/r2-product-acceptance'),
-  mode: feedbackOnly
-    ? 'progress-feedback-only'
-    : continuationOnly
-      ? 'continuation-only'
-      : readinessOnly
-        ? 'readiness-only'
-        : citationsOnly
-          ? 'citations-only'
-          : dynamicOnly
-            ? 'dynamic-only'
-            : 'all',
+  mode: stageBoundaryOnly
+    ? 'stage-boundary-only'
+    : stageOnly
+      ? 'stage-decisions-only'
+      : feedbackOnly
+        ? 'progress-feedback-only'
+        : continuationOnly
+          ? 'continuation-only'
+          : readinessOnly
+            ? 'readiness-only'
+            : citationsOnly
+              ? 'citations-only'
+              : dynamicOnly
+                ? 'dynamic-only'
+                : 'all',
 })
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 async function listen(s: ReturnType<typeof createServer>) {
@@ -93,7 +107,11 @@ const fixture = createServer((req, res) => {
   res.writeHead(200, { 'content-type': 'text/html' })
   if (mode.startsWith('feedback-')) {
     const html = documentFor(
-      mode.includes('unavailable') ? 'unavailable' : (mode.slice(9) as Variant),
+      mode.includes('unavailable')
+        ? 'unavailable'
+        : mode === 'feedback-unknown'
+          ? 'defect'
+          : (mode.slice(9) as Variant),
     )
     res.end(mode.includes('unavailable') ? html.replace(' disabled', '') : html)
     return
@@ -239,9 +257,33 @@ const model = createServer(async (req, res) => {
       .filter((c) => c.packet.latestToolResults?.tools?.some((t: any) => t.tool === 'page_inspect'))
       .at(-1)?.packet.latestToolResults
     const replayPacket = turn === 4 ? { ...packet, latestToolResults: prior } : packet
-    const reply = progressReply(mode, turn, replayPacket)
-    name = reply.name
-    args = reply.args
+    if (mode === 'feedback-unknown' && turn >= 9) {
+      assert.equal(packet.productPath.execution.phase, 'verify-original-action')
+      if (turn === 9) {
+        const original = packet.inspectionScope.checkInteractions.find(
+          (c: any) => c.actionId === packet.productPath.execution.actionId,
+        )
+        assert.ok(original)
+        name = 'interaction_verify'
+        args = {
+          checkRef: original.checkRef,
+          purpose: 'verify-effect',
+          requirementId: packet.productPath.execution.requirementId,
+        }
+      } else if (turn === 10) {
+        name = 'page_act' // Deliberately violate the stage; SDK/executor must refuse replay.
+        args = { type: 'click', role: 'button', name: '查看详情' }
+      } else {
+        name = 'run_finish'
+        args = { reason: 'unverified-scope' }
+      }
+    } else {
+      const reply = progressReply(mode, turn, replayPacket)
+      name = reply.name
+      args = structuredClone(reply.args)
+      if (mode === 'feedback-unknown' && name === 'product_path_register')
+        for (const step of args.steps) step.timing = 'unspecified'
+    }
   } else if (mode.startsWith('continuation-')) {
     const reply = continuationReply(mode, turn, packet)
     name = reply.name
@@ -420,7 +462,41 @@ const model = createServer(async (req, res) => {
   }
   if (name === 'product_path_register' && !mode.startsWith('readiness-'))
     for (const step of args.steps) step.review = { ...confirmedReview }
-  calls.push({ turn: turn++, name, args, additionalCalls, packet })
+  if (stageBoundaryOnly && turn === 0)
+    additionalCalls.push({ name: 'product_source_read', args: { offset: 0 } })
+  let gapOnly = false
+  if (
+    stageOnly &&
+    !packet.activeTools.includes(name) &&
+    ['product_source_read', 'product_source_search', 'page_inspect', 'element_details'].includes(
+      name,
+    )
+  ) {
+    // Fixed author-selected information needs, not an inference/adoption test.
+    args = {
+      question:
+        name === 'page_inspect'
+          ? 'Need the observed CSS selectors of the status nodes and current target for this frozen step.'
+          : 'Need the original full passage for the author-selected citation and prerequisite review.',
+      tool: name,
+    }
+    name = 'product_path_gap'
+    gapOnly = true
+  }
+  if (stageOnly)
+    assert.deepEqual(
+      body.tools.map((t: any) => t.function.name).sort(),
+      [...packet.activeTools].sort(),
+    )
+  calls.push({
+    turn,
+    name,
+    args,
+    additionalCalls,
+    packet,
+    wireTools: stageOnly ? body.tools.map((t: any) => t.function.name) : undefined,
+  })
+  if (!gapOnly) turn++
   if (turn > 13) {
     res.writeHead(500)
     res.end('fixed-model-unexpected-loop')
@@ -595,17 +671,38 @@ try {
     })
     await save('results.json', results)
     console.log(JSON.stringify(results.at(-1)))
+    if (stageBoundaryOnly) {
+      const first = calls[1].packet.latestToolResults.tools
+      assert.equal(first.filter((t: any) => t.tool === 'product_source_read').length, 2)
+      assert.ok(first.some((t: any) => t.error === 'product-stage-tool-not-allowed'))
+    }
     if (m.startsWith('feedback-')) {
       const unavailable = m.includes('unavailable')
       assert.equal(
         state,
-        unavailable ? 'unverified' : m === 'feedback-defect' ? 'failed' : 'verified',
+        unavailable || m === 'feedback-unknown'
+          ? 'unverified'
+          : m === 'feedback-defect'
+            ? 'failed'
+            : 'verified',
       )
       assert.equal(events.filter((e) => e.type === 'action:executing').length, unavailable ? 0 : 2)
       assert.equal(events.filter((e) => e.type === 'product:planned').length, 1)
       assert.equal(events.filter((e) => e.type === 'product:binding-rejected').length, 1)
       assert.equal(events.filter((e) => e.type === 'product:bound').length, unavailable ? 0 : 2)
-      assert.equal(r.uiScan.inspection.coverage, unavailable ? 'partial' : 'covered')
+      assert.equal(
+        r.uiScan.inspection.coverage,
+        unavailable || m === 'feedback-unknown' ? 'partial' : 'covered',
+      )
+      if (m === 'feedback-unknown') {
+        assert.equal(
+          events.filter((e) => e.type === 'tool:started' && e.payload.tool === 'interaction_verify')
+            .length,
+          1,
+        )
+        assert.equal(calls.filter((c) => c.name === 'page_act').length, 3)
+        assert.equal(r.uiScan.productSource.steps[1].state, 'unverified')
+      }
       assert.ok(calls.some((c) => c.packet.productPath.execution.phase === 'repair-binding-input'))
       if (unavailable) {
         assert.ok(calls.some((c) => c.name === 'page_act'))
@@ -887,21 +984,26 @@ try {
     db.close()
   }
   const oldReports = []
-  if (readinessOnly || continuationOnly) {
+  if ((readinessOnly || continuationOnly) && !stageBoundaryOnly) {
     child.kill('SIGTERM')
     await new Promise((r) => child.once('exit', r))
     const requestCount = calls.length
     for (const { row, runId: oldRunId } of feedbackOnly
-      ? ['R2', 'R6'].map(progressRow)
+      ? [
+          ...['R2', 'R6'].map(progressRow),
+          ...(stageOnly ? [{ row: 'R1', runId: 'run-6dec5a41-7841-4900-8d16-ff1d11ba493e' }] : []),
+        ]
       : continuationOnly
         ? continuationRows
         : readinessRows) {
       const oldRoot = resolve(
-        feedbackOnly
-          ? 'data/r2-product-acceptance/real-final-candidate-authorized-20261011'
-          : continuationOnly
-            ? 'data/r2-product-acceptance/real-readiness-authorized-20261011'
-            : 'data/r2-product-acceptance/real-citations-authorized-20261011',
+        stageOnly && row === 'R1'
+          ? 'data/r2-product-acceptance/real-progress-authorized-20261011'
+          : feedbackOnly
+            ? 'data/r2-product-acceptance/real-final-candidate-authorized-20261011'
+            : continuationOnly
+              ? 'data/r2-product-acceptance/real-readiness-authorized-20261011'
+              : 'data/r2-product-acceptance/real-citations-authorized-20261011',
         row,
       )
       const copy = resolve(root, row + '-historical.db')
@@ -934,6 +1036,8 @@ try {
     readinessReplay: readinessOnly,
     continuationReplay: continuationOnly && !feedbackOnly,
     progressFeedbackReplay: feedbackOnly,
+    stageDecisions: stageOnly,
+    sameResponseStageBoundary: stageBoundaryOnly,
     historicalReports: oldReports,
     artifacts: Object.fromEntries(
       await Promise.all(
