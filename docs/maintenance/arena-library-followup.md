@@ -188,3 +188,14 @@ node --import tsx scripts/validation/counterexample-arena/validate.ts
 67项定向测试、构建/类型、三项必要浏览器流程通过：健康两步完成并出报告；前置不满足零动作；未知效果查询原回执和只读核验后仍partial。新报告恢复3/3，身份附件篡改仍拒绝。缺陷和默认pending及未改动取消/历史恢复沿用已有证据，不重跑全套。首次测试暴露摘要丢失来源游标，修复和原失败日志均保留。200项新证据见[收据](../../evaluation/r2-product-sources/stage-retrieval.json)与[实验记录](../experiments/r2-product-acceptance.md#直接阶段取证简化2026-10-11免费工程候选)。
 
 工程上可按原六行/五项标准冻结供真实验收审阅，模型语义选择仍未验证；没有新真实调用、付费授权/claim、补跑、推送或合并。历史费用按用户要求暂缓核对，不作为流程准备前置条件；第五批1/6不改。main和维护者Roadmap未修改。
+
+
+## R2 直接取证候选真实结果（2026-10-11，第六批已交付）
+
+用户明确批准一次原六行、新增US$7.56上限且保留历史未知风险。干净候选3e2d1ae/f4d6555冻结manifest `3cdaebb5b4074bfa5dbc68e7ada02328979e160511994d7ccc6c89b619e9126a`，独立claim仅消费一次。复用已审阅67项/3场景证据，未重建、重跑或中途修补；原MD、页族、五项/8效果、模型及预算不变。
+
+六行均派发，Agent语义审阅 **5/6，原整批出口未达**。R2/R5各完成两步且正确发现详情缺陷，R6健康两步通过；R3/R4以原计划加实际暂不可用/disabled节点支持有据弃权，报告仍partial/unverified，不能说绑定测得前置为假——实际是身份门拒绝。R1已有全文及成功引用，仍11次读搜、5次完全重复，未登记。8效果为4 verified、2 failed、2 unverified；只有三行完成操作路径。
+
+56份wire工具集合与stage实际上下文一致，无gap工具，登记后的五行没有source重读；当前冻结前置全部正确送达。R5/R6共五次将itemId填入requirementId，操作前被拒，后来修正；原始证据保留，未出现动作重放。没有真实触发数量/零匹配修复，不能将免费验证当作本批采用证据。
+
+56次请求、已知usage US$0.067840720、新unknown/held 0；进程约6分20秒，无硬停止/自动重试/补跑。报告恢复6/6、275对附件相同，63份回执无缺失，运行后完整manifest仍等于冻结。历史费用暂缓核查且原样保留。657项新证据与精确命令见[真实交付](../../evaluation/private/r2-product-acceptance/real-stage-retrieval-acceptance.json)和[实验记录](../experiments/r2-product-acceptance.md#直接取证候选真实验收2026-10-11第六批已完成agent审阅)。本批关闭；登记停滞及ID混淆仍是后续待决问题，不自动新增任务/样本。不合并、不推送，不改main及维护者Roadmap。

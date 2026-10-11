@@ -466,3 +466,37 @@ R3第3请求在原节点读取暂不可用、禁用按钮和初始结果，第5�
 浏览器证据位于 `data/r2-product-sources/2026-10-11T13-15-56-942Z`，SDK/比较/测试/构建/失败日志位于 `data/r2-product-acceptance/stage-retrieval-free-20261011`。构建、typecheck、格式、差异检查通过。源码hash `999f8ec7cc419afef0ac8f566a506c89bebbbd806d0dbaac69e1d8abcfebd3db`，构建hash `6cf7c882cd9cda1ce3f7b791d172b856c11ef09918f975868c8c7d4c1785a065`；200项本轮证据索引hash `ede52f7a4865493fc7c9e21510efac2b8aa21a73ea29676f9632651865b64c90`，逐项校验相符。运行开始时基线提交上有这些实现修改，以源码/构建文件hash定位，不冒充干净付费冻结。
 
 **候选结论。** 具备沿原六项标准审阅并冻结真实验收候选的免费工程依据，未证明真实采用稳定性。下一次具体范围保持原R1–R6顺序与三页族，每族两行；读、来源登记、执行或有据弃权、范围、恢复五项标准不变。保留DeepSeek V4.1 Flash/Wafer及原每行20请求/8动作/180秒，模型60秒/工具15秒，整批120请求/25分钟/USD7.56上限、原硬停止和不重试规则。仍需独立真实批次授权；本轮没有生成可消费claim，更不恢复已关闭批次。完整可审查候选见[交付收据](../../evaluation/r2-product-sources/stage-retrieval.json)。
+
+
+## 直接取证候选真实验收（2026-10-11，第六批已完成Agent审阅）
+
+用户经维护者审阅实现 `f4d655508d8bff24b7a20e1a1f971423b00fb4fd` 和交付 `3e2d1aee69c946ddef25f0e7ca0f5188e853537b`，对“唯一一次原六任务、新增US$7.56上限，历史未知费用保留并暂缓核对，新异常仍停止、无重试补跑”明确回复“好，授权”。准备过程生成的唯一新manifest为 `3cdaebb5b4074bfa5dbc68e7ada02328979e160511994d7ccc6c89b619e9126a`；授权绑定已审阅候选及此hash，不声称用户提前看过hash。独立approval在24小时内使用一次，claim已消费。
+
+执行前干净提交、源码 `999f8ec7cc419afef0ac8f566a506c89bebbbd806d0dbaac69e1d8abcfebd3db`、构建 `6cf7c882cd9cda1ce3f7b791d172b856c11ef09918f975868c8c7d4c1785a065` 与已审阅免费收据一致。复用67项测试、3个必要浏览器流程及明确旧证据，没有重建、重跑或修改代码/提示。原609字符MD、三页族、R1–R6顺序、五项标准与8效果不变。DeepSeek V4.1 Flash/Wafer、reasoning low、4096输出、每行20请求/8动作/180秒、模型60秒/工具15秒，整批120请求/25分钟/US$7.56与每请求US$0.063预留均保持。实时公开报价prompt/completion/cache-read为US$0.000000035/0.0000016/0.000000034每token，符合冻结上限。Jev/视觉/fallback关闭，没有自动provider重试、替补、补跑或额外样本。
+
+**结果为5/6，本期原整批门槛仍未达到。** 六行都实际派发并归档；只有三行执行完两次动作，另两项通过是有来源、有现场事实的前置不足弃权，产品报告依然partial/unverified。8个必需效果为4 verified、2 failed、2 unverified；健康完成1/2且无功能误报，缺陷命中2/2，完整有据弃权2/2。
+
+| 行 | 对照 | 请求 | 读/登记/执行/范围/恢复 | 产品状态 | 已知usage US$ |
+| --- | --- | --- | --- | --- | --- |
+| R1 | 健康 | 6 | unverified / fail / unverified / unverified / pass | blocked，partial/unverified，0动作 | 0.006550743 |
+| R2 | 缺陷 | 10 | 全部pass | completed，covered/failed，2动作 | 0.008745229 |
+| R3 | 前置不足 | 9 | 全部pass（有据弃权） | blocked，partial/unverified，0动作 | 0.019079937 |
+| R4 | 前置不足 | 6 | 全部pass（有据弃权） | blocked，partial/unverified，0动作 | 0.006443502 |
+| R5 | 缺陷 | 14 | 全部pass | completed，covered/failed，2动作 | 0.014729203 |
+| R6 | 健康 | 11 | 全部pass | completed，covered/verified，2动作 | 0.012292106 |
+
+**未通过的R1。** 第2请求已获得全文，第3请求四次精确搜索全部单匹配；第4请求再次全文，第5请求又四次成功精确搜索，第6请求再次全文。11次读搜中有5次完全相同输入，没有任何登记尝试或动作。最后原无进展streak=3收尾，3项缺口继续partial。文本和引用可用不等于模型会登记；不能把直接取证或阶段提示当作已解决停滞。该行两个必需效果仍占原分母且均unverified。
+
+**实际采用的通路。** R2–R6均在首次全文后第3请求登记原两步计划，五份计划assumptions为空、精确状态预期和两个必要前置有原文依据，21处登记引用全部在登记前已发出且UTF-16原文匹配。登记后没有再读取source，必要page_inspect/element_details/page_observe直接执行；56份实际wire工具列表逐一与activeTools一致，没有gap工具，当前一步前置在所有相应上下文中等于冻结原计划。该证据确认字段确实送达及直接工具实际使用，不证明模型依靠哪个字段，也不推出固定11→9的真实性能收益。
+
+R2在第6/9请求绑定、第7/10请求实际操作，预览原槽为“预览就绪”，详情原槽为“详情未能展示”，分别verified/failed。R5在第6/11请求绑定、第9/14请求实际操作，同样正确检出详情缺陷。R6在第5/9请求绑定、第7/11请求实际操作，两个原槽为“预览就绪”“详情已就绪”，均verified。六项测量均逐一核对bind < action < measurement、原actionId/requirementId、原结果选择器、单节点值、动作前前置及动态身份准入，与原测量附件一致。三个操作任务已选范围gaps=0；缺陷行covered表示检查范围已评估，功能结果仍failed。未选默认检查和资料未承诺范围未升级为通过。
+
+**前置不足不是动作测量通过。** R3/R4登记来源要求后，实际DOM/element_details记录了availability“暂不可用”、预览disabled和初始状态。R3两次、R4一次bind均在 `product-control-identity-lost` 拒绝，未生成成功绑定或绑定前置测量，更没有浏览器动作。完整有据弃权的依据是原计划加现场DOM及诚实partial范围，不能冒称bind测得前置为假。R3最终请求unverified-scope；R4经无进展收尾，分别保留1/2项缺口，均没有将未准备好解释为功能缺陷。
+
+**仍有动作参数负担。** R5三次、R6两次page_act把itemId填入requirementId，被 `v2-requirement-not-owned` 在实际操作前拒绝；随后改为正确原requirement ID，实际动作仍各2次，不是点击重放或provider自动重试。四个首次错误请求的精简product步骤里requirementId尚未出现；R5第二步的下一请求已经有正确ID，仍重复错误一次。保留原输入、上下文和回执，不能把“后来修正”描述为接口负担消失。此轮没有数量错误、零/多匹配修复或未知效果只读恢复，相关免费证据不冒充真实触发。
+
+**费用与恢复。** 56份请求/完整响应与56笔账本逐笔核对，Decimal合计供应商usage已知 **US$0.067840720**，新unknown/held均0，没有硬停止。批次北京时间21:27:28至21:33:48，进程总耗时380.206秒（约6分20秒）。原US$0.063及更早US$0.116留在原账本，按授权暂缓核查，不计作本批新增未知，也不清零；未修改费用代码。所有63份工具回执对应原call ID，零缺失；6份完整报告重启恢复完全相等、275对原附件/副本hash和字节一致。运行结束、文档修改前完整manifest仍与干净冻结候选一致。
+
+本实验Agent审阅了全部六行、56份请求/响应、63份回执、原计划/动作/测量及费用，不是独立盲测或人类复核。原机械pending-human-review字段保留，完成的Agent语义审阅另列 `review.json`。所有原失败和错误回执保留；本轮657项证据索引hash为 `9229b8d0e6243d03f17fd1f9472d2b5ab7ee25c3b0761eaec7ea42dec0efb9c3`。旧200/532项及历史各批证据复用维护者已核对结果，没有重做全量检查。
+
+[准备索引、精确运行命令、授权、原始证据和逐行审阅](../../evaluation/private/r2-product-acceptance/real-stage-retrieval-acceptance.json)一并交付。唯一授权批次已关闭，不自动补跑R1或新增样本；当前剩余阻塞是登记前重复读取，以及已绑定后的itemId/requirementId混淆。5/6比前批1/6更好是这两批的观察结果，不是稳定收益或因果估计；原六行全部通过的出口仍未满足。未合并、推送或修改main/维护者Roadmap。
