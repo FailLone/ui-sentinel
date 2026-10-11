@@ -1,0 +1,301 @@
+{
+  "date": "2026-10-12",
+  "reviewType": "implementation-author self-review; not independent review",
+  "baseline": "f6fa483",
+  "implementationCommit": "deebf0b3b7f78c8ba316c916265c8e2fa55519f0",
+  "scope": [
+    "save provenance and immutable read identity",
+    "binding to original dispatch",
+    "handoff action gate and original terminal semantics",
+    "workbench save and submit"
+  ],
+  "fixedFindings": [
+    {
+      "id": "R3-S1",
+      "severity": "P1",
+      "before": "Same-node description changes or new ambiguity after binding could evade the identity-only check, including changes during original prepare.",
+      "after": "Recheck current identity, descriptions, source-match uniqueness and original preconditions immediately before original dispatch. Propagate actual dispatch errors.",
+      "files": [
+        "src/execution/path-reuse/runner.ts",
+        "src/execution/executor.ts"
+      ],
+      "evidence": "Three red tests before fix; three real-browser late mutation cases stop before any action."
+    },
+    {
+      "id": "R3-S2",
+      "severity": "P2",
+      "before": "Candidate body ID was not compared to requested key; malformed stored JSON escaped as a parse error.",
+      "after": "Reject mismatched or malformed stored candidate as unavailable.",
+      "files": [
+        "src/execution/path-reuse/library.ts"
+      ],
+      "evidence": "Fault injection regression, not observed database corruption."
+    }
+  ],
+  "validation": {
+    "tests": {
+      "files": 6,
+      "passed": 40,
+      "log": {
+        "path": "data/r3-review/tests.log",
+        "sha256": "c2cec6dd0ad23db84a3c0193b531b82444a452d824bd91d6b5c7d1c1ee2f75ca",
+        "bytes": 462
+      }
+    },
+    "build": {
+      "path": "data/r3-review/build.log",
+      "sha256": "fdac869ade39a8dc5315993fadc5b4d0ee9c5a9020221054b73ee5c892bda09a",
+      "bytes": 1310
+    },
+    "typecheck": {
+      "path": "data/r3-review/typecheck-final.log",
+      "sha256": "0b3f1e0c6f0c2e5d74a75e9fa5e258773e5621cdd86d1ba299502f46b07e549d",
+      "bytes": 105
+    },
+    "format": {
+      "path": "data/r3-review/format-final.log",
+      "sha256": "cf42af5ca0c4f8337769480c1877cd34bd64c322b0aea8e7e4d8a8c6db716ec2",
+      "bytes": 44
+    },
+    "browser": {
+      "apiCases": 6,
+      "workbenchCases": 1,
+      "restartReports": 7,
+      "summary": {
+        "path": "data/r3-path-reuse/2026-10-11T18-17-34-721Z/summary.json",
+        "sha256": "0dbe4614a41ed1b6e0b077a068aa7c3f7edf319c4cc0373fc0281dad0bd83f2c",
+        "bytes": 2043
+      },
+      "results": [
+        {
+          "mode": "baseline",
+          "runId": "run-a7f286d0-aa05-4d1b-a96b-dfadca30db5c",
+          "status": "completed",
+          "coverage": "covered",
+          "product": "verified",
+          "modelRequests": 6,
+          "planningRequests": 2,
+          "actions": 2
+        },
+        {
+          "mode": "healthy",
+          "runId": "run-4faee788-b7cf-435f-a757-54553052ebe9",
+          "status": "completed",
+          "coverage": "covered",
+          "product": "verified",
+          "modelRequests": 0,
+          "planningRequests": 0,
+          "actions": 2,
+          "reuse": "reused",
+          "reason": "path-remeasured"
+        },
+        {
+          "mode": "defect",
+          "runId": "run-4795e5b0-0083-4426-b82c-61e8ce15e7fd",
+          "status": "completed",
+          "coverage": "covered",
+          "product": "failed",
+          "modelRequests": 0,
+          "planningRequests": 0,
+          "actions": 2,
+          "reuse": "measured-failure",
+          "reason": "new-measurement-failed"
+        },
+        {
+          "mode": "dispatch-rename",
+          "runId": "run-5d350e7c-0805-4d69-b88c-06f4131f3de7",
+          "status": "blocked",
+          "coverage": "partial",
+          "product": "unverified",
+          "modelRequests": 2,
+          "planningRequests": 0,
+          "actions": 0,
+          "reuse": "handoff",
+          "reason": "target-description-changed"
+        },
+        {
+          "mode": "dispatch-duplicate",
+          "runId": "run-903742a2-d8d4-48f7-8d08-d3213dd22205",
+          "status": "blocked",
+          "coverage": "partial",
+          "product": "unverified",
+          "modelRequests": 2,
+          "planningRequests": 0,
+          "actions": 0,
+          "reuse": "handoff",
+          "reason": "product-target-not-unique-source-match"
+        },
+        {
+          "mode": "dispatch-precondition",
+          "runId": "run-aa8540c7-e7ab-4b29-b97b-1e5a2bfdc446",
+          "status": "blocked",
+          "coverage": "partial",
+          "product": "unverified",
+          "modelRequests": 2,
+          "planningRequests": 0,
+          "actions": 0,
+          "reuse": "handoff",
+          "reason": "product-precondition-changed-before-action"
+        }
+      ],
+      "artifactFiles": 369
+    },
+    "freeAcceptanceWiring": {
+      "rows": [
+        {
+          "row": "author",
+          "runId": "run-96acd040-5a8d-412c-be13-7e8e45994f06",
+          "localRequests": 6,
+          "actions": 2,
+          "ok": true,
+          "toolsAfterHandoff": []
+        },
+        {
+          "row": "reuse",
+          "runId": "run-203f4b11-c274-4799-8774-7cc647dcc396",
+          "localRequests": 0,
+          "actions": 2,
+          "ok": true,
+          "toolsAfterHandoff": []
+        },
+        {
+          "row": "defect",
+          "runId": "run-e22cb966-f233-40b7-a8a7-019d51662bcb",
+          "localRequests": 0,
+          "actions": 2,
+          "ok": true,
+          "toolsAfterHandoff": []
+        },
+        {
+          "row": "handoff",
+          "runId": "run-07d2bbf2-9ddf-4adb-99be-6d6713a1e4da",
+          "localRequests": 2,
+          "actions": 1,
+          "ok": true,
+          "toolsAfterHandoff": [
+            "page_inspect",
+            "run_finish"
+          ]
+        }
+      ],
+      "summary": {
+        "path": "data/r3-path-acceptance/review-preflight-v2/summary.json",
+        "sha256": "2da7bb5916901ac7c7970518de2148b8196dafb10d0a186edc23f07e8909e48b",
+        "bytes": 159
+      },
+      "accounting": {
+        "path": "data/r3-path-acceptance/review-preflight-v2/accounting.json",
+        "sha256": "fcd728be5934f3abf428ca6ec8687657f6013c1ed785d4ab66702de7eed73577",
+        "bytes": 3255
+      },
+      "inputIdentityMatchesFrozenExceptSourceCommit": true,
+      "realModelAcceptance": false
+    },
+    "authorFailureStop": {
+      "summary": {
+        "path": "data/r3-path-acceptance/review-author-stop/summary.json",
+        "sha256": "feb489219ff21019dcef732563b9e751cb9b95260995d8820818a210b067d187",
+        "bytes": 180
+      },
+      "onlyAuthorDirectoryCreated": true,
+      "expectedExit": 1
+    },
+    "priorValidationReused": {
+      "index": {
+        "path": "evaluation/r3-path-reuse/acceptance.json",
+        "sha256": "d0bf4cf676a27aedc6c3490e996a207cf8c1045dfa5ebcd016163bb3bd3ebcfc",
+        "bytes": 19495
+      },
+      "tests": 84,
+      "apiCases": 11,
+      "workbenchCases": 1,
+      "rerun": false,
+      "countsNotAddedToCurrentDenominator": true
+    }
+  },
+  "preservedDevelopmentFailures": [
+    {
+      "path": "data/r3-review/pre-fix.log",
+      "classification": "Actual regression reproductions before fix"
+    },
+    {
+      "path": "data/r3-path-reuse/2026-10-11T18-15-51-127Z",
+      "classification": "Fixture timing variable collision; corrected fixture, not product behavior"
+    },
+    {
+      "path": "data/r3-path-acceptance/review-preflight",
+      "classification": "Custom goal unresolved; zero actions, dependent rows stopped. Switched to existing neutral default; no product goal changes."
+    },
+    {
+      "path": "data/r3-review/tests-initial.log",
+      "classification": "Guard assertion expected one stop label; actual unknown isolation/stop worked; asserted state and ledger instead"
+    }
+  ],
+  "evidenceIndex": {
+    "path": "data/r3-review/evidence-index.json",
+    "sha256": "4acfcec26b04e034988fd0dcf4bf1e9bcde85831a843257d2dadb93727c28b6e",
+    "bytes": 172817
+  },
+  "acceptancePreparation": {
+    "status": "frozen-awaiting-new-authorization",
+    "protocol": "docs/r3-path-acceptance.md",
+    "entry": "scripts/r3-path-acceptance/cli.ts",
+    "manifest": {
+      "path": "evaluation/r3-path-reuse/real-manifest.json",
+      "sha256": "3a4dd15c581c3e6d98aa58f9d3d8c46fbb40c36b65947d6232c886750c7ee046",
+      "bytes": 55611
+    },
+    "manifestHash": "92a655189828f1c967a89980438659fca23636f0a0409c6df2e3a5959ad9a4f6",
+    "policy": {
+      "revision": "r3-real-acceptance-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "maxRuns": 4,
+      "maxRequests": 32,
+      "maxCostUsd": 2.56,
+      "reserveUsd": 0.08,
+      "authorRequests": 20,
+      "handoffRequests": 12,
+      "reuseRequests": 0,
+      "totalTimeoutMs": 180000,
+      "modelTimeoutMs": 60000,
+      "toolTimeoutMs": 15000,
+      "batchMs": 900000,
+      "maxActions": 4,
+      "maxOutputTokens": 4096,
+      "maxWireBytes": 131072,
+      "contextTokens": 1048576,
+      "promptPrice": 6.5e-08,
+      "outputPrice": 9.9e-07,
+      "retries": 0,
+      "fallback": false
+    },
+    "quote": {
+      "path": "evaluation/r3-path-reuse/price-source.json",
+      "sha256": "2fa5e1d793cafbe25efa446cff2807f35bc670180e867b53cc3b5ea599077912",
+      "bytes": 56954
+    },
+    "freeze": {
+      "path": "data/r3-review/freeze.log",
+      "sha256": "5a00cab680f85a65c8ea8ce85f5a1f022bc9e8a333fefaa52cd724df194010ce",
+      "bytes": 605
+    },
+    "approvalCreated": false,
+    "claimConsumed": false,
+    "realRequests": 0,
+    "paidCalls": 0
+  },
+  "limitations": [
+    "No real-model author or handoff semantic acceptance yet",
+    "Fixed local responses verify wiring only",
+    "Semantic transcript review remains required after authorized run",
+    "Exact entry/source and anonymous existing product boundaries; no arbitrary semantic-equivalence proof",
+    "Raw data/artifacts are local and ignored by Git; hashes and reproducible source are tracked"
+  ],
+  "delivery": {
+    "branch": "codex/r3-path-reuse",
+    "merged": false,
+    "pushed": false,
+    "centralRoadmapChanged": false
+  }
+}
