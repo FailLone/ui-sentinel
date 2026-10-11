@@ -5476,7 +5476,9 @@ async function executeProfiledRun(
                   actionId: s.actionId,
                   requirementId: s.requirementId,
                 })),
-                note: 'After registration, follow execution.phase/nextAction for the first unresolved step; this is advisory, not evidence or action permission. Before registration follow registration.nextAction and diagnostics. Once the relevant source is read, register a short path using issued citationIds; rereading the same location does not advance progress. Use product_path_status for durable requirements/evidence.',
+                note: report.plan
+                  ? 'Plan frozen. Follow execution.phase/nextAction for the first unresolved step; guidance is not evidence or action permission. Reuse current page evidence; do not re-register or replay completed actions.'
+                  : 'Follow registration.nextAction and diagnostics. Once relevant source text is available, register using issued citationIds; repeating the same read does not advance progress.',
               }))(await productPath.status()),
             }
           : {}),

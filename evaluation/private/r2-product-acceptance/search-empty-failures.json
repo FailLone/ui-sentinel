@@ -1,0 +1,490 @@
+{
+  "sourceBatch": "a87b62b9178aedbb1225fd008d7084fc7993a453528876b2fb356b1f51dbe55f",
+  "files": {
+    "data/r2-product-acceptance/real-readiness-authorized-20261011/requests.jsonl": "7c80780606cee431f30527cf86785f62f45c3ccaef7b084f47ace54fd1edb1ae",
+    "data/r2-product-acceptance/real-readiness-authorized-20261011/responses.jsonl": "8b6148d37c1ef4fbac52dcc24e2bc0d1cc4932d54d49f858301beb1b91d910de",
+    "data/r2-product-acceptance/real-readiness-authorized-20261011/tool-receipt-audit.json": "361aa042b4f67ffcc8b87d076a8b563c305ac7de17cc0f80c7c68f78cda2c8a8"
+  },
+  "rows": [
+    {
+      "row": "R5",
+      "requestSequence": 3,
+      "requestId": "deed5ba167d444dc86fb8971",
+      "toolCallId": "call_b1658b0ffc8e468691af69e4",
+      "rawArgumentsString": "{\"keyword\": \"\", \"quote\": \"预览的前置条件是目录可用状态为“可用”。\", \"offset\": 0}",
+      "originalInput": {
+        "keyword": "",
+        "quote": "预览的前置条件是目录可用状态为“可用”。",
+        "offset": 0
+      },
+      "sdkReceiptArgs": {
+        "keyword": "",
+        "quote": "预览的前置条件是目录可用状态为“可用”。",
+        "offset": 0
+      },
+      "originalResult": {
+        "error": true,
+        "message": "Tool input validation failed for product_source_search. Please fix the following errors and try again:\n- keyword: Too small: expected string to have >=1 characters\n\nProvided arguments: {\n  \"keyword\": \"\",\n  \"quote\": \"预览的前置条件是目录可用状态为“可用”。\",\n  \"offset\": 0\n}",
+        "validationErrors": {
+          "errors": [],
+          "fields": {
+            "keyword": {
+              "errors": [
+                "Too small: expected string to have >=1 characters"
+              ],
+              "fields": {}
+            }
+          }
+        }
+      },
+      "expectedOldError": true
+    },
+    {
+      "row": "R5",
+      "requestSequence": 3,
+      "requestId": "deed5ba167d444dc86fb8971",
+      "toolCallId": "call_3206a98e5db143b79b2ee39c",
+      "rawArgumentsString": "{\"keyword\": \"\", \"quote\": \"访客点击“预览目录”后，预览状态应立即变为“预览就绪”，并出现“查看详情”按钮。\", \"offset\": 0}",
+      "originalInput": {
+        "keyword": "",
+        "quote": "访客点击“预览目录”后，预览状态应立即变为“预览就绪”，并出现“查看详情”按钮。",
+        "offset": 0
+      },
+      "sdkReceiptArgs": {
+        "keyword": "",
+        "quote": "访客点击“预览目录”后，预览状态应立即变为“预览就绪”，并出现“查看详情”按钮。",
+        "offset": 0
+      },
+      "originalResult": {
+        "error": true,
+        "message": "Tool input validation failed for product_source_search. Please fix the following errors and try again:\n- keyword: Too small: expected string to have >=1 characters\n\nProvided arguments: {\n  \"keyword\": \"\",\n  \"quote\": \"访客点击“预览目录”后，预览状态应立即变为“预览就绪”，并出现“查看详情”按钮。\",\n  \"offset\": 0\n}",
+        "validationErrors": {
+          "errors": [],
+          "fields": {
+            "keyword": {
+              "errors": [
+                "Too small: expected string to have >=1 characters"
+              ],
+              "fields": {}
+            }
+          }
+        }
+      },
+      "expectedOldError": true
+    },
+    {
+      "row": "R5",
+      "requestSequence": 3,
+      "requestId": "deed5ba167d444dc86fb8971",
+      "toolCallId": "call_d8dd3014728947b9849bc6b6",
+      "rawArgumentsString": "{\"keyword\": \"\", \"quote\": \"只有预览状态为“预览就绪”时才能查看详情。访客点击“查看详情”后，详情状态应立即变为“详情已就绪”。\", \"offset\": 0}",
+      "originalInput": {
+        "keyword": "",
+        "quote": "只有预览状态为“预览就绪”时才能查看详情。访客点击“查看详情”后，详情状态应立即变为“详情已就绪”。",
+        "offset": 0
+      },
+      "sdkReceiptArgs": {
+        "keyword": "",
+        "quote": "只有预览状态为“预览就绪”时才能查看详情。访客点击“查看详情”后，详情状态应立即变为“详情已就绪”。",
+        "offset": 0
+      },
+      "originalResult": {
+        "error": true,
+        "message": "Tool input validation failed for product_source_search. Please fix the following errors and try again:\n- keyword: Too small: expected string to have >=1 characters\n\nProvided arguments: {\n  \"keyword\": \"\",\n  \"quote\": \"只有预览状态为“预览就绪”时才能查看详情。访客点击“查看详情”后，详情状态应立即变为“详情已就绪”。\",\n  \"offset\": 0\n}",
+        "validationErrors": {
+          "errors": [],
+          "fields": {
+            "keyword": {
+              "errors": [
+                "Too small: expected string to have >=1 characters"
+              ],
+              "fields": {}
+            }
+          }
+        }
+      },
+      "expectedOldError": true
+    },
+    {
+      "row": "R5",
+      "requestSequence": 3,
+      "requestId": "deed5ba167d444dc86fb8971",
+      "toolCallId": "call_6cbcd9651c8243b699fff0ec",
+      "rawArgumentsString": "{\"keyword\": \"\", \"quote\": \"预览状态初始为“尚未预览”，详情状态初始为“尚未查看”。\", \"offset\": 0}",
+      "originalInput": {
+        "keyword": "",
+        "quote": "预览状态初始为“尚未预览”，详情状态初始为“尚未查看”。",
+        "offset": 0
+      },
+      "sdkReceiptArgs": {
+        "keyword": "",
+        "quote": "预览状态初始为“尚未预览”，详情状态初始为“尚未查看”。",
+        "offset": 0
+      },
+      "originalResult": {
+        "error": true,
+        "message": "Tool input validation failed for product_source_search. Please fix the following errors and try again:\n- keyword: Too small: expected string to have >=1 characters\n\nProvided arguments: {\n  \"keyword\": \"\",\n  \"quote\": \"预览状态初始为“尚未预览”，详情状态初始为“尚未查看”。\",\n  \"offset\": 0\n}",
+        "validationErrors": {
+          "errors": [],
+          "fields": {
+            "keyword": {
+              "errors": [
+                "Too small: expected string to have >=1 characters"
+              ],
+              "fields": {}
+            }
+          }
+        }
+      },
+      "expectedOldError": true
+    },
+    {
+      "row": "R5",
+      "requestSequence": 4,
+      "requestId": "dadc3ca10c23565a6a86c9b3",
+      "toolCallId": "call_05de62b083e54d3abadcd397",
+      "rawArgumentsString": "{\"keyword\": null, \"quote\": \"预览的前置条件是目录可用状态为“可用”。\", \"offset\": 0}",
+      "originalInput": {
+        "keyword": null,
+        "quote": "预览的前置条件是目录可用状态为“可用”。",
+        "offset": 0
+      },
+      "sdkReceiptArgs": {
+        "keyword": null,
+        "quote": "预览的前置条件是目录可用状态为“可用”。",
+        "offset": 0
+      },
+      "originalResult": {
+        "sourceId": "product-source:ec57d78d9c67448ca6796c79a45e76c8ce6f83bf1bece06ebad92f5ee2b15d6d",
+        "contentHash": "ea562970feaaf24b272bec372e4f18ef55a1246c79bbeb44be0889f86740ab38",
+        "matches": [
+          {
+            "citation": {
+              "citationId": "pcite:e17cf09c4d5e437c38416515a8b35ffac7c52597c322d6566c92cbafc584866a",
+              "start": 217,
+              "end": 237,
+              "quote": "预览的前置条件是目录可用状态为“可用”。"
+            },
+            "context": "看目录\n\n页面展示“目录可用状态”“预览状态”和“详情状态”。预览状态初始为“尚未预览”，详情状态初始为“尚未查看”。这两个状态区域从打开页面起就一直存在。\n\n预览的前置条件是目录可用状态为“可用”。状态为“暂不可用”时，目录内容尚未准备好，访客不能开始预览；这不代表预览功能发生了错误。\n\n访客点击“预览目录”后，预览状态应立即变为“预览就绪”，并出现“查看"
+          }
+        ],
+        "nextOffset": null,
+        "selectionRequired": false,
+        "note": "Exact case-sensitive text only. Select an occurrence using its context and citationId; none is automatically chosen. No match does not prove the requirement absent. Discontiguous text cannot form one citation."
+      },
+      "expectedOldError": false
+    },
+    {
+      "row": "R5",
+      "requestSequence": 4,
+      "requestId": "dadc3ca10c23565a6a86c9b3",
+      "toolCallId": "call_e03be470dd3943648264b846",
+      "rawArgumentsString": "{\"keyword\": null, \"quote\": \"访客点击“预览目录”后，预览状态应立即变为“预览就绪”，并出现“查看详情”按钮。这里的“立即”指本次点击处理完成时就更新，不需要等待后台任务。\", \"offset\": 0}",
+      "originalInput": {
+        "keyword": null,
+        "quote": "访客点击“预览目录”后，预览状态应立即变为“预览就绪”，并出现“查看详情”按钮。这里的“立即”指本次点击处理完成时就更新，不需要等待后台任务。",
+        "offset": 0
+      },
+      "sdkReceiptArgs": {
+        "keyword": null,
+        "quote": "访客点击“预览目录”后，预览状态应立即变为“预览就绪”，并出现“查看详情”按钮。这里的“立即”指本次点击处理完成时就更新，不需要等待后台任务。",
+        "offset": 0
+      },
+      "originalResult": {
+        "sourceId": "product-source:ec57d78d9c67448ca6796c79a45e76c8ce6f83bf1bece06ebad92f5ee2b15d6d",
+        "contentHash": "ea562970feaaf24b272bec372e4f18ef55a1246c79bbeb44be0889f86740ab38",
+        "matches": [
+          {
+            "citation": {
+              "citationId": "pcite:2b5e545753543482ab5fa7cd08696c866b61e21ea4acf46e5a33da1390f7028b",
+              "start": 283,
+              "end": 354,
+              "quote": "访客点击“预览目录”后，预览状态应立即变为“预览就绪”，并出现“查看详情”按钮。这里的“立即”指本次点击处理完成时就更新，不需要等待后台任务。"
+            },
+            "context": "从打开页面起就一直存在。\n\n预览的前置条件是目录可用状态为“可用”。状态为“暂不可用”时，目录内容尚未准备好，访客不能开始预览；这不代表预览功能发生了错误。\n\n访客点击“预览目录”后，预览状态应立即变为“预览就绪”，并出现“查看详情”按钮。这里的“立即”指本次点击处理完成时就更新，不需要等待后台任务。\n\n只有预览状态为“预览就绪”时才能查看详情。访客点击“查看详情”后，详情状态应立即变为“详情已就绪”。两个状态区域各自展示自己的状态，不用页面上其他地方的相同"
+          }
+        ],
+        "nextOffset": null,
+        "selectionRequired": false,
+        "note": "Exact case-sensitive text only. Select an occurrence using its context and citationId; none is automatically chosen. No match does not prove the requirement absent. Discontiguous text cannot form one citation."
+      },
+      "expectedOldError": false
+    },
+    {
+      "row": "R5",
+      "requestSequence": 4,
+      "requestId": "dadc3ca10c23565a6a86c9b3",
+      "toolCallId": "call_99af02f3cc43480698082c89",
+      "rawArgumentsString": "{\"keyword\": null, \"quote\": \"只有预览状态为“预览就绪”时才能查看详情。访客点击“查看详情”后，详情状态应立即变为“详情已就绪”。\", \"offset\": 0}",
+      "originalInput": {
+        "keyword": null,
+        "quote": "只有预览状态为“预览就绪”时才能查看详情。访客点击“查看详情”后，详情状态应立即变为“详情已就绪”。",
+        "offset": 0
+      },
+      "sdkReceiptArgs": {
+        "keyword": null,
+        "quote": "只有预览状态为“预览就绪”时才能查看详情。访客点击“查看详情”后，详情状态应立即变为“详情已就绪”。",
+        "offset": 0
+      },
+      "originalResult": {
+        "sourceId": "product-source:ec57d78d9c67448ca6796c79a45e76c8ce6f83bf1bece06ebad92f5ee2b15d6d",
+        "contentHash": "ea562970feaaf24b272bec372e4f18ef55a1246c79bbeb44be0889f86740ab38",
+        "matches": [
+          {
+            "citation": {
+              "citationId": "pcite:f656644ebd00b38f06ed218d45ce0c279b477f8a5bda6216b88dbcc71f10be05",
+              "start": 356,
+              "end": 406,
+              "quote": "只有预览状态为“预览就绪”时才能查看详情。访客点击“查看详情”后，详情状态应立即变为“详情已就绪”。"
+            },
+            "context": "生了错误。\n\n访客点击“预览目录”后，预览状态应立即变为“预览就绪”，并出现“查看详情”按钮。这里的“立即”指本次点击处理完成时就更新，不需要等待后台任务。\n\n只有预览状态为“预览就绪”时才能查看详情。访客点击“查看详情”后，详情状态应立即变为“详情已就绪”。两个状态区域各自展示自己的状态，不用页面上其他地方的相同文字代替。\n\n本次关心的是访客能否从开始预览走到详情就绪。仅看到预览就绪还不能说明详情可用。\n\n## 后"
+          }
+        ],
+        "nextOffset": null,
+        "selectionRequired": false,
+        "note": "Exact case-sensitive text only. Select an occurrence using its context and citationId; none is automatically chosen. No match does not prove the requirement absent. Discontiguous text cannot form one citation."
+      },
+      "expectedOldError": false
+    },
+    {
+      "row": "R6",
+      "requestSequence": 3,
+      "requestId": "c2b39cdb2f8c3fc8b94d0a1e",
+      "toolCallId": "call_cf58e2b0ecdb409a98c9c324",
+      "rawArgumentsString": "{\"keyword\": null, \"quote\": \"访客点击“预览目录”后，预览状态应立即变为“预览就绪”，并出现“查看详情”按钮。\", \"offset\": 0}",
+      "originalInput": {
+        "keyword": null,
+        "quote": "访客点击“预览目录”后，预览状态应立即变为“预览就绪”，并出现“查看详情”按钮。",
+        "offset": 0
+      },
+      "sdkReceiptArgs": {
+        "keyword": null,
+        "quote": "访客点击“预览目录”后，预览状态应立即变为“预览就绪”，并出现“查看详情”按钮。",
+        "offset": 0
+      },
+      "originalResult": {
+        "sourceId": "product-source:ec57d78d9c67448ca6796c79a45e76c8ce6f83bf1bece06ebad92f5ee2b15d6d",
+        "contentHash": "ea562970feaaf24b272bec372e4f18ef55a1246c79bbeb44be0889f86740ab38",
+        "matches": [
+          {
+            "citation": {
+              "citationId": "pcite:2efdfc5e7df3a6a23ddfe84f7b96cffec3d947f6ba18f31d7ad66ed5190130fe",
+              "start": 283,
+              "end": 323,
+              "quote": "访客点击“预览目录”后，预览状态应立即变为“预览就绪”，并出现“查看详情”按钮。"
+            },
+            "context": "从打开页面起就一直存在。\n\n预览的前置条件是目录可用状态为“可用”。状态为“暂不可用”时，目录内容尚未准备好，访客不能开始预览；这不代表预览功能发生了错误。\n\n访客点击“预览目录”后，预览状态应立即变为“预览就绪”，并出现“查看详情”按钮。这里的“立即”指本次点击处理完成时就更新，不需要等待后台任务。\n\n只有预览状态为“预览就绪”时才能查看详情。访客点击“查看详情”后，详情状态应立即变为“详情已就"
+          }
+        ],
+        "nextOffset": null,
+        "selectionRequired": false,
+        "note": "Exact case-sensitive text only. Select an occurrence using its context and citationId; none is automatically chosen. No match does not prove the requirement absent. Discontiguous text cannot form one citation."
+      },
+      "expectedOldError": false
+    },
+    {
+      "row": "R6",
+      "requestSequence": 3,
+      "requestId": "c2b39cdb2f8c3fc8b94d0a1e",
+      "toolCallId": "call_a523b515b7204a65950da22c",
+      "rawArgumentsString": "{\"keyword\": null, \"quote\": \"访客点击“查看详情”后，详情状态应立即变为“详情已就绪”。\", \"offset\": 0}",
+      "originalInput": {
+        "keyword": null,
+        "quote": "访客点击“查看详情”后，详情状态应立即变为“详情已就绪”。",
+        "offset": 0
+      },
+      "sdkReceiptArgs": {
+        "keyword": null,
+        "quote": "访客点击“查看详情”后，详情状态应立即变为“详情已就绪”。",
+        "offset": 0
+      },
+      "originalResult": {
+        "sourceId": "product-source:ec57d78d9c67448ca6796c79a45e76c8ce6f83bf1bece06ebad92f5ee2b15d6d",
+        "contentHash": "ea562970feaaf24b272bec372e4f18ef55a1246c79bbeb44be0889f86740ab38",
+        "matches": [
+          {
+            "citation": {
+              "citationId": "pcite:13f3d60e9ff2070174b54787624fbbdee4be27f101597689805967d951b63cff",
+              "start": 377,
+              "end": 406,
+              "quote": "访客点击“查看详情”后，详情状态应立即变为“详情已就绪”。"
+            },
+            "context": "状态应立即变为“预览就绪”，并出现“查看详情”按钮。这里的“立即”指本次点击处理完成时就更新，不需要等待后台任务。\n\n只有预览状态为“预览就绪”时才能查看详情。访客点击“查看详情”后，详情状态应立即变为“详情已就绪”。两个状态区域各自展示自己的状态，不用页面上其他地方的相同文字代替。\n\n本次关心的是访客能否从开始预览走到详情就绪。仅看到预览就绪还不能说明详情可用。\n\n## 后"
+          }
+        ],
+        "nextOffset": null,
+        "selectionRequired": false,
+        "note": "Exact case-sensitive text only. Select an occurrence using its context and citationId; none is automatically chosen. No match does not prove the requirement absent. Discontiguous text cannot form one citation."
+      },
+      "expectedOldError": false
+    },
+    {
+      "row": "R6",
+      "requestSequence": 3,
+      "requestId": "c2b39cdb2f8c3fc8b94d0a1e",
+      "toolCallId": "call_f235ad5c5ee645529947108d",
+      "rawArgumentsString": "{\"keyword\": null, \"quote\": \"预览的前置条件是目录可用状态为“可用”。\", \"offset\": 0}",
+      "originalInput": {
+        "keyword": null,
+        "quote": "预览的前置条件是目录可用状态为“可用”。",
+        "offset": 0
+      },
+      "sdkReceiptArgs": {
+        "keyword": null,
+        "quote": "预览的前置条件是目录可用状态为“可用”。",
+        "offset": 0
+      },
+      "originalResult": {
+        "sourceId": "product-source:ec57d78d9c67448ca6796c79a45e76c8ce6f83bf1bece06ebad92f5ee2b15d6d",
+        "contentHash": "ea562970feaaf24b272bec372e4f18ef55a1246c79bbeb44be0889f86740ab38",
+        "matches": [
+          {
+            "citation": {
+              "citationId": "pcite:e17cf09c4d5e437c38416515a8b35ffac7c52597c322d6566c92cbafc584866a",
+              "start": 217,
+              "end": 237,
+              "quote": "预览的前置条件是目录可用状态为“可用”。"
+            },
+            "context": "看目录\n\n页面展示“目录可用状态”“预览状态”和“详情状态”。预览状态初始为“尚未预览”，详情状态初始为“尚未查看”。这两个状态区域从打开页面起就一直存在。\n\n预览的前置条件是目录可用状态为“可用”。状态为“暂不可用”时，目录内容尚未准备好，访客不能开始预览；这不代表预览功能发生了错误。\n\n访客点击“预览目录”后，预览状态应立即变为“预览就绪”，并出现“查看"
+          }
+        ],
+        "nextOffset": null,
+        "selectionRequired": false,
+        "note": "Exact case-sensitive text only. Select an occurrence using its context and citationId; none is automatically chosen. No match does not prove the requirement absent. Discontiguous text cannot form one citation."
+      },
+      "expectedOldError": false
+    },
+    {
+      "row": "R6",
+      "requestSequence": 6,
+      "requestId": "37ad3cfc5668f2ebc1921ffc",
+      "toolCallId": "call_ae762f515d2845cc8dd5a66a",
+      "rawArgumentsString": "{\"keyword\": \"\", \"quote\": \"访客点击“预览目录”后，预览状态应立即变为“预览就绪”，并出现“查看详情”按钮。\", \"offset\": 0}",
+      "originalInput": {
+        "keyword": "",
+        "quote": "访客点击“预览目录”后，预览状态应立即变为“预览就绪”，并出现“查看详情”按钮。",
+        "offset": 0
+      },
+      "sdkReceiptArgs": {
+        "keyword": "",
+        "quote": "访客点击“预览目录”后，预览状态应立即变为“预览就绪”，并出现“查看详情”按钮。",
+        "offset": 0
+      },
+      "originalResult": {
+        "error": true,
+        "message": "Tool input validation failed for product_source_search. Please fix the following errors and try again:\n- keyword: Too small: expected string to have >=1 characters\n\nProvided arguments: {\n  \"keyword\": \"\",\n  \"quote\": \"访客点击“预览目录”后，预览状态应立即变为“预览就绪”，并出现“查看详情”按钮。\",\n  \"offset\": 0\n}",
+        "validationErrors": {
+          "errors": [],
+          "fields": {
+            "keyword": {
+              "errors": [
+                "Too small: expected string to have >=1 characters"
+              ],
+              "fields": {}
+            }
+          }
+        }
+      },
+      "expectedOldError": true
+    },
+    {
+      "row": "R6",
+      "requestSequence": 6,
+      "requestId": "37ad3cfc5668f2ebc1921ffc",
+      "toolCallId": "call_c5f52c76ecb84cff9169141e",
+      "rawArgumentsString": "{\"keyword\": \"\", \"quote\": \"访客点击“查看详情”后，详情状态应立即变为“详情已就绪”。\", \"offset\": 0}",
+      "originalInput": {
+        "keyword": "",
+        "quote": "访客点击“查看详情”后，详情状态应立即变为“详情已就绪”。",
+        "offset": 0
+      },
+      "sdkReceiptArgs": {
+        "keyword": "",
+        "quote": "访客点击“查看详情”后，详情状态应立即变为“详情已就绪”。",
+        "offset": 0
+      },
+      "originalResult": {
+        "error": true,
+        "message": "Tool input validation failed for product_source_search. Please fix the following errors and try again:\n- keyword: Too small: expected string to have >=1 characters\n\nProvided arguments: {\n  \"keyword\": \"\",\n  \"quote\": \"访客点击“查看详情”后，详情状态应立即变为“详情已就绪”。\",\n  \"offset\": 0\n}",
+        "validationErrors": {
+          "errors": [],
+          "fields": {
+            "keyword": {
+              "errors": [
+                "Too small: expected string to have >=1 characters"
+              ],
+              "fields": {}
+            }
+          }
+        }
+      },
+      "expectedOldError": true
+    },
+    {
+      "row": "R6",
+      "requestSequence": 6,
+      "requestId": "37ad3cfc5668f2ebc1921ffc",
+      "toolCallId": "call_96755314ff6347c5839a83ac",
+      "rawArgumentsString": "{\"keyword\": \"\", \"quote\": \"预览的前置条件是目录可用状态为“可用”。\", \"offset\": 0}",
+      "originalInput": {
+        "keyword": "",
+        "quote": "预览的前置条件是目录可用状态为“可用”。",
+        "offset": 0
+      },
+      "sdkReceiptArgs": {
+        "keyword": "",
+        "quote": "预览的前置条件是目录可用状态为“可用”。",
+        "offset": 0
+      },
+      "originalResult": {
+        "error": true,
+        "message": "Tool input validation failed for product_source_search. Please fix the following errors and try again:\n- keyword: Too small: expected string to have >=1 characters\n\nProvided arguments: {\n  \"keyword\": \"\",\n  \"quote\": \"预览的前置条件是目录可用状态为“可用”。\",\n  \"offset\": 0\n}",
+        "validationErrors": {
+          "errors": [],
+          "fields": {
+            "keyword": {
+              "errors": [
+                "Too small: expected string to have >=1 characters"
+              ],
+              "fields": {}
+            }
+          }
+        }
+      },
+      "expectedOldError": true
+    },
+    {
+      "row": "R6",
+      "requestSequence": 6,
+      "requestId": "37ad3cfc5668f2ebc1921ffc",
+      "toolCallId": "call_a022d7a39b3544e29d28aaea",
+      "rawArgumentsString": "{\"keyword\": \"\", \"quote\": \"只有预览状态为“预览就绪”时才能查看详情。\", \"offset\": 0}",
+      "originalInput": {
+        "keyword": "",
+        "quote": "只有预览状态为“预览就绪”时才能查看详情。",
+        "offset": 0
+      },
+      "sdkReceiptArgs": {
+        "keyword": "",
+        "quote": "只有预览状态为“预览就绪”时才能查看详情。",
+        "offset": 0
+      },
+      "originalResult": {
+        "error": true,
+        "message": "Tool input validation failed for product_source_search. Please fix the following errors and try again:\n- keyword: Too small: expected string to have >=1 characters\n\nProvided arguments: {\n  \"keyword\": \"\",\n  \"quote\": \"只有预览状态为“预览就绪”时才能查看详情。\",\n  \"offset\": 0\n}",
+        "validationErrors": {
+          "errors": [],
+          "fields": {
+            "keyword": {
+              "errors": [
+                "Too small: expected string to have >=1 characters"
+              ],
+              "fields": {}
+            }
+          }
+        }
+      },
+      "expectedOldError": true
+    }
+  ]
+}

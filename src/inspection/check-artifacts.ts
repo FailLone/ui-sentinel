@@ -68,9 +68,13 @@ export async function defaultCheckArtifactIssues(
         if (checkHash(checks) !== checkHash(event.payload.checks))
           throw Error('product-precondition-artifact-mismatch')
         if (
-          ['product-path-2', 'product-path-3', 'product-path-4', PRODUCT_SKILL_REVISION].includes(
-            String(events.find((e) => e.type === 'product:planned')?.payload.revision),
-          )
+          [
+            'product-path-2',
+            'product-path-3',
+            'product-path-4',
+            'product-path-5',
+            PRODUCT_SKILL_REVISION,
+          ].includes(String(events.find((e) => e.type === 'product:planned')?.payload.revision))
         ) {
           const binding = await load(event.evidenceRefs[2]!, 'product-binding')
           const { artifactHashes: _, ...payload } = event.payload

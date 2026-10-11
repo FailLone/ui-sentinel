@@ -128,13 +128,28 @@ export function productSourceOverview(source: ProductSource) {
     note: 'Section titles locate original text; this is not an inventory of all requirements. Read the relevant section; reuse its citationId, or search an exact quote. Do not calculate offsets.',
   }
 }
+const hasSearchText = (value: string | null | undefined): value is string =>
+  typeof value === 'string' && value.trim().length > 0
+
+// Accept unused empty values at the tool schema boundary: SDK validation precedes execute.
 export const productSearchInput = z
   .object({
-    keyword: z.string().min(1).max(200).optional(),
-    quote: z.string().min(1).max(4000).optional(),
+    keyword: z.string().max(200).nullable().optional(),
+    quote: z.string().max(4000).nullable().optional(),
     offset: z.number().int().min(0).default(0),
   })
   .strict()
+  .refine((input) => hasSearchText(input.keyword) !== hasSearchText(input.quote), {
+    message: 'product-search-requires-exactly-one-nonblank-keyword-or-quote',
+  })
+
+/** Normalize only an unused optional mode; never trim or reinterpret the active query. */
+export function normalizeProductSearchInput(raw: unknown) {
+  const input = productSearchInput.parse(raw)
+  return hasSearchText(input.quote)
+    ? { quote: input.quote, keyword: undefined, offset: input.offset }
+    : { keyword: input.keyword!, quote: undefined, offset: input.offset }
+}
 export function searchProductSource(source: ProductSource, keyword: string, offset = 0) {
   if (!validProductSource(source)) throw Error('product-source-integrity-mismatch')
   if (

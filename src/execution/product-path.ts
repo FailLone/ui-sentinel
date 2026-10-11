@@ -7,6 +7,7 @@ import type { RunEvent } from '../shared/types.ts'
 import {
   productSourceOverview,
   productSearchInput,
+  normalizeProductSearchInput,
   searchProductSource,
   locateProductQuote,
   type ProductCitation,
@@ -93,7 +94,7 @@ export function createProductPath(host: {
           .slice(-12)
           .map(({ citationId, start, end }) => ({ citationId, start, end })),
         diagnostics: frozen ? [] : (rejected.at(-1)?.payload.diagnostics ?? []),
-        readiness: frozen ? 'frozen-requirements-not-measured' : 'not-yet-approved-for-binding',
+        readiness: frozen ? 'frozen-see-execution-state' : 'not-yet-approved-for-binding',
         nextAction: frozen
           ? execution.nextAction
           : rejected.length >= 3
@@ -171,10 +172,9 @@ export function createProductPath(host: {
         description:
           'Supply exactly one keyword (context search) or quote (exact original text, including across pages). Returns program-computed citationIds for explicit occurrence selection. No match does not prove absence.',
         inputSchema: productSearchInput,
-        execute: (i) =>
+        execute: (raw) =>
           serial('product_source_search', async () => {
-            if ((i.keyword === undefined) === (i.quote === undefined))
-              return { error: 'product-search-requires-exactly-one-keyword-or-quote' }
+            const i = normalizeProductSearchInput(raw)
             if (i.quote !== undefined) {
               const result = locateProductQuote(host.source, i.quote, i.offset)
               result.matches.forEach((m) => remember(m.citation))
