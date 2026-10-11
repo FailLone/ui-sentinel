@@ -1,0 +1,430 @@
+{
+  "revision": "r2-handoff-repeat-price-blocked-delivery-1",
+  "branch": "codex/r2-handoff-repeat-acceptance",
+  "status": "blocked-before-inference",
+  "candidateHead": "b3c63ae27064d4b5266426c821600988094342a8",
+  "productCandidate": "4bc7e3a12427a16354bdbe2240794282a0ea11ea",
+  "implementationCommit": "f4619ed8207655b0d6685334d14076f837028c7a",
+  "sourceHash": "d014f1eb86789f12935b577e04cbbee355452de02c074d742ea385f75ffc9627",
+  "buildHash": "0c63c3e8f715d44770265046ed21cf6796bda387b20b3b62baa56ff9a902e7b2",
+  "manifestHash": "382a066af41b7700c5fc04f964e0c64a12e7efd51b05091e7f416ab5ab8613fe",
+  "offlineFrozenManifest": {
+    "path": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/prepared-handoff-repeat-20261011/manifest.json",
+    "sha256": "543f45fe463af438be3aaed2a4410cf972b9fb439cca16185e277bdb9cb646b9",
+    "executionEligible": false
+  },
+  "authorization": {
+    "recordedAt": "2026-10-11T15:26:18.549519+00:00",
+    "receivedAt": "2026-10-11T15:22:03Z",
+    "expiresAt": "2026-10-12T15:17:03Z",
+    "approvedBy": "用户，已读取维护者会话原用户消息核实",
+    "reference": "codex://threads/01a1116d-7621-7962-b4fe-5f904b5fbf13；turn 01a12b8d-e0e9-7f42-98d7-09d2ffc6de22；用户消息01a12b8d-e122-74d1-99fd-9afb124ce5c1：授权一次同候选独立六行批次、新增US$7.56并接受保留上批US$0.063未知预留；再次异常仍停止，不连续重试。",
+    "productCandidate": "4bc7e3a12427a16354bdbe2240794282a0ea11ea",
+    "actualHead": "b3c63ae27064d4b5266426c821600988094342a8",
+    "implementationCommit": "f4619ed8207655b0d6685334d14076f837028c7a",
+    "manifestHash": "382a066af41b7700c5fc04f964e0c64a12e7efd51b05091e7f416ab5ab8613fe",
+    "hashTiming": "Authorization referred to reviewed same product. Offline identity was frozen AFTER the quote preflight failed, only to archive the blocked attempt; user was not represented as having pre-seen the hash. No executable approval/claim or dispatch followed.",
+    "scope": {
+      "rows": [
+        {
+          "id": "R1",
+          "variant": "healthy",
+          "expected": "verified",
+          "preview": "预览就绪",
+          "details": "详情已就绪",
+          "caseId": "RA01",
+          "repetition": 1,
+          "mode": "program",
+          "scenario": "healthy",
+          "maxAgentRequests": 20,
+          "maxJevRequests": 0,
+          "htmlHash": "7714113990303d76fc6a73bfcf542f3276518d3b547eabd7ffe253ca7116cbbf"
+        },
+        {
+          "id": "R2",
+          "variant": "defect",
+          "expected": "failed",
+          "preview": "预览就绪",
+          "details": "详情未能展示",
+          "caseId": "RA02",
+          "repetition": 1,
+          "mode": "program",
+          "scenario": "defect",
+          "maxAgentRequests": 20,
+          "maxJevRequests": 0,
+          "htmlHash": "23450ed52d42237174a5e03fcbb90d5ac9b3086086b738c948d8b9a3deff9495"
+        },
+        {
+          "id": "R3",
+          "variant": "unavailable",
+          "expected": "unverified",
+          "preview": "尚未预览",
+          "details": "尚未查看",
+          "caseId": "RA03",
+          "repetition": 1,
+          "mode": "program",
+          "scenario": "unavailable",
+          "maxAgentRequests": 20,
+          "maxJevRequests": 0,
+          "htmlHash": "47787c74e5d81e06f92089e81ca8ab5c885c95caf303788fee0698d58eee60eb"
+        },
+        {
+          "id": "R4",
+          "variant": "unavailable",
+          "expected": "unverified",
+          "preview": "尚未预览",
+          "details": "尚未查看",
+          "caseId": "RA03",
+          "repetition": 2,
+          "mode": "program",
+          "scenario": "unavailable",
+          "maxAgentRequests": 20,
+          "maxJevRequests": 0,
+          "htmlHash": "47787c74e5d81e06f92089e81ca8ab5c885c95caf303788fee0698d58eee60eb"
+        },
+        {
+          "id": "R5",
+          "variant": "defect",
+          "expected": "failed",
+          "preview": "预览就绪",
+          "details": "详情未能展示",
+          "caseId": "RA02",
+          "repetition": 2,
+          "mode": "program",
+          "scenario": "defect",
+          "maxAgentRequests": 20,
+          "maxJevRequests": 0,
+          "htmlHash": "23450ed52d42237174a5e03fcbb90d5ac9b3086086b738c948d8b9a3deff9495"
+        },
+        {
+          "id": "R6",
+          "variant": "healthy",
+          "expected": "verified",
+          "preview": "预览就绪",
+          "details": "详情已就绪",
+          "caseId": "RA01",
+          "repetition": 2,
+          "mode": "program",
+          "scenario": "healthy",
+          "maxAgentRequests": 20,
+          "maxJevRequests": 0,
+          "htmlHash": "7714113990303d76fc6a73bfcf542f3276518d3b547eabd7ffe253ca7116cbbf"
+        }
+      ],
+      "policy": {
+        "version": "r2-product-acceptance-2",
+        "model": "deepseek/deepseek-v4.1-flash",
+        "provider": "Wafer",
+        "runs": 6,
+        "requestsPerRun": 20,
+        "maxRequests": 120,
+        "maxCostUsd": 7.56,
+        "reserveUsd": 0.063,
+        "totalTimeoutMs": 180000,
+        "modelTimeoutMs": 60000,
+        "toolTimeoutMs": 15000,
+        "maxActions": 8,
+        "batchMs": 1500000,
+        "maxOutputTokens": 4096,
+        "maxWireBytes": 131072,
+        "contextTokens": 1048576,
+        "promptPrice": 5e-08,
+        "outputPrice": 1.6e-06,
+        "retries": 0,
+        "fallback": false,
+        "jev": false,
+        "vision": false
+      },
+      "maxRuns": 6,
+      "maxRequests": 120,
+      "maxCostUsd": 7.56
+    },
+    "historicalRisk": {
+      "accepted": true,
+      "separateUnknownReservedUsd": [
+        0.063,
+        0.063,
+        0.116
+      ],
+      "sources": [
+        "seventh interrupted batch",
+        "previous unknown record",
+        "earlier unknown record"
+      ],
+      "treatment": "Original three records remain unchanged in their closed accounts. Reconciliation deferred, no clearing, no settlement claim, no old claim resumed.",
+      "notCountedAsNewUnknown": true
+    },
+    "status": "blocked-before-dispatch-by-original-price-gate",
+    "executableApprovalWritten": false,
+    "claimConsumed": false,
+    "newInferenceRequests": 0,
+    "automaticResume": false
+  },
+  "review": {
+    "reviewType": "Agent review of blocked preparation, not model semantic acceptance",
+    "executionCommit": null,
+    "candidateHead": "b3c63ae27064d4b5266426c821600988094342a8",
+    "productCandidate": "4bc7e3a12427a16354bdbe2240794282a0ea11ea",
+    "implementationCommit": "f4619ed8207655b0d6685334d14076f837028c7a",
+    "manifestHash": "382a066af41b7700c5fc04f964e0c64a12e7efd51b05091e7f416ab5ab8613fe",
+    "summary": {
+      "plannedRows": 6,
+      "dispatchedRows": 0,
+      "notRunRows": 6,
+      "acceptedTasks": 0,
+      "denominator": 6,
+      "allOriginalConditionsMet": false,
+      "requiredEffects": {
+        "plannedDenominator": 8,
+        "measured": 0,
+        "notRun": 8
+      },
+      "modelRequests": 0,
+      "browserActions": 0,
+      "newKnownCostUsd": "0",
+      "newUnknownReservedUsd": "0",
+      "newHeldReservedUsd": "0",
+      "preflightStop": "quote-outside-policy",
+      "automaticRetry": false,
+      "interpretation": "Zero completed tasks because price preflight blocked the entire attempt; not six model failures."
+    },
+    "rows": [
+      {
+        "id": "R1",
+        "variant": "healthy",
+        "status": "not-run-price-preflight-rejected",
+        "primaryAcceptance": false,
+        "criteria": {
+          "read": null,
+          "sourceGroundedRegistration": null,
+          "executeOrGroundedAbstain": null,
+          "honestScope": null,
+          "recover": null
+        },
+        "requests": 0,
+        "actions": 0,
+        "effects": [
+          {
+            "step": 0,
+            "requiredOutcome": "预览目录 → 预览就绪",
+            "state": "not-run",
+            "actionId": null,
+            "measurement": null
+          },
+          {
+            "step": 1,
+            "requiredOutcome": "查看详情 → 详情已就绪",
+            "state": "not-run",
+            "actionId": null,
+            "measurement": null
+          }
+        ]
+      },
+      {
+        "id": "R2",
+        "variant": "defect",
+        "status": "not-run-price-preflight-rejected",
+        "primaryAcceptance": false,
+        "criteria": {
+          "read": null,
+          "sourceGroundedRegistration": null,
+          "executeOrGroundedAbstain": null,
+          "honestScope": null,
+          "recover": null
+        },
+        "requests": 0,
+        "actions": 0,
+        "effects": [
+          {
+            "step": 0,
+            "requiredOutcome": "预览目录 → 预览就绪",
+            "state": "not-run",
+            "actionId": null,
+            "measurement": null
+          },
+          {
+            "step": 1,
+            "requiredOutcome": "查看详情 → 详情已就绪",
+            "state": "not-run",
+            "actionId": null,
+            "measurement": null
+          }
+        ]
+      },
+      {
+        "id": "R3",
+        "variant": "unavailable",
+        "status": "not-run-price-preflight-rejected",
+        "primaryAcceptance": false,
+        "criteria": {
+          "read": null,
+          "sourceGroundedRegistration": null,
+          "executeOrGroundedAbstain": null,
+          "honestScope": null,
+          "recover": null
+        },
+        "requests": 0,
+        "actions": 0,
+        "effects": []
+      },
+      {
+        "id": "R4",
+        "variant": "unavailable",
+        "status": "not-run-price-preflight-rejected",
+        "primaryAcceptance": false,
+        "criteria": {
+          "read": null,
+          "sourceGroundedRegistration": null,
+          "executeOrGroundedAbstain": null,
+          "honestScope": null,
+          "recover": null
+        },
+        "requests": 0,
+        "actions": 0,
+        "effects": []
+      },
+      {
+        "id": "R5",
+        "variant": "defect",
+        "status": "not-run-price-preflight-rejected",
+        "primaryAcceptance": false,
+        "criteria": {
+          "read": null,
+          "sourceGroundedRegistration": null,
+          "executeOrGroundedAbstain": null,
+          "honestScope": null,
+          "recover": null
+        },
+        "requests": 0,
+        "actions": 0,
+        "effects": [
+          {
+            "step": 0,
+            "requiredOutcome": "预览目录 → 预览就绪",
+            "state": "not-run",
+            "actionId": null,
+            "measurement": null
+          },
+          {
+            "step": 1,
+            "requiredOutcome": "查看详情 → 详情已就绪",
+            "state": "not-run",
+            "actionId": null,
+            "measurement": null
+          }
+        ]
+      },
+      {
+        "id": "R6",
+        "variant": "healthy",
+        "status": "not-run-price-preflight-rejected",
+        "primaryAcceptance": false,
+        "criteria": {
+          "read": null,
+          "sourceGroundedRegistration": null,
+          "executeOrGroundedAbstain": null,
+          "honestScope": null,
+          "recover": null
+        },
+        "requests": 0,
+        "actions": 0,
+        "effects": [
+          {
+            "step": 0,
+            "requiredOutcome": "预览目录 → 预览就绪",
+            "state": "not-run",
+            "actionId": null,
+            "measurement": null
+          },
+          {
+            "step": 1,
+            "requiredOutcome": "查看详情 → 详情已就绪",
+            "state": "not-run",
+            "actionId": null,
+            "measurement": null
+          }
+        ]
+      }
+    ],
+    "priceEvidence": {
+      "initialGateFailure": {
+        "error": "quote-outside-policy",
+        "stackLocation": "scripts/r2-product-acceptance/policy.ts:75:3 (prompt price validation)",
+        "limitation": "The original preflight helper validates before persisting the public response, so its rejected raw payload was not saved. This subsequent public snapshot is separately timestamped and must not be represented as the original response."
+      },
+      "subsequentPublicSnapshot": {
+        "path": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/handoff-repeat-authorization-20261011/public-quote-diagnostic.json",
+        "checkedAt": "2026-10-11T15:24:21.646Z",
+        "url": "https://openrouter.ai/api/v1/models/deepseek/deepseek-v4.1-flash/endpoints",
+        "provider": "Wafer",
+        "observedPromptPerToken": "0.00000006",
+        "maximumPromptPerToken": 5e-08,
+        "observedPromptPerMillionUsd": "0.06",
+        "maximumPromptPerMillionUsd": "0.05",
+        "observedCompletionPerMillionUsd": "1.60",
+        "maximumCompletionPerMillionUsd": "1.60",
+        "validationError": "Error: quote-outside-policy"
+      },
+      "limitation": "Initial helper rejected before saving its raw quote. The separately timestamped subsequent public snapshot confirms the same error and current prompt-price difference, but is not represented as that initial response."
+    },
+    "candidateConsistency": {
+      "executionCommit": "b3c63ae27064d4b5266426c821600988094342a8",
+      "productCandidate": "4bc7e3a12427a16354bdbe2240794282a0ea11ea",
+      "implementationCommit": "f4619ed8207655b0d6685334d14076f837028c7a",
+      "manifestHash": "382a066af41b7700c5fc04f964e0c64a12e7efd51b05091e7f416ab5ab8613fe",
+      "sourceHash": "d014f1eb86789f12935b577e04cbbee355452de02c074d742ea385f75ffc9627",
+      "buildHash": "0c63c3e8f715d44770265046ed21cf6796bda387b20b3b62baa56ff9a902e7b2",
+      "changedFieldsFromPrevious": [
+        "protocolHash",
+        "sourceSha"
+      ],
+      "allOtherManifestFieldsUnchanged": true
+    },
+    "actualAdoption": {
+      "registrationGuidance": "Not reached; no model request.",
+      "nextActionRequirementId": "Not reached; no plan, binding or action.",
+      "semanticOutcome": "No healthy/defect/abstention outcome was observed; no causal or reliability conclusion."
+    },
+    "historicalResults": "Sixth batch 5/6 and seventh R1 timeout/0 of 6 remain unchanged and separate.",
+    "historicalRisks": {
+      "accepted": true,
+      "separateUnknownReservedUsd": [
+        0.063,
+        0.063,
+        0.116
+      ],
+      "sources": [
+        "seventh interrupted batch",
+        "previous unknown record",
+        "earlier unknown record"
+      ],
+      "treatment": "Original three records remain unchanged in their closed accounts. Reconciliation deferred, no clearing, no settlement claim, no old claim resumed.",
+      "notCountedAsNewUnknown": true
+    },
+    "claim": {
+      "path": "/Users/xietian/Documents/ChatGPT/ui-sentinel/.git/r2-product-acceptance-claims/382a066af41b7700c5fc04f964e0c64a12e7efd51b05091e7f416ab5ab8613fe.json",
+      "exists": false,
+      "consumed": false
+    },
+    "rawRunDirectoryCreated": false,
+    "newReportsOrArtifactsToRecover": 0,
+    "priorValidation": {
+      "reusedTests": 84,
+      "reusedBrowserCases": 5,
+      "noRebuild": true,
+      "noFreeTestRerun": true,
+      "noHistoricalEvidenceRehash": true
+    },
+    "nextBoundary": "Stop this attempt without automatic polling, retry or changing price/budget/provider gates. User authorization for one same-policy batch did not authorize changing its price protection. R2 original six-task completion threshold remains unmet."
+  },
+  "evidenceIndex": {
+    "path": "/Users/xietian/.codex/worktrees/r2-product-acceptance/ui-sentinel/data/r2-product-acceptance/handoff-repeat-authorization-20261011/evidence-index.json",
+    "sha256": "5588422722a7cec66f53abdb2249744ad8a4de3f185a3bf043ce21e3a09f429b",
+    "files": 22
+  },
+  "noCodeOrPromptChange": true,
+  "noPriceOrBudgetGateChange": true,
+  "noRebuildOrFreeRetest": true,
+  "noPushOrMerge": true,
+  "roadmapUnchanged": true
+}
