@@ -10,9 +10,17 @@ const row = (id: string) => fixture.rows.find((r: any) => r.row === id)
 const registration = (id: string) =>
   row(id).receipts.find((r: any) => r.toolName === 'product_path_register').originalArguments
 
-describe('fifth-batch evidence drives stage decisions', () => {
+const decide = (h: ReturnType<typeof progressHarness>, kind: string, fields: any) =>
+  h.call('product_path_decide', { decision: { kind, ...fields } })
+const query = (h: ReturnType<typeof progressHarness>, tool: string, args: any) =>
+  decide(h, 'retrieve', {
+    missing: 'Original cited passage required for this draft',
+    queries: [{ tool, args }],
+  })
+
+describe('original evidence drives structured source decisions', () => {
   it.each(['R1', 'R2', 'R3', 'R4', 'R5'])(
-    '%s permits targeted source retrieval alongside registration without inventing a plan',
+    '%s requires a decision with direct source queries without inventing a plan',
     async (id) => {
       const h = progressHarness(undefined, true)
       const read = row(id).receipts.find((r: any) => r.toolName === 'product_source_read')
@@ -21,13 +29,18 @@ describe('fifth-batch evidence drives stage decisions', () => {
       const before = [...h.progress]
       const status = await h.runtime.status()
       expect(status.stage.phase).toBe('source-located')
-      expect(status.stage.allowedTools).toContain('product_path_register')
+      expect(status.stage.allowedTools).toEqual(['product_path_decide'])
+      expect(await h.call('product_source_read', read.originalArguments)).toMatchObject({
+        dispatched: false,
+      })
       expect(status.plan).toBeUndefined()
       expect(h.tools.product_path_gap).toBeUndefined()
       expect(await h.runtime.authorizeTool('page_inspect')).toMatchObject({ dispatched: false })
-      const search = await h.call('product_source_search', { quote: '暂不可用', offset: 0 })
-      expect(search.matches.length).toBeGreaterThan(0)
-      expect((await h.call('product_source_read', read.originalArguments)).text).toBe(result.text)
+      const search = await query(h, 'product_source_search', { quote: '暂不可用', offset: 0 })
+      expect(search.queryResults[0].result.matches.length).toBeGreaterThan(0)
+      expect(
+        (await query(h, 'product_source_read', read.originalArguments)).queryResults[0].result.text,
+      ).toBe(result.text)
       expect([...h.progress]).toEqual(before)
       expect((await h.runtime.status()).complete).toBe(false)
     },
@@ -44,9 +57,9 @@ describe('fifth-batch evidence drives stage decisions', () => {
           r.requestSeq <
             row(id).receipts.find((r: any) => r.toolName === 'product_path_register').requestSeq,
       )) {
-        await h.call('product_source_search', receipt.originalArguments)
+        await query(h, 'product_source_search', receipt.originalArguments)
       }
-      const result = await h.call('product_path_register', registration(id))
+      const result = await decide(h, 'draft', { plan: registration(id) })
       expect(result.plan).toBeDefined()
       expect(result.stage).toMatchObject({ phase: 'bind-next-step', step: 0 })
       expect(await h.runtime.authorizeTool('product_source_read')).toMatchObject({
@@ -73,7 +86,7 @@ describe('fifth-batch evidence drives stage decisions', () => {
   it('refuses unrelated action targets even when a stage allows page_act', async () => {
     const h = progressHarness(undefined, true)
     await h.call('product_source_read', { offset: 0 })
-    await h.call('product_path_register', registration('R1'))
+    await decide(h, 'draft', { plan: registration('R1') })
     h.events.push({
       id: 'bound',
       seq: 99,

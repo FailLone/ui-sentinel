@@ -14,7 +14,7 @@ describe('original trace feedback through actual SDK tools', () => {
       for (const c of row.sourceCalls) await h.call(c.toolName, c.originalArguments)
       const status = await h.runtime.status()
       expect(status.registration).toMatchObject({ phase: 'source-located', invalidAttempts: 0 })
-      expect(status.registration.nextAction).toContain('No plan is registered yet')
+      expect(status.registration.nextAction).toContain('Deliver product_path_decide')
       expect(status.registration.nextAction).toContain('specific missing')
       expect(status.plan).toBeUndefined()
       expect(status.complete).toBe(false)

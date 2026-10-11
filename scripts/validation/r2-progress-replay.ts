@@ -1,3 +1,4 @@
+import { boundedHistoryPage, readToolResult } from '../../src/agent/context/decision-memory.ts'
 /** Original-input SDK replay; the test author, never the model, chooses subsequent calls. */
 import { readFileSync, mkdirSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -13,11 +14,16 @@ export const progressFailures = JSON.parse(
 )
 export const progressRow = (id: string): any => progressFailures.rows.find((r: any) => r.row === id)
 export function progressHarness(input = productSource(), enforceStage = false) {
+  const history: any[] = []
   const source = freezeProductSource(input),
     events: any[] = [],
     progress = new Set<string>()
   const target: any = { itemId: 'original-control', status: 'pending', selected: true }
   const runtime = createProductPath({
+    retrieveReceipt: (q) =>
+      q.tool === 'history_read'
+        ? boundedHistoryPage(history, q.args.start, q.args.count ?? 1)
+        : readToolResult(history, q.args.resultRef, q.args.offset ?? 0),
     source,
     progress: (key) => {
       progress.add(key)
@@ -26,6 +32,7 @@ export function progressHarness(input = productSource(), enforceStage = false) {
       scope: { createItem: () => ({ itemId: 'source' }), snapshot: () => ({ items: [target] }) },
       candidateItems: () => [{ ...target, ref: 'e5', category: 'local-interaction' }],
       flush: async () => {},
+      recordUnsupported: async () => {},
     } as any,
     page: () => ({ url: () => 'http://127.0.0.1' }) as any,
     guard: () => {},
@@ -46,6 +53,7 @@ export function progressHarness(input = productSource(), enforceStage = false) {
   )
   return {
     source,
+    history,
     target,
     events,
     progress,

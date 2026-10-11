@@ -15,7 +15,25 @@ function boundedText(value: unknown, limit: number) {
 export function rawTools(entry: HistoryEntry): Record<string, unknown>[] {
   try {
     const result = JSON.parse(entry.toolResults)
-    return Array.isArray(result) ? result : []
+    if (!Array.isArray(result)) return []
+    // Preserve the parent decision receipt and expose its original query results through
+    // the same bounded summaries/cursors. References index this deterministic projection.
+    return result.flatMap((item) => {
+      const payload = item.payload ?? item
+      if (
+        payload.toolName !== 'product_path_decide' ||
+        !Array.isArray(payload.result?.queryResults)
+      )
+        return [item]
+      return [
+        item,
+        ...payload.result.queryResults.map((query: Record<string, unknown>) => ({
+          ...query,
+          parentToolCallId: payload.toolCallId,
+          origin: 'product-decision-query',
+        })),
+      ]
+    })
   } catch {
     return []
   }

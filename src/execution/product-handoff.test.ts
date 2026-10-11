@@ -38,7 +38,7 @@ it('offers only the source-owned original effect from a unique current binding',
   const plan = original.rows
     .find((r: any) => r.row === 'R6')
     .receipts.find((r: any) => r.toolName === 'product_path_register').originalArguments
-  await h.call('product_path_register', plan)
+  await h.call('product_path_decide', { decision: { kind: 'draft', plan } })
   const step = (await h.runtime.status()).plan!.steps[0]!
   h.events.push({
     id: 'target',
@@ -58,7 +58,7 @@ it('offers only the source-owned original effect from a unique current binding',
       resultSelector: '#out',
       checks: [],
       targetWasSelected: true,
-      planEventId: h.events[0].id,
+      planEventId: h.events.find((e) => e.type === 'product:planned').id,
     },
   })
   expect((await h.runtime.status()).nextAction).toBeUndefined()

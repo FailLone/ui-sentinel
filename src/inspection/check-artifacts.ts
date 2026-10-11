@@ -56,6 +56,14 @@ export async function defaultCheckArtifactIssues(
         )
           throw Error('product-artifact-unavailable-or-changed')
       }
+      if (
+        ['product:decision', 'product:decision-query', 'product:unsupported'].includes(event.type)
+      ) {
+        const original = await load(event.evidenceRefs[0]!, event.type.replace(':', '-'))
+        const { artifactHashes: _, ...payload } = event.payload
+        if (checkHash(original) !== checkHash(payload))
+          throw Error('product-decision-artifact-mismatch')
+      }
       if (event.type === 'product:planned') {
         const plan = await load(event.evidenceRefs[0]!, 'product-plan')
         if (
@@ -78,6 +86,7 @@ export async function defaultCheckArtifactIssues(
             'product-path-7',
             'product-path-8',
             'product-path-9',
+            'product-path-10',
             PRODUCT_SKILL_REVISION,
           ].includes(String(events.find((e) => e.type === 'product:planned')?.payload.revision))
         ) {

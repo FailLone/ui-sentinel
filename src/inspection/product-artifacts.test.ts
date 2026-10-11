@@ -38,6 +38,7 @@ it.each([
   'product-path-8',
   'product-path-9',
   'product-path-10',
+  'product-path-11',
 ])('retains binding byte and admission validation for %s history', async (revision) => {
   const dir = await mkdtemp(join(tmpdir(), 'product-history-'))
   const artifacts: any[] = [],
@@ -107,3 +108,44 @@ it('other product receipts still require original artifact hashes', async () => 
     'product-artifact-hashes-missing',
   )
 })
+
+it.each(['product:decision', 'product:decision-query', 'product:unsupported'])(
+  '%s preserves interpretation/query bytes without making completion proof',
+  async (type) => {
+    const dir = await mkdtemp(join(tmpdir(), 'product-decision-history-'))
+    try {
+      const path = join(dir, 'original.json')
+      const payload = {
+        reason: 'Unsupported interpretation',
+        unchecked: ['Path'],
+        sourceHash: source.contentHash,
+      }
+      const bytes = JSON.stringify(payload)
+      await writeFile(path, bytes)
+      const artifact: any = {
+        id: 'decision',
+        type: type.replace(':', '-'),
+        path,
+        metadata: { evidenceIntegrity: { version: 1, status: 'clean', interventionIds: [] } },
+      }
+      const event: any = {
+        id: 'e',
+        seq: 1,
+        type,
+        payload: {
+          ...payload,
+          artifactHashes: { decision: createHash('sha256').update(bytes).digest('hex') },
+        },
+        evidenceRefs: ['decision'],
+      }
+      expect(await defaultCheckArtifactIssues(run, [event], [artifact])).toEqual([])
+      expect(productPathReport(source, [event]).complete).toBe(false)
+      event.payload.reason = 'Changed interpretation'
+      expect(await defaultCheckArtifactIssues(run, [event], [artifact])).toContain(
+        'product-decision-artifact-mismatch',
+      )
+    } finally {
+      await rm(dir, { recursive: true, force: true })
+    }
+  },
+)

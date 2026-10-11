@@ -1,3 +1,4 @@
+import { productDecisionInput, type ProductEvidenceQuery } from './product-decision.ts'
 import { productStage, productStageAllows } from '../inspection/product-stage.ts'
 import { checkHash } from '../inspection/check-contract.ts'
 import { createTool } from '@mastra/core/tools'
@@ -39,6 +40,10 @@ import { readPublicCheckPage } from './default-check-runtime.ts'
 import { measureInteraction } from './interaction-verification.ts'
 
 export function createProductPath(host: {
+  retrieveReceipt?(
+    query: Extract<ProductEvidenceQuery, { tool: 'history_read' | 'tool_result_read' }>,
+  ): unknown
+  reserveQuery?(tool: string): void
   progress(key: string): void
   source: ProductSource
   inspection: InspectionHost
@@ -83,6 +88,7 @@ export function createProductPath(host: {
   const status = async () => {
     const events = await host.events()
     const rejected = events.filter((e) => e.type === 'product:registration-rejected')
+    const unsupported = events.find((e) => e.type === 'product:unsupported')
     const frozen = events.some((e) => e.type === 'product:planned' || e.type === 'action:executing')
     const report = productPathReport(host.source, events)
     const execution = productContinuation(report, events)
@@ -92,13 +98,16 @@ export function createProductPath(host: {
       registration: {
         phase: frozen
           ? 'frozen'
-          : rejected.length >= 3
-            ? 'exhausted'
-            : rejected.length
-              ? 'repair-needed'
-              : issued.size
-                ? 'source-located'
-                : 'need-source',
+          : unsupported
+            ? 'unsupported'
+            : rejected.length >= 3
+              ? 'exhausted'
+              : rejected.length
+                ? 'repair-needed'
+                : issued.size
+                  ? 'source-located'
+                  : 'need-source',
+        unsupported: unsupported?.payload,
         invalidAttempts: rejected.length,
         maxInvalidAttempts: 3,
         availableCitationCount: issued.size,
@@ -121,9 +130,9 @@ export function createProductPath(host: {
           : rejected.length >= 3
             ? 'Finish unverified-scope; registration repair limit reached.'
             : rejected.length
-              ? 'Repair the reported registration fields using available original text and citationIds. Query only a specific missing or truncated passage; unsupported requirements remain unverified.'
+              ? 'Deliver a repaired draft, a retrieve decision carrying queries for a specific missing passage, or unsupported with reasons. Use original diagnostics and citationIds; unsupported requirements remain unverified.'
               : issued.size
-                ? 'Review the returned original text and extract a supported path for product_path_register using existing citationIds. No plan is registered yet. Query again only for a specific missing requirement, prerequisite or truncated passage. Returned text is not proof that a complete executable plan exists; if unsupported, finish unverified-scope.'
+                ? 'Deliver product_path_decide: a source-grounded draft, specific missing evidence with executable read-only queries, or an unsupported explanation and unchecked scope. Returned text is not proof a plan exists.'
                 : 'Locate and read the relevant original text with product_source_read/search before extracting a path; section titles alone are not requirements.',
       },
     }
@@ -234,9 +243,121 @@ export function createProductPath(host: {
         throw Error('product-binding-stale-after-other-action')
     }
   }
+  const searchSource = (raw: z.infer<typeof productSearchInput>) => {
+    const i = normalizeProductSearchInput(raw)
+    if (i.quote !== undefined) {
+      const result = locateProductQuote(host.source, i.quote, i.offset)
+      result.matches.forEach((m) => remember(m.citation))
+      return result
+    }
+    const result = searchProductSource(host.source, i.keyword!, i.offset)
+    result.hits.forEach((h) => remember(h.citation))
+    return result
+  }
+  const readSource = (i: z.infer<typeof productSourceReadInput>) => {
+    const result = readProductSource(host.source, i.offset)
+    if (!('error' in result) && result.citation) remember(result.citation)
+    return result
+  }
+  const registerPlan = async (raw: z.infer<typeof productRegisterInput>) => {
+    host.guard()
+    const events = await host.events()
+    if (events.some((e) => e.type === 'product:planned' || e.type === 'action:executing'))
+      throw Error('product-plan-already-frozen-or-action-started')
+    if (events.filter((e) => e.type === 'product:registration-rejected').length >= 3)
+      return {
+        error: 'product-registration-repair-limit',
+        registration: (await status()).registration,
+      }
+    const reject = async (diagnostics: ReturnType<typeof registrationDiagnostics>) => {
+      await host.emit('product:registration-rejected', { diagnostics })
+      return {
+        error: 'product-registration-invalid',
+        frozen: false,
+        diagnostics,
+        registration: (await status()).registration,
+      }
+    }
+    let plan
+    try {
+      plan = resolveProductPlan(host.source, raw, issued)
+    } catch (error) {
+      return reject(registrationDiagnostics(error))
+    }
+    const draft = productRegisterInput.parse(raw)
+    const diagnostics = productReadinessDiagnostics(
+      host.source,
+      plan,
+      draft.steps.map((s) => s.review),
+    )
+    if (diagnostics.length) return reject(diagnostics)
+    const ref = await host.save(
+      'product-plan',
+      JSON.stringify({ revision: PRODUCT_SKILL_REVISION, plan }),
+    )
+    await host.emit('product:planned', { revision: PRODUCT_SKILL_REVISION, plan }, [ref])
+    host.progress('plan-frozen')
+    await host.inspection.flush()
+    return status()
+  }
+  const recordDecision = async (type: string, payload: Record<string, unknown>) => {
+    const ref = await host.save(type.replace(':', '-'), JSON.stringify(payload))
+    return host.emit(type, payload, [ref])
+  }
   function tools(serial: (name: string, fn: () => Promise<any>) => Promise<any>) {
     const empty = z.object({}).strict()
     return {
+      product_path_decide: createTool({
+        id: 'product_path_decide',
+        description:
+          'Deliver exactly one source-stage decision: draft a plan for the original registration validator; retrieve specific missing evidence with up to three direct queries now; or explain unsupported scope and end unverified. No action tools. A gap declaration or repeated evidence is not progress. No extra model request for query permission.',
+        inputSchema: productDecisionInput,
+        execute: (input) =>
+          serial('product_path_decide', async () => {
+            host.guard()
+            const current = await status()
+            if (!current.stage.decisionRequired)
+              return { error: 'product-decision-stage-ended', dispatched: false }
+            const { decision } = productDecisionInput.parse(input)
+            await recordDecision('product:decision', {
+              decision,
+              sourceHash: host.source.contentHash,
+            })
+            if (decision.kind === 'draft') return registerPlan(decision.plan)
+            if (decision.kind === 'unsupported') {
+              await recordDecision('product:unsupported', {
+                ...decision,
+                sourceHash: host.source.contentHash,
+              })
+              for (const scope of decision.unchecked)
+                await host.inspection.recordUnsupported(scope, decision.reason)
+              await host.inspection.flush()
+              return {
+                decision: 'unsupported',
+                reason: decision.reason,
+                unchecked: decision.unchecked,
+                finish: 'unverified-scope',
+              }
+            }
+            const queryResults = []
+            for (const query of decision.queries) {
+              host.guard()
+              host.reserveQuery?.(query.tool)
+              const result =
+                query.tool === 'product_source_read'
+                  ? readSource(query.args)
+                  : query.tool === 'product_source_search'
+                    ? searchSource(query.args)
+                    : (host.retrieveReceipt?.(query) ?? {
+                        error: 'product-receipt-retrieval-unavailable',
+                      })
+              const receipt = { toolName: query.tool, args: query.args, result }
+              await recordDecision('product:decision-query', receipt)
+              queryResults.push(receipt)
+            }
+            return { decision: 'retrieve', missing: decision.missing, queryResults }
+          }),
+      }),
       product_source_overview: createTool({
         id: 'product_source_overview',
         description: 'Read frozen document identity and section offsets. Titles only locate text.',
@@ -254,15 +375,7 @@ export function createProductPath(host: {
         inputSchema: productSearchInput,
         execute: (raw) =>
           serial('product_source_search', async () => {
-            const i = normalizeProductSearchInput(raw)
-            if (i.quote !== undefined) {
-              const result = locateProductQuote(host.source, i.quote, i.offset)
-              result.matches.forEach((m) => remember(m.citation))
-              return result
-            }
-            const result = searchProductSource(host.source, i.keyword!, i.offset)
-            result.hits.forEach((h) => remember(h.citation))
-            return result
+            return searchSource(raw)
           }),
       }),
       product_source_read: createTool({
@@ -272,9 +385,7 @@ export function createProductPath(host: {
         inputSchema: productSourceReadInput,
         execute: (i) =>
           serial('product_source_read', async () => {
-            const result = readProductSource(host.source, i.offset)
-            if (!('error' in result) && result.citation) remember(result.citation)
-            return result
+            return readSource(i)
           }),
       }),
       product_path_status: createTool({
@@ -291,45 +402,7 @@ export function createProductPath(host: {
         inputSchema: productRegisterInput,
         execute: (raw) =>
           serial('product_path_register', async () => {
-            host.guard()
-            const events = await host.events()
-            if (events.some((e) => e.type === 'product:planned' || e.type === 'action:executing'))
-              throw Error('product-plan-already-frozen-or-action-started')
-            if (events.filter((e) => e.type === 'product:registration-rejected').length >= 3)
-              return {
-                error: 'product-registration-repair-limit',
-                registration: (await status()).registration,
-              }
-            const reject = async (diagnostics: ReturnType<typeof registrationDiagnostics>) => {
-              await host.emit('product:registration-rejected', { diagnostics })
-              return {
-                error: 'product-registration-invalid',
-                frozen: false,
-                diagnostics,
-                registration: (await status()).registration,
-              }
-            }
-            let plan
-            try {
-              plan = resolveProductPlan(host.source, raw, issued)
-            } catch (error) {
-              return reject(registrationDiagnostics(error))
-            }
-            const draft = productRegisterInput.parse(raw)
-            const diagnostics = productReadinessDiagnostics(
-              host.source,
-              plan,
-              draft.steps.map((s) => s.review),
-            )
-            if (diagnostics.length) return reject(diagnostics)
-            const ref = await host.save(
-              'product-plan',
-              JSON.stringify({ revision: PRODUCT_SKILL_REVISION, plan }),
-            )
-            await host.emit('product:planned', { revision: PRODUCT_SKILL_REVISION, plan }, [ref])
-            host.progress('plan-frozen')
-            await host.inspection.flush()
-            return status()
+            return registerPlan(raw)
           }),
       }),
       product_path_bind: createTool({

@@ -10,7 +10,7 @@ import { validProductSource, type ProductSource } from './product-source.ts'
 import { projectInspectionScope } from './scope.ts'
 import type { RunEvent } from '../shared/types.ts'
 
-export const PRODUCT_SKILL_REVISION = 'product-path-10'
+export const PRODUCT_SKILL_REVISION = 'product-path-11'
 const citation = z
   .object({
     start: z.number().int().min(0),
@@ -263,6 +263,7 @@ export function productPathReport(
       'product-path-7',
       'product-path-8',
       'product-path-9',
+      'product-path-10',
       PRODUCT_SKILL_REVISION,
     ].includes(String(planned?.payload.revision)) &&
     plan
@@ -408,7 +409,11 @@ export function productPathReport(
         ? 'failed'
         : 'verified'
       : 'unverified',
-    unchecked: plan?.unchecked ?? ['资料尚未登记关键路径；全文未验证'],
+    unsupported: events.find((e) => e.type === 'product:unsupported')?.payload,
+    unchecked: plan?.unchecked ??
+      (events.find((e) => e.type === 'product:unsupported')?.payload.unchecked as
+        | string[]
+        | undefined) ?? ['资料尚未登记关键路径；全文未验证'],
     limitation:
       'Only the selected short path is evaluated; omitted document content is unchecked. Extraction is an Agent interpretation of the cited original.',
   }

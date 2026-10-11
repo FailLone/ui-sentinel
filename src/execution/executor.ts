@@ -706,6 +706,8 @@ async function executeProfiledRun(
       remaining,
     }
   }
+  let attemptProductTools: readonly string[] | undefined
+  let productDecisionUsed = false
   let toolTail: Promise<unknown> = Promise.resolve()
   function serial<T>(tool: string, fn: () => Promise<T>, reviewedDecisionId?: string): Promise<T> {
     // Captured by AsyncLocalStorage from the originating generate attempt.
@@ -728,9 +730,23 @@ async function executeProfiledRun(
       if (finished) throw new Error('run already finished')
       if (tool !== 'run_finish' && (await closeCoveredUiScope()))
         return { error: 'scope-closing', status: 'denied', dispatched: false } as T
+      // Freeze the offered source-decision boundary for this response, as well as checking
+      // the live stage below. A later call cannot exploit a plan frozen earlier in this reply.
+      if (!attemptId?.startsWith('program-') && attemptProductTools) {
+        if (!attemptProductTools.includes(tool))
+          return { error: 'product-tool-not-offered-this-decision', dispatched: false } as T
+        if (tool === 'product_path_decide') {
+          if (productDecisionUsed)
+            return { error: 'product-one-decision-per-response', dispatched: false } as T
+          productDecisionUsed = true
+        }
+      }
       const denied = phaseTracker.authorizeTool(tool, taskState.hasOpenHypotheses())
       if (denied) return { error: denied, status: 'denied' } as T
-      const stageDenied = await productPath?.authorizeTool(tool)
+      const stageDenied =
+        tool === 'run_finish' && phaseTracker.phase === 'finalizing'
+          ? undefined
+          : await productPath?.authorizeTool(tool)
       if (stageDenied) return stageDenied as T
       const toolCallId = randomUUID(),
         toolStartedAt = Date.now()
@@ -2255,6 +2271,16 @@ async function executeProfiledRun(
     }
     if (uiScan?.productSource && inspection) {
       productPath = createProductPath({
+        retrieveReceipt: (query) =>
+          query.tool === 'history_read'
+            ? boundedHistoryPage(history, query.args.start, query.args.count ?? 1)
+            : readToolResult(history, query.args.resultRef, query.args.offset ?? 0),
+        reserveQuery: (tool) => {
+          guard()
+          if (++attemptTools > 8) throw Error('product-query-tool-budget-exhausted')
+          if (['history_read', 'tool_result_read'].includes(tool) && ++attemptReads > 3)
+            throw Error('product-query-retrieval-budget-exhausted')
+        },
         progress: (key) => productSourceFacts.add('product-source:' + key),
         source: uiScan.productSource,
         inspection,
@@ -5237,31 +5263,11 @@ async function executeProfiledRun(
         }
       }
       if (await closeCoveredUiScope()) break
-      // Spend the existing bounded guidance before closure, without a scheduling extension.
-      if (
-        productPath &&
-        noToolStreak >= 1 &&
-        noToolStreak < 3 &&
-        !guidanceExhausted &&
-        phaseTracker.phase !== 'finalizing' &&
-        !phaseTracker.shouldFinalize({
-          elapsedMs: Date.now() - startedAt,
-          modelCallsUsed: usage.modelCalls,
-          noProgressStreak: noToolStreak,
-        }).should
-      ) {
-        remainingObligationGuidance = remainingGuidance.take(
-          [],
-          (await productPath.status()).registration,
-        )
-        if (remainingObligationGuidance)
-          await appendEvent(
-            runId,
-            'execution:remaining-obligation-guidance',
-            remainingObligationGuidance,
-          )
-      }
+      // Source registration now has a required structured decision, not a second reminder.
+      // Existing no-progress closure and post-registration guidance retain their budgets.
       if (uiScan && inspection && noToolStreak >= 3) {
+        const registrationPending =
+          (await productPath?.status())?.execution.phase === 'registration-required'
         if (!uiRecoveryUsed) {
           uiRecoveryUsed = true
           const before = JSON.stringify([latest?.snapshot.url, latest?.snapshot.text, latestA11y])
@@ -5283,7 +5289,8 @@ async function executeProfiledRun(
             continue
           }
         }
-        contractRepairAdvice = guidanceExhausted ? undefined : contractRepair.take()
+        contractRepairAdvice =
+          guidanceExhausted || registrationPending ? undefined : contractRepair.take()
         if (contractRepairAdvice) {
           await appendEvent(runId, 'execution:contract-repair', contractRepairAdvice)
           noToolStreak = 2
@@ -5295,6 +5302,7 @@ async function executeProfiledRun(
           noProgressStreak: 0,
         })
         if (
+          !registrationPending &&
           !guidanceExhausted &&
           !reserve.should &&
           phaseTracker.phase !== 'finalizing' &&
@@ -5403,7 +5411,12 @@ async function executeProfiledRun(
       const retryBlocker =
         config.features?.blockerReview && !uiScan ? await measuredRetryBlocker() : undefined
       const productStatus = await productPath?.status()
+      // Finalization retains its original finish-only boundary; no source work is started
+      // from the two reserved closing calls.
+      const sourceFinalizing =
+        !!productStatus?.stage.decisionRequired && phaseTracker.phase === 'finalizing'
       const activeTools = Object.keys(tools).filter((name) => {
+        if (sourceFinalizing) return name === 'run_finish'
         if (productStatus && !productStageAllows(productStatus.stage, name)) return false
         // A UI run never reads or publishes a cross-run Journey: the plan closes that capability for
         // this kind, because a segment evidenced under another site's contract could otherwise be
@@ -5429,6 +5442,14 @@ async function executeProfiledRun(
 
         return true
       })
+      if (sourceFinalizing && productStatus)
+        productStatus.stage = {
+          ...productStatus.stage,
+          decisionRequired: false,
+          allowedTools: ['run_finish'],
+          decision:
+            'Original closing reserve reached. End with run_finish unverified-scope; no new source decision or evidence query is authorized.',
+        }
       const agentInput = {
         ...(popupRuntime ? { popupTask: popupRuntime.snapshot() } : {}),
         ...(experimentalHandoff ? { explorationHandoff: experimentalHandoff } : {}),
@@ -5529,7 +5550,7 @@ async function executeProfiledRun(
                 })),
                 note: report.plan
                   ? 'Plan frozen. Follow execution.phase/nextAction for the first unresolved step; guidance is not evidence or action permission. Reuse current page evidence; do not re-register or replay completed actions.'
-                  : 'Follow registration.nextAction and diagnostics. Once relevant source text is available, register using issued citationIds; repeating the same read does not advance progress.',
+                  : 'Follow stage.decision and registration diagnostics. Returned source requires a structured draft, retrieve, or unsupported decision; repeated facts do not advance progress.',
               }))(productStatus!),
             }
           : {}),
@@ -5976,6 +5997,10 @@ async function executeProfiledRun(
         JSON.stringify(agentInput),
         {
           activeTools,
+          requiredTool:
+            productStatus?.stage.decisionRequired && !sourceFinalizing
+              ? 'product_path_decide'
+              : undefined,
           requireTool: true,
           lengthRecoveryWithoutReasoning: config.lengthRecoveryWithoutReasoning,
           runSignal: signal,
@@ -5991,6 +6016,8 @@ async function executeProfiledRun(
         {
           onStart: async (attempt) => {
             countModel()
+            attemptProductTools = productStatus ? activeTools : undefined
+            productDecisionUsed = false
             attemptTools = 0
             attemptReads = 0
             phaseTracker.countFinalizingCall()
@@ -6110,6 +6137,13 @@ async function executeProfiledRun(
       })
       await persistUsage()
       guard()
+      if ((await productPath?.status())?.registration.phase === 'unsupported') {
+        // The decision receipt is durable first. Finish through the original executor in
+        // a bounded program context, after the tool queue resolved (never nested serial).
+        await executeProgramTool(signal, budget.totalTimeoutMs - (Date.now() - startedAt), () =>
+          finishInspection({ reason: 'unverified-scope' }),
+        )
+      }
     }
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error)

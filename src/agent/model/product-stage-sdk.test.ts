@@ -13,7 +13,7 @@ vi.mock('../../shared/config.ts', () => ({
 }))
 import { executeModelRequest } from './request.ts'
 
-it('actual SDK retrieves truncated source directly, preserves legal same-response reads, and registers original requirements', async () => {
+it('actual SDK forces source decisions, executes query batches directly, and registers original requirements', async () => {
   const source = productSource()
   const h = progressHarness(
     { ...source, markdown: '# Background\n' + '背景说明。'.repeat(850) + '\n' + source.markdown },
@@ -60,6 +60,28 @@ it('actual SDK retrieves truncated source directly, preserves legal same-respons
         }
         calls = [{ name: 'product_path_register', args: plan }]
       }
+      if (packet.productPath.stage.decisionRequired) {
+        expect(body.tool_choice).toEqual({
+          type: 'function',
+          function: { name: 'product_path_decide' },
+        })
+        expect(body.tools.map((t: any) => t.function.name)).toEqual(['product_path_decide'])
+        calls = [
+          {
+            name: 'product_path_decide',
+            args: {
+              decision:
+                calls[0].name === 'product_path_register'
+                  ? { kind: 'draft', plan: calls[0].args }
+                  : {
+                      kind: 'retrieve',
+                      missing: 'Next source page or exact unavailable prerequisite quote',
+                      queries: calls.map((c) => ({ tool: c.name, args: c.args })),
+                    },
+            },
+          },
+        ]
+      }
       return Response.json({
         id: 'fixed-local',
         created: 1,
@@ -102,6 +124,7 @@ it('actual SDK retrieves truncated source directly, preserves legal same-respons
       {
         activeTools,
         requireTool: true,
+        requiredTool: status.stage.decisionRequired ? 'product_path_decide' : undefined,
         transport: 'generate',
         runSignal: new AbortController().signal,
         timeRemainingMs: 15000,
@@ -127,7 +150,7 @@ it('actual SDK retrieves truncated source directly, preserves legal same-respons
     `source-coverage:${h.source.markdown.length}`,
   ])
   expect(h.events.some((e) => e.type === 'action:executing')).toBe(false)
-  const dest = process.env.R2_STAGE_RETRIEVAL_EVIDENCE_DIR
+  const dest = process.env.R2_DECISION_EVIDENCE_DIR
   if (dest)
     writeFileSync(
       resolve(dest, 'sdk-source-retrieval.json'),

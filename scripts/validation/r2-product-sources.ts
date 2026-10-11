@@ -18,6 +18,7 @@ import {
 } from './r2-readiness-replay.ts'
 import { continuationReply, continuationRows } from './r2-continuation-replay.ts'
 import { progressReply, progressRow } from './r2-progress-replay.ts'
+const decisionOnly = process.argv.includes('--registration-decision-only')
 const handoffOnly = process.argv.includes('--registration-action-handoff-only')
 const handoffFixture = JSON.parse(
   await readFile(
@@ -33,36 +34,46 @@ const stageOnly =
   process.argv.includes('--stage-decisions-only') ||
   stageBoundaryOnly ||
   retrievalOnly ||
-  handoffOnly
+  handoffOnly ||
+  decisionOnly
 const feedbackOnly = process.argv.includes('--progress-feedback-only') || stageOnly
 const continuationOnly = process.argv.includes('--continuation-only') || feedbackOnly
-const continuationModes = handoffOnly
+const continuationModes = decisionOnly
   ? [
       'feedback-healthy',
       'feedback-defect',
-      'feedback-registration-stall',
       'feedback-unavailable-enabled',
-      'feedback-unknown',
+      'feedback-registration-stall',
+      'feedback-unsupported',
+      'feedback-budget',
     ]
-  : retrievalOnly
-    ? ['feedback-healthy', 'feedback-unavailable-enabled', 'feedback-unknown']
-    : stageBoundaryOnly
-      ? ['feedback-healthy']
-      : feedbackOnly
-        ? [
-            'feedback-healthy',
-            'feedback-defect',
-            'feedback-unavailable-enabled',
-            ...(stageOnly ? ['feedback-unknown'] : []),
-            'dynamic-pending',
-          ]
-        : [
-            'continuation-healthy',
-            'continuation-defect',
-            'continuation-unavailable',
-            'continuation-unavailable-enabled',
-            'dynamic-pending',
-          ]
+  : handoffOnly
+    ? [
+        'feedback-healthy',
+        'feedback-defect',
+        'feedback-registration-stall',
+        'feedback-unavailable-enabled',
+        'feedback-unknown',
+      ]
+    : retrievalOnly
+      ? ['feedback-healthy', 'feedback-unavailable-enabled', 'feedback-unknown']
+      : stageBoundaryOnly
+        ? ['feedback-healthy']
+        : feedbackOnly
+          ? [
+              'feedback-healthy',
+              'feedback-defect',
+              'feedback-unavailable-enabled',
+              ...(stageOnly ? ['feedback-unknown'] : []),
+              'dynamic-pending',
+            ]
+          : [
+              'continuation-healthy',
+              'continuation-defect',
+              'continuation-unavailable',
+              'continuation-unavailable-enabled',
+              'dynamic-pending',
+            ]
 const readinessOnly = process.argv.includes('--readiness-only')
 const readinessModes = [
   'readiness-healthy',
@@ -95,25 +106,27 @@ await save('identity.json', {
   dist: await hashTree('dist'),
   validationScripts: await hashTree('scripts/validation'),
   fixtures: await hashTree('evaluation/fixtures/r2-product-acceptance'),
-  mode: handoffOnly
-    ? 'registration-action-handoff-only'
-    : retrievalOnly
-      ? 'stage-retrieval-only'
-      : stageBoundaryOnly
-        ? 'stage-boundary-only'
-        : stageOnly
-          ? 'stage-decisions-only'
-          : feedbackOnly
-            ? 'progress-feedback-only'
-            : continuationOnly
-              ? 'continuation-only'
-              : readinessOnly
-                ? 'readiness-only'
-                : citationsOnly
-                  ? 'citations-only'
-                  : dynamicOnly
-                    ? 'dynamic-only'
-                    : 'all',
+  mode: decisionOnly
+    ? 'registration-decision-only'
+    : handoffOnly
+      ? 'registration-action-handoff-only'
+      : retrievalOnly
+        ? 'stage-retrieval-only'
+        : stageBoundaryOnly
+          ? 'stage-boundary-only'
+          : stageOnly
+            ? 'stage-decisions-only'
+            : feedbackOnly
+              ? 'progress-feedback-only'
+              : continuationOnly
+                ? 'continuation-only'
+                : readinessOnly
+                  ? 'readiness-only'
+                  : citationsOnly
+                    ? 'citations-only'
+                    : dynamicOnly
+                      ? 'dynamic-only'
+                      : 'all',
 })
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
 async function listen(s: ReturnType<typeof createServer>) {
@@ -138,7 +151,7 @@ const fixture = createServer((req, res) => {
     const html = documentFor(
       mode.includes('unavailable')
         ? 'unavailable'
-        : mode === 'feedback-registration-stall'
+        : ['feedback-registration-stall', 'feedback-unsupported', 'feedback-budget'].includes(mode)
           ? 'healthy'
           : mode === 'feedback-unknown'
             ? 'defect'
@@ -283,7 +296,43 @@ const model = createServer(async (req, res) => {
         ? 'unverified-scope'
         : 'scope-covered',
     }
-  if (mode === 'feedback-registration-stall') {
+  if (
+    decisionOnly &&
+    ['feedback-registration-stall', 'feedback-unsupported', 'feedback-budget'].includes(mode)
+  ) {
+    name = 'product_source_read'
+    args = { offset: 0 }
+    if (turn > 0) {
+      name = 'product_path_decide'
+      args = {
+        decision:
+          mode === 'feedback-unsupported'
+            ? {
+                kind: 'unsupported',
+                reason:
+                  'This fixed operator cannot derive a supported plan; the document and local buttons alone do not verify the path.',
+                unchecked: ['访客预览到详情路径未执行', '当前前置条件与效果均未测量'],
+              }
+            : {
+                kind: 'retrieve',
+                missing: `Rephrased gap ${turn}: preview source requirement`,
+                queries: [{ tool: 'product_source_read', args: { offset: 0 } }],
+              },
+      }
+    }
+    if (mode === 'feedback-budget' && packet.runPhase?.phase === 'finalizing') {
+      name = 'run_finish'
+      args = { reason: 'unverified-scope' }
+    }
+    if (
+      mode === 'feedback-budget' &&
+      packet.activeTools.length === 1 &&
+      packet.activeTools[0] === 'run_finish'
+    ) {
+      name = 'run_finish'
+      args = { reason: 'unverified-scope' }
+    }
+  } else if (mode === 'feedback-registration-stall') {
     const original = originalHandoff('R1').receipts.filter((r: any) => r.requestSeq === turn + 1)
     assert.ok(original.length, 'R1 replay must close within its original six decisions')
     name = original[0].toolName
@@ -557,6 +606,43 @@ const model = createServer(async (req, res) => {
     }
   }
 
+  if (decisionOnly) {
+    if (name === 'product_path_register') {
+      name = 'product_path_decide'
+      args = { decision: { kind: 'draft', plan: args } }
+      if (mode === 'feedback-healthy') {
+        // A second decision and newly available DOM tool in this SAME reply may not run.
+        additionalCalls.push(
+          {
+            name: 'product_path_decide',
+            args: {
+              decision: {
+                kind: 'retrieve',
+                missing: 'duplicate after freeze',
+                queries: [{ tool: 'product_source_read', args: { offset: 0 } }],
+              },
+            },
+          },
+          { name: 'page_inspect', args: { selector: 'main', offset: 0 } },
+        )
+      }
+    }
+    if (packet.productPath.stage.decisionRequired) {
+      assert.deepEqual(packet.activeTools, ['product_path_decide'])
+      assert.deepEqual(body.tool_choice, {
+        type: 'function',
+        function: { name: 'product_path_decide' },
+      })
+    }
+    if (['feedback-healthy', 'feedback-defect'].includes(mode) && [5, 8].includes(turn)) {
+      const next = packet.productPath.nextAction
+      assert.equal(next.tool, 'page_act')
+      assert.ok(next.args.requirementId.startsWith('requirement:'))
+      name = next.tool
+      args = next.args
+    }
+  }
+
   if (retrievalOnly && mode === 'feedback-unknown' && turn === 9 && !originalReceiptRead) {
     const receipt = packet.latestToolResults.tools.find((t: any) => t.tool === 'page_act')
     assert.ok(receipt.resultRef)
@@ -576,6 +662,7 @@ const model = createServer(async (req, res) => {
     args,
     additionalCalls,
     packet,
+    wireChoice: body.tool_choice,
     wireTools: stageOnly ? body.tools.map((t: any) => t.function.name) : undefined,
   })
   if (!receiptSubturn) turn++
@@ -727,6 +814,7 @@ try {
           kind: 'ui-scan',
           entryUrl: origin + '/catalog',
           ...(m === 'legacy' ? {} : { productSource: source }),
+          ...(m === 'feedback-budget' ? { budget: { maxModelCalls: 3 } } : {}),
         }),
       })
       assert.equal(created.status, 202, await created.clone().text())
@@ -754,6 +842,58 @@ try {
     })
     await save('results.json', results)
     console.log(JSON.stringify(results.at(-1)))
+    if (decisionOnly) {
+      assert.equal(
+        events.filter(
+          (e) =>
+            e.type === 'execution:remaining-obligation-guidance' &&
+            e.payload.kind === 'product-registration',
+        ).length,
+        0,
+      )
+      if (['feedback-registration-stall', 'feedback-unsupported', 'feedback-budget'].includes(m)) {
+        assert.equal(state, 'unverified')
+        assert.equal(r.uiScan.inspection.coverage, 'partial')
+        assert.equal(
+          events.filter((e) => ['product:planned', 'action:executing'].includes(e.type)).length,
+          0,
+        )
+        if (m === 'feedback-registration-stall') {
+          assert.equal(events.find((e) => e.type === 'run:no-progress').payload.streak, 3)
+          assert.equal(calls.length, 4)
+          assert.equal(events.filter((e) => e.type === 'product:decision-query').length, 3)
+        } else if (m === 'feedback-unsupported') {
+          assert.equal(calls.length, 2)
+          assert.deepEqual(r.uiScan.productSource.unchecked, calls[1].args.decision.unchecked)
+          assert.equal(r.uiScan.productSource.unsupported.reason, calls[1].args.decision.reason)
+          assert.ok(
+            events.some(
+              (e) => e.type === 'finish:requested' && e.payload.reason === 'unverified-scope',
+            ),
+          )
+        } else {
+          assert.ok(calls.length <= 3)
+          assert.equal(events.filter((e) => e.type === 'product:decision-query').length, 0)
+        }
+        continue
+      }
+      if (m === 'feedback-healthy') {
+        assert.equal(events.filter((e) => e.type === 'product:decision').length, 1)
+        assert.equal(events.filter((e) => e.type === 'product:decision-query').length, 0)
+        const results = events
+          .filter((e) => e.type === 'agent:response')
+          .flatMap((e) => e.payload.toolResults)
+        assert.ok(JSON.stringify(results).includes('product-one-decision-per-response'))
+        assert.ok(
+          results.some((t) => {
+            const p = t.payload ?? t
+            return (
+              p.toolName === 'page_inspect' && /not found|not-offered/.test(String(p.result?.error))
+            )
+          }),
+        )
+      }
+    }
     if ((stageBoundaryOnly || retrievalOnly) && m === 'feedback-healthy') {
       const first = calls[1].packet.latestToolResults.tools
       assert.equal(first.filter((t: any) => t.tool === 'product_source_read').length, 2)
@@ -1185,6 +1325,7 @@ try {
     progressFeedbackReplay: feedbackOnly,
     stageDecisions: stageOnly,
     registrationActionHandoff: handoffOnly,
+    structuredRegistrationDecision: decisionOnly,
     directStageRetrieval: retrievalOnly,
     sameResponseStageBoundary: stageBoundaryOnly,
     historicalReports: oldReports,
