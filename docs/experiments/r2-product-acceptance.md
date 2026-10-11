@@ -1,6 +1,6 @@
 # R2 产品资料真实主模型小批验收
 
-最近真实结果：2026-10-11 推进反馈候选的新授权批次已完成Agent审阅，按原标准 **1/6**，仅R1健康路径完整执行。R5第6请求超时且费用未知，原闸门停止批次，R6未派发；六任务和八效果分母不变。已知USD0.040360993，新增unknown预留USD0.063、held 0，本期R2未达原完成条件。详见文末第五批结果及[交付索引](../../evaluation/private/r2-product-acceptance/real-progress-acceptance.json)。此前四批原结果、费用和授权记录保持不变。
+最近真实结果：2026-10-12，v12登记纠错恢复候选的唯一授权六行批次，经本执行Agent逐轨迹语义审阅达到原 **6/6** 标准：2项健康完整执行、2项缺陷测出、2项不可用有据弃权（仍partial/unverified，各保留2项缺口）。45请求，已知USD0.052500035，新增unknown/held均0。六行首次登记均成功，未触发纠错正文或来源恢复，不能据此证明这些机制的真实采用或因果收益。详见文末v12结果及[本批交付](../../evaluation/private/r2-product-acceptance/real-registration-recovery-acceptance.json)。所有历史结果及费用原样保留。
 
 2026-10-10。状态：**本轮已获用户授权并完成唯一真实批次；预定验收未通过（0/6）**。实际运行冻结在 `3668f5446404e04f5ea332e338cc0147af8a48fd`，结果交付仅更新审阅材料，不变更运行配置。不能把固定模型、浏览器真值检查或旧 R0/R1 成绩当作本轮能力成绩。基线 main/origin/main 均为 `1db982428ffe4735450f2fca6a601d72f4b965dc`，建工作区时无新增提交差异。
 
@@ -691,3 +691,29 @@ R6两次retrieve在各自同一外层调用内执行`tool_result_read`，没有�
 六报告重启完整相等，原准入附件破坏继续拒绝；未影响的未知效果不重放/unsupported等复用有效旧证据，不全套重跑。开发失败保留：一次类型推断检查失败；旧dynamic-pending回放未适配阶段边界；恢复回放先错误假设旧entry始终存在，随后错误假设单工具历史也会省略全文，最终按真实overview+read初始结构验证。没有把这些作者脚本错误隐藏或当产品通过。
 
 最终浏览器`data/r2-product-sources/2026-10-11T17-09-27-406Z`对应源码hash `ebad93b8ac62020dbe8f0dd5bbf68896f2cf6a43487cc6c08e0209109f20487a`、构建hash `7d7554ed11856d38e96663b46cc86a922927d11f30b0951808ed5bd0cdc1500b`。五次必要开发/修正验证目录和784份相关原附件、SDK wire、原反例、比较及检查日志进入922项索引，hash `6b0d2144df4c9261888a9a24c3e7a8771922511351bc5ed92df7c25406c0d02d`。详见[工程交付](../../evaluation/r2-product-sources/registration-recovery.json)。具备按原六项审阅/冻结候选的工程条件，真实修复成功率未测量，原6/6出口仍未达。未推送、合并、改main或维护者Roadmap。
+
+
+## v12 登记纠错恢复候选的独立真实验收（2026-10-12）
+
+维护者转交的用户“授权”已核对原会话；本次只执行已审阅候选`d95ff9c259de1dcc3e96668a7f44c15c993dd22a`（实现`3369c4f0b2f0c025135e298f501a0964abccc270`）的一批原六行。冻结manifest `f1bc5ffc51aca4272bcdae6f9b1bdb0e5a14497f211400da97f07c513ec27bd1`，分支`codex/r2-recovery-acceptance`。免费准备与后续绑定hash的approval分别留档，不声称用户提前见过hash。公开报价与启动报价通过原价格门，一次性claim仅消费一次。复用105项测试/6个免费流程和已审阅源/构建，未重建或重复免费矩阵；运行前后完整manifest一致。
+
+原六任务、五项标准、8效果、US$7.56/120请求、单行20请求/8动作/180秒、模型/provider及费用/安全/恢复停止门保持不变。v12经审阅的局部关闭暂缓最多2次/3000解码字节，真实streak不重置，不增加总预算；本批未实际用到。历史unknown US$0.063、US$0.063、US$0.116继续保留并暂缓核查。
+
+**本批执行Agent语义审阅达到原6/6；不是独立或人工复核。** 不以程序completed/blocked直接计分，也不把两项边界弃权写成路径执行成功。
+
+| 行 | 请求 | 实际动作 | 原结果与语义判定 |
+| --- | ---: | ---: | --- |
+| R1 健康 | 7 | 2 | 第2请求draft成功，两步原槽verified；covered，通过 |
+| R2 缺陷 | 9 | 2 | 第3请求draft成功，预览verified、详情failed；covered，缺陷测出 |
+| R3 不可用 | 5 | 0 | 第2请求draft成功，真实DOM暂不可用/disabled；第4请求绑定身份拒绝，下一观察后streak=3关闭；有据弃权，仍partial/unverified、2缺口 |
+| R4 不可用 | 6 | 0 | 第3请求draft成功，真实DOM暂不可用/disabled；第5请求绑定身份拒绝，下一观察后streak=3关闭；有据弃权，仍partial/unverified、2缺口 |
+| R5 缺陷 | 9 | 2 | 第3请求draft成功，预览verified、详情failed；covered，缺陷测出 |
+| R6 健康 | 9 | 2 | 第2请求draft成功，两步原槽verified；covered，通过 |
+
+六个计划的24处引用全部精确且先于登记签发；两步目标、状态等值、立即时序及availability/preview业务前置均有原文支持，assumptions为空。每行一次源文读取，无重复读/搜。四个covered任务均无未解决的已选义务，未检查范围保留。两项不可用来源解释与实际DOM一致，零操作/功能误报；绑定先在结构身份门被拒，不能声称成功测得业务前置false或默认调查已全部收尾。原8效果为6 verified、2 failed、0 unverified；两项failed正是原详情槽“详情未能展示”，不混用其他节点文本。
+
+6个登记阶段wire请求均采用命名`product_path_decide`，各交付一个首次成功draft。零retrieve、unsupported、多余schema拒绝、登记拒绝或旧登记提醒。8个实际page_act核心参数均匹配程序原nextAction，零错误requirementId、零重放。实际packet与事件审计确认：repairContext曝光0、来源恢复机会0。因此本批证明上述结构化登记/动作交接被采用，**不证明纠错正文、有界恢复被真实模型采用，也不能把6/6归因于这些机制或推断可靠性提升**。报告重启恢复通过与新来源恢复机制未触发是两件事。
+
+45请求/完整响应、47工具回执，已知US$0.052500035，新增unknown/held均0，墙钟253.053秒，退出0、无整批硬停止。6份完整报告重启一致、337对原始/副本附件字节及hash一致。790项证据索引hash `a6b4a19eafba323318e3971e070c404b7fea3f1980f9d3f341ed4cf5cda45cda`；原请求、响应、模型参数、事件、引用、前置及结果槽、费用、冻结、审批、claim、修复/恢复曝光审计均保留，详见[本批交付及逐项审阅](../../evaluation/private/r2-product-acceptance/real-registration-recovery-acceptance.json)。原机械pending-human-review保留，Agent语义审阅另列。
+
+先前各批5/6、超时失败及零推理阻断保持独立，不拼接分数。授权批次已完成，不自动重试、补跑、追加样本或产品修复；未推送、合并或修改main/维护者Roadmap。

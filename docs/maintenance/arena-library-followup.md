@@ -271,3 +271,12 @@ v11在首次原文返回后，只提供命名的`product_path_decide`，接受�
 局部调度明确改变：区分当前packet可见范围与run内恢复过的正文；只对新恢复且实际呈现的原source_read文字允许最多2次/3000解码字节的关闭暂缓。原真实streak不重置，当前可见/已恢复内容和跨引用包装重复均不续期；原总预算、两次收尾、时间、工具/read/动作、安全/费用门不改。浏览器反例保留streak=3，实际使用一次979字节机会后固定作者修正成功；此证据不等于真实模型成功率。
 
 105项/10文件及构建/typecheck/格式/差异检查通过；六个必要免费流程含恢复健康、直接纠错缺陷、前置false、其他pending、重复资料、低预算，六报告重启一致。v2–v11历史准入校验保留；旧有效不重放等按影响复用。类型与回放假设失败完整保留。922项索引`6b0d2144df4c9261888a9a24c3e7a8771922511351bc5ed92df7c25406c0d02d`，见[交付](../../evaluation/r2-product-sources/registration-recovery.json)。可审阅/冻结原六项候选，未真实运行、新claim、加价/加预算或查旧账，未推送合并/main/Roadmap修改。
+
+
+## v12 原六行真实验收完成（2026-10-12）
+
+用户授权的一批已完成；执行`d95ff9c`，实现`3369c4f`，manifest `f1bc5ffc51aca4272bcdae6f9b1bdb0e5a14497f211400da97f07c513ec27bd1`，分支`codex/r2-recovery-acceptance`。复用105测试/6免费流程，无重建，运行前后冻结身份一致，原六任务/五项/8效果与价格预算停止门不改。
+
+本执行Agent逐轨迹审阅达到原6/6：R1/R6健康完整通过，R2/R5详情缺陷测出，R3/R4原文和实际不可用DOM支持有据弃权；后两行仍blocked/partial/unverified，各保留2缺口，绑定身份门先拒绝，非成功测量业务前置false。8效果为6 verified/2 failed。六次首次draft成功、24处有效先发引用、8次动作参数均匹配原nextAction，零错误ID；零retrieve/unsupported/登记拒绝/repairContext曝光/来源恢复机会。不能把本次成绩归因于未触发的纠错恢复机制，也不推断泛化可靠性。
+
+45请求/47回执，已知US$0.052500035，新增unknown/held均0，253.053秒；6报告恢复一致、337对附件一致。790项索引`a6b4a19eafba323318e3971e070c404b7fea3f1980f9d3f341ed4cf5cda45cda`，见[交付和Agent审阅](../../evaluation/private/r2-product-acceptance/real-registration-recovery-acceptance.json)。机械pending-human-review保留，非独立/人工复核。历史三笔unknown原样保留暂缓，不与旧批拼分；一次claim已耗用，不自动重试/补跑/修补，未推送合并/main/Roadmap修改。
