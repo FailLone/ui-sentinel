@@ -55,8 +55,8 @@
 
 以下是原始摘要的报告/要求，均不是本轮实测事实；原 ticket ID 均未提供，epic/关联 ID 详见映射。推断：用户需要知道当前选择时，选中状态不应因悬停或初始化遗漏而失去表达。 只在上述触发和例外边界内推广；原文指定色值、尺寸、业务分支及“最新设计”不会自动成为通用标准。
 
-- [SRC-FAIL-0190](../ticket-mapping.md#src-fail-0190) · [原文 L1676–L1680](</Users/xietian/Library/Mobile Documents/com~apple~CloudDocs/Downloads/fail.md:1676>) · 原文摘录：Active tab underline disappears on hover. Should remain visible.
-- [SRC-FAIL-0343](../ticket-mapping.md#src-fail-0343) · [原文 L2734–L2738](</Users/xietian/Library/Mobile Documents/com~apple~CloudDocs/Downloads/fail.md:2734>) · 原文摘录：On Top trades / Leaderboard, 1W chip not highlighted on load.
+- [SRC-FAIL-0190](../ticket-mapping.md#src-fail-0190) · 原文 L1676–L1680（来源批次 `FAIL-20261008-01`，原件不随仓库分发） · 原文摘录：Active tab underline disappears on hover. Should remain visible.
+- [SRC-FAIL-0343](../ticket-mapping.md#src-fail-0343) · 原文 L2734–L2738（来源批次 `FAIL-20261008-01`，原件不随仓库分发） · 原文摘录：On Top trades / Leaderboard, 1W chip not highlighted on load.
 
 ## 未解决问题与关联
 

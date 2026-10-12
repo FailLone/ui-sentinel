@@ -186,4 +186,4 @@ UI `page_act(type=probe)` 只接受实际观察到的局部控件，不带行为
 
 一个目标为 role+name、selector、visualDescription 三选一，UI 可只用已观察 ref；ref 可与一个定位方法交叉核对，nth 只用于 role+name。空白目标、不完整 role/name、互斥定位方法和未知字段拒绝。业务模式不把 ref 本身当成 locator。SDK 的可选 `null` 只表示字段未提供：fill 的 `value=null` 和 navigate 的 `url=null` 仍是缺参；不是默认值。`investigation_run` 的嵌套 click/fill/scroll 在整个程序开始前也复用此参数契约。
 
-该层只判断参数形状与组合。DOM 身份、后置测量公开依据、导航范围、写入权限及取消仍按原执行规则检查；不从字段合法推导目标存在或动作成功。已选链接仍须实际 click，直接 navigate 不能解决原导航事项。真正动作失败、取消与未知写入不被改成输入错误或自动重放。详细免费证据见 `plans/r0-action-contract-handoff.md`；R0 真实验收状态仍为未通过。
+该层只判断参数形状与组合。DOM 身份、后置测量公开依据、导航范围、写入权限及取消仍按原执行规则检查；不从字段合法推导目标存在或动作成功。已选链接仍须实际 click，直接 navigate 不能解决原导航事项。真正动作失败、取消与未知写入不被改成输入错误或自动重放。历史动作契约证据及真实验收限制见[历史索引](archive/README.md)。

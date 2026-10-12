@@ -2,9 +2,8 @@
 
 2026-10-09（Asia/Shanghai）。**已实现可用的限定版本：普通节点总数超过600，不再直接使所有图片可见性未测。** 简单 HTML 文档中的视口内静态 PNG/JPEG，在完整遍历、绘制边界和其他证据条件均满足时，可取得可消费机器事实；不支持任意大文档或复杂绘制。
 
-基线 `c12b5b32a9eae0fe5b884cb9905921c72ef48038`；实现提交 **`abb27ddf435cca8090b2e44511a035ff53bb0b11`**。工作区仍为 `codex/rule-image-proportion`。保留 DNS 合并历史和 [caret 修复](image-caret-control.md)，没有其他分支合入。运行时 `image-shape-distortion` 仍为0.1.0、默认关闭；本轮是采集器能力变化，不改语义义务或比例算法。
 
-本轮仅用确定性本地合成页面；没有重访公网、调用模型或付费接口。[上轮三页58个目标、0 facts-ready](image-binding-public-doh-validation.md)保持历史结果，不能据本轮本地 pass 推算公网准确率或就绪数量。证据见[小型索引](evidence/image-visibility-bounded-20261009.json)。
+本轮仅用确定性本地合成页面；没有重访公网、调用模型或付费接口。[上轮三页58个目标、0 facts-ready](../archive/image-research.md)保持历史结果，不能据本轮本地 pass 推算公网准确率或就绪数量。证据见[小型索引](evidence/image-visibility-bounded-20261009.json)。
 
 ## 旧行为与新算法
 
@@ -41,50 +40,7 @@
 
 计数边界针对可见性扫描。目标定位的原生 querySelectorAll、样式/布局/getAnimations、一次原生调用中的工作、截图和已有资源证据保存不可能被JS期限强制中断；**250ms不是浏览器渲染器硬墙钟上限，也不保证整个 observe 在250ms内结束**。每次 observe 原有before/after各调用一次事实采集，因此最多两次共享扫描；每目标初始/最终矩形读取另计，不包含在共享 rectangleReads 内。资源采集4MiB/32 URL等原限制保持。返回体上限不意味着大输入、浏览器DOM或序列化临时内存同样有界。
 
-## 实际定向结果
 
-使用 `src/execution/image-visibility.test.ts` 的18个新场景，复用原 PNG/HTML 夹具和真实 Chromium 观察/图片实验路径；JPEG由既有同类canvas方式生成本地数据资源。不同规模固定，不循环压测，不择优报告时间。
+## 维护与验证
 
-| 固定页面 | 实际元素数 | 单次共享遍历/矩形读取 | 相交缓存 / 比较次数 | 一次observe或候选observe耗时 | 结果 |
-| --- | --- | --- | --- | --- | --- |
-| 小文档 PNG | 107 | 107 / 107 | 4 / 105 | 22.79ms | 稳定，无unsupported |
-| 大文档 PNG | 1207 | 1207 / 1207 | 4 / 1205 | 31.05ms | 稳定，无unsupported；旧实现同规模因600限制未测 |
-| 大文档 PNG | 3007 | 3007 / 3007 | 4 / 3005 | 126.31ms | 稳定，无unsupported |
-| 大文档 PNG+JPEG | 1208 | **共享1208 / 1208** | 5 / 2408 | 45.67ms | 两个facts-ready；只消费PNG合成合同得到pass |
-| 4500 filler，遮盖在未遍历后段 | 超预算 | 4096 / 4096 | 4 / 4094 | 173.93ms | node-budget-exceeded；没有因未见后段遮盖而通过 |
-| 300个相交层 | 途中终止 | 1460 / 1460 | 256 / 1458 | 46.57ms | candidate-budget-exceeded及相交层拒绝 |
-
-时间为本次真实测量（含截图及保存），不作跨硬件性能承诺。表中“单次共享遍历”是一次事实读取得到的诊断，observe的两次读取均会扫描。旧基线同规模一次observe为33.46ms，但旧版跳过了可见性测量，不能将时间差当作性能胜负。
-
-其余反例结果：
-
-- 大文档早段普通遮盖、早段pointer-events:none遮盖、后段pointer-events:none遮盖均拒绝。遮盖只占图片角落，中心仍命中img，证明未靠中心命中放行。
-- 零尺寸、视口外宿主的固定伪元素遮盖、影子树绘制拒绝；祖先裁切、3D变换、mask保留原有拒绝原因。
-- 确定性时钟故障注入每次读数增加300ms：访问0节点，返回time-budget-exceeded。该例只验证期限分支，不将其33ms实际墙钟误报为真实超时。
-- 在几何读取期间由夹具改变body属性：返回visibility-dom-changed、stable=false，合成规则结果unknown。真实变化没有被批次让出或新诊断字段隐藏。
-- 超额目标、过长selector、超大事实返回、超过128祖先层均明确未测；超大源身份未以截短版本输出。
-
-共 **34个不同定向场景最终通过**：新场景18、复用小文档边界11、caret回归5。没有运行DNS62、全量图片套件、R0/R1或公网三页。
-
-```sh
-pnpm exec vitest run src/execution/image-visibility.test.ts
-pnpm exec vitest run src/execution/image-paint.test.ts \
-  -t 'intrinsic ratio|contain letterboxing|cover cropping|ancestor unequal|ancestor cancels|3D transform|clipped ancestor|refuses covered|same-looking replaced|transient DOM|retains exact source'
-pnpm exec vitest run src/execution/image-visibility.test.ts src/experiments/image-bindings.test.ts \
-  -t 'caret|mutation during'
-pnpm typecheck
-```
-
-实际过程保留失败：首次类型检查发现新测试缺少既有PageSnapshot类型断言，已修正；首次11项小文档回归有1项祖先缩放相抵消被新溢出守卫过度拒绝，收窄该新增守卫后11/11通过，没有改预期或旧变换算法。新增场景首次16项通过，补充输出/影子树/深度边界后18/18通过；最后强化变化原因记录并复核该场景与caret，共6/6通过。日志均在索引，没有通过无修改重跑碰运气。最终类型、四个源码/测试文件格式和diff检查通过。
-
-caret控制中默认截图仍会产生原样式记录，图片实验initial路径无该自扰；真实目标/无关DOM变化继续失效。PNG/JPEG双目标消费只使用既有合成圆形标记的明确保形合同，自动候选确认字段仍留空，不构造公网语义依据或人工审批。
-
-## 剩余障碍与交付
-
-本轮只解决预算内简单文档的机器测量通路。复杂绘制可能比原矩形筛选更保守；例如只要存在未界定的伪元素、影子树或SVG层，本版本就可能使全批未测，不能声称能覆盖上轮三页。这是明确支持边界，后续不能直接删掉未知项换取就绪。
-
-全局网络intervened、全局DOM变化失效、缺少无语义声明的独立绑定核验入口、保形依据仍全部保留。下一步应先明确具体目标证据与网络干预的关系，保持来源拒绝和审计；再考虑独立的只读绑定诊断。语义绑定实验仍需真实依据和可消费样本。**没有默认启用条件，本地合成pass不等于公网规则准确率。**
-
-随Git交付本报告、测试、实现和[索引](evidence/image-visibility-bounded-20261009.json)。本地材料位于 `data/experiments/image-visibility-20261009-c12b5b3/`：修改前基线、最终18场景的完整收据与截图/资源副本、首次和最终日志。最终场景artifacts副本共329,937B；原始收据/日志等另计。索引保留路径、大小、SHA-256和关键事实，源码身份固定到实现提交。**原始JSON、PNG和数据库等大文件未随Git，本机可访问不等于其他机器已经取得。**
-
-没有修改维护者Roadmap、R0采样/执行/完成门、网络权限或规则默认开关；没有创建/消息其他Agent。本轮仅提交当前分支，不推送、不合并其他分支，交付后停止。
+当前默认状态见[知识库首页](README.md)，异常与健康反例见[靶场](../counterexample-arena.md)。历史原始 JSON 保存在[证据目录](evidence/)，不将旧结果当作新构建重跑。

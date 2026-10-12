@@ -1,6 +1,6 @@
 # R1 真实 Jev 适配与评分工具
 
-当前能力：已实现独立提供方适配器、免费测试、开发输入、请求 dry-run、显式真实批次入口、持久费用账本、证据校验、离线计分和开发阈值重放。尚未调用真实 Jev，尚未核实线上兼容性、评分质量或整轮收益。本项和 R1 均未完成。[计划](https://github.com/FailLone/ui-sentinel/blob/25409ce/plans/r1-jev-real-adapter-scoring-plan.md)仍有效。
+当前能力：已实现独立提供方适配器、免费测试、开发输入、请求 dry-run、显式真实批次入口、持久费用账本、证据校验、离线计分和开发阈值重放。本页描述独立研究工具，不能从其他专项轨迹推出此工具的评分质量或整轮收益。[计划](https://github.com/FailLone/ui-sentinel/blob/25409ce/plans/r1-jev-real-adapter-scoring-plan.md)为历史设计记录。
 
 ## 边界
 
@@ -12,16 +12,15 @@
 
 ## 免费使用
 
-环境 Node 24.x、pnpm 10.17.1。无新依赖，沿用锁文件。命令从本 R1 工作区根目录执行；输出目录必须全新，父目录须已存在，不覆盖历史证据。
+环境 Node 24.x、pnpm 10.17.1。无新依赖，沿用锁文件。命令从仓库根目录执行；输出目录必须全新，父目录须已存在，不覆盖历史证据。
 
 ```sh
-pnpm install --frozen-lockfile --store-dir .r1-pnpm-store
-node plans/r1-jev-input/preflight.mjs
+pnpm install --frozen-lockfile
 pnpm exec tsc --noEmit
 pnpm r1:jev:test
 pnpm r1:jev:real:test
 mkdir -p artifacts/r1-jev-real
-pnpm r1:jev:real -- --dry-run --config plans/r1-jev-real/development-config.json --output artifacts/r1-jev-real/dev-dry
+pnpm r1:jev:real -- --dry-run --config evaluation/fixtures/legacy-runs/r1-jev-real/development-config.json --output artifacts/r1-jev-real/dev-dry
 pnpm r1:jev:verify -- --evidence artifacts/r1-jev-real/dev-dry
 ```
 

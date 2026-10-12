@@ -1,10 +1,6 @@
-# R1 前置：Jev 探索决策模块与离线验证
+# Jev 探索评分模块与离线验证
 
-本模块验证“程序提供公开状态与候选，Jev 评分，程序排序”的可实现边界。目标是让程序连续完成常规交互，必要时交回主 Agent，减少完整主 Agent 的逐步决策调用。本期只有独立决策模块与离线工具；生产执行器、实际点击、可靠恢复及三组端到端实验等待 R0 验收后另行集成。不能由建议推出权限、点击效果、缺陷或任务完成。
-
-当前 Agent、纯程序、程序加 Jev 的后续对照须评价发现质量、覆盖、主模型调用减少量、总时间、总成本。当前方向仍待验证：本期固定响应不能证明真实 Jev 判断质量、抗注入能力或整轮收益。不将本项或 R1 标为完成。
-
-独立真实适配与评分工具现见[真实 Jev 适配说明](r1-jev-real-adapter.md)。已增加免费实现与验证，真实调用及评分验收仍未开展；旧模块的默认行为不变。
+独立模块接受公开状态与候选，返回排序建议；建议不能授予动作权限、认定缺陷或完成任务。它与当前[程序优先探索](architecture.md#程序优先探索)分开，离线固定回复不能证明真实评分收益。
 
 ## 源码与接口
 
@@ -36,34 +32,11 @@
 
 缓存验证输入与评分后保存副本，返回也复制。key 包括完整状态摘要、URL、几何/成本、策略/提示版本、模型/提供方/适配器身份及 fairness。requestId 可更新后重新绑定；预算量不用于命中，而每次执行实时守卫。命中不调用传输，不继承付费报价、不重复扣原费用；保留来源模型和 originCostUsd。失败、取消、超时、过期与不可缓存状态不写入。
 
-## 离线命令与证据
-
-环境：Node 24.x、pnpm 10.17.1、Git。先 `pnpm install --frozen-lockfile --store-dir .r1-pnpm-store`。当前只支持专用前置工具；导出树不包含 R0 私有夹具及原 scripts，所以不要用顶层通用 build/test 来代替本期验证。
+## 离线命令
 
 ```sh
-node plans/r1-jev-input/preflight.mjs
-pnpm exec tsc --noEmit
 pnpm r1:jev:test
-pnpm r1:jev:offline -- --output artifacts/offline
-pnpm r1:jev:offline -- --real --dry-run --output artifacts/real-plan
+pnpm r1:jev:offline -- --output data/jev-offline
 ```
 
-22 个独立开发种子不含 R0 私有答案。离线两列分别保留纯程序与程序加固定响应的排名。`stale-reply` 真正改变当前观察后返回有效评分，要求 stale-state；`low-score-fairness` 实际连续执行四次会话决策，记录 c1 获得机会。它们是给定状态下的模拟调度，没有实际操作页面。每步保存原始公开输入、发送请求、固定原始回复、归一回执、结果、attempt/digest、真实计时及 usage；评价期望只留在评价侧。两次重放只剥离明确的计时/attempt 等易变字段，其他嵌套字段全部比较。CLI 期望不匹配返回非零。
-
-提交后在干净克隆中运行：
-
-```sh
-# 仅本克隆的生成物排除，不改变共享仓库或全局配置
-printf 'artifacts/\n.r1-pnpm-store/\n' >> .git/info/exclude
-node scripts/r1-jev/collect-evidence.mjs artifacts/final-evidence
-```
-
-收集器记录实际 argv、源码 SHA、配置摘要、时间、退出码及原始日志。测试与离线子进程都通过 NODE_OPTIONS 加载 `network-trap.cjs`，并用 fetch/https/net 正向拒绝测试确认陷阱生效。该陷阱是 Node API 运行时保护，不是操作系统防火墙。静态测试同时检查模块不引入网络 API；真实模型没有运行。
-
-返程包 `SHA256SUMS` 覆盖除自身以外的全部文件；`evidence/index.json` 覆盖全部证据叶子文件，不对自身生成循环摘要。`tools/verify-package.mjs` 检查完整索引、摘要、bundle、前置关系、源码 SHA、允许修改范围和工具与提交一致性；`--rebuild` 创建独立目录、独立 pnpm store，安装锁定依赖并重新采证。压缩包外单独给出压缩包 SHA-256。
-
-## R0 与后续路线
-
-冻结源起点为 `8adc93a422398c61a9a738562bfb23710f36bcc6` 的脱敏导出；交付输入 tip `c15f0ff3af50bc8c77da429a706432e8df739cde`，原 dev tip `a3e03eeffb94358dda7cf4a4ebca0dfdd34dc070`。收尾分支独立保存，最终 SHA 见返程包 delivery.json。不跟随 R0 正在发生的提交变化；原执行器、提示、网络限制、账本、证明/报告、冻结评分器、工作台和默认开关均不改。
-
-R0 结束后只集成允许路径的最终 diff，不能把脱敏导出树覆盖原仓库。先完成状态采集与可信适配器、唯一执行器接线、动作后实际观察、恢复和交回，再进行当前 Agent/纯程序/程序加 Jev 三组端到端对照。Roadmap 只可登记“独立前置模块及离线防御逻辑有证据；真实质量与收益未验证”，并链接最终返程证据；本次不直接修改正在维护的 Roadmap。
+输出目录使用新路径，不覆盖历史。开发种子只提供公开输入，私有期望留评价侧；模拟排序没有实际操作网页。真实提供方适配和费用边界见[实验工具](r1-jev-real-adapter.md)。
