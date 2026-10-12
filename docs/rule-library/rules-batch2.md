@@ -1,12 +1,10 @@
-# 第二批限定实现：D005 / R005
+# 原生文字消失与缺图替代表达
 
-2026-10-09，分支 `codex/rule-image-proportion`，冻结起点 `35dccaf3657af503a93cad1d6819f4d019651552`，实现提交 `5fa18aa9ed7bedb90ec1a9b5982e0c3605b712fc`。本文件为本批统一交付；[任务锚点](https://github.com/FailLone/ui-sentinel/blob/25409ce/docs/rule-library/rules-batch2-current-task.md)记录最终身份。本轮没有扩大 D004、重访公网或连接 R0/R1。
-
-**两项均已部分实现，默认关闭。** D005 的受支持原生文字子集能自动完成四态检查，不需要逐个手填语义合同；R005 自动提供缺图审查材料，始终不把建议计为已确认缺陷或健康结果。广义知识、原 Jira、完整视觉可读性与实体语义均未因此获得验证。
+D005 的限定原生文字子集自动完成四态检查，R005 只提供审查材料，不计为缺陷或健康结果。两者在已开启的网址扫描中自动参与，见[扫描接线](rules-scan-integration.md)；独立实验命令仍需显式运行。广义视觉可读性、实体语义和原 Jira 案例未因此获得验证。
 
 ## 入口与输入
 
-在独立规则工作区使用 Node 24（本轮 24.21.0）和现有 pnpm；替换 URL 为获准访问的页面，输出目录必须不存在：
+在仓库根目录使用支持的 Node 和锁定 pnpm；替换 URL 为获准访问的页面，输出目录必须不存在：
 
 ```sh
 pnpm exec tsx scripts/experiments/rules-batch2.ts \
@@ -79,44 +77,11 @@ review 输出分别包含 `resourceState`、`measurement=observed/incomplete`、
 
 - 复用 `launchBrowser`、现有 pinned 网络会话/策略、`observePage(..., caret:'initial')`、图片资源/绘制采集、EvidenceIntegrity、artifact、Rule/cache、事件/发现和 `buildReport`。
 - 新增事实只在实验层：有界原生文字绘制事实与截图像素证据、图片被动请求状态、直接父区域材料。本轮未改 shared Rule/RuleResult/PageSnapshot、执行器、采样或完成门；没有必须双分支重构的共享接口。未来接入普通扫描需要显式宿主事实适配，本轮不设计新平台。
-- D005 结果通过已有 `rule:evaluated` 进入报告，只有受支持 fail 才提交 `source=rule` 发现。R005 保存为 `image-fallback-review` artifact 和 `review:recorded` event，标准报告的 artifacts/events 可读取；没有新增专用 UI 卡片、缺陷行或规则评估计数。
+- D005 结果通过已有 `rule:evaluated` 进入报告，只有受支持 fail 才提交 `source=rule` 发现。R005 保存为 `image-fallback-review` artifact 和 `review:recorded` event，标准报告的 artifacts/events 可读取；普通扫描已在工作台展示审查材料，见[接线说明](rules-scan-integration.md)；R005不增加缺陷行或规则评估计数。
 - 每次 capture 新观察后立即消费，没有导入旧候选的入口。收据绑定 run/page/viewport/screenshot，五分钟过期、上下文不一致均 unknown；证据归属和内容摘要保存以供审查，历史 JSON 不是可恢复的活会话。
 - 全局网络干预不豁免，最后评价时仍读取完整性；R005 可以保存当前资源状态，但审查 disposition 变为 unknown。目标之外请求被拒也不自动解释为无影响。状态/证据问题分开记录，不以合成失败代替正常网站状态。
 
-## 本地验证与机器证据
 
-最终运行：**8/8通过，3.27秒**；最终 `pnpm typecheck` 退出0；8个改动源文件格式检查与 `git diff --check` 通过。无模型、无公网、无无关全量。最终代码对应上述实现提交。
+## 维护与验证
 
-| 场景 | 实际结果 |
-| --- | --- |
-| 原生名称与透明前景 | 白字白底、透明文字均 fail；普通黑字白底按钮与改名链接均 pass；禁用白字为 not-applicable；近白文字 unknown；报告有真实 D005 发现。 |
-| 描边/阴影/渐变/伪元素 | 均 unknown，无发现；同色 CSS 没有覆盖替代表达。 |
-| 透明背景/覆盖/歧义/过期 | 透明按钮背景正确露出黑色父背景，黑字消失 fail；pointer-events:none 覆盖、图标子元素、重复 ID unknown；复用收据验证过期及跨 run 拒绝。 |
-| 404/缺源/已加载/坏字节/装饰 | HTTP404、src缺失、HTTP200坏图片只产生 review-needed；已加载/明确 presentation 不适用；保留文字和兄弟图关联但等效未知。图片真实请求3，无补抓。 |
-| 加载中与懒加载 | 一个挂起本地响应为 loading，远离视口的 lazy 无请求为 deferred unknown；只有1次图片请求，没有强制滚动加载。 |
-| 网络干预 | 目标图片和另一 POST 被策略拒绝；D005 unknown、R005 unknown，无发现、无业务写入。 |
-| 截图期间节点替换 | 测试在真实截图调用前克隆替换两个目标，前后身份/epoch不一致；两项 unknown，无旧事实放行。这是明确注入的合成变更。 |
-| CLI 完整链路 | 一次导航/捕获、无语义合同文件；输出 D005 fail、R005独立材料和普通报告；取消式关闭，无验收声明。 |
-
-两个代表截图已本地查看，与消失文字/可见健康文字、缺图区域及相邻材料相符。所有场景是合成的，不宣称复现 Jira 054/333 或 R005 的原附件。
-
-保留失败历史：首次定向4失败/2通过，发现截图解码字符串函数未调用；第二次3失败/3通过，发现伪元素默认背景误判和“健康链接”实际换行。修复实现后将阴影反例分离为独立范围场景，保留外部阴影拒绝；没有放宽它来取得成功。七项通过后补节点替换，最后对收紧的伪元素/绘制保护完整执行八项均通过。初始 TypeScript 类型错误也已修复。失败日志未覆盖。
-
-[机器证据索引](evidence/rules-batch2-20261009.json)含源码 SHA、逐场景结果、原始收据、报告、日志及最终52个本地文件（586,991 B）的摘要。[真实 CLI 样本](evidence/rules-batch2-cli-sample-20261009.json)随 Git；其会话已关闭。截图、数据库、资源与大收据仅保留于本机 `data/experiments/rules-batch2-20261009-35dccaf/final-guards/`，不随 Git 分发。之前失败/中间输出保留在同级目录，不能混作最终证据。
-
-复现本批定向验证（本说明不会自动执行）：
-
-```sh
-URL_SCAN_DNS_MODE=system pnpm exec vitest run src/experiments/rules-batch2.test.ts
-pnpm typecheck
-```
-
-## 剩余限制与启用结论
-
-D005 首批覆盖的是精确消失及非常有限的健康见证，真实站点的圆角、伪元素、webfont、普通多色低对比等经常超出范围。R005 还不能识别无 img 的业务实体，也不能判定替代照片/文字是否等效。网络干预和 DOM 不稳定继续造成 unknown；本轮没有公网可用率证据。
-
-因此两项均**不具备默认启用条件**。下一步是否拓展应另行决定，本轮到代码/文档本地提交为止，不推送、不合并 main/R0/R1、不改 product-roadmap、不自动开始下一轮。
-
-## 后续产品接入
-
-本文件保留第二批实验历史。D005/R005 后续已在独立候选中接入普通 ui-scan 并默认参与，用户无需此实验CLI；算法边界不变。最新入口、默认范围、验证与提交见 [普通网址扫描接入](rules-scan-integration.md)。
+当前默认状态见[知识库首页](README.md)，异常与健康反例见[靶场](../counterexample-arena.md)。历史原始 JSON 保存在[证据目录](evidence)，不将旧结果当作新构建重跑。

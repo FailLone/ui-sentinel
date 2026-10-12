@@ -1,10 +1,10 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import { progressHarness } from '../../scripts/validation/r2-progress-replay.ts'
+import { progressHarness } from '../../evaluation/support/product-sources/progress.ts'
 import { productStage, productStageAllows } from './product-stage.ts'
 
 const fixture = JSON.parse(
-  readFileSync('evaluation/private/r2-product-acceptance/stage-decision-failures.json', 'utf8'),
+  readFileSync('evaluation/private/product-sources/stage-decision-failures.json', 'utf8'),
 )
 const row = (id: string) => fixture.rows.find((r: any) => r.row === id)
 const registration = (id: string) =>

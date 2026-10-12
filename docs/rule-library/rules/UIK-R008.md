@@ -55,11 +55,11 @@
 
 以下是原始摘要的报告/要求，均不是本轮实测事实；原 ticket ID 均未提供，epic/关联 ID 详见映射。推断：不改变用户目标的过渡应尽量维持定位线索，动效应与任务和已知偏好协调。 只在上述触发和例外边界内推广；原文指定色值、尺寸、业务分支及“最新设计”不会自动成为通用标准。
 
-- [SRC-FAIL-0140](../ticket-mapping.md#src-fail-0140) · [原文 L1340–L1344](</Users/xietian/Library/Mobile Documents/com~apple~CloudDocs/Downloads/fail.md:1340>) · 原文摘录：加载新页面或 tab 时，LIVE 旁的红点不应闪烁消失再出现，应持续保持显示。当前 staging 上在页面加载过程中红点会消失又重新出现。
-- [SRC-FAIL-0173](../ticket-mapping.md#src-fail-0173) · [原文 L1562–L1566](</Users/xietian/Library/Mobile Documents/com~apple~CloudDocs/Downloads/fail.md:1562>) · 原文摘录：Team chip changes size when navigating between players. Should remain consistent.
-- [SRC-FAIL-0175](../ticket-mapping.md#src-fail-0175) · [原文 L1574–L1578](</Users/xietian/Library/Mobile Documents/com~apple~CloudDocs/Downloads/fail.md:1574>) · 原文摘录：Chevron switcher moves during loading state. Should maintain stable position.
-- [SRC-FAIL-0293](../ticket-mapping.md#src-fail-0293) · [原文 L2382–L2386](</Users/xietian/Library/Mobile Documents/com~apple~CloudDocs/Downloads/fail.md:2382>) · 原文摘录：Confetti + checkmark Lottie animation on Singles, Buy more, Close, and Parlay order success screens. Auto-plays once on success; confetti layer non-blocking; respects prefers-reduced-motion.
-- [SRC-FAIL-0314](../ticket-mapping.md#src-fail-0314) · [原文 L2530–L2534](</Users/xietian/Library/Mobile Documents/com~apple~CloudDocs/Downloads/fail.md:2530>) · 原文摘录：Switching coupons causes flashes; expected synced display without flash.
+- [SRC-FAIL-0140](../ticket-mapping.md#src-fail-0140) · 原文 L1340–L1344（来源批次 `FAIL-20261008-01`，原件不随仓库分发） · 原文摘录：加载新页面或 tab 时，LIVE 旁的红点不应闪烁消失再出现，应持续保持显示。当前 staging 上在页面加载过程中红点会消失又重新出现。
+- [SRC-FAIL-0173](../ticket-mapping.md#src-fail-0173) · 原文 L1562–L1566（来源批次 `FAIL-20261008-01`，原件不随仓库分发） · 原文摘录：Team chip changes size when navigating between players. Should remain consistent.
+- [SRC-FAIL-0175](../ticket-mapping.md#src-fail-0175) · 原文 L1574–L1578（来源批次 `FAIL-20261008-01`，原件不随仓库分发） · 原文摘录：Chevron switcher moves during loading state. Should maintain stable position.
+- [SRC-FAIL-0293](../ticket-mapping.md#src-fail-0293) · 原文 L2382–L2386（来源批次 `FAIL-20261008-01`，原件不随仓库分发） · 原文摘录：Confetti + checkmark Lottie animation on Singles, Buy more, Close, and Parlay order success screens. Auto-plays once on success; confetti layer non-blocking; respects prefers-reduced-motion.
+- [SRC-FAIL-0314](../ticket-mapping.md#src-fail-0314) · 原文 L2530–L2534（来源批次 `FAIL-20261008-01`，原件不随仓库分发） · 原文摘录：Switching coupons causes flashes; expected synced display without flash.
 
 ## 未解决问题与关联
 

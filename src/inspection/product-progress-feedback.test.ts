@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { progressHarness, progressRow } from '../../scripts/validation/r2-progress-replay.ts'
+import { progressHarness, progressRow } from '../../evaluation/support/product-sources/progress.ts'
 import { productBindingInputDiagnostics, productContinuation } from './product-continuation.ts'
 import { extractToolSummary } from '../agent/context/compact-history.ts'
 import { productPathSkill } from '../agent/skills/product-path.ts'

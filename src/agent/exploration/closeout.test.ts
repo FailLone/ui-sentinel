@@ -11,8 +11,8 @@ import {
 import { planNext } from './scheduler.ts'
 import { buildFrontier } from './frontier.ts'
 import { assessStrategies, planCounterexampleInvestigation } from './strategies.ts'
-const base = JSON.parse(readFileSync('evaluation/r1-jev-real/smoke-inputs.json', 'utf8')).cases[0]
-  .input
+const base = JSON.parse(readFileSync('evaluation/fixtures/jev-smoke/smoke-inputs.json', 'utf8'))
+  .cases[0].input
 function facts(edit: (f: PlanningFactsDraft) => void = () => {}) {
   const raw: PlanningFactsDraft = {
     ...structuredClone(base),

@@ -5,7 +5,7 @@ import { normalizeResponse, ProviderError } from './response.ts'
 import { parseStrictJson } from './strict-json.ts'
 import { createJevTransport } from './http.ts'
 import { createJevSession } from './session.ts'
-import { testInput, replyFor, jsonResponse } from '../../../../scripts/r1-jev-real/test-support.ts'
+import { testInput, replyFor, jsonResponse } from '../../../../scripts/decision/jev/test-support.ts'
 import { buildScoringRequest } from '../exploration/prompt.ts'
 const profile = DEFAULT_PROFILE
 const key = 'fake-test-credential-not-a-real-key'

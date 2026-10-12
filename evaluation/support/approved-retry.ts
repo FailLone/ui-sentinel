@@ -8,7 +8,7 @@ import { initializeDatabase } from '../../src/storage/database.ts'
 import { evaluateTransition, transitionRuleSchema } from '../../src/rules/transition.ts'
 
 export const approvedRetryDirectory = fileURLToPath(
-  new URL('../fixtures/approved-retry/', import.meta.url),
+  new URL('../fixtures/approved-retry', import.meta.url),
 )
 const digest = (bytes: Buffer | string) => createHash('sha256').update(bytes).digest('hex')
 export function canonicalJson(value: unknown): string {

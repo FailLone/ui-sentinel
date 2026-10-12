@@ -55,7 +55,7 @@
 
 以下是原始摘要的报告/要求，均不是本轮实测事实；原 ticket ID 均未提供，epic/关联 ID 详见映射。推断：消费者在同一版本、模式与作用域引用同一变量时，解析值应一致。 只在上述触发和例外边界内推广；原文指定色值、尺寸、业务分支及“最新设计”不会自动成为通用标准。
 
-- [SRC-FAIL-0049](../ticket-mapping.md#src-fail-0049) · [原文 L468–L476](</Users/xietian/Library/Mobile Documents/com~apple~CloudDocs/Downloads/fail.md:468>) · 原文摘录：Investigate and resolve a color token inconsistency in the OG App Design Library for \`border/status-neutral\` in light mode. * Token \`border/status-neutral\` (light) maps to \`neutral/300\`, which is defined as \*\*#E8D0B5\*\* in the Figma variables panel * However, where this token is applied to the button component, the resolved colour shows as \*\*#BFC6D8\*\* — a different value * This discrepancy needs to be verified and corrected so the token value is consistent across its definition and all usages Reference links: - Variables definition …（摘录，见原文）
+- [SRC-FAIL-0049](../ticket-mapping.md#src-fail-0049) · 原文 L468–L476（来源批次 `FAIL-20261008-01`，原件不随仓库分发） · 原文摘录：Investigate and resolve a color token inconsistency in the OG App Design Library for \`border/status-neutral\` in light mode. * Token \`border/status-neutral\` (light) maps to \`neutral/300\`, which is defined as \*\*#E8D0B5\*\* in the Figma variables panel * However, where this token is applied to the button component, the resolved colour shows as \*\*#BFC6D8\*\* — a different value * This discrepancy needs to be verified and corrected so the token value is consistent across its definition and all usages Reference links: - Variables definition …（摘录，见原文）
 
 ## 未解决问题与关联
 

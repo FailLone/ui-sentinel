@@ -8,7 +8,7 @@ import {
 } from './contracts.ts'
 
 function publicCase(name: string): unknown {
-  return JSON.parse(readFileSync(`evaluation/r1-jev-dev/public/${name}.json`, 'utf8'))
+  return JSON.parse(readFileSync(`evaluation/fixtures/decision/public/${name}.json`, 'utf8'))
 }
 
 function valid(name = 'menu'): ExplorationInput {
@@ -155,7 +155,9 @@ describe('exploration input contract', () => {
   })
 
   it('accepts every structurally valid committed public fixture and rejects stale-input', () => {
-    const manifest = JSON.parse(readFileSync('evaluation/r1-jev-dev/manifest.json', 'utf8')) as {
+    const manifest = JSON.parse(
+      readFileSync('evaluation/fixtures/decision/manifest.json', 'utf8'),
+    ) as {
       cases: { scenario: string; files: { role: string; path: string }[] }[]
     }
 

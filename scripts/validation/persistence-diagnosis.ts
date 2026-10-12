@@ -5,7 +5,7 @@ import { spawn, execFileSync } from 'node:child_process'
 const mode = process.argv[2] ?? 'self-check'
 if (mode === 'parallel-worker') {
   const directory = process.env.R0_PERSISTENCE_WORKER_DIR
-  if (!directory || !resolve(directory).startsWith(resolve('data/r0-persistence-repair') + '/api-'))
+  if (!directory || !resolve(directory).startsWith(resolve('data/persistence-diagnosis') + '/api-'))
     throw Error('Worker requires an isolated api-* diagnostic directory')
   process.env.DATABASE_URL = 'file:' + resolve(directory, 'parallel.db')
   const { createRun, appendEvent, getRunSnapshot } = await import(
@@ -49,7 +49,7 @@ if (mode === 'parallel-worker') {
   if (!['self-check', 'api'].includes(mode))
     throw Error('Use self-check or api; no loop/retry mode.')
   const root = resolve(
-    'data/r0-persistence-repair',
+    'data/persistence-diagnosis',
     mode + '-' + new Date().toISOString().replace(/[:.]/g, '-'),
   )
   await mkdir(root, { recursive: true })
@@ -114,7 +114,7 @@ if (mode === 'parallel-worker') {
       [
         'exec',
         'tsx',
-        'scripts/validation/r0-effect-exploration.ts',
+        'scripts/validation/url-scan-effects.ts',
         'persistence-capture',
         'linked-pass',
       ],

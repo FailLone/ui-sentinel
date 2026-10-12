@@ -55,7 +55,7 @@
 
 以下是原始摘要的报告/要求，均不是本轮实测事实；原 ticket ID 均未提供，epic/关联 ID 详见映射。推断：图像清晰度应支持其识别用途，并与实际显示比例和有意风格相符。 只在上述触发和例外边界内推广；原文指定色值、尺寸、业务分支及“最新设计”不会自动成为通用标准。
 
-- [SRC-FAIL-0025](../ticket-mapping.md#src-fail-0025) · [原文 L243–L251](</Users/xietian/Library/Mobile Documents/com~apple~CloudDocs/Downloads/fail.md:243>) · 原文摘录：Politics category icons on market/contract cards appear grainy or low-resolution. * Observed on the Trending tab on the app — Politics contract cards (e.g. "Florida Governor Election Winner 2026", "South Carolina Senate Election Winner 2026") show a grainy/pixelated icon * The icon affected appears to be the Politics subcategory badge/icon displayed on the market card * Note: &lt;custom data-type="smartlink" data-id="id-0"&gt; and &lt;custom data-type="smartlink" data-id="id-1"&gt; cover a related issue (wrong icon defaulting to governor/"Politics" for all …（摘录，见原文）
+- [SRC-FAIL-0025](../ticket-mapping.md#src-fail-0025) · 原文 L243–L251（来源批次 `FAIL-20261008-01`，原件不随仓库分发） · 原文摘录：Politics category icons on market/contract cards appear grainy or low-resolution. * Observed on the Trending tab on the app — Politics contract cards (e.g. "Florida Governor Election Winner 2026", "South Carolina Senate Election Winner 2026") show a grainy/pixelated icon * The icon affected appears to be the Politics subcategory badge/icon displayed on the market card * Note: &lt;custom data-type="smartlink" data-id="id-0"&gt; and &lt;custom data-type="smartlink" data-id="id-1"&gt; cover a related issue (wrong icon defaulting to governor/"Politics" for all …（摘录，见原文）
 
 ## 未解决问题与关联
 

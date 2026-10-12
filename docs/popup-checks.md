@@ -72,7 +72,7 @@ ENTRY 保存原 `popup-question` / `popup-suggestion` 和全部模型分布。UI
 
 ```sh
 node --import tsx scripts/popup-ui-contract/validate.ts
-node node_modules/vitest/vitest.mjs run \
+pnpm exec vitest run \
   src/execution/popup src/agent/popup src/shared/popup-policy.test.ts \
   src/inspection/popup-artifacts.test.ts src/inspection/popup-ui-artifacts.test.ts \
   src/inspection/popup-effect.test.ts \

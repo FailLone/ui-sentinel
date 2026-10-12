@@ -55,8 +55,8 @@
 
 以下是原始摘要的报告/要求，均不是本轮实测事实；原 ticket ID 均未提供，epic/关联 ID 详见映射。推断：受支持的视口和浏览器界面变化不应使当前必要操作永久落入不可达区域。 只在上述触发和例外边界内推广；原文指定色值、尺寸、业务分支及“最新设计”不会自动成为通用标准。
 
-- [SRC-FAIL-0088](../ticket-mapping.md#src-fail-0088) · [原文 L835–L841](</Users/xietian/Library/Mobile Documents/com~apple~CloudDocs/Downloads/fail.md:835>) · 原文摘录：The trade slip on web extends beyond the viewport/screen boundary, causing the right side of the screen to feel cramped. The CTA (place bet button) is not always visible without scrolling. Expected behaviour (per Kalshi comparison): - The trade slip should remain fully contained within the viewport - The trade slip content should be internally scrollable - The CTA should always be sticky/visible at the bottom of the slip, regardless of how many picks are added Context: - The issue is most noticeable as more picks are added to a parlay (the slip …（摘录，见原文）
-- [SRC-FAIL-0196](../ticket-mapping.md#src-fail-0196) · [原文 L1724–L1728](</Users/xietian/Library/Mobile Documents/com~apple~CloudDocs/Downloads/fail.md:1724>) · 原文摘录：In the withdraw flow (Portfolio page → Withdraw button), the "Add bank account" button is covered halfway by the browser bottom bar — the button should be fully visible.
+- [SRC-FAIL-0088](../ticket-mapping.md#src-fail-0088) · 原文 L835–L841（来源批次 `FAIL-20261008-01`，原件不随仓库分发） · 原文摘录：The trade slip on web extends beyond the viewport/screen boundary, causing the right side of the screen to feel cramped. The CTA (place bet button) is not always visible without scrolling. Expected behaviour (per Kalshi comparison): - The trade slip should remain fully contained within the viewport - The trade slip content should be internally scrollable - The CTA should always be sticky/visible at the bottom of the slip, regardless of how many picks are added Context: - The issue is most noticeable as more picks are added to a parlay (the slip …（摘录，见原文）
+- [SRC-FAIL-0196](../ticket-mapping.md#src-fail-0196) · 原文 L1724–L1728（来源批次 `FAIL-20261008-01`，原件不随仓库分发） · 原文摘录：In the withdraw flow (Portfolio page → Withdraw button), the "Add bank account" button is covered halfway by the browser bottom bar — the button should be fully visible.
 
 ## 未解决问题与关联
 

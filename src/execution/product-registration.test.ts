@@ -4,14 +4,14 @@ import {
   originalReadinessInput,
   correctedReadinessPlan,
   readinessRows,
-} from '../../scripts/validation/r2-readiness-replay.ts'
+} from '../../evaluation/support/product-sources/readiness.ts'
 import { freezeProductSource } from '../inspection/product-source.ts'
 import {
   citationSource,
   r4Draft,
   r4Quotes,
   r4WithReferences,
-} from '../../scripts/validation/r2-citation-replay.ts'
+} from '../../evaluation/support/product-sources/citation.ts'
 function harness() {
   const events: any[] = [],
     progress = new Set<string>(),

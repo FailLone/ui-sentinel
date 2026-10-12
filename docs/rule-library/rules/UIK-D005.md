@@ -55,8 +55,8 @@
 
 以下是原始摘要的报告/要求，均不是本轮实测事实；原 ticket ID 均未提供，epic/关联 ID 详见映射。推断：已呈现且承担当前任务信息的文字或图形应能从实际背景中辨认。 只在上述触发和例外边界内推广；原文指定色值、尺寸、业务分支及“最新设计”不会自动成为通用标准。
 
-- [SRC-FAIL-0054](../ticket-mapping.md#src-fail-0054) · [原文 L517–L525](</Users/xietian/Library/Mobile Documents/com~apple~CloudDocs/Downloads/fail.md:517>) · 原文摘录：The last button on the web staging page has white text rendered on a white background, making it completely unreadable/invisible. * Reported on web staging (staging B) * The affected button appears to be the final/last button in a sequence on the page * Text colour and background colour are both white — likely a contrast/theming issue * Screenshot attached shows the OG.com web sign-up / onboarding screen (Welcome to OG registration form with Sign up with Google, Sign up with Apple, email input, and Login link); the right panel shows a dark prom …（摘录，见原文）
-- [SRC-FAIL-0333](../ticket-mapping.md#src-fail-0333) · [原文 L2662–L2666](</Users/xietian/Library/Mobile Documents/com~apple~CloudDocs/Downloads/fail.md:2662>) · 原文摘录：Radar chart grid lines/axis invisible in Light Mode on Web; expected visible grid.
+- [SRC-FAIL-0054](../ticket-mapping.md#src-fail-0054) · 原文 L517–L525（来源批次 `FAIL-20261008-01`，原件不随仓库分发） · 原文摘录：The last button on the web staging page has white text rendered on a white background, making it completely unreadable/invisible. * Reported on web staging (staging B) * The affected button appears to be the final/last button in a sequence on the page * Text colour and background colour are both white — likely a contrast/theming issue * Screenshot attached shows the OG.com web sign-up / onboarding screen (Welcome to OG registration form with Sign up with Google, Sign up with Apple, email input, and Login link); the right panel shows a dark prom …（摘录，见原文）
+- [SRC-FAIL-0333](../ticket-mapping.md#src-fail-0333) · 原文 L2662–L2666（来源批次 `FAIL-20261008-01`，原件不随仓库分发） · 原文摘录：Radar chart grid lines/axis invisible in Light Mode on Web; expected visible grid.
 
 ## 未解决问题与关联
 
@@ -74,4 +74,4 @@
 
 ## 普通网址扫描接入（2026-10-09）
 
-依据本轮授权，已在 `codex/rule-image-proportion` 的 ui-scan 观察/检查生命周期默认参与，无需实验CLI或逐项语义合同。运行时版本和算法范围不变；全局注册/业务默认关闭状态保持。报告直接展示限定结论或分区审查材料，未知/省略不称全页通过；R005不进入缺陷计数。详见 [普通扫描接入、实际验证与证据](../rules-scan-integration.md)。上方“第二批默认关闭”是保留的实验历史，不表示本候选 ui-scan 仍需额外实验开关。
+依据本轮授权，已在 `codex/rule-image-proportion` 的 ui-scan 观察/检查生命周期默认参与，无需实验CLI或逐项语义合同。运行时版本和算法范围不变；全局注册/业务默认关闭状态保持。报告直接展示限定结论或分区审查材料，未知/省略不称全页通过；R005不进入缺陷计数。详见 [普通扫描接入、实际验证与证据](../rules-scan-integration.md)。上方“第二批默认关闭”是保留的实验历史，不表示当前实现 ui-scan 仍需额外实验开关。

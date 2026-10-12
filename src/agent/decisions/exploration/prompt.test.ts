@@ -5,7 +5,7 @@ import { buildScoringRequest, SYSTEM_INSTRUCTION } from './prompt.ts'
 
 function fixture(name: string): ExplorationInput {
   const parsed = parseExplorationInput(
-    JSON.parse(readFileSync(`evaluation/r1-jev-dev/public/${name}.json`, 'utf8')),
+    JSON.parse(readFileSync(`evaluation/fixtures/decision/public/${name}.json`, 'utf8')),
   )
   if (!parsed.ok) throw new Error(`fixture ${name} should be valid`)
   return parsed.value
@@ -80,7 +80,9 @@ describe('bounded scoring question', () => {
   })
 
   it('keeps the projected body within the caller byte ceiling for every committed seed', () => {
-    const manifest = JSON.parse(readFileSync('evaluation/r1-jev-dev/manifest.json', 'utf8')) as {
+    const manifest = JSON.parse(
+      readFileSync('evaluation/fixtures/decision/manifest.json', 'utf8'),
+    ) as {
       cases: { files: { role: string; path: string }[] }[]
     }
     const offenders: string[] = []

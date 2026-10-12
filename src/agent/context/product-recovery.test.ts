@@ -5,10 +5,7 @@ import { productRepairContext, REPAIR_CONTEXT_BYTES } from '../../inspection/pro
 import { productRecoveryDelivery } from './product-recovery.ts'
 import { readToolResult, decisionMemory } from './decision-memory.ts'
 const original = JSON.parse(
-  readFileSync(
-    'evaluation/private/r2-product-acceptance/registration-recovery-failure.json',
-    'utf8',
-  ),
+  readFileSync('evaluation/private/product-sources/registration-recovery-failure.json', 'utf8'),
 )
 const source = freezeProductSource(original.source)
 const response = original.events.find(

@@ -55,9 +55,9 @@
 
 以下是原始摘要的报告/要求，均不是本轮实测事实；原 ticket ID 均未提供，epic/关联 ID 详见映射。推断：仍在加载或退出的中间状态不应被呈现成与已知过程不符的失败或空结果。 只在上述触发和例外边界内推广；原文指定色值、尺寸、业务分支及“最新设计”不会自动成为通用标准。
 
-- [SRC-FAIL-0191](../ticket-mapping.md#src-fail-0191) · [原文 L1686–L1690](</Users/xietian/Library/Mobile Documents/com~apple~CloudDocs/Downloads/fail.md:1686>) · 原文摘录：Shows "Price unavailable. Edit your parlay." instead of loading indicator during price fetch.
-- [SRC-FAIL-0192](../ticket-mapping.md#src-fail-0192) · [原文 L1692–L1696](</Users/xietian/Library/Mobile Documents/com~apple~CloudDocs/Downloads/fail.md:1692>) · 原文摘录：Empty state flashes during dismiss animation. Should transition directly.
-- [SRC-FAIL-0193](../ticket-mapping.md#src-fail-0193) · [原文 L1698–L1702](</Users/xietian/Library/Mobile Documents/com~apple~CloudDocs/Downloads/fail.md:1698>) · 原文摘录：Show standard loading skeleton instead of empty state while content loads.
+- [SRC-FAIL-0191](../ticket-mapping.md#src-fail-0191) · 原文 L1686–L1690（来源批次 `FAIL-20261008-01`，原件不随仓库分发） · 原文摘录：Shows "Price unavailable. Edit your parlay." instead of loading indicator during price fetch.
+- [SRC-FAIL-0192](../ticket-mapping.md#src-fail-0192) · 原文 L1692–L1696（来源批次 `FAIL-20261008-01`，原件不随仓库分发） · 原文摘录：Empty state flashes during dismiss animation. Should transition directly.
+- [SRC-FAIL-0193](../ticket-mapping.md#src-fail-0193) · 原文 L1698–L1702（来源批次 `FAIL-20261008-01`，原件不随仓库分发） · 原文摘录：Show standard loading skeleton instead of empty state while content loads.
 
 ## 未解决问题与关联
 

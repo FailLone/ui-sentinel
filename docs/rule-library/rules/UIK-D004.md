@@ -56,7 +56,7 @@
 
 以下是原始摘要的报告/要求，均不是本轮实测事实；原 ticket ID 均未提供，epic/关联 ID 详见映射。推断：需要保留形状的标识或图像应按其约定比例渲染。 只在上述触发和例外边界内推广；原文指定色值、尺寸、业务分支及“最新设计”不会自动成为通用标准。
 
-- [SRC-FAIL-0028](../ticket-mapping.md#src-fail-0028) · [原文 L274–L283](</Users/xietian/Library/Mobile Documents/com~apple~CloudDocs/Downloads/fail.md:274>) · 原文摘录：The "Get the App" modal (triggered from the footer or side menu) has two design issues: 1\. The modal size does not appear correct — likely too large or incorrectly sized vs. Figma spec 2. The QR code has the OG.com logo squished/distorted inside it The reporter has flagged this for team guidance before proceeding with a fix. * Triggered via: Footer → "Get the App" link, or Side menu → "Get the App" link * The modal shows a QR code with tagline "Trade anywhere, anytime. Never miss a winning move." and a "Download the OG.com App" header * Screen …（摘录，见原文）
+- [SRC-FAIL-0028](../ticket-mapping.md#src-fail-0028) · 原文 L274–L283（来源批次 `FAIL-20261008-01`，原件不随仓库分发） · 原文摘录：The "Get the App" modal (triggered from the footer or side menu) has two design issues: 1\. The modal size does not appear correct — likely too large or incorrectly sized vs. Figma spec 2. The QR code has the OG.com logo squished/distorted inside it The reporter has flagged this for team guidance before proceeding with a fix. * Triggered via: Footer → "Get the App" link, or Side menu → "Get the App" link * The modal shows a QR code with tagline "Trade anywhere, anytime. Never miss a winning move." and a "Download the OG.com App" header * Screen …（摘录，见原文）
 
 ## 未解决问题与关联
 

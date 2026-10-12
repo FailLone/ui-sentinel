@@ -199,8 +199,8 @@ export async function runUrlCampaign(
   }
   const key = testOnly ? 'free-gateway-fixture-only' : process.env.OPENROUTER_API_KEY
   if (!key) throw Error('configuration-missing: OPENROUTER_API_KEY')
-  const directory = resolve('data/r0-url-campaign', batch)
-  await mkdir(resolve('data/r0-url-campaign'), { recursive: true })
+  const directory = resolve('data/url-campaign', batch)
+  await mkdir(resolve('data/url-campaign'), { recursive: true })
   await mkdir(directory, { recursive: false })
   const rows = manifest.plan.rows.map((row) => ({
     ...row,

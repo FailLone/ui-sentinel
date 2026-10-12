@@ -1,11 +1,11 @@
 import { readFileSync } from 'node:fs'
 import { expect, it } from 'vitest'
-import { progressHarness } from '../../scripts/validation/r2-progress-replay.ts'
+import { progressHarness } from '../../evaluation/support/product-sources/progress.ts'
 import { extractToolSummary } from '../agent/context/compact-history.ts'
 
 const original = JSON.parse(
   readFileSync(
-    'evaluation/private/r2-product-acceptance/registration-action-handoff-failures.json',
+    'evaluation/private/product-sources/registration-action-handoff-failures.json',
     'utf8',
   ),
 )

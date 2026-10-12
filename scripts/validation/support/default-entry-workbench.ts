@@ -1,7 +1,7 @@
 /** Actual ordinary workbench path; records the browser POST, never submits through a hidden API. */
 import { chromium } from 'playwright'
 import { readFile, writeFile } from 'node:fs/promises'
-const meta = JSON.parse(await readFile('data/r0-default-entry-delivery/live.json', 'utf8'))
+const meta = JSON.parse(await readFile('data/url-scan-default-entry-delivery/live.json', 'utf8'))
 const browser = await chromium.launch({ headless: true }),
   page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
 process.once('SIGTERM', async () => {
@@ -23,18 +23,18 @@ try {
   await page.getByRole('textbox', { name: '网址', exact: true }).fill(meta.entry)
   await page.getByRole('textbox', { name: /^检查目标/ }).fill('')
   await page.screenshot({
-    path: 'data/r0-default-entry-delivery/workbench-before-native.png',
+    path: 'data/url-scan-default-entry-delivery/workbench-before-native.png',
     fullPage: true,
   })
   await page.getByRole('button', { name: '开始检查', exact: true }).click()
   await page.getByText('已完成（已验证范围）', { exact: false }).waitFor({ timeout: 30000 })
   await page.screenshot({
-    path: 'data/r0-default-entry-delivery/workbench-report-native.png',
+    path: 'data/url-scan-default-entry-delivery/workbench-report-native.png',
     fullPage: true,
   })
   let r: any
   for (let i = 0; i < 100; i++) {
-    r = await readFile('data/r0-default-entry-delivery/workbench-result.json', 'utf8')
+    r = await readFile('data/url-scan-default-entry-delivery/workbench-result.json', 'utf8')
       .then(JSON.parse)
       .catch(() => undefined)
     if (r && r.root === meta.root) break
@@ -46,7 +46,7 @@ try {
   await page.getByRole('button', { name: '打开运行', exact: true }).click()
   await page.getByText('已完成（已验证范围）', { exact: false }).waitFor({ timeout: 10000 })
   await page.screenshot({
-    path: 'data/r0-default-entry-delivery/workbench-restored.png',
+    path: 'data/url-scan-default-entry-delivery/workbench-restored.png',
     fullPage: true,
   })
   if (
@@ -56,7 +56,7 @@ try {
   )
     throw Error('ordinary form added hidden checks/goal or created duplicate run')
   await writeFile(
-    'data/r0-default-entry-delivery/workbench-proof.json',
+    'data/url-scan-default-entry-delivery/workbench-proof.json',
     JSON.stringify(
       {
         passed: true,
@@ -71,10 +71,10 @@ try {
       2,
     ) + '\n',
   )
-  await writeFile('data/r0-default-entry-delivery/workbench-continue', 'captured')
+  await writeFile('data/url-scan-default-entry-delivery/workbench-continue', 'captured')
 } finally {
   await writeFile(
-    'data/r0-default-entry-delivery/workbench-driver-errors.json',
+    'data/url-scan-default-entry-delivery/workbench-driver-errors.json',
     JSON.stringify({ errors, requests }, null, 2),
   )
   await browser.close()

@@ -14,7 +14,7 @@ import {
   r4Draft,
   r4Quotes,
   r4WithReferences,
-} from '../../scripts/validation/r2-citation-replay.ts'
+} from '../../evaluation/support/product-sources/citation.ts'
 const source = freezeProductSource(citationSource)
 function references() {
   const issued = new Map(),

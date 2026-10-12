@@ -7,7 +7,7 @@ import { decisionMemory, readToolResult } from '../../src/agent/context/decision
 import { inspectInput } from '../../src/execution/investigation/program.ts'
 import type { HistoryEntry } from '../../src/agent/context/compact-history.ts'
 
-const directory = process.argv[2] ?? 'data/r0-dom-locator-free'
+const directory = process.argv[2] ?? 'data/dom-locator-free'
 const read = (name: string) => JSON.parse(readFileSync(join(directory, name), 'utf8'))
 const digest = (path: string) => createHash('sha256').update(readFileSync(path)).digest('hex')
 const original = read('original-request-record.json')

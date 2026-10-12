@@ -5,7 +5,7 @@ import { createJevTransport } from './http.ts'
 import { compileInput } from './compile.ts'
 import { DEFAULT_PROFILE } from './profile.ts'
 import { buildScoringRequest } from '../exploration/prompt.ts'
-import { testInput, replyFor } from '../../../../scripts/r1-jev-real/test-support.ts'
+import { testInput, replyFor } from '../../../../scripts/decision/jev/test-support.ts'
 it('uses actual Node HTTP with an isolated loopback fake provider', async () => {
   let received: unknown
   let auth: string | undefined

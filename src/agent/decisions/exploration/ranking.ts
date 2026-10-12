@@ -20,7 +20,7 @@ import { z } from 'zod'
 import type { ExplorationCandidate, ExplorationInput } from './contracts.ts'
 import { POLICY_VERSION } from './contracts.ts'
 
-/** Fixed fusion weights, documented in docs/r1-jev-decision.md before this module was committed. */
+/** Fixed fusion weights; see docs/decision-scoring.md for the policy and historical context. */
 export const FUSION_WEIGHTS = { relevance: 0.6, informationGain: 0.4 } as const
 
 /** One decision in four is reserved for the longest-waiting eligible untried candidate. */

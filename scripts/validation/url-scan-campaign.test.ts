@@ -64,7 +64,7 @@ it.runIf(process.env.URL_SCAN_FREE_CAMPAIGN_TEST === '1')(
       costCeilingUsd: 2,
     })
     const batch = 'free-' + randomUUID()
-    await mkdir(resolve('data/r0-url-campaign'), { recursive: true })
+    await mkdir(resolve('data/url-campaign'), { recursive: true })
     let requests = 0
     const upstreamFetch: typeof fetch = async (input, init) => {
       if (String(input).endsWith('/models'))
@@ -134,7 +134,7 @@ it.runIf(process.env.URL_SCAN_FREE_CAMPAIGN_TEST === '1')(
       paid: true,
       maxRuns: 6,
       ceilingUsd: 2,
-      campaignDirectory: resolve('data/r0-url-campaign', batch + '-ledger'),
+      campaignDirectory: resolve('data/url-campaign', batch + '-ledger'),
       smokeRequests: 1,
     }
     // The fixed model does not investigate the defect: that row must stay failed, not become a C pass.
@@ -142,7 +142,7 @@ it.runIf(process.env.URL_SCAN_FREE_CAMPAIGN_TEST === '1')(
       runUrlCampaign(manifest, batch, 'diagnostic', { approval, upstreamFetch }),
     ).rejects.toThrow('url-campaign-not-passed')
     const summary = JSON.parse(
-      await readFile(resolve('data/r0-url-campaign', batch, 'summary.json'), 'utf8'),
+      await readFile(resolve('data/url-campaign', batch, 'summary.json'), 'utf8'),
     )
     expect(summary.evidenceClass).toBe('B')
     expect(summary.r0Accepted).toBe(false)
