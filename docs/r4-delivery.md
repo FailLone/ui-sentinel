@@ -20,7 +20,7 @@
 
 原实现 `3a47ffb`、修复 `d3e08df`、最终交付 `8f06604`，从main `0b83485` 无冲突合并为 `2260ee3`。产品源码、脚本、验收材料及依赖文件与源交付一致，没有整合功能补丁。[维护者索引](maintenance/r4-closeout.json)记录身份、构建及分支清理。
 
-原始证据工作区 `/Users/xietian/.codex/worktrees/r4-incremental-regression/ui-sentinel` 保留在最终源交付提交，包含两轮data、附件和日志。提交到Git的是输入、代码和索引，不是原始数据库/截图/轨迹；不会删除工作区冒充已备份。main推送后删除已合并分支。
+原始证据工作区 `/Users/xietian/.codex/worktrees/r4-incremental-regression/ui-sentinel` 保留在最终源交付提交，包含两轮data、附件和日志。提交到Git的是输入、代码和索引，不是原始数据库/截图/轨迹；不会删除工作区冒充已备份。main推送后已删除合并分支，本地工作分支仅剩main。
 
 ## 限制与后续
 

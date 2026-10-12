@@ -28,6 +28,10 @@
   "paidCalls": 0,
   "buildLog": "data/maintenance/r4-closeout-20261012/build.log",
   "retainedEvidenceWorkspace": "/Users/xietian/.codex/worktrees/r4-incremental-regression/ui-sentinel",
-  "branchCleanup": "pending main push; detach at sourceCommit and delete merged branch",
-  "next": "Choose one real-use gap before further work; no new agent or paid batch."
+  "branchCleanup": "completed after main push; evidence workspace detached at sourceCommit, all data retained",
+  "next": "Choose one real-use gap before further work; no new agent or paid batch.",
+  "remainingLocalBranches": [
+    "main"
+  ],
+  "mainDeliveryCommit": "ab12cf6"
 }
