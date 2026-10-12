@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 import { productContinuation } from './product-continuation.ts'
 import { extractToolSummary } from '../agent/context/compact-history.ts'
 const fixture = JSON.parse(
-  readFileSync('evaluation/private/r2-product-acceptance/continuation-failures.json', 'utf8'),
+  readFileSync('evaluation/private/product-sources/continuation-failures.json', 'utf8'),
 )
 const original = (row: string) => structuredClone(fixture.rows.find((r: any) => r.row === row))
 describe('continuation of original real traces, guidance only', () => {

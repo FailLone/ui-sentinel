@@ -3,12 +3,12 @@ import { describe, expect, it, vi } from 'vitest'
 import { parseExplorationInput, type ExplorationInput } from './contracts.ts'
 import { createBudgetLedger } from './budget.ts'
 import { createScoreCache } from './cache.ts'
-import { createStubTransport } from '../../../../scripts/r1-jev/stub-transport.ts'
-import { createExplorationSession } from '../../../../scripts/r1-jev/test-support.ts'
+import { createStubTransport } from '../../../../scripts/decision/offline/stub-transport.ts'
+import { createExplorationSession } from '../../../../scripts/decision/offline/test-support.ts'
 
 function fixture(name: string): ExplorationInput {
   const parsed = parseExplorationInput(
-    JSON.parse(readFileSync(`evaluation/r1-jev-dev/public/${name}.json`, 'utf8')),
+    JSON.parse(readFileSync(`evaluation/fixtures/decision/public/${name}.json`, 'utf8')),
   )
   if (!parsed.ok) throw new Error(`fixture ${name} should be valid`)
   return parsed.value

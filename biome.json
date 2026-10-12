@@ -13,7 +13,7 @@
       "!**/node_modules",
       "!**/*.md",
       "!plans/**",
-      "!evaluation/fixtures/legacy-runs/**",
+      "!evaluation/archive/legacy-runs/**",
       "!evaluation/fixtures/approved-retry/**",
       "!evaluation/**/*.json",
       "!docs/**/*.json",

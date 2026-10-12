@@ -6,7 +6,7 @@ import { createHash } from 'node:crypto'
 import { defaultCheckArtifactIssues } from './check-artifacts.ts'
 import { productPathReport } from './product-path.ts'
 import { freezeProductSource } from './product-source.ts'
-import { citationSource, r4Draft } from '../../scripts/validation/r2-citation-replay.ts'
+import { citationSource, r4Draft } from '../../evaluation/support/product-sources/citation.ts'
 const source = freezeProductSource(citationSource)
 const run: any = { spec: { uiContract: { checkPolicy: {}, productSource: source } } }
 it.each(['product:registration-rejected', 'product:binding-rejected'])(

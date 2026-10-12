@@ -1,10 +1,10 @@
 import { readFileSync } from 'node:fs'
 import { expect, it } from 'vitest'
-import { progressHarness } from '../../../scripts/validation/r2-progress-replay.ts'
+import { progressHarness } from '../../../evaluation/support/product-sources/progress.ts'
 import { productContinuation } from '../../inspection/product-continuation.ts'
 import { productStage } from '../../inspection/product-stage.ts'
 const captured = JSON.parse(
-  readFileSync('evaluation/fixtures/r3-handoff/public-handoff.json', 'utf8'),
+  readFileSync('evaluation/fixtures/path-handoff/public-handoff.json', 'utf8'),
 )
 const sourceInput = {
   title: captured.source.title,

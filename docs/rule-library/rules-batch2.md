@@ -1,12 +1,10 @@
-# 第二批限定实现：D005 / R005
+# 原生文字消失与缺图替代表达
 
-2026-10-09，分支 `codex/rule-image-proportion`，冻结起点 `35dccaf3657af503a93cad1d6819f4d019651552`，实现提交 `5fa18aa9ed7bedb90ec1a9b5982e0c3605b712fc`。本文件为本批统一交付；[任务锚点](https://github.com/FailLone/ui-sentinel/blob/25409ce/docs/rule-library/rules-batch2-current-task.md)记录最终身份。本轮没有扩大 D004、重访公网或连接 R0/R1。
-
-**两项均已部分实现，默认关闭。** D005 的受支持原生文字子集能自动完成四态检查，不需要逐个手填语义合同；R005 自动提供缺图审查材料，始终不把建议计为已确认缺陷或健康结果。广义知识、原 Jira、完整视觉可读性与实体语义均未因此获得验证。
+D005 的限定原生文字子集自动完成四态检查，R005 只提供审查材料，不计为缺陷或健康结果。两者在已开启的网址扫描中自动参与，见[扫描接线](rules-scan-integration.md)；独立实验命令仍需显式运行。广义视觉可读性、实体语义和原 Jira 案例未因此获得验证。
 
 ## 入口与输入
 
-在独立规则工作区使用 Node 24（本轮 24.21.0）和现有 pnpm；替换 URL 为获准访问的页面，输出目录必须不存在：
+在仓库根目录使用支持的 Node 和锁定 pnpm；替换 URL 为获准访问的页面，输出目录必须不存在：
 
 ```sh
 pnpm exec tsx scripts/experiments/rules-batch2.ts \
@@ -86,4 +84,4 @@ review 输出分别包含 `resourceState`、`measurement=observed/incomplete`、
 
 ## 维护与验证
 
-当前默认状态见[知识库首页](README.md)，异常与健康反例见[靶场](../counterexample-arena.md)。历史原始 JSON 保存在[证据目录](evidence/)，不将旧结果当作新构建重跑。
+当前默认状态见[知识库首页](README.md)，异常与健康反例见[靶场](../counterexample-arena.md)。历史原始 JSON 保存在[证据目录](evidence)，不将旧结果当作新构建重跑。

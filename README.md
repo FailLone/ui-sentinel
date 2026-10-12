@@ -40,7 +40,7 @@ pnpm dev
 
 [文档首页](docs/README.md)按读者整理全部指南：
 
-- 使用：[配置](docs/configuration.md)、[网址检查](docs/url-scan.md)、[产品资料](docs/product-sources.md)、[路径复用](docs/r3-path-reuse.md)、[历史基线](docs/r4-incremental-regression.md)。
+- 使用：[配置](docs/configuration.md)、[网址检查](docs/url-scan.md)、[产品资料](docs/product-sources.md)、[路径复用](docs/path-reuse.md)、[历史基线](docs/incremental-regression.md)。
 - 开发：[贡献说明](CONTRIBUTING.md)、[架构](docs/architecture.md)、[开发约定](docs/development.md)、[HTTP 接口](docs/api.md)。
 - 扩展：[规则开发](docs/rules-and-rule-library.md)、[规则知识目录](docs/rule-library/README.md)、[靶场与评估](docs/arena-and-evaluation.md)。
 - 项目：[Roadmap](docs/product-roadmap.md)、[已知问题](docs/known-issues.md)、[历史与证据](docs/archive/README.md)。

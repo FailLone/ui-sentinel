@@ -63,7 +63,7 @@ docs 描述当前能力、约束和明确标注的方向；plans 只保留下一
 
 ### 动态结果自测
 
-`pnpm exec tsx scripts/validation/r0-remediation.ts` 在构建后启动本地固定模型、正式 API 和 Chromium，覆盖健康/异常动态反馈、错误引用和目标、过期动作、篡改证据、不可恢复、重复读取及新信息恢复。输出到 `data/r0-remediation/<timestamp>/`，包含构建和源代码哈希、完整模型输入、请求、报告、产物、SQLite、服务日志，以及健康/异常页面的独立浏览器回放。属于开发者 A/B 自测，不能代替独立 C 能力验收。
+`pnpm exec tsx scripts/validation/url-scan-feedback.ts` 在构建后启动本地固定模型、正式 API 和 Chromium，覆盖健康/异常动态反馈、错误引用和目标、过期动作、篡改证据、不可恢复、重复读取及新信息恢复。输出到 `data/url-scan-feedback/<timestamp>/`，包含构建和源代码哈希、完整模型输入、请求、报告、产物、SQLite、服务日志，以及健康/异常页面的独立浏览器回放。属于开发者 A/B 自测，不能代替独立 C 能力验收。
 
 费用未知后的只读核对命令：
 
@@ -75,9 +75,13 @@ pnpm exec tsx scripts/validation/reconcile-cost.ts <campaign-directory> <batch-d
 
 ## 冻结夹具与历史材料
 
-`evaluation/fixtures/legacy-runs/` 保存仍被回归或离线工具消费的历史冻结输入，保持原字节与内部来源记录；其中一次性生成脚本仅作来源材料，不参与当前 TypeScript 构建。当前 Vitest 专用配置位于 `evaluation/configs/`。Biome 排除冻结夹具及文档/评估 JSON 证据，源码和测试继续检查格式；禁止用格式化改写证据哈希。
+`evaluation/archive/legacy-runs/` 保存仍被回归或离线工具消费的历史冻结输入，保持原字节与内部来源记录；其中一次性生成脚本仅作来源材料，不参与当前 TypeScript 构建。当前 Vitest 专用配置位于 `evaluation/configs/`。Biome 排除冻结夹具及文档/评估 JSON 证据，源码和测试继续检查格式；禁止用格式化改写证据哈希。
 
 
 ## 资料路径免费验证
 
-构建后执行 `DOTENV_CONFIG_PATH=/dev/null pnpm exec tsx scripts/validation/r2-product-sources.ts`，经正式工作台/API、固定本地模型与真实浏览器验证资料路径及历史恢复。原文、动作、测量、无时限反例与缺失/篡改证据分别核对；具体支持范围见[产品资料](product-sources.md)。
+构建后执行 `DOTENV_CONFIG_PATH=/dev/null pnpm exec tsx scripts/validation/product-sources.ts`，经正式工作台/API、固定本地模型与真实浏览器验证资料路径及历史恢复。原文、动作、测量、无时限反例与缺失/篡改证据分别核对；具体支持范围见[产品资料](product-sources.md)。
+
+## 工具与评估资产
+
+入口、迁移及历史兼容边界见[scripts导航](../scripts/README.md)；公开夹具、私有评分、支持库和冻结档案见[evaluation导航](../evaluation/README.md)。当前验收协议：[资料](testing/product-sources-acceptance.md)、[路径复用](testing/path-reuse-acceptance.md)。

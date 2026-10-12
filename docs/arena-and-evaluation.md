@@ -89,7 +89,7 @@ pnpm validate:url-scan -- --preflight
 
 `validate:business -- --preflight` 通过实际 HTTP 创建任务（不直接调用 executeRun），跑完 E0–E4 固定模型场景，再注入一次未知写入与一次非法 finish 验证系统阻止它们，最后用真实浏览器驱动工作台 U01–U05 并保存三张真实 UI 截图（创建表单、导出成功报告、缺陷证据）。它证明契约**可执行**，不写成「真实 Agent 自主发现通过」。
 
-`validate:url-scan -- --preflight` 有自己的入口而不是挂在业务或视觉脚本上的一个标志，因此一个误设的 flag 无法把网址预检变成付费运行。它主动清空所有真实凭据、把模型指向本地固定服务，通过正式 HTTP 创建 `kind: 'ui-scan'` 任务并跑完固定模型场景：健康样本必须真的到达 covered/completed（`observedEntry`、独立服务实际交互请求、独立浏览器正常结果和已保存的页面状态、入口保真、无业务适配器、`businessResult: 'not-applicable'`、证明与持久历史、spec、终态及 artifacts 一致），非法 finish 必须被拒绝且不产生 covered/completed，越界导航必须在**派发前**被拒且目标未到达。分数由 `evaluation/private/url-scan/scorer.ts` 给出，它读**独立**事实（服务器请求计数、写计数、持久记录、构建身份），从不复用生产 verdict 函数——复用一个正在被检验的函数，会与它的 bug 一致。证据写入 `data/r0-url-scan/<timestamp>/`。
+`validate:url-scan -- --preflight` 有自己的入口而不是挂在业务或视觉脚本上的一个标志，因此一个误设的 flag 无法把网址预检变成付费运行。它主动清空所有真实凭据、把模型指向本地固定服务，通过正式 HTTP 创建 `kind: 'ui-scan'` 任务并跑完固定模型场景：健康样本必须真的到达 covered/completed（`observedEntry`、独立服务实际交互请求、独立浏览器正常结果和已保存的页面状态、入口保真、无业务适配器、`businessResult: 'not-applicable'`、证明与持久历史、spec、终态及 artifacts 一致），非法 finish 必须被拒绝且不产生 covered/completed，越界导航必须在**派发前**被拒且目标未到达。分数由 `evaluation/private/url-scan/scorer.ts` 给出，它读**独立**事实（服务器请求计数、写计数、持久记录、构建身份），从不复用生产 verdict 函数——复用一个正在被检验的函数，会与它的 bug 一致。证据写入 `data/url-scan/<timestamp>/`。
 
 网址样本的私有真值在 `evaluation/private/url-scan/`：变体标签、预期缺陷 key 与复现步骤都在这里，公开页面、fixture HTML/JS/API、URL 与模型请求中都不出现。构建身份由冻结清单在评分时注入，不用字面量——否则每个分数都会声称是写下它时恰好 checkout 的那棵树。
 
@@ -102,13 +102,13 @@ pnpm validate:url-scan -- --freeze                       # 从当前树算 hash�
 pnpm validate:url-scan -- --dry-run --manifest <清单> --batch <批次名>   # 打印将跑的行与上限
 ```
 
-`--freeze` 要求源码/arena/scripts/evaluation/dist、`package.json`、lockfile 与 `.env` 均无未提交修改；**只**看这些会改变运行结果的路径，计划、README、其他 Agent 的笔记不阻塞冻结。清单记录完整 commit SHA、dist 与私有评分器的树 hash、fixture hash、策略/提示词版本、脱敏后的配置、全部样本与次数、费用上限，并对自身规范化 hash。`--dry-run` 拒绝 hash 不符的清单：从被改过的身份推导出的计划，是一份没人冻结过的批次的计划。
+`--freeze` 要求源码/arena/scripts/evaluation/dist、`package.json`、lockfile 与 `.env` 均无未提交修改；**只**看这些会改变运行结果的路径，README等不改变运行输入的文档不阻塞冻结。清单记录完整 commit SHA、dist 与私有评分器的树 hash、fixture hash、策略/提示词版本、脱敏后的配置、全部样本与次数、费用上限，并对自身规范化 hash。`--dry-run` 拒绝 hash 不符的清单：从被改过的身份推导出的计划，是一份没人冻结过的批次的计划。
 
-按计划 10.2，首轮 UI 矩阵是 5 个样本各 3 次共 15 次；异常组各需至少 1 项被独立复现的有效发现，健康组 3×3 次都必须真实正常验证且零 supported 误报。
+当前正式 UI 矩阵是 5 个样本各 3 次共 15 次；异常组各需至少 1 项被独立复现的有效发现，健康组 3×3 次都必须真实正常验证且零 supported 误报。
 
-`--diagnostic`/`--formal` 已接入 runner，但本次未授权、未执行付费调用。运行前必须有 `URL_SCAN_APPROVAL_FILE`，绑定 manifestHash、batch、mode、maxRuns、ceilingUsd、campaignDirectory、smokeRequests=1；正式模式还须提供同构建成功的 diagnosticDirectory。runner 复核实际构建/评分器/脚本 hash、干净树和现价，复用现有模型网关与持久累计费用账本。诊断默认 6 行（5 样本 + U08），正式 15 行，另有 1 次共享预算 smoke。freeze 自动读取固定提供方 endpoint 的完整报价与模型 canonical slug，按最高阶梯/时间段价格保守预留，不使用目录最低价；runner 遇到报价或模型身份变化要求重新冻结。共享预算包括 smoke，均摊展示不是每行独立限额。
+`--diagnostic`/`--formal` 已接入 runner，执行需要本批独立授权。运行前必须有 `URL_SCAN_APPROVAL_FILE`，绑定 manifestHash、batch、mode、maxRuns、ceilingUsd、campaignDirectory、smokeRequests=1；正式模式还须提供同构建成功的 diagnosticDirectory。runner 复核实际构建/评分器/脚本 hash、干净树和现价，复用现有模型网关与持久累计费用账本。诊断默认 6 行（5 样本 + U08），正式 15 行，另有 1 次共享预算 smoke。freeze 自动读取固定提供方 endpoint 的完整报价与模型 canonical slug，按最高阶梯/时间段价格保守预留，不使用目录最低价；runner 遇到报价或模型身份变化要求重新冻结。共享预算包括 smoke，均摊展示不是每行独立限额。
 
-免费验证 runner 本身可执行：`URL_SCAN_FREE_CAMPAIGN_TEST=1 pnpm exec vitest run scripts/validation/url-scan-campaign.test.ts`。它使用注入的固定 upstream，结果强制标 B，保留异常样本未发现缺陷的失败行；不能写成 C 通过。完整流程、授权文件字段和当前边界见 [接手记录](archive/README.md)。
+免费验证 runner 本身可执行：`URL_SCAN_FREE_CAMPAIGN_TEST=1 pnpm exec vitest run scripts/validation/url-scan-campaign.test.ts`。它使用注入的固定 upstream，结果强制标 B，保留异常样本未发现缺陷的失败行；不能写成 C 通过。完整流程、授权文件字段和当前边界见 [网址指南](url-scan.md)。
 
 ## 结果与证据
 

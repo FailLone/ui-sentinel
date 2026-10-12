@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { parseStubReply, validateReceipt, type NormalizedReceipt } from './receipt.ts'
 
 function stub(name: string): unknown {
-  return JSON.parse(readFileSync(`evaluation/r1-jev-dev/stub/${name}.json`, 'utf8'))
+  return JSON.parse(readFileSync(`evaluation/fixtures/decision/stub/${name}.json`, 'utf8'))
 }
 
 const candidateIds = ['c1']

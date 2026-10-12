@@ -1,6 +1,6 @@
 # 公网扫描可配置 DNS 解析
 
-本功能仅服务 `ui-scan` 的公网 HTTP/HTTPS 请求。默认 `system`；部署者可显式选择 RFC 8484 DoH GET。没有自动切换、自动发现、重试、备用解析器或代理。本次不默认开启 URL 扫描或 DoH，不改变图片规则、R0 完成门/费用/历史证据、R1 调度或系统网络设置。
+本功能仅服务 `ui-scan` 的公网 HTTP/HTTPS 请求。默认 `system`；部署者可显式选择 RFC 8484 DoH GET。没有自动切换、自动发现、重试、备用解析器或代理。URL 扫描和 DoH 均须显式启用；解析配置不能扩大网络许可。
 
 ## 请求链路
 
@@ -13,7 +13,7 @@
 | 主文档/资源/重定向 | `session.ts` 使用 CDP Fetch 暂停每一跳；先检查来源/方法/导航范围，再解析、全量校验，交给 Node 固定地址传输，最后 `Fetch.fulfillRequest`。主文档仅原入口 origin；资源/data 原有独立授权不变。每一跳重新走这条链路，Node 不跟随重定向。 |
 | 实际连接 | `transport.ts` 的 `http/https.request` 使用 `agent:false`，`lookup` 回调只返回已选定的一个已检查地址；没有第二次 DNS。URL 保留原域名，因此 Host、TLS SNI 和证书身份校验保留，显式 `rejectUnauthorized:true`。全部回答通过后沿用 IPv4 优先选择，无其他地址尝试。 |
 | 浏览器其他通道 | `launchBrowser({uiScan:true})` 的拒绝代理、阻止 service worker/弹窗/WS、禁用 QUIC 与原有通道限制保留，浏览器不能绕开固定传输自行解析连接。 |
-| 图片/证据 | 本基线图片走浏览器资源路径；截图/DOM 证据从已加载页面本地保存，没有独立 HTTP 下载器。只读核对规则分支已提交的 image-paint / image-binding-host / image-bindings；宿主复用同一 network session，没有新增抓图路径。本分支未带入这些规则实验。 |
+| 图片/证据 | 本基线图片走浏览器资源路径；截图/DOM 证据从已加载页面本地保存，没有独立 HTTP 下载器。image-paint / image-binding-host / image-bindings 宿主复用同一 network session，没有独立的网络豁免。 |
 
 没有发现必须更换代理架构的连接一致性缺口。改动点为解析器、两处调用、诊断与失败传播。系统模式仍使用同一系统接口、全部回答策略和固定传输；现在等待解析有上限，错误不再被吞成空回答。系统 `getaddrinfo` 本身不能被 Node 取消，任务取消/超时会停止等待并忽略晚到结果，不会继续连接；底层 OS 查询可能稍后返回。
 
@@ -42,7 +42,7 @@ URL_SCAN_DOH_ALLOWED_HOSTS=www.example.org,cdn.example.org
 `allowedHosts` 是必须的、无通配符的精确域名清单，用于限制向解析服务披露查询，不是资源访问权限或复杂分流。清单外域名报 `resolution-scope-denied`，不发外部查询、不改走系统 DNS。部署者应仅列出确认为公网扫描用途的入口和依赖域名，不能自动识别企业内部名字。CNAME 仅使用同一应答中的别名链和地址，不另发 CNAME 查询；不完整的别名应答失败关闭。IP 字面量直接走原有地址策略。
 
 ```sh
-# 项目支持 Node >=22.18 <23 或 >=24 <25；本次使用 24.21.0
+# 使用项目声明的 Node 版本
 pnpm install --frozen-lockfile
 pnpm build
 pnpm start

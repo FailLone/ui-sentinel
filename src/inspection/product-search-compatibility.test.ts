@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest'
-import { searchHarness, searchFailures } from '../../scripts/validation/r2-search-compatibility.ts'
+import {
+  searchHarness,
+  searchFailures,
+} from '../../scripts/validation/product-search-compatibility.ts'
 import { normalizeProductSearchInput, productSearchInput } from './product-source.ts'
 describe('source search local compatibility before SDK validation', () => {
   it.each(searchFailures.rows as Record<string, any>[])(

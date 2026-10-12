@@ -51,6 +51,6 @@ DOTENV_CONFIG_PATH=/dev/null pnpm exec vitest run \
 
 ## 其他长期页族
 
-资料检查使用[产品资料示例](../evaluation/fixtures/r2-product-acceptance/product-spec.md)及同目录页面。健康、效果不符和前置不足共享正常规格，私有真值位于 `evaluation/private/r2-product-acceptance/`。资料验证、复用和历史基线的启动入口见[靶场维护](maintenance/arena-library-followup.md#如何归属)。这些页族不并入上方14个变体的数量。
+资料检查使用[产品资料示例](../evaluation/fixtures/product-sources/product-spec.md)及同目录页面。健康、效果不符和前置不足共享正常规格，私有真值位于 `evaluation/private/product-sources/`。资料验证、复用和历史基线的启动入口见[靶场维护](maintenance/arena-library-followup.md#如何归属)。这些页族不并入上方14个变体的数量。
 
 原始回归证据不随仓库分发；历史结果和取得限制见[归档索引](archive/README.md)。从 clone 运行上述验证会生成本次新证据，不恢复历史实测结果。

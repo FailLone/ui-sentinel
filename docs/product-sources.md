@@ -2,7 +2,7 @@
 
 在网址检查中附一份文本/Markdown，由主 Agent 提取一条 1–3 步有来源的匿名本地路径，通过原执行器操作和测量。支持范围有限，不能把整份资料或整个网站称为已验证。
 
-健康路径可[保存复用](r3-path-reuse.md)，也可[选择历史基线](r4-incremental-regression.md)进行重复检查。
+健康路径可[保存复用](path-reuse.md)，也可[选择历史基线](incremental-regression.md)进行重复检查。
 
 ## 使用
 
@@ -68,9 +68,9 @@ API 使用原 `POST /api/runs`：
 
 ```sh
 DOTENV_CONFIG_PATH=/dev/null pnpm build
-DOTENV_CONFIG_PATH=/dev/null pnpm exec tsx scripts/validation/r2-product-sources.ts
+DOTENV_CONFIG_PATH=/dev/null pnpm exec tsx scripts/validation/product-sources.ts
 # 动态后续控件、重启恢复与准入证据篡改
-DOTENV_CONFIG_PATH=/dev/null pnpm exec tsx scripts/validation/r2-product-sources.ts --dynamic-only
+DOTENV_CONFIG_PATH=/dev/null pnpm exec tsx scripts/validation/product-sources.ts --dynamic-only
 ```
 
 入口使用本地固定模型、正式 API 和 Chromium，不证明真实模型理解质量。真实验证的样本范围、历史失败与未触发机制见[历史索引](archive/README.md)。

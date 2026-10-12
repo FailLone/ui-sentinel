@@ -5,7 +5,7 @@ import { join } from 'node:path'
 import { startGateway } from './model-gateway.ts'
 
 const fixture = async (name: string) =>
-  JSON.parse(await readFile(new URL(`./fixtures/r1-http400/${name}.json`, import.meta.url), 'utf8'))
+  JSON.parse(await readFile(new URL(`./fixtures/provider-http400/${name}.json`, import.meta.url), 'utf8'))
 
 it('replays the saved 400 with unchanged wire, bounded correlation headers, and unknown stop', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'gateway-r1-400-'))

@@ -91,7 +91,7 @@ pnpm validate:learning -- --recheck <已关闭且已批准学习目录>
 
 `image-fallback-review`（R005）自动采集原生图片的加载状态及同区域材料，单独显示待审查建议和证据不足，不作为缺陷或健康 pass。两项共用原入口和历史报告；D004、业务默认规则及全局扫描开关保持原设置。23条规则知识不等于23个已实现检查器。详见[产品接入](rule-library/rules-scan-integration.md)与[合并记录](archive/README.md)。
 
-同日 `3350042` 新增普通扫描自动参与的 `control-text-clipping`（D001）与 `control-text-overlap`（D002）。仅支持限定原生单行名称、字体及平面绘制；使用同次截图与隔离参考字形验证局部墨迹裁切/覆盖，不将矩形相交、可滚动内容或意图不明的弹层直接判错。脚本/交互可能提供恢复且未确认时保留unknown；报告列明已测、未知、截断及关联检查。两条仍属部分实现，剩余17条知识待实现，见[统一交付](rule-library/rules-clipping-overlap-delivery.md)。
+同日 `3350042` 新增普通扫描自动参与的 `control-text-clipping`（D001）与 `control-text-overlap`（D002）。仅支持限定原生单行名称、字体及平面绘制；使用同次截图与隔离参考字形验证局部墨迹裁切/覆盖，不将矩形相交、可滚动内容或意图不明的弹层直接判错。脚本/交互可能提供恢复且未确认时保留unknown；报告列明已测、未知、截断及关联检查。两条仍属部分实现，剩余17条知识待实现，见[统一交付](rule-library/control-layout.md)。
 
 ## 设计口径：Rule、Skill、程序与运行任务
 

@@ -144,8 +144,7 @@ if (options.mode === 'freeze') {
     // The first authorisation step's ceiling for the UI diagnostic; the formal batch raises it.
     costCeilingUsd: options.costCeilingUsd ?? 2,
   })
-  const out =
-    options.manifest ?? resolve('data/r0-url-scan', `manifest-${commit.slice(0, 12)}.json`)
+  const out = options.manifest ?? resolve('data/url-scan', `manifest-${commit.slice(0, 12)}.json`)
   await mkdir(resolve(out, '..'), { recursive: true })
   await writeFile(out, `${JSON.stringify(manifest, null, 2)}\n`)
   console.log(
@@ -166,7 +165,7 @@ if (options.mode === 'freeze') {
   process.exit(0)
 }
 
-const dir = resolve('data/r0-url-scan', new Date().toISOString().replace(/[:.]/g, '-'))
+const dir = resolve('data/url-scan', new Date().toISOString().replace(/[:.]/g, '-'))
 await mkdir(dir, { recursive: true })
 
 const reservePort = async () => {

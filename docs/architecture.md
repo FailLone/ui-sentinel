@@ -56,7 +56,7 @@ UI先冻结入口、来源、scope/access和预算并计算hash，再安装网�
 - generic关联一次原动作、操作前观察、动作后立即及约1000ms反馈采样、规则结算和可读回执；反馈变化本身不是功能正确证据。
 - effects保存独立要求及冻结谓词、来源/结果/原action关联和测量状态。generic不能抵消必需效果；真实failed与未测unverified不同。
 
-新版本为url-scan-default-4 / bounded-ui-sampling-2 / default-check-contract-2 / public-effect-sources-1，工具29，item-checks-2，inspection-proof-4，ui-check-report-2。历史revision/hash与旧证明按原分支解释，新旧评分分开。详细合同、限制与证据见[阶段交接](https://github.com/FailLone/ui-sentinel/blob/25409ce/plans/r0-default-check-v2-handoff.md)。
+报告保留实际运行的 revision/hash；历史证明按原契约解释，不用今天的默认配置重写旧结论。详细合同、限制与证据见[阶段交接](https://github.com/FailLone/ui-sentinel/blob/25409ce/plans/r0-default-check-v2-handoff.md)。
 
 ## 执行与结束
 
@@ -82,11 +82,11 @@ Jev默认关闭，需请求和服务端共同显式启用、已有批准费用�
 
 部署可显式配置有界 DoH；默认仍走 system DNS。DoH 只允许配置的精确域名，连接前复查全部地址并固定地址连接，保留 Host/SNI/TLS 和私网拒绝；不提供任意代理或 fake-IP 绕过。支持范围及已知性能/证据局限见[规则整合交接](archive/README.md)和[DNS 说明](network-dns-compat.md)。
 
-D001/D002沿同一适配器自动测量原生单行文字的有限垂直裁切/兄弟控件遮盖。几何只筛候选，同次截图与隔离参考字形对照才支持像素结论；参考图不冒充目标页面截图。正常滚动、省略、弹层或未确认的脚本/交互恢复路径不会仅凭越界判缺陷。历史报告新增可选layout字段并校验布局证据摘要，旧记录兼容。详见[范围、验证与合并](rule-library/rules-clipping-overlap-delivery.md)。
+D001/D002沿同一适配器自动测量原生单行文字的有限垂直裁切/兄弟控件遮盖。几何只筛候选，同次截图与隔离参考字形对照才支持像素结论；参考图不冒充目标页面截图。正常滚动、省略、弹层或未确认的脚本/交互恢复路径不会仅凭越界判缺陷。历史报告新增可选layout字段并校验布局证据摘要，旧记录兼容。详见[范围、验证与合并](rule-library/control-layout.md)。
 
 ## 目标驱动弹窗与并行子执行
 
-支持嵌套入口探索和可观察浮窗契约。`EXECUTION_POPUP_JEV=1` 和请求 `popupCheck: { mode: "popup-viewport" }` 开启弹窗路径；追加 `EXECUTION_PARALLEL_CHECK_TASKS=1` 后，父Mastra Agent通过 `check_task_submit/status/wait/cancel` 委派。新请求冻结 `popup-viewport-2`：Jev只选择实际合法候选中的探索入口，原执行器点击；可见浮层由程序独立测量，不再请求TARGET或按钮因果证明。默认关闭，与R1通用探索互斥。
+支持嵌套入口探索和可观察浮窗契约。`EXECUTION_POPUP_JEV=1` 和请求 `popupCheck: { mode: "popup-viewport" }` 开启弹窗路径；追加 `EXECUTION_PARALLEL_CHECK_TASKS=1` 后，父Mastra Agent通过 `check_task_submit/status/wait/cancel` 委派。新请求冻结 `popup-viewport-2`：Jev只选择实际合法候选中的探索入口，原执行器点击；可见浮层由程序独立测量，不再请求TARGET或按钮因果证明。默认关闭，与通用程序探索互斥。
 
 功能效果复用原generic/effects的动作前来源及前后观察，`popup-effect.ts` 检查事先明确的浮窗预期是否出现；UI使用 `popup-visible-viewport-2` 检查实际可见浮层的几何，已有或异步出现的适用浮层也可测。两类结论分别保存，UI通过不核销功能义务。普通控件改文字不算浮窗出现，位置选择器变化按原节点身份核对；显式刷新受事实去重、动作读取记忆、预算和取消约束。旧 `popup-viewport-1` 及其报告按原语义保留。
 
@@ -96,12 +96,12 @@ D001/D002沿同一适配器自动测量原生单行文字的有限垂直裁切/�
 
 ## 路径复用
 
-服务端从完整健康报告及原证据生成声明式候选，存入libSQL的 `path_programs`；工作台/API通过显式 `pathProgramId` 在新运行启用。候选携带来源版本、公开目标描述、原要求及前置条件，不携带新运行权限或成功判定。`src/execution/path-reuse/` 复用R2计划登记、当前节点绑定及原执行器测量，每次派发前复核结构、唯一性和前置。
+服务端从完整健康报告及原证据生成声明式候选，存入libSQL的 `path_programs`；工作台/API通过显式 `pathProgramId` 在新运行启用。候选携带来源版本、公开目标描述、原要求及前置条件，不携带新运行权限或成功判定。`src/execution/path-reuse/` 复用资料计划登记、当前节点绑定及原执行器测量，每次派发前复核结构、唯一性和前置。
 
 已安装计划失效时，持久交回事件使工具、阶段引导和调用授权统一为 `reuse-read-only`，可通过原run_finish诚实结束partial，禁止重放及换计划。未安装计划的来源失配仍走普通资料流程。模型解释未验证，报告事实由事件、测量和原完成门生成；不是新增Agent循环或任意脚本执行平台。
 
 ## 历史基线与变化报告
 
-工作台通过只读 `GET /api/regression-baselines` 获取同精确入口的有界历史候选；创建时携带 `baselineRunId`，服务端重新核对完整健康报告与证据，经原R3派生/保存候选，旧权限不继承。查询不访问目标网页或模型。
+工作台通过只读 `GET /api/regression-baselines` 获取同精确入口的有界历史候选；创建时携带 `baselineRunId`，服务端重新核对完整健康报告与证据，经原路径派生/保存门生成候选，旧权限不继承。查询不访问目标网页或模型。
 
-原路径运行器按实际进入步骤写入 `path-regression:identity/observed/invalidated` 事件，变化报告由持久事件及原产品测量投影，证据降级时本次验证一同降级。资料变更的新计划不按步骤序号核销旧路径。未创建第二套执行器、数据库或自动修订循环。API、显示范围及性能边界见[R4交付](archive/README.md)。
+原路径运行器按实际进入步骤写入 `path-regression:identity/observed/invalidated` 事件，变化报告由持久事件及原产品测量投影，证据降级时本次验证一同降级。资料变更的新计划不按步骤序号核销旧路径。未创建第二套执行器、数据库或自动修订循环。API、显示范围及性能边界见[历史基线指南](incremental-regression.md)。

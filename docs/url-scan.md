@@ -33,7 +33,7 @@ pnpm validate:url-scan -- --preflight            # 全部样本
 pnpm validate:url-scan -- --preflight --sample healthy-catalog
 ```
 
-该预检主动清空所有真实凭据、把模型指向本地固定服务，驱动**编译后的**服务、真实 Chromium 和正式 HTTP/工作台接口，证据写入 `data/r0-url-scan/<timestamp>/`。它证明接线可执行，**不**证明模型能自主发现问题。
+该预检主动清空所有真实凭据、把模型指向本地固定服务，驱动**编译后的**服务、真实 Chromium 和正式 HTTP/工作台接口，证据写入 `data/url-scan/<timestamp>/`。它证明接线可执行，**不**证明模型能自主发现问题。
 
 
 ## 使用步骤与下一步

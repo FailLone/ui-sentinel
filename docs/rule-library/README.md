@@ -18,7 +18,7 @@
 ## 查阅与扩展
 
 - [完整目录](rule-catalog.md)：稳定 ID、适用主题和逐条状态。
-- [文字裁切/遮盖](rules-clipping-overlap-delivery.md)、[文字消失/缺图审查](rules-batch2.md)、[普通扫描接线](rules-scan-integration.md)。
+- [文字裁切/遮盖](control-layout.md)、[文字消失/缺图审查](rules-batch2.md)、[普通扫描接线](rules-scan-integration.md)。
 - [图片保形](image-shape-candidate.md)、[候选绑定](image-binding-experiment.md)、[只读诊断](image-binding-diagnosis.md)、[有界可见性](image-visibility-bounded.md)。
 - [来源索引](ticket-mapping.md)、[语义去重](dedup-log.md)、[证据缺口](open-questions.md)。
 - [图片历史研究](../archive/image-research.md)与[证据取得方式](../archive/README.md#不随仓库分发的材料)。

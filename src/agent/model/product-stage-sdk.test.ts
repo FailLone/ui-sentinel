@@ -4,8 +4,8 @@ import type { MastraModelConfig } from '@mastra/core/llm'
 import { expect, it, vi } from 'vitest'
 import { writeFileSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { progressHarness } from '../../../scripts/validation/r2-progress-replay.ts'
-import { productSource } from '../../../scripts/r2-product-acceptance/policy.ts'
+import { progressHarness } from '../../../evaluation/support/product-sources/progress.ts'
+import { productSource } from '../../../scripts/acceptance/product-sources/policy.ts'
 import { productStageAllows } from '../../inspection/product-stage.ts'
 import { decisionMemory } from '../context/decision-memory.ts'
 vi.mock('../../shared/config.ts', () => ({
@@ -24,7 +24,7 @@ it('actual SDK forces source decisions, executes query batches directly, and reg
     history: any[] = []
   let nextOffset: number, citationId: string
   const original = JSON.parse(
-    readFileSync('evaluation/private/r2-product-acceptance/stage-decision-failures.json', 'utf8'),
+    readFileSync('evaluation/private/product-sources/stage-decision-failures.json', 'utf8'),
   )
     .rows.find((r: any) => r.row === 'R1')
     .receipts.find((r: any) => r.toolName === 'product_path_register').originalArguments

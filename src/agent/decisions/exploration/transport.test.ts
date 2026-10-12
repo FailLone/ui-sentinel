@@ -4,12 +4,12 @@ import { parseExplorationInput, type ExplorationInput } from './contracts.ts'
 import { createBudgetLedger, type BudgetLedger } from './budget.ts'
 import { parseStubReply, type NormalizedReceipt } from './receipt.ts'
 import type { SendFn } from './transport.ts'
-import { requestExplorationScores } from '../../../../scripts/r1-jev/test-support.ts'
-import { createStubTransport } from '../../../../scripts/r1-jev/stub-transport.ts'
+import { requestExplorationScores } from '../../../../scripts/decision/offline/test-support.ts'
+import { createStubTransport } from '../../../../scripts/decision/offline/stub-transport.ts'
 
 function fixture(name: string): ExplorationInput {
   const parsed = parseExplorationInput(
-    JSON.parse(readFileSync(`evaluation/r1-jev-dev/public/${name}.json`, 'utf8')),
+    JSON.parse(readFileSync(`evaluation/fixtures/decision/public/${name}.json`, 'utf8')),
   )
   if (!parsed.ok) throw new Error(`fixture ${name} should be valid`)
   return parsed.value
@@ -17,7 +17,7 @@ function fixture(name: string): ExplorationInput {
 
 function stubReply(name: string): NormalizedReceipt {
   const parsed = parseStubReply(
-    JSON.parse(readFileSync(`evaluation/r1-jev-dev/stub/${name}.json`, 'utf8')),
+    JSON.parse(readFileSync(`evaluation/fixtures/decision/stub/${name}.json`, 'utf8')),
   )
   if (!parsed.ok) throw new Error(`stub ${name} should parse`)
   return parsed.value

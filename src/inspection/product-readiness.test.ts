@@ -2,12 +2,12 @@ import { describe, it, expect } from 'vitest'
 import { productReadinessDiagnostics } from './product-readiness.ts'
 import { productPathReport, validateProductPlan } from './product-path.ts'
 import { freezeProductSource } from './product-source.ts'
-import { citationSource } from '../../scripts/validation/r2-citation-replay.ts'
+import { citationSource } from '../../evaluation/support/product-sources/citation.ts'
 import {
   correctedReadinessPlan,
   confirmedReview,
   readinessRows,
-} from '../../scripts/validation/r2-readiness-replay.ts'
+} from '../../evaluation/support/product-sources/readiness.ts'
 const source = freezeProductSource(citationSource)
 const normalized = () => {
   const raw = correctedReadinessPlan('R5')

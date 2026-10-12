@@ -4,7 +4,7 @@ import type { MastraModelConfig } from '@mastra/core/llm'
 import { expect, it, vi } from 'vitest'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { progressHarness } from '../../../scripts/validation/r2-progress-replay.ts'
+import { progressHarness } from '../../../evaluation/support/product-sources/progress.ts'
 import { decisionMemory } from '../context/decision-memory.ts'
 import { productPathSkill } from '../skills/product-path.ts'
 vi.mock('../../shared/config.ts', () => ({
@@ -12,7 +12,7 @@ vi.mock('../../shared/config.ts', () => ({
 }))
 import { executeModelRequest } from './request.ts'
 const fixture = JSON.parse(
-  readFileSync('evaluation/private/r2-product-acceptance/stage-decision-failures.json', 'utf8'),
+  readFileSync('evaluation/private/product-sources/stage-decision-failures.json', 'utf8'),
 )
 const originalPlan = () =>
   structuredClone(

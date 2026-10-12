@@ -1,8 +1,6 @@
-# D005 / R005：普通网址扫描接入
+# 文字与缺图检查的普通扫描接线
 
-2026-10-09（Asia/Shanghai）。**在本独立候选中，已开启的网址扫描现在默认执行 D005 并生成 R005 审查材料。用户从原工作台选择网址检查、输入网址和可选目标即可；不需要实验 CLI、语义合同或额外实验开关。** API 仍使用原 `POST /api/runs` 的 ui-scan 请求。
-
-本轮实现与实际运行候选为 **`156ffbea3bdbeb0ee7e4a8ace0bbe56efd3d9a44`**，位于 `codex/rule-image-proportion`，尚未合入 main、未推送。规则基线 `bdf914d`，固定 main `60c315a04e30b84356381763e33dd976a3ace836` 通过正常 merge `77699a8` 合入本分支，无冲突，保留双方历史、DNS与诊断修改。合并带入固定 main 已提交的 Roadmap 历史；本接入没有编辑 Roadmap，也没有修改维护者 main 工作区的未提交文件。未触碰 R1 的代码、构建、端口、数据库、配置或实验账本。
+已开启的网址扫描自动执行限定文字规则并生成缺图审查材料。工作台输入网址和可选目标即可，无需实验 CLI、语义合同或额外实验开关。全局网址模式仍默认关闭。API 使用 `POST /api/runs` 的 ui-scan 请求。
 
 ## 普通用户如何使用
 
@@ -56,4 +54,4 @@ R005 仍为 `image-fallback-review` 0.1.0 非Rule审查材料：loaded、loading
 
 ## 维护与验证
 
-当前默认状态见[知识库首页](README.md)，异常与健康反例见[靶场](../counterexample-arena.md)。历史原始 JSON 保存在[证据目录](evidence/)，不将旧结果当作新构建重跑。
+当前默认状态见[知识库首页](README.md)，异常与健康反例见[靶场](../counterexample-arena.md)。历史原始 JSON 保存在[证据目录](evidence)，不将旧结果当作新构建重跑。

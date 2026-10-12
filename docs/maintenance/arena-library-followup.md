@@ -11,10 +11,10 @@
 | 反例类型 | 维护位置与入口 |
 | --- | --- |
 | 浮层、图片、裁切/遮字的稳定页面机制 | [反例靶场](../counterexample-arena.md)，复用现有 catalog 和页面生成器 |
-| 动态后续控件、资料引用、结果/前置条件 | `scripts/validation/r2-product-sources.ts`；资料页族 `evaluation/fixtures/r2-product-acceptance/` |
-| 健康路径复用、目标歧义/缺失、前置失效 | `scripts/validation/r3-path-reuse.ts`，复用同一资料页族 |
-| 来源/公开事实变化、未到达状态、历史基线选择 | 同一入口的 `--r4` / `--focused-review`；`scripts/validation/r4-picker.ts` |
-| 候选状态、路径、去重与恢复 | `scripts/r1-product/` 与 `src/agent/exploration/` 的定向回归 |
+| 动态后续控件、资料引用、结果/前置条件 | `scripts/validation/product-sources.ts`；资料页族 `evaluation/fixtures/product-sources/` |
+| 健康路径复用、目标歧义/缺失、前置失效 | `scripts/validation/path-reuse.ts`，复用同一资料页族 |
+| 来源/公开事实变化、未到达状态、历史基线选择 | 同一入口的 `--regression` / `--focused-review`；`scripts/validation/regression-picker.ts` |
+| 候选状态、路径、去重与恢复 | `scripts/research/exploration-acceptance/` 与 `src/agent/exploration/` 的定向回归 |
 | 取消、迟到结果、费用、网络、证据归属与持久化 | 相应协议单测和集成回归；页面不能证明这些契约 |
 | 原报告缺图、缺附件或无法恢复网站 | 保留稳定来源 ID、摘要和缺口，不称原问题已复现 |
 

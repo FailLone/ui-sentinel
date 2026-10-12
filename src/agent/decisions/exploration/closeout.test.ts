@@ -1,8 +1,8 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { createBudgetLedger } from './budget.ts'
-import { createExplorationSession } from '../../../../scripts/r1-jev/test-support.ts'
-import { requestExplorationScores } from '../../../../scripts/r1-jev/test-support.ts'
+import { createExplorationSession } from '../../../../scripts/decision/offline/test-support.ts'
+import { requestExplorationScores } from '../../../../scripts/decision/offline/test-support.ts'
 import { createScoreCache, scoreCacheKey } from './cache.ts'
 import { buildScoringRequest } from './prompt.ts'
 import { parseExplorationInput, type ExplorationInput } from './contracts.ts'
@@ -10,13 +10,13 @@ import { parseScoreResult } from './result.ts'
 import { validateSuggestionAgainstCurrentState } from './suggestion.ts'
 import { parseStubReply, STUB_IDENTITY, type NormalizedReceipt } from './receipt.ts'
 const fixture = (name = 'menu'): ExplorationInput => {
-  const input = JSON.parse(readFileSync(`evaluation/r1-jev-dev/public/${name}.json`, 'utf8'))
+  const input = JSON.parse(readFileSync(`evaluation/fixtures/decision/public/${name}.json`, 'utf8'))
   input.budget.remainingCostUsd = 1
   return input
 }
 const reply = (name = 'menu'): NormalizedReceipt => {
   const r = parseStubReply(
-    JSON.parse(readFileSync(`evaluation/r1-jev-dev/stub/${name}.json`, 'utf8')),
+    JSON.parse(readFileSync(`evaluation/fixtures/decision/stub/${name}.json`, 'utf8')),
   )
   if (!r.ok) throw Error(r.detail)
   return r.value

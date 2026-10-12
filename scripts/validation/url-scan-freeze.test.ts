@@ -92,7 +92,7 @@ describe('deciding whether a tree is clean enough to freeze', () => {
       ' M plans/r0-url-scan-plan.md',
       ' M README.md',
       ' M docs/architecture.md',
-      '?? data/r0-url-scan/x/y.json',
+      '?? data/url-scan/x/y.json',
       ' M .superpowers/sdd/x/progress.md',
       ' M docs/product-roadmap.md',
     ])

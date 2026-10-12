@@ -5,7 +5,7 @@ import { rankCandidates } from './ranking.ts'
 
 function fixture(name: string): ExplorationInput {
   const parsed = parseExplorationInput(
-    JSON.parse(readFileSync(`evaluation/r1-jev-dev/public/${name}.json`, 'utf8')),
+    JSON.parse(readFileSync(`evaluation/fixtures/decision/public/${name}.json`, 'utf8')),
   )
   if (!parsed.ok) throw new Error(`fixture ${name} should be valid`)
   return parsed.value

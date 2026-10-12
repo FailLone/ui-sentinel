@@ -32,6 +32,6 @@
 | `POST /api/rule-proposals/:id/review` | 记录审阅 |
 | `POST /api/rule-proposals/:id/enable` | 启用满足条件的规则 |
 
-创建任务时 `pathProgramId` 与 `baselineRunId` 互斥，均需要本次资料。详见[路径复用](r3-path-reuse.md)、[基线选择](r4-incremental-regression.md)。反馈与候选正文 schema 见[feedback路由](../src/server/routes/findings.ts)、[proposal路由](../src/server/routes/proposals.ts)；生命周期见[规则指南](rules-and-rule-library.md)。
+创建任务时 `pathProgramId` 与 `baselineRunId` 互斥，均需要本次资料。详见[路径复用](path-reuse.md)、[基线选择](incremental-regression.md)。反馈与候选正文 schema 见[feedback路由](../src/server/routes/findings.ts)、[proposal路由](../src/server/routes/proposals.ts)；生命周期见[规则指南](rules-and-rule-library.md)。
 
 评估控制与 reconcile 属于私有操作者接口，由控制 token 保护，不提供给 Agent。`POST /api/evaluation/reconcile` 的 `{ "verified": true, "reason": "核对过程与结果" }` 只在核对副作用后解除阻塞，不重放或回滚。相关工具用法见[评估指南](arena-and-evaluation.md)。
