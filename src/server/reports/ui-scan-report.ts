@@ -1,3 +1,4 @@
+import { regressionReport } from './regression-report.ts'
 import type { ReuseResult } from '../../execution/path-reuse/runner.ts'
 import { productPathReport } from '../../inspection/product-path.ts'
 import { checkTaskReport } from '../../execution/check-tasks/report.ts'
@@ -31,6 +32,7 @@ import type { Run, RunEvent } from '../../shared/types.ts'
 export type UiCoverage = 'covered' | 'partial' | 'not-started'
 
 export interface UiScanReport {
+  readonly regression?: ReturnType<typeof regressionReport>
   readonly pathReuse?: {
     programId: string
     result?: ReuseResult
@@ -179,6 +181,12 @@ export function uiScanSummary(
     | undefined
   const plannedSeq = events.find((e) => e.type === 'product:planned')?.seq ?? Infinity
   return {
+    regression: contract.productSource
+      ? regressionReport(
+          events,
+          productPathReport(contract.productSource, events, readable, additionalIssues),
+        )
+      : undefined,
     ...(contract.pathProgramId
       ? {
           pathReuse: {

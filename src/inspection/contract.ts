@@ -158,6 +158,7 @@ export const uiScanRequestSchema = z
     goal: z.string().max(UI_GOAL_MAX_LENGTH).optional(),
     requiredChecks: requiredChecksInput.optional(),
     productSource: productSourceInput.optional(),
+    baselineRunId: z.string().min(1).max(128).optional(),
     pathProgramId: z
       .string()
       .regex(/^path-[a-f0-9]{64}$/)
@@ -197,6 +198,7 @@ export const uiScanRequestSchema = z
 export type UiScanRequest = z.infer<typeof uiScanRequestSchema>
 
 export interface UiContractSnapshot {
+  readonly baselineRunId?: string
   readonly pathProgramId?: string
   readonly productSource?: ProductSource
   readonly popupCheck?: PopupPolicy
@@ -295,6 +297,7 @@ export function buildUiContractSnapshot(input: {
   requestedGoal?: string
   goalSource?: 'user' | 'default'
   requiredChecks?: readonly RequiredCheck[]
+  baselineRunId?: string
   pathProgramId?: string
   productSource?: ProductSource
   samplingPolicy?: UiSamplingPolicy
@@ -307,6 +310,7 @@ export function buildUiContractSnapshot(input: {
   const goal = input.goal?.trim() ? input.goal.trim() : UI_DEFAULT_GOAL
   const body = {
     schemaVersion: UI_CONTRACT_SCHEMA_VERSION,
+    ...(input.baselineRunId ? { baselineRunId: input.baselineRunId } : {}),
     ...(input.pathProgramId ? { pathProgramId: input.pathProgramId } : {}),
     ...(input.productSource ? { productSource: structuredClone(input.productSource) } : {}),
     ...(input.popupCheck ? { popupCheck: structuredClone(input.popupCheck) } : {}),
@@ -396,6 +400,14 @@ export function verifyUiContractSnapshot(snapshot: UiContractSnapshot): boolean 
   )
     return false
   if (
+    snapshot.baselineRunId !== undefined &&
+    (typeof snapshot.baselineRunId !== 'string' ||
+      !snapshot.baselineRunId.length ||
+      snapshot.baselineRunId.length > 128 ||
+      !snapshot.pathProgramId)
+  )
+    return false
+  if (
     snapshot.pathProgramId !== undefined &&
     (!snapshot.productSource || !/^path-[a-f0-9]{64}$/.test(snapshot.pathProgramId))
   )
@@ -444,7 +456,14 @@ export function resolveUiScanContract(
     }
   }
   const data = parsed.data
-  if (data.pathProgramId && !data.productSource)
+  if (data.baselineRunId && !data.pathProgramId)
+    return {
+      kind: 'refused',
+      reasonCode: 'url-malformed',
+      field: 'baselineRunId',
+      message: 'Historical selection must be resolved by the server before freezing.',
+    }
+  if ((data.pathProgramId || data.baselineRunId) && !data.productSource)
     return {
       kind: 'refused',
       reasonCode: 'url-malformed',
@@ -493,6 +512,7 @@ export function resolveUiScanContract(
       origin: url.origin,
       goal: data.goal,
       requiredChecks: data.requiredChecks,
+      ...(data.baselineRunId ? { baselineRunId: data.baselineRunId } : {}),
       ...(data.pathProgramId ? { pathProgramId: data.pathProgramId } : {}),
       ...(data.productSource ? { productSource: freezeProductSource(data.productSource) } : {}),
       samplingPolicy: UI_SAMPLING_POLICY_V2,

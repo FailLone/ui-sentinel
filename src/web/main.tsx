@@ -1,3 +1,4 @@
+import { RegressionPicker } from './regression-picker.tsx'
 import { UiRuleReportSection } from './ui-rule-report.tsx'
 import type { UiRuleReportEntry } from '../server/reports/ui-rule-report.ts'
 import { UI_CHECK_DESCRIPTION as UI_SAMPLING_DESCRIPTION } from '../shared/ui-sampling-policy.ts'
@@ -252,6 +253,7 @@ function App() {
   const [popupAvailable, setPopupAvailable] = useState(false)
   const [productSourcesAvailable, setProductSourcesAvailable] = useState(false)
   const [pathProgramId, setPathProgramId] = useState('')
+  const [baselineRunId, setBaselineRunId] = useState('')
   const [productSourceVersion, setProductSourceVersion] = useState('1')
   const [productSourceTitle, setProductSourceTitle] = useState('产品说明')
   const [productSourceMarkdown, setProductSourceMarkdown] = useState('')
@@ -259,6 +261,9 @@ function App() {
   const [exploration, setExploration] = useState(false)
   const [jev, setJev] = useState(false)
   const [entryUrl, setEntryUrl] = useState('')
+  useEffect(() => {
+    setBaselineRunId('')
+  }, [entryUrl])
   const [uiGoal, setUiGoal] = useState(UI_DEFAULT_GOAL)
   const [maxPages, setMaxPages] = useState(3)
   const [maxDepth, setMaxDepth] = useState(1)
@@ -369,7 +374,13 @@ function App() {
           '/api/runs',
           buildUiScanRequest({
             ...(productSourcesAvailable
-              ? { productSourceTitle, productSourceMarkdown, productSourceVersion, pathProgramId }
+              ? {
+                  productSourceTitle,
+                  productSourceMarkdown,
+                  productSourceVersion,
+                  pathProgramId,
+                  baselineRunId,
+                }
               : {}),
             popupCheck,
             exploration,
@@ -474,14 +485,25 @@ function App() {
                     onChange={(e) => setProductSourceVersion(e.target.value)}
                   />
                 </label>
-                <label>
-                  复用路径 ID（可空）
-                  <input value={pathProgramId} onChange={(e) => setPathProgramId(e.target.value)} />
-                </label>
-                <small>
-                  从健康报告保存路径后粘贴 ID。仅尝试同网址、同资料版本；每次重新测量，失效交回
-                  Agent。
-                </small>
+                <RegressionPicker
+                  entryUrl={entryUrl}
+                  selected={baselineRunId}
+                  onSelect={(id) => {
+                    setBaselineRunId(id)
+                    if (id) setPathProgramId('')
+                  }}
+                />
+                <details>
+                  <summary>高级：手填路径</summary>
+                  <label>
+                    复用路径 ID（可空）
+                    <input
+                      disabled={!!baselineRunId}
+                      value={pathProgramId}
+                      onChange={(e) => setPathProgramId(e.target.value)}
+                    />
+                  </label>
+                </details>
                 <label>
                   资料名称
                   <input

@@ -222,3 +222,50 @@ it.each(['rename', 'duplicate', 'result-parent'])(
     expect(h.calls).toEqual(['product_path_bind'])
   },
 )
+it('persists invalidation when the original precondition gate refuses before dispatch callback', async () => {
+  const h = harness()
+  const call = h.host.call
+  h.host.call = async (name: string) =>
+    name === 'product_path_bind'
+      ? call(name)
+      : {
+          error: 'path-reuse-invalidated-before-dispatch',
+          reason: 'product-precondition-changed-before-action',
+          dispatched: false,
+        }
+  const result = await runPathProgram(h.program, h.host)
+  expect(result.status).toBe('handoff')
+  expect(
+    h.events.some(
+      (e) =>
+        e.type === 'path-regression:invalidated' &&
+        e.payload.reason === 'product-precondition-changed-before-action',
+    ),
+  ).toBe(true)
+  expect(result.actions).toEqual([])
+})
+it.each(['before-observation', 'after-binding'])(
+  'reports actual entry change %s without dispatch',
+  async (when) => {
+    const h = harness(),
+      call = h.host.call
+    if (when === 'before-observation') h.page.url += '?moved=1'
+    else
+      h.host.call = async (name: string) => {
+        const result = await call(name)
+        if (name === 'product_path_bind') h.page.url += '?moved=1'
+        return result
+      }
+    const result = await runPathProgram(h.program, h.host)
+    expect(result.reason).toBe('entry-or-origin-mismatch')
+    expect(result.actions).toEqual([])
+    const event = h.events.find(
+      (e) =>
+        e.type ===
+        (when === 'before-observation'
+          ? 'path-regression:observed'
+          : 'path-regression:invalidated'),
+    )!
+    expect((event.payload.comparison ?? event.payload).classification).toBe('entry-change')
+  },
+)

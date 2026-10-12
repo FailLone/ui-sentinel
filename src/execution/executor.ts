@@ -1,3 +1,4 @@
+import { baselinePages } from './path-reuse/changes.ts'
 import { loadPathProgram } from './path-reuse/library.ts'
 import { runPathProgram, PathReuseInvalidated, type ReuseResult } from './path-reuse/runner.ts'
 import { productRecoveryDelivery } from '../agent/context/product-recovery.ts'
@@ -5281,7 +5282,9 @@ async function executeProfiledRun(
     if (checkTasks && uiScan?.popupCheck) popupAuto = false
     if (uiScan?.pathProgramId && productPath && inspection) {
       const path = productPath
-      pathReuseResult = await runPathProgram(await loadPathProgram(uiScan.pathProgramId), {
+      const program = await loadPathProgram(uiScan.pathProgramId)
+      pathReuseResult = await runPathProgram(program, {
+        baselinePages: program ? baselinePages(await getEvents(program.provenance.runId)) : [],
         programId: uiScan.pathProgramId,
         contract: uiScan,
         guard,

@@ -302,3 +302,43 @@ it('freezes product source before queueing and rejects mixed/oversized inputs', 
       .status,
   ).toBe(400)
 })
+
+describe('R4 baseline admission', () => {
+  it('rejects missing source and conflicting manual selection before creating a run', async () => {
+    const before = harness.started.length
+    for (const extra of [
+      {},
+      { productSource: { title: 'S', markdown: 'Text' }, pathProgramId: 'path-' + 'a'.repeat(64) },
+    ]) {
+      const response = await post({
+        kind: 'ui-scan',
+        entryUrl: UI_ENTRY,
+        baselineRunId: 'old',
+        ...extra,
+      })
+      expect(response.status).toBe(400)
+    }
+    expect(harness.started.length).toBe(before)
+  })
+  it('refuses nonexistent history and never launches a fallback run silently', async () => {
+    const before = harness.started.length
+    const response = await post({
+      kind: 'ui-scan',
+      entryUrl: UI_ENTRY,
+      baselineRunId: 'absent',
+      productSource: { title: 'S', markdown: 'Text' },
+    })
+    expect(response.status).toBe(409)
+    expect(harness.started.length).toBe(before)
+  })
+  it('discovery is bounded, read-only and requires an exact parseable entry', async () => {
+    const before = harness.started.length
+    expect((await app.request('/api/regression-baselines?entryUrl=bad')).status).toBe(400)
+    const response = await app.request(
+      '/api/regression-baselines?entryUrl=' + encodeURIComponent(UI_ENTRY),
+    )
+    expect(response.status).toBe(200)
+    expect(await response.json()).toMatchObject({ entryUrl: UI_ENTRY, candidates: [], limit: 20 })
+    expect(harness.started.length).toBe(before)
+  })
+})
