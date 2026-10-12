@@ -206,6 +206,7 @@ export function createProductPath(host: {
       plan = productPlan(events)
     if (!plan) throw Error('product-register-path-before-any-action')
     const current = await status()
+    if (current.stage.phase === 'reuse-read-only') throw Error('product-reuse-read-only')
     if (current.execution.phase !== 'path-evaluated') {
       const next = current.steps.find((s) => s.state !== 'verified')
       const bound = events.find((e) => e.type === 'product:bound' && e.payload.step === next?.index)

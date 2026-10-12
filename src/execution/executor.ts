@@ -5677,9 +5677,12 @@ async function executeProfiledRun(
                   actionId: s.actionId,
                   requirementId: s.requirementId,
                 })),
-                note: report.plan
-                  ? 'Plan frozen. Follow execution.phase/nextAction for the first unresolved step; guidance is not evidence or action permission. Reuse current page evidence; do not re-register or replay completed actions.'
-                  : 'Follow stage.decision and registration diagnostics. Returned source requires a structured draft, retrieve, or unsupported decision; repeated facts do not advance progress.',
+                note:
+                  report.stage.phase === 'reuse-read-only'
+                    ? report.stage.decision
+                    : report.plan
+                      ? 'Plan frozen. Follow execution.phase/nextAction for the first unresolved step; guidance is not evidence or action permission. Reuse current page evidence; do not re-register or replay completed actions.'
+                      : 'Follow stage.decision and registration diagnostics. Returned source requires a structured draft, retrieve, or unsupported decision; repeated facts do not advance progress.',
               }))(productStatus!),
             }
           : {}),
