@@ -1,6 +1,6 @@
 # 当前架构与职责
 
-2026-10-12。R0阶段交付完成；R1本期程序优先探索已通过28项真实验收，R2本期有界资料路径通过6项真实验收，均已合入main。实现范围见 [R0阶段交付](r0-delivery.md)和[R1最终交付](r1-delivery.md)，演进方向见 [Roadmap](product-roadmap.md)。R0历史正式验收缺口继续保留。
+2026-10-12。R0阶段交付完成；R1本期程序优先探索已通过28项真实验收，R2本期有界资料路径通过6项真实验收，均已合入main。R3最小路径复用闭环亦已限定接收，详见[R3交付](r3-delivery.md)。实现范围见 [R0阶段交付](r0-delivery.md)和[R1最终交付](r1-delivery.md)，演进方向见 [Roadmap](product-roadmap.md)。R0历史正式验收缺口继续保留。
 
 UI Sentinel 是绑定loopback的受信单机服务，采用TypeScript、Mastra Core、Playwright、Midscene/Qwen、Hono、libSQL和React。工作台与API同端口；顶层队列串行，显式开启时单个UI扫描内可委派最多两个隔离子执行，关闭工作台不取消任务。没有多用户认证、远程Worker、分布式调度或第二套浏览器Agent循环。
 
@@ -95,3 +95,9 @@ D001/D002后续通过 `3350042` 合入main，沿同一适配器自动测量原�
 `src/execution/check-tasks` 持有有界调度、原执行器适配与报告；`src/execution/popup` 持有可复用runtime及节点测量；`src/agent/popup` 持有语义协议与原费用账户适配。子执行使用原runs/events/artifacts，独立节点、item、action及浏览器Context/进程，不进入顶层队列，不再嵌套委派。父模型与所有子执行竞争同一动作/调用额度，未用预留释放；网络请求/字节和较早期限共同约束。一个父执行持有费用账户会话，子请求仍有各自原费用记录。
 
 取消先等待子工具、费用结算与浏览器清理，再提交父终态；报告重读核对原回执与归属。子弹窗pass/fail不是全扫描covered，其他原义务不被核销。当前仅匿名同入口重入，不支持登录状态克隆或任意前置回放；几何和观察版本支持范围仍有限。历史真实调用已验证有限协议和探索轨迹，新契约的免费浏览器验证证明确定性接线，不能推导真实网站泛化或线上提速。当前交付与后续范围见[合并收尾](https://github.com/FailLone/ui-sentinel/blob/25409ce/plans/parallel-check-tasks/OBSERVABLE-MAIN-CLOSEOUT.md)，用法见[产品说明](popup-checks.md)。通用“规则缺少事实→自动取证”尚未实现，Rule/Skill/运行任务口径保持[设计记录](rules-and-rule-library.md)。
+
+## R3 路径复用
+
+服务端从完整健康报告及原证据生成声明式候选，存入libSQL的 `path_programs`；工作台/API通过显式 `pathProgramId` 在新运行启用。候选携带来源版本、公开目标描述、原要求及前置条件，不携带新运行权限或成功判定。`src/execution/path-reuse/` 复用R2计划登记、当前节点绑定及原执行器测量，每次派发前复核结构、唯一性和前置。
+
+已安装计划失效时，持久交回事件使工具、阶段引导和调用授权统一为 `reuse-read-only`，可通过原run_finish诚实结束partial，禁止重放及换计划。未安装计划的来源失配仍走普通资料流程。模型解释未验证，报告事实由事件、测量和原完成门生成；不是新增Agent循环或任意脚本执行平台。
