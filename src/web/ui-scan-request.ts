@@ -8,6 +8,8 @@
  */
 
 export interface UiScanFormInput {
+  readonly pathProgramId?: string
+  readonly productSourceVersion?: string
   readonly productSourceTitle?: string
   readonly productSourceMarkdown?: string
   readonly popupCheck?: boolean
@@ -68,10 +70,14 @@ export function buildUiScanRequest(input: UiScanFormInput): Record<string, unkno
   }
   return {
     kind: 'ui-scan',
+    ...(input.pathProgramId?.trim() ? { pathProgramId: input.pathProgramId.trim() } : {}),
     ...(input.productSourceMarkdown?.trim()
       ? {
           productSource: {
             title: input.productSourceTitle?.trim() || '产品说明',
+            ...(input.productSourceVersion?.trim()
+              ? { version: input.productSourceVersion.trim() }
+              : {}),
             markdown: input.productSourceMarkdown,
           },
         }

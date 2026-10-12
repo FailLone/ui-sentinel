@@ -76,6 +76,19 @@ export function productContinuation(
     nextAction,
     ...extra,
   })
+  // Durable executor-owned handoff takes precedence over ordinary binding guidance.
+  // A pre-install mismatch has no plan/readOnly latch and keeps normal source work.
+  const handoff = events.find(
+    (e) => e.type === 'path-reuse:finished' && e.payload.readOnly === true,
+  )
+  if (report.plan && handoff) {
+    const pending = report.steps.find((s) => s.state !== 'verified')
+    return result(
+      'reuse-read-only',
+      'The installed reused path cannot continue in this run. Preserve completed actions, current measurements and remaining steps. If these facts suffice, call run_finish with unverified-scope now; no extra read is required. Otherwise use only available read-only tools for the specific missing fact or original action receipt. Never bind, act, replace the plan, or turn this admission failure into a product defect.',
+      { step: pending?.index, actionId: pending?.actionId, reason: handoff.payload.reason },
+    )
+  }
   if (report.issues.length)
     return result(
       'unverified',

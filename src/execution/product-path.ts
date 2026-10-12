@@ -19,6 +19,7 @@ import {
   type ProductSource,
 } from '../inspection/product-source.ts'
 import {
+  validateProductPlan,
   productBindInput,
   productPlan,
   productPathReport,
@@ -205,6 +206,7 @@ export function createProductPath(host: {
       plan = productPlan(events)
     if (!plan) throw Error('product-register-path-before-any-action')
     const current = await status()
+    if (current.stage.phase === 'reuse-read-only') throw Error('product-reuse-read-only')
     if (current.execution.phase !== 'path-evaluated') {
       const next = current.steps.find((s) => s.state !== 'verified')
       const bound = events.find((e) => e.type === 'product:bound' && e.payload.step === next?.index)
@@ -548,5 +550,24 @@ export function createProductPath(host: {
       }),
     }
   }
-  return { tools, status, sync, assertAction, authorizeTool }
+  // Internal-only: an immutable server-derived candidate carries the original semantic plan,
+  // but every binding, requirement and measurement is created anew in this run.
+  async function installReusablePlan(raw: unknown) {
+    host.guard()
+    if (
+      !host.clean() ||
+      (await host.events()).some((e) => ['product:planned', 'action:executing'].includes(e.type))
+    )
+      throw Error('reuse-requires-clean-unplanned-run')
+    const plan = validateProductPlan(host.source, raw)
+    const ref = await host.save(
+      'product-plan',
+      JSON.stringify({ revision: PRODUCT_SKILL_REVISION, plan }),
+    )
+    await host.emit('product:planned', { revision: PRODUCT_SKILL_REVISION, plan }, [ref])
+    host.progress('plan-frozen')
+    await host.inspection.flush()
+    return status()
+  }
+  return { tools, status, sync, assertAction, authorizeTool, installReusablePlan }
 }

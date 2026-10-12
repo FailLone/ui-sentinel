@@ -52,12 +52,20 @@ export function createBatch(
   directory: string,
   clock: BatchClock = systemClock,
   continuationGuard: () => void = () => {},
-  limits = {
+  limits: {
+    mainRequests: number
+    jevRequests: number
+    windowMs: number
+    mainReserveUsd?: number
+  } = {
     mainRequests: Number(POLICY.agent.batchRequests),
     jevRequests: Number(POLICY.jev.batchRequests),
     windowMs: Number(POLICY.batchWindowMs),
   },
 ) {
+  const mainReserveUsd = limits.mainReserveUsd ?? POLICY.agent.reserveUsd
+  if (!Number.isFinite(mainReserveUsd) || mainReserveUsd <= 0)
+    throw Error('invalid-main-reservation')
   const stopPath = join(directory, 'stop.json')
   let stopped = existsSync(stopPath) ? 'previously-stopped' : '',
     active: any = null
@@ -128,7 +136,7 @@ export function createBatch(
       }
       if (
         input.provider !== (jev ? 'TypeSafe' : 'Wafer') ||
-        input.reservedUsd !== (jev ? POLICY.jev.reserveUsd : POLICY.agent.reserveUsd)
+        input.reservedUsd !== (jev ? POLICY.jev.reserveUsd : mainReserveUsd)
       )
         throw Error('quote-or-provider-mismatch')
       requests.set(input.requestId, input)
@@ -219,7 +227,7 @@ export function createBatch(
         stop('agent-wire-outside-manifest')
         throw Error('wire-outside-manifest')
       }
-      return POLICY.agent.reserveUsd
+      return mainReserveUsd
     },
     async score(
       frame: PublicFrame,

@@ -9,6 +9,28 @@ export function productStage(state: State) {
       ? state.registration.phase
       : state.execution.phase
   const key = JSON.stringify([phase, state.execution.step, state.execution.actionId])
+  if (phase === 'reuse-read-only') {
+    const readOnlyTools = [
+      'page_inspect',
+      'element_details',
+      'page_observe',
+      'history_read',
+      'tool_result_read',
+      ...(state.execution.actionId ? ['interaction_verify'] : []),
+    ]
+    return {
+      key,
+      phase,
+      step: state.execution.step,
+      actionId: state.execution.actionId,
+      unrestricted: false,
+      decisionRequired: false,
+      allowedTools: [...readOnlyTools, 'run_finish'],
+      readOnlyTools,
+      decision:
+        'Read-only reuse handoff overrides ordinary product stages. Explain the handoff reason, completed action measurements and unverified remaining steps. If current facts suffice, call run_finish with unverified-scope directly; reads are optional, never a prerequisite to finish. No binding, replacement plan, new action or defect inferred from admission failure. Original finish/proof gates still decide partial coverage.',
+    }
+  }
   const decisionRequired = ['source-located', 'repair-needed'].includes(phase)
   const primary =
     phase === 'need-source'

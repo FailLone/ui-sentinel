@@ -1,3 +1,8 @@
+import {
+  derivePathProgram,
+  savePathProgram,
+  loadPathProgram,
+} from '../../execution/path-reuse/library.ts'
 import { popupConfiguration } from '../../agent/popup/provider.ts'
 import { hasInjectedPopupDecision } from '../../agent/popup/contract.ts'
 import { productJevConfiguration } from '../../agent/exploration/integration/product-jev.ts'
@@ -66,6 +71,7 @@ const uiScanBodySchema = z
     popupCheck: uiScanRequestSchema.shape.popupCheck,
     requiredChecks: uiScanRequestSchema.shape.requiredChecks,
     productSource: uiScanRequestSchema.shape.productSource,
+    pathProgramId: uiScanRequestSchema.shape.pathProgramId,
     entryUrl: z.string().min(1).max(4096),
     goal: z.string().trim().max(2000).optional(),
     scope: z
@@ -437,4 +443,36 @@ runRoutes.get('/api/runs/:id/artifacts/:artifactId', async (c) => {
   } catch {
     return c.json({ error: 'artifact unavailable' }, 404)
   }
+})
+
+/** Save only a server-verified healthy run; request bodies cannot author executable programs. */
+runRoutes.post('/api/runs/:id/path-program', async (c) => {
+  if (!canCreateRun(c.req.header('authorization')))
+    return c.json({ error: 'evaluation-in-progress' }, 409)
+  const run = await getRun(c.req.param('id'))
+  if (!run) return c.json({ error: 'not found' }, 404)
+  const report = await buildReport(run.id)
+  if (
+    !report ||
+    report.status !== 'completed' ||
+    report.persistence.status !== 'verified' ||
+    !report.uiScan?.proofVerified ||
+    report.uiScan.inspection.coverage !== 'covered' ||
+    report.uiScan.productSource?.state !== 'verified' ||
+    !report.uiScan.productSource.complete ||
+    report.conclusion.supportedFindingIds.length ||
+    report.conclusion.unresolvedFindingIds.length
+  )
+    return c.json({ error: 'complete-healthy-evidenced-path-required' }, 409)
+  try {
+    const program = derivePathProgram(run.id, run.spec.uiContract!, await getEvents(run.id))
+    await savePathProgram(program)
+    return c.json({ program }, 201)
+  } catch (error) {
+    return c.json({ error: error instanceof Error ? error.message : 'path-not-reusable' }, 409)
+  }
+})
+runRoutes.get('/api/path-programs/:id', async (c) => {
+  const program = await loadPathProgram(c.req.param('id'))
+  return program ? c.json({ program }) : c.json({ error: 'path-program-unavailable' }, 404)
 })
