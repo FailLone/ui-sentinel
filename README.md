@@ -32,6 +32,10 @@ pnpm arena:export:start
 
 启用 `EXECUTION_URL_SCAN=1 EXECUTION_PRODUCT_SOURCES=1` 后，可在健康资料路径报告中点击“保存可复用路径”，在新任务填写相同网址、资料及路径ID。程序重新执行并测量；失效则保留已做事实和未完成范围，安全交回收尾。当前限定同入口、同来源版本的1–3步匿名本地路径，不自动检索或修订。见[使用说明](docs/r3-path-reuse.md)和[本期交付](docs/r3-delivery.md)。
 
+## 沿用历史检查（R4）
+
+同一精确网址再次检查时，可在工作台选择“沿用历史检查”，提交本次资料，无需手填路径ID。报告展示相对历史基线的公开事实变化、本次重新验证结果和未检查步骤。来源变化时重新走资料调查，旧结果不会成为本次成功。见[使用说明](docs/r4-incremental-regression.md)及[本期工程交付](docs/r4-delivery.md)。
+
 ## 目录与开发入口
 
 ```text

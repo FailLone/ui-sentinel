@@ -1,0 +1,33 @@
+{
+  "date": "2026-10-12",
+  "sourceBranch": "codex/r4-incremental-regression",
+  "sourceCommit": "8f066044574c57e7d757a75c7513d25f4899a95e",
+  "mainBefore": "0b83485",
+  "mergeCommit": "2260ee328f1f65a253d7fc872ea787e2630a387c",
+  "scope": "Historical healthy baseline selection, bounded change reporting, original path remeasurement and honest invalidated/unchecked reporting; engineering delivery only.",
+  "sourceScriptsEvaluationDependenciesEqual": true,
+  "build": "passed including typecheck",
+  "buildComparison": {
+    "same": [
+      "dist/arena/index.js",
+      "dist/arena/index.js.map",
+      "dist/arena-export/index.js",
+      "dist/arena-export/index.js.map",
+      "dist/server/index.js",
+      "dist/server/index.js.map",
+      "dist/web/assets/index-BmJa2CHk.js",
+      "dist/web/assets/index-CXdperhR.css",
+      "dist/web/index.html"
+    ],
+    "different": []
+  },
+  "evidenceFilesVerified": 1379,
+  "focusedReportRecoveryPairs": 4,
+  "newTestsRunByMaintainer": 0,
+  "realModelCalls": 0,
+  "paidCalls": 0,
+  "buildLog": "data/maintenance/r4-closeout-20261012/build.log",
+  "retainedEvidenceWorkspace": "/Users/xietian/.codex/worktrees/r4-incremental-regression/ui-sentinel",
+  "branchCleanup": "pending main push; detach at sourceCommit and delete merged branch",
+  "next": "Choose one real-use gap before further work; no new agent or paid batch."
+}
