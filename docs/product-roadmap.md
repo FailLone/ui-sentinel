@@ -90,6 +90,6 @@ R1正式结果见[唯一验收交付](https://github.com/FailLone/ui-sentinel/bl
 
 本期接收决定不改写原实验：原四运行D失败、后续D行为通过但无模型文字说明均保留在原收据中。原结束工具只接收原因枚举，事实报告由程序构造；用户同意将额外模型复述后置。当前可以通过工作台保存健康路径，在同入口/同资料的新任务填写ID复用；显式启用，失效不自动修订或重复动作。
 
-源码和当前能力见[R3交付](r3-delivery.md)及[使用说明](r3-path-reuse.md)。靶场反例已归入[长期回溯](maintenance/arena-library-followup.md)，原始工作区保留，已合并R3分支在推送后删除；旧逐轮维护记录见[收尾前Roadmap](https://github.com/FailLone/ui-sentinel/blob/5c79b3f/docs/product-roadmap.md)。
+源码和当前能力见[R3交付](r3-delivery.md)及[使用说明](r3-path-reuse.md)。靶场反例已归入[长期回溯](maintenance/arena-library-followup.md)，原始工作区保留，已合并R3分支已在推送后删除，当前本地及远程工作分支仅main；旧逐轮维护记录见[收尾前Roadmap](https://github.com/FailLone/ui-sentinel/blob/5c79b3f/docs/product-roadmap.md)。
 
 下一阶段按R4推进“同站点重复检查与最小增量回归”：识别资料/页面变化，明确哪些路径可复用、哪些失效需要重新调查，并展示本次检查与未检查范围。优先复用R3程序和原执行器，不直接扩展长流程、登录写入或自动生成任意脚本。先确定一个变化场景和可复现靶场，再实现和免费验证；真实模型及费用另按具体方案授权。这里只记录下一次计划，本次不新开Agent或启动新批次。

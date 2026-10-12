@@ -31,6 +31,10 @@
   "buildLog": "data/maintenance/r3-closeout-20261012/build.log",
   "retainedWorkspace": "/Users/xietian/.codex/worktrees/r3-path-reuse/ui-sentinel",
   "retainedHead": "0759f7e72fcc114d0fc597068cae51733bde1d12",
-  "branchCleanup": "pending push; detach source workspace at identical commit, then delete merged branch",
-  "next": "R4 minimal incremental regression planning; no new agent or paid authorization"
+  "branchCleanup": "completed after main push; source workspace clean and detached at original sourceCommit, all ignored evidence retained",
+  "next": "R4 minimal incremental regression planning; no new agent or paid authorization",
+  "remainingLocalBranches": [
+    "main"
+  ],
+  "mainDeliveryCommit": "9cc912e"
 }

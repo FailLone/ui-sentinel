@@ -43,6 +43,6 @@ EXECUTION_URL_SCAN=1 EXECUTION_PRODUCT_SOURCES=1 pnpm start
 
 自动候选检索、修订/淘汰、结构迁移、长路径、登录写入、跨项目记忆和模型文字说明后置。当前材料只支持固定页族的有限行为，不证明普遍提效。
 
-R3源工作区 `/Users/xietian/.codex/worktrees/r3-path-reuse/ui-sentinel` 固定在 `0759f7e` 并保留全部data及附件；已合并分支在推送后删除。Git只携带代码、输入和索引，不包含原始数据库/请求/截图，不能删除此工作区冒充已备份。后续从main新建工作分支，不在证据工作区继续修补。
+R3源工作区 `/Users/xietian/.codex/worktrees/r3-path-reuse/ui-sentinel` 固定在 `0759f7e` 并保留全部data及附件；已合并分支在main推送后删除，本地工作分支只剩main。Git只携带代码、输入和索引，不包含原始数据库/请求/截图，不能删除此工作区冒充已备份。后续从main新建工作分支，不在证据工作区继续修补。
 
 [靶场回溯](maintenance/arena-library-followup.md)记录可复用反例。下一步规划R4最小增量回归与变化后的复用/重新调查选择；本次仅记录方向，没有启动新Agent或付费。
