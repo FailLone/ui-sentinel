@@ -1,0 +1,198 @@
+{
+  "date": "2026-10-12",
+  "baseline": "2171c7d",
+  "implementationCommit": "0f048f602a9779aaf9a3ea631997719dcd57ebcf",
+  "reviewType": "implementation-author review; not independent review",
+  "status": "bounded-fix-and-free-validation-complete; one-D-real-recheck-awaiting-new-authorization",
+  "causeScope": "Verified inconsistency between readOnly handoff and ordinary bind stage/tool exposure; not claimed to be the only reason for the historical model length exit.",
+  "changes": {
+    "continuation": "Executor-owned durable readOnly handoff plus installed plan overrides ordinary binding continuation, even with proof issues. No plan/readOnly=false stays ordinary.",
+    "tools": "Same reuse-read-only stage limits offered tools and live serial authorizeTool; no bind, action, replacement decision/registration or findings submission. assertAction also rejects. Original action verification only when an original pending action exists.",
+    "guidance": "Product stage, execution, registration, note and system skill agree; direct run_finish unverified-scope needs no extra read.",
+    "proof": "Original finish/proof/persistence unchanged. Product path schema/source/revision unchanged; original candidate is revalidated, not relabeled."
+  },
+  "verification": {
+    "initialRelatedRegression": {
+      "files": 7,
+      "passed": 59,
+      "log": {
+        "path": "data/r3-handoff-review/tests.log",
+        "sha256": "407f519b3ce71dbeb31f9bd0700b0cb8b0d20a5fd3317f96d7548b74442fe670",
+        "bytes": 462
+      }
+    },
+    "affectedRecheckPlusNewGuard": {
+      "files": 3,
+      "passed": 11,
+      "log": {
+        "path": "data/r3-handoff-review/tests-final.log",
+        "sha256": "972e4262c8779d9d92a73495e3dcb50576b56730bfc5c74980b3118c4b649ca6",
+        "bytes": 444
+      },
+      "notAddedToPreviousCount": true
+    },
+    "finalApprovalAndStopGuards": {
+      "passed": 2,
+      "log": {
+        "path": "data/r3-handoff-review/guards-final.log",
+        "sha256": "40cd84318210f99c71e33515643da0e9445089546385c6fa9fb028aebb8af6aa",
+        "bytes": 357
+      },
+      "notAllNewToPreviousCount": true
+    },
+    "build": {
+      "path": "data/r3-handoff-review/build-final.log",
+      "sha256": "17ca8e083807b0cd8ab09a49a03d90b77e252fcadef9f7b4079bf0936971a452",
+      "bytes": 1310
+    },
+    "typecheck": {
+      "path": "data/r3-handoff-review/typecheck-final.log",
+      "sha256": "0b3f1e0c6f0c2e5d74a75e9fa5e258773e5621cdd86d1ba299502f46b07e549d",
+      "bytes": 105
+    },
+    "browser": {
+      "restoredReports": 5,
+      "newArtifactsVerified": 262,
+      "historicalFilesUnchanged": 584,
+      "sourceReportAndSaveGateRevalidated": {
+        "authorRunId": "run-ad26450e-923d-4a53-b7ed-e29e776cdfbc",
+        "programId": "path-e4372d907490158d284d7fc85ab6fc235f6cb27566b3ed6ca0302f1a12c84133",
+        "reportEqual": true,
+        "candidateEqual": true,
+        "originalSaveGatePassed": true
+      },
+      "rows": [
+        {
+          "row": "handoff-direct",
+          "requests": 1,
+          "actions": 1,
+          "passed": true
+        },
+        {
+          "row": "handoff-denied-batch",
+          "requests": 2,
+          "actions": 1,
+          "passed": true
+        },
+        {
+          "row": "reuse",
+          "requests": 0,
+          "actions": 2,
+          "passed": true
+        },
+        {
+          "row": "defect",
+          "requests": 0,
+          "actions": 2,
+          "passed": true
+        },
+        {
+          "row": "source-mismatch",
+          "requests": 2,
+          "actions": 0,
+          "passed": true
+        }
+      ],
+      "falseCoveredFinishRejected": true,
+      "deniedBatchNoMutation": true,
+      "paidCalls": 0,
+      "realModelSemanticImprovement": "not-tested"
+    },
+    "wire": {
+      "path": "data/r3-handoff-review/wire-checks.json",
+      "sha256": "e38bf0d22ba491c84ee112139983ac2f54621ef82aafdac0b72dac130233fb95",
+      "bytes": 1059
+    },
+    "browserSummary": {
+      "path": "data/r3-handoff-recheck/free-final/summary.json",
+      "sha256": "22ec8a6daeae25050c2bb6d47cec8736ef73274c18122eee0a648144b0aa54a1",
+      "bytes": 159
+    },
+    "results": {
+      "path": "data/r3-handoff-recheck/free-final/results.json",
+      "sha256": "6c84079088ebff84ba904a1c6471bdaa73023bb96292913dc1a2eca716dbb943",
+      "bytes": 6312
+    },
+    "postchecks": {
+      "path": "data/r3-handoff-review/postchecks.json",
+      "sha256": "5bd95bc161f303e41557d17ad4b79dca51f4e365f780162d1c9cb2f58231f8ea",
+      "bytes": 1054
+    },
+    "evidenceIndex": {
+      "path": "data/r3-handoff-review/evidence-index.json",
+      "sha256": "4c91fc8668522c56208829e51ede85b53ad49d07ca57a9811ebed321e3bdf3cc",
+      "bytes": 133570
+    },
+    "indexedFiles": 588,
+    "sourceBuildEqualToFinalBrowser": true,
+    "afterBrowserRunnerChange": "Only real-mode model/tool/refusal watchdog and its unit tests added afterwards; runner hash differs. Product source/build identical. Watchdog unit-tested; not claimed paid-validated."
+  },
+  "preservedHistory": {
+    "originalRealReceipt": {
+      "path": "evaluation/r3-path-reuse/real-acceptance.json",
+      "sha256": "c74c6b3baaf39f0917805fb5dbd8cd8b427e29ac2e8724df586fe7fe06378cd7",
+      "bytes": 9362
+    },
+    "originalOutcome": "A/B/C passed, D failed; 15 requests / US$0.025034087 remains unchanged",
+    "realFilesRehashedUnchanged": 584,
+    "developmentFailure": "First new unit fixture passed a normalized source to strict source input and failed schema parsing. Corrected fixture then produced two red boundary tests before code fix. Logs retained; not product failures.",
+    "intermediateFreeRun": "data/r3-handoff-recheck/free-review-1; not added to final five-row denominator"
+  },
+  "recheck": {
+    "protocol": "docs/r3-handoff-recheck.md",
+    "manifest": {
+      "path": "evaluation/r3-path-reuse/handoff-manifest.json",
+      "sha256": "034cd3988f850128b3b0e77294ae4e98251b5c1d28c712230deb6d0bee48b01a",
+      "bytes": 97416
+    },
+    "manifestHash": "e59ed5ab8059dc45cfc67a1c89cb2578a0a572c730f32167e6a94da4482ba0bf",
+    "policy": {
+      "revision": "r3-handoff-recheck-1",
+      "model": "deepseek/deepseek-v4.1-flash",
+      "provider": "Wafer",
+      "maxRuns": 1,
+      "maxRequests": 12,
+      "maxCostUsd": 0.96,
+      "reserveUsd": 0.08,
+      "authorRequests": 0,
+      "handoffRequests": 12,
+      "reuseRequests": 0,
+      "totalTimeoutMs": 180000,
+      "modelTimeoutMs": 60000,
+      "toolTimeoutMs": 15000,
+      "batchMs": 900000,
+      "maxActions": 4,
+      "maxOutputTokens": 4096,
+      "maxWireBytes": 131072,
+      "contextTokens": 1048576,
+      "promptPrice": 6.5e-08,
+      "outputPrice": 9.9e-07,
+      "retries": 0,
+      "fallback": false
+    },
+    "seedCandidate": "path-e4372d907490158d284d7fc85ab6fc235f6cb27566b3ed6ca0302f1a12c84133",
+    "sourceProof": "Copied sealed original database; original A report/candidate equal and original save gate passed through current API. All historical evidence hashes unchanged.",
+    "origin": "http://127.0.0.1:59228/",
+    "originFallbackAllowed": false,
+    "newAuthorCalls": 0,
+    "realRuns": 1,
+    "maxRequests": 12,
+    "maxCostUsd": 0.96,
+    "evidenceReuse": "Historical real A/B/C plus necessary new free healthy/defect regressions; any future D success is a limited regression, not the original four-row batch passing.",
+    "approvalCreated": false,
+    "claimConsumed": false,
+    "realCallsThisTurn": 0
+  },
+  "limitations": [
+    "Real-model handoff interpretation and final explanation not retested",
+    "Exact original port and original local proof files required; any missing/changed/busy condition stops before model dispatch",
+    "No output-token increase, model replacement, new author, source rewrite, automatic plan repair or expanded product features",
+    "Prior unknown fees remain untouched; no reconciliation"
+  ],
+  "delivery": {
+    "branch": "codex/r3-path-reuse",
+    "merged": false,
+    "pushed": false,
+    "centralRoadmapModified": false
+  }
+}
