@@ -209,5 +209,140 @@
     "Comparison is advisory; success requires fresh original action, measurement and completion proof.",
     "Fixed local model responses verify wiring, not real model adoption, savings or website generalization.",
     "No new paid authorization, full R0/R2/R3 acceptance, push, merge or central roadmap change."
-  ]
+  ],
+  "focusedReview": {
+    "date": "2026-10-12",
+    "reviewType": "implementer self-review, not independent review",
+    "baseCommit": "3a47ffb8c5ac0fe5239422b4940d18371b3f3130",
+    "fixCommit": "d3e08dfe8bceb61d958924c30cebc739d38b0d30",
+    "mergeReadiness": "ready within the authorized R4 engineering scope; maintainer integration pending",
+    "findings": [
+      {
+        "id": "R4-1",
+        "trigger": "Observed page URL differs while public target facts remain the same",
+        "before": "Comparison advised try-remeasure despite original executor refusal",
+        "after": "Persist actual/expected entry and entry-change; original executor still refuses"
+      },
+      {
+        "id": "R4-2",
+        "trigger": "Original precondition gate rejects before the structural dispatch callback",
+        "before": "No incremental invalidation event, step appeared not invalidated",
+        "after": "Record original dispatched:false refusal and current facts, no retry; future unreached step remains unchecked"
+      },
+      {
+        "id": "R4-3",
+        "trigger": "Decoded baseline reply resolves after URL edit and cancellation",
+        "before": "Old candidate returns to new URL list; backend still rejects mismatched entry",
+        "after": "Ignore cancelled successful reply before state update"
+      },
+      {
+        "id": "R4-4",
+        "trigger": "Control name changes while button value is an empty string",
+        "before": "Public difference rendered as none to none",
+        "after": "Display public control name/text; input/select values remain explicit"
+      }
+    ],
+    "validation": {
+      "unitTestFiles": 5,
+      "unitTestsPassed": 51,
+      "buildAndTypecheck": true,
+      "apiScenarios": 3,
+      "workbenchScenarios": 1,
+      "restartReportsEqual": 4,
+      "results": [
+        {
+          "mode": "baseline",
+          "runId": "run-c1342752-5ddd-4a51-97a8-b2a056d515cc",
+          "status": "completed",
+          "coverage": "covered",
+          "product": "verified",
+          "modelRequests": 6,
+          "planningRequests": 2,
+          "actions": 2
+        },
+        {
+          "mode": "healthy",
+          "runId": "run-1b7b30af-d79a-4348-9609-5d8954f68c38",
+          "status": "completed",
+          "coverage": "covered",
+          "product": "verified",
+          "modelRequests": 0,
+          "planningRequests": 0,
+          "actions": 2,
+          "reuse": "reused",
+          "reason": "path-remeasured"
+        },
+        {
+          "mode": "dispatch-precondition",
+          "runId": "run-b1b852f6-f1fa-43a6-ba38-388a1f755769",
+          "status": "blocked",
+          "coverage": "partial",
+          "product": "unverified",
+          "modelRequests": 2,
+          "planningRequests": 0,
+          "actions": 0,
+          "reuse": "handoff",
+          "reason": "product-precondition-changed-before-action"
+        }
+      ],
+      "picker": {
+        "oldAborted": true,
+        "staleOptions": 1,
+        "urlEditClearedSelection": true,
+        "failedOptions": 1
+      },
+      "readOnlyAdmission": {
+        "runsUnchanged": true,
+        "pageRequestsUnchanged": true,
+        "modelCallsUnchanged": true
+      },
+      "precondition": {
+        "invalidated": true,
+        "stage": "before-dispatch",
+        "reason": "product-precondition-changed-before-action",
+        "nextInvalidated": false,
+        "actions": 0
+      },
+      "baselineEvidenceInvalidationCheckedFor": [
+        "fresh-author-baseline",
+        "fresh-reused-run"
+      ],
+      "source": [
+        "data/r4-review/final-tests.log",
+        "data/r4-review/build.log",
+        "data/r4-review/final-typecheck.log",
+        "data/r4-incremental-regression/2026-10-12T03-03-56-097Z/review-checks.json"
+      ]
+    },
+    "reusedValidation": "Original 96 tests, 12 API + 1 workbench and 13 restored reports retained by impact; not rerun as a batch or added to a new denominator.",
+    "rawEvidence": {
+      "root": "data/r4-incremental-regression/2026-10-12T03-03-56-097Z",
+      "reviewDirectory": "data/r4-review",
+      "files": 660,
+      "artifactFiles": 584,
+      "manifest": {
+        "path": "data/r4-review/evidence-manifest.json",
+        "bytes": 144257,
+        "sha256": "73353e5307f84f20b7096e63041f16343b16b8ebdac2b9b9d061b318c2953eb9"
+      },
+      "inputs": {
+        "path": "data/r4-review/inputs.json",
+        "bytes": 97457,
+        "sha256": "983bc9697ccda6ddbc03a0ad0bec40c922168f400c3c7e7fe94b72e1b8e0ba41"
+      },
+      "inputFiles": 607
+    },
+    "limitations": [
+      "Fixed model responses and synthetic reordered reply validate wiring, not real model savings or natural race frequency.",
+      "Original action, quality and completion gates unchanged. No new source migration, partial replanning, paid calls, index/cache framework or whole-site claim.",
+      "20 candidate validations remain bounded per query; SQLite scanning cost can grow with local history. No large-history performance guarantee."
+    ],
+    "developmentFailures": [
+      "Two initial UI probe failures were fixture issues (browser evaluation wrapper and waiting for a hidden option to become visible); raw logs retained, not classified as product failures.",
+      "First renderer probe used a .test.tsx extension outside existing test discovery; corrected to .test.ts, then demonstrated the actual rendering failure."
+    ],
+    "realModelCalls": 0,
+    "paidCalls": 0,
+    "originalEvidenceReverified": 719
+  }
 }
