@@ -108,3 +108,12 @@ it('excludes truncated ancestor aggregate text but refuses a truncated dependenc
   current.nodes[0]!.truncated = true
   expect(compareStep(program, 0, page, current).classification).toBe('unknown')
 })
+it('does not advise reuse when the observed page moved away from the frozen entry', () => {
+  const current = structuredClone(page)
+  current.url += '?moved=1'
+  expect(compareStep(program, 0, page, current)).toMatchObject({
+    classification: 'entry-change',
+    recommendation: 'new-investigation',
+    entry: { expected: page.url, actual: current.url, matches: false },
+  })
+})

@@ -58,6 +58,11 @@ export function compareStep(
   previous: PublicCheckPage | undefined,
   current: PublicCheckPage,
 ) {
+  const entry = {
+    expected: program.entryUrl,
+    actual: current.url,
+    matches: current.url === program.entryUrl,
+  }
   const binding = program.bindings[index]!
   const targets = [binding.control, binding.result, ...binding.preconditions]
   const dependencies = targets.map((t, i) => {
@@ -126,16 +131,25 @@ export function compareStep(
   return {
     index,
     stage: 'before-step',
+    entry,
     previousComplete: complete(previous),
     currentComplete: complete(current),
-    classification: !observed
-      ? 'unknown'
-      : invalid || dependencies.some((d) => d.factsChanged)
-        ? 'dependency-change'
-        : outsideChanged
-          ? 'outside-dependency-display-change'
-          : 'no-observed-change',
-    recommendation: !observed ? 'unknown' : invalid ? 'new-investigation' : 'try-remeasure',
+    classification: !entry.matches
+      ? 'entry-change'
+      : !observed
+        ? 'unknown'
+        : invalid || dependencies.some((d) => d.factsChanged)
+          ? 'dependency-change'
+          : outsideChanged
+            ? 'outside-dependency-display-change'
+            : 'no-observed-change',
+    recommendation: !entry.matches
+      ? 'new-investigation'
+      : !observed
+        ? 'unknown'
+        : invalid
+          ? 'new-investigation'
+          : 'try-remeasure',
     dependencies,
     outsideChanged,
     outsideChangeCount: outsideChanges.length,

@@ -1,5 +1,7 @@
 import type { regressionReport } from '../server/reports/regression-report.ts'
 const labels: Record<string, string> = {
+  'entry-change': '实际到达的页面入口变化',
+  'product-precondition-changed-before-action': '前置条件已变化或无法重新确认',
   'no-observed-change': '所观察事实未见变化',
   'outside-dependency-display-change': '路径依赖之外的展示事实变化',
   'dependency-change': '路径目标、结果或前置事实变化',
@@ -15,6 +17,17 @@ const labels: Record<string, string> = {
   'unknown-observation': '当前观察不完整',
   'live-node-replaced': '操作前节点身份已变化',
   'entry-or-origin-mismatch': '操作前入口发生变化',
+}
+function displayFact(n: {
+  tag: string
+  name: string
+  text: string
+  value?: string
+  selectedLabel?: string
+}) {
+  return ['input', 'textarea', 'select'].includes(n.tag)
+    ? (n.selectedLabel ?? n.value ?? n.text) || '空值'
+    : n.name || n.text || '空文本'
 }
 export function RegressionReport({
   report,
@@ -33,7 +46,7 @@ export function RegressionReport({
         。历史通过不计作本次通过。
       </p>
       <p>
-        精确入口：{identity.entryMatches ? '相同' : '变化'}；资料身份、版本与正文：
+        请求入口：{identity.entryMatches ? '相同' : '变化'}；资料身份、版本与正文：
         {identity.sourceMatches ? '相同，逐步重新测量' : '变化，旧计划失效，需要按本次资料重新调查'}
         。
       </p>
@@ -51,6 +64,11 @@ export function RegressionReport({
               {s.change ? labels[s.change.classification] : '尚未进入本步骤，未比较后续动态节点。'}
               {s.invalidated ? ' 旧路径的这一步不能继续复用，需重新调查。' : ''}
             </p>
+            {s.change?.entry && !s.change.entry.matches && (
+              <p>
+                实际入口：{s.change.entry.actual}；原路径入口：{s.change.entry.expected}。
+              </p>
+            )}
             {!!s.invalidationReason && (
               <p>
                 派发前再次检查发现：
@@ -69,14 +87,14 @@ export function RegressionReport({
                       : '前置条件'}{' '}
                   ：{labels[d.state] ?? d.state}
                   {d.factsChanged
-                    ? `；公开事实由 ${d.before.map((n) => n.value ?? n.text).join(' / ') || '无'} 变为 ${d.after.map((n) => n.value ?? n.text).join(' / ') || '无'}`
+                    ? `；公开事实由 ${d.before.map(displayFact).join(' / ') || '无'} 变为 ${d.after.map(displayFact).join(' / ') || '无'}`
                     : ''}
                 </p>
               ))}
             {s.change?.outsideChanges.map((d, i) => (
               <p key={'display-' + i}>
-                依赖之外展示：{d.before.map((n) => n.value ?? n.text).join(' / ') || '无'} →{' '}
-                {d.after.map((n) => n.value ?? n.text).join(' / ') || '无'}
+                依赖之外展示：{d.before.map(displayFact).join(' / ') || '无'} →{' '}
+                {d.after.map(displayFact).join(' / ') || '无'}
               </p>
             ))}
             {!!s.change && s.change.outsideChangeCount > 12 && (

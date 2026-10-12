@@ -32,6 +32,8 @@ export function RegressionPicker({
           { signal: abort.signal },
         )
         const result = await response.json()
+        // A reply already decoded before cancellation can still resolve after a URL edit.
+        if (abort.signal.aborted) return
         if (!response.ok) throw Error(result.error)
         setCandidates(result.candidates)
         setMessage(

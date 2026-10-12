@@ -1,3 +1,4 @@
+import { checkPickerResponses, checkBaselineReadmission } from './r4-review-checks.ts'
 /** Free product entry validation. No external model or historical local evidence is used. */
 import { createServer } from 'node:http'
 import { spawn } from 'node:child_process'
@@ -10,6 +11,8 @@ import { documentFor } from '../../evaluation/fixtures/r2-product-acceptance/pag
 import { freezeProductSource } from '../../src/inspection/product-source.ts'
 
 const r4 = process.argv.includes('--r4')
+const r4Review = r4 && process.argv.includes('--focused-review')
+const reviewChecks: Record<string, unknown> = {}
 if (process.argv.includes('--real')) throw Error('Free validation only')
 const root = resolve(
   r4 ? 'data/r4-incremental-regression' : 'data/r3-path-reuse',
@@ -287,45 +290,47 @@ try {
   await ready()
   let baselineRunId: string | undefined
   let programId: string | undefined
-  for (mode of r4 && process.argv.includes('--workbench-only')
-    ? ['baseline', 'healthy']
-    : r4
-      ? [
-          'baseline',
-          'healthy',
-          'display',
-          'defect',
-          'source-changed',
-          'ambiguous',
-          'missing',
-          'changed-target',
-          'precondition',
-          'dispatch-rename',
-          'execution-error',
-          'cancel',
-        ]
-      : reviewOnly
+  for (mode of r4Review
+    ? ['baseline', 'healthy', 'dispatch-precondition']
+    : r4 && process.argv.includes('--workbench-only')
+      ? ['baseline', 'healthy']
+      : r4
         ? [
             'baseline',
             'healthy',
-            'defect',
-            'dispatch-rename',
-            'dispatch-duplicate',
-            'dispatch-precondition',
-          ]
-        : [
-            'baseline',
-            'healthy',
+            'display',
             'defect',
             'source-changed',
             'ambiguous',
             'missing',
             'changed-target',
             'precondition',
+            'dispatch-rename',
             'execution-error',
-            'network-write',
             'cancel',
-          ]) {
+          ]
+        : reviewOnly
+          ? [
+              'baseline',
+              'healthy',
+              'defect',
+              'dispatch-rename',
+              'dispatch-duplicate',
+              'dispatch-precondition',
+            ]
+          : [
+              'baseline',
+              'healthy',
+              'defect',
+              'source-changed',
+              'ambiguous',
+              'missing',
+              'changed-target',
+              'precondition',
+              'execution-error',
+              'network-write',
+              'cancel',
+            ]) {
     requests = []
     calls = []
     attemptReplay = false
@@ -415,6 +420,14 @@ try {
         assert.equal(regression.steps[1].state, 'newly-failed')
         assert.equal(regression.steps[1].change.classification, 'no-observed-change')
       }
+      if (r4Review && mode === 'dispatch-precondition')
+        reviewChecks.precondition = {
+          invalidated: regression.steps[0].invalidated,
+          stage: regression.steps[0].comparisonStage,
+          reason: regression.steps[0].invalidationReason,
+          nextInvalidated: regression.steps[1].invalidated,
+          actions: row.actions,
+        }
       if (mode === 'dispatch-rename') {
         assert.equal(regression.steps[0].invalidated, true)
         assert.equal(regression.steps[0].comparisonStage, 'before-dispatch')
@@ -505,8 +518,28 @@ try {
       }
     }
   }
+  if (r4Review) {
+    const beforeRuns = (await api('/api/runs')).body
+    const beforeReads = { requests: requests.length, calls: calls.length }
+    for (const label of ['baseline', 'healthy'])
+      reviewChecks[label + 'Admission'] = await checkBaselineReadmission(api, reports[label], {
+        kind: 'ui-scan',
+        entryUrl: origin + '/',
+        productSource: inputSource,
+      })
+    assert.deepEqual((await api('/api/runs')).body, beforeRuns)
+    assert.deepEqual({ requests: requests.length, calls: calls.length }, beforeReads)
+    reviewChecks.readOnlyAdmission = {
+      runsUnchanged: true,
+      pageRequestsUnchanged: true,
+      modelCallsUnchanged: true,
+    }
+    await save('review-checks.json', reviewChecks)
+  }
   browser = await chromium.launch({ headless: true })
   const page = await browser.newPage({ viewport: { width: 1280, height: 1000 } })
+  if (r4Review)
+    page.on('pageerror', (error) => console.error('review-browser-error:', error.message))
   await page.goto(base)
   // Existing history entry and the shared report renderer are the product presentation path.
   const inputs = page.locator('input')
@@ -536,6 +569,10 @@ try {
   calls = []
   requests = []
   await page.getByLabel('网址 UI 检查（匿名、有界，不需要业务适配器）').check()
+  if (r4Review) {
+    reviewChecks.picker = await checkPickerResponses(page, origin)
+    await save('review-checks.json', reviewChecks)
+  }
   await page.getByPlaceholder('https://example.org/catalog?category=books#items').fill(origin + '/')
   await page.getByLabel('资料名称').fill(inputSource.title)
   await page.getByLabel('资料版本').fill(inputSource.version)
@@ -594,6 +631,21 @@ try {
     results,
     restartReports: Object.keys(reports).length,
   })
+  if (r4Review) {
+    assert.deepEqual(reviewChecks.precondition, {
+      invalidated: true,
+      stage: 'before-dispatch',
+      reason: 'product-precondition-changed-before-action',
+      nextInvalidated: false,
+      actions: 0,
+    })
+    assert.deepEqual(reviewChecks.picker, {
+      oldAborted: true,
+      staleOptions: 1,
+      urlEditClearedSelection: true,
+      failedOptions: 1,
+    })
+  }
 } finally {
   await browser?.close()
   child.kill('SIGTERM')

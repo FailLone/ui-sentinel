@@ -161,13 +161,23 @@ export async function runPathProgram(
     }
     host.guard()
     if (!bound?.bound) return finish('handoff', String(bound?.error ?? 'binding-refused'))
+    let invalidationRecorded = false
+    const recordInvalidation = async (reason: string, page: PublicCheckPage) => {
+      await host.emit('path-regression:invalidated', {
+        index,
+        reason,
+        stage: 'before-dispatch',
+        comparison: compareStep(program, index, host.baselinePages?.[index], page),
+      })
+      invalidationRecorded = true
+    }
     const beforeDispatch = async () => {
       host.guard()
       const page = await host.page()
       host.guard()
       try {
+        if (page.url !== program.entryUrl) throw Error('entry-or-origin-mismatch')
         if (
-          page.url !== program.entryUrl ||
           witnesses.some((w) => {
             const nodes = page.nodes.filter(
               (n) => n.selector === w.selector || n.path === w.selector,
@@ -181,12 +191,7 @@ export async function runPathProgram(
         productTarget(program.plan.steps[index]!, page, binding.control.selector)
       } catch (error) {
         if (error instanceof Error && bindingReasons.has(error.message)) {
-          await host.emit('path-regression:invalidated', {
-            index,
-            reason: error.message,
-            stage: 'before-dispatch',
-            comparison: compareStep(program, index, host.baselinePages?.[index], page),
-          })
+          await recordInvalidation(error.message, page)
           throw new PathReuseInvalidated(error.message)
         }
         throw error
@@ -205,6 +210,17 @@ export async function runPathProgram(
     // retain their original terminal meaning in the outer executor.
     const result = await host.call('page_act', next.args, beforeDispatch)
     host.guard()
+    if (
+      result?.error === 'path-reuse-invalidated-before-dispatch' &&
+      result.dispatched === false &&
+      !invalidationRecorded
+    ) {
+      // The original product gate can reject before our structural callback runs.
+      // Record that refusal and a current read; never retry the rejected action.
+      const page = await host.page()
+      host.guard()
+      await recordInvalidation(String(result.reason), page)
+    }
     const state = await host.status()
     if (state.steps[index]?.state === 'failed')
       return finish('measured-failure', 'new-measurement-failed')
