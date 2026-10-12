@@ -8,6 +8,7 @@
  */
 
 export interface UiScanFormInput {
+  readonly baselineRunId?: string
   readonly pathProgramId?: string
   readonly productSourceVersion?: string
   readonly productSourceTitle?: string
@@ -70,7 +71,10 @@ export function buildUiScanRequest(input: UiScanFormInput): Record<string, unkno
   }
   return {
     kind: 'ui-scan',
-    ...(input.pathProgramId?.trim() ? { pathProgramId: input.pathProgramId.trim() } : {}),
+    ...(input.baselineRunId?.trim() ? { baselineRunId: input.baselineRunId.trim() } : {}),
+    ...(!input.baselineRunId?.trim() && input.pathProgramId?.trim()
+      ? { pathProgramId: input.pathProgramId.trim() }
+      : {}),
     ...(input.productSourceMarkdown?.trim()
       ? {
           productSource: {

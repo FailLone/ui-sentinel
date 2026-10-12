@@ -9,7 +9,12 @@ import { chromium } from 'playwright'
 import { documentFor } from '../../evaluation/fixtures/r2-product-acceptance/page.ts'
 import { freezeProductSource } from '../../src/inspection/product-source.ts'
 
-const root = resolve('data/r3-path-reuse', new Date().toISOString().replace(/[:.]/g, '-'))
+const r4 = process.argv.includes('--r4')
+if (process.argv.includes('--real')) throw Error('Free validation only')
+const root = resolve(
+  r4 ? 'data/r4-incremental-regression' : 'data/r3-path-reuse',
+  new Date().toISOString().replace(/[:.]/g, '-'),
+)
 await mkdir(root, { recursive: true })
 console.log(root)
 const save = (name: string, data: unknown) =>
@@ -89,6 +94,7 @@ const fixture = createServer((req, res) => {
     return
   }
   let html = documentFor(mode === 'defect' ? 'defect' : 'healthy')
+  if (mode === 'display') html = html.replace('无需登录，先看看目录内容。', '本周目录展示已更新。')
   if (mode === 'precondition')
     html = html.replace('id="availability">可用', 'id="availability">暂不可用')
   if (mode === 'ambiguous')
@@ -144,7 +150,10 @@ const model = createServer(async (req, res) => {
       packet = JSON.parse(body.messages.find((m: any) => m.role === 'user').content)
     let name = 'run_finish',
       args: any = {
-        reason: packet.pathReuse?.status === 'handoff' ? 'unverified-scope' : 'scope-covered',
+        reason:
+          packet.pathReuse?.status === 'handoff' && !(r4 && mode === 'source-changed')
+            ? 'unverified-scope'
+            : 'scope-covered',
       }
     const state = packet.productPath
     if (packet.pathReuse?.readOnly && !attemptReplay) {
@@ -152,13 +161,25 @@ const model = createServer(async (req, res) => {
       attemptReplay = true
       name = 'page_act'
       args = { type: 'click', role: 'button', name: '预览目录' }
-    } else if (!packet.pathReuse) {
+    } else if (
+      !packet.pathReuse ||
+      (r4 && mode === 'source-changed' && !packet.pathReuse.readOnly)
+    ) {
       if (state.stage.phase === 'need-source') {
         name = 'product_source_read'
         args = { offset: 0 }
       } else if (state.stage.decisionRequired) {
         name = 'product_path_decide'
-        args = { decision: { kind: 'draft', plan: draft } }
+        args = {
+          decision: {
+            kind: 'draft',
+            plan: {
+              ...draft,
+              sourceId: state.source.sourceId,
+              contentHash: state.source.contentHash,
+            },
+          },
+        }
       } else if (state.stage.phase === 'act-bound-step') {
         name = 'page_act'
         args = state.nextAction.args
@@ -264,29 +285,47 @@ const reports: Record<string, any> = {},
 let browser: Awaited<ReturnType<typeof chromium.launch>> | undefined
 try {
   await ready()
+  let baselineRunId: string | undefined
   let programId: string | undefined
-  for (mode of reviewOnly
-    ? [
-        'baseline',
-        'healthy',
-        'defect',
-        'dispatch-rename',
-        'dispatch-duplicate',
-        'dispatch-precondition',
-      ]
-    : [
-        'baseline',
-        'healthy',
-        'defect',
-        'source-changed',
-        'ambiguous',
-        'missing',
-        'changed-target',
-        'precondition',
-        'execution-error',
-        'network-write',
-        'cancel',
-      ]) {
+  for (mode of r4 && process.argv.includes('--workbench-only')
+    ? ['baseline', 'healthy']
+    : r4
+      ? [
+          'baseline',
+          'healthy',
+          'display',
+          'defect',
+          'source-changed',
+          'ambiguous',
+          'missing',
+          'changed-target',
+          'precondition',
+          'dispatch-rename',
+          'execution-error',
+          'cancel',
+        ]
+      : reviewOnly
+        ? [
+            'baseline',
+            'healthy',
+            'defect',
+            'dispatch-rename',
+            'dispatch-duplicate',
+            'dispatch-precondition',
+          ]
+        : [
+            'baseline',
+            'healthy',
+            'defect',
+            'source-changed',
+            'ambiguous',
+            'missing',
+            'changed-target',
+            'precondition',
+            'execution-error',
+            'network-write',
+            'cancel',
+          ]) {
     requests = []
     calls = []
     attemptReplay = false
@@ -294,7 +333,7 @@ try {
       kind: 'ui-scan',
       entryUrl: origin + '/',
       productSource: { ...inputSource, ...(mode === 'source-changed' ? { version: '2' } : {}) },
-      ...(programId ? { pathProgramId: programId } : {}),
+      ...(r4 && baselineRunId ? { baselineRunId } : programId ? { pathProgramId: programId } : {}),
       viewport: { width: 1280, height: 1000 },
     })
     assert.equal(created.status, 202, JSON.stringify(created))
@@ -330,16 +369,88 @@ try {
     console.log(row)
     assert.equal(report.persistence.status, 'verified', JSON.stringify(report.persistence))
     assert.equal(requests.filter((r) => !['GET', 'HEAD'].includes(r.method)).length, 0)
+    if (r4 && mode !== 'baseline') {
+      const regression = report.uiScan.regression
+      assert.equal(regression.identity.baselineRunId, baselineRunId)
+      assert.equal(regression.history, 'reference-only')
+      if (['healthy', 'display'].includes(mode)) {
+        assert.ok(regression.steps.every((s: any) => s.state === 'newly-verified'))
+        assert.equal(
+          regression.steps[0].change.classification,
+          mode === 'display' ? 'outside-dependency-display-change' : 'no-observed-change',
+        )
+        assert.equal(regression.steps[1].change.recommendation, 'try-remeasure')
+        if (mode === 'display')
+          assert.ok(
+            regression.steps[0].change.outsideChanges.some((d: any) =>
+              d.after.some((n: any) => n.text === '本周目录展示已更新。'),
+            ),
+          )
+      }
+      if (mode === 'precondition') {
+        assert.equal(regression.steps[0].change.classification, 'dependency-change')
+        assert.equal(regression.steps[0].state, 'unchecked')
+      }
+      if (mode === 'source-changed') {
+        assert.equal(regression.identity.sourceMatches, false)
+        assert.ok(
+          regression.steps.every((s: any) => s.state === 'unchecked' && s.invalidated && !s.change),
+        )
+        assert.equal(r3.result.readOnly, false)
+        assert.equal(r3.result.actions.length, 0)
+        assert.ok(calls.some((c) => c.name === 'product_source_read'))
+        assert.ok(
+          calls.some(
+            (c) =>
+              c.name === 'product_path_decide' && c.args.decision.plan.sourceId !== source.sourceId,
+          ),
+        )
+      }
+      if (['ambiguous', 'missing'].includes(mode)) {
+        assert.equal(regression.steps[0].state, 'newly-verified')
+        assert.equal(regression.steps[1].state, 'unchecked')
+        assert.equal(regression.steps[1].change.recommendation, 'new-investigation')
+      }
+      if (mode === 'defect') {
+        assert.equal(regression.steps[1].state, 'newly-failed')
+        assert.equal(regression.steps[1].change.classification, 'no-observed-change')
+      }
+      if (mode === 'dispatch-rename') {
+        assert.equal(regression.steps[0].invalidated, true)
+        assert.equal(regression.steps[0].comparisonStage, 'before-dispatch')
+        assert.equal(regression.steps[0].invalidationReason, 'target-description-changed')
+        assert.equal(regression.steps[1].invalidated, false)
+      }
+      if (mode === 'changed-target')
+        assert.equal(regression.steps[0].change.recommendation, 'new-investigation')
+      if (['cancel', 'execution-error'].includes(mode))
+        assert.equal(regression.steps[1].recommendation, 'not-reached')
+    }
     if (mode === 'baseline') {
       assert.equal(row.product, 'verified')
       assert.equal(row.coverage, 'covered')
       assert.equal(row.actions, 2)
+      baselineRunId = id
+      if (r4) {
+        const choices = await api(
+          '/api/regression-baselines?entryUrl=' + encodeURIComponent(origin + '/'),
+        )
+        await save('baseline-choices.json', choices)
+        assert.ok(choices.body.candidates.some((c: any) => c.runId === id))
+        assert.equal(
+          (await api('/api/regression-baselines?entryUrl=' + encodeURIComponent(origin + '/other')))
+            .body.candidates.length,
+          0,
+        )
+        // R4 selection derives and saves directly; no manual save is required.
+        continue
+      }
       const saved = await api(`/api/runs/${id}/path-program`, {})
       await save('saved-program.json', saved)
       assert.equal(saved.status, 201, JSON.stringify(saved))
       programId = saved.body.program.id
       assert.equal((await api(`/api/path-programs/${programId}`)).body.program.id, programId)
-    } else if (mode === 'healthy') {
+    } else if (['healthy', 'display'].includes(mode)) {
       assert.equal(row.reuse, 'reused')
       assert.equal(row.product, 'verified')
       assert.equal(row.actions, 2)
@@ -357,6 +468,11 @@ try {
           .flatMap((s: any) => s.evidenceRefs)
           .every((ref: string) => !old.has(ref)),
       )
+    } else if (r4 && mode === 'source-changed') {
+      assert.equal(row.reuse, 'handoff')
+      assert.equal(row.product, 'verified')
+      assert.equal(row.actions, 2)
+      assert.equal(row.coverage, 'covered')
     } else if (mode === 'defect') {
       assert.equal(row.reuse, 'measured-failure')
       assert.equal(row.product, 'failed')
@@ -408,7 +524,9 @@ try {
   await page.getByRole('button', { name: '保存可复用路径' }).click()
   await page.getByText('已保存路径 ID：', { exact: false }).waitFor()
   await page.screenshot({ path: resolve(root, 'workbench.png'), fullPage: true })
-  for (const label of ['healthy', 'defect', reviewOnly ? 'dispatch-duplicate' : 'ambiguous']) {
+  for (const label of ['healthy', 'defect', reviewOnly ? 'dispatch-duplicate' : 'ambiguous'].filter(
+    (name) => reports[name],
+  )) {
     await page.goto(base + '/?run=' + reports[label].runId)
     await page
       .getByRole('region', { name: '路径复用报告' })
@@ -422,7 +540,15 @@ try {
   await page.getByLabel('资料名称').fill(inputSource.title)
   await page.getByLabel('资料版本').fill(inputSource.version)
   await page.getByLabel('产品说明 / Markdown').fill(markdown)
-  await page.getByLabel('复用路径 ID（可空）').fill(programId!)
+  if (r4) {
+    await page.getByLabel('沿用历史检查（可选）').selectOption(baselineRunId!)
+    await page
+      .getByRole('region', { name: '重复检查选择' })
+      .screenshot({ path: resolve(root, 'regression-picker.png') })
+  } else {
+    await page.getByText('高级：手填路径', { exact: true }).click()
+    await page.getByLabel('复用路径 ID（可空）').fill(programId!)
+  }
   const submitted = page.waitForResponse(
     (r) => r.url() === base + '/api/runs' && r.request().method() === 'POST',
   )
@@ -440,6 +566,16 @@ try {
   assert.equal(uiReport.uiScan.inspection.coverage, 'covered')
   assert.equal(uiReport.usage.actions, 2)
   assert.equal(calls.length, 0)
+  if (r4) {
+    assert.equal(uiReport.uiScan.regression.identity.baselineRunId, baselineRunId)
+    await page
+      .getByRole('region', { name: '增量回归报告' })
+      .getByText('查看详情：本次新验证通过', { exact: true })
+      .waitFor()
+    await page
+      .getByRole('region', { name: '增量回归报告' })
+      .screenshot({ path: resolve(root, 'regression-workbench.png') })
+  }
   reports.workbench = uiReport
   await save('workbench-report.json', uiReport)
 

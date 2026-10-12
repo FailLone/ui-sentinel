@@ -1,0 +1,213 @@
+{
+  "date": "2026-10-12",
+  "timezone": "Asia/Shanghai",
+  "baselineCommit": "d453965bf94e1a19febc02866a21376c20ab0ee5",
+  "branch": "codex/r4-incremental-regression",
+  "scope": "R4 first implementation and free validation only",
+  "realModelCalls": 0,
+  "paidCalls": 0,
+  "tests": {
+    "files": 11,
+    "passed": 96,
+    "log": {
+      "path": "data/r4-incremental-regression/2026-10-12T02-43-58-368Z/tests.log",
+      "bytes": 597,
+      "sha256": "80c9f577b4692edb438fcf0349211be6a42b3f93c308b6796bd4513beb253acd"
+    }
+  },
+  "build": {
+    "passed": true,
+    "node": "24.21.0",
+    "log": {
+      "path": "data/r4-incremental-regression/2026-10-12T02-43-58-368Z/build.log",
+      "bytes": 1334,
+      "sha256": "72e8c4668bdaf83db3cdf59914f96cdcefb944a9d588fa8f423e28023d674975"
+    }
+  },
+  "browser": {
+    "apiScenarios": 12,
+    "workbenchScenarios": 1,
+    "reportsRestoredEqual": 13,
+    "results": [
+      {
+        "mode": "baseline",
+        "runId": "run-524f48af-d839-4c77-8e27-b4797ad5738e",
+        "status": "completed",
+        "coverage": "covered",
+        "product": "verified",
+        "modelRequests": 6,
+        "planningRequests": 2,
+        "actions": 2
+      },
+      {
+        "mode": "healthy",
+        "runId": "run-d327a34f-ce06-4d88-bc40-52d83566d501",
+        "status": "completed",
+        "coverage": "covered",
+        "product": "verified",
+        "modelRequests": 0,
+        "planningRequests": 0,
+        "actions": 2,
+        "reuse": "reused",
+        "reason": "path-remeasured"
+      },
+      {
+        "mode": "display",
+        "runId": "run-f28bd59d-594f-48f1-8216-9fa35139f07c",
+        "status": "completed",
+        "coverage": "covered",
+        "product": "verified",
+        "modelRequests": 0,
+        "planningRequests": 0,
+        "actions": 2,
+        "reuse": "reused",
+        "reason": "path-remeasured"
+      },
+      {
+        "mode": "defect",
+        "runId": "run-f1b5f6a6-f1db-412f-94eb-7441d8a61b1a",
+        "status": "completed",
+        "coverage": "covered",
+        "product": "failed",
+        "modelRequests": 0,
+        "planningRequests": 0,
+        "actions": 2,
+        "reuse": "measured-failure",
+        "reason": "new-measurement-failed"
+      },
+      {
+        "mode": "source-changed",
+        "runId": "run-3815a641-37e2-4ce5-b291-75c8279a28a3",
+        "status": "completed",
+        "coverage": "covered",
+        "product": "verified",
+        "modelRequests": 6,
+        "planningRequests": 2,
+        "actions": 2,
+        "reuse": "handoff",
+        "reason": "source-version-mismatch"
+      },
+      {
+        "mode": "ambiguous",
+        "runId": "run-a85c1105-dfae-410b-8bd4-3dafab0a2113",
+        "status": "blocked",
+        "coverage": "partial",
+        "product": "unverified",
+        "modelRequests": 2,
+        "planningRequests": 0,
+        "actions": 1,
+        "reuse": "handoff",
+        "reason": "product-target-not-unique-source-match"
+      },
+      {
+        "mode": "missing",
+        "runId": "run-ee596900-2d3e-4172-8a31-784b85c97d42",
+        "status": "blocked",
+        "coverage": "partial",
+        "product": "unverified",
+        "modelRequests": 2,
+        "planningRequests": 0,
+        "actions": 1,
+        "reuse": "handoff",
+        "reason": "target-missing-or-ambiguous"
+      },
+      {
+        "mode": "changed-target",
+        "runId": "run-4c40a359-1822-405d-b4bb-24171c5f0b08",
+        "status": "blocked",
+        "coverage": "partial",
+        "product": "unverified",
+        "modelRequests": 2,
+        "planningRequests": 0,
+        "actions": 0,
+        "reuse": "handoff",
+        "reason": "target-description-changed"
+      },
+      {
+        "mode": "precondition",
+        "runId": "run-9f1e8a5e-1dd6-4c2f-9337-5b91521d1351",
+        "status": "blocked",
+        "coverage": "partial",
+        "product": "unverified",
+        "modelRequests": 2,
+        "planningRequests": 0,
+        "actions": 0,
+        "reuse": "handoff",
+        "reason": "product-precondition-missing"
+      },
+      {
+        "mode": "dispatch-rename",
+        "runId": "run-5a86269f-2a90-421d-a8f3-654b5cc6d2a6",
+        "status": "blocked",
+        "coverage": "partial",
+        "product": "unverified",
+        "modelRequests": 2,
+        "planningRequests": 0,
+        "actions": 0,
+        "reuse": "handoff",
+        "reason": "target-description-changed"
+      },
+      {
+        "mode": "execution-error",
+        "runId": "run-1d786d75-8477-4985-bcfb-d876a79d6a5f",
+        "status": "execution-error",
+        "coverage": "partial",
+        "product": "unverified",
+        "modelRequests": 0,
+        "planningRequests": 0,
+        "actions": 1,
+        "reuse": "interrupted"
+      },
+      {
+        "mode": "cancel",
+        "runId": "run-0869d7a8-82fd-4fa5-94d7-5ae9061ae043",
+        "status": "cancelled",
+        "coverage": "partial",
+        "product": "unverified",
+        "modelRequests": 0,
+        "planningRequests": 0,
+        "actions": 1,
+        "reuse": "interrupted"
+      }
+    ],
+    "workbenchRunId": "run-c3939584-06ee-4c15-acf1-bdeba6a6e76e",
+    "screenshot": {
+      "path": "data/r4-incremental-regression/2026-10-12T02-43-58-368Z/regression-workbench.png",
+      "bytes": 81554,
+      "sha256": "4db01f6cae2ad402f5f4039907d7b86f9a5c04d91a5f3b2fc20813eebde3e8ee"
+    },
+    "picker": {
+      "path": "data/r4-incremental-regression/2026-10-12T02-43-58-368Z/regression-picker.png",
+      "bytes": 42563,
+      "sha256": "61c8e758acd366ae2b9a0f59ac4b6168d1da6964246086ae13d03cb317b7bc05"
+    }
+  },
+  "evidence": {
+    "workspace": "/Users/xietian/.codex/worktrees/r4-incremental-regression/ui-sentinel",
+    "root": "data/r4-incremental-regression/2026-10-12T02-43-58-368Z",
+    "manifest": {
+      "path": "data/r4-incremental-regression/2026-10-12T02-43-58-368Z/evidence-manifest.json",
+      "bytes": 158284,
+      "sha256": "0a889be080265e66f21612ebeb46301256be52b661df46023b2d2015597b48da"
+    },
+    "files": 719,
+    "artifactFiles": 652,
+    "inputManifest": {
+      "path": "data/r4-incremental-regression/2026-10-12T02-43-58-368Z/inputs.json",
+      "bytes": 96980,
+      "sha256": "3f96da3c6b429e60ccf976da63a4537ccd0e2a159d183a4541c2cabaefa1c63e"
+    },
+    "inputFiles": 604
+  },
+  "developmentNotes": [
+    "First comparison conservatively returned unknown because a non-dependency ancestor aggregate text was truncated; comparison now explicitly covers complete leaf/dependency facts and excludes ancestor aggregate text. Original reports remain in data/r4-incremental-regression/2026-10-12T02-35-52-741Z.",
+    "An initial screenshot captured polling mid-run, not the final report. The final workbench test waits for both verified steps before capturing.",
+    "Self-review added pre-dispatch invalidation facts; final dispatch-rename case verifies zero action and leaves the unreached next step unchecked, not invalidated."
+  ],
+  "limits": [
+    "Single exact entry, one 1-3 step anonymous local path; no structure migration or automatic partial replanning.",
+    "Comparison is advisory; success requires fresh original action, measurement and completion proof.",
+    "Fixed local model responses verify wiring, not real model adoption, savings or website generalization.",
+    "No new paid authorization, full R0/R2/R3 acceptance, push, merge or central roadmap change."
+  ]
+}

@@ -1,3 +1,4 @@
+import { compareIdentity, compareStep } from './changes.ts'
 import { matchTarget, validPathProgram, type PathProgram } from './library.ts'
 import { productTarget } from '../../inspection/product-path.ts'
 import type { PublicCheckPage } from '../../inspection/check-contract.ts'
@@ -38,6 +39,7 @@ export async function runPathProgram(
   program: PathProgram | undefined,
   host: {
     programId: string
+    baselinePages?: (PublicCheckPage | undefined)[]
     contract: UiContractSnapshot
     guard(): void
     clean(): boolean
@@ -92,6 +94,7 @@ export async function runPathProgram(
   await host.emit('path-reuse:started', { programId: host.programId })
   if (!program || !validPathProgram(program))
     return finish('handoff', 'program-unavailable-or-invalid')
+  await host.emit('path-regression:identity', compareIdentity(program, host.contract))
   const source = host.contract.productSource
   if (program.entryUrl !== host.contract.entryUrl || program.origin !== host.contract.origin)
     return finish('handoff', 'entry-or-origin-mismatch')
@@ -115,6 +118,10 @@ export async function runPathProgram(
     let witnesses: { selector: string; identity: string }[]
     try {
       const page = await host.page()
+      await host.emit(
+        'path-regression:observed',
+        compareStep(program, index, host.baselinePages?.[index], page),
+      )
       if (page.url !== program.entryUrl) throw Error('entry-or-origin-mismatch')
       const control = matchTarget(page, binding.control)
       productTarget(program.plan.steps[index]!, page, control.selector)
@@ -173,8 +180,15 @@ export async function runPathProgram(
           matchTarget(page, target)
         productTarget(program.plan.steps[index]!, page, binding.control.selector)
       } catch (error) {
-        if (error instanceof Error && bindingReasons.has(error.message))
+        if (error instanceof Error && bindingReasons.has(error.message)) {
+          await host.emit('path-regression:invalidated', {
+            index,
+            reason: error.message,
+            stage: 'before-dispatch',
+            comparison: compareStep(program, index, host.baselinePages?.[index], page),
+          })
           throw new PathReuseInvalidated(error.message)
+        }
         throw error
       }
     }

@@ -1,3 +1,4 @@
+import { RegressionReport } from './regression-report.tsx'
 import { useState } from 'react'
 import { UI_CHECK_DESCRIPTION, UI_SAMPLING_DESCRIPTION } from '../shared/ui-sampling-policy.ts'
 import type { UiScanReport } from '../server/reports/ui-scan-report.ts'
@@ -78,6 +79,7 @@ function Coverage({ report, runId }: { report: UiScanReport; runId: string }) {
         边界：匿名会话 · 不提交业务操作 · 仅支持 GET 型数据 · 有界采样（最多{' '}
         {report.contract.scope.maxPages} 页，深度 {report.contract.scope.maxDepth}）
       </p>
+      {report.regression && <RegressionReport report={report.regression} />}
       {report.pathReuse && (
         <section aria-label="路径复用报告">
           <h3>

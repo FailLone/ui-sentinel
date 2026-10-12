@@ -72,6 +72,7 @@ const uiScanBodySchema = z
     requiredChecks: uiScanRequestSchema.shape.requiredChecks,
     productSource: uiScanRequestSchema.shape.productSource,
     pathProgramId: uiScanRequestSchema.shape.pathProgramId,
+    baselineRunId: uiScanRequestSchema.shape.baselineRunId,
     entryUrl: z.string().min(1).max(4096),
     goal: z.string().trim().max(2000).optional(),
     scope: z
@@ -251,6 +252,23 @@ async function createUiScanRun(c: Context, raw: unknown) {
   if (!parsed.success)
     return c.json({ error: 'invalid-request', details: parsed.error.issues }, 400)
   const body = parsed.data
+  let selectedProgram: Awaited<ReturnType<typeof checkedPathProgram>> | undefined
+  if (body.baselineRunId) {
+    if (body.pathProgramId || !body.productSource)
+      return c.json({ error: 'baseline-requires-current-source-and-no-manual-path' }, 400)
+    if (!canCreateRun(c.req.header('authorization')))
+      return c.json({ error: 'evaluation-in-progress' }, 409)
+    try {
+      const program = await checkedPathProgram(body.baselineRunId)
+      if (new URL(body.entryUrl).href !== program.entryUrl)
+        return c.json({ error: 'baseline-entry-mismatch' }, 400)
+      // Original save validation is authoritative, including current readability of old evidence.
+      selectedProgram = program
+      body.pathProgramId = program.id
+    } catch (error) {
+      return c.json({ error: error instanceof Error ? error.message : 'baseline-unavailable' }, 409)
+    }
+  }
   if (body.productSource && !config.features.productSources)
     return c.json(
       { error: 'product-sources-disabled', message: 'Product source intake is not enabled.' },
@@ -305,6 +323,7 @@ async function createUiScanRun(c: Context, raw: unknown) {
   return withAdmission(async () => {
     if (!canCreateRun(c.req.header('authorization')))
       return c.json({ error: 'evaluation-in-progress' }, 409)
+    if (selectedProgram) await savePathProgram(selectedProgram)
     const run = await createRun({
       goal: contract.goal,
       kind: 'ui-scan',
@@ -445,12 +464,10 @@ runRoutes.get('/api/runs/:id/artifacts/:artifactId', async (c) => {
   }
 })
 
-/** Save only a server-verified healthy run; request bodies cannot author executable programs. */
-runRoutes.post('/api/runs/:id/path-program', async (c) => {
-  if (!canCreateRun(c.req.header('authorization')))
-    return c.json({ error: 'evaluation-in-progress' }, 409)
-  const run = await getRun(c.req.param('id'))
-  if (!run) return c.json({ error: 'not found' }, 404)
+/** One health gate for explicit saves and historical-run selections. */
+async function checkedPathProgram(id: string) {
+  const run = await getRun(id)
+  if (!run) throw Error('baseline-unavailable')
   const report = await buildReport(run.id)
   if (
     !report ||
@@ -463,9 +480,49 @@ runRoutes.post('/api/runs/:id/path-program', async (c) => {
     report.conclusion.supportedFindingIds.length ||
     report.conclusion.unresolvedFindingIds.length
   )
-    return c.json({ error: 'complete-healthy-evidenced-path-required' }, 409)
+    throw Error('complete-healthy-evidenced-path-required')
+  return derivePathProgram(run.id, run.spec.uiContract!, await getEvents(run.id))
+}
+
+/** Bounded exact-entry discovery. Never opens the website or starts a model request. */
+runRoutes.get('/api/regression-baselines', async (c) => {
+  let entryUrl: string
   try {
-    const program = derivePathProgram(run.id, run.spec.uiContract!, await getEvents(run.id))
+    entryUrl = new URL(c.req.query('entryUrl') ?? '').href
+  } catch {
+    return c.json({ error: 'invalid-entry-url' }, 400)
+  }
+  const rows = await getDbClient().execute({
+    sql: "SELECT id,created_at FROM runs WHERE status='completed' AND json_extract(spec,'$.uiContract.entryUrl')=? ORDER BY created_at DESC,id DESC LIMIT 20",
+    args: [entryUrl],
+  })
+  const candidates = []
+  for (const row of rows.rows) {
+    try {
+      const program = await checkedPathProgram(String(row.id))
+      candidates.push({
+        runId: program.provenance.runId,
+        title: program.plan.title,
+        createdAt: String(row.created_at),
+        sourceVersion: program.source.version,
+        steps: program.plan.steps.map((s) => s.title),
+        recommendation: 'try-remeasure',
+        message: '历史健康路径可作为候选；提交本次资料后核对来源，并逐步重新观察和测量。',
+      })
+    } catch {
+      /* Incomplete or unreadable history is not offered as a healthy candidate. */
+    }
+  }
+  return c.json({ entryUrl, candidates, limit: 20 })
+})
+
+/** Save only a server-verified healthy run; bodies cannot author executable programs. */
+runRoutes.post('/api/runs/:id/path-program', async (c) => {
+  if (!canCreateRun(c.req.header('authorization')))
+    return c.json({ error: 'evaluation-in-progress' }, 409)
+  if (!(await getRun(c.req.param('id')))) return c.json({ error: 'not found' }, 404)
+  try {
+    const program = await checkedPathProgram(c.req.param('id'))
     await savePathProgram(program)
     return c.json({ program }, 201)
   } catch (error) {
