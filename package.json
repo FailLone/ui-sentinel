@@ -16,6 +16,7 @@
     "test:watch": "vitest",
     "arena:reset": "tsx scripts/cli/arena-reset.ts",
     "smoke:model": "tsx scripts/cli/smoke-model.ts",
+    "explore:local": "tsx scripts/cli/explore-local.ts",
     "evaluate": "tsx scripts/cli/evaluate.ts",
     "report": "tsx scripts/cli/report.ts",
     "build:web": "vite build --config src/web/vite.config.ts",
